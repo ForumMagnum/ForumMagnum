@@ -5738,6 +5738,7 @@ interface ResearchConversation {
   userTurnCount: number | null;
   lastActivityAt: Date | null;
   lastReadAt: Date | null;
+  archived: boolean | null;
 }
 
 interface SingleResearchConversationInput {
@@ -5753,9 +5754,14 @@ interface ResearchConversationsByProjectInput {
   projectId?: string | null;
 }
 
+interface ResearchConversationsByProjectArchivedInput {
+  projectId?: string | null;
+}
+
 interface ResearchConversationSelector {
   default: EmptyViewInput | null;
   byProject: ResearchConversationsByProjectInput | null;
+  byProjectArchived: ResearchConversationsByProjectArchivedInput | null;
 }
 
 interface MultiResearchConversationInput {
@@ -5778,6 +5784,7 @@ interface ResearchDocument {
   title: string | null;
   icon: string | null;
   sortOrder: number | null;
+  archived: boolean | null;
   contents: Revision | null;
   contents_latest: string | null;
   revisions: Array<Revision> | null;
@@ -5797,9 +5804,14 @@ interface ResearchDocumentsByProjectInput {
   projectId?: string | null;
 }
 
+interface ResearchDocumentsByProjectArchivedInput {
+  projectId?: string | null;
+}
+
 interface ResearchDocumentSelector {
   default: EmptyViewInput | null;
   byProject: ResearchDocumentsByProjectInput | null;
+  byProjectArchived: ResearchDocumentsByProjectArchivedInput | null;
 }
 
 interface MultiResearchDocumentInput {
@@ -5822,6 +5834,7 @@ interface ResearchEnvironment {
   label: string | null;
   vercelSnapshotId: string | null;
   sourceEventId: string | null;
+  archived: boolean | null;
 }
 
 interface SingleResearchEnvironmentInput {
@@ -5837,9 +5850,14 @@ interface ResearchEnvironmentsByProjectInput {
   projectId?: string | null;
 }
 
+interface ResearchEnvironmentsByProjectArchivedInput {
+  projectId?: string | null;
+}
+
 interface ResearchEnvironmentSelector {
   default: EmptyViewInput | null;
   byProject: ResearchEnvironmentsByProjectInput | null;
+  byProjectArchived: ResearchEnvironmentsByProjectArchivedInput | null;
 }
 
 interface MultiResearchEnvironmentInput {
@@ -8335,6 +8353,7 @@ interface UpdateResearchConversationDataInput {
   baseEnvironmentId?: string | null;
   runtime?: string | null;
   lastActivityAt?: Date | null;
+  archived?: boolean | null;
 }
 
 interface UpdateResearchConversationInput {
@@ -8348,6 +8367,7 @@ interface UpdateResearchEnvironmentDataInput {
   label?: string | null;
   vercelSnapshotId?: string | null;
   sourceEventId?: string | null;
+  archived?: boolean | null;
 }
 
 interface UpdateResearchEnvironmentInput {
@@ -8375,6 +8395,7 @@ interface UpdateResearchDocumentDataInput {
   projectId?: string | null;
   title?: string | null;
   icon?: string | null;
+  archived?: boolean | null;
   contents?: CreateRevisionDataInput | null;
 }
 
@@ -9758,6 +9779,7 @@ interface GraphQLTypeMap {
   SingleResearchConversationInput: SingleResearchConversationInput;
   SingleResearchConversationOutput: SingleResearchConversationOutput;
   ResearchConversationsByProjectInput: ResearchConversationsByProjectInput;
+  ResearchConversationsByProjectArchivedInput: ResearchConversationsByProjectArchivedInput;
   ResearchConversationSelector: ResearchConversationSelector;
   MultiResearchConversationInput: MultiResearchConversationInput;
   MultiResearchConversationOutput: MultiResearchConversationOutput;
@@ -9765,6 +9787,7 @@ interface GraphQLTypeMap {
   SingleResearchDocumentInput: SingleResearchDocumentInput;
   SingleResearchDocumentOutput: SingleResearchDocumentOutput;
   ResearchDocumentsByProjectInput: ResearchDocumentsByProjectInput;
+  ResearchDocumentsByProjectArchivedInput: ResearchDocumentsByProjectArchivedInput;
   ResearchDocumentSelector: ResearchDocumentSelector;
   MultiResearchDocumentInput: MultiResearchDocumentInput;
   MultiResearchDocumentOutput: MultiResearchDocumentOutput;
@@ -9772,6 +9795,7 @@ interface GraphQLTypeMap {
   SingleResearchEnvironmentInput: SingleResearchEnvironmentInput;
   SingleResearchEnvironmentOutput: SingleResearchEnvironmentOutput;
   ResearchEnvironmentsByProjectInput: ResearchEnvironmentsByProjectInput;
+  ResearchEnvironmentsByProjectArchivedInput: ResearchEnvironmentsByProjectArchivedInput;
   ResearchEnvironmentSelector: ResearchEnvironmentSelector;
   MultiResearchEnvironmentInput: MultiResearchEnvironmentInput;
   MultiResearchEnvironmentOutput: MultiResearchEnvironmentOutput;

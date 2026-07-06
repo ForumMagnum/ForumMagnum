@@ -2369,7 +2369,8 @@ CREATE TABLE "ResearchConversations" (
   "runtime" TEXT,
   "presentationHtml" TEXT,
   "lastActivityAt" TIMESTAMPTZ NOT NULL,
-  "lastReadAt" TIMESTAMPTZ
+  "lastReadAt" TIMESTAMPTZ,
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchConversations_projectId_lastActivityAt"
@@ -2387,6 +2388,7 @@ CREATE TABLE "ResearchDocuments" (
   "title" TEXT,
   "icon" TEXT,
   "sortOrder" DOUBLE PRECISION,
+  "archived" BOOL NOT NULL DEFAULT FALSE,
   "contents_latest" TEXT
 );
 
@@ -2404,7 +2406,8 @@ CREATE TABLE "ResearchEnvironments" (
   "projectId" VARCHAR(27) NOT NULL,
   "label" TEXT NOT NULL,
   "vercelSnapshotId" TEXT NOT NULL,
-  "sourceEventId" VARCHAR(27)
+  "sourceEventId" VARCHAR(27),
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchEnvironments_projectId_createdAt"

@@ -433,6 +433,7 @@ export const researchResolversMutations = {
         icon: null,
         claudeSessionId,
         presentationHtml: null,
+        archived: false,
         lastActivityAt: now,
         lastReadAt: now,
         createdAt: now,
@@ -718,6 +719,7 @@ export const researchResolversMutations = {
         label: built.label,
         vercelSnapshotId: built.vercelSnapshotId,
         sourceEventId: built.sourceEventId,
+        archived: false,
         createdAt: new Date(),
       });
     } catch (err) {

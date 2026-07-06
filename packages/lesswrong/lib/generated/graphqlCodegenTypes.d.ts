@@ -8906,6 +8906,7 @@ type ReportsAdminClaimedReportsInput = {
 type ResearchConversation = {
   __typename?: 'ResearchConversation';
   _id: Scalars['String']['output'];
+  archived?: Maybe<Scalars['Boolean']['output']>;
   baseEnvironmentId?: Maybe<Scalars['String']['output']>;
   claudeSessionId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -8947,6 +8948,7 @@ type ResearchConversationOutput = {
 
 type ResearchConversationSelector = {
   byProject?: InputMaybe<ResearchConversationsByProjectInput>;
+  byProjectArchived?: InputMaybe<ResearchConversationsByProjectArchivedInput>;
   default?: InputMaybe<EmptyViewInput>;
 };
 
@@ -8958,6 +8960,10 @@ type ResearchConversationSidebarStatus = {
   turnActive: Scalars['Boolean']['output'];
 };
 
+type ResearchConversationsByProjectArchivedInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
+};
+
 type ResearchConversationsByProjectInput = {
   projectId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -8965,6 +8971,7 @@ type ResearchConversationsByProjectInput = {
 type ResearchDocument = {
   __typename?: 'ResearchDocument';
   _id: Scalars['String']['output'];
+  archived?: Maybe<Scalars['Boolean']['output']>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -8994,7 +9001,12 @@ type ResearchDocumentOutput = {
 
 type ResearchDocumentSelector = {
   byProject?: InputMaybe<ResearchDocumentsByProjectInput>;
+  byProjectArchived?: InputMaybe<ResearchDocumentsByProjectArchivedInput>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchDocumentsByProjectArchivedInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ResearchDocumentsByProjectInput = {
@@ -9008,6 +9020,7 @@ type ResearchEntrypointKind =
 type ResearchEnvironment = {
   __typename?: 'ResearchEnvironment';
   _id: Scalars['String']['output'];
+  archived?: Maybe<Scalars['Boolean']['output']>;
   createdAt: Scalars['Date']['output'];
   label?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
@@ -9023,7 +9036,12 @@ type ResearchEnvironmentOutput = {
 
 type ResearchEnvironmentSelector = {
   byProject?: InputMaybe<ResearchEnvironmentsByProjectInput>;
+  byProjectArchived?: InputMaybe<ResearchEnvironmentsByProjectArchivedInput>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchEnvironmentsByProjectArchivedInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ResearchEnvironmentsByProjectInput = {
@@ -11219,6 +11237,7 @@ type UpdateReportInput = {
 };
 
 type UpdateResearchConversationDataInput = {
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   baseEnvironmentId?: InputMaybe<Scalars['String']['input']>;
   claudeSessionId?: InputMaybe<Scalars['String']['input']>;
   entrypointDocumentId?: InputMaybe<Scalars['String']['input']>;
@@ -11237,6 +11256,7 @@ type UpdateResearchConversationInput = {
 };
 
 type UpdateResearchDocumentDataInput = {
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   contents?: InputMaybe<CreateRevisionDataInput>;
   icon?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
@@ -11250,6 +11270,7 @@ type UpdateResearchDocumentInput = {
 };
 
 type UpdateResearchEnvironmentDataInput = {
+  archived?: InputMaybe<Scalars['Boolean']['input']>;
   label?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
   sourceEventId?: InputMaybe<Scalars['String']['input']>;
@@ -18231,6 +18252,51 @@ type RenameResearchEnvironmentSidebarMutationVariables = Exact<{
 
 type RenameResearchEnvironmentSidebarMutation = RenameResearchEnvironmentSidebarMutation_Mutation;
 
+type ArchiveResearchDocumentMutation_updateResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, archived: boolean | null };
+
+type ArchiveResearchDocumentMutation_updateResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: ArchiveResearchDocumentMutation_updateResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
+
+type ArchiveResearchDocumentMutation_Mutation = { __typename?: 'Mutation', updateResearchDocument: ArchiveResearchDocumentMutation_updateResearchDocument_ResearchDocumentOutput | null };
+
+
+type ArchiveResearchDocumentMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  archived: Scalars['Boolean']['input'];
+}>;
+
+
+type ArchiveResearchDocumentMutation = ArchiveResearchDocumentMutation_Mutation;
+
+type ArchiveResearchConversationMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, archived: boolean | null };
+
+type ArchiveResearchConversationMutation_updateResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', data: ArchiveResearchConversationMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation | null };
+
+type ArchiveResearchConversationMutation_Mutation = { __typename?: 'Mutation', updateResearchConversation: ArchiveResearchConversationMutation_updateResearchConversation_ResearchConversationOutput | null };
+
+
+type ArchiveResearchConversationMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  archived: Scalars['Boolean']['input'];
+}>;
+
+
+type ArchiveResearchConversationMutation = ArchiveResearchConversationMutation_Mutation;
+
+type ArchiveResearchEnvironmentMutation_updateResearchEnvironment_ResearchEnvironmentOutput_data_ResearchEnvironment = { __typename?: 'ResearchEnvironment', _id: string, archived: boolean | null };
+
+type ArchiveResearchEnvironmentMutation_updateResearchEnvironment_ResearchEnvironmentOutput = { __typename?: 'ResearchEnvironmentOutput', data: ArchiveResearchEnvironmentMutation_updateResearchEnvironment_ResearchEnvironmentOutput_data_ResearchEnvironment | null };
+
+type ArchiveResearchEnvironmentMutation_Mutation = { __typename?: 'Mutation', updateResearchEnvironment: ArchiveResearchEnvironmentMutation_updateResearchEnvironment_ResearchEnvironmentOutput | null };
+
+
+type ArchiveResearchEnvironmentMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  archived: Scalars['Boolean']['input'];
+}>;
+
+
+type ArchiveResearchEnvironmentMutation = ArchiveResearchEnvironmentMutation_Mutation;
+
 type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null };
 
 type ResearchConversationSidebarStatusesQuery_Query = { __typename?: 'Query', researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus> };
@@ -18480,11 +18546,19 @@ type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_resu
 
 type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
 
+type ProjectSidebarQueryQuery_archivedDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, icon: string | null, createdAt: string };
+
+type ProjectSidebarQueryQuery_archivedDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_archivedDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
 type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, icon: string | null, lastActivityAt: string | null, entrypointKind: ResearchEntrypointKind | null, entrypointDocumentId: string | null };
 
 type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
 
-type ProjectSidebarQueryQuery_Query = { __typename?: 'Query', researchProject: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput | null, researchDocuments: ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput | null };
+type ProjectSidebarQueryQuery_archivedConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, icon: string | null, lastActivityAt: string | null, entrypointKind: ResearchEntrypointKind | null, entrypointDocumentId: string | null };
+
+type ProjectSidebarQueryQuery_archivedConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_archivedConversations_MultiResearchConversationOutput_results_ResearchConversation> };
+
+type ProjectSidebarQueryQuery_Query = { __typename?: 'Query', researchProject: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput | null, researchDocuments: ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, archivedDocuments: ProjectSidebarQueryQuery_archivedDocuments_MultiResearchDocumentOutput | null, researchConversations: ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput | null, archivedConversations: ProjectSidebarQueryQuery_archivedConversations_MultiResearchConversationOutput | null };
 
 
 type ProjectSidebarQueryQueryVariables = Exact<{
@@ -18498,7 +18572,11 @@ type ResearchEnvironmentsByProjectQueryQuery_researchEnvironments_MultiResearchE
 
 type ResearchEnvironmentsByProjectQueryQuery_researchEnvironments_MultiResearchEnvironmentOutput = { __typename?: 'MultiResearchEnvironmentOutput', results: Array<ResearchEnvironmentsByProjectQueryQuery_researchEnvironments_MultiResearchEnvironmentOutput_results_ResearchEnvironment> };
 
-type ResearchEnvironmentsByProjectQueryQuery_Query = { __typename?: 'Query', researchEnvironments: ResearchEnvironmentsByProjectQueryQuery_researchEnvironments_MultiResearchEnvironmentOutput | null };
+type ResearchEnvironmentsByProjectQueryQuery_archivedEnvironments_MultiResearchEnvironmentOutput_results_ResearchEnvironment = { __typename?: 'ResearchEnvironment', _id: string, label: string | null, sourceEventId: string | null, createdAt: string };
+
+type ResearchEnvironmentsByProjectQueryQuery_archivedEnvironments_MultiResearchEnvironmentOutput = { __typename?: 'MultiResearchEnvironmentOutput', results: Array<ResearchEnvironmentsByProjectQueryQuery_archivedEnvironments_MultiResearchEnvironmentOutput_results_ResearchEnvironment> };
+
+type ResearchEnvironmentsByProjectQueryQuery_Query = { __typename?: 'Query', researchEnvironments: ResearchEnvironmentsByProjectQueryQuery_researchEnvironments_MultiResearchEnvironmentOutput | null, archivedEnvironments: ResearchEnvironmentsByProjectQueryQuery_archivedEnvironments_MultiResearchEnvironmentOutput | null };
 
 
 type ResearchEnvironmentsByProjectQueryQueryVariables = Exact<{

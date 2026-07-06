@@ -130,7 +130,16 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     '.research-active .Header-root': {
       display: 'none !important',
     },
-    '.research-active .Header-headerHeight': {
+    // Zero out the header-height custom property for the whole research
+    // subtree. `--header-height` is declared 64px on the HeaderHeightProvider
+    // span that *wraps* the page, so `.research-active` (on
+    // PageBackgroundWrapper) is a descendant of it — a `.research-active
+    // .Header-headerHeight` selector can never match. Declaring the property
+    // on `.research-active` itself overrides the inherited value for
+    // everything inside, so the full-viewport editor's
+    // `min-height: calc(100vh - var(--header-height))` fills the pane instead
+    // of leaving a 64px gap at the bottom.
+    '.research-active': {
       '--header-height': '0px',
     },
     '.research-active .RouteRootClient-centralColumn': {
