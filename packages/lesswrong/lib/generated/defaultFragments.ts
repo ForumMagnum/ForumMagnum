@@ -1291,23 +1291,11 @@ export const SpotlightsDefaultFragment = `
     description_latest
     documentId
     documentType
-    position
-    duration
-    customTitle
-    customSubtitle
-    subtitleUrl
-    headerTitle
-    headerTitleLeftColor
-    headerTitleRightColor
-    lastPromotedAt
-    spotlightSplashImageUrl
-    draft
-    deletedDraft
-    showAuthor
-    imageFade
+    title
+    startAt
+    endAt
     imageFadeColor
-    spotlightImageId
-    spotlightDarkImageId
+    imageId
   }
 `;
 

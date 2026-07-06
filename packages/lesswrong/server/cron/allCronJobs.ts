@@ -14,7 +14,6 @@ import { prunePerfMetricsCron } from "@/server/prunePerfMetricsCron";
 import { clearStaleRecommendationsCron } from "@/server/recommendations/recommedationsCron";
 import { clearArbitalCacheCron } from "@/server/resolvers/arbitalPageData";
 import { addNewRSSPostsCron } from "@/server/rss-integration/cron";
-import { updatePromotedSpotlightItemCron } from "@/server/spotlightCron";
 import { runTwitterBotCron } from "@/server/twitterBot";
 import { sendJobAdReminderEmailsCron } from "@/server/userJobAdCron";
 import { updateUserActivitiesCron } from "@/server/useractivities/cron";
@@ -42,7 +41,6 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   clearStaleRecommendationsCron,
   clearArbitalCacheCron,
   addNewRSSPostsCron,
-  updatePromotedSpotlightItemCron,
   runTwitterBotCron,
   updateUserActivitiesCron,
   sendJobAdReminderEmailsCron,

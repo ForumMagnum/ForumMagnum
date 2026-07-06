@@ -1349,28 +1349,16 @@ type SpotlightsCollection = CollectionBase<"Spotlights">;
 interface DbSpotlight extends DbObject {
   __collectionName?: "Spotlights"
   createdAt: Date
-  customSubtitle: string | null
-  customTitle: string | null
-  deletedDraft: boolean
   description: EditableFieldContents | null
   description_latest: string | null
   documentId: string
   documentType: SpotlightDocumentType
-  draft: boolean
-  duration: number
-  headerTitle: string | null
-  headerTitleLeftColor: string | null
-  headerTitleRightColor: string | null
-  imageFade: boolean
+  endAt: Date | null
   imageFadeColor: string | null
-  lastPromotedAt: Date
+  imageId: string | null
   legacyData: any | null
-  position: number
-  showAuthor: boolean
-  spotlightDarkImageId: string | null
-  spotlightImageId: string | null
-  spotlightSplashImageUrl: string | null
-  subtitleUrl: string | null
+  startAt: Date | null
+  title: string | null
 }
 
 type SubscriptionsCollection = CollectionBase<"Subscriptions">;

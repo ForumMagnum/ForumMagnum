@@ -4039,29 +4039,14 @@ type Spotlight {
   description(version: String): Revision
   description_latest: String
   documentId: String!
-  document: Post
   post: Post
   sequence: Sequence
-  tag: Tag
   documentType: String!
-  position: Float!
-  duration: Float!
-  customTitle: String
-  customSubtitle: String
-  subtitleUrl: String
-  headerTitle: String
-  headerTitleLeftColor: String
-  headerTitleRightColor: String
-  lastPromotedAt: Date!
-  spotlightSplashImageUrl: String
-  draft: Boolean!
-  deletedDraft: Boolean!
-  showAuthor: Boolean!
-  imageFade: Boolean!
+  title: String
+  startAt: Date!
+  endAt: Date!
   imageFadeColor: String
-  spotlightImageId: String
-  spotlightDarkImageId: String
-  sequenceChapters: [Chapter]
+  imageId: String
 }
 
 input SingleSpotlightInput {
@@ -6603,22 +6588,11 @@ input CreateSpotlightDataInput {
   description: CreateRevisionDataInput
   documentId: String!
   documentType: String!
-  position: Float
-  duration: Float!
-  customTitle: String
-  customSubtitle: String
-  subtitleUrl: String
-  headerTitle: String
-  headerTitleLeftColor: String
-  headerTitleRightColor: String
-  lastPromotedAt: Date!
-  spotlightSplashImageUrl: String
-  draft: Boolean!
-  showAuthor: Boolean
-  imageFade: Boolean
+  title: String
+  startAt: Date!
+  endAt: Date!
   imageFadeColor: String
-  spotlightImageId: String
-  spotlightDarkImageId: String
+  imageId: String
 }
 
 input CreateSpotlightInput {
@@ -6630,23 +6604,11 @@ input UpdateSpotlightDataInput {
   description: CreateRevisionDataInput
   documentId: String
   documentType: String
-  position: Float
-  duration: Float
-  customTitle: String
-  customSubtitle: String
-  subtitleUrl: String
-  headerTitle: String
-  headerTitleLeftColor: String
-  headerTitleRightColor: String
-  lastPromotedAt: Date
-  spotlightSplashImageUrl: String
-  draft: Boolean
-  deletedDraft: Boolean
-  showAuthor: Boolean
-  imageFade: Boolean
+  title: String
+  startAt: Date
+  endAt: Date
   imageFadeColor: String
-  spotlightImageId: String
-  spotlightDarkImageId: String
+  imageId: String
 }
 
 input UpdateSpotlightInput {
@@ -9784,6 +9746,7 @@ fragment PostsDetails on Post {
   canonicalSource
   noIndex
   viewCount
+  pangramStatusOverride
   tags {
     ...TagPreviewFragment
   }
@@ -10778,19 +10741,6 @@ fragment SpotlightDisplay on Spotlight {
       slug
     }
   }
-  tag {
-    _id
-    name
-    slug
-    user {
-      _id
-      displayName
-      slug
-    }
-  }
-  sequenceChapters {
-    ...ChaptersFragment
-  }
   description {
     html
   }
@@ -10812,42 +10762,23 @@ fragment SpotlightHeaderEventSubtitle on Spotlight {
   sequence {
     _id
   }
-  tag {
-    _id
-    slug
-  }
 }
 
 fragment SpotlightMinimumInfo on Spotlight {
   _id
   documentId
   documentType
-  spotlightImageId
-  spotlightDarkImageId
-  spotlightSplashImageUrl
-  draft
-  deletedDraft
-  position
-  lastPromotedAt
-  customTitle
-  customSubtitle
-  subtitleUrl
-  headerTitle
-  headerTitleLeftColor
-  headerTitleRightColor
-  duration
-  showAuthor
-  imageFade
+  title
+  startAt
+  endAt
   imageFadeColor
+  imageId
 }
 
 fragment SpotlightReviewWinner on Spotlight {
   ...SpotlightMinimumInfo
   description {
     html
-  }
-  sequenceChapters {
-    ...ChaptersFragment
   }
 }
 
@@ -10859,23 +10790,11 @@ fragment SpotlightsDefaultFragment on Spotlight {
   description_latest
   documentId
   documentType
-  position
-  duration
-  customTitle
-  customSubtitle
-  subtitleUrl
-  headerTitle
-  headerTitleLeftColor
-  headerTitleRightColor
-  lastPromotedAt
-  spotlightSplashImageUrl
-  draft
-  deletedDraft
-  showAuthor
-  imageFade
+  title
+  startAt
+  endAt
   imageFadeColor
-  spotlightImageId
-  spotlightDarkImageId
+  imageId
 }
 
 fragment StickySubforumCommentFragment on Comment {

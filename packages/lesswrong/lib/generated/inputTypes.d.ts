@@ -3309,29 +3309,14 @@ interface Spotlight {
   description: Revision | null;
   description_latest: string | null;
   documentId: string;
-  document: Post | null;
   post: Post | null;
   sequence: Sequence | null;
-  tag: Tag | null;
   documentType: string;
-  position: number;
-  duration: number;
-  customTitle: string | null;
-  customSubtitle: string | null;
-  subtitleUrl: string | null;
-  headerTitle: string | null;
-  headerTitleLeftColor: string | null;
-  headerTitleRightColor: string | null;
-  lastPromotedAt: Date;
-  spotlightSplashImageUrl: string | null;
-  draft: boolean;
-  deletedDraft: boolean;
-  showAuthor: boolean;
-  imageFade: boolean;
+  title: string | null;
+  startAt: Date;
+  endAt: Date;
   imageFadeColor: string | null;
-  spotlightImageId: string | null;
-  spotlightDarkImageId: string | null;
-  sequenceChapters: Array<Chapter | null> | null;
+  imageId: string | null;
 }
 
 interface SingleSpotlightInput {
@@ -5639,22 +5624,11 @@ interface CreateSpotlightDataInput {
   description?: CreateRevisionDataInput | null;
   documentId: string;
   documentType: string;
-  position?: number | null;
-  duration: number;
-  customTitle?: string | null;
-  customSubtitle?: string | null;
-  subtitleUrl?: string | null;
-  headerTitle?: string | null;
-  headerTitleLeftColor?: string | null;
-  headerTitleRightColor?: string | null;
-  lastPromotedAt: Date;
-  spotlightSplashImageUrl?: string | null;
-  draft: boolean;
-  showAuthor?: boolean | null;
-  imageFade?: boolean | null;
+  title?: string | null;
+  startAt: Date;
+  endAt: Date;
   imageFadeColor?: string | null;
-  spotlightImageId?: string | null;
-  spotlightDarkImageId?: string | null;
+  imageId?: string | null;
 }
 
 interface CreateSpotlightInput {
@@ -5666,23 +5640,11 @@ interface UpdateSpotlightDataInput {
   description?: CreateRevisionDataInput | null;
   documentId?: string | null;
   documentType?: string | null;
-  position?: number | null;
-  duration?: number | null;
-  customTitle?: string | null;
-  customSubtitle?: string | null;
-  subtitleUrl?: string | null;
-  headerTitle?: string | null;
-  headerTitleLeftColor?: string | null;
-  headerTitleRightColor?: string | null;
-  lastPromotedAt?: Date | null;
-  spotlightSplashImageUrl?: string | null;
-  draft?: boolean | null;
-  deletedDraft?: boolean | null;
-  showAuthor?: boolean | null;
-  imageFade?: boolean | null;
+  title?: string | null;
+  startAt?: Date | null;
+  endAt?: Date | null;
   imageFadeColor?: string | null;
-  spotlightImageId?: string | null;
-  spotlightDarkImageId?: string | null;
+  imageId?: string | null;
 }
 
 interface UpdateSpotlightInput {

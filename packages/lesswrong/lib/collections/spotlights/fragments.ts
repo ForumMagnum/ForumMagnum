@@ -5,23 +5,11 @@ export const SpotlightMinimumInfo = () => frag`
     _id
     documentId
     documentType
-    spotlightImageId
-    spotlightDarkImageId
-    spotlightSplashImageUrl
-    draft
-    deletedDraft
-    position
-    lastPromotedAt
-    customTitle
-    customSubtitle
-    subtitleUrl
-    headerTitle
-    headerTitleLeftColor
-    headerTitleRightColor
-    duration
-    showAuthor
-    imageFade
+    title
+    startAt
+    endAt
     imageFadeColor
+    imageId
   }
 `
 
@@ -30,9 +18,6 @@ export const SpotlightReviewWinner = () => frag`
     ...SpotlightMinimumInfo
     description {
       html
-    }
-    sequenceChapters {
-      ...ChaptersFragment
     }
   }
 `
@@ -46,10 +31,6 @@ export const SpotlightHeaderEventSubtitle = () => frag`
     }
     sequence {
       _id
-    }
-    tag {
-      _id
-      slug
     }
   }
 `
@@ -75,19 +56,6 @@ export const SpotlightDisplay = () => frag`
         displayName
         slug
       }
-    }
-    tag {
-      _id
-      name
-      slug
-      user {
-        _id
-        displayName
-        slug
-      }
-    }
-    sequenceChapters {
-      ...ChaptersFragment
     }
     description {
       html

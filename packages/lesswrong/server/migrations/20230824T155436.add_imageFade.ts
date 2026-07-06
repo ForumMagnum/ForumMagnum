@@ -20,10 +20,12 @@
 export const acceptsSchemaHash = "4acff74195e36da33248763ab681bfd7";
 
 import Spotlights from "../../server/collections/spotlights/collection";
-import { addField, dropField } from "./meta/utils";
+import { BoolType, DefaultValueType, NotNullType } from "../sql/Type";
+import { addRemovedField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Spotlights, "imageFade");
+  await addRemovedField(db, Spotlights, "imageFade",
+    new DefaultValueType(new NotNullType(new BoolType()), true));
 }
 
 export const down = async ({db}: MigrationContext) => {

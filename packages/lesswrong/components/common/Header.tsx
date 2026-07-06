@@ -26,7 +26,6 @@ import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
-import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
 import ActiveDialogues from "../dialogues/ActiveDialogues";
@@ -63,9 +62,6 @@ const textColorOverrideStyles = ({
   color,
   boxShadow: 'none',
   "& .Header-titleLink": {
-    color,
-  },
-  "& .HeaderSubtitle-subtitle": {
     color,
   },
   "& .SearchBar-searchIcon": {
@@ -576,7 +572,6 @@ const Header = ({
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
-                    <HeaderSubtitle />
                   </div>
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
