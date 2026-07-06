@@ -151,8 +151,7 @@ export async function newPostTriggerPangram({document, context}: AfterCreateCall
   void maybeRunPangramOnPost(document, context).catch(captureException);
 }
 
-export async function undraftedPostTriggerPangram({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
-  if (!isBeingUndrafted(oldDocument, newDocument)) return;
+export async function updatedPostTriggerPangram({newDocument, context}: UpdateCallbackProperties<'Posts'>) {
   void maybeRunPangramOnPost(newDocument, context).catch(captureException);
 }
 
