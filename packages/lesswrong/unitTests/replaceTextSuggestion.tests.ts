@@ -13,12 +13,17 @@ import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
-async function replaceTextAsSuggestion(
+interface ReplaceTextSuggestionResult {
+  replaced: boolean
+  failureReason?: string
+}
+
+async function replaceTextAsSuggestionResult(
   editor: LexicalEditor,
   quote: string,
   replacement: string,
-): Promise<boolean> {
-  let replaced = false;
+): Promise<ReplaceTextSuggestionResult> {
+  let suggestionResult: ReplaceTextSuggestionResult = { replaced: false };
   await runEditorUpdate(editor, () => {
     const result = $locateQuoteWithTextIndex(quote);
     if (!result.found || !result.anchor || !result.focus) return;
@@ -28,9 +33,20 @@ async function replaceTextAsSuggestion(
       editor, anchor, focus, quote, replacement, range: result.range, suggestionId: randomId(),
       markdownIt: getMarkdownItForAgentPosts(),
     });
-    replaced = narrowingResult.replaced;
+    suggestionResult = {
+      replaced: narrowingResult.replaced,
+      failureReason: narrowingResult.failureReason,
+    };
   });
-  return replaced;
+  return suggestionResult;
+}
+
+async function replaceTextAsSuggestion(
+  editor: LexicalEditor,
+  quote: string,
+  replacement: string,
+): Promise<boolean> {
+  return (await replaceTextAsSuggestionResult(editor, quote, replacement)).replaced;
 }
 
 async function replaceTextInEditMode(
@@ -315,6 +331,35 @@ describe("replaceText suggest mode", () => {
     expect(deleteSuggestions[0].textContent).toBe("Second paragraph");
     expect(insertSuggestions.length).toBe(1);
     expect(insertSuggestions[0].textContent).toBe("Replacement line one.\n\nReplacement line two");
+  });
+
+  it("refuses to create a replacement suggestion inside an existing suggestion", async () => {
+    const editor = await setupEditorWithContent(
+      "Please revise the target phrase before publishing."
+    );
+
+    expect(await replaceTextAsSuggestion(
+      editor,
+      "target phrase",
+      "better phrase",
+    )).toBe(true);
+    expect(getAllSuggestions(editor).map(s => `${s.type}:${s.textContent}`)).toEqual([
+      "delete:target",
+      "insert:better",
+    ]);
+
+    const retryResult = await replaceTextAsSuggestionResult(
+      editor,
+      "target",
+      "other",
+    );
+
+    expect(retryResult.replaced).toBe(false);
+    expect(retryResult.failureReason).toContain("already covered by a pending suggestion");
+    expect(getAllSuggestions(editor).map(s => `${s.type}:${s.textContent}`)).toEqual([
+      "delete:target",
+      "insert:better",
+    ]);
   });
 });
 

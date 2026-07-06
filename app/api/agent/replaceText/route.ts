@@ -1,10 +1,10 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $createTextNode, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $createTextNode, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode, type RangeSelection } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { $createSuggestionNode, $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import type MarkdownIt from "markdown-it";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -40,6 +40,7 @@ interface ReplaceResult {
    * `"suggest"` mode and for failed replacements.
    */
   postEditHtml?: string
+  failureCode?: "pending_suggestion_overlap"
 }
 
 interface SuggestionNarrowingResult {
@@ -47,7 +48,17 @@ interface SuggestionNarrowingResult {
   /** The quote/replacement actually used after narrowing (for summaries). */
   narrowedQuote: string
   narrowedReplacement: string
+  failureReason?: string
+  failureCode?: "pending_suggestion_overlap"
 }
+
+interface SuggestionApplicationResult {
+  replaced: boolean
+  failureReason?: string
+  failureCode?: "pending_suggestion_overlap"
+}
+
+const PENDING_SUGGESTION_OVERLAP_NOTE = "The quote range is already covered by a pending suggestion. Suggestion-mode replaceText cannot layer a new suggestion onto pending suggested text; accept/reject the existing suggestion or quote a range outside it.";
 
 /**
  * Convert a narrowed replacement string into Lexical nodes while preserving
@@ -124,6 +135,24 @@ function $getEquivalentInsertionPoint(
   return null;
 }
 
+function $nodeIsInsideSuggestion(node: LexicalNode): boolean {
+  let current: LexicalNode | null = node;
+  while (current) {
+    if ($isSuggestionNode(current)) return true;
+    current = current.getParent();
+  }
+  return false;
+}
+
+function $selectionIntersectsSuggestion(selection: RangeSelection): boolean {
+  return selection.getNodes().some($nodeIsInsideSuggestion);
+}
+
+function $pointIsInsideSuggestion(point: MarkdownSelectionPoint): boolean {
+  const node = $getNodeByKey(point.key);
+  return node ? $nodeIsInsideSuggestion(node) : false;
+}
+
 /**
  * Handle the pure-insertion case: narrowing produced an empty delete range
  * (anchor and focus are at the same point), so we just need to insert
@@ -187,12 +216,21 @@ function $applySuggestionForSelection(
   suggestionId: string,
   markdownIt: MarkdownIt,
   replacementNodes?: LexicalNode[],
-): boolean {
+): SuggestionApplicationResult {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
-    return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, markdownIt, replacementNodes,
-    });
+    if ($pointIsInsideSuggestion(insertionPoint)) {
+      return {
+        replaced: false,
+        failureReason: PENDING_SUGGESTION_OVERLAP_NOTE,
+        failureCode: "pending_suggestion_overlap",
+      };
+    }
+    return {
+      replaced: $applySuggestionInsertionAtPoint({
+        editor, point: insertionPoint, replacement, suggestionId, markdownIt, replacementNodes,
+      }),
+    };
   }
 
   return $applySuggestionForRange({
@@ -228,16 +266,24 @@ function $applySuggestionForRange({
   replacementNodes?: LexicalNode[]
   suggestionId: string
   markdownIt: MarkdownIt
-}): boolean {
+}): SuggestionApplicationResult {
   const selection = $createRangeSelection();
   selection.anchor.set(anchor.key, anchor.offset, anchor.type);
   selection.focus.set(focus.key, focus.offset, focus.type);
+  if ($selectionIntersectsSuggestion(selection)) {
+    return {
+      replaced: false,
+      failureReason: PENDING_SUGGESTION_OVERLAP_NOTE,
+      failureCode: "pending_suggestion_overlap",
+    };
+  }
+
   const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
-  if (deleteSuggestions.length === 0) return false;
+  if (deleteSuggestions.length === 0) return { replaced: false };
 
   const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
   deleteSuggestions[0].insertAfter(insertSuggestion);
-  return true;
+  return { replaced: true };
 }
 
 function $buildInsertSuggestion({
@@ -290,16 +336,28 @@ export function $applySuggestionWithNarrowing({
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
-    return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
+    const applicationResult = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
+    return {
+      replaced: applicationResult.replaced,
+      narrowedQuote: quote,
+      narrowedReplacement: replacement,
+      failureReason: applicationResult.failureReason,
+      failureCode: applicationResult.failureCode,
+    };
   }
 
   const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
   const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt, narrowedPlainText);
-  const replaced = $applySuggestionForSelection(
+  const applicationResult = $applySuggestionForSelection(
     editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
   );
-  return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
+  return {
+    replaced: applicationResult.replaced,
+    narrowedQuote: narrowing.quote,
+    narrowedReplacement: narrowing.replacement,
+    failureReason: applicationResult.failureReason,
+    failureCode: applicationResult.failureCode,
+  };
 }
 
 export async function replaceTextInMainDoc({
@@ -330,6 +388,8 @@ export async function replaceTextInMainDoc({
       let suggestionId: string | undefined = undefined;
       let summaryQuote = quote;
       let summaryReplacement = replacement;
+      let failureReason: string | undefined;
+      let failureCode: ReplaceResult["failureCode"];
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
@@ -365,6 +425,8 @@ export async function replaceTextInMainDoc({
           replaced = narrowingResult.replaced;
           summaryQuote = narrowingResult.narrowedQuote;
           summaryReplacement = narrowingResult.narrowedReplacement;
+          failureReason = narrowingResult.failureReason;
+          failureCode = narrowingResult.failureCode;
           if (!replaced) {
             suggestionId = undefined;
           }
@@ -409,8 +471,10 @@ export async function replaceTextInMainDoc({
         quoteFoundInDocument,
         note: quoteFoundInDocument
           ? locateFailureReason
+            ?? failureReason
             ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
           : locateFailureReason ?? "Quote not found in document.",
+        failureCode,
       };
     },
   });
@@ -469,6 +533,20 @@ export async function POST(req: NextRequest) {
     });
 
     captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: !result.quoteFoundInDocument ? "quote_not_found" : result.replaced ? "replaced" : "not_replaced" });
+    if (result.failureCode === "pending_suggestion_overlap") {
+      return NextResponse.json({
+        ok: false,
+        error: result.note,
+        postId,
+        mode,
+        replaced: false,
+        quoteFoundInDocument: result.quoteFoundInDocument,
+        note: result.note,
+        suggestionId: null,
+        threadCreationFailed: false,
+      }, { status: 409 });
+    }
+
     return NextResponse.json({
       ok: true,
       postId,
