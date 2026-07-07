@@ -24,9 +24,16 @@ export async function readSandboxTextFile(
     // Emit the size before the binary check so binary files still report
     // their true on-disk size.
     `echo "__SIZE__ $size" >&2; ` +
-    // grep -I treats a binary file as non-matching; `. ` matches any line of a
-    // non-empty text file. Skip the check for empty files (they're valid text).
-    `if [ "$size" -gt 0 ] && ! grep -qI . "$target"; then echo "__BINARY__" >&2; exit 7; fi; ` +
+    // grep -I treats a binary file as non-matching; `.` matches any line with
+    // at least one character. That alone misclassifies whitespace-only text
+    // (e.g. a file of blank lines: no line matches `.`), so only call it
+    // binary when the head also contains non-whitespace bytes — a real binary
+    // does, a blank-lines file doesn't. Empty files skip the check entirely.
+    // LC_ALL=C so tr/grep treat the head as raw bytes — a UTF-8 locale would
+    // choke on the arbitrary byte sequences this exists to detect.
+    `if [ "$size" -gt 0 ] && ! grep -qI . "$target" && ` +
+    `head -c 65536 "$target" | LC_ALL=C tr -d ' \\t\\r\\n' | head -c 1 | LC_ALL=C grep -q .; ` +
+    `then echo "__BINARY__" >&2; exit 7; fi; ` +
     `head -c ${SANDBOX_FILE_MAX_BYTES} "$target"`;
   const result = await sandbox.runCommand({
     cmd: "bash",

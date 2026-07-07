@@ -13,8 +13,13 @@ import type { Comment, Thread } from '@/components/lexical/commenting';
 import {
   CommentsComposer,
   RESOLVE_THREAD_COMMAND,
+  SuggestionStatusOrActions,
+  acceptSuggestionThread,
   getThreadMarkId,
+  rejectSuggestionThread,
 } from '@/components/lexical/plugins/CommentPlugin/CommentPluginComponents';
+import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
+import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useResearchCommentsMarginHostOptional } from './researchCommentsMarginContext';
@@ -200,11 +205,14 @@ export default function ResearchCommentsMargin() {
   const [cardHeights, setCardHeights] = useState<Map<string, number>>(new Map());
   const cardElsRef = useRef(new Map<string, HTMLElement>());
 
+  // Threads of BOTH kinds: comment threads and suggestion threads. With the
+  // side-comments plugin gated off for research docs and the docked panel
+  // retired, the margin is the only surface carrying the suggestion
+  // accept/reject actions — filtering suggestions out left them unresolvable.
   const openThreads = useMemo(
     () =>
       comments.filter(
-        (c): c is Thread =>
-          c.type === 'thread' && c.status !== 'archived' && c.threadType !== 'suggestion',
+        (c): c is Thread => c.type === 'thread' && c.status !== 'archived',
       ),
     [comments],
   );
@@ -331,6 +339,17 @@ export default function ResearchCommentsMargin() {
     });
   }, [editor]);
 
+  // Suggestion resolution is accept/reject (the suggestion machinery applies
+  // or reverts the proposed edit), not the comment-thread resolve.
+  const acceptSuggestion = useCallback(
+    (thread: Thread) => acceptSuggestionThread(editor, thread),
+    [editor],
+  );
+  const rejectSuggestion = useCallback(
+    (thread: Thread) => rejectSuggestionThread(editor, thread),
+    [editor],
+  );
+
   const deleteThread = useCallback((thread: Thread) => {
     commentStore.deleteCommentOrThread(thread);
     const markNodeKeys = markNodeMap.get(getThreadMarkId(thread));
@@ -370,6 +389,8 @@ export default function ResearchCommentsMargin() {
           onJumpToMark={scrollToMark}
           onResolve={resolveThread}
           onDelete={deleteThread}
+          onAcceptSuggestion={acceptSuggestion}
+          onRejectSuggestion={rejectSuggestion}
           submitReply={submitReply}
         />
       ))}
@@ -386,6 +407,8 @@ function ThreadCard({
   onJumpToMark,
   onResolve,
   onDelete,
+  onAcceptSuggestion,
+  onRejectSuggestion,
   submitReply,
 }: {
   thread: Thread;
@@ -395,12 +418,31 @@ function ThreadCard({
   onJumpToMark: (thread: Thread) => void;
   onResolve: (thread: Thread) => void;
   onDelete: (thread: Thread) => void;
+  onAcceptSuggestion: (thread: Thread) => void;
+  onRejectSuggestion: (thread: Thread) => void;
   submitReply: (comment: Comment, isInlineComment: boolean, thread?: Thread) => void;
 }) {
   const classes = useStyles(styles);
   const refCallback = useCallback(
     (el: HTMLElement | null) => registerCardEl(thread.id, el),
     [registerCardEl, thread.id],
+  );
+
+  // Suggestion threads carry the proposed edit as a machine-written summary
+  // comment; it renders as the card body and its author heads the card. The
+  // actions are accept/reject (permission-gated inside
+  // SuggestionStatusOrActions) instead of resolve/delete — deleting a
+  // suggestion thread without rejecting would orphan its suggestion nodes.
+  const isSuggestion = thread.threadType === 'suggestion';
+  const summaryComment = isSuggestion
+    ? thread.comments.find((c) => c.commentKind === SUGGESTION_SUMMARY_KIND)
+    : undefined;
+  const summaryText = useMemo(
+    () => (summaryComment?.content ? formatSuggestionSummary(summaryComment.content) : null),
+    [summaryComment?.content],
+  );
+  const visibleComments = thread.comments.filter(
+    (c) => c.commentKind !== SUGGESTION_SUMMARY_KIND,
   );
 
   return (
@@ -411,27 +453,49 @@ function ThreadCard({
       onClick={() => onJumpToMark(thread)}
     >
       <div className={classes.actions}>
-        <button
-          type="button"
-          className={classes.actionButton}
-          onClick={(e) => { e.stopPropagation(); onResolve(thread); }}
-          title="Resolve thread"
-          aria-label="Resolve thread"
-        >
-          <ForumIcon icon="Check" className={classes.actionIcon} />
-        </button>
-        <button
-          type="button"
-          className={classes.actionButton}
-          onClick={(e) => { e.stopPropagation(); onDelete(thread); }}
-          title="Delete thread"
-          aria-label="Delete thread"
-        >
-          <ForumIcon icon="Close" className={classes.actionIcon} />
-        </button>
+        {isSuggestion ? (
+          <div onClick={(e) => e.stopPropagation()}>
+            <SuggestionStatusOrActions
+              status={thread.status ?? 'open'}
+              suggestionAuthorId={summaryComment?.authorId}
+              onAccept={() => onAcceptSuggestion(thread)}
+              onReject={() => onRejectSuggestion(thread)}
+            />
+          </div>
+        ) : (
+          <>
+            <button
+              type="button"
+              className={classes.actionButton}
+              onClick={(e) => { e.stopPropagation(); onResolve(thread); }}
+              title="Resolve thread"
+              aria-label="Resolve thread"
+            >
+              <ForumIcon icon="Check" className={classes.actionIcon} />
+            </button>
+            <button
+              type="button"
+              className={classes.actionButton}
+              onClick={(e) => { e.stopPropagation(); onDelete(thread); }}
+              title="Delete thread"
+              aria-label="Delete thread"
+            >
+              <ForumIcon icon="Close" className={classes.actionIcon} />
+            </button>
+          </>
+        )}
       </div>
+      {isSuggestion && summaryComment ? (
+        <div className={classes.commentRow}>
+          <div className={classes.commentHeader}>
+            <span className={classes.author}>{summaryComment.author}</span>
+            <span className={classes.time}>{moment(summaryComment.timeStamp).fromNow()}</span>
+          </div>
+          {summaryText ? <div className={classes.content}>{summaryText}</div> : null}
+        </div>
+      ) : null}
       {thread.quote ? <div className={classes.quote}>{thread.quote}</div> : null}
-      {thread.comments.map((comment) => (
+      {visibleComments.map((comment) => (
         <div key={comment.id} className={classes.commentRow}>
           <div className={classes.commentHeader}>
             <span className={classes.author}>{comment.author}</span>

@@ -284,8 +284,11 @@ export const ConversationChatView = ({
 
   useEffect(() => {
     if (variant !== 'fullscreen') return;
+    // Inner overlays (file viewer, icon picker) claim their Escape by
+    // preventDefault on the capture phase; skip those so one keypress closes
+    // only the innermost surface.
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onToggleFullscreen();
+      if (e.key === 'Escape' && !e.defaultPrevented) onToggleFullscreen();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);

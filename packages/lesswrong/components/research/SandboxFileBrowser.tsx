@@ -9,6 +9,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import Loading from '../vulcan-core/Loading';
 import { useResearchWorkspaceApiOptional } from './researchWorkspaceContext';
 import { researchMono, researchWarmAlpha, researchScrollbars, researchUiSans } from './researchStyleUtils';
+import { formatBytes } from './formatBytes';
 
 const SandboxDirectoryQuery = gql(`
   query ResearchSandboxDirectory($conversationId: String!, $path: String) {
@@ -57,12 +58,6 @@ function setChildren(nodes: FileNode[], id: string, children: FileNode[]): FileN
     }
     return node;
   });
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 const ROW_HEIGHT = 24;
@@ -222,7 +217,7 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
           <ForumIcon icon="Document" className={classes.glyph} />
         )}
         <span className={dir ? `${classes.name} ${classes.nameDir}` : classes.name}>{node.data.name}</span>
-        {node.data.size != null ? <span className={classes.size}>{formatSize(node.data.size)}</span> : null}
+        {node.data.size != null ? <span className={classes.size}>{formatBytes(node.data.size)}</span> : null}
       </div>
     );
   }, [classes, workspace, conversationId]);

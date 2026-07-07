@@ -9,6 +9,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
 import { retryWhileSandboxWarming } from './sandboxWarming';
 import { researchMono, researchRadius, researchWarmAlpha } from './researchStyleUtils';
+import { formatBytes } from './formatBytes';
 
 const SandboxStatsQuery = gql(`
   query ResearchSandboxStats($conversationId: String!) {
@@ -33,15 +34,6 @@ const RestartResearchSandboxMutation = gql(`
 `);
 
 const POLL_MS = 5000;
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(0)} KB`;
-  const mb = kb / 1024;
-  if (mb < 1024) return `${mb.toFixed(0)} MB`;
-  return `${(mb / 1024).toFixed(1)} GB`;
-}
 
 const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
   root: {

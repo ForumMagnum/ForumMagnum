@@ -8,6 +8,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import Loading from '../vulcan-core/Loading';
 import { highlightFile } from './sandboxFileSyntax';
 import { researchMono, researchWarmAlpha, researchCanvas, researchScrollbars, researchUiSans } from './researchStyleUtils';
+import { formatBytes } from './formatBytes';
 
 const SandboxFileQuery = gql(`
   query ResearchSandboxFile($conversationId: String!, $path: String!) {
@@ -25,12 +26,6 @@ const SandboxFileQuery = gql(`
 function basename(path: string): string {
   const parts = path.split('/').filter(Boolean);
   return parts[parts.length - 1] ?? path;
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 const styles = defineStyles('SandboxFileViewer', (theme: ThemeType) => ({
@@ -183,9 +178,15 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
   }, [loadFile, conversationId, path]);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    // Capture phase + preventDefault: claim this Escape so outer surfaces
+    // (fullscreen chat's exit handler) don't also close on the same press.
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      onClose();
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [onClose]);
 
   const highlighted = useMemo(() => {
@@ -217,7 +218,7 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
       <div className={classes.header}>
         <span className={classes.path} title={path}>{basename(path)}</span>
         {state.status === 'ready' && state.running && !state.binary
-          ? <span className={classes.meta}>{formatSize(state.size)}</span>
+          ? <span className={classes.meta}>{formatBytes(state.size)}</span>
           : null}
         <span className={classes.spacer} />
         <button
