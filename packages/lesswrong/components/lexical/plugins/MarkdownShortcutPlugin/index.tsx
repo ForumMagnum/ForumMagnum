@@ -8,7 +8,7 @@
 
 import React, { type JSX } from 'react';
 
-import {MarkdownShortcutPlugin} from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import {MarkdownShortcutPlugin} from '@/lib/vendor/lexical-react/LexicalMarkdownShortcutPlugin';
 
 
 import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
