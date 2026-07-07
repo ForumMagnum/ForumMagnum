@@ -12,7 +12,7 @@ function spotlightsPage(terms: SpotlightsViewTerms) {
   return {
     selector: {},
     options: {
-      sort: {startDate: -1, createdAt: -1},
+      sort: {startAt: -1, createdAt: -1},
       ...limit
     }
   }
@@ -35,7 +35,7 @@ function spotlightsByDocumentIds(terms: SpotlightsViewTerms) {
       documentId: { $in: terms.documentIds },
     },
     options: {
-      sort: {startDate: -1, createdAt: -1}
+      sort: {startAt: -1, createdAt: -1}
     }
   }
 }
@@ -46,7 +46,7 @@ function spotlightsById(terms: SpotlightsViewTerms) {
       _id: { $in: terms.spotlightIds },
     },
     options: {
-      sort: {startDate: -1, createdAt: -1}
+      sort: {startAt: -1, createdAt: -1}
     }
   }
 }
