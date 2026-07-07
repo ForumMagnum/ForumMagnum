@@ -222,6 +222,12 @@ export function unsupportedEditorMessage(editorType: string): string {
 export const UNAUTHORIZED_DRAFT_MESSAGE =
   "Unauthorized to access this draft. Make sure the post's sharing settings have 'Anyone with the link can' set to 'Edit', and that the correct link-sharing key is provided.";
 
+export const EMPTY_LEXICAL_ROOT_AFTER_SYNC_MESSAGE = "Lexical editor root is empty after Hocuspocus sync";
+
+export function isEmptyLexicalRootAfterSyncError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes(EMPTY_LEXICAL_ROOT_AFTER_SYNC_MESSAGE);
+}
+
 export type EditorTypeAndTokenCheckResult =
   | { kind: "unsupported_editor"; editorType: string }
   | { kind: "unauthorized" }
@@ -479,7 +485,7 @@ export async function withMainDocEditorSession<T>({
     });
     if (rootChildCount === 0) {
       const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
+        `[${operationLabel}] ${EMPTY_LEXICAL_ROOT_AFTER_SYNC_MESSAGE} for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
         `This likely means the Yjs document state is missing or corrupt.`
       );
       captureException(err);

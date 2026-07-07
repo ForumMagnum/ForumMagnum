@@ -3,7 +3,12 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession } from "../agent/editorAgentUtil";
+import {
+  checkEditorTypeAndGetToken,
+  isEmptyLexicalRootAfterSyncError,
+  splitParagraphAtDisplayMath,
+  withMainDocEditorSession
+} from "../agent/editorAgentUtil";
 import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
 import { readOpenCommentThreads, type SerializedThread } from "../agent/collabCommentThreads";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -237,6 +242,21 @@ const NO_CACHE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0",
 };
 
+export function getLiveEditorDraftMarkdownErrorMessage({
+  postId,
+  error,
+}: {
+  postId: string
+  error: unknown
+}): string {
+  if (isEmptyLexicalRootAfterSyncError(error)) {
+    return `The shared draft for postId: ${postId} is accessible, but its Lexical editor document is empty or uninitialized. ` +
+      `This is not a sharing-permissions problem. If you are an AI agent, please tell the user to open the draft in the LessWrong editor once and add or save some body content before retrying the draft API.`;
+  }
+
+  return `Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`;
+}
+
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
 }: {
@@ -310,7 +330,10 @@ export async function renderLiveEditorDraftMarkdownRoute({
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
+    return new Response(
+      getLiveEditorDraftMarkdownErrorMessage({ postId, error }),
+      { status: 200, headers: NO_CACHE_HEADERS }
+    );
   }
 }
 
