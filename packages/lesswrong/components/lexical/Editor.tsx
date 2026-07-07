@@ -31,7 +31,7 @@ import {SelectionAlwaysOnDisplay} from '@lexical/react/LexicalSelectionAlwaysOnD
 import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
@@ -40,9 +40,8 @@ import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlu
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
 import {
-  createWebsocketProvider,
   createWebsocketProviderWithDoc,
-  setCollaborationConfig,
+  makeCollabProviderFactory,
   CollaboratorIdentityProvider,
   type CollaborationConfig,
   type CollaboratorIdentity,
@@ -651,9 +650,6 @@ export default function Editor({
     };
   }, [editor, onGetDataWithDiscardedSuggestions]);
   
-  // Track when collaboration config is ready (set synchronously, not in useEffect)
-  const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
-
   const externalModeContext = useContext(EditorUserModeContext);
   const setIsWsConnected = externalModeContext?.setIsWsConnected;
 
@@ -698,36 +694,34 @@ export default function Editor({
     });
   }, [editor]);
   
-  // Set up collaboration config before rendering collaboration plugins.
-  // Merge in our onSynced and onConnectionStatusChange handlers.
-  useLayoutEffect(() => {
-    if (collaborationConfig) {
-      const configWithHandlers: CollaborationConfig = {
-        ...collaborationConfig,
-        onSynced: (doc, isFirstSync, docId) => {
-          handleCollaborationSync(doc, isFirstSync, docId);
-          collaborationConfig.onSynced?.(doc, isFirstSync, docId);
-        },
-        onConnectionStatusChange: (connected) => {
-          setIsWsConnected?.(connected);
-          collaborationConfig.onConnectionStatusChange?.(connected);
-        },
-      };
-      setCollaborationConfig(configWithHandlers);
-    } else {
-      setCollaborationConfig(null);
-    }
-    setIsCollabConfigReady(!!collaborationConfig);
-    return () => {
-      // Note: We intentionally do not clean up IndexedDB persistence here.
-      // The persistence should survive component remounts to properly support
-      // offline editing. It will be cleaned up when:
-      // 1. A new persistence is created for the same document (in createWebsocketProviderWithDoc)
-      // 2. The page unloads
-      setCollaborationConfig(null);
-      setIsCollabConfigReady(false);
+  // Collaboration config with our onSynced/onConnectionStatusChange handlers
+  // merged in, and the provider factory bound to it. Both are memoized so the
+  // factory is referentially stable per document: Lexical's CollaborationPlugin
+  // memoizes the provider on the factory, so a fresh factory each render would
+  // recreate the provider and cause reconnect churn. (`collaborationConfig`
+  // itself is memoized upstream in LexicalEditor, so these only change when the
+  // document/user actually changes.) No IndexedDB cleanup on unmount — the
+  // persistence survives remounts for offline editing and is reconciled the
+  // next time a persistence is created for the same document.
+  const configWithHandlers = useMemo<CollaborationConfig | null>(() => {
+    if (!collaborationConfig) return null;
+    return {
+      ...collaborationConfig,
+      onSynced: (doc, isFirstSync, docId) => {
+        handleCollaborationSync(doc, isFirstSync, docId);
+        collaborationConfig.onSynced?.(doc, isFirstSync, docId);
+      },
+      onConnectionStatusChange: (connected) => {
+        setIsWsConnected?.(connected);
+        collaborationConfig.onConnectionStatusChange?.(connected);
+      },
     };
   }, [collaborationConfig, handleCollaborationSync, setIsWsConnected]);
+
+  const collabProviderFactory = useMemo(
+    () => (configWithHandlers ? makeCollabProviderFactory(configWithHandlers) : undefined),
+    [configWithHandlers],
+  );
 
   const {
     settings: {
@@ -907,7 +901,7 @@ export default function Editor({
           {collaboratorIdentity && showCommentFeatures && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
-                providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+                providerFactory={collabProviderFactory}
               >
                 {!(isCollab && useCollabV2) && (
                   <>
@@ -927,12 +921,13 @@ export default function Editor({
         </MarkNodesProvider>
         {isRichText ? (
           <>
-            {isCollabConfigReady && collaborationConfig ? (
+            {collabProviderFactory && configWithHandlers && collaborationConfig ? (
               <>
                 {useCollabV2 ? (
                   <>
                     <CollabV2
                       id={COLLAB_DOC_ID}
+                      config={configWithHandlers}
                       shouldBootstrap={false}
                       username={collaborationConfig.user.name}
                       cursorsContainerRef={cursorsContainerRef}
@@ -943,7 +938,7 @@ export default function Editor({
                   <CollaborationPlugin
                     key={`${collaborationConfig.postId}:${collaborationConfig.fieldName ?? COLLAB_DOC_ID}`}
                     id={COLLAB_DOC_ID}
-                    providerFactory={createWebsocketProvider}
+                    providerFactory={collabProviderFactory}
                     shouldBootstrap={false}
                     username={collaborationConfig.user.name}
                     cursorsContainerRef={cursorsContainerRef}
@@ -1096,11 +1091,13 @@ export default function Editor({
 
 function CollabV2({
   id,
+  config,
   shouldBootstrap,
   username,
   cursorsContainerRef,
 }: {
   id: string;
+  config: CollaborationConfig;
   shouldBootstrap: boolean;
   username?: string;
   cursorsContainerRef: React.RefObject<HTMLDivElement | null>;
@@ -1109,8 +1106,8 @@ function CollabV2({
   const doc = useMemo(() => new Doc({gc: false}), []);
 
   const provider = useMemo(() => {
-    return createWebsocketProviderWithDoc('main', doc);
-  }, [doc]);
+    return createWebsocketProviderWithDoc('main', doc, config);
+  }, [doc, config]);
 
   return (
     // eslint-disable-next-line react/jsx-pascal-case
