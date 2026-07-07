@@ -2798,12 +2798,6 @@ CREATE TABLE "Spotlights" (
 -- Index "idx_Spotlights_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Spotlights_schemaVersion" ON "Spotlights" USING btree ("schemaVersion");
 
--- Index "idx_Spotlights_lastPromotedAt"
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_lastPromotedAt" ON "Spotlights" USING btree ("lastPromotedAt");
-
--- Index "idx_Spotlights_position"
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_position" ON "Spotlights" USING btree ("position");
-
 -- Table "Subscriptions"
 CREATE TABLE "Subscriptions" (
   _id VARCHAR(27) PRIMARY KEY,
