@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef } from 'react';
-import type { RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import type { RefCallback } from 'react';
 import type { ConversationEvent } from './useConversationStream';
 
 const BOTTOM_THRESHOLD_PX = 64;
@@ -26,8 +26,14 @@ interface UseTranscriptScrollParams {
 }
 
 interface TranscriptScroll {
-  scrollRef: RefObject<HTMLDivElement | null>;
-  contentRef: RefObject<HTMLDivElement | null>;
+  /**
+   * Callback refs (not RefObjects): the scroll container can mount after the
+   * hook's first render (loading placeholders) or be unmounted/remounted (the
+   * panel-mode file-browser toggle swaps the transcript out), so observer
+   * attachment and the re-pin must follow the node, not a mount-time effect.
+   */
+  scrollRef: RefCallback<HTMLDivElement>;
+  contentRef: RefCallback<HTMLDivElement>;
   onScroll: () => void;
   scrollToBottom: () => void;
 }
@@ -51,8 +57,8 @@ export function useTranscriptScroll({
   loadOlder,
   onReachedBottom,
 }: UseTranscriptScrollParams): TranscriptScroll {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const scrollElRef = useRef<HTMLDivElement | null>(null);
+  const contentElRef = useRef<HTMLDivElement | null>(null);
   const isPinnedToBottomRef = useRef(true);
   // Latest viewport distance-from-bottom, refreshed on every scroll, so a
   // prepend can restore the exact position the user is at when the page lands.
@@ -68,12 +74,12 @@ export function useTranscriptScroll({
   const scrollToBottom = useCallback(() => {
     isPinnedToBottomRef.current = true;
     onReachedBottomRef.current?.();
-    const el = scrollRef.current;
+    const el = scrollElRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, []);
 
   const onScroll = useCallback(() => {
-    const el = scrollRef.current;
+    const el = scrollElRef.current;
     if (!el) return;
     isPinnedToBottomRef.current = isScrolledNearBottom(el);
     if (isPinnedToBottomRef.current) onReachedBottomRef.current?.();
@@ -106,7 +112,7 @@ export function useTranscriptScroll({
     // ref isn't cleared — the programmatic scrollTop below fires a scroll event
     // that refreshes it to the (unchanged) position, ready for the next page.
     if (prependAnchorRef.current != null && topSeq != null && prevTopSeq != null && topSeq < prevTopSeq) {
-      const el = scrollRef.current;
+      const el = scrollElRef.current;
       if (el) el.scrollTop = el.scrollHeight - prependAnchorRef.current;
       return;
     }
@@ -116,19 +122,47 @@ export function useTranscriptScroll({
     }
   }, [resetKey, events, scrollToBottom]);
 
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
+  // Re-pin on any size change of the container or its content: streaming
+  // output grows the content without scroll events, and container resizes
+  // (panel drag, fullscreen toggle) would otherwise unpin the bottom.
+  const pinIfPinned = useCallback(() => {
+    const el = scrollElRef.current;
     if (!el) return;
-    const pinIfPinned = () => {
-      if (isPinnedToBottomRef.current && el.scrollTop !== el.scrollHeight - el.clientHeight) {
-        el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
-      }
-    };
-    const observer = new ResizeObserver(pinIfPinned);
-    observer.observe(el);
-    if (contentRef.current) observer.observe(contentRef.current);
-    return () => observer.disconnect();
+    if (isPinnedToBottomRef.current && el.scrollTop !== el.scrollHeight - el.clientHeight) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
+    }
   }, []);
+
+  // One lazily-created observer, re-targeted whenever either node (re)mounts.
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const syncObserver = useCallback(() => {
+    observerRef.current?.disconnect();
+    const el = scrollElRef.current;
+    if (!el) return;
+    if (!observerRef.current) observerRef.current = new ResizeObserver(pinIfPinned);
+    observerRef.current.observe(el);
+    if (contentElRef.current) observerRef.current.observe(contentElRef.current);
+  }, [pinIfPinned]);
+  useEffect(() => () => observerRef.current?.disconnect(), []);
+
+  const scrollRef = useCallback<RefCallback<HTMLDivElement>>(
+    (el) => {
+      const remounted = el !== null && el !== scrollElRef.current;
+      scrollElRef.current = el;
+      syncObserver();
+      // A freshly-mounted container starts at scrollTop 0 (e.g. the transcript
+      // returning after the file-browser toggle); restore the pin immediately.
+      if (remounted) pinIfPinned();
+    },
+    [syncObserver, pinIfPinned],
+  );
+  const contentRef = useCallback<RefCallback<HTMLDivElement>>(
+    (el) => {
+      contentElRef.current = el;
+      syncObserver();
+    },
+    [syncObserver],
+  );
 
   return { scrollRef, contentRef, onScroll, scrollToBottom };
 }

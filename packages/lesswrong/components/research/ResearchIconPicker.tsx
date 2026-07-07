@@ -137,7 +137,13 @@ export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: Resea
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    // Capture phase + preventDefault: claim this Escape so outer surfaces
+    // (fullscreen chat's exit handler) don't also close on the same press.
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      onClose();
+    };
     const onPointerDown = (e: PointerEvent) => {
       if (popoverRef.current && e.target instanceof Node && !popoverRef.current.contains(e.target)) {
         onClose();
