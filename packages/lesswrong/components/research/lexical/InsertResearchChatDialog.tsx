@@ -313,15 +313,15 @@ export function InsertResearchChatDialog({
           <span className={classes.hint}>
             <span className={classes.key}>↑</span>
             <span className={classes.key}>↓</span>
-            navigate
+            <span>navigate</span>
           </span>
           <span className={classes.hint}>
             <span className={classes.key}>↵</span>
-            insert
+            <span>insert</span>
           </span>
           <span className={classes.hint}>
             <span className={classes.key}>esc</span>
-            close
+            <span>close</span>
           </span>
         </div>
       </div>

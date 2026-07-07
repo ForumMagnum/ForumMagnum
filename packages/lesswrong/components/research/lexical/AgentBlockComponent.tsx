@@ -473,7 +473,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
     };
     document.addEventListener('pointerdown', onPointerDown, true);
     return () => document.removeEventListener('pointerdown', onPointerDown, true);
-  }, [focused, blurBlock]);
+  }, [focused, blurBlock, hideComposer]);
 
   useEffect(() => {
     const root = rootRef.current;
