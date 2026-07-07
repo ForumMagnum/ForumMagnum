@@ -388,15 +388,9 @@ const fillInNullWithDefaultCommands = `
 
   UPDATE "Spotlights"
   SET
-    "documentType" = COALESCE("documentType", 'Sequence'::text),
-    "draft" = COALESCE("draft", true),
-    "duration" = COALESCE("duration", 3),
-    "lastPromotedAt" = COALESCE("lastPromotedAt", '1970-01-01 00:00:00+00'::timestamp with time zone)
+    "documentType" = COALESCE("documentType", 'Sequence'::text)
   WHERE
-    "documentType" IS NULL OR
-    "draft" IS NULL OR
-    "duration" IS NULL OR
-    "lastPromotedAt" IS NULL;
+    "documentType" IS NULL;
 
   UPDATE "Subscriptions"
   SET
@@ -925,11 +919,7 @@ const setNotnullCommands = `
 
   ALTER TABLE "Spotlights"
     ALTER COLUMN "documentId" SET NOT NULL,
-    ALTER COLUMN "documentType" SET NOT NULL,
-    ALTER COLUMN "draft" SET NOT NULL,
-    ALTER COLUMN "duration" SET NOT NULL,
-    ALTER COLUMN "lastPromotedAt" SET NOT NULL,
-    ALTER COLUMN "position" SET NOT NULL;
+    ALTER COLUMN "documentType" SET NOT NULL;
 
   ALTER TABLE "Subscriptions"
     ALTER COLUMN "collectionName" SET NOT NULL,
@@ -1400,11 +1390,7 @@ const dropNotnullCommands = `
 
   ALTER TABLE "Spotlights"
     ALTER COLUMN "documentId" DROP NOT NULL,
-    ALTER COLUMN "documentType" DROP NOT NULL,
-    ALTER COLUMN "draft" DROP NOT NULL,
-    ALTER COLUMN "duration" DROP NOT NULL,
-    ALTER COLUMN "lastPromotedAt" DROP NOT NULL,
-    ALTER COLUMN "position" DROP NOT NULL;
+    ALTER COLUMN "documentType" DROP NOT NULL;
 
   ALTER TABLE "Subscriptions"
     ALTER COLUMN "collectionName" DROP NOT NULL,
