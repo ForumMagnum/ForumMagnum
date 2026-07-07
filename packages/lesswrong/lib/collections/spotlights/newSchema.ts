@@ -114,7 +114,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -126,7 +126,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],

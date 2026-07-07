@@ -4043,8 +4043,8 @@ type Spotlight {
   sequence: Sequence
   documentType: String!
   title: String
-  startAt: Date!
-  endAt: Date!
+  startAt: Date
+  endAt: Date
   imageFadeColor: String
   imageId: String
 }
@@ -6589,8 +6589,8 @@ input CreateSpotlightDataInput {
   documentId: String!
   documentType: String!
   title: String
-  startAt: Date!
-  endAt: Date!
+  startAt: Date
+  endAt: Date
   imageFadeColor: String
   imageId: String
 }

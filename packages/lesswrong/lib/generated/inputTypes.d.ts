@@ -3313,8 +3313,8 @@ interface Spotlight {
   sequence: Sequence | null;
   documentType: string;
   title: string | null;
-  startAt: Date;
-  endAt: Date;
+  startAt: Date | null;
+  endAt: Date | null;
   imageFadeColor: string | null;
   imageId: string | null;
 }
@@ -5625,8 +5625,8 @@ interface CreateSpotlightDataInput {
   documentId: string;
   documentType: string;
   title?: string | null;
-  startAt: Date;
-  endAt: Date;
+  startAt?: Date | null;
+  endAt?: Date | null;
   imageFadeColor?: string | null;
   imageId?: string | null;
 }

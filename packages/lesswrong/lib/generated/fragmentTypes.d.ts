@@ -2939,8 +2939,8 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
   readonly title: string|null,
-  readonly startAt: Date,
-  readonly endAt: Date,
+  readonly startAt: Date|null,
+  readonly endAt: Date|null,
   readonly imageFadeColor: string|null,
   readonly imageId: string|null,
 }
@@ -2962,8 +2962,8 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
   readonly title: string|null,
-  readonly startAt: Date,
-  readonly endAt: Date,
+  readonly startAt: Date|null,
+  readonly endAt: Date|null,
   readonly imageFadeColor: string|null,
   readonly imageId: string|null,
 }
