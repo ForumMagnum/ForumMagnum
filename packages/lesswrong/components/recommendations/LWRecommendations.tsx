@@ -8,7 +8,6 @@ import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
 import RecommendationsList from "./RecommendationsList";
@@ -188,9 +187,6 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="spotlightItem">
-          <DismissibleSpotlightItem current />
-        </AnalyticsContext>}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>

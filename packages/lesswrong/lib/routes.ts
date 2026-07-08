@@ -126,7 +126,6 @@ import SequencesPost from '@/components/sequences/SequencesPost';
 import SequencesSingle from '@/components/sequences/SequencesSingle';
 import TopPostsPage from '@/components/sequences/TopPostsPage';
 import ShortformPage from '@/components/shortform/ShortformPage';
-import SpotlightsPage from '@/components/spotlights/SpotlightsPage';
 import AllReactedCommentsPage from '@/components/sunshineDashboard/AllReactedCommentsPage';
 import { EmailHistoryPage } from '@/components/sunshineDashboard/EmailHistory';
 import ModerationAltAccounts from '@/components/sunshineDashboard/ModerationAltAccounts';
@@ -1880,13 +1879,6 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     component: NotificationEmailPreviewPage,
     isAdmin: true,
-  },
-  {
-    name: 'SpotlightsPage',
-    path: '/spotlights',
-    component: SpotlightsPage,
-    title: 'Spotlights Page',
-    hideFromSitemap: true,
   },
   {
     name: 'llmConversationsViewer',

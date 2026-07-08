@@ -35,11 +35,13 @@
 export const acceptsSchemaHash = "f167b9a94ae9eebe159267d6ca82d3a4";
 
 import Spotlights from "../../server/collections/spotlights/collection"
-import { addField, dropField } from "./meta/utils"
+import { BoolType, DefaultValueType, NotNullType, StringType } from "../sql/Type";
+import { addRemovedField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Spotlights, "showAuthor")
-  await addField(db, Spotlights, "spotlightDarkImageId")
+  await addRemovedField(db, Spotlights, "showAuthor",
+    new DefaultValueType(new NotNullType(new BoolType()), false));
+  await addRemovedField(db, Spotlights, "spotlightDarkImageId", new StringType());
 }
 
 export const down = async ({db}: MigrationContext) => {

@@ -2068,6 +2068,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string|null,
   readonly noIndex: boolean,
   readonly viewCount: number|null,
+  readonly pangramStatusOverride: string|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly socialPreviewData: SocialPreviewType,
   readonly tagRelevance: any,
@@ -2885,8 +2886,6 @@ interface SplashArtCoordinatesEdit extends SplashArtCoordinates { // fragment on
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly post: SpotlightDisplay_post|null,
   readonly sequence: SpotlightDisplay_sequence|null,
-  readonly tag: SpotlightDisplay_tag|null,
-  readonly sequenceChapters: Array<ChaptersFragment>,
   readonly description: SpotlightDisplay_description|null,
 }
 
@@ -2913,19 +2912,6 @@ interface SpotlightDisplay_sequence_user { // fragment on Users
   readonly slug: string,
 }
 
-interface SpotlightDisplay_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly user: SpotlightDisplay_tag_user|null,
-}
-
-interface SpotlightDisplay_tag_user { // fragment on Users
-  readonly _id: string,
-  readonly displayName: string,
-  readonly slug: string,
-}
-
 interface SpotlightDisplay_description { // fragment on Revisions
   readonly html: string|null,
 }
@@ -2937,7 +2923,6 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly post: SpotlightHeaderEventSubtitle_post|null,
   readonly sequence: SpotlightHeaderEventSubtitle_sequence|null,
-  readonly tag: SpotlightHeaderEventSubtitle_tag|null,
 }
 
 interface SpotlightHeaderEventSubtitle_post { // fragment on Posts
@@ -2949,37 +2934,19 @@ interface SpotlightHeaderEventSubtitle_sequence { // fragment on Sequences
   readonly _id: string,
 }
 
-interface SpotlightHeaderEventSubtitle_tag { // fragment on Tags
-  readonly _id: string,
-  readonly slug: string,
-}
-
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post" | "Tag",
-  readonly spotlightImageId: string|null,
-  readonly spotlightDarkImageId: string|null,
-  readonly spotlightSplashImageUrl: string|null,
-  readonly draft: boolean,
-  readonly deletedDraft: boolean,
-  readonly position: number,
-  readonly lastPromotedAt: Date,
-  readonly customTitle: string|null,
-  readonly customSubtitle: string|null,
-  readonly subtitleUrl: string|null,
-  readonly headerTitle: string|null,
-  readonly headerTitleLeftColor: string|null,
-  readonly headerTitleRightColor: string|null,
-  readonly duration: number,
-  readonly showAuthor: boolean,
-  readonly imageFade: boolean,
+  readonly documentType: "Sequence" | "Post",
+  readonly title: string|null,
+  readonly startAt: Date|null,
+  readonly endAt: Date|null,
   readonly imageFadeColor: string|null,
+  readonly imageId: string|null,
 }
 
 interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly description: SpotlightReviewWinner_description|null,
-  readonly sequenceChapters: Array<ChaptersFragment>,
 }
 
 interface SpotlightReviewWinner_description { // fragment on Revisions
@@ -2993,24 +2960,12 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly legacyData: any,
   readonly description_latest: string|null,
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post" | "Tag",
-  readonly position: number,
-  readonly duration: number,
-  readonly customTitle: string|null,
-  readonly customSubtitle: string|null,
-  readonly subtitleUrl: string|null,
-  readonly headerTitle: string|null,
-  readonly headerTitleLeftColor: string|null,
-  readonly headerTitleRightColor: string|null,
-  readonly lastPromotedAt: Date,
-  readonly spotlightSplashImageUrl: string|null,
-  readonly draft: boolean,
-  readonly deletedDraft: boolean,
-  readonly showAuthor: boolean,
-  readonly imageFade: boolean,
+  readonly documentType: "Sequence" | "Post",
+  readonly title: string|null,
+  readonly startAt: Date|null,
+  readonly endAt: Date|null,
   readonly imageFadeColor: string|null,
-  readonly spotlightImageId: string|null,
-  readonly spotlightDarkImageId: string|null,
+  readonly imageId: string|null,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments

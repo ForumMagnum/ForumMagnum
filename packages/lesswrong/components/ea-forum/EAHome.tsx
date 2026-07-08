@@ -9,7 +9,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import HomeLatestPosts from "../common/HomeLatestPosts";
 import EAHomeCommunityPosts from "./EAHomeCommunityPosts";
 import EAPopularCommentsSection from "./EAPopularCommentsSection";
@@ -52,18 +51,11 @@ const getStructuredData = () => ({
   }),
 })
 
-const styles = (_theme: ThemeType) => ({
-  spotlightMargin: {
-    marginBottom: 24,
-  },
-});
-
-const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const FrontpageNode = () => {
   const currentUser = useCurrentUser();
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   return (
     <>
-      <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
       <DeferRender ssr={true} clientTiming="mobile-aware">
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
@@ -84,7 +76,7 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const EAHome = () => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderSmallpox = showSmallpoxSetting.get()
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
@@ -95,8 +87,8 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
 
   const FrontpageNodeWithClasses = useCallback(
-    () => <FrontpageNode classes={classes} />,
-    [classes],
+    () => <FrontpageNode />,
+    [],
   );
   return (
     <AnalyticsContext pageContext="homePage">
@@ -111,6 +103,4 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export default registerComponent('EAHome', EAHome, {styles});
-
-
+export default registerComponent('EAHome', EAHome);

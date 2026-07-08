@@ -1,13 +1,14 @@
 import Spotlights from "../../server/collections/spotlights/collection"
-import { addField, dropField } from "./meta/utils"
+import { StringType } from "../sql/Type";
+import { addRemovedField, dropField } from "./meta/utils"
 
 export const acceptsSchemaHash = "498e064c609716f4a0b3dd145dab50b2";
 
 export const up = async ({db}: MigrationContext) => {
   await db.tx(async (db) => {
-    await addField(db, Spotlights, "headerTitle");
-    await addField(db, Spotlights, "headerTitleLeftColor");
-    await addField(db, Spotlights, "headerTitleRightColor");
+    await addRemovedField(db, Spotlights, "headerTitle", new StringType());
+    await addRemovedField(db, Spotlights, "headerTitleLeftColor", new StringType());
+    await addRemovedField(db, Spotlights, "headerTitleRightColor", new StringType());
   });
 }
 
