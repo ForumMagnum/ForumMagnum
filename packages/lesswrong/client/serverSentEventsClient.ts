@@ -1,4 +1,8 @@
 import { serverSentEventsAPI, onServerSentNotificationEvent } from "../components/hooks/useUnreadNotifications";
+import { DatabasePublicSetting } from "@/lib/publicSettings";
+import { combineUrls } from "@/lib/vulcan-lib/utils";
+
+export const notificationEventsBaseSetting = new DatabasePublicSetting<string>("notificationEventsBase", "");
 
 const notificationEventsApiVersion = 2;
 
@@ -48,7 +52,11 @@ function connectServerSentEvents() {
   }
   // eslint-disable-next-line no-console
   console.log("Connecting to server-sent events");
-  serverSentEventSource = new EventSource(`/api/notificationEvents?version=${notificationEventsApiVersion}`);
+  const url = combineUrls(
+    notificationEventsBaseSetting.get(),
+    `/api/notificationEvents?version=${notificationEventsApiVersion}`
+  );
+  serverSentEventSource = new EventSource(url);
 
   serverSentEventSource.onerror = (errorEvent) => {
     // eslint-disable-next-line no-console
