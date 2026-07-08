@@ -1092,6 +1092,7 @@ interface AnswerResearchQuestionOutput {
 interface ResearchConversationSidebarStatus {
   conversationId: string;
   turnActive: boolean;
+  awaitingInput: boolean;
   lastActivityAt: Date | null;
   lastReadAt: Date | null;
 }

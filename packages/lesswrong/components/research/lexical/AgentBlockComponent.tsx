@@ -18,6 +18,7 @@ import {
   renderChunkMarkdownToHtml,
   openChatLinksInNewTab,
 } from '../conversationEventFormat';
+import { extractAskUserQuestion, collectAskUserQuestionAnswers } from '../researchAskUserQuestion';
 import { ConversationTranscript } from '../ConversationTranscript';
 import { ConversationActions } from '../ConversationActions';
 import ChatComposer from '../ChatComposer';
@@ -172,6 +173,21 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   '@keyframes inflightPulse': {
     '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
     '50%': { opacity: 1, transform: 'scale(1)' },
+  },
+  // "Waiting for your input" (pending AskUserQuestion): amber, larger, and
+  // pulsing more insistently than the sage "responding" dot — reads as "needs
+  // you", the highest-priority state.
+  awaitingDot: {
+    flex: 'none',
+    width: 9,
+    height: 9,
+    borderRadius: '50%',
+    background: 'light-dark(#d9820c, #f4a836)',
+    animation: '$awaitingPulse 1.15s ease-in-out infinite',
+  },
+  '@keyframes awaitingPulse': {
+    '0%, 100%': { opacity: 0.6, transform: 'scale(0.92)' },
+    '50%': { opacity: 1, transform: 'scale(1.12)' },
   },
   errorGlyph: {
     flex: 'none',
@@ -552,11 +568,22 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
   }, [blurBlock]);
 
   const title = conversation?.title ?? 'Conversation';
-  const headerGlyph = turnInFlight
-    ? <span className={classes.pulseDot} aria-label="Agent is responding" />
-    : status === 'error'
-      ? <span className={classes.errorGlyph} title={error ?? 'error'}>✕</span>
-      : null;
+  // Blocked on a pending AskUserQuestion (asked, not yet answered) — a distinct,
+  // higher-priority state than "responding".
+  const awaitingInput = useMemo(() => {
+    const answered = collectAskUserQuestionAnswers(events);
+    return events.some((e) => {
+      const question = extractAskUserQuestion(e);
+      return question !== null && !answered.has(question.toolUseId);
+    });
+  }, [events]);
+  const headerGlyph = awaitingInput
+    ? <span className={classes.awaitingDot} title="Waiting for your input" aria-label="Waiting for your input" />
+    : turnInFlight
+      ? <span className={classes.pulseDot} aria-label="Agent is responding" />
+      : status === 'error'
+        ? <span className={classes.errorGlyph} title={error ?? 'error'}>✕</span>
+        : null;
 
   return (
     <div

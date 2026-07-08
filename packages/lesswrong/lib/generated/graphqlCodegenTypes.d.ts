@@ -8954,6 +8954,7 @@ type ResearchConversationSelector = {
 
 type ResearchConversationSidebarStatus = {
   __typename?: 'ResearchConversationSidebarStatus';
+  awaitingInput: Scalars['Boolean']['output'];
   conversationId: Scalars['String']['output'];
   lastActivityAt?: Maybe<Scalars['Date']['output']>;
   lastReadAt?: Maybe<Scalars['Date']['output']>;
@@ -18297,7 +18298,7 @@ type ArchiveResearchEnvironmentMutationVariables = Exact<{
 
 type ArchiveResearchEnvironmentMutation = ArchiveResearchEnvironmentMutation_Mutation;
 
-type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null };
+type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, awaitingInput: boolean, lastActivityAt: string | null, lastReadAt: string | null };
 
 type ResearchConversationSidebarStatusesQuery_Query = { __typename?: 'Query', researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus> };
 

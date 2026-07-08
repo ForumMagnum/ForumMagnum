@@ -308,6 +308,10 @@ export const researchResolversTypeDefs = gql`
   type ResearchConversationSidebarStatus {
     conversationId: String!
     turnActive: Boolean!
+    # Blocked waiting for the user (a pending AskUserQuestion) — a distinct,
+    # higher-priority state than actively working. Such conversations are also
+    # turnActive (the turn is incomplete), so consumers should check this first.
+    awaitingInput: Boolean!
     lastActivityAt: Date
     lastReadAt: Date
   }
@@ -893,14 +897,17 @@ export const researchResolversQueries = {
       { limit: 500 },
       { _id: 1, lastActivityAt: 1, lastReadAt: 1 },
     ).fetch();
-    const activeIds = new Set(
-      await context.repos.researchConversationEvents.conversationsWithIncompleteTurns(
-        conversations.map((c) => c._id),
-      ),
-    );
+    const conversationIds = conversations.map((c) => c._id);
+    const [activeIds, awaitingIds] = await Promise.all([
+      context.repos.researchConversationEvents.conversationsWithIncompleteTurns(conversationIds),
+      context.repos.researchConversationEvents.conversationsAwaitingInput(conversationIds),
+    ]);
+    const activeSet = new Set(activeIds);
+    const awaitingSet = new Set(awaitingIds);
     return conversations.map((c) => ({
       conversationId: c._id,
-      turnActive: activeIds.has(c._id),
+      turnActive: activeSet.has(c._id),
+      awaitingInput: awaitingSet.has(c._id),
       lastActivityAt: c.lastActivityAt,
       lastReadAt: c.lastReadAt ?? null,
     }));

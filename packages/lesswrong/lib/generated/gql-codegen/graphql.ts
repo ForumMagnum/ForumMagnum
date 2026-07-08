@@ -10861,6 +10861,7 @@ export type ResearchConversationSelector = {
 
 export type ResearchConversationSidebarStatus = {
   __typename?: 'ResearchConversationSidebarStatus';
+  awaitingInput: Scalars['Boolean']['output'];
   conversationId: Scalars['String']['output'];
   lastActivityAt: Maybe<Scalars['Date']['output']>;
   lastReadAt: Maybe<Scalars['Date']['output']>;
@@ -17804,7 +17805,7 @@ export type ResearchConversationSidebarStatusesQueryVariables = Exact<{
 }>;
 
 
-export type ResearchConversationSidebarStatusesQuery = { __typename?: 'Query', researchConversationSidebarStatuses: Array<{ __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null }> };
+export type ResearchConversationSidebarStatusesQuery = { __typename?: 'Query', researchConversationSidebarStatuses: Array<{ __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, awaitingInput: boolean, lastActivityAt: string | null, lastReadAt: string | null }> };
 
 export type ResearchProjectListQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -23137,7 +23138,7 @@ export const RenameResearchEnvironmentSidebarDocument = _o1(_1,[_o11(_977,_978,_
 export const ArchiveResearchDocumentDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ArchiveResearchDocument"),_1619,_o5(_7,[_o7(_8,_1601,_1620,_1621)]))]) as unknown as DocumentNode<ArchiveResearchDocumentMutation, ArchiveResearchDocumentMutationVariables>;
 export const ArchiveResearchConversationDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ArchiveResearchConversation"),_1619,_o5(_7,[_o7(_8,_1604,_1620,_1621)]))]) as unknown as DocumentNode<ArchiveResearchConversationMutation, ArchiveResearchConversationMutationVariables>;
 export const ArchiveResearchEnvironmentDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ArchiveResearchEnvironment"),_1619,_o5(_7,[_o7(_8,_1616,_1620,_1621)]))]) as unknown as DocumentNode<ArchiveResearchEnvironmentMutation, ArchiveResearchEnvironmentMutationVariables>;
-export const ResearchConversationSidebarStatusesDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchConversationSidebarStatuses"),_1590,_o5(_7,[_o7(_8,_o3(_3,"researchConversationSidebarStatuses"),_1622,_o5(_7,[_365,_o4(_8,_o3(_3,"turnActive")),_1623,_o4(_8,_o3(_3,"lastReadAt"))]))]))]) as unknown as DocumentNode<ResearchConversationSidebarStatusesQuery, ResearchConversationSidebarStatusesQueryVariables>;
+export const ResearchConversationSidebarStatusesDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchConversationSidebarStatuses"),_1590,_o5(_7,[_o7(_8,_o3(_3,"researchConversationSidebarStatuses"),_1622,_o5(_7,[_365,_o4(_8,_o3(_3,"turnActive")),_o4(_8,_o3(_3,"awaitingInput")),_1623,_o4(_8,_o3(_3,"lastReadAt"))]))]))]) as unknown as DocumentNode<ResearchConversationSidebarStatusesQuery, ResearchConversationSidebarStatusesQueryVariables>;
 export const ResearchProjectListQueryDocument = _o1(_1,[_o17(_977,_984,_o3(_3,"ResearchProjectListQuery"),_o5(_7,[_o7(_8,_o3(_3,"researchProjects"),[_o8(_530,_992,_o14(_990,[_o8(_991,_1093,_1018)])),_o8(_530,_785,_o3(_1024,"100"))],_o5(_7,[_o6(_8,_1014,_1624)]))]))]) as unknown as DocumentNode<ResearchProjectListQueryQuery, ResearchProjectListQueryQueryVariables>;
 export const ResearchClaudeTokenStatusQueryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchClaudeTokenStatusQuery"),_1625,_o5(_7,[_o7(_8,_30,_1425,_o5(_7,[_o6(_8,_997,_o5(_7,[_10,_o4(_8,_o3(_3,"hasClaudeCodeOAuthToken"))]))]))]))]) as unknown as DocumentNode<ResearchClaudeTokenStatusQueryQuery, ResearchClaudeTokenStatusQueryQueryVariables>;
 export const CreateResearchProjectDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"CreateResearchProject"),[_o12(_979,_1596,_983),_o12(_979,_1626,_982)],_o5(_7,[_o7(_8,_o3(_3,"createResearchProject"),[_o8(_530,_266,_o14(_990,[_1598,_o8(_991,_154,_1626)]))],_o5(_7,[_o6(_8,_266,_1624)]))]))]) as unknown as DocumentNode<CreateResearchProjectMutation, CreateResearchProjectMutationVariables>;

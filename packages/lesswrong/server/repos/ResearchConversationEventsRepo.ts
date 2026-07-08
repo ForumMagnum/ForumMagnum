@@ -224,6 +224,47 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
   }
 
   /**
+   * Of the given conversations, which are blocked waiting for the user — their
+   * most recent event is an unanswered `AskUserQuestion` tool call. The agent
+   * asks, then pauses; once answered, later events follow — so "the latest event
+   * contains an AskUserQuestion tool_use" == still unanswered. These are "waiting
+   * for your input", a distinct (higher-priority) state from actively working,
+   * even though the turn is technically still incomplete.
+   */
+  public async conversationsAwaitingInput(conversationIds: string[]): Promise<string[]> {
+    if (conversationIds.length === 0) return [];
+    const rows = await this.getRawDb().any<{ conversationId: string }>(`
+      -- ResearchConversationEventsRepo.conversationsAwaitingInput
+      SELECT ids.id AS "conversationId"
+      FROM unnest($(conversationIds)::text[]) AS ids(id)
+      CROSS JOIN LATERAL (
+        SELECT e."payload"
+        FROM "ResearchConversationEvents" e
+        WHERE e."conversationId" = ids.id
+        ORDER BY e."seq" DESC
+        LIMIT 1
+      ) last_event
+      WHERE EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements(
+          CASE
+            WHEN jsonb_typeof(last_event."payload"->'message'->'content') = 'array'
+              THEN last_event."payload"->'message'->'content'
+            WHEN jsonb_typeof(last_event."payload"->'content') = 'array'
+              THEN last_event."payload"->'content'
+            ELSE '[]'::jsonb
+          END
+        ) AS part
+        WHERE part->>'type' = 'tool_use' AND part->>'name' = $(askUserQuestionTool)
+      )
+    `, {
+      conversationIds,
+      askUserQuestionTool: 'AskUserQuestion',
+    });
+    return rows.map((r) => r.conversationId);
+  }
+
+  /**
    * Tail query for the backend → client event stream: given a set of
    * `(conversationId, sinceSeq)` cursors, return all events with `seq > sinceSeq`
    * for each, in `seq` order, capped at `limitPerConversation` per conversation.

@@ -1014,6 +1014,7 @@ extend type Mutation {
 type ResearchConversationSidebarStatus {
   conversationId: String!
   turnActive: Boolean!
+  awaitingInput: Boolean!
   lastActivityAt: Date
   lastReadAt: Date
 }

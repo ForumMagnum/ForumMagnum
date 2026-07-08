@@ -168,6 +168,7 @@ const SidebarStatusesQuery = gql(`
     researchConversationSidebarStatuses(projectId: $projectId) {
       conversationId
       turnActive
+      awaitingInput
       lastActivityAt
       lastReadAt
     }
@@ -178,11 +179,13 @@ const STATUS_POLL_MS = 10_000;
 
 interface SidebarConversationStatus {
   turnActive: boolean;
+  awaitingInput: boolean;
   unread: boolean;
 }
 
 function deriveConversationStatus(status: {
   turnActive: boolean;
+  awaitingInput: boolean;
   lastActivityAt: Date | string | null;
   lastReadAt: Date | string | null;
 }): SidebarConversationStatus {
@@ -192,7 +195,7 @@ function deriveConversationStatus(status: {
     && !!status.lastReadAt
     && !!status.lastActivityAt
     && new Date(status.lastActivityAt).valueOf() > new Date(status.lastReadAt).valueOf();
-  return { turnActive: status.turnActive, unread };
+  return { turnActive: status.turnActive, awaitingInput: status.awaitingInput, unread };
 }
 
 const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
@@ -308,6 +311,21 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   '@keyframes sidebarTurnPulse': {
     '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
     '50%': { opacity: 1, transform: 'scale(1)' },
+  },
+  // "Waiting for your input" (a pending AskUserQuestion): the highest-priority
+  // state — an amber dot, larger and pulsing more insistently (and less faded)
+  // than the sage "working" pulse, so it reads as "needs you", not "busy".
+  statusDotAwaiting: {
+    animation: '$sidebarAwaitingPulse 1.15s ease-in-out infinite',
+    '&:before': {
+      width: 10,
+      height: 10,
+      background: 'light-dark(#d9820c, #f4a836)',
+    },
+  },
+  '@keyframes sidebarAwaitingPulse': {
+    '0%, 100%': { opacity: 0.6, transform: 'scale(0.92)' },
+    '50%': { opacity: 1, transform: 'scale(1.12)' },
   },
   itemUnread: {
     '& $itemLabel': {
@@ -767,7 +785,13 @@ const ProjectSidebar = ({
                   role="button"
                   tabIndex={0}
                 >
-                  {status?.turnActive ? (
+                  {status?.awaitingInput ? (
+                    <span
+                      className={classNames(classes.statusDot, classes.statusDotAwaiting)}
+                      title="Waiting for your input"
+                      aria-label="Waiting for your input"
+                    />
+                  ) : status?.turnActive ? (
                     <span
                       className={classNames(classes.statusDot, classes.statusDotActive)}
                       title="Agent is working"
