@@ -49,15 +49,6 @@ export function $insertConversationBlockAtSelection(conversationId: string): str
  */
 const COLLAB_SYNC_DEADLINE_MS = 1500;
 
-/**
- * How long to keep looking for the conversation's block before concluding it
- * isn't in this document (deleted, or a legacy blockless conversation) and
- * falling back to the chat panel. Generous because a false "missing" (sync
- * still in flight) would bounce the user to the panel when the block was
- * about to appear.
- */
-const BLOCK_MISSING_DEADLINE_MS = 4000;
-
 const INTENT_TIMEOUT_MS = 15_000;
 
 function $findAgentBlockKey(conversationId: string): string | null {
@@ -75,16 +66,28 @@ function scrollNodeIntoView(editor: LexicalEditor, nodeKey: string): void {
   el?.scrollIntoView({ block: 'center', behavior: 'instant' });
 }
 
-export function WorkspaceIntentPlugin() {
+/**
+ * `active` gates whether this editor acts on workspace intents. During a
+ * document swap two editors are mounted at once (the outgoing document stays
+ * visible while the incoming one loads); only the pane whose document is the
+ * navigation target should handle intents. Otherwise the stale/visible editor —
+ * searching the wrong document — would hit the focus-conversation fallback and
+ * spuriously open the chat in the side panel.
+ */
+export function WorkspaceIntentPlugin({ active = true }: { active?: boolean } = {}) {
   const [editor] = useLexicalComposerContext();
   const workspace = useResearchWorkspaceApiOptional();
   const intent = workspace?.editorIntent ?? null;
 
   useEffect(() => {
-    if (!workspace || !intent) return;
+    if (!workspace || !intent || !active) return;
     const { nonce } = intent;
     let done = false;
     let writeReady = false;
+    // Set only on a real collaboration sync (never by the write-ready deadline),
+    // so the focus-conversation fallback can distinguish "synced, block genuinely
+    // absent" from "still loading".
+    let synced = false;
 
     const finish = () => {
       done = true;
@@ -121,9 +124,18 @@ export function WorkspaceIntentPlugin() {
         return;
       }
 
+      // focus-conversation: scroll to the conversation's inline block and raise
+      // its focus request. Fall back to the side panel only once the document has
+      // actually synced and the block still isn't here — so a slow-loading target
+      // doc isn't mistaken for a missing block.
       const existingKey = editor.read(() => $findAgentBlockKey(intent.conversationId));
       if (existingKey) {
         workspace.requestConversationFocus(intent.conversationId);
+        finish();
+        return;
+      }
+      if (synced) {
+        workspace.openConversationChat(intent.conversationId);
         finish();
       }
     };
@@ -131,6 +143,7 @@ export function WorkspaceIntentPlugin() {
     const removeUpdateListener = editor.registerUpdateListener(({ tags }) => {
       if (tags.has('collaboration')) {
         writeReady = true;
+        synced = true;
       }
       tryExecute();
     });
@@ -138,13 +151,14 @@ export function WorkspaceIntentPlugin() {
       writeReady = true;
       tryExecute();
     }, COLLAB_SYNC_DEADLINE_MS);
-    const blockMissingTimer = setTimeout(() => {
-      if (done || intent.kind !== 'focus-conversation') return;
-      workspace.openConversationChat(intent.conversationId);
-      finish();
-    }, BLOCK_MISSING_DEADLINE_MS);
+    // Backstop for a document that never syncs (e.g. offline): surface the chat
+    // in the side panel rather than leaving the click with no effect.
     const giveUpTimer = setTimeout(() => {
-      if (!done) finish();
+      if (done) return;
+      if (intent.kind === 'focus-conversation') {
+        workspace.openConversationChat(intent.conversationId);
+      }
+      finish();
     }, INTENT_TIMEOUT_MS);
 
     tryExecute();
@@ -152,11 +166,10 @@ export function WorkspaceIntentPlugin() {
     return () => {
       removeUpdateListener();
       clearTimeout(writeDeadlineTimer);
-      clearTimeout(blockMissingTimer);
       clearTimeout(giveUpTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, workspace, intent?.nonce]);
+  }, [editor, workspace, intent?.nonce, active]);
 
   return null;
 }

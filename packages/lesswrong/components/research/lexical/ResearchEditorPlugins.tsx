@@ -18,6 +18,12 @@ interface ResearchEditorPluginsProps {
    * instead of flashing an empty editor on navigation.
    */
   onReady?: () => void;
+  /**
+   * Whether this editor's document is the active navigation target. During a
+   * document swap two editors are mounted at once; only the active one should
+   * act on workspace intents (see WorkspaceIntentPlugin).
+   */
+  active?: boolean;
 }
 
 /**
@@ -52,13 +58,13 @@ function DocumentReadyPlugin({ onReady }: { onReady: () => void }) {
  * `ResearchEditorProvider` must wrap the whole editor — the decorator nodes
  * mounted by these plugins read `useResearchEditorEnvironment` at render time.
  */
-export function ResearchEditorPlugins({ projectId, onReady }: ResearchEditorPluginsProps) {
+export function ResearchEditorPlugins({ projectId, onReady, active }: ResearchEditorPluginsProps) {
   return (
     <>
       <QueryInputPlugin />
       <ConversationComposerPlugin />
       <MentionTypeaheadPlugin projectId={projectId} />
-      <WorkspaceIntentPlugin />
+      <WorkspaceIntentPlugin active={active} />
       {onReady && <DocumentReadyPlugin onReady={onReady} />}
     </>
   );

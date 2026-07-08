@@ -149,9 +149,12 @@ interface DocumentPaneInnerProps extends DocumentPaneProps {
   /** Fired when this pane's editor has loaded (see ResearchEditorPlugins.onReady).
    * Set only on the incoming pane during a swap, so DocumentPane knows when to promote it. */
   onReady?: () => void;
+  /** Whether this pane's document is the navigation target — only the active pane
+   * acts on workspace intents (see WorkspaceIntentPlugin). */
+  active?: boolean;
 }
 
-const DocumentPaneInner = ({ projectId, documentId, openConversation, onSelectDocument, onReady }: DocumentPaneInnerProps) => {
+const DocumentPaneInner = ({ projectId, documentId, openConversation, onSelectDocument, onReady, active }: DocumentPaneInnerProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
   const [commentsMarginEl, setCommentsMarginEl] = useState<HTMLDivElement | null>(null);
@@ -267,7 +270,7 @@ const DocumentPaneInner = ({ projectId, documentId, openConversation, onSelectDo
                   extraNodes={researchEditorNodes}
                   disableMentions
                 >
-                  <ResearchEditorPlugins projectId={projectId} onReady={onReady} />
+                  <ResearchEditorPlugins projectId={projectId} onReady={onReady} active={active} />
                 </LexicalEditor>
               </ResearchCommentsMarginHostProvider>
             </PendingConversationsProvider>
@@ -348,6 +351,7 @@ const DocumentPane = (props: DocumentPaneProps) => {
           <DocumentPaneInner
             {...props}
             documentId={id}
+            active={id === documentId}
             onReady={pending && id !== null ? () => promote(id) : undefined}
           />
         </div>
