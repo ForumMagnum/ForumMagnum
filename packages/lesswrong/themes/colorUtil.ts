@@ -196,7 +196,7 @@ export const invertIfDarkMode = (color: string) => `light-dark(${color},${invert
  * Converts an HSL color value to RGB. Conversion formula
  * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
  * Assumes h, s, and l are contained in the set [0, 1] and
- * returns r, g, and b in the set [0, 255].
+ * returns r, g, and b in the range [0, 1].
  *
  * Source: https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
  */
