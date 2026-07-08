@@ -146,8 +146,19 @@ export interface ConversationEventChunk {
   text: string;
 }
 
+/**
+ * Rewrite anchor tags so chat links open in a new tab (with `noopener`/
+ * `noreferrer`). Applied before `sanitize`, which keeps `target`/`rel` and
+ * normalizes the output. Anchors that already declare a `target` are left as-is.
+ * (The shared markdown-it instance is a singleton used elsewhere, so we can't
+ * configure its link rule; scoping the rewrite here keeps it to chat content.)
+ */
+export function openChatLinksInNewTab(html: string): string {
+  return html.replace(/<a\b(?![^>]*\btarget=)/gi, '<a target="_blank" rel="noopener noreferrer"');
+}
+
 export function renderChunkMarkdownToHtml(text: string): string {
-  return sanitize(getMarkdownItNoMathjax().render(text));
+  return sanitize(openChatLinksInNewTab(getMarkdownItNoMathjax().render(text)));
 }
 
 export function getConversationEventChunks(event: ResearchConversationEventLike): ConversationEventChunk[] {

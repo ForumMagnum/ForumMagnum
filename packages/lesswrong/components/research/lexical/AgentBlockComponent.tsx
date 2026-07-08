@@ -16,6 +16,7 @@ import {
   getConversationEventChunks,
   isVisibleConversationEvent,
   renderChunkMarkdownToHtml,
+  openChatLinksInNewTab,
 } from '../conversationEventFormat';
 import { ConversationTranscript } from '../ConversationTranscript';
 import { ConversationActions } from '../ConversationActions';
@@ -671,7 +672,7 @@ function BlurredPresentation({ events, turnInFlight, status, presentationHtml }:
   const [overflowing, setOverflowing] = useState(false);
 
   const html = useMemo(() => {
-    if (presentationHtml) return sanitize(presentationHtml);
+    if (presentationHtml) return sanitize(openChatLinksInNewTab(presentationHtml));
     const lastAssistantText = getLastAssistantText(events);
     return lastAssistantText ? renderChunkMarkdownToHtml(lastAssistantText) : null;
   }, [presentationHtml, events]);
