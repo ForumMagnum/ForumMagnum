@@ -1,7 +1,7 @@
 import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-import { researchAccentTint, researchWarmAlpha, researchRadius, researchChatSurface, researchChatSans } from '../research/researchStyleUtils';
+import { researchAccentTint, researchWarmAlpha, researchRadius, researchChatSurface, researchChatSans, researchInputBackground } from '../research/researchStyleUtils';
 
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
@@ -148,6 +148,17 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     borderTop: `1px solid ${researchWarmAlpha(0.1)}`,
     borderRadius: 0,
     background: 'transparent',
+  },
+  // Expanded: the composer reads as a real, inviting input — inset from the card
+  // edges, brighter than the surface, bordered and taller — so it's an obvious
+  // place to type rather than a chromeless strip.
+  '& .research-conversation[data-expanded="true"] .research-conversation-composer': {
+    margin: 10,
+    minHeight: '2.6em',
+    padding: '11px 44px 11px 13px',
+    border: `1px solid ${researchWarmAlpha(0.2)}`,
+    borderRadius: researchRadius.md,
+    background: researchInputBackground(theme),
   },
   // Collapsed block: show a dimmed, non-interactive preview of an unsent draft
   // (data-draft is set by the transcript component; see AgentBlockComponent) —

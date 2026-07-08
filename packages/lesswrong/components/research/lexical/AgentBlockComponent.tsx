@@ -350,16 +350,29 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
     return () => cancelAnimationFrame(raf);
   }, [hideComposer, focused]);
 
-  // v2 block: expand on a click anywhere in the card, not just the transcript —
-  // the collapsed draft preview is a pointer-events:none sibling, so clicks on
-  // it fall through to the wrapper, which otherwise had no expand handler.
+  // v2 block: a click anywhere in the card routes to the reply composer — expand
+  // the block if collapsed, otherwise drop the cursor into the input. Skipped
+  // when the click landed on something with its own behavior (a button/link, a
+  // header popover, or the composer's own editable), or when the user is
+  // selecting transcript text rather than clicking.
   useEffect(() => {
-    if (!hideComposer || focused) return;
+    if (!hideComposer) return;
     const wrapper = rootRef.current?.closest('.research-conversation');
     if (!wrapper) return;
-    const onClick = () => {
-      manualFocusRef.current = true;
-      setFocused(true);
+    const onClick = (e: Event) => {
+      const target = e.target instanceof Element ? e.target : null;
+      if (target?.closest('button, a, input, textarea, [role="button"], [data-research-popover]')) return;
+      if (!focused) {
+        manualFocusRef.current = true;
+        setFocused(true);
+        return;
+      }
+      // Already expanded. Clicks directly in the editable are handled natively;
+      // anywhere else in the card (padding, transcript whitespace) routes here.
+      if (target?.closest('.research-query-input-content')) return;
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed) return;
+      wrapper.querySelector<HTMLElement>('.research-query-input-content')?.focus();
     };
     wrapper.addEventListener('click', onClick);
     return () => wrapper.removeEventListener('click', onClick);
