@@ -1,4 +1,4 @@
-import { stableSortTags } from '../lib/collections/tags/helpers.ts';
+import { stableSortTags, tagUserHasSufficientKarma } from '../lib/collections/tags/helpers.ts';
 
 describe('stableSortTags', () => {
   it('sorts tags by core-ness, score, and name', () => {
@@ -49,5 +49,40 @@ describe('stableSortTags', () => {
       { tag: { name: 'Banana', core: false }, tagRel: null },
       { tag: { name: 'Apple', core: false }, tagRel: null },
     ]);
+  });
+});
+
+describe('tagUserHasSufficientKarma', () => {
+  it('rejects unreviewed zero-karma users', () => {
+    const user = {
+      isAdmin: false,
+      karma: 0,
+      reviewedByUserId: null,
+    };
+
+    expect(tagUserHasSufficientKarma(user, 'new')).toBe(false);
+    expect(tagUserHasSufficientKarma(user, 'edit')).toBe(false);
+  });
+
+  it('allows reviewed users who meet the karma threshold', () => {
+    const user = {
+      isAdmin: false,
+      karma: 1,
+      reviewedByUserId: 'moderator',
+    };
+
+    expect(tagUserHasSufficientKarma(user, 'new')).toBe(true);
+    expect(tagUserHasSufficientKarma(user, 'edit')).toBe(true);
+  });
+
+  it('allows admins regardless of review status or karma', () => {
+    const user = {
+      isAdmin: true,
+      karma: 0,
+      reviewedByUserId: null,
+    };
+
+    expect(tagUserHasSufficientKarma(user, 'new')).toBe(true);
+    expect(tagUserHasSufficientKarma(user, 'edit')).toBe(true);
   });
 });

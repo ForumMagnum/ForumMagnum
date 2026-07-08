@@ -77,9 +77,16 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
   return `/w/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
-export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
+interface TagPermissionUser {
+  isAdmin?: boolean | null;
+  karma: number;
+  reviewedByUserId?: string | null;
+}
+
+export const tagUserHasSufficientKarma = (user: TagPermissionUser | null, action: "new" | "edit"): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
+  if (!user.reviewedByUserId) return false
   if ((user.karma) >= getTagMinimumKarmaPermissions()[action]) return true
   return false
 }
