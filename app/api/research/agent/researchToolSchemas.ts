@@ -88,6 +88,26 @@ export const replyToResearchDocCommentSchema = z.object({
   comment: z.string().describe("The reply text in markdown"),
 });
 
+export const execInSandboxSchema = z.object({
+  cmd: z.string().min(1).max(4096).describe("Executable to run (e.g. 'sh', 'ps', 'pkill', 'kill')"),
+  args: z.array(z.string().max(8192)).max(256).optional().describe("Arguments to pass to cmd"),
+  cwd: z.string().max(4096).optional().describe("Working directory; defaults to the sandbox home"),
+  sudo: z.boolean().optional().describe("Run the command as root"),
+  timeoutMs: z
+    .number()
+    .int()
+    .positive()
+    .max(300_000)
+    .optional()
+    .describe("Abort the command after this many milliseconds (default 60000, max 300000)"),
+  resumeIfStopped: z
+    .boolean()
+    .optional()
+    .describe(
+      "If the sandbox is stopped, resume it from its snapshot to run the command. Off by default: a stopped sandbox has no live process to inspect or kill, and resuming boots a fresh session.",
+    ),
+});
+
 export const createResearchDocSchema = z.object({
   title: z
     .string()

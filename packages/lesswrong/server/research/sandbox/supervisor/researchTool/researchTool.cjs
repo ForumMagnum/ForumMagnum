@@ -21,6 +21,8 @@
  *   research-tool list-conversations
  *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
  *   research-tool set-presentation (--markdown "..." | --clear)
+ *   research-tool exec <conversationId> [--cwd "..."] [--sudo] [--timeout <ms>] [--resume] -- <cmd> [args...]
+ *   research-tool kill <conversationId> (--pid <n> | --pattern "...") [--signal <SIG>]
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
@@ -345,6 +347,57 @@ async function cmdSetPresentation(args) {
   printJson(result);
 }
 
+async function cmdExec(rawArgs) {
+  // Grammar: exec <conversationId> [--cwd <dir>] [--sudo] [--timeout <ms>] [--resume] -- <cmd> [args...]
+  // Everything after the first `--` is the command + its arguments, verbatim.
+  const sep = rawArgs.indexOf("--");
+  if (sep === -1) {
+    fail(1, "exec requires a command after `--`: exec <conversationId> [flags] -- <cmd> [args...]");
+  }
+  const left = parseArgs(rawArgs.slice(0, sep));
+  const cmdParts = rawArgs.slice(sep + 1);
+  const conversationId = left.positional[0];
+  if (!conversationId) fail(1, "exec requires <conversationId> before `--`");
+  if (cmdParts.length === 0) fail(1, "exec requires a command after `--`");
+
+  const body = { cmd: cmdParts[0], args: cmdParts.slice(1) };
+  if (left.flags.cwd !== undefined) body.cwd = left.flags.cwd;
+  if (left.flags.sudo !== undefined) body.sudo = true;
+  if (left.flags.resume !== undefined) body.resumeIfStopped = true;
+  if (left.flags.timeout !== undefined) {
+    const ms = Number(left.flags.timeout);
+    if (!Number.isFinite(ms) || ms <= 0) fail(1, "--timeout must be a positive number of milliseconds");
+    body.timeoutMs = ms;
+  }
+  const result = await callApi(
+    "POST",
+    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/exec`,
+    { body },
+  );
+  printJson(result);
+}
+
+async function cmdKill(args) {
+  // Sugar over `exec`: kill <conversationId> (--pid <n> | --pattern <text>) [--signal <SIG>]
+  const conversationId = args.positional[0];
+  if (!conversationId) fail(1, "kill requires <conversationId>");
+  const signal = args.flags.signal ?? "TERM";
+  let body;
+  if (args.flags.pid !== undefined) {
+    body = { cmd: "kill", args: [`-${signal}`, String(args.flags.pid)] };
+  } else if (args.flags.pattern !== undefined) {
+    body = { cmd: "pkill", args: [`-${signal}`, "-f", args.flags.pattern] };
+  } else {
+    fail(1, "kill requires one of --pid <n> or --pattern <text>");
+  }
+  const result = await callApi(
+    "POST",
+    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/exec`,
+    { body },
+  );
+  printJson(result);
+}
+
 async function cmdHelp() {
   const help = [
     "research-tool — in-sandbox client for the research agent API",
@@ -365,6 +418,11 @@ async function cmdHelp() {
     "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
     "  set-presentation  (--markdown <md> | --clear)   (this conversation's collapsed-block presentation)",
     "  dev       start | stop | restart    (control the supervised dev server)",
+    "  exec      <conversationId> [--cwd <dir>] [--sudo] [--timeout <ms>] [--resume] -- <cmd> [args...]",
+    "               (run a one-shot shell command in any of this project's sandboxes — e.g. to inspect",
+    "                or un-wedge a sibling instance whose sandbox is pegged; attaches to the running",
+    "                session and does NOT resume a stopped sandbox unless --resume is passed)",
+    "  kill      <conversationId> (--pid <n> | --pattern <text>) [--signal <SIG>]   (sugar over exec)",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN, RESEARCH_PROJECT_ID",
   ].join("\n");
@@ -425,6 +483,12 @@ async function main() {
       return;
     case "dev":
       await cmdDev(rest);
+      return;
+    case "exec":
+      await cmdExec(argv.slice(1));
+      return;
+    case "kill":
+      await cmdKill(rest);
       return;
     default:
       fail(1, `Unknown command: ${command}. Run \`research-tool help\` for usage.`);
