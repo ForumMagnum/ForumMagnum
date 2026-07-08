@@ -19,8 +19,40 @@ interface ConnectionInfo {
 
 const openConnections: Record<string, ConnectionInfo[]> = {};
 
+const ALLOWED_BASE_DOMAIN = 'effectivealtruism.org';
+
+function getAllowedOrigin(origin?: string): string | null {
+  if (!origin) {
+    return null;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return null;
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  if (
+    hostname === ALLOWED_BASE_DOMAIN ||
+    hostname.endsWith(`.${ALLOWED_BASE_DOMAIN}`)
+  ) {
+    return origin;
+  }
+
+  return null;
+}
+
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
+    const allowedOrigin = getAllowedOrigin(req.headers.origin);
+    if (allowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Vary', 'Origin');
+    }
+
     const parsedUrl = new URL(req.url, getSiteUrl())
     const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
     const apiVersion = parseInt(apiVersionStr);
