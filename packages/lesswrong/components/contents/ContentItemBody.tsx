@@ -19,7 +19,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
-import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
+import { colorToString, invertColorPreservingHue, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
@@ -707,7 +707,7 @@ function transformAttributeValueForDarkMode(attributeValue: string): string {
   if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
-      const invertedColor = invertColor(parsedColor);
+      const invertedColor = invertColorPreservingHue(parsedColor);
       getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black
