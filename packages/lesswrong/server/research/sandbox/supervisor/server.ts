@@ -77,6 +77,13 @@ export interface DispatchRequest {
   /** References attached as part of the user turn (file paths, doc handles, etc.). */
   references?: unknown[];
   /**
+   * Per-turn model (CLI alias like `opus`) + reasoning effort, chosen by the
+   * user. Absent → the sandbox's default model / the CLI's default effort. The
+   * hub respawns the (otherwise long-lived) claude process when either changes.
+   */
+  model?: string;
+  effort?: string;
+  /**
    * Agent-scoped sandbox-callback bearer minted by the backend per dispatch
    * (6h TTL — deliberately longer than the 5h sandbox session cap, so the
    * token a long-lived claude process received at spawn always outlives it).

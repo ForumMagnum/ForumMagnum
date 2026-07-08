@@ -17,6 +17,8 @@ import {
   isVisibleConversationEvent,
   renderChunkMarkdownToHtml,
   openChatLinksInNewTab,
+  getLastResponseModel,
+  formatModelName,
 } from '../conversationEventFormat';
 import { extractAskUserQuestion, collectAskUserQuestionAnswers } from '../researchAskUserQuestion';
 import { ConversationTranscript } from '../ConversationTranscript';
@@ -441,6 +443,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
     [events],
   );
   const userTurnCount = Math.max(conversation?.userTurnCount ?? 0, windowUserTurnCount);
+  const lastResponseModel = useMemo(() => getLastResponseModel(events), [events]);
 
   const focusRequest = workspace?.conversationFocusRequest ?? null;
   useEffect(() => {
@@ -602,6 +605,9 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
         <span className={classes.headerTitle}>{title}</span>
         <span className={classes.headerMeta}>
           · {userTurnCount} {userTurnCount === 1 ? 'turn' : 'turns'}
+          {lastResponseModel ? (
+            <> · <span title={lastResponseModel}>{formatModelName(lastResponseModel)}</span></>
+          ) : null}
         </span>
         <span className={classes.headerSpacer} />
         {focused ? (

@@ -23,11 +23,6 @@ export interface ConversationFocusRequest {
   nonce: number;
 }
 
-export interface ResearchChatSurfaceState {
-  conversationId: string;
-  fullscreen: boolean;
-}
-
 export interface SandboxFileView {
   conversationId: string;
   path: string;
@@ -40,7 +35,7 @@ export interface ResearchWorkspaceApi {
   requestConversationFocus: (conversationId: string) => void;
   ackConversationFocus: (nonce: number) => void;
   openConversationChat: (conversationId: string, opts?: { fullscreen?: boolean }) => void;
-  closeConversationChat: () => void;
+  closeConversationChat: (conversationId: string) => void;
   sandboxFileView: SandboxFileView | null;
   openSandboxFile: (conversationId: string, path: string) => void;
   closeSandboxFile: () => void;

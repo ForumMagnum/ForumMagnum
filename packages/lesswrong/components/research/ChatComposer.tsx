@@ -19,6 +19,12 @@ interface ChatComposerProps {
   disabled?: boolean;
   onSubmit: (promptHtml: string) => Promise<void> | void;
   extraActions?: React.ReactNode;
+  /**
+   * `button` (default) shows a round send button beside the box. `hint` matches
+   * the in-document v2 conversation composer: a taller, rounder box with a
+   * corner "⌘↵" affordance and no button.
+   */
+  submitStyle?: 'button' | 'hint';
 }
 
 const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
@@ -29,24 +35,28 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 10,
   },
+  // Sized to match the in-document Lexical conversation composer (the expanded
+  // `.research-conversation-composer` in ContentStylesValues): 15px chat font /
+  // 1.5 line-height, ~2.6em min height, roomier padding and md radius — so the
+  // sidebar reply box reads as the same input, not a smaller sibling.
   editorShell: {
     flex: 1,
     minWidth: 0,
-    minHeight: 34,
+    minHeight: 42,
     boxSizing: 'border-box',
-    padding: '7px 12px',
+    padding: '10px 13px',
     background: researchInputBackground(theme),
-    border: `1px solid ${researchWarmAlpha(0.12)}`,
-    borderRadius: researchRadius.sm,
+    border: `1px solid ${researchWarmAlpha(0.16)}`,
+    borderRadius: researchRadius.md,
     ...researchSquircle,
     fontFamily: researchChatSans,
-    fontSize: 14,
-    lineHeight: 1.45,
+    fontSize: 15,
+    lineHeight: 1.5,
     color: theme.palette.text.primary,
     cursor: 'text',
     transition: `border-color ${researchTransition}, box-shadow ${researchTransition}`,
     '&:hover': {
-      borderColor: researchWarmAlpha(0.2),
+      borderColor: researchWarmAlpha(0.24),
     },
     '&:focus-within': {
       borderColor: theme.palette.primary.main,
@@ -54,7 +64,7 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     },
     '& [contenteditable="true"]': {
       outline: 'none',
-      minHeight: 20,
+      minHeight: 22,
       maxHeight: 160,
       overflowY: 'auto',
     },
@@ -62,6 +72,25 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
   editorShellDisabled: {
     opacity: 0.6,
     pointerEvents: 'none',
+  },
+  // Hint mode: taller, rounder box with room on the right for the corner ⌘↵,
+  // matching the in-document v2 conversation composer.
+  editorShellHint: {
+    position: 'relative',
+    minHeight: 50,
+    padding: '13px 46px 13px 15px',
+    borderRadius: researchRadius.lg,
+    borderColor: researchWarmAlpha(0.2),
+  },
+  hint: {
+    position: 'absolute',
+    right: 12,
+    bottom: 9,
+    fontSize: 11,
+    lineHeight: 1,
+    color: theme.palette.text.dim,
+    pointerEvents: 'none',
+    userSelect: 'none',
   },
   actions: {
     display: 'flex',
@@ -98,12 +127,16 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
 
 const ChatComposer = ({
   projectId,
-  placeholder = 'Reply… (⌘↵ to send)',
+  placeholder,
   disabled = false,
   onSubmit,
   extraActions,
+  submitStyle = 'button',
 }: ChatComposerProps) => {
   const classes = useStyles(styles);
+  // In hint mode the corner "⌘↵" already conveys how to send, so the placeholder
+  // stays terse; button mode spells it out.
+  const effectivePlaceholder = placeholder ?? (submitStyle === 'hint' ? 'Reply…' : 'Reply… (⌘↵ to send)');
   const editorRef = useRef<LexicalEditor | null>(null);
 
   const handleSend = useCallback(async () => {
@@ -135,10 +168,17 @@ const ChatComposer = ({
           researchDocument content styles (full-height reading column), which
           otherwise match any descendant contenteditable of the document
           editor — see ContentStylesValues.ts. */}
-      <div className={classNames('research-chat-composer', classes.editorShell, disabled && classes.editorShellDisabled)}>
+      <div
+        className={classNames(
+          'research-chat-composer',
+          classes.editorShell,
+          submitStyle === 'hint' && classes.editorShellHint,
+          disabled && classes.editorShellDisabled,
+        )}
+      >
         <LexicalEditorRoot
           data=""
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           // No collectionName / documentId → collaboration is skipped
           // (see `shouldEnableCollaboration` in LexicalEditorRoot).
           extraNodes={chatComposerNodes}
@@ -149,20 +189,25 @@ const ChatComposer = ({
           <EditorRefPlugin editorRef={editorRef} />
           <MentionTypeaheadPlugin projectId={projectId} />
         </LexicalEditorRoot>
+        {submitStyle === 'hint' ? <span className={classes.hint} aria-hidden="true">⌘↵</span> : null}
       </div>
-      <div className={classes.actions}>
-        {extraActions}
-        <button
-          type="button"
-          className={classes.sendButton}
-          onClick={handleSend}
-          disabled={disabled}
-          title="Send (⌘↵)"
-          aria-label="Send"
-        >
-          <ForumIcon icon="ArrowRightOutline" className={classes.sendIcon} />
-        </button>
-      </div>
+      {submitStyle === 'button' || extraActions ? (
+        <div className={classes.actions}>
+          {extraActions}
+          {submitStyle === 'button' ? (
+            <button
+              type="button"
+              className={classes.sendButton}
+              onClick={handleSend}
+              disabled={disabled}
+              title="Send (⌘↵)"
+              aria-label="Send"
+            >
+              <ForumIcon icon="ArrowRightOutline" className={classes.sendIcon} />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 };

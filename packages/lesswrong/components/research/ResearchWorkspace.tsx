@@ -16,14 +16,23 @@ import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import { ConversationChatView } from './ConversationChatView';
+import { ChatTilingSurface } from './ChatTilingSurface';
 import { SandboxFileViewer } from './SandboxFileViewer';
 import { useMarkConversationRead } from './hooks/useMarkConversationRead';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import {
+  EMPTY_CHAT_LAYOUT,
+  openTile,
+  closeTile,
+  isChatLayoutEmpty,
+  parseChatLayout,
+  serializeChatLayout,
+  type ChatTilingLayout,
+} from './chatTilingLayout';
+import {
   ResearchWorkspaceProvider,
   type ResearchEditorIntent,
   type ConversationFocusRequest,
-  type ResearchChatSurfaceState,
   type SandboxFileView,
   type ResearchWorkspaceApi,
 } from './researchWorkspaceContext';
@@ -48,8 +57,15 @@ const SIDEBAR_COLLAPSED_WIDTH = 37;
 
 const CHAT_PANEL_WIDTH_STORAGE_KEY = 'researchChatPanelWidth';
 const CHAT_PANEL_MIN_WIDTH = 320;
-const CHAT_PANEL_MAX_WIDTH = 720;
+// The chat surface can now hold several tiled columns, so allow it to be dragged
+// much wider than the single-panel era. (The document pane is flex:1 with
+// minWidth:0, so it yields as the chat area grows.)
+const CHAT_PANEL_MAX_WIDTH = 1800;
 const CHAT_PANEL_DEFAULT_WIDTH = 420;
+// A chat tile stays readable down to about this width; the number of columns the
+// surface will open before it starts stacking two chats per column is the area
+// width divided by this.
+const CHAT_MIN_COLUMN_WIDTH = 340;
 
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
@@ -164,6 +180,25 @@ function readStoredWidth(storageKey: string, minWidth: number, maxWidth: number,
   return Math.min(maxWidth, Math.max(minWidth, parsed));
 }
 
+// The chat tiling layout persists per-device (localStorage), keyed by project so
+// each project restores its own open chats / columns / sizes on refresh.
+const CHAT_LAYOUT_STORAGE_PREFIX = 'researchChatLayout:';
+
+function readStoredChatLayout(projectId: string): ChatTilingLayout | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(`${CHAT_LAYOUT_STORAGE_PREFIX}${projectId}`);
+  return raw ? parseChatLayout(raw) : null;
+}
+
+function writeStoredChatLayout(projectId: string, layout: ChatTilingLayout): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(`${CHAT_LAYOUT_STORAGE_PREFIX}${projectId}`, serializeChatLayout(layout));
+  } catch {
+    // Storage full or disabled (private mode) — persistence is best-effort.
+  }
+}
+
 /**
  * Research workspace shell: a hidden-site-header, full-viewport, IDE-style
  * layout — resizable ProjectSidebar | DocumentPane. Conversations live inline
@@ -196,10 +231,18 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [resizing, setResizing] = useState(false);
-  const [chatSurface, setChatSurface] = useState<ResearchChatSurfaceState | null>(null);
+  // The chat surface is a tiling layout of columns×tiles; `fullscreenConversationId`,
+  // when set, promotes one of those open chats to a fullscreen overlay while the
+  // tiling layout persists underneath.
+  const [chatLayout, setChatLayout] = useState<ChatTilingLayout>(EMPTY_CHAT_LAYOUT);
+  const [fullscreenConversationId, setFullscreenConversationId] = useState<string | null>(null);
   const [chatPanelWidth, setChatPanelWidth] = useState(CHAT_PANEL_DEFAULT_WIDTH);
   const [chatPanelResizing, setChatPanelResizing] = useState(false);
   const [sandboxFileView, setSandboxFileView] = useState<SandboxFileView | null>(null);
+  // Latest chat-area width, read (not subscribed) when opening a chat to decide
+  // how many columns currently fit.
+  const chatPanelWidthRef = useRef(CHAT_PANEL_DEFAULT_WIDTH);
+  chatPanelWidthRef.current = chatPanelWidth;
 
   const [editorIntent, setEditorIntent] = useState<ResearchEditorIntent | null>(null);
   const [conversationFocusRequest, setConversationFocusRequest] = useState<ConversationFocusRequest | null>(null);
@@ -209,6 +252,22 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     setSidebarWidth(readStoredWidth(SIDEBAR_WIDTH_STORAGE_KEY, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_DEFAULT_WIDTH));
     setChatPanelWidth(readStoredWidth(CHAT_PANEL_WIDTH_STORAGE_KEY, CHAT_PANEL_MIN_WIDTH, CHAT_PANEL_MAX_WIDTH, CHAT_PANEL_DEFAULT_WIDTH));
   }, []);
+
+  // Restore the persisted tiling layout for this project on mount, then persist
+  // it on every change. `chatLayoutSaveArmedRef` skips the first save pass so the
+  // initial empty layout can't clobber stored data before the restore lands.
+  const chatLayoutSaveArmedRef = useRef(false);
+  useEffect(() => {
+    const stored = readStoredChatLayout(projectId);
+    if (stored) setChatLayout(stored);
+  }, [projectId]);
+  useEffect(() => {
+    if (!chatLayoutSaveArmedRef.current) {
+      chatLayoutSaveArmedRef.current = true;
+      return;
+    }
+    writeStoredChatLayout(projectId, chatLayout);
+  }, [chatLayout, projectId]);
 
   useEffect(() => {
     const readDocIdFromUrl = () => {
@@ -270,13 +329,26 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
 
   const markConversationRead = useMarkConversationRead();
 
+  // How many columns currently fit the chat area, from its live width.
+  const computeMaxColumns = useCallback(
+    () => Math.max(1, Math.floor(chatPanelWidthRef.current / CHAT_MIN_COLUMN_WIDTH)),
+    [],
+  );
+
+  // Open a conversation as a tile in the chat surface (splitting to make room per
+  // the packing policy). Clears any fullscreen overlay so the new tile is visible.
+  const openChatTile = useCallback((conversationId: string) => {
+    setChatLayout((prev) => openTile(prev, conversationId, computeMaxColumns()));
+    setFullscreenConversationId(null);
+  }, [computeMaxColumns]);
+
   const openConversation = useCallback((conversationId: string) => {
     markConversationRead(conversationId);
     const conversation = conversationsRef.current?.find((c) => c._id === conversationId);
     const entrypointDocumentId =
       conversation?.entrypointKind === 'document' ? conversation?.entrypointDocumentId ?? null : null;
     if (!entrypointDocumentId) {
-      setChatSurface({ conversationId, fullscreen: false });
+      openChatTile(conversationId);
       return;
     }
     setActiveDocumentId(entrypointDocumentId);
@@ -286,7 +358,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
       conversationId,
       nonce: intentNonceRef.current,
     });
-  }, [setActiveDocumentId, markConversationRead]);
+  }, [setActiveDocumentId, markConversationRead, openChatTile]);
 
   const startNewConversation = useCallback(async () => {
     const result = await ensureScratchDocument({ variables: { projectId } });
@@ -308,19 +380,24 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
 
   const openConversationChat = useCallback((conversationId: string, opts?: { fullscreen?: boolean }) => {
     markConversationRead(conversationId);
-    setChatSurface({ conversationId, fullscreen: opts?.fullscreen ?? false });
-  }, [markConversationRead]);
+    // Always open (or focus) the tile in the layout, so exiting fullscreen lands
+    // back on it; then promote to fullscreen when requested.
+    setChatLayout((prev) => openTile(prev, conversationId, computeMaxColumns()));
+    setFullscreenConversationId(opts?.fullscreen ? conversationId : null);
+  }, [markConversationRead, computeMaxColumns]);
 
-  const closeConversationChat = useCallback(() => {
-    setChatSurface(null);
+  const closeConversationChat = useCallback((conversationId: string) => {
+    setChatLayout((prev) => closeTile(prev, conversationId));
+    setFullscreenConversationId((prev) => (prev === conversationId ? null : prev));
   }, []);
 
-  const setChatFullscreen = useCallback((fullscreen: boolean) => {
-    setChatSurface((prev) => (prev ? { ...prev, fullscreen } : prev));
+  const toggleChatFullscreen = useCallback((conversationId: string) => {
+    setFullscreenConversationId((prev) => (prev === conversationId ? null : conversationId));
   }, []);
 
   const openChatConversationInDocument = useCallback((conversationId: string) => {
-    setChatSurface(null);
+    setChatLayout((prev) => closeTile(prev, conversationId));
+    setFullscreenConversationId((prev) => (prev === conversationId ? null : prev));
     void openConversation(conversationId);
   }, [openConversation]);
 
@@ -446,7 +523,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               openConversation={openConversation}
               onSelectDocument={setActiveDocumentId}
             />
-            {sandboxFileView && !chatSurface?.fullscreen ? (
+            {sandboxFileView && !fullscreenConversationId ? (
               <SandboxFileViewer
                 conversationId={sandboxFileView.conversationId}
                 path={sandboxFileView.path}
@@ -454,32 +531,41 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               />
             ) : null}
           </div>
-          {chatSurface ? (
-            <div
-              className={chatSurface.fullscreen ? classes.fullscreenChat : classes.chatPanel}
-              style={chatSurface.fullscreen
-                ? { left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }
-                : { width: chatPanelWidth }}
-            >
-              {!chatSurface.fullscreen && (
-                <div
-                  key="resize-handle"
-                  className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
-                  onPointerDown={handleChatPanelResizeStart}
-                  role="separator"
-                  aria-orientation="vertical"
-                  aria-label="Resize chat panel"
-                />
-              )}
-              <ConversationChatView
-                key="chat-view"
-                conversationId={chatSurface.conversationId}
+          {!isChatLayoutEmpty(chatLayout) ? (
+            <div className={classes.chatPanel} style={{ width: chatPanelWidth }}>
+              <div
+                key="resize-handle"
+                className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
+                onPointerDown={handleChatPanelResizeStart}
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Resize chat panel"
+              />
+              <ChatTilingSurface
+                layout={chatLayout}
                 projectId={projectId}
                 activeDocumentId={activeDocumentId}
-                variant={chatSurface.fullscreen ? 'fullscreen' : 'panel'}
-                onClose={closeConversationChat}
-                onToggleFullscreen={() => setChatFullscreen(!chatSurface.fullscreen)}
-                onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
+                onCloseTile={closeConversationChat}
+                onToggleFullscreen={toggleChatFullscreen}
+                onOpenTileInDocument={openChatConversationInDocument}
+                onLayoutChange={setChatLayout}
+              />
+            </div>
+          ) : null}
+          {fullscreenConversationId ? (
+            <div
+              className={classes.fullscreenChat}
+              style={{ left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }}
+            >
+              <ConversationChatView
+                key="fullscreen-chat"
+                conversationId={fullscreenConversationId}
+                projectId={projectId}
+                activeDocumentId={activeDocumentId}
+                variant="fullscreen"
+                onClose={() => closeConversationChat(fullscreenConversationId)}
+                onToggleFullscreen={() => setFullscreenConversationId(null)}
+                onOpenInDocument={() => openChatConversationInDocument(fullscreenConversationId)}
               />
             </div>
           ) : null}
