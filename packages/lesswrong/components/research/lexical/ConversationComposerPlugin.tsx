@@ -7,21 +7,13 @@ import {
   $createParagraphNode,
   $createRangeSelection,
   $getNodeByKey,
-  $getRoot,
   $getSelection,
   $isElementNode,
-  $isParagraphNode,
   $isRangeSelection,
-  $isRootNode,
-  $isTextNode,
   COMMAND_PRIORITY_CRITICAL,
-  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   KEY_BACKSPACE_COMMAND,
   KEY_DOWN_COMMAND,
-  KEY_ENTER_COMMAND,
-  createCommand,
-  type LexicalCommand,
   type LexicalEditor,
   type LexicalNode,
 } from 'lexical';
@@ -31,15 +23,14 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { randomId } from '@/lib/random';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { pushOptimisticEvent, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
-import { $isAgentBlockNode } from './AgentBlockNode';
 import {
-  $createPopulatedConversationComposerNode,
   $isConversationComposerNode,
   ConversationComposerNode,
 } from './ConversationComposerNode';
 import { $createQueryInputContentNode, $isQueryInputContentNode, QueryInputContentNode } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
 import { isSandboxWarmingError } from '../sandboxWarming';
+import { resolveInitialSelection } from '../useModelEffortSelection';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
@@ -47,48 +38,13 @@ import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/E
 
 const SUGGESTION_MODE_MESSAGE = 'Conversation composers are not supported in suggesting mode';
 
-const REPLY_COMMAND_PREFIX = '/reply ';
-const REPLY_BARE = '/reply';
-
-export const INSERT_CONVERSATION_COMPOSER_COMMAND: LexicalCommand<void> = createCommand(
-  'INSERT_CONVERSATION_COMPOSER_COMMAND',
-);
-
 const ContinueResearchConversationFromDocumentComposerMutation = gql(`
-  mutation ContinueResearchConversationFromDocumentComposer($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
-    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
+  mutation ContinueResearchConversationFromDocumentComposer($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!, $model: String, $effort: String) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId, model: $model, effort: $effort) {
       conversationId
     }
   }
 `);
-
-/** Find the conversationId of the nearest AgentBlock preceding `block` at the
- * document root, so an inserted composer replies to the conversation just above
- * it. Returns null if there's no conversation above. */
-function $findConversationIdAbove(block: LexicalNode | null): string | null {
-  let cursor: LexicalNode | null = block ? block.getPreviousSibling() : null;
-  while (cursor) {
-    if ($isAgentBlockNode(cursor)) return cursor.getConversationId();
-    cursor = cursor.getPreviousSibling();
-  }
-  return null;
-}
-
-function $insertConversationComposerAtSelection(flash: WithMessagesFunctions['flash']): void {
-  const selection = $getSelection();
-  const block = $isRangeSelection(selection)
-    ? selection.anchor.getNode().getTopLevelElement()
-    : null;
-  const conversationId = $findConversationIdAbove(block);
-  if (!conversationId) {
-    flash({ messageString: 'Insert a reply composer below a conversation to continue it.', type: 'error' });
-    return;
-  }
-  const { node, content } = $createPopulatedConversationComposerNode(conversationId);
-  if (block) block.replace(node);
-  else $getRoot().append(node);
-  content.getFirstChild()?.selectStart();
-}
 
 function $ensureConversationComposerStructure(node: ConversationComposerNode): void {
   let content: QueryInputContentNode | null = null;
@@ -122,7 +78,7 @@ interface SendArgs {
   composerKey: string;
   conversationId: string;
   promptHtml: string;
-  continueConversation: (opts: { variables: { conversationId: string; promptHtml: string; activeDocumentId: string } }) => Promise<unknown>;
+  continueConversation: (opts: { variables: { conversationId: string; promptHtml: string; activeDocumentId: string; model?: string; effort?: string } }) => Promise<unknown>;
   flash: WithMessagesFunctions['flash'];
 }
 
@@ -136,8 +92,11 @@ async function sendContinue({
   flash,
 }: SendArgs): Promise<void> {
   try {
+    // Honor the conversation's per-device model/effort selection (set from its
+    // chat/agent-block picker), read fresh at send time.
+    const { model, effort } = resolveInitialSelection(conversationId);
     await continueConversation({
-      variables: { conversationId, promptHtml, activeDocumentId: env.documentId },
+      variables: { conversationId, promptHtml, activeDocumentId: env.documentId, model, effort },
     });
   } catch (err) {
     if (isSandboxWarmingError(err)) {
@@ -168,21 +127,11 @@ async function sendContinue({
   }
 }
 
-function $isTopLevelParagraphWithText(textNode: LexicalNode | null, expectedText: string): boolean {
-  if (!$isTextNode(textNode)) return false;
-  const parent = textNode.getParent();
-  if (!parent || !$isParagraphNode(parent)) return false;
-  if (parent.getChildrenSize() !== 1) return false;
-  if (!$isRootNode(parent.getParent())) return false;
-  return parent.getTextContent() === expectedText;
-}
-
 /**
- * Behaviour for the in-document conversation composer (ConversationComposerNode):
- * `/reply` autoformat + insert command, Cmd/Ctrl+Enter to send (fires
- * `continueResearchConversation` and clears the draft), backspace-to-dissolve,
- * and structure normalization. Mirrors QueryInputPlugin, but continues an
- * existing conversation instead of starting a new one.
+ * Behaviour for the in-document conversation composer (ConversationComposerNode),
+ * the reply box baked into each v2 conversation block: Cmd/Ctrl+Enter to send
+ * (fires `continueResearchConversation` and clears the draft),
+ * backspace-to-dissolve, and structure normalization.
  */
 export function ConversationComposerPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -203,40 +152,6 @@ export function ConversationComposerPlugin() {
     }
 
     return mergeRegister(
-      editor.registerCommand(
-        INSERT_CONVERSATION_COMPOSER_COMMAND,
-        () => {
-          if (isSuggestionModeRef.current) {
-            flash({ messageString: SUGGESTION_MODE_MESSAGE, type: 'error' });
-            return true;
-          }
-          editor.update(() => $insertConversationComposerAtSelection(flash));
-          return true;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
-
-      // Autoformat on `/reply<space>` at a top-level paragraph.
-      editor.registerUpdateListener(({ dirtyLeaves, tags, editorState }) => {
-        if (tags.has('collaboration')) return;
-        if (dirtyLeaves.size === 0) return;
-        let hasMatch = false;
-        editorState.read(() => {
-          for (const key of dirtyLeaves) {
-            if ($isTopLevelParagraphWithText($getNodeByKey(key), REPLY_COMMAND_PREFIX)) {
-              hasMatch = true;
-              return;
-            }
-          }
-        });
-        if (!hasMatch) return;
-        if (isSuggestionModeRef.current) {
-          flash({ messageString: SUGGESTION_MODE_MESSAGE, type: 'error' });
-          return;
-        }
-        editor.update(() => $insertConversationComposerAtSelection(flash));
-      }),
-
       // Submit on Cmd/Ctrl+Enter inside a composer (see QueryInputPlugin for why
       // this runs at KEY_DOWN + CRITICAL).
       editor.registerCommand(
@@ -309,32 +224,6 @@ export function ConversationComposerPlugin() {
           return true;
         },
         COMMAND_PRIORITY_CRITICAL,
-      ),
-
-      // Insert on plain Enter at the end of a bare `/reply` paragraph.
-      editor.registerCommand(
-        KEY_ENTER_COMMAND,
-        (event) => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
-          if (event && (event.metaKey || event.ctrlKey)) return false;
-
-          const block = selection.anchor.getNode().getTopLevelElement();
-          if (!block || !$isParagraphNode(block)) return false;
-          if (!$isRootNode(block.getParent())) return false;
-          if (block.getTextContent() !== REPLY_BARE) return false;
-
-          if (isSuggestionModeRef.current) {
-            flash({ messageString: SUGGESTION_MODE_MESSAGE, type: 'error' });
-            event?.preventDefault();
-            return true;
-          }
-
-          editor.update(() => $insertConversationComposerAtSelection(flash));
-          event?.preventDefault();
-          return true;
-        },
-        COMMAND_PRIORITY_HIGH,
       ),
 
       // Backspace at the start of an empty composer → dissolve to a paragraph.

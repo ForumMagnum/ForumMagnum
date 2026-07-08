@@ -13,12 +13,37 @@ export const RESEARCH_MODEL_ALIASES: readonly ResearchModelAlias[] = ['fable', '
 export const RESEARCH_EFFORT_LEVELS: readonly ResearchEffortLevel[] = ['low', 'medium', 'high', 'xhigh', 'max'];
 export const DEFAULT_RESEARCH_EFFORT: ResearchEffortLevel = 'medium';
 
+/**
+ * The model alias the picker shows (and sends) until the user picks otherwise.
+ * Kept in sync with the sandbox's server-side `RESEARCH_AGENT_MODEL` default so
+ * an untouched picker reproduces the backend's default behaviour rather than
+ * silently overriding it.
+ */
+export const DEFAULT_RESEARCH_MODEL: ResearchModelAlias = 'fable';
+
 /** Display labels — family only, no version numbers (versions live in tooltips). */
 export const MODEL_ALIAS_LABELS: Record<ResearchModelAlias, string> = {
   fable: 'Fable',
   opus: 'Opus',
   sonnet: 'Sonnet',
   haiku: 'Haiku',
+};
+
+/** Fuller "family + version" names, surfaced in the picker's option tooltips. */
+export const MODEL_ALIAS_TOOLTIPS: Record<ResearchModelAlias, string> = {
+  fable: 'Claude Fable 5',
+  opus: 'Claude Opus 4.8',
+  sonnet: 'Claude Sonnet 4.6',
+  haiku: 'Claude Haiku 4.5',
+};
+
+/** Human-facing label for a reasoning-effort level (title-cased alias). */
+export const EFFORT_LEVEL_LABELS: Record<ResearchEffortLevel, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  xhigh: 'Extra high',
+  max: 'Max',
 };
 
 export function isResearchModelAlias(value: unknown): value is ResearchModelAlias {
@@ -29,9 +54,15 @@ export function isResearchEffortLevel(value: unknown): value is ResearchEffortLe
   return typeof value === 'string' && (RESEARCH_EFFORT_LEVELS as readonly string[]).includes(value);
 }
 
-/** Map a full model id (e.g. `claude-opus-4-8`) to its family alias, or null. */
+/**
+ * Map either a bare family alias (`opus`) or a full model id (`claude-opus-4-8`)
+ * to its family alias, or null. Accepting both matters for the supervisor's
+ * respawn check, which compares the client's per-turn alias against the
+ * full-id `RESEARCH_AGENT_MODEL` default.
+ */
 export function modelIdToAlias(model: string | null | undefined): ResearchModelAlias | null {
   if (!model) return null;
+  if (isResearchModelAlias(model)) return model;
   const family = model.match(/^claude-([a-z]+)/i)?.[1]?.toLowerCase();
   return family && isResearchModelAlias(family) ? family : null;
 }

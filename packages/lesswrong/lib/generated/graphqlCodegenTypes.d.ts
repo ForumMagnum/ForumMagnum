@@ -2353,7 +2353,9 @@ type FireResearchConversationInput = {
   activeDocumentId: Scalars['String']['input'];
   baseEnvironmentId?: InputMaybe<Scalars['String']['input']>;
   conversationId: Scalars['String']['input'];
+  effort?: InputMaybe<Scalars['String']['input']>;
   kind: ResearchEntrypointKind;
+  model?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   runtime?: InputMaybe<Scalars['String']['input']>;
@@ -4164,6 +4166,8 @@ type MutationconnectCrossposterArgs = {
 type MutationcontinueResearchConversationArgs = {
   activeDocumentId: Scalars['String']['input'];
   conversationId: Scalars['String']['input'];
+  effort?: InputMaybe<Scalars['String']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
   promptHtml: Scalars['String']['input'];
 };
 
@@ -18084,6 +18088,8 @@ type ContinueResearchConversationFromChatViewMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18131,6 +18137,8 @@ type FireDocumentConversationMutationVariables = Exact<{
   promptHtml: Scalars['String']['input'];
   baseEnvironmentId: InputMaybe<Scalars['String']['input']>;
   runtime: InputMaybe<Scalars['String']['input']>;
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18504,6 +18512,8 @@ type ContinueResearchConversationFromBlockMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18530,6 +18540,8 @@ type ContinueResearchConversationFromDocumentComposerMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

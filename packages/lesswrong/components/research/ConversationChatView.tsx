@@ -17,6 +17,8 @@ import { isVisibleConversationEvent, getLastResponseModel } from './conversation
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
+import { ModelEffortPicker } from './ModelEffortPicker';
+import { useModelEffortSelection } from './useModelEffortSelection';
 import { PanelRightIcon } from './PanelRightIcon';
 import { SandboxStatsFooter } from './SandboxStatsFooter';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
@@ -37,8 +39,8 @@ const ConversationChatViewQuery = gql(`
 `);
 
 const ContinueResearchConversationFromChatViewMutation = gql(`
-  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
-    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
+  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!, $model: String, $effort: String) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId, model: $model, effort: $effort) {
       conversationId
     }
   }
@@ -271,6 +273,7 @@ export const ConversationChatView = ({
 
   const [continueConversation] = useMutation(ContinueResearchConversationFromChatViewMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationFromChatViewMutation);
+  const { selection: modelEffort, setModel, setEffort } = useModelEffortSelection(conversationId);
 
   const handleSend = useCallback(async (promptHtml: string) => {
     if (sending || !activeDocumentId) return;
@@ -287,7 +290,7 @@ export const ConversationChatView = ({
         createdAt: new Date().toISOString(),
       });
       await continueConversation({
-        variables: { conversationId, promptHtml, activeDocumentId },
+        variables: { conversationId, promptHtml, activeDocumentId, model: modelEffort.model, effort: modelEffort.effort },
       });
       refresh();
     } catch (err) {
@@ -303,7 +306,7 @@ export const ConversationChatView = ({
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, activeDocumentId, continueConversation, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
+  }, [sending, conversationId, activeDocumentId, continueConversation, modelEffort.model, modelEffort.effort, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
 
   const handleCancel = useCallback(async () => {
     await cancelConversation({ variables: { conversationId } });
@@ -410,6 +413,14 @@ export const ConversationChatView = ({
                   disabled={sending || !activeDocumentId}
                   onSubmit={handleSend}
                   submitStyle="hint"
+                  extraActions={
+                    <ModelEffortPicker
+                      selection={modelEffort}
+                      onModelChange={setModel}
+                      onEffortChange={setEffort}
+                      disabled={sending}
+                    />
+                  }
                 />
               </div>
             </>

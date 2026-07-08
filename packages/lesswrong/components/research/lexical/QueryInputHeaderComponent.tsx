@@ -10,6 +10,8 @@ import { researchMono, researchWarmAlpha, researchRadius } from '../researchStyl
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { ResearchEnvironmentsByProjectQuery } from '../researchEnvironmentsQuery';
 import { useResearchEditorEnvironmentOptional } from './ResearchEditorContext';
+import { ModelEffortPicker } from '../ModelEffortPicker';
+import { useModelEffortSelection } from '../useModelEffortSelection';
 import {
   $isQueryInputNode,
   type QueryInputSelection,
@@ -83,6 +85,11 @@ export function QueryInputHeaderComponent({
   const hasHydratedRef = useRef(false);
   const env = useResearchEditorEnvironmentOptional();
   const projectId = env?.projectId ?? null;
+
+  // No conversation exists until the query fires, so the picker edits the
+  // global default selection (keyed by null); QueryInputPlugin reads that same
+  // default at fire time. The new conversation then inherits it.
+  const { selection: modelEffort, setModel, setEffort } = useModelEffortSelection(null);
 
   // The selection lives on the parent QueryInputNode, but decorate() only
   // re-runs when this DecoratorNode is dirty — not when the parent mutates.
@@ -208,6 +215,11 @@ export function QueryInputHeaderComponent({
           </optgroup>
         )}
       </select>
+      <ModelEffortPicker
+        selection={modelEffort}
+        onModelChange={setModel}
+        onEffortChange={setEffort}
+      />
       <span className={classes.runHint} title="Run query">⌘↵</span>
     </span>
   );
