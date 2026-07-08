@@ -21,7 +21,6 @@ import SectionTitle from "../common/SectionTitle";
 import HeadTags from "../common/HeadTags";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
-import SpotlightItem from "../spotlights/SpotlightItem";
 import LWTooltip from "../common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
@@ -945,7 +944,6 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
           <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.post?.reviewWinner?.reviewYear}`}>
             <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
           </LWTooltip>
-          <SpotlightItem spotlight={spotlight} showSubtitle={false} />
         </div>)}
       </div>
     </div>

@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
-import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
 import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
@@ -64,7 +61,6 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <DismissibleSpotlightItem current/> 
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}

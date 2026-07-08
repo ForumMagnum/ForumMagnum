@@ -2788,33 +2788,15 @@ CREATE TABLE "Spotlights" (
   "description_latest" TEXT,
   "documentId" TEXT NOT NULL,
   "documentType" TEXT NOT NULL DEFAULT 'Sequence',
-  "position" DOUBLE PRECISION NOT NULL,
-  "duration" DOUBLE PRECISION NOT NULL DEFAULT 3,
-  "customTitle" TEXT,
-  "customSubtitle" TEXT,
-  "subtitleUrl" TEXT,
-  "headerTitle" TEXT,
-  "headerTitleLeftColor" TEXT,
-  "headerTitleRightColor" TEXT,
-  "lastPromotedAt" TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
-  "spotlightSplashImageUrl" TEXT,
-  "draft" BOOL NOT NULL DEFAULT TRUE,
-  "deletedDraft" BOOL NOT NULL DEFAULT FALSE,
-  "showAuthor" BOOL NOT NULL DEFAULT FALSE,
-  "imageFade" BOOL NOT NULL DEFAULT TRUE,
+  "title" TEXT,
+  "startAt" TIMESTAMPTZ,
+  "endAt" TIMESTAMPTZ,
   "imageFadeColor" TEXT,
-  "spotlightImageId" TEXT,
-  "spotlightDarkImageId" TEXT
+  "imageId" TEXT
 );
 
 -- Index "idx_Spotlights_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Spotlights_schemaVersion" ON "Spotlights" USING btree ("schemaVersion");
-
--- Index "idx_Spotlights_lastPromotedAt"
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_lastPromotedAt" ON "Spotlights" USING btree ("lastPromotedAt");
-
--- Index "idx_Spotlights_position"
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_position" ON "Spotlights" USING btree ("position");
 
 -- Table "Subscriptions"
 CREATE TABLE "Subscriptions" (

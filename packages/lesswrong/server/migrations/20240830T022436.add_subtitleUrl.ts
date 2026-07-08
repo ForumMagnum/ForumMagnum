@@ -34,13 +34,13 @@
 export const acceptsSchemaHash = "17afacac40e75c7380478219e9b4f751";
 
 import Spotlights from "@/server/collections/spotlights/collection"
-import { addField, dropField } from "./meta/utils"
+import { addRemovedField, dropField } from "./meta/utils"
+import { StringType } from "../sql/Type";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Spotlights, "subtitleUrl")
+  await addRemovedField(db, Spotlights, "subtitleUrl", new StringType())
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
   await dropField(db, Spotlights, "subtitleUrl")
 }

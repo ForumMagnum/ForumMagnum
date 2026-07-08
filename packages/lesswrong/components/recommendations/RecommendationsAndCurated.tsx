@@ -10,7 +10,6 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
 import ContinueReadingList from "./ContinueReadingList";
@@ -226,12 +225,6 @@ const RecommendationsAndCurated = ({
 
     const bodyNode = (
       <>
-        {isLW && (
-          <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <DismissibleSpotlightItem current />
-          </AnalyticsContext>
-        )}
-
         {/*Delete after the dust has settled on other Recommendations stuff*/}
         {!currentUser && isLW && (
           <div>

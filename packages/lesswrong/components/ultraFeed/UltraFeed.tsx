@@ -21,10 +21,8 @@ import FeedItemWrapper from "./FeedItemWrapper";
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
-import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
-import SpotlightItem from "../spotlights/SpotlightItem";
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -132,22 +130,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       display: 'none',
     },
   },
-  ultraFeedSpotlightTitle: {
-    '& .SpotlightItem-title': {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontVariant: 'normal',
-      fontSize: '1.4rem',
-      fontWeight: 600,
-      opacity: 0.8,
-      lineHeight: 1.15,
-      marginBottom: 8,
-      textWrap: 'balance',
-      width: '100%',
-      '& a:hover': {
-        opacity: 0.9,
-      },
-    },
-  },
   checkboxLabel: {
     whiteSpace: 'nowrap',
     justifyContent: 'center',
@@ -158,9 +140,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedContent = ({alwaysShow = false}: {
-  alwaysShow?: boolean
-}) => {
+const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -280,31 +260,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   },
                   feedSpotlight: {
                     fragmentName: 'FeedSpotlightFragment',
-                    render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight } = item;
-                      if (!spotlight) {
-                        return null;
-                      }
-
-                      return (
-                        <FeedItemWrapper>
-                          <span className={classes.hiddenOnDesktop}>
-                            <SpotlightFeedItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              index={index}
-                            />
-                          </span>
-                          <span className={classes.hiddenOnMobile}>
-                            <SpotlightItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              className={classes.ultraFeedSpotlightTitle}
-                            />
-                          </span>
-                        </FeedItemWrapper>
-                      );
-                    }
+                    render: () => null
                   }
                 }}
               />
@@ -362,7 +318,7 @@ const UltraFeed = ({alwaysShow = false, onShowingChange}: {
       </SingleColumnSection>}
       {showFeed && (
         <DeferRender ssr={false}>
-          <UltraFeedContent alwaysShow={alwaysShow} />
+          <UltraFeedContent />
         </DeferRender>
       )}
     </>
