@@ -78,4 +78,13 @@ describe("htmlToMarkdown text fidelity", () => {
     expect(htmlToMarkdown('<p>see <a href="https://example.com" title="the site">this link</a> here</p>'))
       .toBe('see [this link](https://example.com "the site") here');
   });
+
+  it("serializes Lexical code blocks as fenced markdown", () => {
+    const html = '<pre class="code-block" spellcheck="false" data-gutter="1\n2">'
+      + '<span class="code-token-keyword">const</span><span> a = 1;</span><br>'
+      + '<span class="code-token-keyword">const</span><span> b: string = "x";</span>'
+      + '</pre>';
+
+    expect(htmlToMarkdown(html)).toBe('```\nconst a = 1;\nconst b: string = "x";\n```');
+  });
 });

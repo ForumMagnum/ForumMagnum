@@ -152,6 +152,58 @@ function iframeWidgetElementToMarkdown(element: Element): string {
   return `\n\n\`\`\`widget[${widgetId}]\n${widgetMarkup}\n\`\`\`\n\n`;
 }
 
+function isLexicalCodeBlockElement(node: Node): node is Element {
+  if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
+    return false;
+  }
+  const element = node as Element;
+  const nodeName = element.nodeName.toUpperCase();
+  return nodeName === 'PRE'
+    || (nodeName === 'CODE' && !!element.classList?.contains('code-block'));
+}
+
+function textContentWithCodeLineBreaks(node: Node): string {
+  let result = '';
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === ServerSafeNode.TEXT_NODE) {
+      result += child.textContent ?? '';
+    } else if (child.nodeType === ServerSafeNode.ELEMENT_NODE) {
+      const element = child as Element;
+      result += element.nodeName.toUpperCase() === 'BR'
+        ? '\n'
+        : textContentWithCodeLineBreaks(child);
+    }
+  }
+  return result;
+}
+
+function getCodeBlockLanguage(element: Element): string {
+  const elementsToCheck = [element, ...Array.from(element.querySelectorAll('code, pre'))];
+  const languageElement = elementsToCheck.find((candidate) =>
+    candidate.getAttribute('data-language')
+    || candidate.getAttribute('data-highlight-language')
+    || candidate.getAttribute('class')?.match(/\blanguage-([a-z0-9_+#.-]+)\b/i)
+  ) ?? element;
+  const className = languageElement.getAttribute('class') ?? '';
+  const rawLanguage =
+    languageElement.getAttribute('data-language')
+    ?? languageElement.getAttribute('data-highlight-language')
+    ?? className.match(/\blanguage-([a-z0-9_+#.-]+)\b/i)?.[1]
+    ?? '';
+  return rawLanguage.trim().replace(/\s+/g, '');
+}
+
+function markdownFenceForCodeBlock(element: Element): string {
+  const code = textContentWithCodeLineBreaks(element);
+  const longestBacktickRun = Math.max(
+    2,
+    ...(code.match(/`+/g) ?? []).map((run) => run.length),
+  );
+  const fence = '`'.repeat(Math.max(3, longestBacktickRun + 1));
+  const codeWithTrailingNewline = code.endsWith('\n') ? code : `${code}\n`;
+  return `\n\n${fence}${getCodeBlockLanguage(element)}\n${codeWithTrailingNewline}${fence}\n\n`;
+}
+
 // Strip the srcdoc attribute from iframe widgets. Iframe-widget srcdocs contain HTML
 // markup and an injected resize script, none of which is user-authored prose; leaving
 // them in inflates word-count estimates (and similar markdown-derived analyses) by
@@ -166,7 +218,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-code-fences';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -275,6 +327,10 @@ function getTurndown(): TurndownService {
       },
     })
     turndownService.use(gfm); // Add support for strikethrough and tables
+    turndownService.addRule('lexical-code-block', {
+      filter: (node) => isLexicalCodeBlockElement(node),
+      replacement: (_content, node) => isLexicalCodeBlockElement(node) ? markdownFenceForCodeBlock(node) : '',
+    })
     turndownService.addRule('suggestion-deletion', {
       filter: ['del'],
       replacement: (content) => `<del>${content}</del>`

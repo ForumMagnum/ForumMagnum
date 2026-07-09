@@ -16,11 +16,31 @@ import {
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
+import { $isCodeNode } from "@lexical/code";
 import { captureException } from "@/lib/sentryWrapper";
+
+function unwrapRedundantNestedCodeBlock(node: LexicalNode): LexicalNode {
+  if (!$isCodeNode(node)) {
+    return node;
+  }
+  const children = node.getChildren();
+  if (children.length !== 1) {
+    return node;
+  }
+  const onlyChild = children[0];
+  if (!$isCodeNode(onlyChild)) {
+    return node;
+  }
+  if (!onlyChild.getLanguage() && node.getLanguage()) {
+    onlyChild.setLanguage(node.getLanguage());
+  }
+  return onlyChild;
+}
 
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
-  for (const node of nodes) {
+  for (const importedNode of nodes) {
+    const node = unwrapRedundantNestedCodeBlock(importedNode);
     // markdown-it emits a `$$...$$` (or `\[...\]`) display equation as an
     // inline token, so it lands inside a paragraph — on its own or alongside
     // surrounding text. A display MathNode is block-level, so split any
