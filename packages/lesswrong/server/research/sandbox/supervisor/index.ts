@@ -254,8 +254,8 @@ export async function bootSupervisor() {
           appendSystemPrompt,
           // Spawn-time env for the long-lived claude process. The agent token
           // is minted per dispatch but only the one in effect at spawn is
-          // visible to the process; that's safe because its TTL (6h) exceeds
-          // the sandbox session lifetime cap (5h), so a spawn-time token
+          // visible to the process; that's safe because its TTL (48h) exceeds
+          // the sandbox session lifetime cap (24h), so a spawn-time token
           // always outlives the process that received it.
           env: {
             // Put `~/.research/bin` (where the overlay drops the research-tool

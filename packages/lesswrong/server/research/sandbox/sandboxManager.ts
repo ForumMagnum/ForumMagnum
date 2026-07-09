@@ -181,13 +181,17 @@ async function overlayPlatformFiles(sandbox: Sandbox): Promise<void> {
  * covers the node* images (user-writable npm prefix); the sudo retry covers
  * dnf-installed Node (system prefix) on python images.
  *
- * On failure the sandbox is stopped before the error propagates: the launch
- * hooks only run on create/resume, so leaving a freshly-resumed sandbox
- * running without a supervisor would wedge every retry in the
- * supervisor-not-ready path until the session times out. Stopped, the next
- * attempt resumes and re-runs the whole launch sequence.
+ * On boot-path failure (`stopOnFailure: true` — a freshly created or resumed
+ * session, where nothing else can be running yet) the sandbox is stopped
+ * before the error propagates, so the next attempt starts from a clean
+ * session. The repair path passes `stopOnFailure: false`: it can be reached by
+ * a health-probe false negative against a session with a live turn, and
+ * stopping would kill the running claude process.
  */
-async function reconcileClaudeCodeVersion(sandbox: Sandbox): Promise<void> {
+async function reconcileClaudeCodeVersion(
+  sandbox: Sandbox,
+  opts: { stopOnFailure: boolean },
+): Promise<void> {
   const script =
     `current="$(claude --version 2>/dev/null | cut -d' ' -f1)"; ` +
     `if [ "$current" = "${PINNED_CLAUDE_CODE_VERSION}" ]; then exit 0; fi; ` +
@@ -201,10 +205,12 @@ async function reconcileClaudeCodeVersion(sandbox: Sandbox): Promise<void> {
   }
   if (result.exitCode !== 0) {
     const stderr = await result.stderr();
-    await sandbox.stop().catch((stopErr: unknown) => {
-      // eslint-disable-next-line no-console
-      console.warn(`[sandbox] stop after failed reconcile failed: ${(stopErr as Error).message}`);
-    });
+    if (opts.stopOnFailure) {
+      await sandbox.stop().catch((stopErr: unknown) => {
+        // eslint-disable-next-line no-console
+        console.warn(`[sandbox] stop after failed reconcile failed: ${(stopErr as Error).message}`);
+      });
+    }
     throw new Error(
       `claude-code version reconcile failed (exit ${result.exitCode}): ${stderr.slice(0, 500)}`,
     );
@@ -247,11 +253,17 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
     QUEUE_DIR,
     INIT_SCRIPT_PATH: `${AGENT_CWD}/init.sh`,
   };
+  // Trim to the last 256 KiB, then append: a repair launch must not destroy
+  // the previous supervisor's crash output, but the log lives in the
+  // snapshot-persisted home dir and must not grow without bound.
+  const log = `${PLATFORM_DIR}/supervisor.log`;
   await sandbox.runCommand({
     cmd: "sh",
     args: [
       "-c",
-      `nohup setsid node ${SUPERVISOR_PATH} > ${PLATFORM_DIR}/supervisor.log 2>&1 < /dev/null &`,
+      `tail -c 262144 ${log} > ${log}.trim 2>/dev/null && mv ${log}.trim ${log}; ` +
+        `echo "[launch] $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> ${log} && ` +
+        `nohup setsid node ${SUPERVISOR_PATH} >> ${log} 2>&1 < /dev/null &`,
     ],
     env: supervisorEnv,
   });
@@ -272,23 +284,61 @@ export class SandboxWarmingError extends Error {
 }
 
 const SUPERVISOR_READY_TIMEOUT_MS = 30_000;
+const SUPERVISOR_PROBE_TIMEOUT_MS = 3_000;
+
+async function probeSupervisorHealthOnce(endpointUrl: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${endpointUrl}/health`, {
+      signal: AbortSignal.timeout(SUPERVISOR_PROBE_TIMEOUT_MS),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 async function waitForSupervisorReady(endpointUrl: string): Promise<void> {
   const deadline = Date.now() + SUPERVISOR_READY_TIMEOUT_MS;
-  let lastErr: unknown = null;
   while (Date.now() < deadline) {
-    try {
-      const res = await fetch(`${endpointUrl}/health`);
-      if (res.ok) return;
-      lastErr = new Error(`status ${res.status}`);
-    } catch (err) {
-      lastErr = err;
-    }
+    if (await probeSupervisorHealthOnce(endpointUrl)) return;
     await sleep(500);
   }
   throw new SandboxWarmingError(
-    `supervisor not ready within ${SUPERVISOR_READY_TIMEOUT_MS / 1000}s: ${(lastErr as Error)?.message ?? "unknown"}`,
+    `supervisor not ready within ${SUPERVISOR_READY_TIMEOUT_MS / 1000}s`,
   );
+}
+
+const SUPERVISOR_PROBE_ATTEMPTS = 3;
+const SUPERVISOR_PROBE_RETRY_DELAY_MS = 1_000;
+
+/**
+ * Decide whether a running session's supervisor is up, retrying over several
+ * seconds before declaring it dead. The bar for a negative is deliberately
+ * high: a negative sends the caller into repair, which kills the probed
+ * process — on a false negative that costs a live turn.
+ */
+async function isSupervisorHealthy(endpointUrl: string): Promise<boolean> {
+  for (let attempt = 0; attempt < SUPERVISOR_PROBE_ATTEMPTS; attempt++) {
+    if (attempt > 0) await sleep(SUPERVISOR_PROBE_RETRY_DELAY_MS);
+    if (await probeSupervisorHealthOnce(endpointUrl)) return true;
+  }
+  return false;
+}
+
+/**
+ * Overlay current platform files, bring the Claude CLI to the pinned version,
+ * launch the supervisor, and wait for /health. Callers must ensure no other
+ * supervisor holds the port: the boot paths run on a fresh session, and the
+ * repair path kills the old process first.
+ */
+async function launchSupervisorStack(
+  sandbox: Sandbox,
+  env: SupervisorLaunchEnv,
+  opts: { stopOnReconcileFailure: boolean },
+): Promise<void> {
+  await overlayPlatformFiles(sandbox);
+  await reconcileClaudeCodeVersion(sandbox, { stopOnFailure: opts.stopOnReconcileFailure });
+  await launchSupervisor(sandbox, env);
 }
 
 async function resolveClaudeCodeToken(
@@ -335,16 +385,156 @@ async function resolveSnapshotSource(
 function captureSandboxProvision(props: {
   conversationId: string;
   projectId: string;
-  path: "warm" | "create" | "resume";
+  /**
+   * What state the provision found: `warm` = session already running; `busy` =
+   * session mid-stop/mid-start, must settle before it can be touched.
+   */
+  path: "warm" | "create" | "resume" | "busy";
   durationMs: number;
   ready: boolean;
+  repaired?: boolean;
 }): void {
   serverCaptureEvent("researchSandboxProvision", props);
 }
 
 /**
+ * Session states during which the sandbox must be left alone: issuing
+ * `resume: true` into an in-flight stop/auto-snapshot (or another caller's
+ * still-booting resume) is how hook-less orphan sessions get created.
+ */
+const SESSION_SETTLING_STATUSES: ReadonlySet<string> = new Set([
+  "pending",
+  "stopping",
+  "snapshotting",
+]);
+
+interface ConversationSecrets {
+  supervisorSecret: string;
+  devProxySecret: string;
+}
+
+/**
+ * Resolve the conversation's per-sandbox secrets, minting and persisting them
+ * on first use. The supervisorSecret is generated once and reused for the
+ * conversation's life: on a rebuild the row already exists, so its secret is
+ * kept rather than minting one the backend's tokens wouldn't match. Persisted
+ * before any supervisor launch: a readiness timeout must not lose the secret
+ * the supervisor booted with, or a retry would mint a new one and fail to
+ * authenticate to the still-running supervisor.
+ */
+async function ensureConversationSecrets(
+  conversationId: string,
+  existingRow: DbResearchSandboxSession | null,
+  context: ResolverContext,
+): Promise<ConversationSecrets> {
+  const supervisorSecret = existingRow?.supervisorSecret ?? randomSecret();
+  const devProxySecret = existingRow?.devProxySecret ?? randomSecret();
+  if (!existingRow) {
+    await context.ResearchSandboxSessions.rawInsert({
+      _id: randomId(),
+      conversationId,
+      supervisorSecret,
+      devProxySecret,
+      createdAt: new Date(),
+    });
+  } else if (!existingRow.devProxySecret) {
+    await context.ResearchSandboxSessions.rawUpdateOne(
+      { _id: existingRow._id },
+      { $set: { devProxySecret } },
+    );
+  }
+  return { supervisorSecret, devProxySecret };
+}
+
+async function buildLaunchEnv(args: {
+  conversation: DbResearchConversation;
+  sandboxName: string;
+  secrets: ConversationSecrets;
+  context: ResolverContext;
+}): Promise<SupervisorLaunchEnv> {
+  const { conversation, sandboxName, secrets, context } = args;
+  // The supervisor POSTs events/heartbeats from inside the sandbox back to our
+  // backend, so it needs a publicly-reachable absolute URL pointing at *this*
+  // deployment. In local dev the backend is only reachable through a tunnel
+  // (RESEARCH_BACKEND_PUBLIC_URL, set by runDevWithResearchSandbox.sh, since the
+  // configured siteUrl is localhost). Otherwise derive it from the firing
+  // request's forwarded headers.
+  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers);
+  const claudeToken = await resolveClaudeCodeToken(conversation.userId, context);
+  const callbackToken = mintSupervisorCallbackToken({
+    sandboxId: sandboxName,
+    projectId: conversation.projectId,
+    userId: conversation.userId,
+  });
+  return {
+    claudeToken,
+    supervisorSecret: secrets.supervisorSecret,
+    backendBaseUrl,
+    userId: conversation.userId,
+    projectId: conversation.projectId,
+    conversationId: conversation._id,
+    sandboxName,
+    callbackToken,
+    devProxySecret: secrets.devProxySecret,
+  };
+}
+
+/**
+ * (Re)launch the supervisor into a running session whose health probe failed.
+ * Anything still holding the supervisor port is by definition unresponsive
+ * (the probe already failed), so it is SIGKILLed first — a wedged event loop
+ * never runs a TERM handler — and any claude process it orphans is picked up
+ * by the relaunched supervisor's dangling-turn self-heal.
+ *
+ * All failures surface as SandboxWarmingError: on a session the platform
+ * reports running, unexpected errors are overwhelmingly stale-state races (an
+ * idle-stop landing between the status read and the repair), so the client's
+ * warming retry is the right default. The underlying error is logged, and the
+ * failure is captured with `repaired: true` so a failed repair attempt is
+ * distinguishable from an ordinary warming failure.
+ */
+async function repairSupervisor(args: {
+  sandbox: Sandbox;
+  conversation: DbResearchConversation;
+  sandboxName: string;
+  secrets: ConversationSecrets;
+  context: ResolverContext;
+  analyticsPath: "warm" | "resume";
+  provisionStartedAt: number;
+}): Promise<void> {
+  const { sandbox, conversation, sandboxName, secrets, context, analyticsPath, provisionStartedAt } = args;
+  try {
+    const launchEnv = await buildLaunchEnv({ conversation, sandboxName, secrets, context });
+    await sandbox.runCommand({
+      cmd: "sh",
+      args: ["-c", `pkill -9 -f '${SUPERVISOR_PATH}'`],
+    });
+    await launchSupervisorStack(sandbox, launchEnv, { stopOnReconcileFailure: false });
+  } catch (err) {
+    captureSandboxProvision({
+      conversationId: conversation._id,
+      projectId: conversation.projectId,
+      path: analyticsPath,
+      durationMs: Date.now() - provisionStartedAt,
+      ready: false,
+      repaired: true,
+    });
+    if (err instanceof SandboxWarmingError) throw err;
+    // eslint-disable-next-line no-console
+    console.error(`[sandbox] supervisor repair failed on ${sandboxName}:`, err);
+    throw new SandboxWarmingError(`supervisor repair failed: ${(err as Error).message}`);
+  }
+}
+
+/**
  * Resolve (provisioning lazily on first use) the persistent sandbox for a
  * conversation, with its supervisor confirmed up. Safe to call on every turn.
+ *
+ * A running session is never assumed to have a running supervisor: a session
+ * can come up without the launch hooks having fired (a resume racing an
+ * in-flight stop, or a provision request that died mid-flight), and a
+ * supervisor can die mid-session. Every path health-checks the supervisor and
+ * repairs the live session when it doesn't answer.
  */
 export async function getOrCreateSandbox(
   conversationId: string,
@@ -361,106 +551,84 @@ export async function getOrCreateSandbox(
   const sandboxName = sandboxNameForConversation(conversationId);
   const existingRow = await ResearchSandboxSessions.findOne({ conversationId });
 
-  // Fast path: the sandbox is already running mid-conversation — the common
-  // case on every turn after the first. Nothing needs launching, so skip the
-  // snapshot-source resolution (a GitHub round-trip for a coding repo) and the
-  // secret decryption that the create/resume paths below need.
   if (existingRow) {
-    const running = await getRunningSandbox(conversationId);
-    if (running) {
-      // A running sandbox doesn't guarantee a ready supervisor — e.g. a retry
-      // after a resume whose supervisor was still booting. Confirm /health so a
-      // not-yet-ready supervisor surfaces as warming, not a generic dispatch error.
-      await waitForSupervisorReady(supervisorUrlForSandbox(running));
+    const existing = await getExistingSandbox(conversationId);
+
+    // Fast path: the sandbox is already running mid-conversation — the common
+    // case on every turn after the first. A healthy supervisor means nothing
+    // needs launching, so skip the snapshot-source resolution (a GitHub
+    // round-trip for a coding repo) and the secret decryption the launch
+    // paths below need.
+    if (existing?.status === "running") {
+      const supervisorUrl = supervisorUrlForSandbox(existing);
+      let supervisorSecret = existingRow.supervisorSecret;
+      let devProxySecret = existingRow.devProxySecret;
+      let repaired = false;
+      if (!(await isSupervisorHealthy(supervisorUrl))) {
+        repaired = true;
+        const secrets = await ensureConversationSecrets(conversationId, existingRow, context);
+        supervisorSecret = secrets.supervisorSecret;
+        devProxySecret = secrets.devProxySecret;
+        await repairSupervisor({
+          sandbox: existing,
+          conversation,
+          sandboxName,
+          secrets,
+          context,
+          analyticsPath: "warm",
+          provisionStartedAt,
+        });
+      }
       captureSandboxProvision({
         conversationId,
         projectId: conversation.projectId,
         path: "warm",
         durationMs: Date.now() - provisionStartedAt,
         ready: true,
+        repaired,
       });
       return {
         conversationId,
         sandboxName,
-        sandbox: running,
-        supervisorUrl: supervisorUrlForSandbox(running),
-        supervisorSecret: existingRow.supervisorSecret,
-        devProxySecret: existingRow.devProxySecret,
+        sandbox: existing,
+        supervisorUrl,
+        supervisorSecret,
+        devProxySecret,
         wasFreshlyCreated: false,
       };
     }
+
+    if (existing && SESSION_SETTLING_STATUSES.has(existing.status)) {
+      captureSandboxProvision({
+        conversationId,
+        projectId: conversation.projectId,
+        path: "busy",
+        durationMs: Date.now() - provisionStartedAt,
+        ready: false,
+      });
+      throw new SandboxWarmingError(
+        `sandbox session is ${existing.status}; retry once it settles`,
+      );
+    }
   }
 
-  // The supervisor POSTs events/heartbeats from inside the sandbox back to our
-  // backend, so it needs a publicly-reachable absolute URL pointing at *this*
-  // deployment. In local dev the backend is only reachable through a tunnel
-  // (RESEARCH_BACKEND_PUBLIC_URL, set by runDevWithResearchSandbox.sh, since the
-  // configured siteUrl is localhost). Otherwise derive it from the firing
-  // request's forwarded headers.
-  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers);
-
-  // The token decrypt and the snapshot-source resolution are independent. The
-  // supervisorSecret is generated once and reused for the conversation's life:
-  // on a rebuild the row already exists, so its secret is kept rather than
-  // minting one the backend's tokens wouldn't match.
-  const [claudeToken, snapshotSource] = await Promise.all([
-    resolveClaudeCodeToken(conversation.userId, context),
+  const secrets = await ensureConversationSecrets(conversationId, existingRow, context);
+  const [launchEnv, snapshotSource] = await Promise.all([
+    buildLaunchEnv({ conversation, sandboxName, secrets, context }),
     resolveSnapshotSource(conversation, context),
   ]);
   const { snapshotId } = snapshotSource;
-  const supervisorSecret = existingRow?.supervisorSecret ?? randomSecret();
-  const devProxySecret = existingRow?.devProxySecret ?? randomSecret();
-  // Persist the per-conversation secrets before launching the supervisor: a
-  // readiness timeout in launchSupervisor must not lose the secret the supervisor
-  // booted with, or a retry would mint a new one and fail to authenticate to the
-  // still-running supervisor.
-  if (existingRow) {
-    if (!existingRow.devProxySecret) {
-      await ResearchSandboxSessions.rawUpdateOne(
-        { _id: existingRow._id },
-        { $set: { devProxySecret } },
-      );
-    }
-  } else {
-    await ResearchSandboxSessions.rawInsert({
-      _id: randomId(),
-      conversationId,
-      supervisorSecret,
-      devProxySecret,
-      createdAt: new Date(),
-    });
-  }
-
-  const callbackToken = mintSupervisorCallbackToken({
-    sandboxId: sandboxName,
-    projectId: conversation.projectId,
-    userId: conversation.userId,
-  });
-
-  const launchEnv: SupervisorLaunchEnv = {
-    claudeToken,
-    supervisorSecret,
-    backendBaseUrl,
-    userId: conversation.userId,
-    projectId: conversation.projectId,
-    conversationId,
-    sandboxName,
-    callbackToken,
-    devProxySecret,
-  };
 
   let wasFreshlyCreated = false;
+  let hooksRan = false;
 
   const onResume = async (sandbox: Sandbox) => {
-    await overlayPlatformFiles(sandbox);
-    await reconcileClaudeCodeVersion(sandbox);
-    await launchSupervisor(sandbox, launchEnv);
+    hooksRan = true;
+    await launchSupervisorStack(sandbox, launchEnv, { stopOnReconcileFailure: true });
   };
   const onCreate = async (sandbox: Sandbox) => {
     wasFreshlyCreated = true;
-    await overlayPlatformFiles(sandbox);
-    await reconcileClaudeCodeVersion(sandbox);
-    await launchSupervisor(sandbox, launchEnv);
+    await onResume(sandbox);
   };
 
   let sandbox: Sandbox;
@@ -502,12 +670,31 @@ export async function getOrCreateSandbox(
     throw err;
   }
 
+  // The hooks only fire when the SDK observed this call create or resume the
+  // session. The backend can instead hand back a session some other caller
+  // (possibly one that died mid-provision) brought up — hooks skipped, so the
+  // supervisor may never have been launched.
+  let repaired = false;
+  if (!hooksRan && !(await isSupervisorHealthy(supervisorUrlForSandbox(sandbox)))) {
+    repaired = true;
+    await repairSupervisor({
+      sandbox,
+      conversation,
+      sandboxName,
+      secrets,
+      context,
+      analyticsPath: "resume",
+      provisionStartedAt,
+    });
+  }
+
   captureSandboxProvision({
     conversationId,
     projectId: conversation.projectId,
     path: wasFreshlyCreated ? "create" : "resume",
     durationMs: Date.now() - provisionStartedAt,
     ready: true,
+    repaired,
   });
 
   return {
@@ -515,10 +702,20 @@ export async function getOrCreateSandbox(
     sandboxName,
     sandbox,
     supervisorUrl: supervisorUrlForSandbox(sandbox),
-    supervisorSecret,
-    devProxySecret,
+    supervisorSecret: secrets.supervisorSecret,
+    devProxySecret: secrets.devProxySecret,
     wasFreshlyCreated,
   };
+}
+
+async function getExistingSandbox(conversationId: string): Promise<Sandbox | null> {
+  const name = sandboxNameForConversation(conversationId);
+  try {
+    return await Sandbox.get({ name, resume: false });
+  } catch (err) {
+    if (isNotFoundError(err) || isSnapshotNotFoundError(err)) return null;
+    throw err;
+  }
 }
 
 /**
@@ -528,19 +725,17 @@ export async function getOrCreateSandbox(
  * not bring a sandbox up.
  */
 export async function getRunningSandbox(conversationId: string): Promise<Sandbox | null> {
-  const name = sandboxNameForConversation(conversationId);
-  try {
-    const sandbox = await Sandbox.get({ name, resume: false });
-    return sandbox.status === "running" ? sandbox : null;
-  } catch (err) {
-    if (isNotFoundError(err) || isSnapshotNotFoundError(err)) return null;
-    throw err;
-  }
+  const sandbox = await getExistingSandbox(conversationId);
+  return sandbox?.status === "running" ? sandbox : null;
 }
 
 /** Re-arm the idle switch when this little of the session timeout remains. */
 const SESSION_REARM_THRESHOLD_MS = 25 * 60 * 1000;
-/** Roll (stop, to be resumed by the next turn) once a session reaches this age. */
+/**
+ * Roll (stop, to be resumed by the next turn) once a session reaches this age.
+ * Keeps sessions well clear of Vercel's 24h session cap and bounds how stale a
+ * long-lived session's platform-file overlay can get.
+ */
 const SESSION_ROLL_AGE_MS = 4.5 * 60 * 60 * 1000;
 
 /**
@@ -549,8 +744,8 @@ const SESSION_ROLL_AGE_MS = 4.5 * 60 * 60 * 1000;
  *
  * - While a turn runs, re-arm the Vercel session timeout once its remaining
  *   window gets short, so an active conversation is never idle-stopped.
- * - Between turns, once the session nears Vercel's 5h hard cap, stop it; the
- *   next turn resumes it into a fresh session. A roll is never done mid-turn —
+ * - Between turns, once the session exceeds the roll age, stop it; the next
+ *   turn resumes it into a fresh session. A roll is never done mid-turn —
  *   `stop()` would kill the running `claude` process.
  * - An idle session (no turns) is left alone: its timeout lapses and Vercel
  *   idle-stops + auto-snapshots it.
@@ -575,7 +770,7 @@ export async function maintainSandboxTimeout(
   const startedAt = session.startedAt ?? session.createdAt;
   if (Date.now() - startedAt.getTime() > SESSION_ROLL_AGE_MS) {
     // eslint-disable-next-line no-console
-    console.log(`[sandbox] rolling ${sandbox.name} — session near the 5h cap`);
+    console.log(`[sandbox] rolling ${sandbox.name} — session exceeded the roll age`);
     await sandbox.stop().catch((err: unknown) => {
       // eslint-disable-next-line no-console
       console.warn(`[sandbox] roll stop failed: ${(err as Error).message}`);
