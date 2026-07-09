@@ -129,6 +129,26 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
       backgroundColor: theme.palette.grey[200],
     },
   },
+  confirmLinkAction: {
+    height: 28,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    padding: '4px 8px',
+    borderRadius: 4,
+    cursor: 'pointer',
+    marginLeft: 4,
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.primary.main,
+    fontSize: 13,
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
   linkIcon: {
     width: 16,
     height: 16,
@@ -156,6 +176,13 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     fontFamily: 'inherit',
   },
 }));
+
+function isSubmitForLinkEditorForm(
+  target: EventTarget | null,
+  editorElement: HTMLElement,
+): boolean {
+  return target instanceof HTMLFormElement && target.contains(editorElement);
+}
 
 function preventDefault(
   event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>,
@@ -382,6 +409,28 @@ function FloatingLinkEditor({
     };
   }, [editorRef, setIsLink, setIsLinkEditMode, isLink, isLinkEditMode]);
 
+  useEffect(() => {
+    const editorElement = editorRef.current;
+    if (!isLinkEditMode || editorElement === null) {
+      return;
+    }
+
+    const handleContainingFormSubmit = (event: SubmitEvent) => {
+      if (!isSubmitForLinkEditorForm(event.target, editorElement)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      setIsLinkEditMode(false);
+    };
+
+    document.addEventListener('submit', handleContainingFormSubmit, true);
+    return () => {
+      document.removeEventListener('submit', handleContainingFormSubmit, true);
+    };
+  }, [isLinkEditMode, setIsLinkEditMode]);
+
   const monitorInputInteraction = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
@@ -530,13 +579,14 @@ function FloatingLinkEditor({
             </button>
 
             <button
-              className={classes.linkAction}
+              className={classes.confirmLinkAction}
               type="button"
               tabIndex={0}
               onMouseDown={preventDefault}
               onClick={handleLinkSubmission}
-              aria-label="Confirm">
+              aria-label="Apply link">
               <SuccessAltIcon className={classes.linkIcon} />
+              <span>Apply link</span>
             </button>
           </div>
         </div>
