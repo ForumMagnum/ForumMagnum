@@ -61,6 +61,8 @@ const FireDocumentConversationMutation = gql(`
     $promptHtml: String!
     $baseEnvironmentId: String
     $runtime: String
+    $model: String
+    $effort: String
   ) {
     fireResearchConversation(
       input: {
@@ -71,6 +73,8 @@ const FireDocumentConversationMutation = gql(`
         promptHtml: $promptHtml
         baseEnvironmentId: $baseEnvironmentId
         runtime: $runtime
+        model: $model
+        effort: $effort
       }
     ) {
       conversationId
@@ -196,6 +200,8 @@ const DocumentPaneInner = ({ projectId, documentId, openConversation, onSelectDo
             promptHtml: args.promptHtml,
             baseEnvironmentId: args.baseEnvironmentId,
             runtime: args.runtime,
+            model: args.model,
+            effort: args.effort,
           },
         });
         const conversationId = result.data?.fireResearchConversation?.conversationId;

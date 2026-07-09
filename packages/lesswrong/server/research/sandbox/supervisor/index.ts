@@ -252,6 +252,9 @@ export async function bootSupervisor() {
           // the synthesized history on a fresh sandbox.
           cwd: AGENT_CWD,
           appendSystemPrompt,
+          // Per-turn model/effort from the user's picker (validated backend-side).
+          model: req.model,
+          effort: req.effort,
           // Spawn-time env for the long-lived claude process. The agent token
           // is minted per dispatch but only the one in effect at spawn is
           // visible to the process; that's safe because its TTL (6h) exceeds

@@ -43,6 +43,8 @@ import { BackendEvent, PostPersister } from "./postPersister";
 import { writeBootstrapJsonl } from "./sessionBootstrap";
 import { ConversationState } from "./server";
 import { FLUSH_RESULT_SUBTYPE } from "../../../../lib/research/turnActivity";
+import { modelIdToAlias } from "../../../../lib/research/agentModels";
+import { RESEARCH_AGENT_MODEL } from "../sandboxLayout";
 
 /** How long cancel waits for the interrupt control_request to end the turn
  * before escalating to SIGTERM (then SIGKILL). Interrupt normally lands in
@@ -88,6 +90,13 @@ interface ConversationEntry {
   conversationId: string;
   state: ConversationState;
   proc: ClaudeProcessHandle | null;
+  /**
+   * The model alias + effort the *live* process was spawned with. `--model` /
+   * `--effort` are fixed at spawn, so a dispatch requesting a different one
+   * forces a respawn (see `ensureProcess`). Null before the first spawn.
+   */
+  spawnedModelAlias: string | null;
+  spawnedEffort: string | null;
   claudeSessionId: string | null;
   /**
    * The CLI's authoritative busy/idle state, from `session_state_changed`
@@ -131,6 +140,10 @@ interface RunnerOpts {
   cwd?: string;
   env?: Record<string, string>;
   appendSystemPrompt?: string;
+  /** Per-dispatch `--model` (CLI alias); absent → the default RESEARCH_AGENT_MODEL. */
+  model?: string;
+  /** Per-dispatch `--effort` level; absent → the CLI default. */
+  effort?: string;
 }
 
 export interface DispatchInput {
@@ -209,6 +222,8 @@ export function createConversationHub(config: ConversationHubConfig) {
       conversationId,
       state: { conversationId, status: "idle" },
       proc: null,
+      spawnedModelAlias: null,
+      spawnedEffort: null,
       claudeSessionId: null,
       sessionState: "idle",
       terminalReason: "completed",
@@ -339,7 +354,22 @@ export function createConversationHub(config: ConversationHubConfig) {
     input: DispatchInput,
     runnerOpts: RunnerOpts,
   ): Promise<{ ok: true } | { ok: false; reason: string }> {
-    if (entry.proc?.alive()) return { ok: true };
+    const requestedModelAlias = modelIdToAlias(runnerOpts.model ?? RESEARCH_AGENT_MODEL);
+    const requestedEffort = runnerOpts.effort ?? null;
+
+    if (entry.proc?.alive()) {
+      if (entry.spawnedModelAlias === requestedModelAlias && entry.spawnedEffort === requestedEffort) {
+        return { ok: true };
+      }
+      // Model/effort changed since spawn, and both are fixed at spawn — tear the
+      // live process down and respawn with `--resume` so the next turn runs on
+      // the requested config. An in-flight turn is interrupted; `onExit` closes
+      // it out with a synthetic terminal result.
+      const live = entry.proc;
+      live.kill("SIGKILL");
+      await live.done;
+      if (entry.proc === live) entry.proc = null;
+    }
 
     const previous = entry.proc;
     if (previous) {
@@ -374,6 +404,8 @@ export function createConversationHub(config: ConversationHubConfig) {
       claudeSessionId,
       sessionMode: sessionExists ? "resume" : "new",
       appendSystemPrompt: runnerOpts.appendSystemPrompt,
+      model: runnerOpts.model,
+      effort: runnerOpts.effort,
       cwd: runnerOpts.cwd,
       env: runnerOpts.env,
       onLine: (line) => emit(entry, line),
@@ -427,6 +459,8 @@ export function createConversationHub(config: ConversationHubConfig) {
       entry.proc = null;
       return { ok: false, reason: "spawn_failed" };
     }
+    entry.spawnedModelAlias = requestedModelAlias;
+    entry.spawnedEffort = requestedEffort;
     return { ok: true };
   }
 

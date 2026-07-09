@@ -47,6 +47,7 @@ import {
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
 import { isSandboxWarmingError } from '../sandboxWarming';
+import { resolveInitialSelection } from '../useModelEffortSelection';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
@@ -145,12 +146,17 @@ async function fireQuery({
   flash,
 }: FireQueryArgs): Promise<void> {
   try {
+    // The /query header picker edits the global-default selection (no
+    // conversation exists yet); read it here at fire time.
+    const { model, effort } = resolveInitialSelection(null);
     await env.fireDocumentQuery({
       conversationId,
       documentId: env.documentId,
       promptHtml,
       baseEnvironmentId: selection.baseEnvironmentId,
       runtime: selection.runtime,
+      model,
+      effort,
     });
     // The AgentBlock is already in the doc with the correct conversationId,
     // so a successful mutation needs no further client-side action.

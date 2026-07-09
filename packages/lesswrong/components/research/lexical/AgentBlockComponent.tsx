@@ -17,11 +17,15 @@ import {
   isVisibleConversationEvent,
   renderChunkMarkdownToHtml,
   openChatLinksInNewTab,
+  getLastResponseModel,
+  formatModelName,
 } from '../conversationEventFormat';
 import { extractAskUserQuestion, collectAskUserQuestionAnswers } from '../researchAskUserQuestion';
 import { ConversationTranscript } from '../ConversationTranscript';
 import { ConversationActions } from '../ConversationActions';
 import ChatComposer from '../ChatComposer';
+import { ModelEffortPicker } from '../ModelEffortPicker';
+import { useModelEffortSelection } from '../useModelEffortSelection';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import ForumIcon from '@/components/common/ForumIcon';
@@ -50,8 +54,8 @@ const ResearchConversationBlockQuery = gql(`
 `);
 
 const ContinueResearchConversationFromBlockMutation = gql(`
-  mutation ContinueResearchConversationFromBlock($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
-    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
+  mutation ContinueResearchConversationFromBlock($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!, $model: String, $effort: String) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId, model: $model, effort: $effort) {
       conversationId
     }
   }
@@ -441,6 +445,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
     [events],
   );
   const userTurnCount = Math.max(conversation?.userTurnCount ?? 0, windowUserTurnCount);
+  const lastResponseModel = useMemo(() => getLastResponseModel(events), [events]);
 
   const focusRequest = workspace?.conversationFocusRequest ?? null;
   useEffect(() => {
@@ -517,6 +522,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
 
   const [continueConversation] = useMutation(ContinueResearchConversationFromBlockMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationFromBlockMutation);
+  const { selection: modelEffort, setModel, setEffort } = useModelEffortSelection(conversationId);
 
   const handleSend = useCallback(async (promptHtml: string) => {
     if (sending) return;
@@ -533,7 +539,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
         createdAt: new Date().toISOString(),
       });
       await continueConversation({
-        variables: { conversationId, promptHtml, activeDocumentId: env.documentId },
+        variables: { conversationId, promptHtml, activeDocumentId: env.documentId, model: modelEffort.model, effort: modelEffort.effort },
       });
       refresh();
     } catch (err) {
@@ -549,7 +555,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, env.documentId, continueConversation, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
+  }, [sending, conversationId, env.documentId, continueConversation, modelEffort.model, modelEffort.effort, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
 
   const handleCancel = useCallback(async () => {
     await cancelConversation({ variables: { conversationId } });
@@ -602,6 +608,9 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
         <span className={classes.headerTitle}>{title}</span>
         <span className={classes.headerMeta}>
           · {userTurnCount} {userTurnCount === 1 ? 'turn' : 'turns'}
+          {lastResponseModel ? (
+            <> · <span title={lastResponseModel}>{formatModelName(lastResponseModel)}</span></>
+          ) : null}
         </span>
         <span className={classes.headerSpacer} />
         {focused ? (
@@ -670,6 +679,14 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideCompo
                 projectId={env.projectId}
                 disabled={sending}
                 onSubmit={handleSend}
+                extraActions={
+                  <ModelEffortPicker
+                    selection={modelEffort}
+                    onModelChange={setModel}
+                    onEffortChange={setEffort}
+                    disabled={sending}
+                  />
+                }
               />
             </div>
           )}

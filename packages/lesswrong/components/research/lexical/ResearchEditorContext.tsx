@@ -18,6 +18,9 @@ export interface FireDocumentQueryArgs {
   promptHtml: string;
   baseEnvironmentId: string | null;
   runtime: string | null;
+  /** Per-turn model alias + reasoning effort from the /query header picker. */
+  model?: string;
+  effort?: string;
 }
 
 /**

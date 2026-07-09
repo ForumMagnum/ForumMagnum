@@ -1049,6 +1049,8 @@ interface FireResearchConversationInput {
   promptHtml: string;
   baseEnvironmentId?: string | null;
   runtime?: string | null;
+  model?: string | null;
+  effort?: string | null;
 }
 
 interface ResearchConversationOutput {

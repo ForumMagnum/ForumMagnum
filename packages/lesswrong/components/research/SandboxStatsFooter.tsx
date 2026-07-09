@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
@@ -10,6 +11,7 @@ import { useMessages } from '@/components/common/withMessages';
 import { retryWhileSandboxWarming } from './sandboxWarming';
 import { researchMono, researchRadius, researchWarmAlpha } from './researchStyleUtils';
 import { formatBytes } from './formatBytes';
+import { formatModelName } from './conversationEventFormat';
 
 const SandboxStatsQuery = gql(`
   query ResearchSandboxStats($conversationId: String!) {
@@ -63,6 +65,16 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
   value: {
     color: theme.palette.text.dim,
   },
+  // Denser variants: as the footer's container narrows we tighten the gaps,
+  // shrink then drop the meters, and shorten the MEM/DISK read-outs to a bare
+  // percentage, so all three stats keep fitting inside a small tile.
+  rootCompact: {
+    gap: 9,
+  },
+  rootTight: {
+    gap: 6,
+    fontSize: 10,
+  },
   meter: {
     flex: 'none',
     width: 44,
@@ -70,6 +82,17 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
     borderRadius: 2,
     background: researchWarmAlpha(0.12),
     overflow: 'hidden',
+  },
+  meterCompact: {
+    width: 24,
+  },
+  // Model of the last response, pinned to the right edge of the footer row.
+  modelChip: {
+    marginLeft: 'auto',
+    flex: 'none',
+    paddingLeft: 8,
+    color: theme.palette.text.dim,
+    whiteSpace: 'nowrap',
   },
   meterFill: {
     display: 'block',
@@ -111,14 +134,15 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
 
 interface MeterProps {
   fraction: number | null;
+  compact?: boolean;
 }
 
-const Meter = ({ fraction }: MeterProps) => {
+const Meter = ({ fraction, compact }: MeterProps) => {
   const classes = useStyles(styles);
   if (fraction == null) return null;
   const pct = Math.max(0, Math.min(1, fraction)) * 100;
   return (
-    <span className={classes.meter}>
+    <span className={classNames(classes.meter, compact && classes.meterCompact)}>
       <span
         className={fraction >= 0.9 ? `${classes.meterFill} ${classes.meterFillHigh}` : classes.meterFill}
         style={{ width: `${pct}%` }}
@@ -129,9 +153,11 @@ const Meter = ({ fraction }: MeterProps) => {
 
 interface SandboxStatsFooterProps {
   conversationId: string;
+  /** Model that served the last main-thread response (shown at the row's right edge). */
+  model?: string | null;
 }
 
-export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) => {
+export const SandboxStatsFooter = ({ conversationId, model }: SandboxStatsFooterProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const { data, refetch } = useQuery(SandboxStatsQuery, {
@@ -141,6 +167,31 @@ export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) 
   const [restartSandbox] = useMutation(RestartResearchSandboxMutation);
   const [restarting, setRestarting] = useState(false);
   const unmountedRef = useRef(false);
+
+  // Track the footer's own rendered width so it can compact itself inside a
+  // small tile. `dense` drops to percentage read-outs + smaller meters; `tight`
+  // also hides the meters. React calls the callback ref with null on unmount,
+  // which disconnects the observer.
+  const [width, setWidth] = useState<number | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const measureRef = useCallback((el: HTMLDivElement | null) => {
+    resizeObserverRef.current?.disconnect();
+    if (!el || typeof ResizeObserver === 'undefined') {
+      resizeObserverRef.current = null;
+      return;
+    }
+    // observe() fires the callback immediately with the current content size, so
+    // there's no need to seed the width separately (which would mix border-box
+    // and content-box measurements).
+    const observer = new ResizeObserver((entries) => {
+      const measured = entries[0]?.contentRect.width;
+      if (measured != null) setWidth(measured);
+    });
+    observer.observe(el);
+    resizeObserverRef.current = observer;
+  }, []);
+  const dense = width != null && width < 460;
+  const tight = width != null && width < 330;
 
   useEffect(() => {
     unmountedRef.current = false;
@@ -167,16 +218,24 @@ export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) 
     }
   }, [restarting, conversationId, restartSandbox, refetch, flash]);
 
+  const modelChip = model
+    ? <span className={classes.modelChip} title={model}>{formatModelName(model)}</span>
+    : null;
+  const rowClass = classNames(classes.root, dense && classes.rootCompact, tight && classes.rootTight);
+
   const stats = data?.researchSandboxStats;
-  if (!stats) return null;
+  if (!stats) {
+    return modelChip ? <div ref={measureRef} className={rowClass}>{modelChip}</div> : null;
+  }
 
   if (!stats.running) {
     const since = stats.hibernatingSince
       ? ` since ${moment(stats.hibernatingSince).format('MMM D, h:mm A')}`
       : '';
     return (
-      <div className={classes.root}>
+      <div ref={measureRef} className={rowClass}>
         <span className={classes.hibernating}>Instance hibernating{since}</span>
+        {modelChip}
         <button
           type="button"
           className={classes.restartButton}
@@ -193,31 +252,42 @@ export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) 
   const memFraction = stats.memUsed != null && stats.memTotal ? stats.memUsed / stats.memTotal : null;
   const diskFraction = stats.diskUsed != null && stats.diskTotal ? stats.diskUsed / stats.diskTotal : null;
   const hasAny = stats.cpuPct != null || memFraction != null || diskFraction != null;
-  if (!hasAny) return null;
+  if (!hasAny) {
+    return modelChip ? <div ref={measureRef} className={rowClass}>{modelChip}</div> : null;
+  }
 
   return (
-    <div className={classes.root}>
+    <div ref={measureRef} className={rowClass}>
       {stats.cpuPct != null ? (
         <span className={classes.stat}>
           <span className={classes.label}>CPU</span>
-          <Meter fraction={stats.cpuPct / 100} />
+          {!tight ? <Meter fraction={stats.cpuPct / 100} compact={dense} /> : null}
           <span className={classes.value}>{stats.cpuPct.toFixed(0)}%</span>
         </span>
       ) : null}
       {memFraction != null ? (
         <span className={classes.stat}>
           <span className={classes.label}>MEM</span>
-          <Meter fraction={memFraction} />
-          <span className={classes.value}>{formatBytes(stats.memUsed!)} / {formatBytes(stats.memTotal!)}</span>
+          {!tight ? <Meter fraction={memFraction} compact={dense} /> : null}
+          <span className={classes.value}>
+            {dense
+              ? `${Math.round(memFraction * 100)}%`
+              : `${formatBytes(stats.memUsed!)} / ${formatBytes(stats.memTotal!)}`}
+          </span>
         </span>
       ) : null}
       {diskFraction != null ? (
         <span className={classes.stat}>
           <span className={classes.label}>DISK</span>
-          <Meter fraction={diskFraction} />
-          <span className={classes.value}>{formatBytes(stats.diskUsed!)} / {formatBytes(stats.diskTotal!)}</span>
+          {!tight ? <Meter fraction={diskFraction} compact={dense} /> : null}
+          <span className={classes.value}>
+            {dense
+              ? `${Math.round(diskFraction * 100)}%`
+              : `${formatBytes(stats.diskUsed!)} / ${formatBytes(stats.diskTotal!)}`}
+          </span>
         </span>
       ) : null}
+      {modelChip}
     </div>
   );
 };
