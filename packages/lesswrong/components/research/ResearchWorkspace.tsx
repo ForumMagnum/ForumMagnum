@@ -259,7 +259,12 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const chatLayoutSaveArmedRef = useRef(false);
   useEffect(() => {
     const stored = readStoredChatLayout(projectId);
-    if (stored) setChatLayout(stored);
+    // Always reset to this project's stored layout (or an empty one when none
+    // exists). Without the `?? EMPTY_CHAT_LAYOUT` fallback, switching to a
+    // project with no stored layout would leave the previous project's open
+    // tiles in place — and the save effect would then persist them under the
+    // new project's storage key.
+    setChatLayout(stored ?? EMPTY_CHAT_LAYOUT);
   }, [projectId]);
   useEffect(() => {
     if (!chatLayoutSaveArmedRef.current) {
