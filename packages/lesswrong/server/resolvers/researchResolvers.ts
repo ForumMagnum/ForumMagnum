@@ -35,6 +35,7 @@ import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironm
 import { randomId } from "@/lib/random";
 import { Snapshot } from "@vercel/sandbox";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
+import { isResearchEffortLevel, isResearchModelAlias } from "@/lib/research/agentModels";
 
 /**
  * GraphQL custom mutations + resolvers for research conversations.
@@ -85,6 +86,22 @@ function signSupervisorBearer(target: SupervisorTarget): string {
  * dispatch failure surfaced to the caller; there is no row to retire, since a
  * stopped or unreachable sandbox is simply resumed by the next turn.
  */
+/**
+ * Validate the client's per-turn model/effort picks against the shared
+ * agentModels vocabulary. Unknown values are dropped (→ undefined) rather than
+ * erroring, so a stale client can't wedge a turn: the supervisor then falls
+ * back to the sandbox default model / the CLI's default effort.
+ */
+function normalizeModelEffort(
+  model?: string | null,
+  effort?: string | null,
+): { model?: string; effort?: string } {
+  return {
+    model: isResearchModelAlias(model) ? model : undefined,
+    effort: isResearchEffortLevel(effort) ? effort : undefined,
+  };
+}
+
 async function dispatchTurnViaSupervisor(args: {
   provisioned: ProvisionedSandbox;
   conversationId: string;
@@ -94,6 +111,8 @@ async function dispatchTurnViaSupervisor(args: {
   claudeSessionId: string;
   sessionHasHistory: boolean;
   bootstrapJsonl?: string[];
+  model?: string;
+  effort?: string;
 }): Promise<void> {
   const { provisioned } = args;
   const bearer = signSupervisorBearer(provisioned);
@@ -119,6 +138,8 @@ async function dispatchTurnViaSupervisor(args: {
       claudeSessionId: args.claudeSessionId,
       sessionHasHistory: args.sessionHasHistory,
       bootstrapJsonl: args.bootstrapJsonl,
+      model: args.model,
+      effort: args.effort,
       agentBackendToken,
     }),
   });
@@ -240,6 +261,12 @@ export const researchResolversTypeDefs = gql`
     promptHtml: String!
     baseEnvironmentId: String
     runtime: String
+    # Per-turn model (CLI family alias like "opus") + reasoning-effort level,
+    # from the composer's picker. Both optional: absent → the sandbox default
+    # model / the CLI's default effort. Validated server-side against the
+    # shared agentModels vocabulary before being forwarded to the supervisor.
+    model: String
+    effort: String
   }
 
   type ResearchConversationOutput {
@@ -284,7 +311,7 @@ export const researchResolversTypeDefs = gql`
 
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
-    continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
+    continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!, model: String, effort: String): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
     # Resolve a pending AskUserQuestion. answersJson is a JSON object mapping each
     # question's text to the chosen answer string (multi-select comma-joined).
@@ -308,6 +335,10 @@ export const researchResolversTypeDefs = gql`
   type ResearchConversationSidebarStatus {
     conversationId: String!
     turnActive: Boolean!
+    # Blocked waiting for the user (a pending AskUserQuestion) — a distinct,
+    # higher-priority state than actively working. Such conversations are also
+    # turnActive (the turn is incomplete), so consumers should check this first.
+    awaitingInput: Boolean!
     lastActivityAt: Date
     lastReadAt: Date
   }
@@ -379,6 +410,8 @@ export const researchResolversMutations = {
         promptHtml: string;
         baseEnvironmentId?: string | null;
         runtime?: string | null;
+        model?: string | null;
+        effort?: string | null;
       };
     },
     context: ResolverContext,
@@ -388,6 +421,7 @@ export const researchResolversMutations = {
     const { conversationId, projectId, kind, activeDocumentId, promptHtml } = args.input;
     const baseEnvironmentId = args.input.baseEnvironmentId ?? null;
     const runtime = args.input.runtime ?? null;
+    const { model, effort } = normalizeModelEffort(args.input.model, args.input.effort);
     const prompt = htmlToMarkdown(promptHtml).trim();
     if (!prompt) throw new Error("prompt required");
 
@@ -495,6 +529,8 @@ export const researchResolversMutations = {
       // instead, which the supervisor accounts for on its own).
       sessionHasHistory: !!sourceSessionId,
       bootstrapEvents,
+      model,
+      effort,
     });
 
     backgroundTask((async () => {
@@ -509,13 +545,20 @@ export const researchResolversMutations = {
 
   async continueResearchConversation(
     _root: void,
-    args: { conversationId: string; promptHtml: string; activeDocumentId: string },
+    args: {
+      conversationId: string;
+      promptHtml: string;
+      activeDocumentId: string;
+      model?: string | null;
+      effort?: string | null;
+    },
     context: ResolverContext,
   ) {
     const { ResearchConversations } = context;
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const prompt = htmlToMarkdown(args.promptHtml).trim();
     if (!prompt) throw new Error("prompt required");
+    const { model, effort } = normalizeModelEffort(args.model, args.effort);
 
     // Fetch history once: used for both the Claude `--resume` bootstrap
     // and the system-reminder cadence check. Read before appending the new
@@ -566,6 +609,8 @@ export const researchResolversMutations = {
       ),
       bootstrapEvents: priorEvents,
       bootstrapEvenIfWarm: !conv.claudeSessionId,
+      model,
+      effort,
     });
 
     // Only after a successful dispatch, so a failed turn leaves no advanced timestamp.
@@ -837,6 +882,9 @@ async function dispatchToSandbox(args: {
   sessionHasHistory: boolean;
   bootstrapEvents?: DbResearchConversationEvent[];
   bootstrapEvenIfWarm?: boolean;
+  /** Validated per-turn model alias / effort level (see normalizeModelEffort). */
+  model?: string;
+  effort?: string;
 }): Promise<void> {
   const provisioned = await provisionSandboxOrWarming(args.conversationId, args.context);
 
@@ -854,6 +902,8 @@ async function dispatchToSandbox(args: {
     claudeSessionId: args.claudeSessionId,
     sessionHasHistory: args.sessionHasHistory,
     bootstrapJsonl,
+    model: args.model,
+    effort: args.effort,
   });
 }
 
@@ -893,14 +943,17 @@ export const researchResolversQueries = {
       { limit: 500 },
       { _id: 1, lastActivityAt: 1, lastReadAt: 1 },
     ).fetch();
-    const activeIds = new Set(
-      await context.repos.researchConversationEvents.conversationsWithIncompleteTurns(
-        conversations.map((c) => c._id),
-      ),
-    );
+    const conversationIds = conversations.map((c) => c._id);
+    const [activeIds, awaitingIds] = await Promise.all([
+      context.repos.researchConversationEvents.conversationsWithIncompleteTurns(conversationIds),
+      context.repos.researchConversationEvents.conversationsAwaitingInput(conversationIds),
+    ]);
+    const activeSet = new Set(activeIds);
+    const awaitingSet = new Set(awaitingIds);
     return conversations.map((c) => ({
       conversationId: c._id,
-      turnActive: activeIds.has(c._id),
+      turnActive: activeSet.has(c._id),
+      awaitingInput: awaitingSet.has(c._id),
       lastActivityAt: c.lastActivityAt,
       lastReadAt: c.lastReadAt ?? null,
     }));

@@ -1049,6 +1049,8 @@ interface FireResearchConversationInput {
   promptHtml: string;
   baseEnvironmentId?: string | null;
   runtime?: string | null;
+  model?: string | null;
+  effort?: string | null;
 }
 
 interface ResearchConversationOutput {
@@ -1092,6 +1094,7 @@ interface AnswerResearchQuestionOutput {
 interface ResearchConversationSidebarStatus {
   conversationId: string;
   turnActive: boolean;
+  awaitingInput: boolean;
   lastActivityAt: Date | null;
   lastReadAt: Date | null;
 }

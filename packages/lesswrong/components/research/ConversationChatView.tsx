@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
@@ -12,10 +13,12 @@ import { randomId } from '@/lib/random';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useConversationStream } from './hooks/useConversationStream';
 import { useMarkConversationRead } from './hooks/useMarkConversationRead';
-import { isVisibleConversationEvent } from './conversationEventFormat';
+import { isVisibleConversationEvent, getLastResponseModel } from './conversationEventFormat';
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
+import { ModelEffortPicker } from './ModelEffortPicker';
+import { useModelEffortSelection } from './useModelEffortSelection';
 import { PanelRightIcon } from './PanelRightIcon';
 import { SandboxStatsFooter } from './SandboxStatsFooter';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
@@ -36,8 +39,8 @@ const ConversationChatViewQuery = gql(`
 `);
 
 const ContinueResearchConversationFromChatViewMutation = gql(`
-  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
-    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
+  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!, $model: String, $effort: String) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId, model: $model, effort: $effort) {
       conversationId
     }
   }
@@ -76,15 +79,28 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     userSelect: 'none',
   },
+  // Wraps the glyph + title and fills the header's flexible space (replacing the
+  // old spacer), so it doubles as a wide drag handle when tiling is active.
+  headerHandle: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+  },
+  headerHandleDraggable: {
+    cursor: 'grab',
+    touchAction: 'none',
+    '&:active': {
+      cursor: 'grabbing',
+    },
+  },
   headerTitle: {
     minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     color: theme.palette.text.primary,
-  },
-  headerSpacer: {
-    flex: 1,
   },
   pulseDot: {
     flex: 'none',
@@ -187,6 +203,16 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   },
 }));
 
+/**
+ * Wires a tile's header up as a drag handle for the tiling layout. Sourced from
+ * `@dnd-kit`'s `useDraggable` and spread onto the header's title region.
+ */
+export interface ChatHeaderDragHandle {
+  setActivatorNodeRef: (element: HTMLElement | null) => void;
+  attributes: DraggableAttributes;
+  listeners: DraggableSyntheticListeners;
+}
+
 interface ConversationChatViewProps {
   conversationId: string;
   projectId: string;
@@ -195,6 +221,7 @@ interface ConversationChatViewProps {
   onClose: () => void;
   onToggleFullscreen: () => void;
   onOpenInDocument: () => void;
+  dragHandle?: ChatHeaderDragHandle;
 }
 
 export const ConversationChatView = ({
@@ -205,6 +232,7 @@ export const ConversationChatView = ({
   onClose,
   onToggleFullscreen,
   onOpenInDocument,
+  dragHandle,
 }: ConversationChatViewProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
@@ -241,9 +269,11 @@ export const ConversationChatView = ({
     () => events.filter(isVisibleConversationEvent),
     [events],
   );
+  const lastResponseModel = useMemo(() => getLastResponseModel(events), [events]);
 
   const [continueConversation] = useMutation(ContinueResearchConversationFromChatViewMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationFromChatViewMutation);
+  const { selection: modelEffort, setModel, setEffort } = useModelEffortSelection(conversationId);
 
   const handleSend = useCallback(async (promptHtml: string) => {
     if (sending || !activeDocumentId) return;
@@ -260,7 +290,7 @@ export const ConversationChatView = ({
         createdAt: new Date().toISOString(),
       });
       await continueConversation({
-        variables: { conversationId, promptHtml, activeDocumentId },
+        variables: { conversationId, promptHtml, activeDocumentId, model: modelEffort.model, effort: modelEffort.effort },
       });
       refresh();
     } catch (err) {
@@ -276,7 +306,7 @@ export const ConversationChatView = ({
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, activeDocumentId, continueConversation, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
+  }, [sending, conversationId, activeDocumentId, continueConversation, modelEffort.model, modelEffort.effort, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
 
   const handleCancel = useCallback(async () => {
     await cancelConversation({ variables: { conversationId } });
@@ -307,9 +337,15 @@ export const ConversationChatView = ({
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        {headerGlyph}
-        <span className={classes.headerTitle}>{title}</span>
-        <span className={classes.headerSpacer} />
+        <div
+          ref={dragHandle?.setActivatorNodeRef}
+          className={classNames(classes.headerHandle, dragHandle && classes.headerHandleDraggable)}
+          {...(dragHandle?.attributes ?? {})}
+          {...(dragHandle?.listeners ?? {})}
+        >
+          {headerGlyph}
+          <span className={classes.headerTitle}>{title}</span>
+        </div>
         {turnInFlight ? (
           <button type="button" className={classes.headerButton} onClick={handleCancel}>
             ■ stop
@@ -376,6 +412,15 @@ export const ConversationChatView = ({
                   projectId={projectId}
                   disabled={sending || !activeDocumentId}
                   onSubmit={handleSend}
+                  submitStyle="hint"
+                  extraActions={
+                    <ModelEffortPicker
+                      selection={modelEffort}
+                      onModelChange={setModel}
+                      onEffortChange={setEffort}
+                      disabled={sending}
+                    />
+                  }
                 />
               </div>
             </>
@@ -394,7 +439,7 @@ export const ConversationChatView = ({
           </div>
         ) : null}
       </div>
-      <SandboxStatsFooter conversationId={conversationId} />
+      <SandboxStatsFooter conversationId={conversationId} model={lastResponseModel} />
     </div>
   );
 };

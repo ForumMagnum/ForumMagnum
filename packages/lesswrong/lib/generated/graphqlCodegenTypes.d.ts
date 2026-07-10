@@ -2353,7 +2353,9 @@ type FireResearchConversationInput = {
   activeDocumentId: Scalars['String']['input'];
   baseEnvironmentId?: InputMaybe<Scalars['String']['input']>;
   conversationId: Scalars['String']['input'];
+  effort?: InputMaybe<Scalars['String']['input']>;
   kind: ResearchEntrypointKind;
+  model?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   runtime?: InputMaybe<Scalars['String']['input']>;
@@ -4164,6 +4166,8 @@ type MutationconnectCrossposterArgs = {
 type MutationcontinueResearchConversationArgs = {
   activeDocumentId: Scalars['String']['input'];
   conversationId: Scalars['String']['input'];
+  effort?: InputMaybe<Scalars['String']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
   promptHtml: Scalars['String']['input'];
 };
 
@@ -8954,6 +8958,7 @@ type ResearchConversationSelector = {
 
 type ResearchConversationSidebarStatus = {
   __typename?: 'ResearchConversationSidebarStatus';
+  awaitingInput: Scalars['Boolean']['output'];
   conversationId: Scalars['String']['output'];
   lastActivityAt?: Maybe<Scalars['Date']['output']>;
   lastReadAt?: Maybe<Scalars['Date']['output']>;
@@ -18083,6 +18088,8 @@ type ContinueResearchConversationFromChatViewMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18130,6 +18137,8 @@ type FireDocumentConversationMutationVariables = Exact<{
   promptHtml: Scalars['String']['input'];
   baseEnvironmentId: InputMaybe<Scalars['String']['input']>;
   runtime: InputMaybe<Scalars['String']['input']>;
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18297,7 +18306,7 @@ type ArchiveResearchEnvironmentMutationVariables = Exact<{
 
 type ArchiveResearchEnvironmentMutation = ArchiveResearchEnvironmentMutation_Mutation;
 
-type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null };
+type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, awaitingInput: boolean, lastActivityAt: string | null, lastReadAt: string | null };
 
 type ResearchConversationSidebarStatusesQuery_Query = { __typename?: 'Query', researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus> };
 
@@ -18503,6 +18512,8 @@ type ContinueResearchConversationFromBlockMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18519,6 +18530,22 @@ type CancelResearchConversationFromBlockMutationVariables = Exact<{
 
 
 type CancelResearchConversationFromBlockMutation = CancelResearchConversationFromBlockMutation_Mutation;
+
+type ContinueResearchConversationFromDocumentComposerMutation_continueResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type ContinueResearchConversationFromDocumentComposerMutation_Mutation = { __typename?: 'Mutation', continueResearchConversation: ContinueResearchConversationFromDocumentComposerMutation_continueResearchConversation_ResearchConversationOutput | null };
+
+
+type ContinueResearchConversationFromDocumentComposerMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
+  activeDocumentId: Scalars['String']['input'];
+  model: InputMaybe<Scalars['String']['input']>;
+  effort: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ContinueResearchConversationFromDocumentComposerMutation = ContinueResearchConversationFromDocumentComposerMutation_Mutation;
 
 type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
 

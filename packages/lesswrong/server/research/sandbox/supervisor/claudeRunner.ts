@@ -67,6 +67,10 @@ export interface ClaudeProcessOptions {
   sessionMode: "new" | "resume";
   /** Appended to Claude Code's default system prompt (per-conversation context). */
   appendSystemPrompt?: string;
+  /** `--model` value (CLI alias like `opus` or a full id). Defaults to RESEARCH_AGENT_MODEL. */
+  model?: string;
+  /** `--effort` level (low|medium|high|xhigh|max). Omitted when unset. */
+  effort?: string;
   /** Path to the claude binary. Defaults to `claude` (must be on PATH). */
   claudePath?: string;
   /** Working directory of the subprocess. Defaults to `/vercel/sandbox`. */
@@ -280,7 +284,7 @@ function asCanUseToolRequest(parsed: Record<string, unknown> | null): CanUseTool
 }
 
 export function buildArgs(
-  opts: Pick<ClaudeProcessOptions, "claudeSessionId" | "sessionMode" | "appendSystemPrompt">,
+  opts: Pick<ClaudeProcessOptions, "claudeSessionId" | "sessionMode" | "appendSystemPrompt" | "model" | "effort">,
 ): string[] {
   // `auto` is Claude Code's classifier-backed auto-approval mode (v2.1.83+).
   // The classifier model auto-approves safe operations (local edits, reads,
@@ -302,8 +306,14 @@ export function buildArgs(
     // AskUserQuestion — which has no automatic answer — reaches the channel
     // (verified empirically). Without it, AskUserQuestion dead-ends.
     "--permission-prompt-tool", "stdio",
-    "--model", RESEARCH_AGENT_MODEL,
+    // Per-dispatch model (CLI alias like `opus`) overrides the default; the hub
+    // respawns the process when this changes, so `--model` is authoritative for
+    // the life of a process.
+    "--model", opts.model ?? RESEARCH_AGENT_MODEL,
   ];
+  if (opts.effort) {
+    args.push("--effort", opts.effort);
+  }
   if (opts.sessionMode === "resume") {
     args.push("--resume", opts.claudeSessionId);
   } else {

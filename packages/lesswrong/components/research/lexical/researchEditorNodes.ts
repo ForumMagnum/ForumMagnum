@@ -4,6 +4,9 @@ import { MentionNode } from './MentionNode';
 import { QueryInputNode } from './QueryInputNode';
 import { QueryInputHeaderNode } from './QueryInputHeaderNode';
 import { QueryInputContentNode } from './QueryInputContentNode';
+import { ConversationComposerNode } from './ConversationComposerNode';
+import { ConversationTranscriptNode } from './ConversationTranscriptNode';
+import { ResearchConversationNode } from './ResearchConversationNode';
 
 export const researchEditorNodes: LexicalNodeConfig[] = [
   AgentBlockNode,
@@ -11,4 +14,7 @@ export const researchEditorNodes: LexicalNodeConfig[] = [
   QueryInputNode,
   QueryInputHeaderNode,
   QueryInputContentNode,
+  ConversationComposerNode,
+  ConversationTranscriptNode,
+  ResearchConversationNode,
 ];

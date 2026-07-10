@@ -27,7 +27,7 @@ import {
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import { randomId } from '@/lib/random';
-import { $createAgentBlockNode, $isAgentBlockNode } from './AgentBlockNode';
+import { $createPopulatedResearchConversationNode, $isResearchConversationNode } from './ResearchConversationNode';
 import {
   $createPopulatedQueryInputNode,
   $isQueryInputNode,
@@ -47,6 +47,7 @@ import {
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
 import { isSandboxWarmingError } from '../sandboxWarming';
+import { resolveInitialSelection } from '../useModelEffortSelection';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
@@ -145,12 +146,17 @@ async function fireQuery({
   flash,
 }: FireQueryArgs): Promise<void> {
   try {
+    // The /query header picker edits the global-default selection (no
+    // conversation exists yet); read it here at fire time.
+    const { model, effort } = resolveInitialSelection(null);
     await env.fireDocumentQuery({
       conversationId,
       documentId: env.documentId,
       promptHtml,
       baseEnvironmentId: selection.baseEnvironmentId,
       runtime: selection.runtime,
+      model,
+      effort,
     });
     // The AgentBlock is already in the doc with the correct conversationId,
     // so a successful mutation needs no further client-side action.
@@ -164,7 +170,7 @@ async function fireQuery({
     }
     editor.update(() => {
       const agentBlock = $getNodeByKey(agentBlockKey);
-      if (!$isAgentBlockNode(agentBlock)) return;
+      if (!$isResearchConversationNode(agentBlock)) return;
       const restored = $restoreQueryInputFromHtml(editor, promptHtml, selection);
       agentBlock.replace(restored.node);
       const last = restored.content.getLastDescendant();
@@ -307,14 +313,13 @@ export function QueryInputPlugin() {
           // finds the AgentBlock and the server-side row sharing the same id,
           // and the events stream wires up on reload.
           const conversationId = randomId();
-          const agentBlock = $createAgentBlockNode({
-            conversationId,
-            producedByConversationId: null,
-          });
+          // v2 conversation block: transcript + an in-document (Yjs) reply
+          // composer, replacing the query input in the doc.
+          const { node: agentBlock } = $createPopulatedResearchConversationNode(conversationId);
           const agentBlockKey = agentBlock.getKey();
 
-          // Trailing paragraph so the cursor has somewhere to land
-          // (decorator nodes aren't selectable text).
+          // Trailing paragraph so the cursor has somewhere to land after the
+          // block (its transcript is a decorator; the composer is shadow-rooted).
           const trailing = $createParagraphNode();
           queryInput.insertAfter(trailing);
           queryInput.replace(agentBlock);

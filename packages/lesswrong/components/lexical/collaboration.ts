@@ -171,16 +171,13 @@ export function useCanRejectSuggestion(): (suggestionAuthorId: string) => boolea
   );
 }
 
-// Module-level config storage - set this before rendering the Editor.
-// This singleton pattern is necessary because Lexical's CollaborationPlugin
-// expects a provider factory function with a fixed signature that can't accept
-// additional parameters. The config is set before rendering and accessed by
-// the factory function.
-let _collaborationConfig: CollaborationConfig | null = null;
-
-export function setCollaborationConfig(config: CollaborationConfig | null): void {
-  _collaborationConfig = config;
-}
+// The collaboration config used to be stored in a module-level singleton,
+// because Lexical's CollaborationPlugin expects a provider factory with a fixed
+// `(id, yjsDocMap) => Provider` signature that can't carry the config. That
+// forced a single active editor: two mounted at once would clobber each other's
+// config. Instead we now build a *bound* factory per editor
+// (`makeCollabProviderFactory`), closing the config over the factory — so
+// multiple collaborative editors can coexist.
 
 const COLLAB_DOCUMENT_NAME_PREFIXES: Partial<Record<CollectionNameString, string>> = {
   Posts: 'post-',
@@ -311,30 +308,38 @@ function setupPersistence(
   });
 }
 
-// parent dom -> child doc
-export function createWebsocketProvider(
-  id: string,
-  yjsDocMap: Map<string, Doc>,
-): Provider & HocuspocusProvider {
-  let doc = yjsDocMap.get(id);
+/**
+ * The provider factory Lexical's CollaborationPlugin (and our CommentStoreProvider)
+ * expect: `(id, yjsDocMap) => Provider`. `id` is the subdoc id ('main', 'comments',
+ * …); the factory resolves/creates that subdoc's `Doc` in the editor's own map.
+ */
+export type CollabProviderFactory =
+  (id: string, yjsDocMap: Map<string, Doc>) => Provider & HocuspocusProvider;
 
-  if (doc === undefined) {
-    doc = new Doc();
-    yjsDocMap.set(id, doc);
-  } else {
-    doc.load();
-  }
-
-  return createWebsocketProviderWithDoc(id, doc);
+/**
+ * Build a provider factory bound to one document's `config`. Each editor gets
+ * its own factory (see the note by the removed singleton above), so several
+ * collaborative editors can be mounted simultaneously without stepping on each
+ * other's document/token/user.
+ */
+export function makeCollabProviderFactory(config: CollaborationConfig): CollabProviderFactory {
+  return (id, yjsDocMap) => {
+    let doc = yjsDocMap.get(id);
+    if (doc === undefined) {
+      doc = new Doc();
+      yjsDocMap.set(id, doc);
+    } else {
+      doc.load();
+    }
+    return createWebsocketProviderWithDoc(id, doc, config);
+  };
 }
 
-export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider & HocuspocusProvider {
-  const config = _collaborationConfig;
-
-  if (!config) {
-    throw new Error('[Collaboration] No collaboration config set. Call setCollaborationConfig() before using collaboration features.');
-  }
-
+export function createWebsocketProviderWithDoc(
+  id: string,
+  doc: Doc,
+  config: CollaborationConfig,
+): Provider & HocuspocusProvider {
   const wsUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
   if (!wsUrl) {
     throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');

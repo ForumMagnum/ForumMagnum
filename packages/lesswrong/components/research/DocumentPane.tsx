@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation, useApolloClient } from '@apollo/client/react';
@@ -61,6 +61,8 @@ const FireDocumentConversationMutation = gql(`
     $promptHtml: String!
     $baseEnvironmentId: String
     $runtime: String
+    $model: String
+    $effort: String
   ) {
     fireResearchConversation(
       input: {
@@ -71,6 +73,8 @@ const FireDocumentConversationMutation = gql(`
         promptHtml: $promptHtml
         baseEnvironmentId: $baseEnvironmentId
         runtime: $runtime
+        model: $model
+        effort: $effort
       }
     ) {
       conversationId
@@ -82,6 +86,24 @@ const COMMENTS_MARGIN_WIDTH = 300;
 const COMMENTS_MARGIN_RIGHT = 16;
 
 const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
+  // Positioning context for the document-swap (see the DocumentPane wrapper).
+  swapRoot: {
+    position: 'relative',
+    height: '100%',
+  },
+  // The on-screen document fills the wrapper.
+  pane: {
+    height: '100%',
+  },
+  // The incoming document loads here — a real mount (so it connects + syncs)
+  // laid over the current one but fully transparent and click-through, until it
+  // has painted content and is promoted to the visible pane.
+  loadingPane: {
+    position: 'absolute',
+    inset: 0,
+    opacity: 0,
+    pointerEvents: 'none',
+  },
   root: {
     height: '100%',
     display: 'flex',
@@ -127,7 +149,16 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   },
 }));
 
-const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
+interface DocumentPaneInnerProps extends DocumentPaneProps {
+  /** Fired when this pane's editor has loaded (see ResearchEditorPlugins.onReady).
+   * Set only on the incoming pane during a swap, so DocumentPane knows when to promote it. */
+  onReady?: () => void;
+  /** Whether this pane's document is the navigation target — only the active pane
+   * acts on workspace intents (see WorkspaceIntentPlugin). */
+  active?: boolean;
+}
+
+const DocumentPaneInner = ({ projectId, documentId, openConversation, onSelectDocument, onReady, active }: DocumentPaneInnerProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
   const [commentsMarginEl, setCommentsMarginEl] = useState<HTMLDivElement | null>(null);
@@ -169,6 +200,8 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
             promptHtml: args.promptHtml,
             baseEnvironmentId: args.baseEnvironmentId,
             runtime: args.runtime,
+            model: args.model,
+            effort: args.effort,
           },
         });
         const conversationId = result.data?.fireResearchConversation?.conversationId;
@@ -243,7 +276,7 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
                   extraNodes={researchEditorNodes}
                   disableMentions
                 >
-                  <ResearchEditorPlugins projectId={projectId} />
+                  <ResearchEditorPlugins projectId={projectId} onReady={onReady} active={active} />
                 </LexicalEditor>
               </ResearchCommentsMarginHostProvider>
             </PendingConversationsProvider>
@@ -251,6 +284,84 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
         </ResearchNavigationProvider>
         <div ref={setCommentsMarginEl} className={classes.commentsMargin} />
       </ContentStyles>
+    </div>
+  );
+};
+
+/**
+ * Backstop for promoting the incoming pane, in case its editor never reports
+ * ready (e.g. a brand-new document that syncs to genuinely nothing while
+ * offline). The common empty-document case is handled promptly by the first
+ * collaboration sync, so this only covers the rare stuck case.
+ */
+const PROMOTE_TIMEOUT_MS = 2000;
+
+/**
+ * Flash-free document switching. Navigating to a new document keeps the current
+ * one on screen while the incoming one mounts *for real* but invisibly (so it
+ * connects + syncs via the normal collaboration path — a hidden `<Activity>`
+ * wouldn't run its effects and so would never load), and only swaps once the
+ * incoming editor reports ready (its `ResearchEditorPlugins.onReady` — content
+ * painted, or first collaboration sync). The swap runs in a React transition,
+ * so it stays low-priority and is interruptible if the user navigates again
+ * mid-load.
+ *
+ * Both panes are keyed siblings under one parent, so promoting the incoming one
+ * just flips its class from the transparent overlay to the visible pane — the
+ * already-synced editor instance is preserved, never remounted. Relies on
+ * multiple live collaborative editors coexisting (the per-editor provider
+ * factory; previously a module-level config singleton allowed only one).
+ */
+const DocumentPane = (props: DocumentPaneProps) => {
+  const classes = useStyles(styles);
+  const { documentId } = props;
+  const [displayedId, setDisplayedId] = useState<string | null>(documentId);
+  const [, startTransition] = useTransition();
+  const documentIdRef = useRef(documentId);
+  documentIdRef.current = documentId;
+
+  // A null target (no document selected) shows immediately.
+  useEffect(() => {
+    if (documentId === null) setDisplayedId(null);
+  }, [documentId]);
+
+  const pendingId = documentId !== null && documentId !== displayedId ? documentId : null;
+
+  // Promote the incoming pane to the visible one — ignoring stale readiness if
+  // the user has since navigated elsewhere. The swap is a transition so it stays
+  // interruptible.
+  const promote = useCallback((id: string) => {
+    if (documentIdRef.current !== id) return;
+    startTransition(() => {
+      setDisplayedId((current) => (documentIdRef.current === id ? id : current));
+    });
+  }, []);
+
+  // Backstop only — the pending pane normally promotes itself via onReady.
+  useEffect(() => {
+    if (pendingId === null) return;
+    const timer = setTimeout(() => promote(pendingId), PROMOTE_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [pendingId, promote]);
+
+  const panes: Array<{ id: string | null; pending: boolean }> = [{ id: displayedId, pending: false }];
+  if (pendingId !== null) panes.push({ id: pendingId, pending: true });
+
+  return (
+    <div className={classes.swapRoot}>
+      {panes.map(({ id, pending }) => (
+        <div
+          key={id ?? 'empty'}
+          className={classNames(classes.pane, pending && classes.loadingPane)}
+        >
+          <DocumentPaneInner
+            {...props}
+            documentId={id}
+            active={id === documentId}
+            onReady={pending && id !== null ? () => promote(id) : undefined}
+          />
+        </div>
+      ))}
     </div>
   );
 };

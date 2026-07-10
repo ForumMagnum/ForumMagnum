@@ -55,6 +55,46 @@ export function maxMessageSeq(events: { kind: string; seq: number }[]): number {
   return max;
 }
 
+const MODEL_FAMILY_LABELS: Record<string, string> = {
+  fable: 'Fable',
+  opus: 'Opus',
+  sonnet: 'Sonnet',
+  haiku: 'Haiku',
+};
+
+/**
+ * Family-only label for a model id — no version numbers (those belong in a
+ * `title` tooltip). e.g. `claude-opus-4-8` → `Opus`,
+ * `claude-haiku-4-5-20251001` → `Haiku`. Unknown ids fall back to the id sans
+ * `claude-` prefix.
+ */
+export function formatModelName(model: string): string {
+  const family = model.match(/^claude-([a-z]+)/i)?.[1]?.toLowerCase();
+  if (family && MODEL_FAMILY_LABELS[family]) return MODEL_FAMILY_LABELS[family];
+  return model.replace(/^claude-/, '');
+}
+
+/**
+ * The model that served the most recent *main-thread* assistant response, or
+ * null if none. Subagent turns (Task-tool delegations, which carry
+ * `parent_tool_use_id` / `subagent_type` and often run a cheaper model) are
+ * skipped so this reflects the conversation's own model, not a subagent's.
+ */
+export function getLastResponseModel(events: readonly ResearchConversationEventLike[]): string | null {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const event = events[i];
+    if (event.kind !== 'assistant') continue;
+    const payload = event.payload;
+    if (!isPlainRecord(payload)) continue;
+    if (payload.parent_tool_use_id != null || payload.subagent_type != null) continue;
+    const message = isPlainRecord(payload.message) ? payload.message : null;
+    const model = message && typeof message.model === 'string' ? message.model : null;
+    if (!model || model === '<synthetic>') continue;
+    return model;
+  }
+  return null;
+}
+
 /**
  * A user message dispatched while another turn runs is persisted immediately
  * but queued by Claude Code, so it can sit *before* the running turn's
@@ -146,8 +186,19 @@ export interface ConversationEventChunk {
   text: string;
 }
 
+/**
+ * Rewrite anchor tags so chat links open in a new tab (with `noopener`/
+ * `noreferrer`). Applied before `sanitize`, which keeps `target`/`rel` and
+ * normalizes the output. Anchors that already declare a `target` are left as-is.
+ * (The shared markdown-it instance is a singleton used elsewhere, so we can't
+ * configure its link rule; scoping the rewrite here keeps it to chat content.)
+ */
+export function openChatLinksInNewTab(html: string): string {
+  return html.replace(/<a\b(?![^>]*\btarget=)/gi, '<a target="_blank" rel="noopener noreferrer"');
+}
+
 export function renderChunkMarkdownToHtml(text: string): string {
-  return sanitize(getMarkdownItNoMathjax().render(text));
+  return sanitize(openChatLinksInNewTab(getMarkdownItNoMathjax().render(text)));
 }
 
 export function getConversationEventChunks(event: ResearchConversationEventLike): ConversationEventChunk[] {
