@@ -91,13 +91,15 @@ const schema = {
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onUpdate: ({ data, oldDocument }) => {
-        if (data.onsiteDigestStatus === "yes") {
-          if (oldDocument.onsiteDigestStatus === "yes") {
-            return oldDocument.onsiteDigestAt;
-          } else {
-            return new Date();
-          }
+     onCreate: ({ document }) => {
+        if (document.onsiteDigestStatus === "yes") {
+          return new Date();
+        }
+        return null;
+      },
+      onUpdate: ({ newDocument, oldDocument }) => {
+        if (newDocument.onsiteDigestStatus === "yes") {
+          return oldDocument.onsiteDigestAt ?? new Date();
         }
         return null;
       },
