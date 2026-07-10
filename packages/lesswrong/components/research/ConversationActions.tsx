@@ -26,11 +26,21 @@ const MintDevPreviewUrlMutation = gql(`
   }
 `);
 
+const RestartResearchSandboxMutation = gql(`
+  mutation RestartResearchSandbox($conversationId: String!) {
+    restartResearchSandbox(conversationId: $conversationId) {
+      running
+    }
+  }
+`);
+
 const ResearchSandboxRunningQuery = gql(`
   query ResearchSandboxRunning($conversationId: String!) {
     researchSandboxRunning(conversationId: $conversationId)
   }
 `);
+
+const PREVIEW_FEEDBACK_DELAY_MS = 4000;
 
 const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
   root: {
@@ -169,6 +179,34 @@ const RestartSandboxMenu = ({ anchor, state, readyUrl, onRestart, onClose }: Res
   );
 };
 
+function openPreviewPlaceholderWindow(): Window | null {
+  const previewWindow = window.open('', '_blank');
+  if (!previewWindow) return null;
+
+  previewWindow.opener = null;
+  previewWindow.document.title = 'Starting sandbox preview';
+  previewWindow.document.body.textContent = 'Starting sandbox preview...';
+  previewWindow.document.body.style.fontFamily = 'system-ui, sans-serif';
+  previewWindow.document.body.style.padding = '2rem';
+  previewWindow.document.body.style.color = '#333';
+  return previewWindow;
+}
+
+function closePreviewPlaceholderWindow(previewWindow: Window | null): void {
+  if (previewWindow && !previewWindow.closed) {
+    previewWindow.close();
+  }
+}
+
+function navigatePreviewWindow(previewWindow: Window | null, url: string): boolean {
+  if (previewWindow && !previewWindow.closed) {
+    previewWindow.location.href = url;
+    return true;
+  }
+  const opened = window.open(url, '_blank', 'noopener,noreferrer');
+  return Boolean(opened);
+}
+
 export function ConversationActions({ conversationId, projectId }: {
   conversationId: string;
   projectId: string;
@@ -178,6 +216,7 @@ export function ConversationActions({ conversationId, projectId }: {
   const apollo = useApolloClient();
   const [saveEnvironment] = useMutation(SaveResearchEnvironmentMutation);
   const [mintPreview] = useMutation(MintDevPreviewUrlMutation);
+  const [restartSandbox] = useMutation(RestartResearchSandboxMutation);
   const [checkRunning] = useLazyQuery(ResearchSandboxRunningQuery, { fetchPolicy: 'network-only' });
   const [busy, setBusy] = useState(false);
   const [restartMenu, setRestartMenu] = useState<RestartMenuAnchor | null>(null);
@@ -234,74 +273,96 @@ export function ConversationActions({ conversationId, projectId }: {
     setReadyUrl(null);
   }, []);
 
-  const openRestartMenu = useCallback(() => {
+  const openRestartMenu = useCallback((state: RestartMenuState = 'idle', url: string | null = null) => {
     const rect = previewButtonRef.current?.getBoundingClientRect();
     if (!rect) return;
     setRestartMenu({ right: window.innerWidth - rect.right, top: rect.bottom + 4 });
-    setRestartState('idle');
-    setReadyUrl(null);
+    setRestartState(state);
+    setReadyUrl(url);
   }, []);
 
   const handleRestart = useCallback(async () => {
+    const previewWindow = openPreviewPlaceholderWindow();
     restartAbortRef.current = false;
     setRestartState('starting');
-    let result;
     try {
-      result = await retryWhileSandboxWarming(
+      const restartResult = await retryWhileSandboxWarming(
+        () => restartSandbox({ variables: { conversationId } }),
+        () => restartAbortRef.current,
+      );
+      if (!restartResult) {
+        closePreviewPlaceholderWindow(previewWindow);
+        return;
+      }
+      const result = await retryWhileSandboxWarming(
         () => mintPreview({ variables: { conversationId } }),
         () => restartAbortRef.current,
       );
+      if (!result) {
+        closePreviewPlaceholderWindow(previewWindow);
+        return;
+      }
+      const url = result.data?.mintDevPreviewUrl?.url;
+      if (!url) {
+        closePreviewPlaceholderWindow(previewWindow);
+        closeRestartMenu();
+        flash({ messageString: 'Could not open a preview link.', type: 'error' });
+        return;
+      }
+      if (navigatePreviewWindow(previewWindow, url)) {
+        closeRestartMenu();
+      } else {
+        openRestartMenu('ready', url);
+      }
     } catch (err) {
+      closePreviewPlaceholderWindow(previewWindow);
       closeRestartMenu();
       // eslint-disable-next-line no-console
       console.error('[research] restart sandbox failed', err);
       flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
-      return;
     }
-    if (!result) return;
-    const url = result.data?.mintDevPreviewUrl?.url;
-    if (!url) {
-      closeRestartMenu();
-      flash({ messageString: 'Could not open a preview link.', type: 'error' });
-      return;
-    }
-    const opened = window.open(url, '_blank', 'noopener,noreferrer');
-    if (opened) {
-      closeRestartMenu();
-    } else {
-      setReadyUrl(url);
-      setRestartState('ready');
-    }
-  }, [conversationId, mintPreview, flash, closeRestartMenu]);
+  }, [conversationId, restartSandbox, mintPreview, flash, closeRestartMenu, openRestartMenu]);
 
   const handlePreview = useCallback(async () => {
     if (busy) return;
     setBusy(true);
+    const previewWindow = openPreviewPlaceholderWindow();
+    const feedbackTimer = window.setTimeout(() => {
+      openRestartMenu('starting');
+    }, PREVIEW_FEEDBACK_DELAY_MS);
     try {
       const check = await checkRunning({ variables: { conversationId } });
       if (!check.data?.researchSandboxRunning) {
-        openRestartMenu();
+        closePreviewPlaceholderWindow(previewWindow);
+        openRestartMenu('idle');
         return;
       }
       const result = await mintPreview({ variables: { conversationId } });
       const url = result.data?.mintDevPreviewUrl?.url;
       if (url) {
-        window.open(url, '_blank', 'noopener,noreferrer');
+        if (navigatePreviewWindow(previewWindow, url)) {
+          closeRestartMenu();
+        } else {
+          openRestartMenu('ready', url);
+        }
       } else {
+        closePreviewPlaceholderWindow(previewWindow);
         flash({ messageString: 'Could not open a preview link.', type: 'error' });
       }
     } catch (err) {
+      closePreviewPlaceholderWindow(previewWindow);
       if (isSandboxWarmingError(err)) {
-        openRestartMenu();
+        openRestartMenu('idle');
         return;
       }
       // eslint-disable-next-line no-console
       console.error('[research] mint preview failed', err);
       flash({ messageString: `Failed to open preview: ${(err as Error).message}`, type: 'error' });
     } finally {
+      window.clearTimeout(feedbackTimer);
       setBusy(false);
     }
-  }, [busy, conversationId, checkRunning, mintPreview, openRestartMenu, flash]);
+  }, [busy, conversationId, checkRunning, mintPreview, openRestartMenu, closeRestartMenu, flash]);
 
   return (
     <div className={classes.root}>
