@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect } from "react";
-import { useCurrentUser } from "../common/withUser";
 import SubscribedItem from "./SubscribedItem";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
@@ -8,7 +7,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 
-export const SubscriptionStateMultiQuery = gql(`
+const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscriptionsListQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
     subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -47,6 +46,7 @@ const styles = defineStyles('SubscriptionsList', (theme: ThemeType) => ({
 }));
 
 export default function SubscriptionsList<TQuery, TExtractResult>({
+  userId,
   collectionName,
   subscriptionType,
   query,
@@ -54,23 +54,25 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   renderDocument,
   title,
   subscriptionTypeDescription,
-  onHasItems,
+  readOnly,
+  onLoaded,
 }: {
+  userId: string,
   collectionName: CollectionNameString,
   subscriptionType: string,
   query: TypedDocumentNode<TQuery, { documentId: string }>,
   extractDocument: (data: TQuery) => TExtractResult,
   renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
   title: React.ReactNode,
-  subscriptionTypeDescription?: string,
-  onHasItems?: () => void,
+  subscriptionTypeDescription?: ReactNode,
+  readOnly: boolean,
+  onLoaded: (subscriptionType: string, hasItems: boolean) => void,
 }) {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(SubscriptionStateMultiQuery, {
     variables: {
-      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName, subscriptionType } },
+      selector: { subscriptionsOfType: { userId, collectionName, subscriptionType } },
       limit: 20,
       enableTotal: true,
     },
@@ -81,12 +83,11 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   const hasResults = !!results && results.length > 0;
 
   useEffect(() => {
-    if (hasResults) {
-      onHasItems?.();
+    if (!loading) {
+      onLoaded(subscriptionType, hasResults);
     }
-  }, [hasResults, onHasItems]);
+  }, [loading, hasResults, onLoaded, subscriptionType]);
 
-  if (!currentUser) return null;
   if (loading && !results) return <Loading />;
   if (!hasResults) return null;
 
@@ -108,6 +109,7 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
             extractDocument={extractDocument}
             subscription={result}
             renderDocument={renderDocument}
+            readOnly={readOnly}
           />
         )}
       </div>

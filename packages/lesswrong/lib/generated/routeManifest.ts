@@ -995,9 +995,6 @@ export const routeTrie = {
         }
       }
     },
-    "manageSubscriptions": {
-      "hasPage": true
-    },
     "meetups": {
       "hasPage": true
     },
@@ -1468,7 +1465,6 @@ export const routeTrie = {
     "login": "login",
     "logout": "logout",
     "lw": "lw",
-    "managesubscriptions": "manageSubscriptions",
     "meetups": "meetups",
     "message": "message",
     "moderation": "moderation",

@@ -36,6 +36,7 @@ type CommentFilter = 'all' | 'quickTakes' | 'regular';
 function getCommentSelector(userId: string, filter: CommentFilter): CommentSelector {
   const base = {
     authorIsUnreviewed: null,
+    includeRejected: true,
     userId,
   };
 

@@ -1,18 +1,16 @@
 import { useMessages } from '@/components/common/withMessages';
 import React, { useCallback } from 'react';
-import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { EditableUser, getUserEmail, userCanEditUser, userCanSeeAdminSettingsTab, userGetDisplayName } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
-import { userIsAdmin, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import Loading from "../../vulcan-core/Loading";
 import Error404 from "../../common/Error404";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
@@ -295,7 +293,7 @@ const UsersForm = ({
     return <Error404 />;
   }
 
-  const showAdminTab = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins') || userIsMemberOf(currentUser, 'alignmentForumAdmins');
+  const showAdminTab = userCanSeeAdminSettingsTab(currentUser);
 
   // The form's inferred type from useForm includes withDateFields transformations and
   // default value overrides that make it incompatible with SettingsFormApi due to deep
@@ -393,7 +391,6 @@ const UsersEditForm = ({ terms, accountManagement, activeSettingsTab, hideSideba
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const navigate = useNavigate();
   const client = useApolloClient();
   const [mutate] = useMutation(gql(`
     mutation resetPassword($email: String) {
@@ -425,11 +422,7 @@ const UsersEditForm = ({ terms, accountManagement, activeSettingsTab, hideSideba
 
   const onSuccess = async (user: UsersEdit) => {
     flash(`User "${userGetDisplayName(user)}" edited`);
-    try {
-      await client.resetStore()
-    } finally {
-      navigate(userGetProfileUrl(user))
-    }
+    await client.resetStore()
   }
 
   return (

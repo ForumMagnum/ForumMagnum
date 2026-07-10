@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 /**
  * All possible dashboard tab IDs. Grouped into sections:
@@ -10,19 +11,22 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
  * - Settings: settings-account, settings-profile, settings-preferences,
  *   settings-notifications, settings-moderation, settings-admin
  */
-export type DashboardTabId =
-  | 'posts'
-  | 'comments'
-  | 'sequences'
-  | 'wikiEdits'
-  | 'subscriptions'
-  | 'groups'
-  | 'settings-account'
-  | 'settings-profile'
-  | 'settings-preferences'
-  | 'settings-notifications'
-  | 'settings-moderation'
-  | 'settings-admin';
+export const DASHBOARD_TAB_IDS = new TupleSet([
+  'posts',
+  'comments',
+  'sequences',
+  'wikiEdits',
+  'subscriptions',
+  'groups',
+  'settings-account',
+  'settings-profile',
+  'settings-preferences',
+  'settings-notifications',
+  'settings-moderation',
+  'settings-admin',
+] as const);
+
+export type DashboardTabId = UnionOf<typeof DASHBOARD_TAB_IDS>;
 
 interface DashboardTab {
   id: DashboardTabId;

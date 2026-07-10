@@ -36,174 +36,210 @@ const styles = defineStyles('DashboardSubscriptionsTab', (theme: ThemeType) => (
   },
 }));
 
-const DashboardSubscriptionsTab = () => {
+const notificationSettingsLink = (
+  <Link to="/account?tab=settings-notifications">notification settings</Link>
+);
+
+const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount: boolean}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [hasAnySubscriptions, setHasAnySubscriptions] = useState(false);
+  const [sectionResults, setSectionResults] = useState<Record<string, boolean>>({});
 
-  const onSectionHasItems = useCallback(() => {
-    setHasAnySubscriptions(true);
+  const onSectionLoaded = useCallback((subscriptionType: string, hasItems: boolean) => {
+    setSectionResults((prev) =>
+      prev[subscriptionType] === hasItems ? prev : {...prev, [subscriptionType]: hasItems}
+    );
   }, []);
 
   if (!currentUser) return null;
 
-  return (
-    <AnalyticsContext pageElementContext="dashboardSubscriptionsTab">
-      {userHasSubscribeTabFeed(currentUser) && (
-        <SubscriptionsList
-          title="Users you are following"
-          subscriptionTypeDescription="These users will appear in the feed on your frontpage Subscribed Tab"
-          collectionName="Users"
-          subscriptionType="newActivityForFeed"
-          query={subscribedUserQuery}
-          extractDocument={(data) => data?.user?.result}
-          renderDocument={(user) => <UsersNameDisplay user={user} tooltipPlacement="top" hideFollowButton />}
-          onHasItems={onSectionHasItems}
-        />
-      )}
+  const sharedProps = {
+    userId,
+    readOnly: !isOwnAccount,
+    onLoaded: onSectionLoaded,
+  };
 
+  const sections = [
+    ...(userHasSubscribeTabFeed(currentUser) ? [
       <SubscriptionsList
-        title="Notifications for new posts by users"
-        subscriptionTypeDescription="Manage onsite and offsite notification preferences in your account settings"
+        {...sharedProps}
+        key="newActivityForFeed"
+        title="Users you are following"
+        subscriptionTypeDescription="These users will appear in the feed on your frontpage Subscribed Tab"
         collectionName="Users"
-        subscriptionType="newPosts"
+        subscriptionType="newActivityForFeed"
+        query={subscribedUserQuery}
+        extractDocument={(data) => data?.user?.result}
+        renderDocument={(user) => <UsersNameDisplay user={user} tooltipPlacement="top" hideFollowButton />}
+      />
+    ] : []),
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newPosts"
+      title="Notifications for new posts by users"
+      subscriptionTypeDescription={<>Manage onsite and offsite notification preferences in your {notificationSettingsLink}</>}
+      collectionName="Users"
+      subscriptionType="newPosts"
+      query={subscribedUserQuery}
+      extractDocument={(data) => data?.user?.result}
+      renderDocument={(user) => <UsersNameDisplay user={user} />}
+    />,
+
+    ...(allowSubscribeToUserComments ? [
+      <SubscriptionsList
+        {...sharedProps}
+        key="newUserComments"
+        title="Notifications for all new comments by users"
+        subscriptionTypeDescription={<>Manage onsite and offsite (email) notification preferences in your {notificationSettingsLink}</>}
+        collectionName="Users"
+        subscriptionType="newUserComments"
         query={subscribedUserQuery}
         extractDocument={(data) => data?.user?.result}
         renderDocument={(user) => <UsersNameDisplay user={user} />}
-        onHasItems={onSectionHasItems}
       />
+    ] : []),
 
-      {allowSubscribeToUserComments && (
-        <SubscriptionsList
-          title="Notifications for all new comments by users"
-          subscriptionTypeDescription="Manage onsite and offsite (email) notification preferences in your account settings"
-          collectionName="Users"
-          subscriptionType="newUserComments"
-          query={subscribedUserQuery}
-          extractDocument={(data) => data?.user?.result}
-          renderDocument={(user) => <UsersNameDisplay user={user} />}
-          onHasItems={onSectionHasItems}
-        />
+    <SubscriptionsList
+      {...sharedProps}
+      key="newComments"
+      title="Notifications of comments on posts"
+      subscriptionTypeDescription="You will receive notifications for any new comments on these posts"
+      collectionName="Posts"
+      subscriptionType="newComments"
+      query={subscribedPostQuery}
+      extractDocument={(data) => data?.post?.result}
+      renderDocument={(post) => post.title}
+    />,
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newPublishedDialogueMessages"
+      title="Notification of dialogue activity (as a reader)"
+      subscriptionTypeDescription="You will be notified of new activity in these dialogues."
+      collectionName="Posts"
+      subscriptionType="newPublishedDialogueMessages"
+      query={subscribedPostQuery}
+      extractDocument={(data) => data?.post?.result}
+      renderDocument={(post) => post.title}
+    />,
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newDialogueMessages"
+      title="Notification of dialogue activity (as a participant)"
+      subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
+      collectionName="Posts"
+      subscriptionType="newDialogueMessages"
+      query={subscribedPostQuery}
+      extractDocument={(data) => data?.post?.result}
+      renderDocument={(post) => post.title}
+    />,
+
+    ...(isLW() ? [
+      <SubscriptionsList
+        {...sharedProps}
+        key="newDebateComments"
+        title="Subscribed to old-style dialogues (as a reader)"
+        collectionName="Posts"
+        subscriptionType="newDebateComments"
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
+      />
+    ] : []),
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newDebateReplies"
+      title="Subscribed to old-style dialogues (as a participant)"
+      collectionName="Posts"
+      subscriptionType="newDebateReplies"
+      query={subscribedPostQuery}
+      extractDocument={(data) => data?.post?.result}
+      renderDocument={(post) => post.title}
+    />,
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newReplies"
+      title="Notifications of comment replies"
+      subscriptionTypeDescription="You will get notifications on replies to these comments."
+      collectionName="Comments"
+      subscriptionType="newReplies"
+      query={subscribedCommentQuery}
+      extractDocument={(data) => data?.comment?.result}
+      renderDocument={(comment) => (
+        <Link to={commentGetPageUrlFromIds({
+          postId: comment?.post?._id,
+          postSlug: comment?.post?.slug,
+          tagSlug: comment?.tag?.slug,
+          tagCommentType: comment?.tagCommentType,
+          commentId: comment?._id,
+          permalink: true,
+        })}>
+          {comment?.user?.displayName} on {comment?.post?.title}
+        </Link>
       )}
+    />,
 
+    <SubscriptionsList
+      {...sharedProps}
+      key="newEvents"
+      title="Notifications of local groups activity"
+      subscriptionTypeDescription="You will be notified of new events from these Local Groups"
+      collectionName="Localgroups"
+      subscriptionType="newEvents"
+      query={subscribedLocalgroupQuery}
+      extractDocument={(data) => data?.localgroup?.result}
+      renderDocument={(group) => group.name}
+    />,
+
+    <SubscriptionsList
+      {...sharedProps}
+      key="newTagPosts"
+      title="Notification of new posts with tags"
+      subscriptionTypeDescription="You will be notified when posts have these tags added"
+      collectionName="Tags"
+      subscriptionType="newTagPosts"
+      query={subscribedTagQuery}
+      extractDocument={(data) => data?.tag?.result}
+      renderDocument={(tag) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
+    />,
+
+    ...(allowSubscribeToSequencePosts() ? [
       <SubscriptionsList
-        title="Notifications of comments on posts"
-        subscriptionTypeDescription="You will receive notifications for any new comments on these posts"
-        collectionName="Posts"
-        subscriptionType="newComments"
-        query={subscribedPostQuery}
-        extractDocument={(data) => data?.post?.result}
-        renderDocument={(post) => post.title}
-        onHasItems={onSectionHasItems}
+        {...sharedProps}
+        key="newSequencePosts"
+        title="Notifications of new post added to sequences"
+        subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
+        collectionName="Sequences"
+        subscriptionType="newSequencePosts"
+        query={subscribedSequenceQuery}
+        extractDocument={(data) => data?.sequence?.result}
+        renderDocument={(sequence) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
       />
+    ] : []),
+  ];
 
-      <SubscriptionsList
-        title="Notification of dialogue activity (as a reader)"
-        subscriptionTypeDescription="You will be notified of new activity in these dialogues."
-        collectionName="Posts"
-        subscriptionType="newPublishedDialogueMessages"
-        query={subscribedPostQuery}
-        extractDocument={(data) => data?.post?.result}
-        renderDocument={(post) => post.title}
-        onHasItems={onSectionHasItems}
-      />
+  const allSectionsLoaded = Object.keys(sectionResults).length >= sections.length;
+  const hasAnySubscriptions = Object.values(sectionResults).some(Boolean);
 
-      <SubscriptionsList
-        title="Notification of dialogue activity (as a participant)"
-        subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
-        collectionName="Posts"
-        subscriptionType="newDialogueMessages"
-        query={subscribedPostQuery}
-        extractDocument={(data) => data?.post?.result}
-        renderDocument={(post) => post.title}
-        onHasItems={onSectionHasItems}
-      />
+  return (
+    <AnalyticsContext pageElementContext="dashboardSubscriptionsTab">
+      {sections}
 
-      {isLW() && (
-        <SubscriptionsList
-          title="Subscribed to old-style dialogues (as a reader)"
-          collectionName="Posts"
-          subscriptionType="newDebateComments"
-          query={subscribedPostQuery}
-          extractDocument={(data) => data?.post?.result}
-          renderDocument={(post) => post.title}
-          onHasItems={onSectionHasItems}
-        />
-      )}
-
-      <SubscriptionsList
-        title="Subscribed to old-style dialogues (as a participant)"
-        collectionName="Posts"
-        subscriptionType="newDebateReplies"
-        query={subscribedPostQuery}
-        extractDocument={(data) => data?.post?.result}
-        renderDocument={(post) => post.title}
-        onHasItems={onSectionHasItems}
-      />
-
-      <SubscriptionsList
-        title="Notifications of comment replies"
-        subscriptionTypeDescription="You will get notifications on replies to these comments."
-        collectionName="Comments"
-        subscriptionType="newReplies"
-        query={subscribedCommentQuery}
-        extractDocument={(data) => data?.comment?.result}
-        renderDocument={(comment) => (
-          <Link to={commentGetPageUrlFromIds({
-            postId: comment?.post?._id,
-            postSlug: comment?.post?.slug,
-            tagSlug: comment?.tag?.slug,
-            tagCommentType: comment?.tagCommentType,
-            commentId: comment?._id,
-            permalink: true,
-          })}>
-            {comment?.user?.displayName} on {comment?.post?.title}
-          </Link>
-        )}
-        onHasItems={onSectionHasItems}
-      />
-
-      <SubscriptionsList
-        title="Notifications of local groups activity"
-        subscriptionTypeDescription="You will be notified of new events from these Local Groups"
-        collectionName="Localgroups"
-        subscriptionType="newEvents"
-        query={subscribedLocalgroupQuery}
-        extractDocument={(data) => data?.localgroup?.result}
-        renderDocument={(group) => group.name}
-        onHasItems={onSectionHasItems}
-      />
-
-      <SubscriptionsList
-        title="Notification of new posts with tags"
-        subscriptionTypeDescription="You will be notified when posts have these tags added"
-        collectionName="Tags"
-        subscriptionType="newTagPosts"
-        query={subscribedTagQuery}
-        extractDocument={(data) => data?.tag?.result}
-        renderDocument={(tag) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
-        onHasItems={onSectionHasItems}
-      />
-
-      {allowSubscribeToSequencePosts() && (
-        <SubscriptionsList
-          title="Notifications of new post added to sequences"
-          subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
-          collectionName="Sequences"
-          subscriptionType="newSequencePosts"
-          query={subscribedSequenceQuery}
-          extractDocument={(data) => data?.sequence?.result}
-          renderDocument={(sequence) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
-          onHasItems={onSectionHasItems}
-        />
-      )}
-
-      {!hasAnySubscriptions && (
+      {allSectionsLoaded && !hasAnySubscriptions && (
         <div className={classes.noSubscriptions}>
-          You have no active subscriptions. Subscribe to{' '}
-          <Link to="/wikitags">wikitags</Link>,{' '}
-          <Link to="/allPosts">posts</Link>, or users{' '}
-          to receive notifications for new content.
+          {isOwnAccount
+            ? <>
+                You have no active subscriptions. Subscribe to{' '}
+                <Link to="/wikitags">wikitags</Link>,{' '}
+                <Link to="/allPosts">posts</Link>, or users{' '}
+                to receive notifications for new content.
+              </>
+            : <>This user has no active subscriptions.</>
+          }
         </div>
       )}
     </AnalyticsContext>

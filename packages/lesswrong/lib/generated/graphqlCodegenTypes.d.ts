@@ -875,6 +875,7 @@ type CommentsProfileCommentsInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   drafts?: InputMaybe<Scalars['String']['input']>;
+  includeRejected?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
@@ -23102,6 +23103,21 @@ type UserTopPostsForManagerQueryVariables = Exact<{
 
 
 type UserTopPostsForManagerQuery = UserTopPostsForManagerQuery_Query;
+
+type UsersAccountTargetUserQuery_GetUserBySlug_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type UsersAccountTargetUserQuery_Query = { __typename?: 'Query', GetUserBySlug: UsersAccountTargetUserQuery_GetUserBySlug_User | null };
+
+
+type UsersAccountTargetUserQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type UsersAccountTargetUserQuery = UsersAccountTargetUserQuery_Query;
 
 type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }

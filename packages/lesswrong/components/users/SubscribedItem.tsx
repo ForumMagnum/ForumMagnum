@@ -40,11 +40,13 @@ export default function SubscribedItem<TQuery, TExtractResult>({
   subscription,
   renderDocument,
   extractDocument,
+  readOnly,
 }: {
   query: TypedDocumentNode<TQuery, { documentId: string }>,
   subscription: SubscriptionState,
   renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
   extractDocument: (data: TQuery) => TExtractResult,
+  readOnly: boolean,
 }) {
   const classes = useStyles(styles);
 
@@ -67,14 +69,14 @@ export default function SubscribedItem<TQuery, TExtractResult>({
 
   return (
     <div className={classes.root}>
-      <NotifyMeButton
+      {!readOnly && <NotifyMeButton
         document={document}
         subscriptionType={(subscription.type ?? undefined) as SubscriptionType | undefined}
         subscribeMessage="Resubscribe"
         unsubscribeMessage="Unsubscribe"
         className={classes.unsubscribeButton}
         optimisticIsSubscribed={subscription.state === "subscribed"}
-      />
+      />}
       <div className={classes.description}>
         {renderDocument(document)}
       </div>

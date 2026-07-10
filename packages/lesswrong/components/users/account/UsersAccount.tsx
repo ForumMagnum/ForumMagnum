@@ -1,14 +1,18 @@
 "use client";
-import React, { useCallback } from 'react';
-import { userCanEditUser } from '@/lib/collections/users/helpers';
+import React, { useCallback, useState } from 'react';
+import { userCanEditUser, userCanSeeAdminSettingsTab, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
-import { userIsAdmin, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+import { Link } from '@/lib/reactRouterWrapper';
 import UsersEditForm, { getSettingsTabForField } from './UsersEditForm';
 import UsersAccountManagement from './UsersAccountManagement';
 import ErrorAccessDenied from '../../common/ErrorAccessDenied';
-import DashboardSidebar, { type DashboardTabId } from './DashboardSidebar';
+import Error404 from '../../common/Error404';
+import Loading from '../../vulcan-core/Loading';
+import DashboardSidebar, { DASHBOARD_TAB_IDS, type DashboardTabId } from './DashboardSidebar';
 import type { SettingsTabId } from './AccountSettingsSidebar';
 import DashboardPostsTab from './DashboardPostsTab';
 import DashboardCommentsTab from './DashboardCommentsTab';
@@ -18,6 +22,15 @@ import DashboardSubscriptionsTab from './DashboardSubscriptionsTab';
 import DashboardGroupsTab from './DashboardGroupsTab';
 import { hasEventsSetting } from '@/lib/instanceSettings';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
+import classNames from 'classnames';
+
+const TargetUserBySlugQuery = gql(`
+  query UsersAccountTargetUser($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersMinimumInfo
+    }
+  }
+`);
 
 const styles = defineStyles('UsersAccount', (theme: ThemeType) => ({
   root: {
@@ -53,6 +66,10 @@ const styles = defineStyles('UsersAccount', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginTop: 6,
   },
+  profileLink: {
+    fontWeight: 500,
+    color: theme.palette.primary.main,
+  },
   layout: {
     display: 'flex',
     gap: 40,
@@ -65,6 +82,9 @@ const styles = defineStyles('UsersAccount', (theme: ThemeType) => ({
     flexGrow: 1,
     minWidth: 0,
     paddingBottom: 24,
+  },
+  hiddenTab: {
+    display: 'none',
   },
 }));
 
@@ -80,21 +100,29 @@ const LEGACY_TAB_MAP: Record<string, DashboardTabId> = {
   admin: 'settings-admin',
 };
 
-const ALL_DASHBOARD_TAB_IDS = new Set<string>([
-  'posts', 'comments', 'sequences', 'wikiEdits',
-  'subscriptions', 'groups',
-  'settings-account', 'settings-profile', 'settings-preferences',
-  'settings-notifications', 'settings-moderation', 'settings-admin',
-]);
+interface DashboardTabVisibility {
+  showAdminTab: boolean;
+  showGroupsTab: boolean;
+}
 
-function parseDashboardTab(query: Record<string, string>, defaultTab: DashboardTabId): DashboardTabId {
+function isTabVisible(tab: DashboardTabId, {showAdminTab, showGroupsTab}: DashboardTabVisibility): boolean {
+  if (tab === 'settings-admin') return showAdminTab;
+  if (tab === 'groups') return showGroupsTab;
+  return true;
+}
+
+function parseDashboardTab(
+  query: Record<string, string>,
+  defaultTab: DashboardTabId,
+  visibility: DashboardTabVisibility,
+): DashboardTabId {
   const raw = query?.tab;
   if (!raw) return defaultTab;
 
   // Handle legacy settings tab IDs (from old /account?tab=account links)
-  if (raw in LEGACY_TAB_MAP) return LEGACY_TAB_MAP[raw];
+  const tab = LEGACY_TAB_MAP[raw] ?? raw;
 
-  if (ALL_DASHBOARD_TAB_IDS.has(raw)) return raw as DashboardTabId;
+  if (DASHBOARD_TAB_IDS.has(tab) && isTabVisible(tab, visibility)) return tab;
 
   return defaultTab;
 }
@@ -120,41 +148,77 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
   }, [navigate]);
 
   const slugWithFallback = slug ?? currentUser?.slug;
+  const isOwnAccount = slug === null || slug === currentUser?.slug;
+  const hasEditAccess = !!slugWithFallback && !!currentUser && userCanEditUser(currentUser, {slug: slugWithFallback});
 
-  if (!slugWithFallback || !currentUser || !userCanEditUser(currentUser, {slug: slugWithFallback})) {
+  const { data: targetUserData, loading: loadingTargetUser } = useQuery(TargetUserBySlugQuery, {
+    variables: { slug: slugWithFallback ?? '' },
+    skip: isOwnAccount || !hasEditAccess,
+  });
+
+  // Once the user has visited a settings tab, keep the settings form mounted
+  // (hidden) when they switch to a content tab, so unsaved edits aren't lost.
+  const [settingsFormMounted, setSettingsFormMounted] = useState(false);
+  const [lastSettingsTab, setLastSettingsTab] = useState<SettingsTabId>('account');
+
+  if (!hasEditAccess || !currentUser) {
     return <ErrorAccessDenied />;
   }
 
-  const isOwnAccount = slug === null || slug === currentUser.slug;
   const defaultTab: DashboardTabId = isOwnAccount ? 'posts' : 'settings-account';
+
+  const visibility: DashboardTabVisibility = {
+    showAdminTab: userCanSeeAdminSettingsTab(currentUser),
+    showGroupsTab: hasEventsSetting.get(),
+  };
 
   // Handle highlightField: if present, navigate to the correct settings tab
   const highlightedField = query?.highlightField ?? null;
   const highlightSettingsTab = getSettingsTabForField(highlightedField);
-  const activeTab: DashboardTabId = highlightSettingsTab
+  const highlightTab: DashboardTabId | null = highlightSettingsTab
     ? `settings-${highlightSettingsTab}` as DashboardTabId
-    : parseDashboardTab(query, defaultTab);
+    : null;
+  const activeTab: DashboardTabId = highlightTab && isTabVisible(highlightTab, visibility)
+    ? highlightTab
+    : parseDashboardTab(query, defaultTab, visibility);
 
-  const showAdminTab = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins') || userIsMemberOf(currentUser, 'alignmentForumAdmins');
-  const showGroupsTab = hasEventsSetting.get();
+  const onSettingsTab = isSettingsTab(activeTab);
+  if (onSettingsTab && !settingsFormMounted) {
+    setSettingsFormMounted(true);
+  }
+  const activeSettingsTab = onSettingsTab ? getSettingsSubTab(activeTab) : lastSettingsTab;
+  if (onSettingsTab && activeSettingsTab !== lastSettingsTab) {
+    setLastSettingsTab(activeSettingsTab);
+  }
+
+  const targetUser = isOwnAccount ? currentUser : targetUserData?.GetUserBySlug;
+
+  if (!isOwnAccount && loadingTargetUser) {
+    return <Loading />;
+  }
+  if (!targetUser) {
+    return <Error404 />;
+  }
 
   const accountManagement = hasAccountDeletionFlow()
     ? <UsersAccountManagement terms={{slug: slugWithFallback}} />
     : null;
 
-  const userId = isOwnAccount ? currentUser._id : slugWithFallback;
-
   return (
     <div className={classes.root}>
       <div className={classes.header}>
         <h1 className={classes.title}>
-          {isOwnAccount ? 'Dashboard' : 'Account Settings'}
+          {isOwnAccount ? 'Dashboard' : `${targetUser.displayName} — Account Settings`}
         </h1>
         <div className={classes.subtitle}>
           {isOwnAccount
             ? 'Manage your content, subscriptions, and account settings'
-            : `Manage account, profile, and preferences`
+            : 'Manage account, profile, and preferences'
           }
+          {' · '}
+          <Link to={userGetProfileUrl(targetUser)} className={classes.profileLink}>
+            View {isOwnAccount ? 'your ' : ''}public profile
+          </Link>
         </div>
       </div>
 
@@ -162,36 +226,38 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
         <DashboardSidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          showAdminTab={showAdminTab}
-          showGroupsTab={showGroupsTab}
+          showAdminTab={visibility.showAdminTab}
+          showGroupsTab={visibility.showGroupsTab}
         />
 
         <div className={classes.contentArea}>
           {activeTab === 'posts' && (
-            <DashboardPostsTab userId={userId} />
+            <DashboardPostsTab userId={targetUser._id} isOwnAccount={isOwnAccount} />
           )}
           {activeTab === 'comments' && (
-            <DashboardCommentsTab userId={userId} />
+            <DashboardCommentsTab userId={targetUser._id} />
           )}
           {activeTab === 'sequences' && (
-            <DashboardSequencesTab userId={userId} />
+            <DashboardSequencesTab userId={targetUser._id} isOwnAccount={isOwnAccount} />
           )}
           {activeTab === 'wikiEdits' && (
-            <DashboardWikiEditsTab userId={userId} />
+            <DashboardWikiEditsTab userId={targetUser._id} />
           )}
           {activeTab === 'subscriptions' && (
-            <DashboardSubscriptionsTab />
+            <DashboardSubscriptionsTab userId={targetUser._id} isOwnAccount={isOwnAccount} />
           )}
           {activeTab === 'groups' && (
-            <DashboardGroupsTab userId={userId} />
+            <DashboardGroupsTab userId={targetUser._id} />
           )}
-          {isSettingsTab(activeTab) && (
-            <UsersEditForm
-              terms={{slug: slugWithFallback}}
-              accountManagement={accountManagement}
-              activeSettingsTab={getSettingsSubTab(activeTab)}
-              hideSidebar
-            />
+          {settingsFormMounted && (
+            <div className={classNames(!onSettingsTab && classes.hiddenTab)}>
+              <UsersEditForm
+                terms={{slug: slugWithFallback}}
+                accountManagement={accountManagement}
+                activeSettingsTab={activeSettingsTab}
+                hideSidebar
+              />
+            </div>
           )}
         </div>
       </div>

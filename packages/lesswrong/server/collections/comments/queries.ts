@@ -141,6 +141,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    includeRejected: Boolean
     sortBy: String
     shortform: Boolean
     drafts: String

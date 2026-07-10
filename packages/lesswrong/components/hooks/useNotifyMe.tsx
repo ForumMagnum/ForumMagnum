@@ -134,7 +134,7 @@ export const useNotifyMe = ({
 
   const results = data?.subscriptions?.results;
 
-  const resolvedIsSubscribed = currentUser ?
+  const isSubscribed = currentUser ?
     currentUserIsSubscribed(
       currentUser,
       results,
@@ -143,10 +143,6 @@ export const useNotifyMe = ({
       document,
     )
     : false;
-
-  const isSubscribed = (loading && optimisticIsSubscribed !== undefined)
-    ? optimisticIsSubscribed
-    : resolvedIsSubscribed;
 
   const onSubscribe = useCallback(async (e: MouseEvent) => {
     if (!currentUser) {
