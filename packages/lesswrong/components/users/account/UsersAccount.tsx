@@ -13,7 +13,7 @@ import ErrorAccessDenied from '../../common/ErrorAccessDenied';
 import Error404 from '../../common/Error404';
 import Loading from '../../vulcan-core/Loading';
 import DashboardSidebar, { DASHBOARD_TAB_IDS, type DashboardTabId } from './DashboardSidebar';
-import type { SettingsTabId } from './AccountSettingsSidebar';
+import type { SettingsTabId } from './settingsTabTypes';
 import DashboardPostsTab from './DashboardPostsTab';
 import DashboardCommentsTab from './DashboardCommentsTab';
 import DashboardSequencesTab from './DashboardSequencesTab';
@@ -255,7 +255,6 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
                 terms={{slug: slugWithFallback}}
                 accountManagement={accountManagement}
                 activeSettingsTab={activeSettingsTab}
-                hideSidebar
               />
             </div>
           )}

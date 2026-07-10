@@ -20749,17 +20749,6 @@ export type UsersAccountManagementGetUserBySlugQuery = { __typename?: 'Query', G
     & UsersEdit
   ) | null };
 
-export type updateUserUsersEditFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserUsersEditFormMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersEdit
-    ) | null } | null };
-
 export type UsersEditFormGetUserBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
 }>;
@@ -20769,6 +20758,17 @@ export type UsersEditFormGetUserBySlugQuery = { __typename?: 'Query', GetUserByS
     { __typename?: 'User' }
     & UsersEdit
   ) | null };
+
+export type updateUserAutoSavedSettingsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+export type updateUserAutoSavedSettingsMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
+      { __typename?: 'User' }
+      & UsersEdit
+    ) | null } | null };
 
 export type KarmaChangeNotifierQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
@@ -23421,8 +23421,8 @@ export const SoftDeleteUserDocument = _o1(_1,[_o11(_977,_978,_1872,_1626,_o5(_7,
 export const UserTopPostsForManagerDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"UserTopPostsForManager"),_1048,_o5(_7,[_o7(_8,_250,_1050,_1716)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserTopPostsForManagerQuery, UserTopPostsForManagerQueryVariables>;
 export const UsersAccountTargetUserDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"UsersAccountTargetUser"),_1058,_1491),_61]) as unknown as DocumentNode<UsersAccountTargetUserQuery, UsersAccountTargetUserQueryVariables>;
 export const UsersAccountManagementGetUserBySlugDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"UsersAccountManagementGetUserBySlug"),_1058,_1873),_61,_226,_900,_928,_270,_936]) as unknown as DocumentNode<UsersAccountManagementGetUserBySlugQuery, UsersAccountManagementGetUserBySlugQueryVariables>;
-export const updateUserUsersEditFormDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"updateUserUsersEditForm"),_1184,_1504),_61,_226,_900,_928,_270,_936]) as unknown as DocumentNode<updateUserUsersEditFormMutation, updateUserUsersEditFormMutationVariables>;
 export const UsersEditFormGetUserBySlugDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"UsersEditFormGetUserBySlug"),_1058,_1873),_61,_226,_900,_928,_270,_936]) as unknown as DocumentNode<UsersEditFormGetUserBySlugQuery, UsersEditFormGetUserBySlugQueryVariables>;
+export const updateUserAutoSavedSettingsDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"updateUserAutoSavedSettings"),_1184,_1504),_61,_226,_900,_928,_270,_936]) as unknown as DocumentNode<updateUserAutoSavedSettingsMutation, updateUserAutoSavedSettingsMutationVariables>;
 export const KarmaChangeNotifierDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"KarmaChangeNotifier"),_1169,_1495),_870]) as unknown as DocumentNode<KarmaChangeNotifierQuery, KarmaChangeNotifierQueryVariables>;
 export const karmaChangesCheckedKarmaChangeNotifierDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"karmaChangesCheckedKarmaChangeNotifier"),[_1377,_1379],_o5(_7,[_o10(_8,_o3(_3,"karmaChangesChecked"),[_1380,_1381])]))]) as unknown as DocumentNode<karmaChangesCheckedKarmaChangeNotifierMutation, karmaChangesCheckedKarmaChangeNotifierMutationVariables>;
 export const KarmaChangePostBodiesDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"KarmaChangePostBodies"),_1048,_o5(_7,[_o7(_8,_250,_1874,_o5(_7,[_o6(_8,_1014,_o5(_7,[_10,_o6(_8,_36,_155)]))]))]))]) as unknown as DocumentNode<KarmaChangePostBodiesQuery, KarmaChangePostBodiesQueryVariables>;

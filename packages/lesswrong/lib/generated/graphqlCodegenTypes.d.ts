@@ -23134,24 +23134,6 @@ type UsersAccountManagementGetUserBySlugQueryVariables = Exact<{
 
 type UsersAccountManagementGetUserBySlugQuery = UsersAccountManagementGetUserBySlugQuery_Query;
 
-type updateUserUsersEditFormMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserUsersEditFormMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserUsersEditFormMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserUsersEditFormMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserUsersEditFormMutation_updateUser_UserOutput | null };
-
-
-type updateUserUsersEditFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserUsersEditFormMutation = updateUserUsersEditFormMutation_Mutation;
-
 type UsersEditFormGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
   & UsersEdit
@@ -23166,6 +23148,24 @@ type UsersEditFormGetUserBySlugQueryVariables = Exact<{
 
 
 type UsersEditFormGetUserBySlugQuery = UsersEditFormGetUserBySlugQuery_Query;
+
+type updateUserAutoSavedSettingsMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & UsersEdit
+);
+
+type updateUserAutoSavedSettingsMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserAutoSavedSettingsMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserAutoSavedSettingsMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserAutoSavedSettingsMutation_updateUser_UserOutput | null };
+
+
+type updateUserAutoSavedSettingsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserAutoSavedSettingsMutation = updateUserAutoSavedSettingsMutation_Mutation;
 
 type KarmaChangeNotifierQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

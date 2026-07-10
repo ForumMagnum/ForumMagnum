@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
@@ -16,255 +16,212 @@ const SORT_DRAFTS_BY_OPTIONS = [
 ];
 
 const PreferencesSettingsTab = ({
-  form,
+  settings,
+  updateSettings,
+  bind,
   currentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  // googleLocation has a companion plain-string field ("location") that
+  // LocationFormComponent sets through form.setFieldValue just before it
+  // calls handleChange; stash it so both fields save in one mutation.
+  const pendingLocationStringRef = useRef<string | null>(null);
+  const googleLocationBinding = {
+    state: { value: settings.googleLocation, meta: { errors: [] } },
+    handleChange: (value: AnyBecauseHard) => {
+      void updateSettings({
+        googleLocation: value,
+        location: pendingLocationStringRef.current,
+      });
+      pendingLocationStringRef.current = null;
+    },
+    form: {
+      setFieldValue: (_name: AnyBecauseHard, value: AnyBecauseHard) => {
+        pendingLocationStringRef.current = value;
+      },
+    },
+  };
+
   return (
     <div>
       <SettingsSection title="Comments">
-        <form.Field name="commentSorting">
-          {(field) => (
-            <SettingsSelectRow
-              field={field}
-              options={getCommentViewOptions()}
-              label="Default comment sorting"
-              description="How comments are ordered when you open a post"
-            />
-          )}
-        </form.Field>
+        <SettingsSelectRow
+          value={settings.commentSorting}
+          onChange={(value) => void updateSettings({ commentSorting: value })}
+          options={getCommentViewOptions()}
+          label="Default comment sorting"
+          description="How comments are ordered when you open a post"
+        />
 
-        <form.Field name="noSingleLineComments">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Expand single-line comments"
-              description="Always show comments at full height instead of collapsing short ones"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.noSingleLineComments}
+          onChange={(value) => void updateSettings({ noSingleLineComments: value })}
+          label="Expand single-line comments"
+          description="Always show comments at full height instead of collapsing short ones"
+        />
 
-        <form.Field name="noCollapseCommentsPosts">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Don't truncate comments on posts"
-              description="Show full comment threads on post pages"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.noCollapseCommentsPosts}
+          onChange={(value) => void updateSettings({ noCollapseCommentsPosts: value })}
+          label="Don't truncate comments on posts"
+          description="Show full comment threads on post pages"
+        />
 
-        <form.Field name="noCollapseCommentsFrontpage">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Don't truncate comments on frontpage"
-              description="Show full comment threads in the frontpage feed"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.noCollapseCommentsFrontpage}
+          onChange={(value) => void updateSettings({ noCollapseCommentsFrontpage: value })}
+          label="Don't truncate comments on frontpage"
+          description="Show full comment threads in the frontpage feed"
+        />
 
-        <form.Field name="noKibitz">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Hide author names"
-              description="Author names are hidden until you hover over them. Reduces bias when reading. Does not work well on mobile."
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.noKibitz}
+          onChange={(value) => void updateSettings({ noKibitz: value })}
+          label="Hide author names"
+          description="Author names are hidden until you hover over them. Reduces bias when reading. Does not work well on mobile."
+        />
       </SettingsSection>
 
       <SettingsSection title="Content">
-        <form.Field name="sortDraftsBy">
-          {(field) => (
-            <SettingsSelectRow
-              field={field}
-              options={SORT_DRAFTS_BY_OPTIONS}
-              label="Sort drafts by"
-            />
-          )}
-        </form.Field>
+        <SettingsSelectRow
+          value={settings.sortDraftsBy}
+          onChange={(value) => void updateSettings({ sortDraftsBy: value })}
+          options={SORT_DRAFTS_BY_OPTIONS}
+          label="Sort drafts by"
+        />
 
         {isEAForum() && (
-          <form.Field name="hideCommunitySection">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide community section"
-                description="Remove the community section from the frontpage"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.hideCommunitySection}
+            onChange={(value) => void updateSettings({ hideCommunitySection: value })}
+            label="Hide community section"
+            description="Remove the community section from the frontpage"
+          />
         )}
 
         {isEAForum() && (
-          <form.Field name="showCommunityInRecentDiscussion">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Show community in Recent Discussion"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.showCommunityInRecentDiscussion}
+            onChange={(value) => void updateSettings({ showCommunityInRecentDiscussion: value })}
+            label="Show community in Recent Discussion"
+          />
         )}
 
-        {userCanViewJargonTerms(form.state.values) && (
-          <form.Field name="postGlossariesPinned">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Pin glossaries"
-                description="Keep glossaries visible on posts and highlight all instances of each term"
-              />
-            )}
-          </form.Field>
+        {userCanViewJargonTerms(settings) && (
+          <SettingsToggleRow
+            value={settings.postGlossariesPinned}
+            onChange={(value) => void updateSettings({ postGlossariesPinned: value })}
+            label="Pin glossaries"
+            description="Keep glossaries visible on posts and highlight all instances of each term"
+          />
         )}
 
-        <form.Field name="hideElicitPredictions">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Hide others' predictions"
-              description="Don't show other users' Elicit predictions until you've predicted yourself"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.hideElicitPredictions}
+          onChange={(value) => void updateSettings({ hideElicitPredictions: value })}
+          label="Hide others' predictions"
+          description="Don't show other users' Elicit predictions until you've predicted yourself"
+        />
       </SettingsSection>
 
       <SettingsSection title="Frontpage">
         {isLW() && (
-          <form.Field name="hideFrontpageMap">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide the frontpage map"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.hideFrontpageMap}
+            onChange={(value) => void updateSettings({ hideFrontpageMap: value })}
+            label="Hide the frontpage map"
+          />
         )}
 
         {isLWorAF() && (
-          <form.Field name="hideFrontpageBook2020Ad">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide the frontpage book ad"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.hideFrontpageBook2020Ad}
+            onChange={(value) => void updateSettings({ hideFrontpageBook2020Ad: value })}
+            label="Hide the frontpage book ad"
+          />
         )}
 
         {isAF() && (
-          <form.Field name="hideAFNonMemberInitialWarning">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide AIAF submission info"
-                description="Hide explanations of how Alignment Forum submissions work for non-members"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.hideAFNonMemberInitialWarning}
+            onChange={(value) => void updateSettings({ hideAFNonMemberInitialWarning: value })}
+            label="Hide AIAF submission info"
+            description="Hide explanations of how Alignment Forum submissions work for non-members"
+          />
         )}
       </SettingsSection>
 
       <SettingsSection title="Editor">
-        <form.Field name="markDownPostEditor">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Use Markdown editor"
-              description="Write posts using Markdown instead of the rich text editor"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.markDownPostEditor}
+          onChange={(value) => void updateSettings({ markDownPostEditor: value })}
+          label="Use Markdown editor"
+          description="Write posts using Markdown instead of the rich text editor"
+        />
       </SettingsSection>
 
       {hasEventsSetting.get() && (
         <SettingsSection title="Location">
           <HighlightableField name="googleLocation">
             <div className={fieldWrapperClass}>
-              <form.Field name="googleLocation">
-                {(field) => (
-                  <LocationFormComponent
-                    field={field}
-                    stringVersionFieldName="location"
-                    label="Account location (used for location-based recommendations)"
-                  />
-                )}
-              </form.Field>
+              <LocationFormComponent
+                field={googleLocationBinding}
+                stringVersionFieldName="location"
+                label="Account location (used for location-based recommendations)"
+              />
             </div>
           </HighlightableField>
 
           {!isEAForum() && <div className={fieldWrapperClass}>
-            <form.Field name="mapLocation">
-              {(field) => (
-                <LocationFormComponent
-                  field={field}
-                  variant="grey"
-                  label="Public map location"
-                />
-              )}
-            </form.Field>
+            <LocationFormComponent
+              field={bind('mapLocation')}
+              variant="grey"
+              label="Public map location"
+            />
           </div>}
         </SettingsSection>
       )}
 
       <SettingsSection title="Other">
-        <form.Field name="beta">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Beta features"
-              description="Get early access to new in-development features"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.beta}
+          onChange={(value) => void updateSettings({ beta: value })}
+          label="Beta features"
+          description="Get early access to new in-development features"
+        />
 
-        <form.Field name="hideIntercom">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Hide Intercom"
-              description="Hide the support chat widget"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.hideIntercom}
+          onChange={(value) => void updateSettings({ hideIntercom: value })}
+          label="Hide Intercom"
+          description="Hide the support chat widget"
+        />
 
         {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && (
-          <form.Field name="showHideKarmaOption">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Karma visibility controls"
-                description="Enable the option on posts to hide karma visibility"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.showHideKarmaOption}
+            onChange={(value) => void updateSettings({ showHideKarmaOption: value })}
+            label="Karma visibility controls"
+            description="Enable the option on posts to hide karma visibility"
+          />
         )}
       </SettingsSection>
 
       {isEAForum() && (
         <SettingsSection title="Privacy">
-          <form.Field name="hideFromPeopleDirectory">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide from People directory"
-                description="Your profile won't appear in the People directory"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.hideFromPeopleDirectory}
+            onChange={(value) => void updateSettings({ hideFromPeopleDirectory: value })}
+            label="Hide from People directory"
+            description="Your profile won't appear in the People directory"
+          />
 
-          <form.Field name="allowDatadogSessionReplay">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Allow Session Replay"
-                description="Allow us to capture a video-like recording of your browser session for debugging and site improvements"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.allowDatadogSessionReplay}
+            onChange={(value) => void updateSettings({ allowDatadogSessionReplay: value })}
+            label="Allow Session Replay"
+            description="Allow us to capture a video-like recording of your browser session for debugging and site improvements"
+          />
         </SettingsSection>
       )}
     </div>
