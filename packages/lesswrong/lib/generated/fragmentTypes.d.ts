@@ -795,6 +795,7 @@ interface DigestPostsDefaultFragment { // fragment on DigestPosts
   readonly postId: string,
   readonly emailDigestStatus: string|null,
   readonly onsiteDigestStatus: string|null,
+  readonly onsiteDigestAt: Date|null,
 }
 
 interface DigestPostsMinimumInfo { // fragment on DigestPosts
@@ -1897,6 +1898,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly slug: string,
   readonly postedAt: Date,
   readonly modifiedAt: Date|null,
+  readonly onsiteDigestAt: Date|null,
   readonly url: string|null,
   readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
@@ -1945,14 +1947,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly lastCommentPromotedAt: Date|null,
   readonly tagRelevance: any,
   readonly noIndex: boolean,
-  readonly rsvps: Array<{
-    name: string,
-    email: string,
-    nonPublic: boolean,
-    response: "yes" | "maybe" | "no",
-    userId: string | null,
-    createdAt: Date,
-  }>,
+  readonly rsvps: Array<any>,
   readonly activateRSVPs: boolean|null,
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
@@ -2091,14 +2086,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
-  readonly rsvps: Array<{
-    name: string,
-    email: string,
-    nonPublic: boolean,
-    response: "yes" | "maybe" | "no",
-    userId: string | null,
-    createdAt: Date,
-  }>,
+  readonly rsvps: Array<any>,
   readonly activateRSVPs: boolean|null,
   readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,

@@ -395,6 +395,7 @@ interface DbDigestPost extends DbObject {
   digestId: string
   emailDigestStatus: string | null
   legacyData: any | null
+  onsiteDigestAt: Date | null
   onsiteDigestStatus: string | null
   postId: string
 }
@@ -1059,6 +1060,7 @@ interface DbPost extends DbObject {
   onlineEvent: boolean
   onlyVisibleToEstablishedAccounts: boolean
   onlyVisibleToLoggedIn: boolean
+  onsiteDigestAt: Date | null
   organizerIds: Array<string>
   originalPostRelationSourceId: string | null
   pangramStatusOverride: string | null

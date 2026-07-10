@@ -362,6 +362,7 @@ export const DigestPostsDefaultFragment = `
     postId
     emailDigestStatus
     onsiteDigestStatus
+    onsiteDigestAt
   }
 `;
 
@@ -915,6 +916,7 @@ export const PostsDefaultFragment = `
     slug
     postedAt
     modifiedAt
+    onsiteDigestAt
     url
     postCategory
     title

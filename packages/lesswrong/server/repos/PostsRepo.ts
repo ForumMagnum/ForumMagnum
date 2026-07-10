@@ -600,6 +600,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return count;
   }
 
+  async updateOnsiteDigestAt(postId: string) {
+    await this.getRawDb().none(`
+      UPDATE "Posts"
+      SET "onsiteDigestAt" = (
+        SELECT MAX("onsiteDigestAt")
+        FROM "DigestPosts"
+        WHERE "postId" = $1 AND "onsiteDigestStatus" = 'yes'
+      )
+      WHERE "_id" = $1
+    `, [postId]);
+  }
+
   async getViewablePostsIdsWithTag(tagId: string): Promise<string[]> {
     const results: {_id: string}[] = await this.getRawDb().any(`
       SELECT "_id"
