@@ -1,6 +1,7 @@
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
-import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
+import type { RouterLocation } from './routeChecks/parseRoute';
+import type { SegmentedUrl } from './routeChecks/parsePath';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import { parseQuery } from './routeChecks/parseRoute';

@@ -1,5 +1,6 @@
 import { classifyHost } from '@/lib/routeUtil';
-import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
+import { parseRoute } from '@/lib/routeChecks/parseRoute';
+import { parsePath } from '@/lib/routeChecks/parsePath';
 import { getMarkdownPathname } from '@/lib/routeChecks/markdownVersionRoutes';
 import { getUrlClass } from '../utils/getUrlClass';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';

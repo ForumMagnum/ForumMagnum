@@ -2,19 +2,14 @@ import { applyParamsToPathname, matchPath } from '@/lib/vendor/react-router/matc
 import { captureException } from '@/lib/sentryWrapper';
 import { isClient } from '@/lib/executionEnvironment';
 import { redirects } from "@/lib/routeChecks/redirects";
-import { routePatternToReactRouterPath } from '@/lib/routeChecks/routePatternFormat';
+import { findNextConsistentRoutePatternMatch } from '@/lib/routeChecks/nextRouteMatching';
+import { parsePath, type SegmentedUrl } from '@/lib/routeChecks/parsePath';
 import qs from 'qs';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
   documentId: string,
 };
-
-export interface SegmentedUrl {
-  pathname: string
-  search: string
-  hash: string
-}
 
 export type RouterLocation = {
   location: SegmentedUrl,
@@ -42,41 +37,14 @@ export function parseQuery(location: SegmentedUrl): Record<string, string> {
   return qs.parse(query) as Record<string, string>;
 }
 
-// From react-router-v4
-// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path: string): SegmentedUrl {
-  var pathname = path || '/';
-  var search = '';
-  var hash = '';
-
-  var hashIndex = pathname.indexOf('#');
-  if (hashIndex !== -1) {
-    hash = pathname.substr(hashIndex);
-    pathname = pathname.substr(0, hashIndex);
-  }
-
-  var searchIndex = pathname.indexOf('?');
-  if (searchIndex !== -1) {
-    search = pathname.substr(searchIndex);
-    pathname = pathname.substr(0, searchIndex);
-  }
-
-  return {
-    pathname: pathname,
-    search: search === '?' ? '' : search,
-    hash: hash === '#' ? '' : hash
-  };
-};
-
 export function parseRoute<Patterns extends string[]>({ location, onError = null, routePatterns }: {
   location: SegmentedUrl;
   onError?: null | ((err: string) => void);
   routePatterns: Patterns;
 }) {
   const pathWithRedirects = applyRedirectsTo(location.pathname);
-  // We need to parse the path after applying the redirects
-  // because `getPatternMatchingPathname` doesn't handle query params/etc,
-  // so we extract the pathname to match against and use the rest for
+  // We need to parse the path after applying the redirects,
+  // extracting the pathname to match against and using the rest for
   // constructing the RouterLocation later.
   const parsedPath = parsePath(pathWithRedirects);
 
@@ -94,7 +62,8 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
   const hash = parsedPath.hash || location.hash;
   const { pathname } = parsedPath;
 
-  const routePattern = getPatternMatchingPathname(pathname, routePatterns);
+  const patternMatch = findNextConsistentRoutePatternMatch(pathname, routePatterns);
+  const routePattern: Patterns[number] | undefined = patternMatch?.routePattern;
 
   if (routePattern === undefined) {
     if (onError) {
@@ -117,9 +86,7 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
   }
 
 
-  const params = routePattern !== undefined
-    ? matchPath<Record<string, string>>(pathname, { path: routePatternToReactRouterPath(routePattern), exact: true, strict: false })!.params
-    : {};
+  const params = patternMatch?.params ?? {};
 
   const query = parseQuery({ ...parsedPath, search, hash });
 
@@ -145,14 +112,6 @@ function applyRedirectsTo(pathname: string): string {
       return applyParamsToPathname(destination, match.params);
     }
   }
-  
-  return pathname;
-}
 
-function getPatternMatchingPathname<Patterns extends string[]>(pathname: string, routePatterns: Patterns): Patterns[number] | undefined {
-  return routePatterns.find((routePattern) => matchPath(pathname, {
-    path: routePatternToReactRouterPath(routePattern),
-    exact: true,
-    strict: false,
-  }));
+  return pathname;
 }
