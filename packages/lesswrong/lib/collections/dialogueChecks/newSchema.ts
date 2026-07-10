@@ -15,7 +15,6 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: ["members"],
-      canCreate: ["members"],
     },
   },
   targetUserId: {

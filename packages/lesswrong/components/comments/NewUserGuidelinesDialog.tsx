@@ -35,10 +35,9 @@ const styles = defineStyles('NewUserGuidelinesDialog', (theme: ThemeType) => ({
   }
 }));
 
-const NewUserGuidelinesDialog = ({onClose, post, user}: {
+const NewUserGuidelinesDialog = ({onClose, post}: {
   onClose: () => void,
   post: PostsMinimumInfo,
-  user: UsersCurrent
 }) => {
   const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
@@ -50,7 +49,6 @@ const NewUserGuidelinesDialog = ({onClose, post, user}: {
     });
 
     const eventProperties = {
-      userId: user._id,
       important: false,
       intercom: true,
       documentId: post._id,

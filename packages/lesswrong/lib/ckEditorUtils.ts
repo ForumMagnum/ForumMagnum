@@ -7,14 +7,11 @@ const cache = new LRU<string, string>({
   maxAge: 1000 * 60 * 60 * 12
 });
 
-export const getCKEditorDocumentId = (documentId: string|undefined, userId: string|undefined, formType: string|undefined) => {
-  if (documentId) return `${documentId}-${formType}`
-  return `${userId}-${formType}`
-}
+export const getCKEditorDocumentId = (documentId: string | undefined) => `${documentId}-edit`;
 
-export function generateTokenRequest(collectionName: CollectionNameString, fieldName: string, documentId?: string, userId?: string, formType?: string, linkSharingKey?: string) {
+export function generateTokenRequest(collectionName: CollectionNameString, fieldName: string, documentId?: string, linkSharingKey?: string) {
   return () => {
-    const cacheKey = `${collectionName}-${fieldName}-${documentId}-${userId}-${formType}-${linkSharingKey}`;
+    const cacheKey = `${collectionName}-${fieldName}-${documentId}-${linkSharingKey}`;
     const cachedToken = cache.get(cacheKey);
     if (cachedToken) {
       return Promise.resolve(cachedToken);
@@ -48,8 +45,6 @@ export function generateTokenRequest(collectionName: CollectionNameString, field
       }
 
       if (documentId) xhr.setRequestHeader('document-id', documentId);
-      if (userId) xhr.setRequestHeader('user-id', userId);
-      if (formType) xhr.setRequestHeader('form-type', formType);
 
       xhr.send();
     });

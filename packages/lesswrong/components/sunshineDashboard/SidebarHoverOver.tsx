@@ -1,5 +1,6 @@
 import React from 'react';
 import LWPopper from "../common/LWPopper";
+import type { HoverAnchor } from "../common/withHover";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -21,7 +22,7 @@ const styles = defineStyles('SidebarHoverOver', (theme: ThemeType) => ({
 const SidebarHoverOver = ({children, hover, anchorEl, width=500}: {
   children: React.ReactNode,
   hover: boolean,
-  anchorEl: HTMLElement|null,
+  anchorEl: HoverAnchor|null,
   width?: number,
 }) => {
   const classes = useStyles(styles);

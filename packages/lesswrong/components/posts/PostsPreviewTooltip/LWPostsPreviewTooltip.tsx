@@ -102,6 +102,13 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     padding: 12,
     paddingBottom: 0,
   },
+  headerMain: {
+    // Flex item holding title + metadata line. Needs explicit minWidth: 0
+    // so descendants are allowed to shrink below their intrinsic width --
+    // otherwise the ellipsis truncation on the username never triggers.
+    minWidth: 0,
+    flex: 1,
+  },
   title: {
     marginBottom: -6,
   },
@@ -111,7 +118,20 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    // Allow the username child to shrink below its intrinsic width so the
+    // ellipsis truncation below actually kicks in instead of overflowing.
+    minWidth: 0,
+  },
+  userAndCoauthors: {
+    // Long display names previously wrapped mid-word, pushing the karma /
+    // comments / date metadata onto a second line (sometimes in the middle of
+    // the username itself). Constrain this wrapper to a single line with
+    // ellipsis truncation so unusually long names stay clipped inline.
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   highlight: {
     ...highlightStyles(theme)
@@ -133,7 +153,11 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   },
   metadata: {
     marginLeft: 12,
-    paddingTop: 2
+    paddingTop: 2,
+    // Keep "N karma / N comments / Nd" on a single line even when the
+    // sibling username takes up most of the available width.
+    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
   smallText: {
     fontSize: ".9rem",
@@ -192,7 +216,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
   return <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <Card className={classes.root}>
         <div className={classes.header}>
-          <div>
+          <div className={classes.headerMain}>
             <div className={classes.title}>
               <PostsTitle post={post} wrap showIcons={false} />
             </div>
@@ -204,7 +228,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
-                {post.user && <PostsUserAndCoauthors post={post}/>}
+                {post.user && <div className={classes.userAndCoauthors}><PostsUserAndCoauthors post={post}/></div>}
                 <div className={classes.metadata}>
                   <span className={classes.smallText}>{postGetKarma(post)} karma</span>
                   <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>

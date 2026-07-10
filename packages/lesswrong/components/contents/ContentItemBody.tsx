@@ -19,7 +19,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
-import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
+import { colorToString, invertColorPreservingHue, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
@@ -30,6 +30,19 @@ const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMen
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
   bodyRef: React.RefObject<HTMLDivElement|null>,
+}
+
+export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: Record<string, AnyBecauseHard>): boolean => {
+  if (['p','div','table','figure'].includes(tagName)) {
+    return true;
+  } else if (tagName === "span") {
+    const classes = (attribs.className ?? "").split(" ");
+    return classes.includes("math-tex");
+  } else if (tagName === 'mjx-container') {
+    return attribs.display === 'true';
+  } else {
+    return false;
+  }
 }
 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
@@ -310,7 +323,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         );
       }
 
-      if (root && ['p','div','table','figure'].includes(TagName)) {
+      if (root && rootTagShouldBeHorizontallyScrollable(TagName, attribs)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
@@ -694,7 +707,7 @@ function transformAttributeValueForDarkMode(attributeValue: string): string {
   if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
-      const invertedColor = invertColor(parsedColor);
+      const invertedColor = invertColorPreservingHue(parsedColor);
       getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black

@@ -44,7 +44,7 @@ type TimeDecayExprProps = {
   overrideActivityFactor?: number
 }
 
-export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: ResolverContext) => {
+export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivity: DbUserActivity|null) => {
   const {
     startingAgeHours,
     decayFactorSlowest,
@@ -63,7 +63,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 
   // See lib/collections/useractivities/collection.ts for a high-level overview
   const activityFactor = overrideActivityFactor ??
-    calculateActivityFactor(context?.visitorActivity?.activityArray, activityHalfLifeHours)
+    calculateActivityFactor(visitorActivity?.activityArray, activityHalfLifeHours)
 
   // Higher timeDecayFactor => more recency bias
   const timeDecayFactor = Math.min(

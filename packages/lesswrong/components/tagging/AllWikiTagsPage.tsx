@@ -7,6 +7,7 @@ import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
+import { useCaptureSearchStateChange } from '../search/useSearchAnalytics';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { gql } from "@/lib/generated/gql-codegen";
@@ -253,6 +254,7 @@ const TagsQuery = gql(`
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
+  const captureSearchState = useCaptureSearchStateChange('allWikiTagsPage', 'Tags', getSearchIndexName('Tags'));
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
 
@@ -293,9 +295,10 @@ const AllWikiTagsPage = () => {
   const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   // Function to handle search state changes
-  const handleSearchStateChange = (searchState: any) => {
+  const handleSearchStateChange = (searchState: { query?: string }) => {
     setCurrentQuery(searchState.query || '');
     captureEvent('searchQueryUpdated', { query: searchState.query });
+    captureSearchState(searchState);
   };
 
   const CustomStateResults = useMemo(() => connectStateResults(({ searchResults, isSearchStalled }) => {

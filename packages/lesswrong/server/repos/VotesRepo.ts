@@ -288,6 +288,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           reactionChanges.push({
             reactionType: reaction.reactionType,
             userId: userId,
+            quote: reaction.quote ?? null,
           });
         }
       }
@@ -374,6 +375,43 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       )
     `, [userId])
     return votes
+  }
+
+  async getVotesOnRecentContentForUsers(userIds: string[]): Promise<RecentVoteInfo[][]> {
+    const votes = await this.getRawDb().any<RecentVoteInfo & { contentUserId: string }>(`
+      -- VotesRepo.getVotesOnRecentContentForUsers
+      (
+        WITH "recentPosts" AS (
+          SELECT _id, "userId", ROW_NUMBER() OVER (
+            PARTITION BY "userId" ORDER BY "postedAt" DESC
+          ) AS "rn"
+          FROM "Posts"
+          WHERE "userId" = ANY($1::text[]) AND "draft" IS NOT TRUE
+        )
+        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}, "recentPosts"."userId" AS "contentUserId"
+        FROM "Votes"
+        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        JOIN "recentPosts" on "recentPosts"._id = "Posts"._id
+        WHERE "recentPosts"."rn" <= ${RECENT_CONTENT_COUNT} AND "Votes"."cancelled" IS NOT true
+      )
+      UNION ALL
+      (
+        WITH "recentComments" AS (
+          SELECT _id, "userId", ROW_NUMBER() OVER (
+            PARTITION BY "userId" ORDER BY "postedAt" DESC
+          ) AS "rn"
+          FROM "Comments"
+          WHERE "userId" = ANY($1::text[]) AND "debateResponse" IS NOT TRUE AND "draft" IS NOT TRUE
+        )
+        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}, "recentComments"."userId" AS "contentUserId"
+        FROM "Votes"
+        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        JOIN "recentComments" on "recentComments"._id = "Comments"._id
+        WHERE "recentComments"."rn" <= ${RECENT_CONTENT_COUNT} AND "Votes"."cancelled" IS NOT true
+      )
+    `, [userIds]);
+    const votesByContentUser = groupBy(votes, (vote) => vote.contentUserId);
+    return userIds.map((userId) => votesByContentUser[userId] ?? []);
   }
 
   async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {

@@ -30,6 +30,11 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
       backgroundColor: theme.palette.greyAlpha(0.05),
     },
   },
+  subTermRow: {
+    paddingLeft: 16,
+    fontSize: 12,
+    marginTop: -2,
+  },
   termName: {
     marginRight: 16,
     whiteSpace: 'nowrap',
@@ -111,8 +116,23 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
   },
 }));
 
+interface ScoreSubTerm {
+  name: string;
+  value: string;
+}
+
+interface ScoreTermData {
+  name: string;
+  value: number;
+  subTerms?: ScoreSubTerm[];
+}
+
 const formatScore = (value: number): string => {
   return value.toFixed(2);
+};
+
+const formatMultiplier = (value: number): string => {
+  return `×${value.toFixed(2)}`;
 };
 
 const getUserRankingConfig = (settings?: ReturnType<typeof useUltraFeedSettings>['settings']) => {
@@ -122,7 +142,7 @@ const getUserRankingConfig = (settings?: ReturnType<typeof useUltraFeedSettings>
   return buildRankingConfigFromSettings(settings.resolverSettings.unifiedScoring);
 };
 
-const splitZeroAndNonZeroTerms = (terms: Array<{ name: string; value: number }>) => {
+const splitZeroAndNonZeroTerms = (terms: ScoreTermData[]) => {
   const nonZero = terms.filter(c => Math.abs(c.value) >= 0.01);
   const zero = terms
     .filter(c => Math.abs(c.value) < 0.01)
@@ -175,7 +195,7 @@ function getThreadTermExplanations(settings?: ReturnType<typeof useUltraFeedSett
     "Prior Engagement": `+${threadConfig.engagementParticipationBonus} if commented, else +${threadConfig.engagementVotingBonus} if voted, else +${threadConfig.engagementViewingBonus} if viewed`,
     "Replies to You": `Someone replied to your comment (+${threadConfig.repliesToYouBonus}, TODO)`,
     "Your Post": `New comments on a post you wrote (+${threadConfig.yourPostBonus}, TODO)`,
-    "Karma Bonus (time-decaying)": `Decay: min(sum(karma × ${scale}^0.25 / (ageHrs + ${bias})^0.25), ${threadConfig.karmaMaxBonus}) for ALL unread comments. Age 0: 100%, 1day: 78%, 3days: 67%, 1week: 56%. All items start with base 1 point.`,
+    "Karma Bonus (time-decaying)": `For each unread comment, compute decayed karma = karma × ${scale}^0.25 / (commentAgeHrs + ${bias})^0.25. Sort unread comments by decayed karma, then apply rank weights 1, 1/2, 1/4, ... and cap at ${threadConfig.karmaMaxBonus}. In formula form: min(sum_by_decayed_karma_rank(decayedKarma_i × 0.5^rank_i), ${threadConfig.karmaMaxBonus}). Age 0: 100%, 1day: 78%, 3days: 67%, 1week: 56%. All items start with base 1 point.`,
     "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
     "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
     "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
@@ -187,11 +207,13 @@ function getThreadTermExplanations(settings?: ReturnType<typeof useUltraFeedSett
 const ScoreTerm = ({ 
   name, 
   value, 
-  explanations 
+  explanations,
+  subTerms,
 }: { 
   name: string; 
   value: number;
   explanations: Record<string, string>;
+  subTerms?: ScoreSubTerm[];
 }) => {
   const classes = useStyles(scoreBreakdownStyles);
   
@@ -203,12 +225,20 @@ const ScoreTerm = ({
   const explanation = explanations[name] ?? '';
   
   const row = (
-    <div className={classNames(classes.termRow, rowClass)}>
-      <span className={classes.termName}>{name}</span>
-      <span className={classNames(classes.termValue, valueClass)}>
-        {sign}{formatScore(value)}
-      </span>
-    </div>
+    <>
+      <div className={classNames(classes.termRow, rowClass)}>
+        <span className={classes.termName}>{name}</span>
+        <span className={classNames(classes.termValue, valueClass)}>
+          {sign}{formatScore(value)}
+        </span>
+      </div>
+      {subTerms?.map(subTerm => (
+        <div key={subTerm.name} className={classNames(classes.termRow, classes.subTermRow)}>
+          <span className={classes.termName}>{subTerm.name}</span>
+          <span className={classes.termValue}>{subTerm.value}</span>
+        </div>
+      ))}
+    </>
   );
   
   if (!explanation) {
@@ -306,7 +336,7 @@ const ScoreBreakdown = ({
   explanations 
 }: { 
   total: number;
-  terms: Array<{ name: string; value: number }>;
+  terms: ScoreTermData[];
   multipliers: Array<{ label: string; value: number; tooltip: string }>;
   explanations: Record<string, string>;
 }) => {
@@ -321,12 +351,12 @@ const ScoreBreakdown = ({
       </div>
       
       <div className={classes.section}>
-        {nonZero.map(({ name, value }) => (
-          <ScoreTerm key={name} name={name} value={value} explanations={explanations} />
+        {nonZero.map(({ name, value, subTerms }) => (
+          <ScoreTerm key={name} name={name} value={value} explanations={explanations} subTerms={subTerms} />
         ))}
         <ScoreTerm key="base" name={baseValue.name} value={baseValue.value} explanations={explanations} />
-        {zero.map(({ name, value }) => (
-          <ScoreTerm key={name} name={name} value={value} explanations={explanations} />
+        {zero.map(({ name, value, subTerms }) => (
+          <ScoreTerm key={name} name={name} value={value} explanations={explanations} subTerms={subTerms} />
         ))}
       </div>
       
@@ -348,10 +378,14 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
   
   const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-ultrafeed') || sources?.includes('subscriptionsPosts');
   const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
+  const karmaSubTerms = !isRecombeeOrSubscription && breakdown.timeDecayKarmaDetails ? [
+    { name: "Karma", value: formatScore(breakdown.timeDecayKarmaDetails.karma) },
+    { name: "Time-decay multiplier", value: formatMultiplier(breakdown.timeDecayKarmaDetails.timeDecayMultiplier) },
+  ] : undefined;
   
   const allTerms = [
     { name: "Subscribed Author", value: terms.subscribedBonus },
-    { name: karmaBonusLabel, value: terms.karmaBonus },
+    { name: karmaBonusLabel, value: terms.karmaBonus, subTerms: karmaSubTerms },
     { name: "Topic Affinity", value: terms.topicAffinityBonus },
   ];
   
@@ -381,13 +415,17 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
 export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: ThreadScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo }) => {
   const { settings } = useUltraFeedSettings();
   const { terms, repetitionPenaltyMultiplier, typeMultiplier, total } = breakdown;
+  const karmaSubTerms = breakdown.timeDecayKarmaDetails ? [
+    { name: "Rank-weighted karma", value: formatScore(breakdown.timeDecayKarmaDetails.karma) },
+    { name: "Time-decay multiplier", value: formatMultiplier(breakdown.timeDecayKarmaDetails.timeDecayMultiplier) },
+  ] : undefined;
   
   const allTerms = [
     { name: "Subscribed Comments", value: terms.unreadSubscribedCommentBonus },
     { name: "Prior Engagement", value: terms.engagementContinuationBonus },
     { name: "Replies to You", value: terms.repliesToYouBonus },
     { name: "Your Post", value: terms.yourPostActivityBonus },
-    { name: "Karma Bonus (time-decaying)", value: terms.overallKarmaBonus },
+    { name: "Karma Bonus (time-decaying)", value: terms.overallKarmaBonus, subTerms: karmaSubTerms },
     { name: "Topic Affinity", value: terms.topicAffinityBonus },
     { name: "Quicktake", value: terms.quicktakeBonus },
     { name: "Read Post Context", value: terms.readPostContextBonus },

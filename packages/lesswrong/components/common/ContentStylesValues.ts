@@ -1,6 +1,109 @@
 import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import { researchAccentTint } from '../research/researchStyleUtils';
+
+/**
+ * Research-document editor styling. Inherits the full postBodyStyles surface
+ * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
+ * then restyles the editor's own typography under `[contenteditable="true"]`:
+ * a serif essay reading column (research docs read as essays-in-progress, not
+ * tool output) for paragraphs / headings / lists / blockquotes, plus
+ * placeholder positioning that lines up with where the user's first paragraph
+ * would actually sit.
+ *
+ * Keep editor-specific rules scoped to the contenteditable so they don't leak
+ * onto floating menus, toolbars, or popovers that share the wrapper. The
+ * `:not(.research-query-input-content)`, `:not(.research-chat-composer *)`, and
+ * `:not(.research-agent-block *)` guards exclude the query input, the nested
+ * conversation-block composer, and agent transcript/presentation content,
+ * which carry their own chat voice rather than the document's reading column.
+ */
+const researchDocumentBodyStyles = (theme: ThemeType) => ({
+  ...postBodyStyles(theme),
+  '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
+    minHeight: 'calc(100vh - var(--header-height, 0px))',
+    boxSizing: 'border-box',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
+    color: theme.palette.text.primary,
+    maxWidth: 760 + (2 * 32),
+    margin: '0 auto',
+    padding: '44px 32px 160px',
+  },
+  '& [contenteditable="true"] p:not(.research-agent-block *)': {
+    margin: '0 0 0.7em',
+  },
+  '& [contenteditable="true"] h1:not(.research-agent-block *)': {
+    fontSize: 32,
+    lineHeight: 1.2,
+    margin: '0.9em 0 0.45em',
+    fontWeight: 400,
+    fontFamily: theme.palette.fonts.headerStack,
+  },
+  '& [contenteditable="true"] h2:not(.research-agent-block *)': {
+    fontSize: 24,
+    lineHeight: 1.25,
+    margin: '1em 0 0.45em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.serifStack,
+  },
+  '& [contenteditable="true"] h3:not(.research-agent-block *)': {
+    fontSize: 20,
+    lineHeight: 1.3,
+    margin: '1em 0 0.45em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.serifStack,
+  },
+  '& [contenteditable="true"] h4:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.35,
+    margin: '1em 0 0.45em',
+    fontWeight: 600,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
+  },
+  '& [contenteditable="true"] li:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
+    color: theme.palette.text.primary,
+  },
+  '& [contenteditable="true"] blockquote:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
+    margin: '0.5em 0',
+    padding: '0.25em 0.75em',
+    borderLeft: `3px solid ${theme.palette.greyAlpha(0.15)}`,
+    color: theme.palette.text.primary,
+    fontStyle: 'normal',
+  },
+  '& mark.editor-mark': {
+    background: researchAccentTint(0.14),
+    borderBottom: `2px solid ${researchAccentTint(0.45)}`,
+    padding: '1px 0',
+    color: 'inherit',
+  },
+  '& mark.editor-mark.selected': {
+    background: researchAccentTint(0.28),
+    borderBottom: `2px solid ${researchAccentTint(0.7)}`,
+  },
+  // Placeholder is a sibling of the contenteditable, absolutely positioned
+  // at the top-left of the editor shell, so it doesn't pick up the
+  '& .LexicalContentEditable-placeholder:not(.research-chat-composer *)': {
+    top: 44,
+    left: 0,
+    right: 0,
+    maxWidth: 760,
+    margin: '0 auto',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
+  },
+});
 
 export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   base: {
@@ -126,14 +229,26 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
       '& blockquote, & li': {
       }
     },
-  }
+  },
+  // Composed from `researchDocumentBodyStyles`, which itself spreads
+  // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
+  // tables, etc.) and then overrides editor-specific typography under
+  // `[data-lexical-editor]`. Combined with `contentStylesClassnames`
+  // skipping `base` for this type, that gives the editor exactly one source
+  // of post-body styling — its own — instead of stacking post-rendering
+  // defaults underneath and fighting them with overrides.
+  researchDocumentBody: researchDocumentBodyStyles(theme),
 }), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost"|"researchDocument";
 
 export function contentStylesClassnames(classes: ReturnType<typeof styles.styles>, contentType: ContentStyleType) {
+  // The research-document editor opts out of the shared `base` (postBodyStyles)
+  // so its self-contained rule set isn't fighting post-rendering defaults like
+  // serif typography on `& li`. Every other content type still inherits base.
+  const includeBase = contentType !== "researchDocument";
   return classNames(
-    classes.base, "content",
+    includeBase && classes.base, "content",
     contentType==="post" && classes.postBody,
     contentType==="postHighlight" && classes.postHighlight,
     contentType==="comment" && classes.commentBody,
@@ -144,5 +259,6 @@ export function contentStylesClassnames(classes: ReturnType<typeof styles.styles
     contentType==="llmChat" && classes.llmChat,
     contentType==="ultraFeed" && classes.ultraFeed,
     contentType==="ultraFeedPost" && classes.ultraFeedPost,
+    contentType==="researchDocument" && classes.researchDocumentBody,
   );
 }

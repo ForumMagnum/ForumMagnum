@@ -130,10 +130,10 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
 }));
 
 export function useHasSideComments(): boolean {
-  const { isPostEditor } = useLexicalEditorContext();
+  const { supportsCollabComments } = useLexicalEditorContext();
   const hasSideItemsSidebar = useHasSideItemsSidebar();
   const screenIsWideEnough = useIsAboveBreakpoint('lg');
-  return isPostEditor && hasSideItemsSidebar && screenIsWideEnough;
+  return supportsCollabComments && hasSideItemsSidebar && screenIsWideEnough;
 }
 
 function collectSideComments(

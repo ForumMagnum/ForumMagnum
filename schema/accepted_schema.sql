@@ -2335,6 +2335,109 @@ CREATE INDEX IF NOT EXISTS "idx_Reports_claimedUserId_createdAt" ON "Reports" US
 -- Index "idx_Reports_closedAt_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING btree ("closedAt", "createdAt");
 
+-- Table "ResearchConversationEvents"
+CREATE TABLE "ResearchConversationEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "conversationId" VARCHAR(27) NOT NULL,
+  "seq" INTEGER NOT NULL,
+  "claudeMessageUuid" TEXT NOT NULL,
+  "kind" TEXT NOT NULL,
+  "payload" JSONB NOT NULL
+);
+
+-- Index "idx_ResearchConversationEvents_conversationId_seq"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_seq" ON "ResearchConversationEvents" USING btree ("conversationId", "seq");
+
+-- Index "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid" ON "ResearchConversationEvents" USING btree ("conversationId", "claudeMessageUuid");
+
+-- Table "ResearchConversations"
+CREATE TABLE "ResearchConversations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "claudeSessionId" TEXT,
+  "title" TEXT,
+  "icon" TEXT,
+  "entrypointKind" TEXT NOT NULL,
+  "entrypointDocumentId" VARCHAR(27) NOT NULL,
+  "baseEnvironmentId" VARCHAR(27),
+  "runtime" TEXT,
+  "presentationHtml" TEXT,
+  "lastActivityAt" TIMESTAMPTZ NOT NULL,
+  "lastReadAt" TIMESTAMPTZ,
+  "archived" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_ResearchConversations_projectId_lastActivityAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchConversations_projectId_lastActivityAt" ON "ResearchConversations" USING btree ("projectId", "lastActivityAt");
+
+-- Index "idx_ResearchConversations_userId_lastActivityAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchConversations_userId_lastActivityAt" ON "ResearchConversations" USING btree ("userId", "lastActivityAt");
+
+-- Table "ResearchDocuments"
+CREATE TABLE "ResearchDocuments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "title" TEXT,
+  "icon" TEXT,
+  "sortOrder" DOUBLE PRECISION,
+  "archived" BOOL NOT NULL DEFAULT FALSE,
+  "contents_latest" TEXT
+);
+
+-- Index "idx_ResearchDocuments_projectId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchDocuments_projectId_createdAt" ON "ResearchDocuments" USING btree ("projectId", "createdAt");
+
+-- Index "idx_ResearchDocuments_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchDocuments_userId_createdAt" ON "ResearchDocuments" USING btree ("userId", "createdAt");
+
+-- Table "ResearchEnvironments"
+CREATE TABLE "ResearchEnvironments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "label" TEXT NOT NULL,
+  "vercelSnapshotId" TEXT NOT NULL,
+  "sourceEventId" VARCHAR(27),
+  "archived" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_ResearchEnvironments_projectId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchEnvironments_projectId_createdAt" ON "ResearchEnvironments" USING btree ("projectId", "createdAt");
+
+-- Table "ResearchProjects"
+CREATE TABLE "ResearchProjects" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "title" TEXT NOT NULL,
+  "description" TEXT,
+  "settings" JSONB
+);
+
+-- Index "idx_ResearchProjects_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchProjects_userId_createdAt" ON "ResearchProjects" USING btree ("userId", "createdAt");
+
+-- Table "ResearchSandboxSessions"
+CREATE TABLE "ResearchSandboxSessions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "conversationId" VARCHAR(27) NOT NULL,
+  "supervisorSecret" TEXT NOT NULL,
+  "devProxySecret" TEXT
+);
+
+-- Index "idx_ResearchSandboxSessions_conversationId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchSandboxSessions_conversationId" ON "ResearchSandboxSessions" USING btree ("conversationId");
+
 -- Table "ReviewVotes"
 CREATE TABLE "ReviewVotes" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2448,6 +2551,18 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_
 
 -- Index "idx_Revisions_documentId_version_fieldName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
+
+-- Table "SandboxBaselineSnapshots"
+CREATE TABLE "SandboxBaselineSnapshots" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "runtime" TEXT NOT NULL,
+  "vercelSnapshotId" TEXT NOT NULL,
+  "builtAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_SandboxBaselineSnapshots_runtime"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_SandboxBaselineSnapshots_runtime" ON "SandboxBaselineSnapshots" USING btree ("runtime");
 
 -- Table "Sequences"
 CREATE TABLE "Sequences" (
@@ -2819,6 +2934,37 @@ CREATE TABLE "TypingIndicators" (
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "TypoSuggestions"
+CREATE TABLE "TypoSuggestions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" VARCHAR(27) NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "fieldName" TEXT NOT NULL DEFAULT 'contents',
+  "voteId" VARCHAR(27) NOT NULL,
+  "authorId" VARCHAR(27) NOT NULL,
+  "quote" TEXT NOT NULL,
+  "llmCanonicalQuote" TEXT,
+  "proposedReplacement" TEXT,
+  "narrowedQuote" TEXT,
+  "narrowedReplacement" TEXT,
+  "explanation" TEXT,
+  "llmVerdict" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "resolvedByUserId" VARCHAR(27),
+  "appliedRevisionId" VARCHAR(27),
+  "resolvedAt" TIMESTAMPTZ
+);
+
+-- Index "idx_TypoSuggestions_documentId_fieldName_quote"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypoSuggestions_documentId_fieldName_quote" ON "TypoSuggestions" USING btree ("documentId", "fieldName", "quote");
+
+-- Index "idx_TypoSuggestions_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_TypoSuggestions_documentId_createdAt" ON "TypoSuggestions" USING btree ("documentId", "createdAt");
+
+-- Index "idx_TypoSuggestions_authorId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_TypoSuggestions_authorId_createdAt" ON "TypoSuggestions" USING btree ("authorId", "createdAt");
+
 -- Table "UltraFeedEvents"
 CREATE TABLE "UltraFeedEvents" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2971,6 +3117,7 @@ CREATE TABLE "Users" (
   "currentFrontpageFilter" TEXT,
   "frontpageSelectedTab" TEXT,
   "frontpageFilterSettings" JSONB,
+  "ultraFeedSettings" JSONB,
   "hideFrontpageFilterSettingsDesktop" BOOL,
   "allPostsTimeframe" TEXT,
   "allPostsFilter" TEXT,
@@ -3023,6 +3170,7 @@ CREATE TABLE "Users" (
   "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationNewMention" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationTypoSuggestions" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
@@ -3099,6 +3247,7 @@ CREATE TABLE "Users" (
   "signUpReCaptchaRating" DOUBLE PRECISION,
   "noExpandUnreadCommentsReview" BOOL NOT NULL DEFAULT FALSE,
   "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "coauthoredPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "maxPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "commentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "maxCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -3146,7 +3295,8 @@ CREATE TABLE "Users" (
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "recommendationSettings" JSONB,
-  "claudeLinkedAt" TIMESTAMPTZ
+  "claudeLinkedAt" TIMESTAMPTZ,
+  "claudeCodeOAuthTokenEncrypted" TEXT
 );
 
 -- Index "idx_Users_username"
@@ -3331,6 +3481,7 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt"
 CREATE TABLE "YjsDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "collectionName" TEXT NOT NULL DEFAULT 'Posts',
   "documentId" TEXT NOT NULL,
   "yjsState" BYTEA NOT NULL,
   "yjsStateVector" BYTEA NOT NULL,

@@ -11,11 +11,66 @@ export function getBrowserLocalStorage() {
   }
 }
 
+export function getBrowserSessionStorage() {
+  try {
+    return 'sessionStorage' in global && global.sessionStorage ? global.sessionStorage : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read a value from localStorage. If this throws something, console-log it,
+ * but don't let the exception escape or send it to sentry, because some amount
+ * of localStorage failure is expected (especially inside of bots that execute
+ * JS).
+ */
+export function safeStorageGetItem(storage: Storage|null|undefined, key: string): string|null {
+  if (!storage) return null;
+  try {
+    return storage.getItem(key);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    return null;
+  }
+}
+
+/**
+ * Save a value to localStorage. If this throws something, console-log it and
+ * return false, but don't let the exception escape or send it to sentry,
+ * because some amount of localStorage failure is expected (especially inside
+ * of bots that execute JS).
+ */
+export function safeStorageSetItem(storage: Storage|null|undefined, key: string, value: string): boolean {
+  if (!storage) return false;
+  try {
+    storage.setItem(key, value);
+    return true;
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    return false;
+  }
+}
+
+export function safeStorageRemoveItem(storage: Storage|null|undefined, key: string): boolean {
+  if (!storage) return false;
+  try {
+    storage.removeItem(key);
+    return true;
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    return false;
+  }
+}
+
 
 // Return a wrapper around localStorage, with get, set, and reset functions
 // which handle the (document, field-name, prefix) => key mapping.
-export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, prefix: string) => {
-  const { id, verify } = getLocalStorageId(doc, name)
+export const getLSHandlers = (getLocalStorageId: (doc: any, name: string) => {id: string, verify: boolean}, doc: any, name: string, prefix: string) => {
+  const { id } = getLocalStorageId(doc, name)
   const prefixedId = prefix+id;
   
   return {

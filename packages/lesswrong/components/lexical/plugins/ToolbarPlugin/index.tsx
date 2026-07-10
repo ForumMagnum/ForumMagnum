@@ -70,37 +70,19 @@ import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
 //   getCodeThemeOptions as getCodeThemeOptionsShiki,
 //   normalizeCodeLanguage as normalizeCodeLanguageShiki,
 // } from '@lexical/code-shiki';
-import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
-import {$isListNode, ListNode} from '@lexical/list';
-import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/extension';
-import {$isHeadingNode} from '@lexical/rich-text';
-import {
-  $getSelectionStyleValueForProperty,
-  $isParentElementRTL,
-  $patchStyleText,
-} from '@lexical/selection';
-import {$isTableNode, $isTableSelection} from '@lexical/table';
-import {
-  $findMatchingParent,
-  $getNearestNodeOfType,
-  $isEditorIsNestedEditor,
-  IS_APPLE,
-  mergeRegister,
-} from '@lexical/utils';
+import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension';
+import { $patchStyleText } from '@lexical/selection';
+import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import {
   $addUpdateTag,
   $getNodeByKey,
   $getRoot,
   $getSelection,
-  $isElementNode,
-  $isNodeSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
-  CAN_REDO_COMMAND,
-  CAN_UNDO_COMMAND,
-  COMMAND_PRIORITY_CRITICAL,
   CommandPayloadType,
   ElementFormatType,
   FORMAT_ELEMENT_COMMAND,
@@ -112,13 +94,9 @@ import {
   LexicalNode,
   NodeKey,
   OUTDENT_CONTENT_COMMAND,
-  REDO_COMMAND,
-  SELECTION_CHANGE_COMMAND,
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
   TextFormatType,
-  UNDO_COMMAND,
-  getDOMSelection,
 } from 'lexical';
 import {Dispatch, useCallback, useEffect, useState} from 'react';
 
@@ -138,7 +116,6 @@ import DropDown, {
 } from '../../ui/DropDown';
 // import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import {isKeyboardInput} from '../../utils/focusUtils';
-import {getSelectedNode} from '../../utils/getSelectedNode';
 // import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
@@ -189,6 +166,7 @@ const styles = defineStyles('LexicalToolbarPlugin', (theme: ThemeType) => ({
     top: 0,
     zIndex: 2,
     overflowY: 'hidden' as const,
+    "@media print": { display: 'none' },
   },
   toolbarHidden: {
     display: 'none',
@@ -749,14 +727,12 @@ function $findTopLevelElement(node: LexicalNode) {
 export default function ToolbarPlugin({
   editor,
   activeEditor,
-  setActiveEditor,
   setIsLinkEditMode,
   isSuggestionMode = false,
   isVisible = true,
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
-  setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
   isSuggestionMode?: boolean;
   isVisible?: boolean;
@@ -771,7 +747,10 @@ export default function ToolbarPlugin({
   const [modal, showModal] = useModal();
   const { openDialog } = useDialog();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const {toolbarState, updateToolbarState} = useToolbarState();
+  const {toolbarState} = useToolbarState();
+  const {
+    settings: {isCodeHighlighted, isCodeShiki},
+  } = useSettings();
 
   const dispatchToolbarCommand = <T extends LexicalCommand<unknown>>(
     command: T,
@@ -793,250 +772,14 @@ export default function ToolbarPlugin({
     skipRefocus: boolean = false,
   ) => dispatchToolbarCommand(FORMAT_TEXT_COMMAND, payload, skipRefocus);
 
-  const $handleHeadingNode = useCallback(
-    (selectedElement: LexicalNode) => {
-      const type = $isHeadingNode(selectedElement)
-        ? selectedElement.getTag()
-        : selectedElement.getType();
-
-      if (type in blockTypeToBlockName) {
-        updateToolbarState(
-          'blockType',
-          type as keyof typeof blockTypeToBlockName,
-        );
-      }
-    },
-    [updateToolbarState],
-  );
-
-  const {
-    settings: {isCodeHighlighted, isCodeShiki},
-  } = useSettings();
-
-  const $handleCodeNode = useCallback(
-    (element: LexicalNode) => {
-      if ($isCodeNode(element)) {
-        const language = element.getLanguage();
-        updateToolbarState(
-          'codeLanguage',
-          language
-            ? (isCodeHighlighted &&
-                // (isCodeShiki
-                //   ? normalizeCodeLanguageShiki(language)
-                //   : normalizeCodeLanguagePrism(language)
-                // )
-                normalizeCodeLanguagePrism(language)
-              ) ||
-                language
-            : '',
-        );
-        const theme = element.getTheme();
-        updateToolbarState('codeTheme', theme || '');
-        return;
-      }
-    },
-    [updateToolbarState, isCodeHighlighted],
-  );
-
-  const $updateToolbar = useCallback(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      if (activeEditor !== editor && $isEditorIsNestedEditor(activeEditor)) {
-        const rootElement = activeEditor.getRootElement();
-        updateToolbarState(
-          'isImageCaption',
-          !!rootElement?.parentElement?.classList.contains(
-            'image-caption-container',
-          ),
-        );
-      } else {
-        const nativeSelection = getDOMSelection(activeEditor._window);
-        const anchorNode = nativeSelection?.anchorNode;
-        const anchorElement =
-          anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
-        updateToolbarState(
-          'isImageCaption',
-          !!anchorElement?.closest('.image-caption-container'),
-        );
-      }
-
-      const anchorNode = selection.anchor.getNode();
-      const element = $findTopLevelElement(anchorNode);
-      const elementKey = element.getKey();
-      const elementDOM = activeEditor.getElementByKey(elementKey);
-
-      updateToolbarState('isRTL', $isParentElementRTL(selection));
-
-      // Update links
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-      const isLink = $isLinkNode(parent) || $isLinkNode(node);
-      updateToolbarState('isLink', isLink);
-
-      const tableNode = $findMatchingParent(node, $isTableNode);
-      if ($isTableNode(tableNode)) {
-        updateToolbarState('rootType', 'table');
-      } else {
-        updateToolbarState('rootType', 'root');
-      }
-
-      if (elementDOM !== null) {
-        setSelectedElementKey(elementKey);
-        if ($isListNode(element)) {
-          const parentList = $getNearestNodeOfType<ListNode>(
-            anchorNode,
-            ListNode,
-          );
-          const type = parentList
-            ? parentList.getListType()
-            : element.getListType();
-
-          updateToolbarState('blockType', type);
-        } else {
-          $handleHeadingNode(element);
-          $handleCodeNode(element);
-        }
-      }
-
-      // Handle buttons
-      updateToolbarState(
-        'fontColor',
-        $getSelectionStyleValueForProperty(selection, 'color', '#000'),
-      );
-      updateToolbarState(
-        'bgColor',
-        $getSelectionStyleValueForProperty(
-          selection,
-          'background-color',
-          '#fff',
-        ),
-      );
-      updateToolbarState(
-        'fontFamily',
-        $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
-      );
-      let matchingParent;
-      if ($isLinkNode(parent)) {
-        // If node is a link, we need to fetch the parent paragraph node to set format
-        matchingParent = $findMatchingParent(
-          node,
-          (parentNode) => $isElementNode(parentNode) && !parentNode.isInline(),
-        );
-      }
-
-      // If matchingParent is a valid node, pass it's format type
-      updateToolbarState(
-        'elementFormat',
-        $isElementNode(matchingParent)
-          ? matchingParent.getFormatType()
-          : $isElementNode(node)
-            ? node.getFormatType()
-            : parent?.getFormatType() || 'left',
-      );
-    }
-    if ($isRangeSelection(selection) || $isTableSelection(selection)) {
-      // Update text format
-      updateToolbarState('isBold', selection.hasFormat('bold'));
-      updateToolbarState('isItalic', selection.hasFormat('italic'));
-      updateToolbarState(
-        'isStrikethrough',
-        selection.hasFormat('strikethrough'),
-      );
-      updateToolbarState('isSubscript', selection.hasFormat('subscript'));
-      updateToolbarState('isSuperscript', selection.hasFormat('superscript'));
-      updateToolbarState('isHighlight', selection.hasFormat('highlight'));
-      updateToolbarState('isCode', selection.hasFormat('code'));
-      updateToolbarState(
-        'fontSize',
-        $getSelectionStyleValueForProperty(selection, 'font-size', '15px'),
-      );
-      updateToolbarState('isLowercase', selection.hasFormat('lowercase'));
-      updateToolbarState('isUppercase', selection.hasFormat('uppercase'));
-      updateToolbarState('isCapitalize', selection.hasFormat('capitalize'));
-    }
-    if ($isNodeSelection(selection)) {
-      const nodes = selection.getNodes();
-      for (const selectedNode of nodes) {
-        const parentList = $getNearestNodeOfType<ListNode>(
-          selectedNode,
-          ListNode,
-        );
-        if (parentList) {
-          const type = parentList.getListType();
-          updateToolbarState('blockType', type);
-        } else {
-          const selectedElement = $findTopLevelElement(selectedNode);
-          $handleHeadingNode(selectedElement);
-          $handleCodeNode(selectedElement);
-          // Update elementFormat for node selection (e.g., images)
-          if ($isElementNode(selectedElement)) {
-            updateToolbarState(
-              'elementFormat',
-              selectedElement.getFormatType(),
-            );
-          }
-        }
-      }
-    }
-
-    const root = $getRoot();
-    const rootChildren = root.getChildren();
-    const section = rootChildren.find($isFootnoteSectionNode);
-    const nextFootnoteItems: Array<{id: string; index: number}> = [];
-    if (section && $isFootnoteSectionNode(section)) {
-      for (const child of section.getChildren()) {
-        if ($isFootnoteItemNode(child)) {
-          nextFootnoteItems.push({
-            id: child.getFootnoteId(),
-            index: child.getFootnoteIndex(),
-          });
-        }
-      }
-    }
-    nextFootnoteItems.sort((a, b) => a.index - b.index);
-    setFootnoteItems((prev) => {
-      if (prev.length !== nextFootnoteItems.length) {
-        return nextFootnoteItems;
-      }
-      for (let i = 0; i < prev.length; i += 1) {
-        if (
-          prev[i].id !== nextFootnoteItems[i].id ||
-          prev[i].index !== nextFootnoteItems[i].index
-        ) {
-          return nextFootnoteItems;
-        }
-      }
-      return prev;
-    });
-  }, [
-    activeEditor,
-    editor,
-    updateToolbarState,
-    $handleHeadingNode,
-    $handleCodeNode,
-  ]);
-
-  useEffect(() => {
-    return editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
-      (_payload, newEditor) => {
-        setActiveEditor(newEditor);
-        $updateToolbar();
-        return false;
-      },
-      COMMAND_PRIORITY_CRITICAL,
-    );
-  }, [editor, $updateToolbar, setActiveEditor]);
-
-  useEffect(() => {
-    activeEditor.getEditorState().read(
-      () => {
-        $updateToolbar();
-      },
-      {editor: activeEditor},
-    );
-  }, [activeEditor, $updateToolbar]);
-
+  // UI-local state for the toolbar's own rendering. The bulk of
+  // toolbarState (blockType, isBold, isLink, etc.) is owned by
+  // ToolbarStatePlugin, which must be rendered alongside this component
+  // — both inside Editor.tsx today.
+  //   - selectedElementKey: which code block the language / theme
+  //     dropdowns mutate.
+  //   - footnoteItems: the dynamic "Insert footnote N" menu entries.
+  //   - isEditable: drives `disabled` on toolbar buttons.
   useEffect(() => {
     return mergeRegister(
       editor.registerEditableListener((editable) => {
@@ -1045,29 +788,51 @@ export default function ToolbarPlugin({
       activeEditor.registerUpdateListener(({editorState}) => {
         editorState.read(
           () => {
-            $updateToolbar();
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              const anchorNode = selection.anchor.getNode();
+              const element = $findTopLevelElement(anchorNode);
+              const elementKey = element.getKey();
+              if (activeEditor.getElementByKey(elementKey) !== null) {
+                setSelectedElementKey(elementKey);
+              }
+            }
+
+            const section = $getRoot()
+              .getChildren()
+              .find($isFootnoteSectionNode);
+            const nextFootnoteItems: Array<{id: string; index: number}> = [];
+            if (section && $isFootnoteSectionNode(section)) {
+              for (const child of section.getChildren()) {
+                if ($isFootnoteItemNode(child)) {
+                  nextFootnoteItems.push({
+                    id: child.getFootnoteId(),
+                    index: child.getFootnoteIndex(),
+                  });
+                }
+              }
+            }
+            nextFootnoteItems.sort((a, b) => a.index - b.index);
+            setFootnoteItems((prev) => {
+              if (prev.length !== nextFootnoteItems.length) {
+                return nextFootnoteItems;
+              }
+              for (let i = 0; i < prev.length; i += 1) {
+                if (
+                  prev[i].id !== nextFootnoteItems[i].id ||
+                  prev[i].index !== nextFootnoteItems[i].index
+                ) {
+                  return nextFootnoteItems;
+                }
+              }
+              return prev;
+            });
           },
           {editor: activeEditor},
         );
       }),
-      activeEditor.registerCommand<boolean>(
-        CAN_UNDO_COMMAND,
-        (payload) => {
-          updateToolbarState('canUndo', payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      activeEditor.registerCommand<boolean>(
-        CAN_REDO_COMMAND,
-        (payload) => {
-          updateToolbarState('canRedo', payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
     );
-  }, [$updateToolbar, activeEditor, editor, updateToolbarState]);
+  }, [editor, activeEditor]);
 
   const applyStyleText = useCallback(
     (

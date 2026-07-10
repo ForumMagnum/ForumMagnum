@@ -7,7 +7,7 @@
 // Beta-feature test functions must handle the case where user is null.
 
 import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
-import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
+import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
 type BetaGate = (user: UsersCurrent | DbUser | null) => boolean;
@@ -26,7 +26,7 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || userOverNKarmaOrApproved(1)(user);
+export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
 
@@ -44,8 +44,6 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
   
   return isLW() && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
-
-export const userHasPostAutosave: BetaGate = (user) => isLWorAF() ? adminOnly(user) : disabled(user);
 
 // Non-user-specific features
 export const dialoguesEnabled = () => true;

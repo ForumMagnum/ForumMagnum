@@ -21,6 +21,8 @@ import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ErrorBoundary from './ErrorBoundary';
+import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
@@ -109,7 +111,9 @@ const LWHome = () => {
 
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
-                  <UltraFeedOrRecentDiscussion/>
+                  <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                    <UltraFeedOrRecentDiscussion/>
+                  </ErrorBoundary>
                 </SuspenseWrapper>
               </AnalyticsInViewTracker>
             </LWHomePosts>

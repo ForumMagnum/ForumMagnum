@@ -45,6 +45,8 @@ import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
 import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
 import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
 import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
+import ErrorBoundary from './ErrorBoundary';
+import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 
 
 
@@ -640,20 +642,22 @@ const LWHomePosts = ({ children, }: {
               </AnalyticsContext>}
 
               {/* FEED */}
-              {(selectedTab === 'ultrafeed') && <UltraFeedWrappers
-                feedType="ultraFeed"
-                incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
-              >
-                <UltraFeedMainFeed
-                  settings={ultraFeedSettings}
-                  fetchPolicy="cache-first"
-                  firstPageSize={15}
-                  pageSize={30}
-                />
-              </UltraFeedWrappers>}
+              {(selectedTab === 'ultrafeed') && <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                <UltraFeedWrappers
+                  feedType="ultraFeed"
+                  incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
+                >
+                  <UltraFeedMainFeed
+                    settings={ultraFeedSettings}
+                    fetchPolicy="cache-first"
+                    firstPageSize={15}
+                    pageSize={30}
+                  />
+                </UltraFeedWrappers>
+              </ErrorBoundary>}
 
               {/* FOLLOWING */}
-              {(selectedTab === 'following') && <>
+              {(selectedTab === 'following') && <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
                 <div className={classes.ultraFeedFollowingHeader}>
                   <SubscribedHideReadCheckbox
                     checked={ultraFeedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false}
@@ -674,7 +678,7 @@ const LWHomePosts = ({ children, }: {
                 >
                   <UltraFeedSubscriptionsFeed embedded={true} settings={ultraFeedSettings} showHideReadToggle={false} />
                 </UltraFeedWrappers>
-               </>}
+              </ErrorBoundary>}
 
               {/* CHRONOLIGCAL FEED */}
               {(selectedTab === 'forum-chronological') && <AnalyticsContext feedType={selectedTab}>

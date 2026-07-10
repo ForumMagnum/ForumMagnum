@@ -104,6 +104,9 @@ export const filters: Record<string,any> = {
   "includeMetaAndPersonal": {},
   "linkpost": {
     url: {$exists: true},
+  },
+  "notRejected": {
+    rejected: {$ne: true},
   }
 }
 

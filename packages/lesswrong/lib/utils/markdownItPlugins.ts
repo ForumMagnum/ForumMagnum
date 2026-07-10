@@ -6,6 +6,7 @@ import markdownItSup from "markdown-it-sup";
 import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 import markdownItMathjax from './markdownMathjax';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
+import { markdownMentions } from './markdownMentions';
 
 const llmOutputOpenRegex = /^%%%[ \t]+llm-output(?:[ \t]+model="([^"]*)")?[ \t]*$/;
 const llmOutputCloseRegex = /^%%%[ \t]+\/llm-output[ \t]*$/;
@@ -100,19 +101,107 @@ function markdownLlmContentBlocks(md: markdownIt) {
   md.renderer.rules.llm_output_close = renderToken;
 }
 
+// Block rule for spoiler markdown (`>!` line prefix), modeled after the
+// blockquote rule. Each line of a spoiler block starts with `>!`. Consecutive
+// `>!` lines form one spoiler block; a non-`>!` line ends it. Inside, the
+// content (with prefixes stripped) is re-parsed as markdown so inline
+// formatting and paragraph breaks (a bare `>!` line) work as expected.
+//
+// Renders as `<div class="spoilers">…</div>` — the canonical class that
+// Lexical's SpoilerNode and the rendering CSS recognize.
+function parseSpoilerBlock(state: StateBlock, startLine: number, endLine: number, silent: boolean): boolean {
+  const lineStart = state.bMarks[startLine] + state.tShift[startLine];
+  if (state.sCount[startLine] - state.blkIndent >= 4) return false;
+  if (state.src.charCodeAt(lineStart) !== 0x3E /* > */) return false;
+  if (state.src.charCodeAt(lineStart + 1) !== 0x21 /* ! */) return false;
+
+  if (silent) return true;
+
+  const innerLines: string[] = [];
+  let nextLine = startLine;
+  while (nextLine < endLine) {
+    const ls = state.bMarks[nextLine] + state.tShift[nextLine];
+    const lm = state.eMarks[nextLine];
+    if (state.sCount[nextLine] - state.blkIndent >= 4) break;
+    if (state.src.charCodeAt(ls) !== 0x3E) break;
+    if (state.src.charCodeAt(ls + 1) !== 0x21) break;
+
+    // Strip `>!` plus an optional single space (parallels blockquote's `>`+space).
+    let contentStart = ls + 2;
+    if (contentStart < lm && state.src.charCodeAt(contentStart) === 0x20) {
+      contentStart++;
+    }
+    innerLines.push(state.src.slice(contentStart, lm));
+    nextLine++;
+  }
+
+  let token = state.push("spoiler_block_open", "div", 1);
+  token.block = true;
+  token.map = [startLine, nextLine];
+  token.attrSet("class", "spoilers");
+
+  state.md.block.parse(innerLines.join("\n"), state.md, state.env, state.tokens);
+
+  token = state.push("spoiler_block_close", "div", -1);
+  token.block = true;
+
+  state.line = nextLine;
+  return true;
+}
+
+function markdownSpoilerBlocks(md: markdownIt) {
+  md.block.ruler.before("blockquote", "spoiler_block", parseSpoilerBlock, {
+    alt: ["paragraph", "reference", "blockquote", "list"],
+  });
+
+  const renderToken = (tokens: Token[], idx: number, options: AnyBecauseHard, _env: AnyBecauseHard, self: Renderer) =>
+    self.renderToken(tokens, idx, options);
+
+  md.renderer.rules.spoiler_block_open = renderToken;
+  md.renderer.rules.spoiler_block_close = renderToken;
+}
+
+function applyCommonPlugins(mdi: markdownIt): void {
+  mdi.use(markdownLlmContentBlocks);
+  mdi.use(markdownSpoilerBlocks);
+  mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
+  mdi.use(markdownItFootnote as any);
+  applyMarkdownFootnoteRules(mdi);
+  mdi.use(markdownItSub);
+  mdi.use(markdownItSup);
+}
+
+// Shared builder for the full-feature markdown-it instances (common plugins +
+// collapsible sections + mathjax). The two axes that vary:
+//  - `mathDialect`: "reader" renders math as bare `\(...\)` text for
+//    `renderMathInHtml` to pre-render; "agent" renders `math-tex` spans (the
+//    editable dialect `MathNode.importDOM` consumes) and recognizes bare
+//    single-backslash delimiters, so agent-supplied math round-trips into real
+//    MathNodes.
+//  - `mentions`: whether `@[doc:...]` mention tokens are recognized (research
+//    surface only).
+function buildFullMarkdownIt({ mathDialect, mentions }: {
+  mathDialect: "reader" | "agent"
+  mentions: boolean
+}): markdownIt {
+  const mdi = markdownIt({ linkify: true });
+  mdi.use(markdownItMathjax(
+    mathDialect === "agent"
+      ? { wrapInMathTex: true, singleBackslashDelimiters: true }
+      : {},
+  ));
+  applyCommonPlugins(mdi);
+  mdi.use(markdownCollapsibleSections);
+  if (mentions) {
+    mdi.use(markdownMentions);
+  }
+  return mdi;
+}
+
 let _mdi: markdownIt|null = null;
 export function getMarkdownIt(): markdownIt {
   if (!_mdi) {
-    const mdi = markdownIt({linkify: true})
-    mdi.use(markdownItMathjax())
-    mdi.use(markdownLlmContentBlocks)
-    mdi.use(markdownItContainer as AnyBecauseHard, 'spoiler')
-    mdi.use(markdownItFootnote as any)
-    applyMarkdownFootnoteRules(mdi);
-    mdi.use(markdownItSub)
-    mdi.use(markdownItSup)
-    mdi.use(markdownCollapsibleSections);
-    _mdi = mdi;
+    _mdi = buildFullMarkdownIt({ mathDialect: "reader", mentions: false });
   }
   return _mdi;
 }
@@ -120,18 +209,31 @@ export function getMarkdownIt(): markdownIt {
 let _mdiNoMathjax: markdownIt|null = null;
 export function getMarkdownItNoMathjax(): markdownIt {
   if (!_mdiNoMathjax) {
-    // FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
     const mdi = markdownIt({ linkify: true });
-    // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-    mdi.use(markdownLlmContentBlocks);
-    mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
-    mdi.use(markdownItFootnote as any);
-    applyMarkdownFootnoteRules(mdi);
-    mdi.use(markdownItSub);
-    mdi.use(markdownItSup);
+    applyCommonPlugins(mdi);
     _mdiNoMathjax = mdi;
   }
   return _mdiNoMathjax;
+}
+
+let _mdiAgentPosts: markdownIt|null = null;
+// The post agent write path: the "agent" math dialect makes agent-supplied
+// math round-trip into real MathNodes.
+export function getMarkdownItForAgentPosts(): markdownIt {
+  if (!_mdiAgentPosts) {
+    _mdiAgentPosts = buildFullMarkdownIt({ mathDialect: "agent", mentions: false });
+  }
+  return _mdiAgentPosts;
+}
+
+let _mdiResearch: markdownIt|null = null;
+// The research-document agent write path. Research documents support LaTeX, so
+// the "agent" math dialect (real-MathNode round-tripping) is used here too.
+export function getMarkdownItForResearch(): markdownIt {
+  if (!_mdiResearch) {
+    _mdiResearch = buildFullMarkdownIt({ mathDialect: "agent", mentions: true });
+  }
+  return _mdiResearch;
 }
 
 let _mdiArbital: markdownIt|null = null;

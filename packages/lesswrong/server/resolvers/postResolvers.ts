@@ -19,7 +19,8 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
-import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
+import { getCollaborativeEditorAccessWithKey, type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { getResearchDocumentAccess } from '@/lib/collections/researchDocuments/permissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
@@ -407,7 +408,7 @@ export const postGqlQueries = {
   },
   async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext) {
     const { Posts, currentUser } = context
-    const defaultPostSelector = getDefaultViewSelector(PostsViews, context)
+    const defaultPostSelector = await getDefaultViewSelector(PostsViews, context)
 
     const timeRange = 5 * 30 * 24 * 60 * 60 * 1000 // 5 months
     const posts = await Posts.find({
@@ -420,29 +421,44 @@ export const postGqlQueries = {
     const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
     return { posts: filteredPosts }  
   },
-  async HocuspocusAuth(root: void, { postId, linkSharingKey }: { postId: string, linkSharingKey: string | null }, context: ResolverContext) {
+  async HocuspocusAuth(root: void, args: { postId?: string | null, collectionName?: string | null, documentId?: string | null, linkSharingKey: string | null }, context: ResolverContext) {
     const { currentUser, loaders, clientId } = context
-    
-    const post = await loaders.Posts.load(postId);
-    
-    const accessLevel = await getCollaborativeEditorAccessWithKey({
-      formType: 'edit',
-      post,
-      user: currentUser,
-      context,
-      useAdminPowers: true,
-      linkSharingKey,
-    });
-    
-    if (accessLevel === 'none') {
-      throw new Error('Unauthorized: You do not have access to collaborate on this post');
+
+    // postId is the legacy argument name, retained for clients on an old bundle.
+    const collectionName = args.collectionName ?? 'Posts';
+    const documentId = args.documentId ?? args.postId;
+    if (!documentId) {
+      throw new Error('HocuspocusAuth: must provide documentId (or legacy postId)');
     }
-    
+    const { linkSharingKey } = args;
+
+    let accessLevel: CollaborativeEditingAccessLevel;
+    if (collectionName === 'Posts') {
+      const post = await loaders.Posts.load(documentId);
+      accessLevel = await getCollaborativeEditorAccessWithKey({
+        formType: 'edit',
+        post,
+        user: currentUser,
+        context,
+        useAdminPowers: true,
+        linkSharingKey,
+      });
+    } else if (collectionName === 'ResearchDocuments') {
+      accessLevel = await getResearchDocumentAccess(documentId, currentUser, context);
+    } else {
+      throw new Error(`HocuspocusAuth: unsupported collectionName ${collectionName}`);
+    }
+
+    if (accessLevel === 'none') {
+      throw new Error(`Unauthorized: You do not have access to collaborate on this ${collectionName === 'Posts' ? 'post' : 'document'}`);
+    }
+
     const token = jwt.sign(
       {
         userId: currentUser?._id ?? clientId,
         displayName: currentUser?.displayName ?? 'Anonymous',
-        postId,
+        collectionName,
+        documentId,
         accessLevel,
       },
       process.env.HOCUSPOCUS_JWT_SECRET!,
@@ -627,7 +643,7 @@ export const postGqlTypeDefs = gql`
     LastCuratedDate: LastCuratedDateResult!
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-    HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+    HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
   }
 
   extend type Mutation {

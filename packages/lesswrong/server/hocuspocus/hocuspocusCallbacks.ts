@@ -1,4 +1,5 @@
 import { Posts } from '@/server/collections/posts/collection';
+import ResearchDocuments from '@/server/collections/researchDocuments/collection';
 import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
@@ -7,35 +8,43 @@ import { createRevision } from '@/server/collections/revisions/mutations';
 import { buildRevisionWithUser } from '../editor/conversionUtils';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
+import { escapeHtml } from '@/lib/utils/sanitize';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 import { captureException } from '@/lib/sentryWrapper';
+import { backgroundTask } from '@/server/utils/backgroundTask';
+import { generateDocumentTitle } from '@/server/research/titleGeneration';
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
-/**
- * Extracts the post ID from a Hocuspocus document name.
- * Document names follow the pattern "post-{postId}" or "post-{postId}/{subDocId}".
- */
-export function documentNameToPostId(documentName: string): string {
-  const match = documentName.match(/^post-([a-zA-Z0-9]+)/);
-  if (!match) {
-    throw new Error(`Invalid document name: ${documentName}`);
+// Must be kept in sync with the equivalent table in the (separately deployed)
+// Hocuspocus server's documentNames.ts.
+const COLLAB_DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
+  { prefix: 'post-', collectionName: 'Posts' },
+  { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
+];
+
+// The documentId is the full path after the prefix, including any "/subDoc"
+// suffix, matching how the Hocuspocus server keys YjsDocuments rows.
+export function parseHocuspocusDocumentName(documentName: string): { collectionName: string; documentId: string } {
+  for (const { prefix, collectionName } of COLLAB_DOCUMENT_NAME_PREFIXES) {
+    if (documentName.startsWith(prefix)) {
+      const documentId = documentName.slice(prefix.length);
+      if (documentId) {
+        return { collectionName, documentId };
+      }
+    }
   }
-  return match[1];
+  throw new Error(`Invalid document name: ${documentName}`);
 }
 
-/**
- * Converts a Hocuspocus document name to the YjsDocuments documentId format.
- * Examples:
- *   - "post-abc" -> "abc"
- *   - "post-abc/comments" -> "abc/comments"
- */
-function documentNameToDocumentId(documentName: string): string {
-  if (!documentName.startsWith('post-')) {
-    throw new Error(`Invalid document name: ${documentName}`);
+export function buildHocuspocusDocumentName(collectionName: string, documentId: string): string {
+  for (const entry of COLLAB_DOCUMENT_NAME_PREFIXES) {
+    if (entry.collectionName === collectionName) {
+      return `${entry.prefix}${documentId}`;
+    }
   }
-  return documentName.slice('post-'.length);
+  throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
 }
 
 /**
@@ -57,8 +66,8 @@ export function verifyHocuspocusWebhookSecret(providedSecret: string): boolean {
  * Returns null if the document doesn't exist.
  */
 export async function readYjsState(documentName: string): Promise<Uint8Array | null> {
-  const documentId = documentNameToDocumentId(documentName);
-  const yjsDocument = await YjsDocuments.findOne({ documentId });
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  const yjsDocument = await YjsDocuments.findOne({ collectionName, documentId });
   if (!yjsDocument) return null;
   return new Uint8Array(yjsDocument.yjsState);
 }
@@ -93,9 +102,12 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
 }
 
 /**
- * Save a new revision for a collaboratively-edited document, attributed to
- * a specific user. Called by saveOrUpdateLexicalRevision when creating a
+ * Save a new revision for a collaboratively-edited Posts document, attributed
+ * to a specific user. Called by saveOrUpdateLexicalRevision when creating a
  * fresh revision (as opposed to updating an existing autosave in-place).
+ *
+ * Only invoked for the Posts collection; other collections (e.g.
+ * ResearchDocuments) don't currently snapshot revisions through this path.
  */
 async function saveLexicalDocumentRevision(
   userId: string,
@@ -144,23 +156,57 @@ async function saveLexicalDocumentRevision(
 }
 
 /**
- * Save a new revision for a collaboratively-edited document.
+ * Save a new revision for a collaboratively-edited Posts document.
  * Always creates a new revision (no in-place update of previous
  * autosaves) so that every snapshot has its own yjsState and can
  * be restored independently.
+ *
+ * Other collections (ResearchDocuments) don't snapshot revisions through this
+ * path today; the caller should switch on collectionName before invoking.
  *
  * Deduplication is handled inside saveLexicalDocumentRevision: if
  * the HTML content hasn't changed since the last revision, no new
  * revision is created.
  */
 export async function saveOrUpdateLexicalRevision(
-  postId: string,
+  collectionName: string,
+  documentId: string,
   html: string,
   yjsStateBase64: string,
 ): Promise<void> {
-  const post = await Posts.findOne(postId);
-  const userId = post!.userId;
-  await saveLexicalDocumentRevision(userId, postId, html, yjsStateBase64);
+  if (collectionName === 'ResearchDocuments') {
+    backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
+    return;
+  }
+  if (collectionName !== 'Posts') {
+    throw new Error(`saveOrUpdateLexicalRevision: unsupported collection ${collectionName}`);
+  }
+  const post = await Posts.findOne(documentId);
+  if (!post) {
+    throw new Error(`saveOrUpdateLexicalRevision: no Posts document ${documentId}`);
+  }
+  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64);
+}
+
+// Generate a title via Haiku only while the doc still has a null title — once
+// a title is set (auto or user-edited), later autosaves short-circuit here.
+async function maybeGenerateResearchDocumentTitle(documentId: string, html: string): Promise<void> {
+  try {
+    const doc = await ResearchDocuments.findOne({ _id: documentId }, undefined, { _id: 1, title: 1 });
+    if (!doc || doc.title !== null) return;
+    const title = await generateDocumentTitle(html);
+    if (!title) return;
+    // title: null in the selector — avoids clobbering a title the user set
+    // between our read and the Haiku response landing.
+    await ResearchDocuments.rawUpdateOne(
+      { _id: documentId, title: null },
+      { $set: { title } },
+    );
+  } catch (err) {
+    captureException(err);
+    // eslint-disable-next-line no-console
+    console.error('[research] maybeGenerateResearchDocumentTitle failed', documentId, err);
+  }
 }
 
 /**
@@ -229,19 +275,20 @@ export async function resetHocuspocusDocument(documentName: string, newState: Ui
  * (which has already performed permission checks).
  */
 export async function pushRevisionToLexicalCollab(
-  postId: string,
+  collectionName: string,
+  documentId: string,
   revisionId: string,
 ): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Restoring revision ${revisionId} for post ${postId}`);
+  console.log(`[Hocuspocus] Restoring revision ${revisionId} for ${collectionName} ${documentId}`);
 
   // Load the revision and check that it has a stored Yjs state
   const revision = await Revisions.findOne({ _id: revisionId });
   if (!revision) {
     throw new Error(`[Hocuspocus] Revision not found: ${revisionId}`);
   }
-  if (revision.documentId !== postId) {
-    throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to post ${postId}`);
+  if (revision.documentId !== documentId) {
+    throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to ${collectionName} ${documentId}`);
   }
 
   const yjsStateBase64 = revision.originalContents?.yjsState;
@@ -256,10 +303,10 @@ export async function pushRevisionToLexicalCollab(
 
   // Send the Yjs state to the Hocuspocus server, which handles the
   // destructive replacement (evict document + write to DB).
-  await resetHocuspocusDocument(`post-${postId}`, yjsState);
+  await resetHocuspocusDocument(buildHocuspocusDocumentName(collectionName, documentId), yjsState);
 
   // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Restore completed for post ${postId}`);
+  console.log(`[Hocuspocus] Restore completed for ${collectionName} ${documentId}`);
 }
 
 export interface HocuspocusCommentData {
@@ -272,7 +319,9 @@ export interface HocuspocusCommentData {
 
 /**
  * Handle the "comment added" callback from Hocuspocus.
- * Notifies the post author, coauthors, and other commenters in the thread.
+ * Notifies the document's stakeholders (for Posts: author, coauthors, and
+ * other thread commenters; for ResearchDocuments: document and project
+ * owners plus other thread commenters).
  *
  * Equivalent of CKEditor's `comment.added` webhook event.
  */
@@ -280,7 +329,22 @@ export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
 ): Promise<void> {
-  const postId = documentNameToPostId(documentName);
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  if (collectionName === 'ResearchDocuments') {
+    // comment.added fires on the comments subdocument, named
+    // "research-doc-{id}/comments"; the owning document id is the segment
+    // before the slash.
+    await handleResearchDocumentCommentAdded(documentId.split('/')[0], comment);
+    return;
+  }
+  if (collectionName !== 'Posts') {
+    // eslint-disable-next-line no-console
+    console.log(`[HocuspocusWebhook] Ignoring comment.added for unsupported collection ${documentName}`);
+    return;
+  }
+  // comment.added fires on the comments subdocument, named "post-{id}/comments";
+  // the owning post id is the segment before the slash.
+  const postId = documentId.split('/')[0];
 
   // eslint-disable-next-line no-console
   console.log(`[HocuspocusWebhook] Comment added on ${documentName} by ${comment.authorId}`);
@@ -311,8 +375,66 @@ export async function handleCommentAdded(
     extraData: {
       senderUserID: comment.authorId,
       senderDisplayName: comment.authorName,
-      commentHtml: comment.content,
+      // The Yjs comment body is plain text, but extraData.commentHtml is
+      // rendered as HTML downstream (notification email/hover) — escape it
+      // so collaborator-controlled text can't inject markup.
+      commentHtml: escapeHtml(comment.content),
       linkSharingKey: post.linkSharingKey,
     },
+  });
+}
+
+/**
+ * ResearchDocuments branch of handleCommentAdded: notifies the document
+ * owner, the project owner, and other commenters in the thread. Agent
+ * comments use the conversation id as authorId, which never matches a user
+ * id, so agents are naturally excluded from the recipient list (and from
+ * being treated as the suppressed "own comment" author when a user
+ * comments).
+ */
+async function handleResearchDocumentCommentAdded(
+  researchDocumentId: string,
+  comment: HocuspocusCommentData,
+): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.log(`[HocuspocusWebhook] Comment added on research document ${researchDocumentId} by ${comment.authorId}`);
+
+  const document = await ResearchDocuments.findOne({ _id: researchDocumentId });
+  if (!document) {
+    throw new Error(`Couldn't find research document for Hocuspocus comment notification: ${researchDocumentId}`);
+  }
+  const context = createAdminContext();
+  const project = await context.ResearchProjects.findOne({ _id: document.projectId });
+
+  const candidateUserIds = [
+    document.userId,
+    project?.userId,
+    ...comment.commentersInThread,
+  ].filter((u): u is string => !!u && u !== comment.authorId);
+  // Thread commenter ids can be agent conversation ids or anonymous client
+  // ids; only notify ones that resolve to real users.
+  const users = await Users.find(
+    { _id: { $in: [...new Set(candidateUserIds)] } },
+    {},
+    { _id: 1 },
+  ).fetch();
+  const usersToNotify = users.map((u) => u._id);
+  if (usersToNotify.length === 0) return;
+
+  await createNotifications({
+    userIds: usersToNotify,
+    notificationType: 'newCommentOnResearchDoc',
+    documentType: 'researchDocument',
+    documentId: researchDocumentId,
+    extraData: {
+      senderUserID: comment.authorId,
+      senderDisplayName: comment.authorName,
+      commentHtml: escapeHtml(comment.content),
+      projectId: document.projectId,
+    },
+    // Onsite-only at the product's current stage: emails in response to
+    // agent/collaborator comments aren't justified yet.
+    noEmail: true,
+    context,
   });
 }

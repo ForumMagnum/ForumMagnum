@@ -38,6 +38,7 @@ export const karmaChangesTypeDefs = gql`
   type ReactionChange {
     reactionType: String!
     userId: String
+    quote: String
   }
   type KarmaChangesSimple {
     posts: [PostKarmaChange!]!
@@ -80,6 +81,7 @@ export type KarmaChangesArgs = {
 export type ReactionChange = {
   reactionType: string
   userId?: string|null
+  quote?: string|null
 }
 
 export type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | RevisionsKarmaChange;

@@ -3,24 +3,35 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession } from "../agent/editorAgentUtil";
+import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
+import { readOpenCommentThreads, type SerializedThread } from "../agent/collabCommentThreads";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import {
   $createParagraphNode,
   $isElementNode,
   $isDecoratorNode,
+  $isParagraphNode,
+  type LexicalEditor,
   type LexicalNode,
 } from "lexical";
-import { HocuspocusProvider } from "@hocuspocus/provider";
-import { Doc, Array as YArray, Map as YMap } from "yjs";
-import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import { captureException } from "@/lib/sentryWrapper";
 
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
   for (const node of nodes) {
+    // markdown-it emits a `$$...$$` (or `\[...\]`) display equation as an
+    // inline token, so it lands inside a paragraph — on its own or alongside
+    // surrounding text. A display MathNode is block-level, so split any
+    // wrapping paragraph around it rather than leaving an invalid
+    // block-inside-paragraph node.
+    if ($isParagraphNode(node)) {
+      for (const piece of splitParagraphAtDisplayMath(node)) {
+        normalized.push(piece);
+      }
+      continue;
+    }
     if ($isElementNode(node) || $isDecoratorNode(node)) {
       normalized.push(node);
     } else {
@@ -35,14 +46,6 @@ export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNod
 export function markdownRouteRedirect(req: NextRequest, path: string): NextResponse {
   return NextResponse.redirect(new URL(path, req.url), 302);
 }
-
-const HocuspocusAuthQuery = `
-  query MarkdownDraftHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`;
 
 const MarkdownPostMetadataQuery = `
   query MarkdownPostMetadataQuery($documentId: String) {
@@ -65,118 +68,6 @@ const LinkSharedPostMetadataQuery = `
     }
   }
 `;
-
-export function unescapeHtmlAttribute(value: string): string {
-  return value
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
-}
-
-export function convertWidgetIframesToMarkdownFences(markdown: string): string {
-  return markdown.replace(/<iframe[\s\S]*?<\/iframe>/g, (iframeHtml) => {
-    if (!iframeHtml.includes("data-lexical-iframe-widget")) {
-      return iframeHtml;
-    }
-    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
-    const widgetId = idMatch?.[1] ?? "";
-
-    const srcdocStart = iframeHtml.indexOf('srcdoc="');
-    if (srcdocStart < 0) {
-      return iframeHtml;
-    }
-    const srcdocValueStart = srcdocStart + 'srcdoc="'.length;
-    const srcdocValueEnd = iframeHtml.lastIndexOf('"></iframe>');
-    if (srcdocValueEnd <= srcdocValueStart) {
-      return iframeHtml;
-    }
-    const rawSrcdoc = iframeHtml.slice(srcdocValueStart, srcdocValueEnd);
-    const srcdoc = unescapeHtmlAttribute(rawSrcdoc);
-    return `\n\n\`\`\`widget[${widgetId}]\n${srcdoc}\n\`\`\`\n\n`;
-  });
-}
-
-interface SerializedComment {
-  author: string
-  content: string
-  timeStamp: number
-  commentKind?: string
-  deleted: boolean
-}
-
-interface SerializedThread {
-  id: string
-  threadType: ThreadType
-  quote: string
-  status?: ThreadStatus
-  comments: SerializedComment[]
-}
-
-function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread {
-  const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
-  const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
-    return {
-      author: (comment.get("author") as string) ?? "Unknown",
-      content: (comment.get("content") as string) ?? "",
-      timeStamp: (comment.get("timeStamp") as number) ?? 0,
-      commentKind: comment.get("commentKind") as string | undefined,
-      deleted: (comment.get("deleted") as boolean) ?? false,
-    };
-  }) ?? [];
-
-  return {
-    id: (threadMap.get("id") as string) ?? "",
-    threadType: (threadMap.get("threadType") as ThreadType | undefined) ?? "comment",
-    quote: (threadMap.get("quote") as string) ?? "",
-    status: threadMap.get("status") as ThreadStatus | undefined,
-    comments: serializedComments,
-  };
-}
-
-async function readOpenCommentThreads({
-  postId,
-  token,
-}: {
-  postId: string
-  token: string
-}): Promise<SerializedThread[]> {
-  const wsUrl = process.env.HOCUSPOCUS_URL;
-  if (!wsUrl) return [];
-
-  const doc = new Doc();
-  const provider = new HocuspocusProvider({
-    url: wsUrl,
-    name: `post-${postId}/comments`,
-    document: doc,
-    token,
-    connect: false,
-  });
-
-  try {
-    await provider.connect();
-    await waitForProviderSync(provider);
-
-    const commentsArray = doc.get("comments", YArray);
-    const threads: SerializedThread[] = [];
-
-    for (let i = 0; i < commentsArray.length; i++) {
-      const threadMap = commentsArray.get(i) as YMap<unknown>;
-      if (threadMap.get("type") !== "thread") continue;
-      // Only include open threads (status undefined or "open")
-      const status = threadMap.get("status") as ThreadStatus | undefined;
-      if (status && status !== "open") continue;
-      const thread = readThreadFromYMap(threadMap);
-      threads.push(thread);
-    }
-
-    return threads;
-  } finally {
-    provider.destroy();
-    doc.destroy();
-  }
-}
 
 function formatCommentTimestamp(epochMs: number): string {
   const date = new Date(epochMs);
@@ -210,14 +101,16 @@ function formatSuggestionSummaryForMarkdown(content: string): string {
   }
 }
 
-function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
+const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }";
+
+function serializeThreadsToMarkdown(threads: SerializedThread[], replyInstructions: string): string {
   if (threads.length === 0) return "";
 
   const lines: string[] = [];
   lines.push(`## Comment Threads`);
   lines.push("");
   lines.push(
-    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }`
+    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. ${replyInstructions}`
   );
 
   for (const thread of threads) {
@@ -244,16 +137,20 @@ function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
   return lines.join("\n");
 }
 
-async function getOpenCommentThreadsMarkdown({
-  postId,
+export async function getOpenCommentThreadsMarkdown({
+  collectionName,
+  documentId,
   token,
+  replyInstructions,
 }: {
-  postId: string
+  collectionName: string
+  documentId: string
   token: string
+  replyInstructions?: string
 }): Promise<string> {
   try {
-    const threads = await readOpenCommentThreads({ postId, token });
-    return serializeThreadsToMarkdown(threads);
+    const threads = await readOpenCommentThreads({ collectionName, documentId, token });
+    return serializeThreadsToMarkdown(threads, replyInstructions ?? POST_REPLY_INSTRUCTIONS);
   } catch (error) {
     // Don't fail the whole request, but log for debugging
     // eslint-disable-next-line no-console
@@ -266,13 +163,55 @@ async function getOpenCommentThreadsMarkdown({
 export async function getLiveDraftMarkdown({
   postId,
   token,
-  operationLabel
+  operationLabel,
 }: {
   postId: string
   token: string
   operationLabel?: string
 }): Promise<string> {
+  return getLiveLexicalMarkdown({
+    postId,
+    token,
+    operationLabel: operationLabel ?? "MarkdownReadDraft",
+  });
+}
+
+/**
+ * Collection-agnostic version of `getLiveDraftMarkdown`. Connects to the
+ * Yjs document for `(collectionName, documentId)`, materializes a headless
+ * Lexical editor, and runs the same Lexical → HTML → Turndown pipeline used
+ * for post drafts.
+ *
+ * Sharing the pipeline (rather than calling `$convertToMarkdownString`
+ * directly) means research documents pick up the same handling for
+ * footnotes, math, spoilers, iframe widgets, and — via the
+ * `research-agent-block` Turndown rule — AgentBlocks.
+ *
+ * `transformHtml` runs between HTML generation and Turndown conversion;
+ * callers can use it to walk the live editor state and inject DB-fetched
+ * metadata onto specific elements as `data-*` attributes (e.g. tagging
+ * AgentBlock divs with conversation title / lastActivityAt before the
+ * `research-agent-block` Turndown rule reads them out).
+ */
+export async function getLiveLexicalMarkdown({
+  collectionName,
+  documentId,
+  postId,
+  token,
+  operationLabel,
+  transformHtml,
+}: {
+  // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
+  collectionName?: string
+  documentId?: string
+  postId?: string
+  token: string
+  operationLabel?: string
+  transformHtml?: (args: { html: string, editor: LexicalEditor }) => Promise<string> | string
+}): Promise<string> {
   return withMainDocEditorSession({
+    collectionName,
+    documentId,
     postId,
     token,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
@@ -284,10 +223,19 @@ export async function getLiveDraftMarkdown({
         });
         return generated;
       });
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
+      const processedHtml = transformHtml ? await transformHtml({ html, editor }) : html;
+      return agentMarkdownFromEditorHtml(processedHtml);
     },
   });
 }
+
+// Live-draft markdown is per-user, ephemeral, and changes any time the user
+// edits the draft. Caches at any layer (Anthropic's web_fetch, browser,
+// CDN) cause agents to read stale content on a refetch and tell the user
+// "no changes detected". Send no-store on every response from this route.
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "private, no-store, max-age=0",
+};
 
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
@@ -299,21 +247,32 @@ export async function renderLiveEditorDraftMarkdownRoute({
   const version = req.nextUrl.searchParams.get("version") ?? "draft";
 
   if (!postId) {
-    return new Response("No postId provided", { status: 400 });
+    return new Response("No postId provided", { status: 400, headers: NO_CACHE_HEADERS });
   }
 
   try {
     const resolverContext = await getContextFromReqAndRes({ req });
-    const { data: authData } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      resolverContext
-    );
-    const token = authData?.HocuspocusAuth?.token;
-
-    if (!token) {
-      return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403 });
+    const checkResult = await checkEditorTypeAndGetToken({
+      postId,
+      context: resolverContext,
+      linkSharingKey: key,
+    });
+    if (checkResult.kind === "unsupported_editor") {
+      // 200 (not 4xx) so Claude's web_fetch surfaces the body to the model.
+      return new Response(
+        `This draft uses the ${checkResult.editorType} editor and cannot be read via the agent API. ` +
+          `Only posts authored in our Lexical editor are currently supported. ` +
+          `If you are an AI agent, please tell the user that the agent draft API only supports posts written in the Lexical editor.`,
+        { status: 200, headers: NO_CACHE_HEADERS }
+      );
     }
+    if (checkResult.kind === "unauthorized") {
+      return new Response(
+        `No accessible shared draft found for postId: ${postId}`,
+        { status: 403, headers: NO_CACHE_HEADERS }
+      );
+    }
+    const token = checkResult.token;
 
     const post = key
       ? (
@@ -333,23 +292,25 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
     const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
       getLiveDraftMarkdown({ postId, token }),
-      getOpenCommentThreadsMarkdown({ postId, token }),
+      getOpenCommentThreadsMarkdown({ collectionName: "Posts", documentId: postId, token }),
     ]);
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";
 
-    return renderEditorDraftMarkdown({
+    const response = await renderEditorDraftMarkdown({
       title,
       postId: resolvedPostId,
       version,
       bodyMarkdown,
       commentThreadsMarkdown,
     });
+    response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
+    return response;
   } catch (error) {
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200 });
+    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
   }
 }
 

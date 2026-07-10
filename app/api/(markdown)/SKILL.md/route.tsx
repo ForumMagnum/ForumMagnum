@@ -1,8 +1,7 @@
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
-export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `
----
+export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `---
 name: lesswrong
 version: 2.0.0
 description: APIs for reading content on LessWrong, and helping users edit posts they share with an agent.
@@ -165,9 +164,38 @@ and the conversation. You can use the thread ID to reply to existing threads.
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
-If a quote is provided, the comment will be attached to matching quoted text. The
-quote should be long enough to be unambiguous. If no quote is provided, the
-comment will be top-level. Both the quote and your comment should be in markdown.
+If a quote is provided, the comment will be attached to matching quoted text.
+The quote should be long enough to be unambiguous. If no quote is provided, the
+comment will be top-level.
+
+The comment body is markdown. The quote, however, should be the visible rendered
+text as a reader would see it — not the markdown source of the surrounding paragraph.
+A few things to watch out for:
+ * If the text you want to anchor to contains a link, quote the visible link text,
+   not the URL. URLs inside link targets are not part of the anchorable body text
+   and will never match.
+ * If the text you want to anchor to contains a mathematical equation, quote the
+   equation's LaTeX token verbatim, exactly as the markdown API returned it —
+   inline math as \`$...$\`, display math as \`$$...$$\` (occasionally \`\\(...\\)\`
+   or \`\\[...\\]\`). An equation has no separate "visible rendered" form to quote:
+   include the whole token, delimiters and all, and don't retypeset it or change
+   its delimiter style. A longer quote may span an equation, but can't match a
+   fragment of one.
+ * Only the post body is anchorable. The post title and other metadata fields are
+   not part of the anchorable region — a quote matching those will always fail.
+ * Quote verbatim from what the markdown API returned to you. The server handles
+   typographic punctuation folding (smart quotes vs. ASCII, en/em dashes, etc.)
+   and markdown emphasis markers (**, _, \`, ~) automatically, so you do not need
+   to strip or normalize them yourself. But rephrasing, "cleaning up" the text,
+   or quoting from memory rather than from the markdown you just read will miss.
+ * Quotes must be unambiguous. A quote that matches more than one place in the
+   draft fails with a count of the occurrences — lengthen it with more
+   surrounding context rather than guessing.
+ * If the call returns a "no match" error, the likely cause is that the user
+   has edited the draft since you read it. Fetch the current state of the post
+   via /api/editPost and re-derive your quote from the fresh read before retrying.
+   Drafts are a live collaboration surface; text you read a few minutes ago may
+   no longer be present.
 
 To reply to an existing comment thread on the draft:
     POST /api/agent/replyToComment
@@ -178,10 +206,20 @@ This adds a reply to the specified thread, visible in the editor's comment panel
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }
-The quote and replacement should be in markdown. If the mode is "edit", the
-change will be applied immediately; if the mode is "suggest", the change will be
-displayed as a suggestion in the post editor. If the user hasn't said whether to
-use edit mode or suggest mode, use suggest mode.
+Note the asymmetry between the two string fields: the replacement should be in
+markdown (it's inserted into the draft and rendered through the editor's markdown
+pipeline), while the quote should be the visible rendered text as a reader would
+see it, not the markdown source. The same quote-matching rules as commentOnDraft
+apply — see that section above for details (visible link text rather than URLs,
+no need to include emphasis markers, quote verbatim from the markdown API,
+re-read the draft before retrying on "no match" errors). Quotes may span
+formatting boundaries and even paragraph boundaries. In suggest mode, a quote
+spanning paragraphs produces per-paragraph deletion suggestions plus one
+insertion; accepting it does not merge the paragraphs.
+
+If the mode is "edit", the change will be applied immediately; if the mode is
+"suggest", the change will be displayed as a suggestion in the post editor. If
+the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
 
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
@@ -194,16 +232,44 @@ that already exists in the draft. The location can be one of the following:
     "after": insert after the paragraph with the given markdown prefix
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
-bold/italic/strikethrough (no underline), and code blocks.
+bold/italic/strikethrough (no underline), inline and display LaTeX math
+(\`$...$\` and \`$$...$$\`), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
+
+Spoiler blocks (text hidden until the reader hovers) are written as one or
+more lines prefixed with \`>!\`. Consecutive \`>!\` lines form a single
+spoiler block; a bare \`>!\` line is a paragraph break inside the block:
+    >! the killer is
+    >!
+    >! the butler
+
+Collapsible sections (block content hidden behind a clickable title, collapsed
+by default) are written as a \`+++\` fence: the opening line is \`+++\` followed
+by the section title (required, non-empty), and the closing line is a bare
+\`+++\`. The body may contain any block-level markdown:
+    +++ Caveats and edge cases
+    Hidden body content with **emphasis**, lists, and
+    other block-level elements.
+    +++
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
-The prefix should be a markdown string that matches the start of a paragraph
-that already exists in the draft.
+The prefix should be a markdown string that matches the start of a top-level
+block in the draft (paragraph, heading, blockquote, table, spoiler block,
+LLM content block, display equation, …) or any individual list item. The
+prefix must match exactly one block — if several blocks start with it, the
+call fails and asks for a longer prefix — and must end within that block (a
+prefix spanning two blocks never matches). Match a list item by its own
+leading text — the matcher descends into lists at any nesting depth, so
+deleting "second item" removes just that item and leaves the surrounding
+list intact. Match a table by the leading text of its first cell; tables are
+always deleted as a whole (there is no per-cell deletion). Match a display
+equation by its whole \`$$...$$\` token.
 In edit mode, the matched block is removed immediately. In suggest mode, the
-matched block is wrapped as a deletion suggestion.
+matched block is wrapped as a deletion suggestion; a few block types (e.g.
+display equations) cannot be represented as deletion suggestions, and the
+call will fail with a note telling you to use edit mode instead.
 
 To insert an LLM content block (a visually distinct block attributed to a
 specific AI model) into the draft, make a POST request to:
@@ -214,7 +280,7 @@ specific AI model) into the draft, make a POST request to:
       markdown: string,
       location: "start"|"end"|{ before: string }|{ after: string }
     }
-The modelName is displayed in the block header (e.g. "Claude Opus 4.6"). If
+The modelName is displayed in the block header (e.g. "Claude Opus 4.7"). If
 omitted, it defaults to "AI Agent". The markdown is the content
 that will appear inside the block. The location works the same as insertBlock.
 LLM content blocks are always inserted directly (no suggest mode) because they
@@ -222,7 +288,7 @@ are explicitly labeled as AI-generated content.
 
 LLM content blocks (visually distinct blocks attributed to a specific AI model) are
 represented in the markdown output as:
-    %%% llm-output model="Claude Opus 4.6"
+    %%% llm-output model="Claude Opus 4.7"
 
     The markdown content of the block...
 
@@ -242,6 +308,12 @@ Deleting a plain paragraph:
 Deleting an LLM content block:
     { "postId": "...", "key": "...", "prefix": "%%% llm-output model=\\"GPT-4o\\"", "mode": "edit" }
 
+Deleting a single list item by its own text:
+    { "postId": "...", "key": "...", "prefix": "the second bullet", "mode": "edit" }
+
+Deleting a whole table by its first cell:
+    { "postId": "...", "key": "...", "prefix": "header cell content", "mode": "edit" }
+
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
 
@@ -259,6 +331,35 @@ Custom widgets are represented in markdown with fenced code blocks using:
     ... html/js content ...
     \`\`\`
 Newly inserted widgets will have a unique widgetId in the bracket.
+
+Widget layout. Widget iframes always render at 100% of the post-content
+column, whose width varies from ~340px on mobile up to ~700px on desktop.
+Strongly prefer responsive layouts (width: 100%, height: auto, flexbox or
+grid that adapts) over hard-coded pixel widths — a fixed pixel layout that
+fits one viewport almost certainly breaks the other.
+
+The iframe's height is auto-derived from \`document.body.offsetHeight\`
+plus body's vertical margins and re-measured on every layout change via a
+ResizeObserver the editor injects (you do not need to add one yourself).
+Reported height is clamped to 50–5000px and starts at 400px until the
+first measurement arrives, so a responsive widget that reflows taller on
+mobile simply grows to match — no per-viewport height management needed.
+For a fixed-height widget with internal scroll, set \`body { height: Xpx;
+overflow-y: auto }\`; the auto-measurement reports Xpx as expected.
+
+The widget can also override the auto-measured height imperatively from
+inside the iframe:
+    parent.postMessage({ type: 'iframe-widget-resize', height: <px> }, '*');
+In practice every layout-driven height we've seen is expressible with body
+CSS, so this is a backstop rather than a default tool — reach for it only
+when the auto-measurement is genuinely wrong for your widget.
+
+Note that the auto-measurement adds body's vertical margins to
+\`offsetHeight\`, so the browser's default ~8px body margin appears as
+narrow strips of the iframe's background above and below your content.
+If your widget has contrasting body styling (colored background, rounded
+card, etc.) and you want it edge-to-edge, reset \`html, body { margin: 0 }\`
+in the widget's CSS.
 
 To replace the HTML/JS contents of a widget, make a POST request to:
     POST /api/agent/replaceWidget

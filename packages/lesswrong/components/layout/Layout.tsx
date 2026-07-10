@@ -14,7 +14,7 @@ import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
-import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
+import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
@@ -36,7 +36,7 @@ import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isResearchRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -127,6 +127,28 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
       display: 'none !important',
     },
+    '.research-active .Header-root': {
+      display: 'none !important',
+    },
+    // Zero out the header-height custom property for the whole research
+    // subtree. `--header-height` is declared 64px on the HeaderHeightProvider
+    // span that *wraps* the page, so `.research-active` (on
+    // PageBackgroundWrapper) is a descendant of it — a `.research-active
+    // .Header-headerHeight` selector can never match. Declaring the property
+    // on `.research-active` itself overrides the inherited value for
+    // everything inside, so the full-viewport editor's
+    // `min-height: calc(100vh - var(--header-height))` fills the pane instead
+    // of leaving a 64px gap at the bottom.
+    '.research-active': {
+      '--header-height': '0px',
+    },
+    '.research-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    'body:has(.research-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
+    },
   },
   searchResultsArea: {
     position: "absolute",
@@ -161,7 +183,7 @@ const Layout = ({children}: {
 
   // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideIntercom = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
 
   let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
@@ -183,7 +205,6 @@ const Layout = ({children}: {
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
-      <AutosaveEditorStateContextProvider>
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
@@ -197,7 +218,7 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isInbox} />
+                <MaybeCookieBanner hideIntercomButton={hideIntercom} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -235,7 +256,6 @@ const Layout = ({children}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>
-      </AutosaveEditorStateContextProvider>
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
@@ -247,7 +267,6 @@ const Layout = ({children}: {
     </AnalyticsContext>
   )
 }
-
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
@@ -276,7 +295,7 @@ const LlmSidebarWrapper = ({children}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideLlmChatButton = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
@@ -285,7 +304,7 @@ const LlmSidebarWrapper = ({children}: {
     setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
   }, [setCookie]);
 
-  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !isInbox;
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !hideLlmChatButton;
 
   return <div className={classes.topLevelContainer}>
     <div className={classes.pageContent}>
@@ -342,6 +361,7 @@ function PageBackgroundWrapper({children}: {
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
       'home-design-active': isSandboxedHomePage,
+      'research-active': isResearchRoute(pathname),
     },
   )}>
     {children}

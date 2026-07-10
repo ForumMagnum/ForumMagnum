@@ -18,9 +18,9 @@ assertRouteAttributes("/w/[slug]/discussion", {
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   return <RouteRoot subtitle={TagPageSubtitle}>
     <TagDiscussionPage slug={slug} />
   </RouteRoot>;
 }
-

@@ -41,7 +41,11 @@ export class SpoilerNode extends ElementNode {
   static importDOM(): DOMConversionMap | null {
     return {
       div: (node: HTMLElement) => {
-        if (node.classList.contains('spoilers')) {
+        // `spoilers` is the canonical wrapper class produced by Lexical
+        // export and `wrapSpoilerTags`; `spoiler` is the legacy class
+        // emitted by the markdown-it `:::spoiler` container, accepted here
+        // so old posts and `:::spoiler`-syntax markdown round-trip too.
+        if (node.classList.contains('spoilers') || node.classList.contains('spoiler')) {
           return {
             conversion: convertSpoilerElement,
             priority: 1,

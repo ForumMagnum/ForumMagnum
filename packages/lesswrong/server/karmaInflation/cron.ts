@@ -1,8 +1,6 @@
-import { DatabaseMetadata } from "../../server/collections/databaseMetadata/collection";
-import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
+import type { TimeSeries } from '../../lib/collections/posts/karmaInflation';
 import PostsRepo from '../repos/PostsRepo';
 import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
-import { backgroundTask } from "../utils/backgroundTask";
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
@@ -42,22 +40,12 @@ export async function refreshKarmaInflation() {
     values: values
   };
 
-  // insert the new series into the db
+  // insert the new series into the db; web servers pick it up via the TTL
+  // cache in getKarmaInflationSeries
   try {
     await new DatabaseMetadataRepo().upsertKarmaInflationSeries(karmaInflationSeries);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
   }
-
-  // TODO: fix this to work in serverless world; right now it's setting a global state variable
-  // refresh the cache after every update
-  // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,
-  // but seeing as this is a cron job it doesn't really matter
-  await refreshKarmaInflationCache();
-}
-
-export async function refreshKarmaInflationCache() {
-  const karmaInflationSeries = await DatabaseMetadata.findOne({ name: "karmaInflationSeries" });
-  setKarmaInflationSeries(karmaInflationSeries?.value || nullKarmaInflationSeries);
 }

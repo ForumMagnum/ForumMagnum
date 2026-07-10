@@ -25,7 +25,7 @@ import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import { backgroundTask } from "../utils/backgroundTask";
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import {
   loadMultipleEntitiesById,
   createUltraFeedResponse,
@@ -38,6 +38,8 @@ import {
   convertFetchedItemsToRankable,
   mapRankedIdsToSampledItems,
 } from '../ultraFeed/ultraFeedRankingConverters';
+import { scoreAllUltraFeedItems } from '../ultraFeed/ultraFeedRanking';
+import { buildRankingConfigFromSettings } from '../ultraFeed/ultraFeedRankingConfig';
 import UltraFeedEvents from "../collections/ultraFeedEvents/collection";
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
@@ -652,7 +654,8 @@ export const ultraFeedGraphQLQueries = {
       const engagementStatsListPromise = userIdOrClientId && commentFetchLimit > 0
         ? context.repos.comments.getThreadEngagementStatsForRecentlyActiveThreads(
             userIdOrClientId,
-            ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+            ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+            sessionId
           )
         : Promise.resolve<ThreadEngagementStats[]>([]);
 
@@ -700,6 +703,32 @@ export const ultraFeedGraphQLQueries = {
         engagementStatsMap,
         new Date()
       );
+
+      if (parsedSettings.debugMode && currentUser && userIsAdminOrMod(currentUser)) {
+        const debugRankedItemsWithMetadata = scoreAllUltraFeedItems(
+          rankableItems,
+          buildRankingConfigFromSettings(parsedSettings.unifiedScoring),
+        );
+
+        const debugItems = mapRankedIdsToSampledItems(
+          debugRankedItemsWithMetadata,
+          combinedPostItems,
+          commentThreadsItemsResult,
+          spotlightItemsResult,
+          bookmarkItemsResult
+        );
+
+        const { spotlightIds, commentIds, postIds } = extractIdsToLoad(debugItems);
+        const { postsById, commentsById, spotlightsById } = await loadMultipleEntitiesById(context, {
+          posts: postIds,
+          comments: commentIds,
+          spotlights: spotlightIds
+        });
+
+        const results = transformItemsForResolver(debugItems, spotlightsById, commentsById, postsById);
+
+        return createUltraFeedResponse(results, offset ?? 0, sessionId, null);
+      }
 
       const algorithmName = parsedSettings.algorithm as UltraFeedAlgorithmName;
       const algorithm = getAlgorithm(algorithmName, currentUser);

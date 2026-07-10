@@ -99,6 +99,40 @@ export function createThread(
   };
 }
 
+/**
+ * Read a comment out of its shared-map representation. Unlike the
+ * `createComment` factory, missing fields map to inert defaults rather than
+ * freshly minted ids/timestamps, so repeated reads of the same map are
+ * stable.
+ */
+export function readCommentFromYMap(map: YMap<unknown>): Comment {
+  return {
+    type: 'comment',
+    id: (map.get('id') as string) ?? '',
+    author: (map.get('author') as string) ?? 'Unknown',
+    authorId: (map.get('authorId') as string) ?? '',
+    content: (map.get('content') as string) ?? '',
+    deleted: (map.get('deleted') as boolean) ?? false,
+    timeStamp: (map.get('timeStamp') as number) ?? 0,
+    commentKind: map.get('commentKind') as Comment['commentKind'],
+  };
+}
+
+/** Read a thread (including its comments) out of its shared-map representation. */
+export function readThreadFromYMap(map: YMap<unknown>): Thread {
+  return {
+    type: 'thread',
+    id: (map.get('id') as string) ?? '',
+    quote: (map.get('quote') as string) ?? '',
+    markID: map.get('markID') as string | undefined,
+    status: map.get('status') as ThreadStatus | undefined,
+    statusBeforeReopen: map.get('statusBeforeReopen') as ThreadStatus | undefined,
+    threadType: map.get('threadType') as ThreadType | undefined,
+    comments: ((map.get('comments') as YArray<unknown> | undefined)?.toArray() ?? [])
+      .map((comment) => readCommentFromYMap(comment as YMap<unknown>)),
+  };
+}
+
 function cloneThread(thread: Thread): Thread {
   return {
     comments: Array.from(thread.comments),
@@ -532,50 +566,10 @@ export class CommentStore {
                   .reverse()
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   .forEach((map: YMap<any>) => {
-                    const id = map.get('id');
-                    const type = map.get('type');
-
                     const commentOrThread =
-                      type === 'thread'
-                        ? createThread(
-                            map.get('quote'),
-                            map
-                              .get('comments')
-                              .toArray()
-                              .map(
-                                (
-                                  innerComment: Map<
-                                    string,
-                                    string | number | boolean
-                                  >,
-                                ) =>
-                                  createComment(
-                                    innerComment.get('content') as string,
-                                    innerComment.get('author') as string,
-                                    innerComment.get('authorId') as string,
-                                    innerComment.get('id') as string,
-                                    innerComment.get('timeStamp') as number,
-                                    innerComment.get('deleted') as boolean,
-                                    innerComment.get('commentKind') as Comment['commentKind'],
-                                  ),
-                              ),
-                            id,
-                            {
-                              markID: map.get('markID') as string | undefined,
-                              status: map.get('status') as ThreadStatus | undefined,
-                              statusBeforeReopen: map.get('statusBeforeReopen') as ThreadStatus | undefined,
-                              threadType: map.get('threadType') as ThreadType | undefined,
-                            },
-                          )
-                        : createComment(
-                            map.get('content'),
-                            map.get('author'),
-                            map.get('authorId') as string,
-                            id,
-                            map.get('timeStamp'),
-                            map.get('deleted'),
-                            map.get('commentKind') as Comment['commentKind'],
-                          );
+                      map.get('type') === 'thread'
+                        ? readThreadFromYMap(map)
+                        : readCommentFromYMap(map);
                     this._withLocalTransaction(() => {
                       this.addComment(
                         commentOrThread,

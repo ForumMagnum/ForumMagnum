@@ -98,6 +98,10 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return null;
     case 'dialogueMatchPreference':
       return null;
+    case 'typoSuggestion':
+      return null;
+    case 'researchDocument':
+      return null;
     default:
       //eslint-disable-next-line no-console
       console.error(`Invalid documentType type: ${documentType}`);

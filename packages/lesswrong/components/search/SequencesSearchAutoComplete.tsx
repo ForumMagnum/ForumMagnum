@@ -8,6 +8,7 @@ const SequencesSearchAutoComplete = ({clickAction}: {
 }) => {
   return <SearchAutoComplete
     indexName={getSearchIndexName("Sequences")}
+    resultType="Sequences"
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <SequencesSearchHit hit={hit} clickAction={clickAction} />}
     placeholder='Search for sequences'

@@ -52,7 +52,7 @@ function returnFalse(x: any) { return false; }
 export function HookCollection(this: any): any { }
 
 HookCollection.prototype = {
-  chain: function(hookname: string, func: any) {
+  chain: function(this: any, hookname: string, func: any) {
     var original = this[hookname];
     if (!original)
       throw new Error('unknown hook ' + hookname);
@@ -67,15 +67,15 @@ HookCollection.prototype = {
       };
     }
   },
-  set: function(hookname: string, func: any) {
+  set: function(this: any, hookname: string, func: any) {
     if (!this[hookname])
     throw new Error('unknown hook ' + hookname);
     this[hookname] = func;
   },
-  addNoop: function(hookname: string) {
+  addNoop: function(this: any, hookname: string) {
     this[hookname] = identity;
   },
-  addFalse: function(hookname: string) {
+  addFalse: function(this: any, hookname: string) {
     this[hookname] = returnFalse;
   }
 };
@@ -89,10 +89,10 @@ HookCollection.prototype = {
 // to be a problem)
 function SaveHash() { }
 SaveHash.prototype = {
-  set: function(key: any, value: any) {
+  set: function(this: any, key: any, value: any) {
     this['s_' + key] = value;
   },
-  get: function(key: any) {
+  get: function(this: any, key: any): any {
     return this['s_' + key];
   }
 };

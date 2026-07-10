@@ -5,6 +5,7 @@ import { $isLLMContentBlockNode, } from './LLMContentBlockNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useStopLexicalEventPropagation } from '../useStopLexicalEventPropagation';
 import { isEditorInSuggestionMode } from './LLMContentBlockPlugin';
 
 const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
@@ -16,6 +17,7 @@ const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
 }));
 
 const LLM_MODEL_OPTIONS = [
+  'Claude Opus 4.7',
   'Claude Opus 4.6',
   'Claude Opus 4.5',
   'Claude Opus 3',
@@ -35,38 +37,6 @@ const LLM_MODEL_OPTIONS = [
   'DeepSeek v3.2',
   'Kimi K2.5'
 ] as const;
-
-/**
- * Lexical attaches native keydown/beforeinput listeners on the editor root
- * that intercept keyboard events and handle them as editor commands (e.g.
- * Cmd+Z → undo editor state, Opt+Backspace → delete word in editor). When
- * a user types in our <input>, those events bubble up to the root and get
- * consumed by Lexical before the input can process them, breaking undo,
- * word-delete shortcuts, and normal typing.
- *
- * We stop propagation at the input element using native DOM listeners
- * (not React synthetic events, which fire after native bubbling has already
- * delivered the event to Lexical's handlers).
- */
-function useStopEventPropagation(ref: React.RefObject<HTMLInputElement | null>) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const stop = (e: Event) => e.stopPropagation();
-    el.addEventListener('keydown', stop);
-    el.addEventListener('keyup', stop);
-    el.addEventListener('keypress', stop);
-    el.addEventListener('beforeinput', stop);
-
-    return () => {
-      el.removeEventListener('keydown', stop);
-      el.removeEventListener('keyup', stop);
-      el.removeEventListener('keypress', stop);
-      el.removeEventListener('beforeinput', stop);
-    };
-  }, [ref]);
-}
 
 const PLACEHOLDER = 'Unknown Model';
 
@@ -102,7 +72,7 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
     }
   }, [localValue]);
 
-  useStopEventPropagation(inputRef);
+  useStopLexicalEventPropagation(inputRef);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

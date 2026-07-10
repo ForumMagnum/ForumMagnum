@@ -315,7 +315,6 @@ const ExternalPostImporter = ({defaultPostedAt}: { defaultPostedAt?: Date }) => 
       // Create the comment
       const commentData = {
         postId: post._id,
-        userId: currentUser._id,
         reviewingForReview: new Date().getFullYear().toString(),
         contents: {
           originalContents: {

@@ -2,7 +2,8 @@
 
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, type TabId, REVIEW_GROUP_TO_PRIORITY } from './groupings';
+import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
+import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 
@@ -30,7 +31,7 @@ export type InboxState = {
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view

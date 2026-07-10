@@ -10,10 +10,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
 import { EditablePost, postGetEditUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EAButton from "../ea-forum/EAButton";
 import { EditableUsersList } from "./EditableUsersList";
@@ -85,18 +83,10 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  return isFriendlyUI()
-    ? (
-      <ForumIcon icon="Share" {...props} />
-    )
-    : (
-      <PersonAddIcon {...props} />
-    );
+  return <PersonAddIcon {...props} />;
 }
 
-const getNoSharePermissionTooltip = () => isFriendlyUI()
-  ? "You need at least 1 karma or to be approved by a moderator to share this post"
-  : "You need at least 1 karma or to be approved by a mod to share";
+const noSharePermissionTooltip = "You need to be logged in to share";
 
 interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;
@@ -171,7 +161,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
   const canUseSharing = userCanUseSharing(currentUser)
 
   const tooltipTitle = !canUseSharing
-    ? getNoSharePermissionTooltip()
+    ? noSharePermissionTooltip
     : iconOnly
       ? "Share"
       : undefined;

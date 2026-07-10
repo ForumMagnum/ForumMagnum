@@ -6,6 +6,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import SingleUsersItem from "./SingleUsersItem";
 import ErrorBoundary from "../common/ErrorBoundary";
 import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 
 const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
@@ -55,10 +56,12 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
     <>
       <div className={classes.root}>
         <ErrorBoundary>
-          <UsersSearchAutoComplete
-            clickAction={addUserId}
-            label={post.collabEditorDialogue ? "Add participant" : label}
-            />
+          <AnalyticsContext pageElementContext="coauthorsEditor">
+            <UsersSearchAutoComplete
+              clickAction={addUserId}
+              label={post.collabEditorDialogue ? "Add participant" : label}
+              />
+          </AnalyticsContext>
         </ErrorBoundary>
         <SortableList
           axis="xy"

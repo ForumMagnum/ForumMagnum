@@ -7,7 +7,6 @@ import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServer
 import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { captureException } from '@/lib/sentryWrapper';
 import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 
@@ -20,17 +19,13 @@ function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel)
   }
 }
 
-const formTypeValidator = z.enum(["edit", "new"]).nullable();
-
 function extractHeaders(req: NextRequest) {
   const referer = req.headers.get('referer');
   const collectionName = req.headers.get('collection-name');
   const documentId = req.headers.get('document-id') ?? undefined;
-  const userId = req.headers.get('user-id') ?? undefined;
-  const rawFormType = req.headers.get('form-type');
   const linkSharingKey = req.headers.get('link-sharing-key');
 
-  return { referer, collectionName, documentId, userId, rawFormType, linkSharingKey };
+  return { referer, collectionName, documentId, linkSharingKey };
 }
 
 function handleErrorAndReturn(req: NextRequest, error: Error) {
@@ -46,8 +41,8 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   const environmentId = getCkEditorEnvironmentId();
   const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
 
-  const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
-  
+  const { collectionName, documentId, linkSharingKey } = extractHeaders(req);
+
   if (!collectionName || collectionName.includes(",")) {
     const error = new Error("Missing or multiple collectionName headers");
     return handleErrorAndReturn(req, error);
@@ -55,11 +50,6 @@ export async function ckEditorTokenHandler(req: NextRequest) {
 
   if (documentId?.includes(",")) {
     const error = new Error("Multiple documentId headers");
-    return handleErrorAndReturn(req, error);
-  }
-  
-  if (userId?.includes(",")) {
-    const error = new Error("Multiple userId headers");
     return handleErrorAndReturn(req, error);
   }
 
@@ -79,18 +69,15 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   });
     
   if (collectionName === "Posts") {
-    const parsedFormType = formTypeValidator.safeParse(rawFormType);
-    if (!parsedFormType.success) {
-      const error = new Error("Invalid formType header");
+    if (!documentId) {
+      const error = new Error("Missing documentId header for Posts token request");
       return handleErrorAndReturn(req, error);
     }
-  
-    const formType = parsedFormType.data;
-  
-    const ckEditorId = getCKEditorDocumentId(documentId, userId, formType ?? undefined)
-    const post = documentId ? await Posts.findOne(documentId) : null;
-    const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, context: contextWithKey, useAdminPowers: true }) : "edit";
-  
+
+    const ckEditorId = getCKEditorDocumentId(documentId);
+    const post = await Posts.findOne(documentId);
+    const access = await getCollaborativeEditorAccess({ formType: "edit", post, user, context: contextWithKey, useAdminPowers: true });
+
     if (access === "none") {
       return new Response("Access denied", { status: 403 });
     }

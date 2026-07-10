@@ -10,11 +10,10 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
+import { $postMarkdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -38,12 +37,13 @@ function $createLLMContentBlockFromMarkdown(
   editor: LexicalEditor,
   modelName: string,
   markdown: string,
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[],
 ): LexicalNode {
   const containerNode = $createLLMContentBlockNode(modelName);
   const headerNode = $createLLMContentBlockHeaderNode();
   const contentNode = $createLLMContentBlockContentNode();
 
-  const contentChildren = $markdownToNodes(editor, markdown);
+  const contentChildren = markdownToNodes(editor, markdown);
   if (contentChildren.length === 0) {
     contentNode.append($createParagraphNode());
   } else {
@@ -57,23 +57,25 @@ function $createLLMContentBlockFromMarkdown(
   return containerNode;
 }
 
-function $insertLLMBlockInEditor({
+export function $insertLLMBlockInEditor({
   editor,
   modelName,
   location,
   markdown,
+  markdownToNodes,
 }: {
   editor: LexicalEditor
   modelName: string
   location: InsertLocation
   markdown: string
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
 }): InsertLLMBlockResult {
-  const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown);
+  const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown, markdownToNodes);
 
   const root = $getRoot();
-  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
   if (insertionIndex === null) {
-    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+    return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
   root.splice(insertionIndex, 0, [blockNode]);
@@ -106,7 +108,10 @@ async function insertLLMBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          result = $insertLLMBlockInEditor({ editor, modelName, location, markdown });
+          result = $insertLLMBlockInEditor({
+            editor, modelName, location, markdown,
+            markdownToNodes: $postMarkdownToNodes,
+          });
         }, { onUpdate: resolve });
       });
 
@@ -133,17 +138,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
 
     const result = await insertLLMBlock({
       postId,

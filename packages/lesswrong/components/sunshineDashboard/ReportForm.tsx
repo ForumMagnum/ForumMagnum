@@ -29,8 +29,7 @@ const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
-  userId: string,
+const ReportForm = ({ postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   postId?: string,
   commentId?: string,
   reportedUserId?: string,
@@ -51,7 +50,6 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const defaultValues = {
-    userId,
     postId,
     reportedUserId,
     commentId,

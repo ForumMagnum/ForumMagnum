@@ -24,6 +24,16 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
+const UserTooltipProfileQuery = gql(`
+  query userTooltipProfileQuery($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersProfile
+      }
+    }
+  }
+`);
+
 const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
   root: {
     display: "flex",
@@ -94,6 +104,14 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
     notifyOnNetworkStatusChange: true,
   });
 
+  const { data: profileData } = useQuery(UserTooltipProfileQuery, {
+    variables: { documentId: user._id },
+  });
+
+  const enrichedUser = profileData?.user?.result
+    ? { ...user, voteReceivedCount: profileData.user.result.voteReceivedCount }
+    : user;
+
   const results = data?.posts?.results;
 
 
@@ -102,7 +120,7 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
       <div className={classes.header}>
         <div className={classes.name}>{displayName}</div>
         <div className={classes.metaRow}>
-          <UserMetaInfo user={user} />
+          <UserMetaInfo user={enrichedUser} />
           {!hideFollowButton && userHasSubscribeTabFeed(currentUser) && <FollowUserButton user={user} />}
         </div>
       </div>

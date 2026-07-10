@@ -391,7 +391,7 @@ MatchBinarySearchTree.prototype = {
      *
      * @param {Match} value The match to add to the binary search tree.
      */
-    add: function (value: any){
+    add: function (this: any, value: any){
         // Create the node to hold the match value.
         var node = {
             value: value,
@@ -439,7 +439,7 @@ MatchBinarySearchTree.prototype = {
      *
      * @return {Array.<Match>} An array containing the matches in the binary search tree.
      */
-    toArray: function(){
+    toArray: function(this: any){
         function inOrder(node: any, nodes: any){
             if (node){
                 inOrder(node.left, nodes);

@@ -35,6 +35,7 @@ import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/s
 import { userContentFeedGraphQLQueries, userContentFeedGraphQLTypeDefs } from '@/server/resolvers/userContentFeedResolver';
 import { tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
+import { researchResolversTypeDefs, researchResolversMutations, researchResolversQueries } from '@/server/resolvers/researchResolvers'
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -128,6 +129,11 @@ import { graphqlRssfeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldRe
 import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
 import { graphqlRecommendationsCacheQueryTypeDefs, recommendationsCacheGqlFieldResolvers } from "@/server/collections/recommendationsCaches/queries";
 import { graphqlReportQueryTypeDefs, reportGqlQueryHandlers, reportGqlFieldResolvers } from "@/server/collections/reports/queries";
+import { graphqlResearchConversationEventQueryTypeDefs, researchConversationEventGqlQueryHandlers, researchConversationEventGqlFieldResolvers } from "@/server/collections/researchConversationEvents/queries";
+import { graphqlResearchConversationQueryTypeDefs, researchConversationGqlQueryHandlers, researchConversationGqlFieldResolvers } from "@/server/collections/researchConversations/queries";
+import { graphqlResearchDocumentQueryTypeDefs, researchDocumentGqlQueryHandlers, researchDocumentGqlFieldResolvers } from "@/server/collections/researchDocuments/queries";
+import { graphqlResearchEnvironmentQueryTypeDefs, researchEnvironmentGqlQueryHandlers, researchEnvironmentGqlFieldResolvers } from "@/server/collections/researchEnvironments/queries";
+import { graphqlResearchProjectQueryTypeDefs, researchProjectGqlQueryHandlers, researchProjectGqlFieldResolvers } from "@/server/collections/researchProjects/queries";
 import { graphqlReviewVoteQueryTypeDefs, reviewVoteGqlQueryHandlers, reviewVoteGqlFieldResolvers } from "@/server/collections/reviewVotes/queries";
 import { graphqlReviewWinnerArtQueryTypeDefs, reviewWinnerArtGqlQueryHandlers, reviewWinnerArtGqlFieldResolvers } from "@/server/collections/reviewWinnerArts/queries";
 import { graphqlReviewWinnerQueryTypeDefs, reviewWinnerGqlQueryHandlers, reviewWinnerGqlFieldResolvers } from "@/server/collections/reviewWinners/queries";
@@ -160,6 +166,8 @@ import { createConversationGqlMutation, updateConversationGqlMutation, graphqlCo
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { homePageDesignGqlMutations, graphqlHomePageDesignMutationTypeDefs } from "@/server/collections/homePageDesigns/mutations";
+import { graphqlTypoSuggestionQueryTypeDefs, typoSuggestionGqlQueryHandlers, typoSuggestionGqlFieldResolvers } from "@/server/collections/typoSuggestions/queries";
+import { graphqlTypoSuggestionMutationTypeDefs, typoSuggestionGqlMutations } from "@/server/resolvers/typoSuggestionResolvers";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
@@ -175,6 +183,10 @@ import { createPodcastEpisodeGqlMutation, graphqlPodcastEpisodeTypeDefs } from "
 import { createPostGqlMutation, updatePostGqlMutation, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
 import { createRSSFeedGqlMutation, updateRSSFeedGqlMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
 import { createReportGqlMutation, updateReportGqlMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
+import { updateResearchConversationGqlMutation, graphqlResearchConversationTypeDefs } from "@/server/collections/researchConversations/mutations";
+import { updateResearchEnvironmentGqlMutation, graphqlResearchEnvironmentTypeDefs } from "@/server/collections/researchEnvironments/mutations";
+import { createResearchDocumentGqlMutation, updateResearchDocumentGqlMutation, graphqlResearchDocumentTypeDefs } from "@/server/collections/researchDocuments/mutations";
+import { createResearchProjectGqlMutation, updateResearchProjectGqlMutation, graphqlResearchProjectTypeDefs } from "@/server/collections/researchProjects/mutations";
 import { updateRevisionGqlMutation, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
 import { createSequenceGqlMutation, updateSequenceGqlMutation, graphqlSequenceTypeDefs } from "@/server/collections/sequences/mutations";
 import { createSplashArtCoordinateGqlMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
@@ -263,6 +275,7 @@ export const getTypeDefs = () => gql`
   ${tagHistoryFeedGraphQLTypeDefs}
   ${userContentFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
+  ${researchResolversTypeDefs}
   ${tagGraphQLTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
@@ -332,6 +345,7 @@ export const getTypeDefs = () => gql`
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
@@ -361,6 +375,11 @@ export const getTypeDefs = () => gql`
   ${graphqlReadStatusQueryTypeDefs}
   ${graphqlRecommendationsCacheQueryTypeDefs}
   ${graphqlReportQueryTypeDefs}
+  ${graphqlResearchConversationEventQueryTypeDefs}
+  ${graphqlResearchConversationQueryTypeDefs}
+  ${graphqlResearchDocumentQueryTypeDefs}
+  ${graphqlResearchEnvironmentQueryTypeDefs}
+  ${graphqlResearchProjectQueryTypeDefs}
   ${graphqlReviewVoteQueryTypeDefs}
   ${graphqlReviewWinnerArtQueryTypeDefs}
   ${graphqlReviewWinnerQueryTypeDefs}
@@ -394,6 +413,7 @@ export const getTypeDefs = () => gql`
   ${graphqlCurationNoticeTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
   ${graphqlHomePageDesignMutationTypeDefs}
+  ${graphqlTypoSuggestionMutationTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -408,6 +428,10 @@ export const getTypeDefs = () => gql`
   ${graphqlPostTypeDefs}
   ${graphqlRSSFeedTypeDefs}
   ${graphqlReportTypeDefs}
+  ${graphqlResearchConversationTypeDefs}
+  ${graphqlResearchEnvironmentTypeDefs}
+  ${graphqlResearchDocumentTypeDefs}
+  ${graphqlResearchProjectTypeDefs}
   ${graphqlRevisionTypeDefs}
   ${graphqlSequenceTypeDefs}
   ${graphqlSplashArtCoordinateTypeDefs}
@@ -468,6 +492,7 @@ const getResolvers = () => ({
     ...booksResolversQueries,
     ...sequencesResolversQueries,
     ...reviewPredictionGraphQLQueries,
+    ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers
@@ -488,6 +513,7 @@ const getResolvers = () => ({
     ...elicitQuestionGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...homePageDesignGqlQueryHandlers,
+    ...typoSuggestionGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
@@ -505,6 +531,11 @@ const getResolvers = () => ({
     ...postGqlQueryHandlers,
     ...rssfeedGqlQueryHandlers,
     ...reportGqlQueryHandlers,
+    ...researchConversationEventGqlQueryHandlers,
+    ...researchConversationGqlQueryHandlers,
+    ...researchDocumentGqlQueryHandlers,
+    ...researchEnvironmentGqlQueryHandlers,
+    ...researchProjectGqlQueryHandlers,
     ...reviewVoteGqlQueryHandlers,
     ...reviewWinnerArtGqlQueryHandlers,
     ...reviewWinnerGqlQueryHandlers,
@@ -541,6 +572,7 @@ const getResolvers = () => ({
     ...postGqlMutations,
     ...alignmentForumMutations,
     ...conversationGqlMutations,
+    ...researchResolversMutations,
     ...databaseSettingsGqlMutations,
     ...ckEditorCallbacksGraphQLMutations,
     ...importUrlAsDraftPostGqlMutation,
@@ -551,6 +583,7 @@ const getResolvers = () => ({
     ...tagResolversGraphQLMutations,
     ...bookmarkGqlMutations,
     ...homePageDesignGqlMutations,
+    ...typoSuggestionGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
@@ -609,6 +642,12 @@ const getResolvers = () => ({
     createRSSFeed: createRSSFeedGqlMutation,
     updateRSSFeed: updateRSSFeedGqlMutation,
     createReport: createReportGqlMutation,
+    createResearchDocument: createResearchDocumentGqlMutation,
+    createResearchProject: createResearchProjectGqlMutation,
+    updateResearchConversation: updateResearchConversationGqlMutation,
+    updateResearchEnvironment: updateResearchEnvironmentGqlMutation,
+    updateResearchDocument: updateResearchDocumentGqlMutation,
+    updateResearchProject: updateResearchProjectGqlMutation,
     updateReport: updateReportGqlMutation,
     updateRevision: updateRevisionGqlMutation,
     createSequence: createSequenceGqlMutation,
@@ -662,6 +701,7 @@ const getResolvers = () => ({
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
+  ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,
@@ -691,6 +731,11 @@ const getResolvers = () => ({
   ...readStatusGqlFieldResolvers,
   ...recommendationsCacheGqlFieldResolvers,
   ...reportGqlFieldResolvers,
+  ...researchConversationEventGqlFieldResolvers,
+  ...researchConversationGqlFieldResolvers,
+  ...researchDocumentGqlFieldResolvers,
+  ...researchEnvironmentGqlFieldResolvers,
+  ...researchProjectGqlFieldResolvers,
   ...reviewVoteGqlFieldResolvers,
   ...reviewWinnerArtGqlFieldResolvers,
   ...reviewWinnerGqlFieldResolvers,

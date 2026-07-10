@@ -11,6 +11,8 @@ import TagSearchHit from "./TagSearchHit";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from '../search/useSearchAnalytics';
 
 const styles = defineStyles("AddTagOrWikiPage", (theme: ThemeType) => ({
   root: {
@@ -47,9 +49,13 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const indexName = getSearchIndexName("Tags");
+  const captureSearchState = useCaptureSearchStateChange("addTagOrWikiPage", "Tags", indexName);
+  const captureResultSelected = useCaptureSearchResultSelected();
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
-  }, []);
+    captureSearchState(searchState);
+  }, [captureSearchState]);
   const inputRef = useRef<HTMLInputElement|null>(null);
 
   // When this appears, yield to the event loop once, use getElementsByTagName
@@ -93,9 +99,10 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
     </div>
   }
 
-  return <div className={classes.root} ref={containerRef}>
+  return <AnalyticsContext pageElementContext="addTagOrWikiPage">
+    <div className={classes.root} ref={containerRef}>
     <InstantSearch
-      indexName={getSearchIndexName("Tags")}
+      indexName={indexName}
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
@@ -111,6 +118,12 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
         <TagSearchHit
           hit={hit}
           onClick={ev => {
+            captureResultSelected({
+              resultId: hit._id,
+              resultType: "Tags",
+              indexName,
+              context: "addTagOrWikiPage",
+            });
             onTagSelected({
               tagId: hit._id,
               tagName: hit.name,
@@ -136,6 +149,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       </Link>}
     </>}
   </div>
+  </AnalyticsContext>
 }
 
 export default AddTagOrWikiPage

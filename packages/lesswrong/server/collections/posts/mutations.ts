@@ -1,7 +1,9 @@
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
+import { postStatuses } from "@/lib/collections/posts/constants";
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
+import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulcan-users/permissions";
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
@@ -23,6 +25,39 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+
+const postCountsForCoauthoredPostCount = (post: DbPost) => (
+  !post.draft && !post.rejected && post.status === postStatuses.STATUS_APPROVED
+);
+
+const getUniqueCoauthorUserIds = (post: DbPost) => [...new Set(post.coauthorUserIds ?? [])];
+
+const updateCoauthoredPostCounts = async (context: ResolverContext, userIds: string[], increment: 1 | -1) => {
+  if (!userIds.length) {
+    return;
+  }
+
+  await context.Users.rawUpdateMany(
+    { _id: { $in: userIds } },
+    { $inc: { coauthoredPostCount: increment } },
+  );
+};
+
+const updateCoauthoredPostCountsAfterPostUpdate = async (
+  context: ResolverContext,
+  updatedDocument: DbPost,
+  oldDocument: DbPost,
+) => {
+  const oldCoauthorIds = postCountsForCoauthoredPostCount(oldDocument) ? getUniqueCoauthorUserIds(oldDocument) : [];
+  const newCoauthorIds = postCountsForCoauthoredPostCount(updatedDocument) ? getUniqueCoauthorUserIds(updatedDocument) : [];
+  const oldCoauthorIdSet = new Set(oldCoauthorIds);
+  const newCoauthorIdSet = new Set(newCoauthorIds);
+  const removedCoauthorIds = oldCoauthorIds.filter((userId) => !newCoauthorIdSet.has(userId));
+  const addedCoauthorIds = newCoauthorIds.filter((userId) => !oldCoauthorIdSet.has(userId));
+
+  await updateCoauthoredPostCounts(context, removedCoauthorIds, -1);
+  await updateCoauthoredPostCounts(context, addedCoauthorIds, 1);
+};
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
@@ -67,6 +102,12 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
 export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   const callbackProps = await getLegacyCreateCallbackProps('Posts', {
     context,
@@ -169,6 +210,12 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
 export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext) {
   const { currentUser, Posts } = context;
 
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
+
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in FieldChanges
   const origData = cloneDeep(data);
@@ -225,6 +272,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   });
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
+  await updateCoauthoredPostCountsAfterPostUpdate(context, updatedDocument, oldDocument);
 
   // former updateAsync callbacks
   await eventUpdatedNotifications(updateCallbackProperties);

@@ -1,7 +1,7 @@
 import { createEditor, $nodesOfType } from 'lexical';
 import type { LexicalEditor } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
-import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
+import allLexicalNodes from '@/components/lexical/nodes/allLexicalNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { ProtonNode, $isSuggestionNode } from './ProtonNode';
 import { $rejectAllSuggestions } from './rejectAllSuggestions';
@@ -31,7 +31,7 @@ export function getDataWithDiscardedSuggestions(editor: LexicalEditor): string |
   // serialize the state.
   const headlessEditor = createEditor({
     namespace: 'SuggestionRejection',
-    nodes: [...PlaygroundNodes],
+    nodes: allLexicalNodes,
     theme: PlaygroundEditorTheme,
     onError: (error) => {
       // eslint-disable-next-line no-console

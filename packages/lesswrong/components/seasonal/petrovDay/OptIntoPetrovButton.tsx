@@ -206,14 +206,13 @@ const OptIntoPetrovButton = () => {
       return
     }
     if (confirmationCode === currentUser.displayName) {
-      void createPetrovDayAction({  
+      void createPetrovDayAction({
         variables: {
           data: {
-            userId: currentUser._id,
             actionType: 'optIn',
           }
         }
-      }) 
+      })
       setDisplayOptedIn(true)
       await refetchPetrovDayActions()
     } else {

@@ -398,7 +398,7 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
       selector: hasPinnedPosts
         ? { default: { exactPostIds: pinnedPostIds } }
         : (userId
-          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null } }
+          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null, filter: "notRejected" } }
           : undefined
         ),
       limit: TOP_POSTS_LIMIT,
@@ -409,9 +409,10 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
 
   // When using pinned posts, reorder results to match the pinned order.
   const postResults = data?.posts?.results ?? [];
+  const visiblePostResults = postResults.filter(post => !post.rejected);
   const topPosts = hasPinnedPosts
-    ? filterNonnull(pinnedPostIds.map(id => postResults.find(p => p._id === id)))
-    : postResults;
+    ? filterNonnull(pinnedPostIds.map(id => visiblePostResults.find(p => p._id === id)))
+    : visiblePostResults;
 
   return <UserProfileTopPostsSectionInner user={user} topPosts={topPosts} />
 }

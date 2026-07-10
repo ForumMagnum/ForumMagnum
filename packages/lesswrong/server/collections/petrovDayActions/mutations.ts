@@ -37,7 +37,7 @@ async function newCheck(user: DbUser | null, document: CreatePetrovDayActionData
   return false
 }
 
-export async function createPetrovDayAction({ data }: CreatePetrovDayActionInput, context: ResolverContext) {
+export async function createPetrovDayAction({ data }: { data: CreatePetrovDayActionDataInput & { userId?: string } }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('PetrovDayActions', {

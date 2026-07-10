@@ -3,6 +3,14 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/he
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
+  collectionName: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+      defaultValue: "Posts",
+      canAutofillDefault: true,
+    },
+  },
   documentId: {
     database: {
       type: "TEXT",

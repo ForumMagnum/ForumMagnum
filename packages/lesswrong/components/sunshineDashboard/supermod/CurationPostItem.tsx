@@ -92,7 +92,7 @@ const styles = defineStyles('CurationPostItem', (theme: ThemeType) => ({
 }));
 
 const CurationPostItem = ({post, isFocused, onFocus}: {
-  post: SunshineCurationPostsList;
+  post: SunshineCurationPostsListItem;
   isFocused: boolean;
   onFocus: () => void;
 }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useMessages } from '../common/withMessages';
@@ -20,7 +20,6 @@ import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { Prompt, promptLibrary } from '@/lib/promptLibrary';
-import { AutosaveEditorStateContext } from '../common/sharedContexts';
 import ContentStyles from '../common/ContentStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import Row from '../common/Row';
@@ -555,7 +554,6 @@ export const ChatInterface = () => {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading, orderedConversationsLoading } = useLlmChat();
 
   const { currentPostId, postContext } = useCurrentPostContext();
-  const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
   const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
@@ -706,11 +704,8 @@ export const ChatInterface = () => {
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
-    if (autosaveEditorState) {
-      await autosaveEditorState();
-    }
     submitMessage({ query: message, ragMode, currentPostId, postContext });
-  }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
+  }, [currentPostId, postContext, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

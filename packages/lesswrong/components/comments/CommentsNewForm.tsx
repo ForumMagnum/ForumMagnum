@@ -1,11 +1,11 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
+import React, {useState, useEffect, useRef, useMemo, Suspense} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { PermissionsPostMinimumInfo, requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
@@ -26,6 +26,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import CantCommentExplanation from './CantCommentExplanation';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -96,7 +97,7 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
+): maybeProps is { user: UsersCurrent, post: PostsMinimumInfo } => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
@@ -107,7 +108,7 @@ const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
-  post?: PostsMinimumInfo & { question?: boolean },
+  post?: PostsMinimumInfo & PermissionsPostMinimumInfo & { question?: boolean },
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
@@ -189,7 +190,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
             onClose={onClose}
-            {...dialogProps}
+            post={dialogProps.post}
           />
         });
       }
@@ -294,9 +295,11 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     loading,
   }), [formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, loading]);
   
-  // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
-  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
-  ) {
+  const permissionPost = post ?? prefilledProps;
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, permissionPost, post?.user ?? null, !!parentComment)) {
+    if (post) {
+      return <CantCommentExplanation post={post} />
+    }
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   return (

@@ -20,6 +20,7 @@ import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 import { getUserDefaultEditor } from '../editor/Editor';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
+import { usePathname } from 'next/navigation';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -102,7 +103,6 @@ type EventTemplateFields =
 
 type PrefilledPostFields =
   | "isEvent"
-  | "question"
   | "activateRSVPs"
   | "onlineEvent"
   | "globalEvent"
@@ -162,24 +162,25 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
   }
 }
 
-function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
+function getPostCategory(query: Record<string, string>) {
   return isPostCategory(query.category)
     ? query.category
-    : questionInQuery
-      ? ("question" as const)
-      : postDefaultCategory;
+    : postDefaultCategory;
 }
 
 const PostsNewForm = () => {
+  const pathname = usePathname();
+  return <PostsNewFormInner key={pathname}/>;
+}
+const PostsNewFormInner = () => {
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const questionInQuery = query && !!query.question;
 
-  const postCategory = getPostCategory(query, questionInQuery);
+  const postCategory = getPostCategory(query);
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -211,7 +212,6 @@ const PostsNewForm = () => {
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
-    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -311,5 +311,3 @@ const PostsNewForm = () => {
 }
 
 export default PostsNewForm;
-
-

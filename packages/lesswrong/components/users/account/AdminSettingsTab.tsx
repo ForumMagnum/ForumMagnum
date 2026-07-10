@@ -83,15 +83,6 @@ const AdminSettingsTab = ({
       </SettingsSection>
 
       <SettingsSection title="Sunshine Review">
-        <form.Field name="sunshineNotes">
-          {(field) => (
-            <SettingsTextRow
-              field={field}
-              label="Sunshine notes"
-            />
-          )}
-        </form.Field>
-
         <form.Field name="sunshineFlagged">
           {(field) => (
             <SettingsToggleRow

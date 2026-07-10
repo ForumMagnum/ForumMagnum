@@ -27,7 +27,6 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
     canCreate?: FieldCreatePermissions,
   },
   label?: string,
-  formVariant?: "default" | "grey",
   order?: number,
   hideControls?: boolean,
   hintText?: () => string | undefined,

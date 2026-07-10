@@ -36,6 +36,7 @@ export const UsersMinimumInfo = gql(`
 export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
+    coauthoredPostCount
     fullName
     previousDisplayName
     oldSlugs
@@ -81,6 +82,7 @@ export const UsersProfile = gql(`
     conversationsDisabled
     pinnedPostIds
     hideProfileTopPosts
+    voteReceivedCount
   }
 `)
 
@@ -141,6 +143,7 @@ export const UsersCurrent = gql(`
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    ultraFeedSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
@@ -272,6 +275,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -289,6 +293,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -301,6 +306,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -361,14 +367,8 @@ export const SunshineUsersList = gql(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    reviewGroup
     usersContactedBeforeReview
-    associatedClientIds {
-      clientId
-      firstSeenReferrer
-      firstSeenLandingPage
-      userIds
-    }
-    altAccountsDetected
 
     voteReceivedCount
     smallUpvoteReceivedCount
@@ -390,7 +390,30 @@ export const SunshineUsersList = gql(`
 export const UserAltAccountsFragment = gql(`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
     IPs
+  }
+`)
+
+// Client-ID/alt-account info is expensive to resolve, so it is excluded from
+// SunshineUsersList (which is loaded in bulk for the moderation queue) and
+// fetched lazily per-user when an individual moderation profile is opened.
+export const UserClientIdsInfo = gql(`
+  fragment UserClientIdsInfo on User {
+    _id
+    slug
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
+    altAccountsDetected
   }
 `)
 
@@ -511,6 +534,7 @@ export const UsersEdit = gql(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationTypoSuggestions
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
     notificationDialogueMessages

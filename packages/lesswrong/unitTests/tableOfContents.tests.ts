@@ -134,4 +134,38 @@ describe("extractTableOfContents", () => {
       ],
     });
   });
+
+  it("ignores headings inside collapsible-section content and code blocks", () => {
+    const html = normalizeHtml(`
+      <h1>Visible heading</h1>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle"><p>Expandable example</p></summary>
+        <div class="detailsBlockContent">
+          <h2>Hidden heading</h2>
+          <code><strong>Code block heading</strong></code>
+        </div>
+      </details>
+      <h2>Another visible heading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <h1 id="Visible_heading">Visible heading</h1>
+        <details class="detailsBlock">
+          <summary class="detailsBlockTitle"><p>Expandable example</p></summary>
+          <div class="detailsBlockContent">
+            <h2>Hidden heading</h2>
+            <code><strong>Code block heading</strong></code>
+          </div>
+        </details>
+        <h2 id="Another_visible_heading">Another visible heading</h2>
+      `),
+      sections: [
+        { title: "Visible heading", anchor: "Visible_heading", level: 1 },
+        { title: "Another visible heading", anchor: "Another_visible_heading", level: 2 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
 });

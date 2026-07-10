@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
-import type { ReviewGroup, TabId } from './groupings';
+import type { TabId } from './groupings';
 import classNames from 'classnames';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
@@ -29,6 +29,9 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   group: {},
   newContent: {
     background: theme.palette.panelBackground.sunshineNewContentGroup,
+  },
+  offboard: {
+    background: theme.palette.panelBackground.sunshineWarningHighlight,
   },
   highContext: {
     background: theme.palette.panelBackground.sunshineHighContextGroup,
@@ -62,7 +65,7 @@ const ModerationInboxList = ({
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   focusedUserId: string | null;
   focusedPostId: string | null;
   onFocusUser: (userId: string) => void;

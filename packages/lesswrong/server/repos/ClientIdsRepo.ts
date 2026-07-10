@@ -2,6 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { ClientIds } from "../../server/collections/clientIds/collection";
 import { randomId } from "../../lib/random";
+import groupBy from "lodash/groupBy";
 
 class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
   constructor() {
@@ -41,6 +42,28 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
       WHERE _id=$1
     `, [clientId]);
     return !!idObjs?.invalidated;
+  }
+
+  /**
+   * Uses a LATERAL join so each userId probes the GIN index on `userIds` with a
+   * constant single-element `@>` (the only form the planner will index): an
+   * overlap (`&&`) or join-variable `@>` over the ~6.4M-row table falls back to
+   * a full sequential scan and takes ~10-90s.
+   */
+  async getClientIdsForUsers(userIds: string[]): Promise<DbClientId[][]> {
+    const rows = await this.getRawDb().any<DbClientId & { lookupUserId: string }>(`
+      -- ClientIdsRepo.getClientIdsForUsers
+      SELECT req."userId" AS "lookupUserId", c.*
+      FROM unnest($1::text[]) AS req("userId")
+      JOIN LATERAL (
+        SELECT * FROM "ClientIds" c
+        WHERE c."userIds" @> ARRAY[req."userId"]
+        ORDER BY c."createdAt" DESC
+        LIMIT 100
+      ) c ON true
+    `, [userIds]);
+    const rowsByUser = groupBy(rows, (row) => row.lookupUserId);
+    return userIds.map((userId) => rowsByUser[userId] ?? []);
   }
 }
 

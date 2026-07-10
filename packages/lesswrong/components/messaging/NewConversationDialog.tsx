@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from "../search/useSearchAnalytics";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import { useCurrentUser } from "../common/withUser";
@@ -165,6 +166,9 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
+  const indexName = getElasticIndexNameWithSorting("Users", "relevance");
+  const captureSearchState = useCaptureSearchStateChange("newConversationDialog", "Users", indexName);
+  const captureResultSelected = useCaptureSearchResultSelected();
 
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
   const [selectedUsers, setSelectedUsers] = useState<Hit<AnyBecauseTodo>[]>([])
@@ -183,9 +187,15 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
     if (prevSelectedUserIds.includes(newUserId)) {
       setSelectedUsers((prev) => prev.filter(v => v._id !== newUserId))
     } else {
+      captureResultSelected({
+        resultId: newUserId,
+        resultType: "Users",
+        indexName,
+        context: "newConversationDialog",
+      });
       setSelectedUsers((prev) => [...prev, user])
     }
-  }, [selectedUsers])
+  }, [selectedUsers, captureResultSelected, indexName])
 
   if (!currentUser) return null;
 
@@ -202,10 +212,13 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
             <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
           </div>
           <InstantSearch
-            indexName={getElasticIndexNameWithSorting("Users", "relevance")}
+            indexName={indexName}
             searchClient={getSearchClient()}
             searchState={{ query }}
-            onSearchStateChange={(x) => setQuery(x.query)}
+            onSearchStateChange={(x) => {
+              setQuery(x.query);
+              captureSearchState(x);
+            }}
           >
             <div className={classes.resultsColumn}>
               <div className={classes.searchBoxRow}>

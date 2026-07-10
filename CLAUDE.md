@@ -1,6 +1,16 @@
 # AGENTS.md: ForumMagnum Codebase Patterns
 
-This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong, the Alignment Forum, and the EA Forum. You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+This document explains some of the non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong and the Alignment Forum.  (A pre-NextJS fork of the codebase runs the EA Forum.  Work on this codebase does not need to worry about accommodating forums other than LW and AF.) You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+
+This document is not comprehensive.  When working on larger features or changes, look for several examples of similar types of code in the codebase to get a sense for the patterns, conventions, and coding style that are not fully described in this document.  Please always read those files yourself, rather than delegating to a subagent.  Here are some "types of code" of the kind that bear looking at previous examples:
+- React components
+- GraphQL query and mutation resolvers
+- API routes
+- Database migrations
+
+One thing to keep in mind is that the codebase has evolved over time, and often has more than one pattern or convention in it for any particular thing.  If the preferred pattern for that concern isn't specified in this document, prefer the more modern one.  If it's not obvious which one is more modern, you can try checking git blame, or pausing and asking the developer.
+
+Do not use deprecated fields or functions defined this codebase, even if existing code uses them in similar contexts.  In almost all such cases, there exist non-deprecated alternatives.  If you can't find an non-deprecated alternative, feel free to write your own but always explicitly leave a TODO comment indicating the developer should review this and flag it for the developer.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
@@ -119,6 +129,8 @@ input ChapterSelector {
 - `EmptyViewInput` is a shared input type that is defined in `@/server/vulcan-lib/apollo-server/initGraphQL.ts` and doesn't need to be defined in the view file.  It should be used if a view doesn't have any parameters.
 - Views need to have corresponding view functions defined in `@/lib/collections/{collectionName}/views.ts` and added to the `CollectionViewSet` in that file.
 - Views are only used when using the "default" resolvers for a given collection (those returned `getDefaultResolvers`).  These are a "single" and "multi" resolver for the collection, which compile a GraphQL query into a SQL query and automatically handle permissions checks.
+- Importantly, if you write queries which are well-modeled by "fetch one" or "fetch many" with basic selector/sorting/limiting, you *should* use `getDefaultResolvers` to define those queries.  See `pacakges/lesswrong/server/collections/chapters/queries.ts` for an example of how it should be structured. (Do not implement deprecated fields.)
+  - Similarly, if you write mutations which are well-modeled as creating or updating a collection record, possibly with some additional associated business logic, you should follow the pattern in `packages/lesswrong/server/collections/chapters/mutations.ts`.  (But, similarly, do not use deprecated helper functions when implementing these for new collections.  Also avoid using `userCanDo` to check for permissions; in ~all cases it should be possible to check whether a user has permission by way of being an owner of the document, an admin, or a member of a group that's allowed to perform that action.)
 - If you need an access pattern that is not well-modeled by "fetch one" or "fetch many" with basic selector/sorting/limiting, you should write and use a custom query resolver.  By convention, we put these into `@/server/resolvers/{concept}Resolvers.ts`.  You will need to add them to the `initGraphQL.ts` file.  Don't forget about manually applying relevant permissions checks before returning results to users, if applicable.
 
 ### Example: Defining and Using Views
@@ -392,6 +404,12 @@ Migrations are run before the new version is deployed, without downtime, so if a
 
 ---
 
+## Scripts
+
+In the course of your work, you may occasionally decide (or be asked) to write and/or run scripts.  Despite being a NextJS codebase, we support running scripts that import arbitrary parts of the codebase via `yarn repl`.  If the script you're writing doesn't import any part of the codebase, then you don't need to use `yarn repl` - run it however you normally would.  If it does (for example, because it wants to talk to our database), then you should write it in the `packages/lesswrong/scripts/` directory and export the entrypoint function so that it can be invoked via the repl.  Default to running scripts against the dev db (via `yarn repl dev lw`) unless explicitly asked to do otherwise.
+
+---
+
 ## Server and Client Code
 
 Files in app/ are React server components and route handlers.
@@ -515,21 +533,13 @@ See `@/components/next/ClientAppGenerator.tsx` for more details about how the va
 
 Use `useNavigate` for performing client-side navigations.  You need to preserve all parts of the path that you don't want changed, i.e. just providing a hash will delete any query parameters if they aren't also provided.  See `@/lib/routeUtil.tsx` for more details if needed.
 
----
+## Editor
 
-## Shell Commands
+The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [CLAUDE.md](packages/lesswrong/components/editor/CLAUDE.md) with instructions for doing UI testing in the editor; read that if needed.
 
-Do not use `find -exec`. Claude Code's permission system cannot statically analyze `-exec` and will always prompt the user, even when an allow rule exists for `find`. Use pipes instead:
-```bash
-# Bad: triggers an unbypassable permission prompt
-find . -type f -name "*.ts" -exec grep -l "pattern" {} \;
+## Subagent Guidance
 
-# Good: each pipe segment is checked independently against allow rules
-find . -type f -name "*.ts" | xargs grep -l "pattern"
-```
-The same applies to `-execdir`, `-ok`, `-okdir`, and `-delete`.
-
----
+We are not token-constrained and do not need to save money.  As such, strongly prefer to use subagents of the same model family and version as you, even for basic exploration tasks, rather than using smaller/cheaper subagents.
 
 ## Style / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
@@ -543,8 +553,8 @@ Strongly prefer to avoid declaring inline functions that capture scope; declare 
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 Do not create barrel import/export files.
-Avoid using `ReturnType<...>` in situations where you could check the return type of the relevant function and use that type directly (with an additional import, if necessary).
-If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` (which runs a full lint and typecheck, and takes ~30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
+Do not use `ReturnType<...>`.  Instead, check the return type of the relevant function and use that type directly (with an additional import, if necessary).
+If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` or `yarn tsc` (which can take up to 30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
 Avoid using `npx [command]`, like `npx jest` or `npx tsc`, if there's an appropriate command in our package.json that seems like it's intended to perform the relevant function.  (In those two cases, it'll be `yarn unit [test-file-path]` and `yarn tsc`.)
 When asked to conduct a code review against `master`, ensure any diffs you perform are against `origin/master`, not against local `master`, which might be out of date.
 

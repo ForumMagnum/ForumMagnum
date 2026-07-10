@@ -1,28 +1,45 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createTextNode, $getNodeByKey, $getRoot, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
-import { $generateNodesFromDOM } from "@lexical/html";
-import { JSDOM } from "jsdom";
+import { $createRangeSelection, $createTextNode, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { markdownToHtml } from "@/server/editor/conversionUtils";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import type MarkdownIt from "markdown-it";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
-import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
+import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
+import {
+  $applyEditModeReplacement,
+  $computeNarrowing,
+  $htmlToInlineNodes,
+} from "../applyEditAtSelection";
 
 interface ReplaceResult {
   replaced: boolean
   quoteFoundInDocument: boolean
   note: string
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
   summaryQuote?: string
   summaryReplacement?: string
+  /**
+   * For mode `"edit"` only, when `replaced` is true: the live document's HTML
+   * after the edit was applied, serialized from the post-edit Lexical state.
+   * Callers that want to publish the live state as a new revision (rather than
+   * computing the published HTML offline) read this field. Undefined for
+   * `"suggest"` mode and for failed replacements.
+   */
+  postEditHtml?: string
 }
 
 interface SuggestionNarrowingResult {
@@ -33,30 +50,18 @@ interface SuggestionNarrowingResult {
 }
 
 /**
- * Parses a markdown replacement string into inline Lexical nodes suitable for
- * insertion within an existing paragraph. When the markdown produces a single
- * wrapping paragraph, the inline children are extracted so they stay inline.
- */
-function $markdownToInlineNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  const html = markdownToHtml(markdown);
-  const dom = new JSDOM(html);
-  const nodes = $generateNodesFromDOM(editor, dom.window.document);
-  // Markdown typically produces a single paragraph wrapping inline children.
-  // Extract the inline children so they stay within the existing paragraph.
-  if (nodes.length === 1 && $isElementNode(nodes[0])) {
-    return nodes[0].getChildren();
-  }
-  return nodes;
-}
-
-/**
  * Convert a narrowed replacement string into Lexical nodes while preserving
  * edge whitespace. The standard markdown→HTML pipeline strips leading/trailing
  * whitespace; for narrowed replacements those spaces are meaningful content.
  * When the narrowed text is plain (no formatting), a TextNode is created
  * directly. Otherwise the markdown pipeline is used with whitespace patched.
  */
-function $narrowedReplacementToNodes(editor: LexicalEditor, replacement: string, expectedPlainText?: string): LexicalNode[] {
+function $narrowedReplacementToNodes(
+  editor: LexicalEditor,
+  replacement: string,
+  markdownIt: MarkdownIt,
+  expectedPlainText?: string,
+): LexicalNode[] {
   if (replacement.length === 0) return [];
 
   const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
@@ -64,7 +69,7 @@ function $narrowedReplacementToNodes(editor: LexicalEditor, replacement: string,
     return [$createTextNode(replacement)];
   }
 
-  const nodes = $markdownToInlineNodes(editor, replacement);
+  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
   const nodesText = nodes.map(n => n.getTextContent()).join("");
 
   const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
@@ -80,351 +85,6 @@ function $narrowedReplacementToNodes(editor: LexicalEditor, replacement: string,
   }
 
   return nodes;
-}
-
-export function $applyEditReplacement({
-  editor,
-  matchedNodeKey,
-  startOffset,
-  endOffset,
-  replacement,
-}: {
-  editor: LexicalEditor
-  matchedNodeKey?: string
-  startOffset?: number
-  endOffset?: number
-  replacement: string
-}): boolean {
-  if (!matchedNodeKey || startOffset === undefined || endOffset === undefined) {
-    return false;
-  }
-
-  const originalNode = $getNodeByKey(matchedNodeKey);
-  if (!$isTextNode(originalNode)) {
-    return false;
-  }
-
-  const splitNodes = originalNode.splitText(startOffset, endOffset);
-  // When startOffset > 0, splitText produces [before, match, ...] so the match is at index 1.
-  // When startOffset === 0, there is no "before" part, so the match is at index 0.
-  const matchNodeIndex = startOffset > 0 ? 1 : 0;
-  const selectedNode = splitNodes[matchNodeIndex];
-  if (!$isTextNode(selectedNode)) {
-    return false;
-  }
-
-  if (replacement.length > 0) {
-    const inlineNodes = $markdownToInlineNodes(editor, replacement);
-    for (const node of inlineNodes) {
-      selectedNode.insertBefore(node);
-    }
-    selectedNode.remove();
-  } else {
-    selectedNode.remove();
-  }
-  return true;
-}
-
-function $applySuggestionReplacement({
-  editor,
-  matchedNodeKey,
-  startOffset,
-  endOffset,
-  replacement,
-  replacementNodes,
-  suggestionId,
-}: {
-  editor: LexicalEditor
-  matchedNodeKey?: string
-  startOffset?: number
-  endOffset?: number
-  replacement: string
-  replacementNodes?: LexicalNode[]
-  suggestionId: string
-}): boolean {
-  if (!matchedNodeKey || startOffset === undefined || endOffset === undefined) {
-    return false;
-  }
-
-  const originalNode = $getNodeByKey(matchedNodeKey);
-  if (!$isTextNode(originalNode)) {
-    return false;
-  }
-
-  const splitNodes = originalNode.splitText(startOffset, endOffset);
-  const matchNodeIndex = startOffset > 0 ? 1 : 0;
-  const selectedNode = splitNodes[matchNodeIndex];
-  if (!$isTextNode(selectedNode)) {
-    return false;
-  }
-
-  const deleteSuggestion = $createSuggestionNode(suggestionId, "delete");
-  selectedNode.insertBefore(deleteSuggestion);
-  deleteSuggestion.append(selectedNode);
-
-  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement);
-  for (const node of nodes) {
-    insertSuggestion.append(node);
-  }
-  deleteSuggestion.insertAfter(insertSuggestion);
-
-  return true;
-}
-
-/**
- * Split anchor and focus text nodes at their respective offsets and collect
- * all sibling nodes between them (inclusive). Used when a quote spans across
- * multiple inline nodes (e.g. plain text + inline code).
- */
-function $splitAndCollectSelectedNodes(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-): LexicalNode[] | null {
-  if (anchor.type !== "text" || focus.type !== "text") return null;
-
-  const anchorNode = $getNodeByKey(anchor.key);
-  const focusNode = $getNodeByKey(focus.key);
-  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
-
-  // Determine the first selected node by splitting the anchor text node
-  let firstSelectedNode: LexicalNode | null;
-  if (anchor.offset === 0) {
-    firstSelectedNode = anchorNode;
-  } else if (anchor.offset >= anchorNode.getTextContent().length) {
-    firstSelectedNode = anchorNode.getNextSibling();
-  } else {
-    const splits = anchorNode.splitText(anchor.offset);
-    firstSelectedNode = splits[1] ?? null;
-  }
-  if (!firstSelectedNode) return null;
-
-  // Determine the last selected node by splitting the focus text node
-  let lastSelectedNode: LexicalNode | null;
-  if (focus.offset >= focusNode.getTextContent().length) {
-    lastSelectedNode = focusNode;
-  } else if (focus.offset <= 0) {
-    lastSelectedNode = focusNode.getPreviousSibling();
-  } else {
-    const splits = focusNode.splitText(focus.offset);
-    lastSelectedNode = splits[0];
-  }
-  if (!lastSelectedNode) return null;
-
-  // Walk siblings from first to last
-  const selectedNodes: LexicalNode[] = [];
-  let current: LexicalNode | null = firstSelectedNode;
-  while (current) {
-    selectedNodes.push(current);
-    if (current.getKey() === lastSelectedNode.getKey()) break;
-    current = current.getNextSibling();
-  }
-
-  // Verify we reached lastSelectedNode
-  if (selectedNodes.length === 0 || selectedNodes[selectedNodes.length - 1].getKey() !== lastSelectedNode.getKey()) {
-    return null;
-  }
-
-  return selectedNodes;
-}
-
-export function $applyEditReplacementMultiNode({
-  editor,
-  anchor,
-  focus,
-  replacement,
-}: {
-  editor: LexicalEditor
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  replacement: string
-}): boolean {
-  const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
-  if (!selectedNodes) return false;
-
-  if (replacement.length > 0) {
-    const inlineNodes = $markdownToInlineNodes(editor, replacement);
-    for (const node of inlineNodes) {
-      selectedNodes[0].insertBefore(node);
-    }
-  }
-
-  for (const node of selectedNodes) {
-    node.remove();
-  }
-
-  return true;
-}
-
-/**
- * Compute the longest common prefix and suffix lengths between two strings.
- * The suffix is not allowed to overlap the prefix.
- */
-function computeCommonPrefixSuffix(a: string, b: string): { prefixLen: number, suffixLen: number } {
-  let prefixLen = 0;
-  const minLen = Math.min(a.length, b.length);
-  while (prefixLen < minLen && a[prefixLen] === b[prefixLen]) {
-    prefixLen++;
-  }
-
-  let suffixLen = 0;
-  const maxSuffixLen = minLen - prefixLen;
-  while (suffixLen < maxSuffixLen && a[a.length - 1 - suffixLen] === b[b.length - 1 - suffixLen]) {
-    suffixLen++;
-  }
-  
-  return { prefixLen, suffixLen };
-}
-
-/**
- * Build a mapping from plain-text character indices to markdown character
- * indices. Uses a greedy two-pointer alignment between the plain text
- * (produced by markdownQuoteToPlainText) and the original markdown string.
- *
- * The returned `toMarkdown` array has length `plainText.length + 1`; the
- * last entry is a sentinel equal to `markdown.length`, used when no suffix
- * needs to be trimmed.
- */
-function buildPlainToMarkdownMapping(markdown: string): { plainText: string, toMarkdown: number[] } {
-  const plainText = markdownQuoteToPlainText(markdown);
-  const toMarkdown: number[] = [];
-  let mdIdx = 0;
-  for (let plainIdx = 0; plainIdx < plainText.length; plainIdx++) {
-    while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[plainIdx]) {
-      mdIdx++;
-    }
-    toMarkdown.push(mdIdx);
-    mdIdx++;
-  }
-  toMarkdown.push(markdown.length);
-  return { plainText, toMarkdown };
-}
-
-/**
- * Count how many plain-text characters fall within the first `mdPrefixLen`
- * markdown characters, using the plain-to-markdown mapping built on the
- * full string. This correctly handles partial markdown constructs (e.g.
- * a prefix that ends inside a link URL) because the mapping is built with
- * the full string's regex context.
- */
-function countPlainTextInPrefix(toMarkdown: number[], mdPrefixLen: number): number {
-  let count = 0;
-  // Exclude the sentinel (last entry)
-  for (let i = 0; i < toMarkdown.length - 1; i++) {
-    if (toMarkdown[i] < mdPrefixLen) {
-      count++;
-    } else {
-      break; // toMarkdown is monotonically increasing
-    }
-  }
-  return count;
-}
-
-/**
- * Count how many plain-text characters fall within the last `mdSuffixLen`
- * markdown characters.
- */
-function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, mdSuffixLen: number): number {
-  if (mdSuffixLen === 0) return 0;
-  const threshold = markdownLength - mdSuffixLen;
-  let count = 0;
-  // Walk backwards from the last non-sentinel entry
-  for (let i = toMarkdown.length - 2; i >= 0; i--) {
-    if (toMarkdown[i] >= threshold) {
-      count++;
-    } else {
-      break;
-    }
-  }
-  return count;
-}
-
-/**
- * Collect the plain text content between anchor and focus by walking
- * sibling text nodes. Must be called inside a Lexical read/update context.
- */
-function $collectPlainTextInRange(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-): string | null {
-  if (anchor.type !== "text" || focus.type !== "text") return null;
-
-  const anchorNode = $getNodeByKey(anchor.key);
-  if (!$isTextNode(anchorNode)) return null;
-
-  if (anchor.key === focus.key) {
-    return anchorNode.getTextContent().slice(anchor.offset, focus.offset);
-  }
-
-  let result = anchorNode.getTextContent().slice(anchor.offset);
-  let current: LexicalNode | null = anchorNode.getNextSibling();
-  while (current) {
-    if (current.getKey() === focus.key) {
-      result += current.getTextContent().slice(0, focus.offset);
-      break;
-    }
-    result += current.getTextContent();
-    current = current.getNextSibling();
-  }
-  return result;
-}
-
-/**
- * Advance a text selection point forward by `chars` characters, crossing
- * into subsequent sibling nodes as needed.
- */
-function $advancePoint(
-  point: MarkdownSelectionPoint,
-  chars: number,
-): MarkdownSelectionPoint | null {
-  if (chars === 0) return point;
-  if (point.type !== "text") return null;
-
-  let remaining = chars;
-  let currentNode: LexicalNode | null = $getNodeByKey(point.key);
-  if (!currentNode) return null;
-  let currentOffset = point.offset;
-
-  while (remaining > 0) {
-    const textLen = currentNode.getTextContent().length;
-    const available = textLen - currentOffset;
-    if (remaining <= available) {
-      return { key: currentNode.getKey(), offset: currentOffset + remaining, type: "text" };
-    }
-    remaining -= available;
-    currentNode = currentNode.getNextSibling();
-    if (!currentNode) return null;
-    currentOffset = 0;
-  }
-  return { key: currentNode.getKey(), offset: currentOffset, type: "text" };
-}
-
-/**
- * Retreat a text selection point backward by `chars` characters, crossing
- * into preceding sibling nodes as needed.
- */
-function $retreatPoint(
-  point: MarkdownSelectionPoint,
-  chars: number,
-): MarkdownSelectionPoint | null {
-  if (chars === 0) return point;
-  if (point.type !== "text") return null;
-
-  let remaining = chars;
-  let currentNode: LexicalNode | null = $getNodeByKey(point.key);
-  if (!currentNode) return null;
-  let currentOffset = point.offset;
-
-  while (remaining > 0) {
-    if (remaining <= currentOffset) {
-      return { key: currentNode.getKey(), offset: currentOffset - remaining, type: "text" };
-    }
-    remaining -= currentOffset;
-    currentNode = currentNode.getPreviousSibling();
-    if (!currentNode) return null;
-    currentOffset = currentNode.getTextContent().length;
-  }
-  return { key: currentNode.getKey(), offset: currentOffset, type: "text" };
 }
 
 /**
@@ -474,12 +134,14 @@ function $applySuggestionInsertionAtPoint({
   point,
   replacement,
   suggestionId,
+  markdownIt,
   replacementNodes,
 }: {
   editor: LexicalEditor
   point: MarkdownSelectionPoint
   replacement: string
   suggestionId: string
+  markdownIt: MarkdownIt
   replacementNodes?: LexicalNode[]
 }): boolean {
   if (point.type !== "text") return false;
@@ -508,67 +170,14 @@ function $applySuggestionInsertionAtPoint({
     anchorNode.insertAfter(deleteSuggestion);
   }
 
-  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement);
-  for (const n of nodes) {
-    insertSuggestion.append(n);
-  }
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
   deleteSuggestion.insertAfter(insertSuggestion);
   return true;
 }
 
 /**
- * Try to compute narrowed anchor/focus/replacement by stripping the common
- * markdown prefix/suffix between quote and replacement. Returns null if
- * narrowing isn't applicable (identical plain text, no common affixes, etc.),
- * in which case the caller should use the original anchor/focus/replacement.
- */
-function $computeNarrowing(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-  quote: string,
-  replacement: string,
-): {
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  quote: string
-  replacement: string
-} | null {
-  const matchedPlainText = $collectPlainTextInRange(anchor, focus);
-  if (matchedPlainText === null) return null;
-
-  // If the visible text is identical, the change is purely structural
-  // (formatting, link URLs, etc.) — show the full range.
-  if (markdownQuoteToPlainText(replacement) === matchedPlainText) return null;
-
-  // Compare at the markdown level so that formatting/syntax changes
-  // prevent narrowing past them.
-  const { prefixLen: mdPrefixLen, suffixLen: mdSuffixLen } = computeCommonPrefixSuffix(quote, replacement);
-
-  // Convert markdown offsets to plain-text character counts using the
-  // quote's mapping (which has full regex context for links, math, etc.)
-  const quoteMapping = buildPlainToMarkdownMapping(quote);
-  const ptAdvance = countPlainTextInPrefix(quoteMapping.toMarkdown, mdPrefixLen);
-  const ptRetreat = countPlainTextInSuffix(quoteMapping.toMarkdown, quote.length, mdSuffixLen);
-
-  if (ptAdvance === 0 && ptRetreat === 0) return null;
-  if (ptAdvance + ptRetreat > matchedPlainText.length) return null;
-
-  const narrowedAnchor = $advancePoint(anchor, ptAdvance);
-  const narrowedFocus = $retreatPoint(focus, ptRetreat);
-  if (!narrowedAnchor || !narrowedFocus) return null;
-
-  return {
-    anchor: narrowedAnchor,
-    focus: narrowedFocus,
-    quote: quote.slice(mdPrefixLen, quote.length - mdSuffixLen),
-    replacement: replacement.slice(mdPrefixLen, replacement.length - mdSuffixLen),
-  };
-}
-
-/**
- * Apply a suggestion replacement, dispatching to the insertion, single-node,
- * or multi-node apply function as appropriate for the given selection.
+ * Apply a suggestion replacement: a collapsed range becomes a pure
+ * insertion; any non-empty range goes through the selection wrapper.
  */
 function $applySuggestionForSelection(
   editor: LexicalEditor,
@@ -576,33 +185,80 @@ function $applySuggestionForSelection(
   focus: MarkdownSelectionPoint,
   replacement: string,
   suggestionId: string,
+  markdownIt: MarkdownIt,
   replacementNodes?: LexicalNode[],
 ): boolean {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, replacementNodes,
+      editor, point: insertionPoint, replacement, suggestionId, markdownIt, replacementNodes,
     });
   }
 
-  const sameTextNode = anchor.key === focus.key
-    && anchor.type === "text" && focus.type === "text";
-
-  if (sameTextNode) {
-    return $applySuggestionReplacement({
-      editor,
-      matchedNodeKey: anchor.key,
-      startOffset: anchor.offset,
-      endOffset: focus.offset,
-      replacement,
-      replacementNodes,
-      suggestionId,
-    });
-  }
-
-  return $applySuggestionReplacementMultiNode({
-    editor, anchor, focus, replacement, replacementNodes, suggestionId,
+  return $applySuggestionForRange({
+    editor, anchor, focus, replacement, replacementNodes, suggestionId, markdownIt,
   });
+}
+
+/**
+ * Apply a non-empty-range suggestion via the editor's own selection wrapper
+ * (`$wrapSelectionInSuggestionNode`, the same code the client suggestion UI
+ * uses): it splits boundary text nodes and wraps each block's covered inline
+ * run in its own delete-suggestion node sharing one suggestionId, never
+ * wrapping block nodes themselves. The replacement is inserted as a single
+ * insert-suggestion after the first delete run. For a range spanning block
+ * boundaries, accepting removes the covered text from every block and keeps
+ * the replacement; the block boundaries themselves are not part of the
+ * suggestion (a paragraph merge cannot be represented as a text suggestion),
+ * so the blocks remain separate.
+ */
+function $applySuggestionForRange({
+  editor,
+  anchor,
+  focus,
+  replacement,
+  replacementNodes,
+  suggestionId,
+  markdownIt,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  replacement: string
+  replacementNodes?: LexicalNode[]
+  suggestionId: string
+  markdownIt: MarkdownIt
+}): boolean {
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
+  if (deleteSuggestions.length === 0) return false;
+
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
+  deleteSuggestions[0].insertAfter(insertSuggestion);
+  return true;
+}
+
+function $buildInsertSuggestion({
+  editor,
+  replacement,
+  replacementNodes,
+  suggestionId,
+  markdownIt,
+}: {
+  editor: LexicalEditor
+  replacement: string
+  replacementNodes?: LexicalNode[]
+  suggestionId: string
+  markdownIt: MarkdownIt
+}): LexicalNode {
+  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
+  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement, markdownIt);
+  for (const node of nodes) {
+    insertSuggestion.append(node);
+  }
+  return insertSuggestion;
 }
 
 /**
@@ -618,62 +274,32 @@ export function $applySuggestionWithNarrowing({
   focus,
   quote,
   replacement,
+  range,
   suggestionId,
+  markdownIt,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   quote: string
   replacement: string
+  range: LocatedQuoteRange | undefined
   suggestionId: string
+  markdownIt: MarkdownIt
 }): SuggestionNarrowingResult {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId);
+    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
   const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
-  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, narrowedPlainText);
+  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt, narrowedPlainText);
   const replaced = $applySuggestionForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, replacementNodes,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
   );
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
-}
-
-function $applySuggestionReplacementMultiNode({
-  editor,
-  anchor,
-  focus,
-  replacement,
-  replacementNodes,
-  suggestionId,
-}: {
-  editor: LexicalEditor
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  replacement: string
-  replacementNodes?: LexicalNode[]
-  suggestionId: string
-}): boolean {
-  const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
-  if (!selectedNodes) return false;
-
-  const deleteSuggestion = $createSuggestionNode(suggestionId, "delete");
-  selectedNodes[0].insertBefore(deleteSuggestion);
-  for (const node of selectedNodes) {
-    deleteSuggestion.append(node);
-  }
-
-  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement);
-  for (const node of nodes) {
-    insertSuggestion.append(node);
-  }
-  deleteSuggestion.insertAfter(insertSuggestion);
-
-  return true;
 }
 
 export async function replaceTextInMainDoc({
@@ -693,13 +319,14 @@ export async function replaceTextInMainDoc({
   authorName: string
   authorId: string
 }): Promise<ReplaceResult> {
-  const result = await withMainDocEditorSession({
+  const result: ReplaceResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "ReplaceText",
     callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
+      let locateFailureReason: string | undefined;
       let suggestionId: string | undefined = undefined;
       let summaryQuote = quote;
       let summaryReplacement = replacement;
@@ -707,38 +334,33 @@ export async function replaceTextInMainDoc({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const selectionResult = locateMarkdownQuoteSelectionInSubtree({
-            rootNodeKey: root.getKey(),
-            markdownQuote: quote,
-          });
+          const selectionResult = $locateQuoteWithTextIndex(quote);
           quoteFoundInDocument = selectionResult.found;
           if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
+            locateFailureReason = selectionResult.reason;
             return;
           }
 
           const { anchor, focus } = selectionResult;
-          const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
 
           if (mode === "edit") {
-            if (sameTextNode) {
-              replaced = $applyEditReplacement({
-                editor,
-                matchedNodeKey: anchor.key,
-                startOffset: anchor.offset,
-                endOffset: focus.offset,
-                replacement,
-              });
-            } else {
-              replaced = $applyEditReplacementMultiNode({
-                editor, anchor, focus, replacement,
-              });
-            }
+            const editResult = $applyEditModeReplacement({
+              editor, anchor, focus, quote, replacement,
+              range: selectionResult.range,
+              markdownIt: getMarkdownItForAgentPosts(),
+            });
+            replaced = editResult.replaced;
+            summaryQuote = editResult.narrowedQuote;
+            summaryReplacement = editResult.narrowedReplacement;
             return;
           }
 
           suggestionId = randomId();
           const narrowingResult = $applySuggestionWithNarrowing({
-            editor, anchor, focus, quote, replacement, suggestionId,
+            editor, anchor, focus, quote, replacement,
+            range: selectionResult.range,
+            suggestionId,
+            markdownIt: getMarkdownItForAgentPosts(),
           });
           replaced = narrowingResult.replaced;
           summaryQuote = narrowingResult.narrowedQuote;
@@ -754,6 +376,21 @@ export async function replaceTextInMainDoc({
       }
 
       if (replaced) {
+        // For "edit" mode, snapshot the post-edit HTML from the live Lexical
+        // state. Callers that want to publish the live document (rather than
+        // recompute the published HTML by replaying the edit offline) use this
+        // field as their publish source. Suggestion mode doesn't need it —
+        // the suggest path mutates Yjs but doesn't publish.
+        let postEditHtml: string | undefined;
+        if (mode === "edit") {
+          postEditHtml = withDomGlobals(() => {
+            let html = "";
+            editor.getEditorState().read(() => {
+              html = $generateHtmlFromNodes(editor, null);
+            });
+            return html;
+          });
+        }
         return {
           replaced: true,
           quoteFoundInDocument,
@@ -763,6 +400,7 @@ export async function replaceTextInMainDoc({
           suggestionId,
           summaryQuote,
           summaryReplacement,
+          postEditHtml,
         };
       }
 
@@ -770,15 +408,17 @@ export async function replaceTextInMainDoc({
         replaced: false,
         quoteFoundInDocument,
         note: quoteFoundInDocument
-          ? "Quote was found in the document but spans multiple formatted regions (e.g. bold/italic/link boundaries), so the replacement could not be applied. Try quoting a smaller segment that falls within a single paragraph and formatting style."
-          : "Quote not found in document.",
+          ? locateFailureReason
+            ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
+          : locateFailureReason ?? "Quote not found in document.",
       };
     },
   });
 
   if (mode === "suggest" && result.replaced && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -789,6 +429,10 @@ export async function replaceTextInMainDoc({
         replaceWith: result.summaryReplacement ?? replacement,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -809,16 +453,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, replacement, mode } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "replaceText", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const result = await replaceTextInMainDoc({
@@ -839,6 +476,8 @@ export async function POST(req: NextRequest) {
       replaced: result.replaced,
       quoteFoundInDocument: result.quoteFoundInDocument,
       note: result.note,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed: result.threadCreationFailed ?? false,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

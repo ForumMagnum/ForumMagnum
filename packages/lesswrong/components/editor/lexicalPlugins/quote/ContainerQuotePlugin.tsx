@@ -55,8 +55,15 @@ function $wrapRunInParagraph(nodes: LexicalNode[]): void {
  * block-level children for editing operations (Enter, Backspace, block-type
  * changes) to work correctly.
  */
-function $normalizeQuoteChildren(quoteNode: ContainerQuoteNode): void {
+export function $normalizeQuoteChildren(quoteNode: ContainerQuoteNode): void {
   const children = quoteNode.getChildren();
+
+  // A childless quote breaks editing operations (Enter inside it crashes
+  // Lexical's block-splitting logic), so give it an empty paragraph.
+  if (children.length === 0) {
+    quoteNode.append($createParagraphNode());
+    return;
+  }
 
   // Early return: if all children are already block-level, no mutation needed.
   if (!children.some((child) => $isInlineNode(child))) {

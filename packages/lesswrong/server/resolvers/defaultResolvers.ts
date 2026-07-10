@@ -1,6 +1,6 @@
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { isEAForum, maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { maxAllowedApiSkip } from "@/lib/instanceSettings";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
@@ -15,9 +15,6 @@ import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
-import UserActivities from "../collections/useractivities/collection";
-import { visitorGetsDynamicFrontpage } from "@/lib/betas";
-import { getWithCustomLoader } from "@/lib/loaders";
 import { enableCustomSqlResolvers } from "../sql/ProjectionContext";
 
 
@@ -168,23 +165,11 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // get currentUser and Users collection from context
     const { currentUser }: {currentUser: DbUser|null} = context;
-    
-    // HACK: If this is a post query, the default view sometimes uses
-    // `context.visitorActivity`, to adjust the time-decay constant, but it isn't
-    // async so can't await the required DB fetch. So if this is a query on the
-    // Posts collection, add that to the context now.
-    // (This was previously in computeContextFromUser, which was much more
-    // costly since it adds a DB roundtrip to the start of every request.)
-    if (collectionName === "Posts" && 'filterSettings' in terms && terms.filterSettings && !('visitorActivity' in context)) {
-      context.visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
-        async () => [await getUserActivity(currentUser, context.clientId)]
-      );
-    }
 
     // Get selector and options from terms and perform Mongo query
     // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
     // Also downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
-    const parameters = viewTermsToQuery<CollectionNameString>(viewSet, terms, {}, context);
+    const parameters = await viewTermsToQuery<CollectionNameString>(viewSet, terms, {}, context);
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "results", typeName);
@@ -430,13 +415,3 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
   }
 }
 
-async function getUserActivity(user: DbUser|null, clientId: string|null): Promise<DbUserActivity|null> {
-  if ((user || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(user))) {
-    if (user) {
-      return await UserActivities.findOne({visitorId: user._id, type: 'userId'});
-    } else if (clientId) {
-      return await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
-    }
-  }
-  return null;
-}

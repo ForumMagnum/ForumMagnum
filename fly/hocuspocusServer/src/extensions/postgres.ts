@@ -2,6 +2,7 @@ import { Extension, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocus
 import { Pool } from 'pg';
 import * as Y from 'yjs';
 import crypto from 'crypto';
+import { parseDocumentName } from '../documentNames';
 
 interface PostgresExtensionConfig {
   connectionString: string;
@@ -18,18 +19,6 @@ function generateId(): string {
   return result;
 }
 
-/**
- * Parse a document name to extract the document ID for storage.
- * Document names can be:
- * - "post-{postId}" for main document
- * - "post-{postId}/{subDocId}" for nested documents (captions, comments, etc.)
- * 
- * Returns the full path after "post-" as the document ID.
- */
-function parseDocumentId(documentName: string): string {
-  return documentName.replace(/^post-/, '');
-}
-
 export class PostgresExtension implements Extension {
   private pool: Pool;
 
@@ -41,7 +30,7 @@ export class PostgresExtension implements Extension {
    * state with the old in-memory state.
    */
   private skipStoreForDocuments = new Set<string>();
-  
+
   constructor(config: PostgresExtensionConfig) {
     this.pool = new Pool({
       connectionString: config.connectionString,
@@ -49,36 +38,36 @@ export class PostgresExtension implements Extension {
       idleTimeoutMillis: 30000,
     });
   }
-  
+
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
-    const documentId = parseDocumentId(documentName);
-    
+    const { collectionName, documentId } = parseDocumentName(documentName);
+
     try {
       const result = await this.pool.query(
-        'SELECT "yjsState" FROM "YjsDocuments" WHERE "documentId" = $1',
-        [documentId]
+        'SELECT "yjsState" FROM "YjsDocuments" WHERE "collectionName" = $1 AND "documentId" = $2',
+        [collectionName, documentId]
       );
-      
+
       if (result.rows.length === 0) {
         return;
       }
-      
+
       const yjsState = result.rows[0].yjsState;
-      
+
       // PostgreSQL returns Buffer, convert to Uint8Array
       const update = new Uint8Array(yjsState);
-      
+
       // Apply the update directly to the document
       // We do this instead of returning the bytes because Hocuspocus
       // needs the data applied before syncing to clients
       Y.applyUpdate(document, update);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error(`[PostgresExtension] Error loading document: ${documentId}`, error);
+      console.error(`[PostgresExtension] Error loading document: ${collectionName}/${documentId}`, error);
       throw error;
     }
   }
-  
+
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
     if (this.skipStoreForDocuments.delete(documentName)) {
       return;
@@ -120,23 +109,23 @@ export class PostgresExtension implements Extension {
     state: Uint8Array,
     stateVector: Uint8Array,
   ): Promise<void> {
-    const documentId = parseDocumentId(documentName);
+    const { collectionName, documentId } = parseDocumentName(documentName);
     try {
       await this.pool.query(`
-        INSERT INTO "YjsDocuments" ("_id", "documentId", "yjsState", "yjsStateVector", "createdAt", "updatedAt")
-        VALUES ($1, $2, $3, $4, NOW(), NOW())
+        INSERT INTO "YjsDocuments" ("_id", "collectionName", "documentId", "yjsState", "yjsStateVector", "createdAt", "updatedAt")
+        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
         ON CONFLICT ("documentId") DO UPDATE SET
           "yjsState" = EXCLUDED."yjsState",
           "yjsStateVector" = EXCLUDED."yjsStateVector",
           "updatedAt" = NOW()
-      `, [generateId(), documentId, state, stateVector]);
+      `, [generateId(), collectionName, documentId, state, stateVector]);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error(`[PostgresExtension] Error storing document: ${documentId}`, error);
+      console.error(`[PostgresExtension] Error storing document: ${collectionName}/${documentId}`, error);
       throw error;
     }
   }
-  
+
   async onDestroy(): Promise<void> {
     await this.pool.end();
   }

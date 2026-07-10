@@ -279,7 +279,8 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const canSetAfField = userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser);
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && canSetAfField;
 
   const DefaultFormGroupLayout = FormGroupNoStyling;
 
@@ -317,7 +318,15 @@ export const CommentForm = ({
 
         if (formType === 'new') {
           const { af, ...rest } = formApi.state.values;
-          const submitData = (showAfCheckbox || isAF()) ? { ...rest, af } : rest;
+          // Only include `af` in the submitted data when the user is allowed to
+          // set it. Otherwise server-side validation rejects the mutation with
+          // a cryptic `app.validation_error` because the `af` field has
+          // `canCreate: ["alignmentForum", "admins"]`. On AF this shows up when
+          // a non-AF-member tries to comment (Ruby/Jim in #m_bugs-channel,
+          // 2026-04-12 and 2026-04-14); we drop `af` so the comment submits as
+          // a regular LW comment and the existing non-member success-popup
+          // flow (`useAfNonMemberSuccessHandling`) queues it for AF review.
+          const submitData = ((showAfCheckbox || isAF()) && canSetAfField) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {

@@ -1028,7 +1028,7 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
     {
       key: 'threadsMultiplier' as const,
       label: "Threads Multiplier",
-      description: `Multiplier applied to final thread scores. Increase to see more threads, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.threadsMultiplier}`,
+      description: `Multiplier applied to final non-Quick-Take thread scores. Increase to see more discussion threads, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.threadsMultiplier}`,
       min: 0.1, max: 10, step: 0.1,
     },
     {
@@ -1099,10 +1099,11 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
+    enableDebug: boolean;
     algorithm: UltraFeedAlgorithm | undefined;
     defaultOpen?: boolean;
   };
-  onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
+  onBooleanChange: (field: 'incognitoMode' | 'enableDebug', checked: boolean) => void;
   onAlgorithmChange: (algorithm: UltraFeedAlgorithm | undefined) => void;
   defaultOpen?: boolean;
   currentUser: UsersCurrent | null;
@@ -1132,6 +1133,18 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
 
       {isAdmin && (
         <>
+          <div className={classes.checkboxContainer}>
+            <Checkbox
+              id="enableDebugCheckbox"
+              className={classes.checkboxInput}
+              checked={formValues.enableDebug}
+              onChange={(e) => onBooleanChange('enableDebug', e.target.checked)}
+              color="primary"
+            />
+            <label htmlFor="enableDebugCheckbox" className={classes.checkboxLabel}>
+              Enable Debug
+            </label>
+          </div>
           <div className={classes.sourceWeightItem}>
             <div className={classes.sourceWeightContainer}>
               <label className={classes.sourceWeightLabel}>Algorithm</label>

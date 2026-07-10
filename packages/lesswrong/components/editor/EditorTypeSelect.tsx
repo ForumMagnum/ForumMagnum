@@ -1,5 +1,5 @@
 import React from 'react'
-import { EditorContents, EditorTypeString, EditorChangeEvent, getEditorsForUser, getEditorTypeToDisplayMap } from './Editor';
+import { EditorContents, EditorTypeString, EditorChangeEvent, getEditorsForUser, editorTypeToDisplayMap } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';
@@ -51,7 +51,7 @@ const EditorTypeSelect = ({value, setValue, isCollaborative}: {
     >
       {editors.map((editorType, i) =>
         <MenuItem value={editorType} key={i}>
-          {getEditorTypeToDisplayMap()[editorType].name} {getEditorTypeToDisplayMap()[editorType].postfix}
+          {editorTypeToDisplayMap[editorType].name} {editorTypeToDisplayMap[editorType].postfix}
         </MenuItem>
       )}
     </Select>

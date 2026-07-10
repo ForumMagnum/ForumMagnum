@@ -33,7 +33,10 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
     const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
 
-    const slug = paramsToTagSlugConverter(paramValues);
+    // Next.js percent-encodes special characters in server component params
+    // (e.g. `:` becomes `%3A`); decode so slugs like
+    // `rationality:-from-ai-to-zombies` are looked up correctly.
+    const slug = decodeURIComponent(paramsToTagSlugConverter(paramValues));
     const commentId = searchParamsValues.commentId;
 
     const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);

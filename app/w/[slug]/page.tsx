@@ -22,7 +22,8 @@ export default async function Page({ params, searchParams }: {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ startPath?: string }>
 }) {
-  const [{ slug }, searchParamValues] = await Promise.all([params, searchParams]);
+  const [{ slug: rawSlug }, searchParamValues] = await Promise.all([params, searchParams]);
+  const slug = decodeURIComponent(rawSlug);
 
   // This needs to be an `in` because startPath will be an empty string,
   // for legacy Arbital compatibility reasons.

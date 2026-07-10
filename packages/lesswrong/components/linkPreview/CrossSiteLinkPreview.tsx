@@ -112,6 +112,16 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     ...theme.typography.body2,
     color: theme.palette.text.dim45,
   },
+  // The popper card content is wrapped in a `<Link>` (an `<a>` tag) so the
+  // whole card is clickable. The global `a:hover` rule applies
+  // `opacity: 0.5`, which makes the entire card translucent when hovered
+  // (except where `a:has(img):hover` happens to exempt it). Reset opacity
+  // here so the card stays fully opaque on hover.
+  cardLink: {
+    "&:hover, &:active": {
+      opacity: 1,
+    },
+  },
 }));
 
 function getDisplayTitle(title: string | null | undefined, href: string): string {
@@ -291,7 +301,7 @@ export const CrossSiteLinkPreview = ({
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <Link to={href} id={id} rel={rel} className={className}>
+          <Link to={href} id={id} rel={rel} className={classNames(className, classes.cardLink)}>
             {previewData && !hasImage && <NoImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
             {previewData && hasImage && imageLayout === "banner" && !useTopRightFloatImageLayout && (
               <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />

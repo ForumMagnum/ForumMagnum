@@ -73,12 +73,15 @@ typings
 
 *.secret
 
-build*
+build
 !build.ts
 !buildUtil.js
+!build*.ts
 yarn-error.log
 public/lesswrong-editor/obj
 ckEditor/obj
+
+packages/lesswrong/server/research/sandbox/dist/
 
 # Created by @shelf/jest-mongodb
 globalConfig.json
@@ -109,6 +112,7 @@ playwright-report
 .playwright-mcp/
 test-results
 .next
+.next-profile
 
 # Dependency cruiser output
 dependency-graph.svg

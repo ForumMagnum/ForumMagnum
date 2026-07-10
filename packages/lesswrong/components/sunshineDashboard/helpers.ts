@@ -405,10 +405,10 @@ function findElementsInRange(
  *   10% → ~20% of hue range → yellow-green
  *    1% → ~4% of hue range → green
  */
-function scoreToColour(score: number): string {
+export function scoreToColour(score: number): string {
   const adjustedRatio = Math.pow(Math.max(0, Math.min(1, score)), 0.7);
   const hue = 120 - (adjustedRatio * 120);
-  return `hsl(${hue}, 100%, 85%)`;
+  return `light-dark(hsl(${hue}, 100%, 85%), hsl(${hue}, 55%, 25%))`;
 }
 
 /**

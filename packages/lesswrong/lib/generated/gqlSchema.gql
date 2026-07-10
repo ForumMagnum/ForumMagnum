@@ -431,6 +431,7 @@ type RevisionsKarmaChange {
 type ReactionChange {
   reactionType: String!
   userId: String
+  quote: String
 }
 
 type KarmaChangesSimple {
@@ -649,7 +650,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -943,6 +944,120 @@ extend type Mutation {
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
 }
 
+enum ResearchEntrypointKind {
+  document
+  chat
+}
+
+input FireResearchConversationInput {
+  conversationId: String!
+  projectId: String!
+  kind: ResearchEntrypointKind!
+  activeDocumentId: String!
+  promptHtml: String!
+  baseEnvironmentId: String
+  runtime: String
+}
+
+type ResearchConversationOutput {
+  conversationId: String!
+  data: ResearchConversation
+}
+
+type DevPreviewUrlOutput {
+  url: String!
+}
+
+type SetClaudeCodeOAuthTokenOutput {
+  success: Boolean!
+}
+
+type SaveResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
+type EnsureResearchScratchDocumentOutput {
+  documentId: String!
+}
+
+type ReorderResearchDocumentsOutput {
+  success: Boolean!
+}
+
+type RestartResearchSandboxOutput {
+  running: Boolean!
+}
+
+type MarkResearchConversationReadOutput {
+  ok: Boolean!
+}
+
+type AnswerResearchQuestionOutput {
+  ok: Boolean!
+  expired: Boolean!
+}
+
+extend type Mutation {
+  fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
+  continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
+  cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+  answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
+  mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
+  setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
+  saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+  ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+  reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+  markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
+  restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
+}
+
+type ResearchConversationSidebarStatus {
+  conversationId: String!
+  turnActive: Boolean!
+  lastActivityAt: Date
+  lastReadAt: Date
+}
+
+type ResearchSandboxDirEntry {
+  name: String!
+  kind: String!
+  size: Float
+}
+
+type ResearchSandboxDirListing {
+  path: String!
+  running: Boolean!
+  entries: [ResearchSandboxDirEntry!]!
+}
+
+type ResearchSandboxFileContents {
+  path: String!
+  running: Boolean!
+  content: String!
+  truncated: Boolean!
+  binary: Boolean!
+  size: Float!
+}
+
+type ResearchSandboxStats {
+  running: Boolean!
+  cpuPct: Float
+  memUsed: Float
+  memTotal: Float
+  diskUsed: Float
+  diskTotal: Float
+  hibernatingSince: Date
+}
+
+extend type Query {
+  researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+  researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+  researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+  researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+  researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+  researchSandboxRunning(conversationId: String!): Boolean!
+}
+
 enum DocumentDeletionNetChange {
   deleted
   restored
@@ -1087,11 +1202,6 @@ extend type Mutation {
   importUrlAsDraftPost(url: String!): ExternalPostImportData!
 }
 
-input AutosaveContentType {
-  type: String
-  value: ContentTypeData
-}
-
 enum ConvertibleCollectionName {
   Posts
   Comments
@@ -1105,13 +1215,19 @@ extend type Query {
 
 extend type Mutation {
   revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
-  autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
   convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
 }
 
 type ModeratorIPAddressInfo {
   ip: String!
   userIds: [String!]!
+}
+
+type PangramTextEvaluationResult {
+  pangramScore: Float!
+  pangramMaxScore: Float
+  pangramPrediction: String
+  pangramWindowScores: [PangramWindowScore!]
 }
 
 enum ContentCollectionName {
@@ -1130,6 +1246,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  runPangramOnText(text: String!): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
@@ -3036,6 +3153,59 @@ extend type Query {
   myHomePageDesignSummaries: [HomePageDesignSummary!]!
   marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
   adminHomePageDesigns: [AdminHomePageDesign!]!
+}
+
+type TypoSuggestion {
+  _id: String!
+  createdAt: Date!
+  documentId: String
+  collectionName: String
+  fieldName: String
+  voteId: String
+  reactor: User
+  authorId: String
+  author: User
+  quote: String
+  llmCanonicalQuote: String
+  proposedReplacement: String
+  narrowedQuote: String
+  narrowedReplacement: String
+  explanation: String
+  llmVerdict: String
+  status: String
+  resolvedByUserId: String
+  appliedRevisionId: String
+  resolvedAt: Date
+}
+
+input SingleTypoSuggestionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleTypoSuggestionOutput {
+  result: TypoSuggestion
+}
+
+input TypoSuggestionSelector {
+  default: EmptyViewInput
+}
+
+input MultiTypoSuggestionInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiTypoSuggestionOutput {
+  results: [TypoSuggestion!]!
+  totalCount: Int
+}
+
+extend type Query {
+  typoSuggestion(input: SingleTypoSuggestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTypoSuggestionOutput
+  typoSuggestions(input: MultiTypoSuggestionInput @deprecated(reason: "Use the selector field instead"), selector: TypoSuggestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTypoSuggestionOutput
 }
 
 type IframeWidgetSrcdoc {
@@ -5969,6 +6139,252 @@ extend type Query {
   reports(input: MultiReportInput @deprecated(reason: "Use the selector field instead"), selector: ReportSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReportOutput
 }
 
+type ResearchConversationEvent {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  conversationId: String
+  seq: Int
+  claudeMessageUuid: String
+  kind: String
+  payload: JSON
+}
+
+input SingleResearchConversationEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationEventOutput {
+  result: ResearchConversationEvent
+}
+
+input ResearchConversationEventSelector {
+  default: EmptyViewInput
+}
+
+input MultiResearchConversationEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationEventOutput {
+  results: [ResearchConversationEvent!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversationEvent(selector: SelectorInput): SingleResearchConversationEventOutput
+  researchConversationEvents(selector: ResearchConversationEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationEventOutput
+}
+
+type ResearchConversation {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  claudeSessionId: String
+  title: String
+  icon: String
+  entrypointKind: ResearchEntrypointKind
+  entrypointDocumentId: String
+  baseEnvironmentId: String
+  runtime: String
+  presentationHtml: String
+  userTurnCount: Int
+  lastActivityAt: Date
+  lastReadAt: Date
+  archived: Boolean
+}
+
+input SingleResearchConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationOutput {
+  result: ResearchConversation
+}
+
+input ResearchConversationsByProjectInput {
+  projectId: String
+}
+
+input ResearchConversationsByProjectArchivedInput {
+  projectId: String
+}
+
+input ResearchConversationSelector {
+  default: EmptyViewInput
+  byProject: ResearchConversationsByProjectInput
+  byProjectArchived: ResearchConversationsByProjectArchivedInput
+}
+
+input MultiResearchConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationOutput {
+  results: [ResearchConversation!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversation(selector: SelectorInput): SingleResearchConversationOutput
+  researchConversations(selector: ResearchConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationOutput
+}
+
+type ResearchDocument {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  title: String
+  icon: String
+  sortOrder: Float
+  archived: Boolean
+  contents(version: String): Revision
+  contents_latest: String
+  revisions(limit: Int = 5): [Revision!]
+  version: String
+}
+
+input SingleResearchDocumentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchDocumentOutput {
+  result: ResearchDocument
+}
+
+input ResearchDocumentsByProjectInput {
+  projectId: String
+}
+
+input ResearchDocumentsByProjectArchivedInput {
+  projectId: String
+}
+
+input ResearchDocumentSelector {
+  default: EmptyViewInput
+  byProject: ResearchDocumentsByProjectInput
+  byProjectArchived: ResearchDocumentsByProjectArchivedInput
+}
+
+input MultiResearchDocumentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchDocumentOutput {
+  results: [ResearchDocument!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchDocument(selector: SelectorInput): SingleResearchDocumentOutput
+  researchDocuments(selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
+}
+
+type ResearchEnvironment {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+  archived: Boolean
+}
+
+input SingleResearchEnvironmentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchEnvironmentOutput {
+  result: ResearchEnvironment
+}
+
+input ResearchEnvironmentsByProjectInput {
+  projectId: String
+}
+
+input ResearchEnvironmentsByProjectArchivedInput {
+  projectId: String
+}
+
+input ResearchEnvironmentSelector {
+  default: EmptyViewInput
+  byProject: ResearchEnvironmentsByProjectInput
+  byProjectArchived: ResearchEnvironmentsByProjectArchivedInput
+}
+
+input MultiResearchEnvironmentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchEnvironmentOutput {
+  results: [ResearchEnvironment!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchEnvironment(selector: SelectorInput): SingleResearchEnvironmentOutput
+  researchEnvironments(selector: ResearchEnvironmentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchEnvironmentOutput
+}
+
+type ResearchProject {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  title: String
+  description: String
+  settings: JSON
+}
+
+input SingleResearchProjectInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchProjectOutput {
+  result: ResearchProject
+}
+
+input ResearchProjectSelector {
+  default: EmptyViewInput
+}
+
+input MultiResearchProjectInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchProjectOutput {
+  results: [ResearchProject!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchProject(selector: SelectorInput): SingleResearchProjectOutput
+  researchProjects(selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
+}
+
 type ReviewVote {
   _id: String!
   schemaVersion: Float!
@@ -7220,6 +7636,7 @@ type User {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -7278,6 +7695,7 @@ type User {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
@@ -7361,6 +7779,7 @@ type User {
   signUpReCaptchaRating: Float
   noExpandUnreadCommentsReview: Boolean!
   postCount: Float!
+  coauthoredPostCount: Float!
   maxPostCount: Float!
   posts(limit: Int = 5): [Post!]
   commentCount: Float!
@@ -7404,6 +7823,7 @@ type User {
   altAccountsDetected: Boolean
   acknowledgedNewUserGuidelines: Boolean
   moderatorActions: [ModeratorAction!]
+  reviewGroup: ReviewGroup
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
@@ -7426,6 +7846,7 @@ type User {
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
+  hasClaudeCodeOAuthToken: Boolean
 }
 
 enum ReactPaletteStyle {
@@ -7472,6 +7893,16 @@ enum TagRelVoteGroup {
 enum SubforumPreferredLayout {
   card
   list
+}
+
+enum ReviewGroup {
+  newContent
+  offboard
+  highContext
+  maybeSpam
+  automod
+  snoozeExpired
+  unknown
 }
 
 input UserSelectorUniqueInput {
@@ -8007,6 +8438,16 @@ extend type Mutation {
   setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
 }
 
+enum TypoAcceptMode {
+  APPLY
+  SUGGEST
+}
+
+extend type Mutation {
+  acceptTypoSuggestion(suggestionId: String!, mode: TypoAcceptMode!): TypoSuggestion!
+  rejectTypoSuggestion(suggestionId: String!): TypoSuggestion!
+}
+
 input CreateJargonTermDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
@@ -8046,7 +8487,6 @@ extend type Mutation {
 
 input CreateLWEventDataInput {
   legacyData: JSON
-  userId: String
   name: String!
   documentId: String
   important: Boolean
@@ -8259,7 +8699,6 @@ input CreateMultiDocumentDataInput {
   title: String
   tabTitle: String!
   tabSubtitle: String
-  userId: String
   parentDocumentId: String!
   collectionName: MultiDocumentCollectionName!
   fieldName: MultiDocumentFieldName!
@@ -8316,7 +8755,6 @@ input CreatePetrovDayActionDataInput {
   legacyData: JSON
   actionType: String!
   data: JSON
-  userId: String!
 }
 
 input CreatePetrovDayActionInput {
@@ -8638,7 +9076,6 @@ extend type Mutation {
 
 input CreateReportDataInput {
   legacyData: JSON
-  userId: String
   reportedUserId: String
   commentId: String
   postId: String
@@ -8674,6 +9111,121 @@ type ReportOutput {
 extend type Mutation {
   createReport(data: CreateReportDataInput!): ReportOutput
   updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
+}
+
+input UpdateResearchConversationDataInput {
+  userId: String
+  projectId: String
+  claudeSessionId: String
+  title: String
+  icon: String
+  entrypointKind: ResearchEntrypointKind
+  entrypointDocumentId: String
+  baseEnvironmentId: String
+  runtime: String
+  lastActivityAt: Date
+  archived: Boolean
+}
+
+input UpdateResearchConversationInput {
+  selector: SelectorInput!
+  data: UpdateResearchConversationDataInput!
+}
+
+type ResearchConversationOutput {
+  data: ResearchConversation
+}
+
+extend type Mutation {
+  updateResearchConversation(selector: SelectorInput!, data: UpdateResearchConversationDataInput!): ResearchConversationOutput
+}
+
+input UpdateResearchEnvironmentDataInput {
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+  archived: Boolean
+}
+
+input UpdateResearchEnvironmentInput {
+  selector: SelectorInput!
+  data: UpdateResearchEnvironmentDataInput!
+}
+
+type ResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
+extend type Mutation {
+  updateResearchEnvironment(selector: SelectorInput!, data: UpdateResearchEnvironmentDataInput!): ResearchEnvironmentOutput
+}
+
+input CreateResearchDocumentDataInput {
+  userId: String
+  projectId: String!
+  title: String
+  contents: CreateRevisionDataInput
+}
+
+input CreateResearchDocumentInput {
+  data: CreateResearchDocumentDataInput!
+}
+
+input UpdateResearchDocumentDataInput {
+  userId: String
+  projectId: String
+  title: String
+  icon: String
+  archived: Boolean
+  contents: CreateRevisionDataInput
+}
+
+input UpdateResearchDocumentInput {
+  selector: SelectorInput!
+  data: UpdateResearchDocumentDataInput!
+}
+
+type ResearchDocumentOutput {
+  data: ResearchDocument
+}
+
+extend type Mutation {
+  createResearchDocument(data: CreateResearchDocumentDataInput!): ResearchDocumentOutput
+  updateResearchDocument(selector: SelectorInput!, data: UpdateResearchDocumentDataInput!): ResearchDocumentOutput
+}
+
+input CreateResearchProjectDataInput {
+  userId: String
+  title: String!
+  description: String
+  settings: JSON
+}
+
+input CreateResearchProjectInput {
+  data: CreateResearchProjectDataInput!
+}
+
+input UpdateResearchProjectDataInput {
+  userId: String
+  title: String
+  description: String
+  settings: JSON
+}
+
+input UpdateResearchProjectInput {
+  selector: SelectorInput!
+  data: UpdateResearchProjectDataInput!
+}
+
+type ResearchProjectOutput {
+  data: ResearchProject
+}
+
+extend type Mutation {
+  createResearchProject(data: CreateResearchProjectDataInput!): ResearchProjectOutput
+  updateResearchProject(selector: SelectorInput!, data: UpdateResearchProjectDataInput!): ResearchProjectOutput
 }
 
 input ContentTypeInput {
@@ -9057,7 +9609,6 @@ extend type Mutation {
 
 input CreateUserMostValuablePostDataInput {
   legacyData: JSON
-  userId: String!
   postId: String!
   deleted: Boolean
 }
@@ -9128,7 +9679,6 @@ extend type Mutation {
 input CreateUserTagRelDataInput {
   legacyData: JSON
   tagId: String!
-  userId: String!
   subforumShowUnreadInSidebar: Boolean
   subforumEmailNotifications: Boolean
   subforumHideIntroPost: Boolean
@@ -9197,6 +9747,7 @@ input CreateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -9243,6 +9794,7 @@ input CreateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
@@ -9363,6 +9915,7 @@ input UpdateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -9412,6 +9965,7 @@ input UpdateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON

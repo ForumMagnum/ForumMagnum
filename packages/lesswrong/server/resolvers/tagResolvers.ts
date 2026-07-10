@@ -96,7 +96,7 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): MongoSelector<DbComment> {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): Promise<MongoSelector<DbComment>> {
   return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
@@ -550,7 +550,7 @@ export const tagResolversGraphQLQueries = {
       return [];
     }
     
-    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
+    const rootCommentsSelector = await getRootCommentsInTimeBlockSelector(before, after, context);
 
     // Get
     // - revisions to tags, lenses, and summaries in the given time interval

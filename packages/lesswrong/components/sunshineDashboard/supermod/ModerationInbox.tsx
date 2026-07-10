@@ -15,7 +15,8 @@ import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
+import { getUserReviewGroup, type TabId } from './groupings';
+import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
@@ -27,51 +28,33 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 
-const SunshineUsersListMultiQuery = gql(`
-  query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
-    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+// All of the moderation inbox's initial data is fetched in a single query so
+// that its root fields (users/posts/classifiedPosts/curation/lastCurated)
+// resolve concurrently server-side, rather than as a serial waterfall of
+// separate useQuery suspends. (directUser is kept separate below because it
+// depends on whether the opened user is already in the users list.)
+const ModerationInboxDataQuery = gql(`
+  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
+    users(selector: $userSelector, limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
-      totalCount
     }
-  }
-`);
-
-const SunshinePostsListMultiQuery = gql(`
-  query multiPostModerationInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+    posts(selector: $postSelector, limit: $postLimit) {
       results {
         ...SunshinePostsList
       }
-      totalCount
     }
-  }
-`);
-
-const SunshineAutoClassifiedPostsListMultiQuery = gql(`
-  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $postLimit) {
       results {
         ...SunshinePostsList
       }
-      totalCount
     }
-  }
-`);
-
-const CurationCandidatePostsQuery = gql(`
-  query CurationCandidatePostsQuery($limit: Int) {
-    CurationCandidatePosts(limit: $limit) {
+    CurationCandidatePosts(limit: $curationLimit) {
       results {
-        ...SunshineCurationPostsList
+        ...SunshineCurationPostsListItem
       }
     }
-  }
-`);
-
-const LastCuratedDateQuery = gql(`
-  query LastCuratedDateQuery {
     LastCuratedDate {
       lastCuratedDate
     }
@@ -80,7 +63,7 @@ const LastCuratedDateQuery = gql(`
 
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
-    user(input: { selector: { documentId: $documentId } }) {
+    user(selector: { documentId: $documentId }) {
       result {
         ...SunshineUsersList
       }
@@ -140,7 +123,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -513,45 +496,21 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data: usersData, loading: usersLoading } = useQuery(SunshineUsersListMultiQuery, {
+  const { data, loading } = useQuery(ModerationInboxDataQuery, {
     variables: {
-      selector: { sunshineNewUsers: {} },
-      limit: 100,
-      enableTotal: true,
+      userSelector: { sunshineNewUsers: {} },
+      postSelector: { sunshineNewPosts: {} },
+      classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
+      userLimit: 100,
+      postLimit: 100,
+      curationLimit: 200,
     },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: postsData, loading: postsLoading } = useQuery(SunshinePostsListMultiQuery, {
-    variables: {
-      selector: { sunshineNewPosts: {} },
-      limit: 100,
-      enableTotal: true,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
-    variables: {
-      selector: { sunshineAutoClassifiedPosts: {} },
-      limit: 100,
-      enableTotal: true,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
-    variables: { limit: 200 },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: lastCuratedData } = useQuery(LastCuratedDateQuery, {
     fetchPolicy: 'cache-and-network',
   });
 
   const initialOpenedUserId = query.user || null;
 
-  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
+  const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
@@ -561,12 +520,12 @@ const ModerationInbox = () => {
   });
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
-  useCoreTags();
+  useCoreTags({ ssr: false });
 
-  const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
-  const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
-  const curationPosts = useMemo(() => curationData?.CurationCandidatePosts?.results ?? [], [curationData]);
-  const lastCuratedDate = lastCuratedData?.LastCuratedDate?.lastCuratedDate ?? null;
+  const posts = useMemo(() => data?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [data]);
+  const classifiedPosts = useMemo(() => data?.classifiedPosts?.results ?? [], [data]);
+  const curationPosts = useMemo(() => data?.CurationCandidatePosts?.results ?? [], [data]);
+  const lastCuratedDate = data?.LastCuratedDate?.lastCuratedDate ?? null;
 
   const directUser = useMemo(() => {
     if (!shouldFetchDirectUser) return null;
@@ -580,13 +539,10 @@ const ModerationInbox = () => {
     return null;
   }
 
-  const usersNotReady = usersLoading && !usersData;
-  const postsNotReady = postsLoading && !postsData;
-  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
-  const curationNotReady = curationLoading && !curationData;
+  const dataNotReady = loading && !data;
   const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
 
-  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
+  if (dataNotReady || directUserNotReady) {
     return (
       <div className={classes.loading}>
         <Loading />

@@ -120,7 +120,11 @@ const LWPopper = ({
   
   // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
   // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
-  if (anchorEl && !anchorEl.isConnected) {
+  // NB: popper also supports "virtual elements" (plain objects with a
+  // getBoundingClientRect method and no isConnected property), used e.g. by
+  // useHover to anchor to a specific wrapped-line segment -- those don't have
+  // isConnected, so we guard by checking whether the property exists first.
+  if (anchorEl && "isConnected" in anchorEl && !anchorEl.isConnected) {
     return null;
   }
   

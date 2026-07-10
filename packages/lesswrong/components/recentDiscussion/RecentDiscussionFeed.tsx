@@ -17,6 +17,7 @@ import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { randomId } from '../../lib/random';
+import { getBrowserSessionStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 
 const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   titleRow: {
@@ -58,9 +59,9 @@ const RecentDiscussionFeed = ({
   
   const sessionId = useMemo<string>(() => {
     if (typeof window === 'undefined') return randomId();
-    const storage = window.sessionStorage;
-    const currentId = storage ? storage.getItem('recentDiscussionSessionId') ?? randomId() : randomId();
-    storage.setItem('recentDiscussionSessionId', currentId);
+    const storage = getBrowserSessionStorage();
+    const currentId = safeStorageGetItem(storage, 'recentDiscussionSessionId') ?? randomId();
+    safeStorageSetItem(storage, 'recentDiscussionSessionId', currentId);
     return currentId;
   }, []);
 

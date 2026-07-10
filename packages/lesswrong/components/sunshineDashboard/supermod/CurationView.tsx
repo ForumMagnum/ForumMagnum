@@ -54,7 +54,7 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
 
 
 const CurationPostView = ({post, currentUser}: {
-  post: SunshineCurationPostsList | null;
+  post: SunshineCurationPostsListItem | null;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);

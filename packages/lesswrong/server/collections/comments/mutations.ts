@@ -1,6 +1,8 @@
 import schema from "@/lib/collections/comments/newSchema";
-import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
+import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
+import { captureException } from "@/lib/sentryWrapper";
+import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
@@ -15,10 +17,46 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
+import { GraphQLError } from "graphql";
 import cloneDeep from "lodash/cloneDeep";
+
+/**
+ * When creating a comment which is a reply (ie, has `parentCommentId`), use the parent comment
+ * to fill in postId and tagId if missing, and if not missing, ensure they're consistent between
+ * the mutation options and the parent comment.
+ */
+async function applyParentCommentContext(
+  data: CreateCommentDataInput,
+  context: ResolverContext,
+  currentUser: DbUser | null,
+) {
+  if (!data.parentCommentId) return;
+
+  const parentComment = await context.loaders.Comments.load(data.parentCommentId);
+  if (!parentComment) return;
+
+  const conflictingFields = [
+    data.postId && parentComment.postId && data.postId !== parentComment.postId ? "postId" : null,
+    data.tagId && parentComment.tagId && data.tagId !== parentComment.tagId ? "tagId" : null,
+  ].filter((field): field is string => !!field);
+
+  if (conflictingFields.length) {
+    captureException(new Error(
+      `Comment reply submitted with conflicting parent context: fields=${conflictingFields.join(",")}, ` +
+      `parentCommentId=${parentComment._id}, userId=${currentUser?._id ?? "none"}, ` +
+      `submittedPostId=${data.postId ?? "null"}, parentPostId=${parentComment.postId ?? "null"}, ` +
+      `submittedTagId=${data.tagId ?? "null"}, parentTagId=${parentComment.tagId ?? "null"}`
+    ));
+  }
+
+  data.postId = parentComment.postId ?? null;
+  data.tagId = parentComment.tagId ?? null;
+}
 
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
   if (!user || !document) return false;
+
+  await applyParentCommentContext(document, context, user);
   
   newCommentsEmptyCheck(document);
   await newCommentsRateLimit(document, user, context);
@@ -30,6 +68,12 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   const author = await context.loaders.Users.load(post.userId);
   const isReply = !!document.parentCommentId;
   if (!userIsAllowedToComment(user, post, author, isReply)) {
+    const authorBanReason = getAuthorCommentBanReason(user, post, author);
+    if (authorBanReason && !userCanDo(user, `posts.moderate.all`)) {
+      throw new GraphQLError(getAuthorCommentBanMessage(authorBanReason), {
+        extensions: { noSentryCapture: true },
+      });
+    }
     return userCanDo(user, `posts.moderate.all`)
   }
 
@@ -50,6 +94,14 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
   const { currentUser } = context;
+
+  await applyParentCommentContext(data, context, currentUser);
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   const callbackProps = await getLegacyCreateCallbackProps('Comments', {
     context,
@@ -128,6 +180,12 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
 export async function updateComment({ selector, data }: UpdateCommentInput, context: ResolverContext) {
   const { currentUser, Comments } = context;
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in FieldChanges

@@ -34,5 +34,6 @@ export function withDomGlobals<T>(fn: () => T): T {
     } else {
       globalWithDom.window = previousWindow;
     }
+    dom.window.close();
   }
 }

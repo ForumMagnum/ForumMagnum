@@ -17,7 +17,7 @@ const schema = {
       inputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["admins"],
       validation: {
         optional: true,
       },

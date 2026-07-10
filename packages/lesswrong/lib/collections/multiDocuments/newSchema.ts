@@ -157,13 +157,8 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      inputType: "String",
       canRead: ["guests"],
-      canCreate: ["members"],
       onCreate: ({ currentUser }) => currentUser?._id,
-      validation: {
-        optional: true,
-      },
     },
   },
   user: {

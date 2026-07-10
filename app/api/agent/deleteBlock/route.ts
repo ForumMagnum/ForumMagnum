@@ -1,14 +1,14 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
+import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -17,6 +17,30 @@ interface DeleteBlockResult {
   note: string
   deletionIndex?: number
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
+}
+
+/**
+ * Wrap a matched block as a deletion suggestion, reporting whether any
+ * suggestion was actually created. `$wrapSelectionInSuggestionNode` has no
+ * case for block-level decorators (e.g. a top-level display MathNode) and
+ * silently creates nothing for them; its return value can't be checked
+ * directly because the table case creates per-cell suggestion nodes without
+ * reporting them — so success is verified by inspecting the tree for nodes
+ * carrying this call's suggestionId. Exported for testing. Must be called
+ * inside a Lexical update context.
+ */
+export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestionId: string): boolean {
+  const parent = blockNode.getParent();
+  if (!parent) return false;
+  const indexInParent = blockNode.getIndexWithinParent();
+  const selection = $createRangeSelection();
+  selection.anchor.set(parent.getKey(), indexInParent, "element");
+  selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+  $setSelection(selection);
+  $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
+  return $nodesOfType(ProtonNode).some((node) => node.getSuggestionIdOrThrow() === suggestionId);
 }
 
 export async function deleteMarkdownBlock({
@@ -34,7 +58,7 @@ export async function deleteMarkdownBlock({
   authorName: string
   authorId: string
 }): Promise<DeleteBlockResult> {
-  const result = await withMainDocEditorSession({
+  const result: DeleteBlockResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "DeleteBlock",
@@ -44,72 +68,55 @@ export async function deleteMarkdownBlock({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const rootChildren = root.getChildren();
-          const textFilter = toPlainTextFilter(prefix);
-          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
+          const blockResult = $locateBlockByPrefix(prefix);
+          const nodeToDelete = blockResult.node;
 
-          let deletionIndex: number | null = null;
-          for (let i = 0; i < rootChildren.length; i++) {
-            const child = rootChildren[i];
-            const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
-            const textContent = child.getTextContent();
-            if (!childMarkdown) {
-              if (
-                plainTextStartsWith(textContent, prefix) ||
-                (textFilter && normalizeText(textContent).startsWith(textFilter))
-              ) {
-                deletionIndex = i;
-                break;
-              }
-              continue;
-            }
-            if (
-              paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-              plainTextStartsWith(textContent, prefix) ||
-              (textFilter && normalizeText(textContent).startsWith(textFilter))
-            ) {
-              deletionIndex = i;
-              break;
-            }
-          }
-
-          if (deletionIndex === null) {
-            result = {
-              deleted: false,
-              note: `No paragraph markdown starts with locator text: ${prefix}`,
-            };
-            return;
-          }
-
-          const nodeToDelete = rootChildren[deletionIndex];
           if (!nodeToDelete) {
             result = {
               deleted: false,
-              note: `Matched block index ${deletionIndex} could not be resolved.`,
+              note: blockResult.reason ?? `No block starts with locator text: ${prefix}`,
             };
             return;
           }
+
+          const parent = nodeToDelete.getParent();
+          if (!parent) {
+            result = {
+              deleted: false,
+              note: "Matched block has no parent and cannot be deleted.",
+            };
+            return;
+          }
+          const indexInParent = nodeToDelete.getIndexWithinParent();
 
           if (mode === "edit") {
             nodeToDelete.remove();
+            // If we just removed the last list item from a list, drop the
+            // (now-empty) list too — leaving an empty list behind looks like
+            // a rendering glitch in the editor.
+            if (parent !== root && parent.getChildrenSize() === 0) {
+              parent.remove();
+            }
             result = {
               deleted: true,
               note: "Deleted markdown block from collaborative draft.",
-              deletionIndex,
+              deletionIndex: indexInParent,
             };
             return;
           }
 
-          const selection = $createRangeSelection();
-          selection.anchor.set(root.getKey(), deletionIndex, "element");
-          selection.focus.set(root.getKey(), deletionIndex + 1, "element");
-          $setSelection(selection);
           const suggestionId = randomId();
-          $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
+          if (!$wrapBlockAsDeletionSuggestion(nodeToDelete, suggestionId)) {
+            result = {
+              deleted: false,
+              note: "This block type cannot be wrapped as a deletion suggestion. Retry with mode \"edit\" to delete it directly.",
+            };
+            return;
+          }
           result = {
             deleted: true,
             note: "Marked markdown block as a deletion suggestion.",
-            deletionIndex,
+            deletionIndex: indexInParent,
             suggestionId,
           };
         }, { onUpdate: resolve });
@@ -123,8 +130,9 @@ export async function deleteMarkdownBlock({
   });
 
   if (mode === "suggest" && result.deleted && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -134,6 +142,10 @@ export async function deleteMarkdownBlock({
         content: prefix,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -154,17 +166,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, prefix } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "deleteBlock", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const deleteResult = await deleteMarkdownBlock({
@@ -184,6 +188,8 @@ export async function POST(req: NextRequest) {
       deletionIndex: deleteResult.deletionIndex ?? null,
       note: deleteResult.note,
       deletionMode: mode,
+      suggestionId: deleteResult.suggestionId ?? null,
+      threadCreationFailed: deleteResult.threadCreationFailed ?? false,
       mode: "lexical-collaboration-delete-block",
       requestId: randomId(),
     });

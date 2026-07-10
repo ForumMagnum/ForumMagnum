@@ -20,7 +20,7 @@ const noOp = () => {};
 const doubleNoOp = () => noOp;
 
 export type UseQueryOptions = {
-  fetchPolicy: SuspenseQueryHookFetchPolicy,
+  fetchPolicy?: SuspenseQueryHookFetchPolicy,
   ssr?: boolean,
   skip?: boolean,
 };

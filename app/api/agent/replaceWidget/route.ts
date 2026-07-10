@@ -5,30 +5,31 @@ import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 const WIDGET_SUMMARY_MAX_LENGTH = 300;
 
-function truncateForSummary(value: string): string {
+export function truncateForSummary(value: string): string {
   if (value.length <= WIDGET_SUMMARY_MAX_LENGTH) {
     return value;
   }
   return value.slice(0, WIDGET_SUMMARY_MAX_LENGTH) + "... [truncated]";
 }
 
-interface ReplaceWidgetResult {
+export interface ReplaceWidgetResult {
   replaced: boolean
   widgetFound: boolean
   note: string
   suggestionId?: string
   previousContent?: string
   nextContent?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 function findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
@@ -87,6 +88,72 @@ function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldConte
   return suggestionId;
 }
 
+/**
+ * The core Lexical update logic for replacing a widget's content. Exported so
+ * the research-agent replace-widget route can reuse it. Must be called inside
+ * an editor.update() callback.
+ */
+export function $replaceWidgetInEditor({
+  widgetId,
+  replacement,
+  unifiedDiff,
+  mode,
+}: {
+  widgetId: string
+  replacement?: string
+  unifiedDiff?: string
+  mode: ReplaceMode
+}): ReplaceWidgetResult {
+  const root = $getRoot();
+  const widgetNode = findWidgetNodeById(root, widgetId);
+  if (!widgetNode) {
+    return {
+      replaced: false,
+      widgetFound: false,
+      note: `Widget with id ${widgetId} was not found.`,
+    };
+  }
+
+  const currentContent = widgetNode.getTextContent();
+  const replacementResult = computeReplacementContent({
+    currentContent,
+    replacement,
+    unifiedDiff,
+  });
+
+  if (!replacementResult.ok) {
+    return {
+      replaced: false,
+      widgetFound: true,
+      note: replacementResult.note,
+    };
+  }
+
+  if (mode === "edit") {
+    for (const child of widgetNode.getChildren()) {
+      child.remove();
+    }
+    if (replacementResult.content.length > 0) {
+      widgetNode.append($createTextNode(replacementResult.content));
+    }
+    return {
+      replaced: true,
+      widgetFound: true,
+      note: "Replaced widget HTML/JS content directly.",
+    };
+  }
+
+  const suggestionId = applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
+  return {
+    replaced: true,
+    widgetFound: true,
+    note: "Created delete/insert suggestion nodes for widget content replacement.",
+    suggestionId,
+    previousContent: currentContent,
+    nextContent: replacementResult.content,
+  };
+}
+
 export async function replaceWidgetInMainDoc({
   postId,
   token,
@@ -119,57 +186,7 @@ export async function replaceWidgetInMainDoc({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const root = $getRoot();
-          const widgetNode = findWidgetNodeById(root, widgetId);
-          if (!widgetNode) {
-            result = {
-              replaced: false,
-              widgetFound: false,
-              note: `Widget with id ${widgetId} was not found.`,
-            };
-            return;
-          }
-          result.widgetFound = true;
-          const currentContent = widgetNode.getTextContent();
-          const replacementResult = computeReplacementContent({
-            currentContent,
-            replacement,
-            unifiedDiff,
-          });
-
-          if (!replacementResult.ok) {
-            result = {
-              replaced: false,
-              widgetFound: true,
-              note: replacementResult.note,
-            };
-            return;
-          }
-
-          if (mode === "edit") {
-            for (const child of widgetNode.getChildren()) {
-              child.remove();
-            }
-            if (replacementResult.content.length > 0) {
-              widgetNode.append($createTextNode(replacementResult.content));
-            }
-            result = {
-              replaced: true,
-              widgetFound: true,
-              note: "Replaced widget HTML/JS content directly.",
-            };
-            return;
-          }
-
-          const suggestionId = applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
-          result = {
-            replaced: true,
-            widgetFound: true,
-            note: "Created delete/insert suggestion nodes for widget content replacement.",
-            suggestionId,
-            previousContent: currentContent,
-            nextContent: replacementResult.content,
-          };
+          result = $replaceWidgetInEditor({ widgetId, replacement, unifiedDiff, mode });
         }, { onUpdate: resolve });
       });
 
@@ -181,8 +198,9 @@ export async function replaceWidgetInMainDoc({
   });
 
   if (mode === "suggest" && result.replaced && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -193,6 +211,10 @@ export async function replaceWidgetInMainDoc({
         replaceWith: truncateForSummary(result.nextContent ?? ""),
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -213,16 +235,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "replaceWidget", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "replaceWidget", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "replaceWidget", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const result = await replaceWidgetInMainDoc({
@@ -245,6 +260,8 @@ export async function POST(req: NextRequest) {
       replaced: result.replaced,
       widgetFound: result.widgetFound,
       note: result.note,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed: result.threadCreationFailed ?? false,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

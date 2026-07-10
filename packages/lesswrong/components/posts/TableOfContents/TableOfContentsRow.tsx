@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
@@ -154,6 +154,6 @@ const TableOfContentsRow = ({
   </div>
 }
 
-export default TableOfContentsRow;
+export default memo(TableOfContentsRow);
 
 

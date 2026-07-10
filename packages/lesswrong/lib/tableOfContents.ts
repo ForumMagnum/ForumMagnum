@@ -114,6 +114,11 @@ export function extractTableOfContents({
     if (!(element instanceof window.HTMLElement)) {
       continue;
     }
+    // Skip headings inside spoiler/collapsible content or code blocks; those
+    // are hidden or literal content and should not appear in the ToC.
+    if (element.closest('.spoilers, .spoiler, .detailsBlockContent, pre, code')) {
+      continue;
+    }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;

@@ -1,4 +1,6 @@
-import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { sanitize } from "@/lib/utils/sanitize";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import type MarkdownIt from "markdown-it";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
@@ -15,13 +17,12 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -30,6 +31,8 @@ interface InsertBlockResult {
   note: string
   insertionIndex?: number
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed", index: number } | { mode: "prefix", relation: "before" | "after", prefix: string } {
@@ -111,58 +114,58 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
 
-export function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  const widgetFence = parseWholeWidgetFence(markdown);
-  if (widgetFence) {
-    const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
-    widgetNode.append($createTextNode(widgetFence.widgetMarkup));
-    return [widgetNode];
-  }
-
-  const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
-  const html = markdownToHtml(markdownWithWidgetIframes);
+export function $markdownToNodes(
+  editor: LexicalEditor,
+  markdown: string,
+  options: { markdownIt: MarkdownIt },
+): LexicalNode[] {
+  const id = randomId();
+  const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
   const dom = new JSDOM(html);
   const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
   return normalizeImportedTopLevelNodes(importedNodes);
 }
 
-function findInsertionIndexByPrefix(
-  rootChildren: LexicalNode[],
-  prefix: string,
-  relation: "before" | "after",
-): number | null {
-  const textFilter = toPlainTextFilter(prefix);
-  const mapResult = buildNodeMarkdownMapForSubtree($getRoot().getKey(), textFilter);
-  for (let i = 0; i < rootChildren.length; i++) {
-    const child = rootChildren[i];
-    const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
-    const textContent = child.getTextContent();
-    if (!childMarkdown) {
-      if (
-        plainTextStartsWith(textContent, prefix) ||
-        (textFilter && normalizeText(textContent).startsWith(textFilter))
-      ) {
-        return relation === "before" ? i : i + 1;
-      }
-      continue;
-    }
-    if (
-      paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-      plainTextStartsWith(textContent, prefix) ||
-      (textFilter && normalizeText(textContent).startsWith(textFilter))
-    ) {
-      return relation === "before" ? i : i + 1;
-    }
+export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+  const wholeFence = parseWholeWidgetFence(markdown);
+  if (wholeFence) {
+    const widgetNode = $createIframeWidgetNode(wholeFence.widgetId);
+    widgetNode.append($createTextNode(wholeFence.widgetMarkup));
+    return [widgetNode];
   }
-  return null;
+
+  const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
+  return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
 }
 
-export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+export interface InsertionIndexResult {
+  index: number | null
+  /** Why no index could be resolved (e.g. an ambiguous prefix). */
+  reason?: string
+}
+
+function findInsertionIndexByPrefix(
+  prefix: string,
+  relation: "before" | "after",
+): InsertionIndexResult {
+  const blockResult = $locateBlockByPrefix(prefix);
+  const matched = blockResult.node;
+  if (!matched) return { index: null, reason: blockResult.reason };
+  // The locator may descend into list items (at any nesting depth), but
+  // insertion always happens at the top level — translate the match back to
+  // its top-level ancestor's index, so the caller inserts before/after the
+  // whole list rather than splitting the list open.
+  const topLevel = matched.getTopLevelElement() ?? matched;
+  const topLevelIndex = topLevel.getIndexWithinParent();
+  return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
+}
+
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): InsertionIndexResult {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
-    return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;
+    return { index: target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index };
   }
-  return findInsertionIndexByPrefix(rootChildren, target.prefix, target.relation);
+  return findInsertionIndexByPrefix(target.prefix, target.relation);
 }
 
 /**
@@ -175,21 +178,23 @@ export function $insertMarkdownBlockInEditor({
   mode,
   location,
   markdown,
+  markdownToNodes,
 }: {
   editor: LexicalEditor
   mode: ReplaceMode
   location: InsertLocation
   markdown: string
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
 }): InsertBlockResult {
-  const nodesToInsert = $markdownToNodes(editor, markdown);
+  const nodesToInsert = markdownToNodes(editor, markdown);
   if (nodesToInsert.length === 0) {
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
   }
 
   const root = $getRoot();
-  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
   if (insertionIndex === null) {
-    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+    return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
   root.splice(insertionIndex, 0, nodesToInsert);
@@ -225,7 +230,7 @@ export async function insertMarkdownBlock({
   authorName: string
   authorId: string
 }): Promise<InsertBlockResult> {
-  const result = await withMainDocEditorSession({
+  const result: InsertBlockResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "InsertBlock",
@@ -234,7 +239,10 @@ export async function insertMarkdownBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          result = $insertMarkdownBlockInEditor({ editor, mode, location, markdown });
+          result = $insertMarkdownBlockInEditor({
+            editor, mode, location, markdown,
+            markdownToNodes: $postMarkdownToNodes,
+          });
         }, { onUpdate: resolve });
       });
 
@@ -246,8 +254,9 @@ export async function insertMarkdownBlock({
   });
 
   if (mode === "suggest" && result.inserted && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -257,6 +266,10 @@ export async function insertMarkdownBlock({
         content: markdown,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -277,16 +290,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, location, markdown } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "insertBlock", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const insertResult = await insertMarkdownBlock({
@@ -307,6 +313,8 @@ export async function POST(req: NextRequest) {
       insertionIndex: insertResult.insertionIndex ?? null,
       note: insertResult.note,
       insertionMode: mode,
+      suggestionId: insertResult.suggestionId ?? null,
+      threadCreationFailed: insertResult.threadCreationFailed ?? false,
       mode: "lexical-collaboration-insert-block",
       requestId: randomId(),
     });

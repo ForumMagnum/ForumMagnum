@@ -1,16 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect, useContext, Suspense } from 'react';
 import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
-import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
+import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
-import { useMutation } from '@apollo/client/react';
-import { gql } from "@/lib/generated/gql-codegen";
-import { useTracking } from '../../lib/analyticsEvents';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, EditorTypeString, styles, shouldSubmitContents, isValidEditorType, autosaveInterval, type LegacyEditorTypeString } from './Editor';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
-import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
+import { DynamicTableOfContentsContext } from '../common/sharedContexts';
 import { AppendToEditorContext } from './AppendToEditorContext';
-import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
@@ -20,9 +16,6 @@ import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
 import ErrorBoundary from "../common/ErrorBoundary";
-
-const autosaveInterval = 3000; //milliseconds
-const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
@@ -58,7 +51,6 @@ interface EditorFormComponentProps<S, R> {
   hintText: string;
   placeholder?: string;
   label?: string;
-  formVariant?: 'default' | 'grey';
   revisionsHaveCommitMessages?: boolean;
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
@@ -122,7 +114,6 @@ function InnerEditorFormComponent<S, R>({
   hintText,
   placeholder,
   label,
-  formVariant,
   revisionsHaveCommitMessages,
   hasToc,
   setFieldEditorType,
@@ -139,8 +130,6 @@ function InnerEditorFormComponent<S, R>({
   const appendToEditorContext = useContext(AppendToEditorContext);
   const registerAppendToEditor = appendToEditorContext?.registerAppendToEditor;
   
-
-  const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);
 
@@ -170,12 +159,9 @@ function InnerEditorFormComponent<S, R>({
     field.state.value, document, fieldName, currentUser
   ));
 
-  const autosaveContentsRef = useRef(contents);
   const [initialEditorType] = useState(contents.type);
-  const [updatedFormType, setUpdatedFormType] = useState(formType);
 
   const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
-  const { setAutosaveEditorState } = useContext(AutosaveEditorStateContext);
 
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
@@ -191,47 +177,25 @@ function InnerEditorFormComponent<S, R>({
   // to show it to people using the html editor. Converting from markdown to ckEditor
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
-  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
 
   const saveBackup = useCallback((newContents: EditorContents) => {
-    const sameAsSaved = newContents.value === document?.[fieldName]?.ckEditorMarkup
+    const savedOriginalContents = document?.[fieldName]?.originalContents;
+    const sameAsSaved = !!savedOriginalContents
+      && savedOriginalContents.type === newContents.type
+      && savedOriginalContents.data === newContents.value;
 
     if (isBlank(newContents) || sameAsSaved) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
-      const serialized = serializeEditorContents(newContents);
-      const success = getLocalStorageHandlers(newContents.type).set(serialized);
-      
+      const success = getLocalStorageHandlers(newContents.type).set(newContents);
+
       if (success) {
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
   }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
-
-  const [autosaveRevision] = useMutation(gql(`
-    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {
-      autosaveRevision(postId: $postId, contents: $contents) {
-        ...RevisionEdit
-      }
-    }
-  `));
-
-  const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {
-    // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
-    // Afterwards, check whatever revision was loaded for display
-    // This may or may not be the most recent one) against current content
-    // If different, save a new revision
-    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && fieldName === 'contents' && !isEqual(autosaveContentsRef.current, newContents) && newContents.type === 'ckEditorMarkup') {
-      // In order to avoid recreating this function (which is throttled) each time the contents change,
-      // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
-      // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
-      autosaveContentsRef.current = newContents;
-      await autosaveRevision({
-        variables: { postId: document._id, contents: newContents }
-      });
-    }
-  }, [currentUser, collectionName, fieldName, document._id, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -270,13 +234,6 @@ function InnerEditorFormComponent<S, R>({
     allowExplicitCallAfterUnmount: false,
   });
 
-  const throttledSaveRemoteBackup = useDebouncedCallback(saveRemoteBackup, {
-    rateLimitMs: remoteAutosaveInterval,
-    callOnLeadingEdge: false,
-    onUnmount: "cancelPending",
-    allowExplicitCallAfterUnmount: false,
-  });
-  
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
     if (dynamicTableOfContents && hasToc) {
@@ -303,8 +260,6 @@ function InnerEditorFormComponent<S, R>({
     
     if (autosave) {
       throttledSaveBackup(newContents);
-      // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
-      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
   });
 
@@ -386,7 +341,7 @@ function InnerEditorFormComponent<S, R>({
     if (editorRef.current) {
       const cleanupSubmitForm = addOnSubmitCallback(async () => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
-          const updatedEditorData = await editorRef.current.submitData();
+          const updatedEditorData = await editorRef.current.submitData({ includeYjsState: true });
           field.setValue(updatedEditorData);
         }
       });
@@ -440,27 +395,9 @@ function InnerEditorFormComponent<S, R>({
   const fieldHasCommitMessages = revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
-    && (collectionName!=="Tags" || updatedFormType==="edit");
+    && (collectionName!=="Tags" || formType==="edit");
 
   const actualPlaceholder = (editorHintText || hintText || placeholder || (collectionName === "Posts" ? getPostPlaceholder(document) : undefined));
-
-  useEffect(() => {
-    if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
-      setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
-        if (editorRef.current && shouldSubmitContents(editorRef.current)) {
-          void editorRef.current?.submitData()
-            .then(({ originalContents: { type, data: value } }) => ({ type, value }))
-            .then(saveRemoteBackup)
-            .then(resolve)
-            .catch(reject);
-        }
-      }));
-    }
-
-    return () => {
-      setAutosaveEditorState(null);
-    }
-  }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
   if (!document) return null;
 
@@ -486,8 +423,7 @@ function InnerEditorFormComponent<S, R>({
       _classes={classes}
       currentUser={currentUser}
       label={label}
-      formVariant={formVariant}
-      formType={updatedFormType}
+      formType={formType}
       documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
@@ -507,7 +443,7 @@ function InnerEditorFormComponent<S, R>({
       document={document}
     />}
     </CKEditorPortalProvider>
-    {!hideControls && formVariant !== "grey" && (
+    {!hideControls && (
       <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     )}
   </div>

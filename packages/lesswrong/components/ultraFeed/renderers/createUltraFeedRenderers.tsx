@@ -7,12 +7,16 @@ import SuggestedFeedSubscriptions from '../../subscriptions/SuggestedFeedSubscri
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import type { UltraFeedSettingsType } from '../ultraFeedSettingsTypes';
 import FeedMarker from '../FeedMarker';
+import { UltraFeedDebugPostItem, UltraFeedDebugSpotlightItem, UltraFeedDebugThreadItem } from '../UltraFeedDebugItem';
 
-export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSettingsType }) {
+export function createUltraFeedRenderers({ settings, debugMode = false }: { settings: UltraFeedSettingsType; debugMode?: boolean }) {
   return {
     feedCommentThread: {
       render: (item: FeedCommentThreadFragment, index: number) => {
         if (!item) return null;
+        if (debugMode) {
+          return <UltraFeedDebugThreadItem item={item} />;
+        }
         const thread = {
           ...item,
           postSources: item.postSources as FeedItemSourceType[] | null,
@@ -31,6 +35,9 @@ export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSett
     feedPost: {
       render: (item: FeedPostFragment, index: number) => {
         if (!item) return null;
+        if (debugMode) {
+          return <UltraFeedDebugPostItem item={item} />;
+        }
         return (
           <FeedItemWrapper>
             <UltraFeedPostItem
@@ -46,6 +53,9 @@ export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSett
     feedSpotlight: {
       render: (item: FeedSpotlightFragment, index: number) => {
         if (!item || !item.spotlight) return null;
+        if (debugMode) {
+          return <UltraFeedDebugSpotlightItem item={item} />;
+        }
         const metaInfo = item.spotlightMetaInfo ? {
           ...item.spotlightMetaInfo,
           sources: item.spotlightMetaInfo.sources as FeedItemSourceType[],

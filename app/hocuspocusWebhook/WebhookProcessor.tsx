@@ -27,14 +27,14 @@ async function processDocumentUpdate({ documentName, yjsStateBase64 }: WebhookPr
   // client bundles.
   const {
     saveOrUpdateLexicalRevision,
-    documentNameToPostId,
+    parseHocuspocusDocumentName,
   } = await import('@/server/hocuspocus/hocuspocusCallbacks');
 
   const yjsBinary = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
   const html = yjsBinaryToHtml(yjsBinary);
-  const postId = documentNameToPostId(documentName);
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
 
-  await saveOrUpdateLexicalRevision(postId, html, yjsStateBase64);
+  await saveOrUpdateLexicalRevision(collectionName, documentId, html, yjsStateBase64);
 
   return 'ok';
 }

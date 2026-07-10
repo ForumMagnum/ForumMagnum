@@ -1,7 +1,7 @@
 
 import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
+import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -11,10 +11,10 @@ import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } fro
 
 function newCheck(user: DbUser | null, document: CreateLWEventDataInput | null) {
   if (!user || !document) return false;
-  return userOwns(user, document as OwnableDocument) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)
+  return userCanDo(user, 'events.new.own');
 }
 
-export async function createLWEvent({ data }: CreateLWEventInput, context: ResolverContext) {
+export async function createLWEvent({ data }: { data: CreateLWEventDataInput & { userId?: string } }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('LWEvents', {

@@ -192,7 +192,7 @@ print(f"Access token: {access_token}")
     {
       "html": "<style>...</style><div id='root'></div><script type='text/babel' data-presets='react'>...</script>",
       "title": "My Custom Home Page",
-      "modelName": "claude-opus-4.6",
+      "modelName": "claude-opus-4.7",
       "publicId": null
     }
 
@@ -202,7 +202,7 @@ print(f"Access token: {access_token}")
 |-------|------|----------|-------------|
 | \`html\` | string | yes | Body content only — styles, HTML elements, and Babel script tags. See design reference below. |
 | \`title\` | string | no | Name for the design. Defaults to "Untitled Design". |
-| \`modelName\` | string | no | The model that generated this design (e.g. "claude-opus-4.6", "gpt-5.4"). |
+| \`modelName\` | string | no | The model that generated this design (e.g. "claude-opus-4.7", "gpt-5.4"). |
 | \`publicId\` | string | no | To update an existing design, pass its publicId. Omit or pass null to create a new one. |
 
 ### Response

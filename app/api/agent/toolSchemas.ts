@@ -72,7 +72,7 @@ export const insertBlockToolSchema = z.object({
 export const insertLLMBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
-  modelName: z.string().default("AI Agent").describe("The model name to display on the LLM content block (e.g. 'Claude Opus 4.6')"),
+  modelName: z.string().default("AI Agent").describe("The model name to display on the LLM content block (e.g. 'Claude Opus 4.7')"),
   markdown: z.string().describe("The markdown content for the LLM content block"),
   location: insertLocationSchema,
 });

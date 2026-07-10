@@ -1,5 +1,4 @@
 import { inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
-import type { ReviewGroup } from '../components/sunshineDashboard/supermod/groupings';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -11,6 +10,9 @@ import {
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   newContent: UNREVIEWED_FIRST_POST,
+  // `offboard` is derived from content (not a moderator action); this mapping is
+  // only used to attach a plausible action to mock users in these reducer tests.
+  offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
@@ -44,6 +46,7 @@ function createMockUser(
 
   return {
     ...baseUser,
+    reviewGroup,
     moderatorActions: [{
       __typename: 'ModeratorAction' as const,
       _id: `action-${id}`,

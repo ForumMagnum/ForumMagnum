@@ -94,7 +94,7 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
-      span: ['style', 'id', 'role', 'class'],
+      span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title'],
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
@@ -176,6 +176,7 @@ export const sanitize = function(s: string): string {
         'footnote-label',
         'footnote-back-link',
         'math-tex',
+        'research-mention',
         'code-token-comment',
         'code-token-deleted',
         'code-token-inserted',
@@ -277,6 +278,45 @@ export const sanitize = function(s: string): string {
         color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
       },
     }
+  });
+};
+
+// Allowlist sanitizer for moderator-authored "rejection reason" strings on
+// Posts and Comments. These fields are rendered raw on /moderation, but go
+// through this sanitizer at write time so a compromised mod account cannot
+// produce stored XSS. The allowlist covers basic rich-text formatting that
+// historical CKEditor and current Lexical output produce; in particular
+// Lexical emits <em>/<u>/<s> for italic/underline/strikethrough and adds
+// `target` to outbound links.
+export const sanitizeRejectionReason = function(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: [
+      'a', 'b', 'blockquote', 'br', 'em', 'i', 'li', 'ol', 'p', 's', 'span', 'strong', 'u', 'ul',
+    ],
+    allowedAttributes: {
+      a: ['href', 'rel', 'target'],
+      li: ['data-list-item-id', 'value'],
+      p: ['style'],
+      span: ['style'],
+      strong: ['style'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesAppliedToAttributes: ['href'],
+    allowProtocolRelative: false,
+    allowedStyles: {
+      p: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+      span: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+      strong: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+    },
   });
 };
 

@@ -12,6 +12,7 @@ interface AgentApiEventProps {
   // Set on success to describe what actually happened, especially partial failures
   // e.g. "inserted", "not_inserted", "replaced", "quote_not_found", "anchor_top_level_no_match"
   operationResult?: string;
+  threadId?: string;
 }
 
 function categorizeError(error: unknown): string {

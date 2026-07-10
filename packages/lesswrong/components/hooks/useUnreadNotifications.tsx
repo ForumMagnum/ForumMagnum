@@ -13,6 +13,7 @@ import { usePageVisibility } from './usePageVisibility';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import { useIsMounted } from './useIsMounted';
 import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
+import { getBrowserLocalStorage, safeStorageSetItem } from '../editor/localStorageHandlers';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -135,7 +136,7 @@ export const UnreadNotificationsContextProvider: FC<{
 
     void refetchBoth();
 
-    window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
+    safeStorageSetItem(getBrowserLocalStorage(), notificationsCheckedAtLocalStorageKey, now.toISOString());
   }, [updateCurrentUser, apolloClient.cache, refetchBoth]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({

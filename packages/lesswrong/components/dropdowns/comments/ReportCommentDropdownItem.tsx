@@ -28,7 +28,6 @@ const ReportCommentDropdownItem = ({comment, post}: {
         commentId={comment._id}
         postId={comment.postId ?? undefined}
         link={"/posts/" + comment.postId + "/a/" + comment._id}
-        userId={currentUser._id}
       />
     });
   }

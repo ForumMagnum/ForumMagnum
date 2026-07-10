@@ -8,6 +8,7 @@ import {
   type DOMExportOutputMap,
   type LexicalEditor as LexicalEditorType,
   type LexicalNode,
+  type LexicalNodeConfig,
   TextNode,
 } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -15,10 +16,9 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
-import type { CollaborationConfig } from '../lexical/collaboration';
+import { fetchHocuspocusToken, type CollaborationConfig } from '../lexical/collaboration';
 import { useApolloClient } from '@apollo/client/react';
 import { useLocation } from '@/lib/routeUtil';
-import type { ApolloClient } from '@apollo/client/core';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
@@ -28,22 +28,12 @@ import { TableContext } from '../lexical/plugins/TablePlugin';
 import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
-import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
-import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
-
-const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`);
-
+import DeferRender from '../common/DeferRender';
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -201,26 +191,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       margin: '1em 0',
       padding: '0.5em',
     },
-    // Spoiler styles
-    '& .spoilers': {
-      backgroundColor: theme.palette.grey[100],
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 4,
-      padding: '1em',
-      margin: '1em 0',
-      position: 'relative',
-      '&::before': {
-        content: '"Spoiler"',
-        position: 'absolute',
-        top: -10,
-        left: 10,
-        backgroundColor: theme.palette.panelBackground.default,
-        padding: '0 4px',
-        fontSize: '0.75em',
-        color: theme.palette.grey[600],
-        fontWeight: 500,
-      },
-    },
     // Claim/prediction styles
     '& .elicit-binary-prediction-wrapper': {
       margin: '1em 0',
@@ -285,7 +255,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
 interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
-  onChange: (html: string) => void;
+  onChange?: (html: string) => void;
   onReady?: () => void;
   /**
    * Called with a function that generates HTML with all suggestions rejected,
@@ -301,6 +271,10 @@ interface LexicalEditorProps {
   fieldName?: string;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
+  extraNodes?: LexicalNodeConfig[];
+  disableComponentPicker?: boolean;
+  disableMentions?: boolean;
+  children?: React.ReactNode;
 }
 
 const getCodeHighlightClassName = (highlightType: string | null | undefined) => {
@@ -366,23 +340,6 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   return output;
 };
 
-async function fetchHocuspocusToken(
-  apolloClient: ApolloClient,
-  postId: string,
-  linkSharingKey: string | null,
-): Promise<string> {
-  const { data } = await apolloClient.query({
-    query: HocuspocusAuthQuery,
-    variables: { postId, linkSharingKey },
-    fetchPolicy: 'network-only',
-  });
-  const token = data?.HocuspocusAuth?.token;
-  if (!token) {
-    throw new Error('Failed to fetch collaboration token');
-  }
-  return token;
-}
-
 const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
@@ -394,6 +351,10 @@ const LexicalEditor = ({
   fieldName = 'contents',
   commentEditor = false,
   accessLevel,
+  extraNodes,
+  disableComponentPicker,
+  disableMentions,
+  children,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
@@ -407,7 +368,7 @@ const LexicalEditor = ({
   const [editorVersion, setEditorVersion] = useState(0);
   const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
 
-  const collaborationDocumentKey = `${documentId ?? 'lexical-new'}:${fieldName}`;
+  const collaborationDocumentKey = `${collectionName ?? 'local'}:${documentId ?? 'lexical-new'}:${fieldName}`;
 
   if (lastDocumentKeyRef.current !== collaborationDocumentKey) {
     lastDocumentKeyRef.current = collaborationDocumentKey;
@@ -417,18 +378,25 @@ const LexicalEditor = ({
   }
 
   const isPostEditor = collectionName === 'Posts';
+  const collaborationCollectionName = collectionName === 'Posts' || collectionName === 'ResearchDocuments'
+    ? collectionName
+    : null;
+  const supportsCollabComments = !!collaborationCollectionName;
   const editorContextValue = useMemo(() => ({
     collectionName,
     isPostEditor,
-  }), [collectionName, isPostEditor]);
+    supportsCollabComments,
+  }), [collectionName, isPostEditor, supportsCollabComments]);
 
-  // Always enable collaboration for posts (when documentId is available).
+  // Always enable collaboration for supported collections (when documentId is
+  // available). This keeps Posts behavior unchanged and lets ResearchDocuments
+  // use the same Yjs/Hocuspocus path.
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
-  const shouldEnableCollaboration = isPostEditor && !!documentId;
+  const shouldEnableCollaboration = !!collaborationCollectionName && !!documentId;
 
   // Build collaboration config directly -- no initial auth query needed.
-  // The wsUrl is a build-time constant, the documentName is derived from the postId,
+  // The wsUrl is a build-time constant, the documentName is derived from the collection/document id,
   // and auth tokens are fetched lazily by getToken on each WebSocket connection attempt.
   const collaborationConfig: CollaborationConfig | null = useMemo(() => {
     if (!shouldEnableCollaboration) {
@@ -439,8 +407,10 @@ const LexicalEditor = ({
     
     return {
       postId: documentId!,
+      collectionName: collaborationCollectionName,
+      documentId: documentId!,
       fieldName,
-      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
+      getToken: () => fetchHocuspocusToken(apolloClient, collaborationCollectionName, documentId!, linkSharingKey),
       user: {
         id: userId,
         name: userName,
@@ -449,7 +419,7 @@ const LexicalEditor = ({
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey, collaborationCollectionName]);
 
   useEffect(() => {
     onReady?.();
@@ -469,9 +439,12 @@ const LexicalEditor = ({
     setEditorVersion((prev) => prev + 1);
   }, [shouldEnableCollaboration, data]);
 
-  const handleChange = useCallback((html: string) => {
-    lastEmittedHtmlRef.current = html;
-    onChange(html);
+  const handleChange = useMemo(() => {
+    if (!onChange) return undefined;
+    return (html: string) => {
+      lastEmittedHtmlRef.current = html;
+      onChange(html);
+    };
   }, [onChange]);
 
   const app = useMemo(
@@ -489,17 +462,23 @@ const LexicalEditor = ({
         },
         name: '@lexical/playground',
         namespace: 'Playground',
-        nodes: PlaygroundNodes,
+        nodes: extraNodes && extraNodes.length > 0
+          ? [...PlaygroundNodes, ...extraNodes]
+          : PlaygroundNodes,
         theme: PlaygroundEditorTheme,
         dependencies: [HorizontalRuleExtension],
       });
     },
-    [],
+    [extraNodes],
   );
 
   return (
+    <DeferRender ssr={false} fallback={<div className={classes.editorContainer} />}>
     <LexicalEditorContext.Provider value={editorContextValue}>
-    <LexicalCollaboration>
+    {/* Keyed so each documentId switch gets a fresh `yjsDocMap`; reusing it
+        across docs would make `createWebsocketProvider('main', yjsDocMap)`
+        bind the previous Doc to the new WebSocket name, mixing content. */}
+    <LexicalCollaboration key={collaborationDocumentKey}>
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
           <TableContext>
@@ -518,23 +497,21 @@ const LexicalEditor = ({
                   onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
-                />
+                  disableComponentPicker={disableComponentPicker}
+                  disableMentions={disableMentions}
+                >
+                  {children}
+                </Editor>
                 </ErrorBoundary>
               </div>
-              {/* {!commentEditor && <Settings />} */}
-              {/* {isDevPlayground ? <DocsPlugin /> : null}
-              {isDevPlayground ? <PasteLogPlugin /> : null}
-              {isDevPlayground ? <TestRecorderPlugin /> : null}
-
-              {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
             </ToolbarContext>
           </TableContext>
         </SharedHistoryContext>
       </LexicalExtensionComposer>
     </LexicalCollaboration>
     </LexicalEditorContext.Provider>
+    </DeferRender>
   );
 };
 
 export default LexicalEditor;
-

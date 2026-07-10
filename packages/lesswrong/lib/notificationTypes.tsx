@@ -14,6 +14,7 @@ import { NotificationChannel } from "./collections/users/notificationFieldHelper
 import keyBy from 'lodash/keyBy';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from './collections/typoSuggestions/notificationContext';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -637,6 +638,37 @@ export const NewCommentOnDraftNotification = createNotificationType({
   Display: ({Post}) => <>New comments on your draft <Post /></>,
 });
 
+export const NewCommentOnResearchDocNotification = createNotificationType({
+  name: "newCommentOnResearchDoc",
+  // No user setting: notification types sharing a setting field must share
+  // allowedChannels, and no existing onsite-only field fits.
+  // TODO: add a dedicated notificationCommentsOnResearchDoc user field
+  // (schema change + migration) when research ships beyond admins.
+  userSettingField: null,
+  // Onsite-only: agent/collaborator comments on research documents don't
+  // warrant emails at the product's current stage.
+  allowedChannels: ["onsite"],
+  async getMessage({documentId, context}: GetMessageProps) {
+    const doc = documentId ? await context.ResearchDocuments.findOne(documentId) : null;
+    return doc?.title
+      ? `New comments on your research document ${doc.title}`
+      : "New comments on your research document";
+  },
+  getLink: ({documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    // getLink runs unguarded during notification-list rendering, so a
+    // malformed row must degrade to a fallback link rather than throw.
+    if (!documentId || !extraData?.projectId) {
+      return "/notifications";
+    }
+    return `/research/projects/${extraData.projectId}?documentId=${documentId}`;
+  },
+  Display: () => <>New comments on your research document</>,
+});
+
 export const CoauthorRequestNotification = createNotificationType({
   name: 'coauthorRequestNotification',
   userSettingField: 'notificationSharedWithMe',
@@ -659,6 +691,17 @@ export const CoauthorAcceptNotification = createNotificationType({
   },
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
+
+export const TypoSuggestionNotification = createNotificationType({
+  name: "typoSuggestion",
+  userSettingField: "notificationTypoSuggestions",
+  async getMessage({documentId, context}: GetMessageProps) {
+    const ctx = await getTypoSuggestionNotificationContext(documentId ?? null, context);
+    if (!ctx) return "A reader flagged a possible typo and AI proposed a fix.";
+    return `${ctx.reactorName} flagged a possible typo in ${ctx.targetDescription}, and AI proposed a fix.`;
+  },
+  Display: () => <>A reader flagged a possible typo and AI proposed a fix.</>,
+});
 
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
@@ -715,9 +758,11 @@ const notificationTypesArray = [
   CancelledRSVPNotification,
   NewGroupOrganizerNotification,
   NewCommentOnDraftNotification,
+  NewCommentOnResearchDocNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
+  TypoSuggestionNotification,
 ];
 
 export type NotificationTypesByName = {

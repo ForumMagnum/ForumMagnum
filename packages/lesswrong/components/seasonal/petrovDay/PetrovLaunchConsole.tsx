@@ -134,14 +134,13 @@ export const PetrovLaunchConsole = ({side, currentUser}: {
   const handleLaunch = () => {
     if (launchAction || launchCode !== "000000") return
     const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
-    void createPetrovDayAction({  
+    void createPetrovDayAction({
       variables: {
         data: {
-          userId: currentUser._id,
           actionType: attackActionType,
         }
       }
-    }) 
+    })
     setLaunched(true)
   }
 

@@ -79,10 +79,8 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       // Hide who applied the tag on the EA Forum
       canRead: [canReadUser],
-      canCreate: ["members"],
     },
   },
   user: {

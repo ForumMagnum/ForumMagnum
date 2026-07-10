@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '@/components/editor/localStorageHandlers';
 import { useTracking } from '@/lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import {
   DeviceKind,
-  DEFAULT_SETTINGS,
   getDefaultSettingsForDevice,
   getTruncationMapsForDevice,
   TruncationLevel,
@@ -22,16 +23,16 @@ export interface UseUltraFeedSettingsResult {
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
-const readStoredSettings = (): UltraFeedSettingsType | null => {
+export const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType): UltraFeedSettingsType | null => {
   const ls = getBrowserLocalStorage();
   if (!ls) return null;
-  const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
-  if (!raw) return null;
   try {
+    const raw = safeStorageGetItem(ls, ULTRA_FEED_SETTINGS_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Deep merge user settings with defaults to handle missing fields
     return merge(
-      cloneDeep(DEFAULT_SETTINGS),
+      cloneDeep(deviceDefaultSettings),
       parsed
     ) as UltraFeedSettingsType;
   } catch {
@@ -39,14 +40,43 @@ const readStoredSettings = (): UltraFeedSettingsType | null => {
   }
 };
 
-const writeStoredSettings = (next: UltraFeedSettingsType): void => {
+const mergeWithDefaultsForDevice = (
+  deviceDefaultSettings: UltraFeedSettingsType,
+  settings: Partial<UltraFeedSettingsType> | null | undefined
+): UltraFeedSettingsType | null => {
+  if (!settings) return null;
+  return merge(
+    cloneDeep(deviceDefaultSettings),
+    settings
+  ) as UltraFeedSettingsType;
+};
+
+const getSettingsTimestamp = (settings: Partial<UltraFeedSettingsType> | null | undefined): number => {
+  const timestamp = settings?.lastEditedAt ? Date.parse(settings.lastEditedAt) : 0;
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
+
+const chooseNewestSettings = (
+  localSettings: UltraFeedSettingsType | null,
+  userSettings: UltraFeedSettingsType | null,
+): UltraFeedSettingsType | null => {
+  if (!localSettings) return userSettings;
+  if (!userSettings) return localSettings;
+
+  const localTimestamp = getSettingsTimestamp(localSettings);
+  const userTimestamp = getSettingsTimestamp(userSettings);
+  return localTimestamp >= userTimestamp ? localSettings : userSettings;
+};
+
+export const writeStoredSettings = (next: UltraFeedSettingsType): boolean => {
   const ls = getBrowserLocalStorage();
-  if (!ls) return;
-  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
+  return safeStorageSetItem(ls, ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
 };
 
 export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
   const { captureEvent } = useTracking();
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const deviceKind = useMemo<DeviceKind>(() => (isMobile() ? 'mobile' : 'desktop'), []);
 
   // Always start with default settings to ensure SSR/client hydration match
@@ -54,27 +84,50 @@ export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
   const [settings, setSettings] = useState<UltraFeedSettingsType>(defaultSettings);
 
   useEffect(() => {
-    const stored = readStoredSettings();
-    if (stored) {
-      setSettings(stored);
+    const localSettings = readStoredSettings(defaultSettings);
+    const userSettings = mergeWithDefaultsForDevice(defaultSettings, currentUser?.ultraFeedSettings);
+    const newestSettings = chooseNewestSettings(localSettings, userSettings);
+    
+    if (newestSettings) {
+      setSettings(newestSettings);
+      writeStoredSettings(newestSettings);
     }
-  }, []);
+
+    if (currentUser && localSettings && getSettingsTimestamp(localSettings) > getSettingsTimestamp(userSettings)) {
+      void updateCurrentUser({
+        ultraFeedSettings: localSettings,
+      });
+    }
+  }, [currentUser, defaultSettings, updateCurrentUser]);
 
   const updateSettings = useCallback((partial: Partial<UltraFeedSettingsType>) => {
     setSettings(prev => {
-      const next = { ...prev, ...partial } as UltraFeedSettingsType;
+      const next = { ...prev, ...partial, lastEditedAt: new Date().toISOString() } as UltraFeedSettingsType;
       writeStoredSettings(next);
+      if (currentUser) {
+        void updateCurrentUser({
+          ultraFeedSettings: next,
+        });
+      }
       captureEvent('ultraFeedSettingsUpdated', { changedSettings: Object.keys(partial), deviceKind, next });
       return next;
     });
-  }, [captureEvent, deviceKind]);
+  }, [captureEvent, currentUser, deviceKind, updateCurrentUser]);
 
   const resetSettings = useCallback(() => {
-    const defaultSettings = getDefaultSettingsForDevice(deviceKind);
+    const defaultSettings = {
+      ...getDefaultSettingsForDevice(deviceKind),
+      lastEditedAt: new Date().toISOString(),
+    };
     setSettings(defaultSettings);
     writeStoredSettings(defaultSettings);
+    if (currentUser) {
+      void updateCurrentUser({
+        ultraFeedSettings: defaultSettings,
+      });
+    }
     captureEvent('ultraFeedSettingsReset', { deviceKind, defaultSettings });
-  }, [deviceKind, captureEvent]);
+  }, [deviceKind, captureEvent, currentUser, updateCurrentUser]);
 
   const truncationMaps = useMemo(() => getTruncationMapsForDevice(deviceKind), [deviceKind]);
 

@@ -36,17 +36,25 @@ import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
 import { ReportsViews } from '../collections/reports/views';
+import { ResearchConversationEventsViews } from '../collections/researchConversationEvents/views';
+import { ResearchConversationsViews } from '../collections/researchConversations/views';
+import { ResearchDocumentsViews } from '../collections/researchDocuments/views';
+import { ResearchEnvironmentsViews } from '../collections/researchEnvironments/views';
+import { ResearchProjectsViews } from '../collections/researchProjects/views';
+import { ResearchSandboxSessionsViews } from '../collections/researchSandboxSessions/views';
 import { ReviewVotesViews } from '../collections/reviewVotes/views';
 import { ReviewWinnerArtsViews } from '../collections/reviewWinnerArts/views';
 import { ReviewWinnersViews } from '../collections/reviewWinners/views';
 import { RevisionsViews } from '../collections/revisions/views';
 import { RSSFeedsViews } from '../collections/rssfeeds/views';
+import { SandboxBaselineSnapshotsViews } from '../collections/sandboxBaselineSnapshots/views';
 import { SequencesViews } from '../collections/sequences/views';
 import { SpotlightsViews } from '../collections/spotlights/views';
 import { SubscriptionsViews } from '../collections/subscriptions/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
+import { TypoSuggestionsViews } from '../collections/typoSuggestions/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
@@ -117,11 +125,18 @@ export const allViews = {
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),
   RecommendationsCaches: new CollectionViewSet('RecommendationsCaches', {}),
   Reports: ReportsViews,
+  ResearchConversationEvents: ResearchConversationEventsViews,
+  ResearchConversations: ResearchConversationsViews,
+  ResearchDocuments: ResearchDocumentsViews,
+  ResearchEnvironments: ResearchEnvironmentsViews,
+  ResearchProjects: ResearchProjectsViews,
+  ResearchSandboxSessions: ResearchSandboxSessionsViews,
   ReviewVotes: ReviewVotesViews,
   ReviewWinnerArts: ReviewWinnerArtsViews,
   ReviewWinners: ReviewWinnersViews,
   Revisions: RevisionsViews,
   RSSFeeds: RSSFeedsViews,
+  SandboxBaselineSnapshots: SandboxBaselineSnapshotsViews,
   Sequences: SequencesViews,
   Sessions: new CollectionViewSet('Sessions', {}),
   SideCommentCaches: new CollectionViewSet('SideCommentCaches', {}),
@@ -133,6 +148,7 @@ export const allViews = {
   TagRels: TagRelsViews,
   Tweets: new CollectionViewSet('Tweets', {}),
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
+  TypoSuggestions: TypoSuggestionsViews,
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
