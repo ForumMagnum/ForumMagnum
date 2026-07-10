@@ -80,6 +80,34 @@ const schema = {
       },
     },
   },
+  onsiteDigestAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      inputType: "Date",
+      canRead: ["admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+     onCreate: ({ document }) => {
+        if (document.onsiteDigestStatus === "yes") {
+          return new Date();
+        }
+        return null;
+      },
+      onUpdate: ({ newDocument, oldDocument }) => {
+        if (newDocument.onsiteDigestStatus === "yes") {
+          return oldDocument.onsiteDigestAt ?? new Date();
+        }
+        return null;
+      },
+      validation: {
+        optional: true,
+      },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"DigestPosts">>;
 
 export default schema;

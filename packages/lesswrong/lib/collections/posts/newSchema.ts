@@ -420,6 +420,22 @@ const schema = {
       },
     },
   },
+  onsiteDigestAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      inputType: "Date",
+      canRead: ["admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   url: {
     database: {
       type: "VARCHAR(500)",

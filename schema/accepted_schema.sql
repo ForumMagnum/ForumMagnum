@@ -777,7 +777,8 @@ CREATE TABLE "DigestPosts" (
   "digestId" VARCHAR(27) NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
   "emailDigestStatus" TEXT,
-  "onsiteDigestStatus" TEXT
+  "onsiteDigestStatus" TEXT,
+  "onsiteDigestAt" TIMESTAMPTZ
 );
 
 -- Index "idx_DigestPosts_schemaVersion"
@@ -1625,6 +1626,7 @@ CREATE TABLE "Posts" (
   "slug" TEXT NOT NULL,
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
+  "onsiteDigestAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
   "postCategory" TEXT NOT NULL DEFAULT 'post',
   "title" VARCHAR(500) NOT NULL,

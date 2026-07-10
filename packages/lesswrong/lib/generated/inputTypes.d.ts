@@ -1631,6 +1631,7 @@ interface DigestPost {
   post: Post | null;
   emailDigestStatus: string | null;
   onsiteDigestStatus: string | null;
+  onsiteDigestAt: Date | null;
 }
 
 interface SingleDigestPostInput {
@@ -2650,6 +2651,7 @@ interface Post {
   slug: string;
   postedAt: Date;
   modifiedAt: Date | null;
+  onsiteDigestAt: Date | null;
   url: string | null;
   postCategory: string;
   title: string;
@@ -4652,6 +4654,7 @@ interface CreateDigestPostDataInput {
   postId: string;
   emailDigestStatus?: string | null;
   onsiteDigestStatus?: string | null;
+  onsiteDigestAt?: Date | null;
 }
 
 interface CreateDigestPostInput {
@@ -4664,6 +4667,7 @@ interface UpdateDigestPostDataInput {
   postId?: string | null;
   emailDigestStatus?: string | null;
   onsiteDigestStatus?: string | null;
+  onsiteDigestAt?: Date | null;
 }
 
 interface UpdateDigestPostInput {
@@ -5202,6 +5206,7 @@ interface CreatePostDataInput {
   customHighlight?: CreateRevisionDataInput | null;
   slug?: string | null;
   postedAt?: Date | null;
+  onsiteDigestAt?: Date | null;
   url?: string | null;
   postCategory?: string | null;
   title: string;
@@ -5319,6 +5324,7 @@ interface UpdatePostDataInput {
   customHighlight?: CreateRevisionDataInput | null;
   slug?: string | null;
   postedAt?: Date | null;
+  onsiteDigestAt?: Date | null;
   url?: string | null;
   postCategory?: string | null;
   title?: string | null;
