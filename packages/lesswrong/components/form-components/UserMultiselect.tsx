@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import SingleUsersItem from "./SingleUsersItem";
 import ErrorBoundary from "../common/ErrorBoundary";
 import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
@@ -57,7 +57,7 @@ const UserMultiselect = ({value, setValue, label}: {
 }
 
 interface FormUserMultiselectProps {
-  field: TypedFieldApi<string[] | null | undefined>;
+  field: FieldValueBinding<string[] | null | undefined, string[]>;
   label: string;
 }
 

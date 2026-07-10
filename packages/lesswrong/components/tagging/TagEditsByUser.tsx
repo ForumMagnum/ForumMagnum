@@ -6,7 +6,6 @@ import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -43,22 +42,22 @@ const TagEditsByUser = ({userId, limit}: {
   limit: number,
 }) => {
   const classes = useStyles(styles);
-  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
     variables: {
       selector: { revisionsByUser: { userId } },
-      limit: 10,
+      limit,
       enableTotal: false,
     },
-    fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-first",
   });
 
   const results = data?.revisions?.results;
 
-  const loadingInitial = networkStatus === NetworkStatus.loading;
-
-  if (loadingInitial || !results) {
+  if (loading && !results) {
     return <Loading />
+  }
+
+  if (!results) {
+    return null;
   }
 
   const resultsWithLiveTags = results

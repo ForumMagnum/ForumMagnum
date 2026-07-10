@@ -2036,7 +2036,9 @@ interface CommentsProfileCommentsInput {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  includeRejected?: boolean | null;
   sortBy?: string | null;
+  shortform?: boolean | null;
   drafts?: string | null;
   limit?: string | null;
 }

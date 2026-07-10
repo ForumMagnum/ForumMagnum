@@ -11,7 +11,7 @@ import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebounc
 import { useMessages } from '../common/withMessages';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FieldValueSetter } from '@/components/tanstack-form-components/BaseAppForm';
 import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
@@ -36,7 +36,7 @@ export type AddOnSuccessCallback<R> = (fn: EditorSuccessCallback<R>) => () => vo
 export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback) => () => void;
 
 interface EditorFormComponentProps<S, R> {
-  field: TypedFieldApi<any>;
+  field: FieldValueSetter<AnyBecauseHard> & { handleChange: (value: AnyBecauseHard) => void };
   commentEditor?: boolean;
   commentStyles?: boolean;
   commentMinimalistStyle?: boolean;

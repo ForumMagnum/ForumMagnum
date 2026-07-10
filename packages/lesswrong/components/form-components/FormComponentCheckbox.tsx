@@ -3,7 +3,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { Typography } from "../common/Typography";
 
 const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
@@ -25,7 +25,10 @@ const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
 }));
 
 export interface FormComponentCheckboxProps {
-  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null | undefined>;
+  field: FieldValueBinding<boolean | null | undefined, boolean> & {
+    name: string;
+    handleBlur: () => void;
+  };
   label?: string;
   disabled?: boolean;
   className?: string;

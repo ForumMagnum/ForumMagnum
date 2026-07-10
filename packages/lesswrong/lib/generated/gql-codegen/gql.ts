@@ -637,9 +637,10 @@ type Documents = {
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": typeof types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
+    "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.UsersAccountTargetUserDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
-    "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
+    "\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserAutoSavedSettingsDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
     "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": typeof types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query KarmaChangePostBodies($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        _id\n        contents {\n          _id\n          htmlHighlight\n        }\n      }\n    }\n  }\n": typeof types.KarmaChangePostBodiesDocument,
@@ -1519,9 +1520,10 @@ const documents: Documents = {
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
+    "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": types.UsersAccountTargetUserDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
-    "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
+    "\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserAutoSavedSettingsDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
     "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query KarmaChangePostBodies($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        _id\n        contents {\n          _id\n          htmlHighlight\n        }\n      }\n    }\n  }\n": types.KarmaChangePostBodiesDocument,
@@ -4287,15 +4289,19 @@ export function gql(source: "\n  query UserTopPostsForManager($selector: PostSel
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"): (typeof documents)["\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
+export function gql(source: "\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
