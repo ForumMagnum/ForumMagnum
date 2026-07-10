@@ -2201,6 +2201,7 @@ type DigestPost {
   post: Post
   emailDigestStatus: String
   onsiteDigestStatus: String
+  onsiteDigestAt: Date
 }
 
 input SingleDigestPostInput {
@@ -3335,6 +3336,7 @@ type Post {
   slug: String!
   postedAt: Date!
   modifiedAt: Date
+  onsiteDigestAt: Date
   url: String
   postCategory: String!
   title: String!
@@ -5507,6 +5509,7 @@ input CreateDigestPostDataInput {
   postId: String!
   emailDigestStatus: String
   onsiteDigestStatus: String
+  onsiteDigestAt: Date
 }
 
 input CreateDigestPostInput {
@@ -5519,6 +5522,7 @@ input UpdateDigestPostDataInput {
   postId: String
   emailDigestStatus: String
   onsiteDigestStatus: String
+  onsiteDigestAt: Date
 }
 
 input UpdateDigestPostInput {
@@ -6138,6 +6142,7 @@ input CreatePostDataInput {
   customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
+  onsiteDigestAt: Date
   url: String
   postCategory: String
   title: String!
@@ -6255,6 +6260,7 @@ input UpdatePostDataInput {
   customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
+  onsiteDigestAt: Date
   url: String
   postCategory: String
   title: String
@@ -8358,6 +8364,7 @@ fragment DigestPostsDefaultFragment on DigestPost {
   postId
   emailDigestStatus
   onsiteDigestStatus
+  onsiteDigestAt
 }
 
 fragment DigestPostsMinimumInfo on DigestPost {
@@ -9580,6 +9587,7 @@ fragment PostsDefaultFragment on Post {
   slug
   postedAt
   modifiedAt
+  onsiteDigestAt
   url
   postCategory
   title

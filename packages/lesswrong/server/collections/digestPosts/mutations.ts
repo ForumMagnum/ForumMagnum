@@ -39,6 +39,7 @@ export async function createDigestPost({ data }: CreateDigestPostInput, context:
   let documentWithId = afterCreateProperties.document;
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('DigestPosts', documentWithId);
+  await context.repos.posts.updateOnsiteDigestAt(documentWithId.postId);
 
   return documentWithId;
 }
@@ -62,6 +63,7 @@ export async function updateDigestPost({ selector, data }: UpdateDigestPostInput
   let updatedDocument = await updateAndReturnDocument(data, DigestPosts, digestpostSelector, context);
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DigestPosts', updatedDocument, oldDocument);
+  await context.repos.posts.updateOnsiteDigestAt(updatedDocument.postId);
 
   void logFieldChanges({ currentUser, collection: DigestPosts, oldDocument, data: origData });
 
