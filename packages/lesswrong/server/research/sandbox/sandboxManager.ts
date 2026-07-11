@@ -261,8 +261,13 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
     cmd: "sh",
     args: [
       "-c",
+      // The `&`-backgrounded unit must stay a simple command with every fd
+      // redirected (`;` before it, never `&&`): backgrounding a compound list
+      // makes runCommand wait on the subshell's inherited output pipes, which
+      // on a freshly created session never close — the provision then hangs
+      // until the function times out.
       `tail -c 262144 ${log} > ${log}.trim 2>/dev/null && mv ${log}.trim ${log}; ` +
-        `echo "[launch] $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> ${log} && ` +
+        `echo "[launch] $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> ${log}; ` +
         `nohup setsid node ${SUPERVISOR_PATH} >> ${log} 2>&1 < /dev/null &`,
     ],
     env: supervisorEnv,
