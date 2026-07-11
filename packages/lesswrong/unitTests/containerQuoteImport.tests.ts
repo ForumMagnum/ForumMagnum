@@ -1,6 +1,8 @@
-import { $getRoot, $isParagraphNode, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getRoot, $getSelection, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, type LexicalEditor, type LexicalNode } from "lexical";
+import { $isListNode } from "@lexical/list";
 import { ContainerQuoteNode, $createContainerQuoteNode, $isContainerQuoteNode } from "@/components/editor/lexicalPlugins/quote/ContainerQuoteNode";
 import { $normalizeQuoteChildren } from "@/components/editor/lexicalPlugins/quote/ContainerQuotePlugin";
+import { formatQuote } from "@/components/lexical/plugins/ToolbarPlugin/utils";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { runEditorUpdate, setupEditorWithHtml, walkLexicalNodes } from "./lexicalTestHelpers";
 
@@ -14,6 +16,16 @@ function findQuoteNodes(editor: import("lexical").LexicalEditor): ContainerQuote
     });
   });
   return quotes;
+}
+
+async function runFormatQuote(editor: LexicalEditor): Promise<void> {
+  await new Promise<void>((resolve) => {
+    const unregister = editor.registerUpdateListener(() => {
+      unregister();
+      resolve();
+    });
+    formatQuote(editor, "paragraph");
+  });
 }
 
 describe("ContainerQuoteNode HTML import", () => {
@@ -79,6 +91,82 @@ describe("$normalizeQuoteChildren", () => {
       const children = quotes[0].getChildren();
       expect(children).toHaveLength(1);
       expect($isParagraphNode(children[0])).toBe(true);
+    });
+    removeTransform();
+  });
+});
+
+describe("formatQuote", () => {
+  it("wraps a mixed paragraph and list selection in a single container quote", async () => {
+    const editor = await setupEditorWithHtml(
+      `<p>First paragraph</p><ul><li>First item</li><li>Second item</li></ul><p>Last paragraph</p>`
+    );
+    const removeTransform = editor.registerNodeTransform(ContainerQuoteNode, $normalizeQuoteChildren);
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      const firstParagraph = root.getFirstChildOrThrow();
+      const lastParagraph = root.getLastChildOrThrow();
+      const firstText = firstParagraph.getFirstDescendant();
+      const lastText = lastParagraph.getFirstDescendant();
+      if (!$isTextNode(firstText) || !$isTextNode(lastText)) {
+        throw new Error("Expected paragraph text nodes");
+      }
+
+      const selection = $createRangeSelection();
+      selection.anchor.set(firstText.getKey(), 0, "text");
+      selection.focus.set(lastText.getKey(), lastText.getTextContentSize(), "text");
+      $setSelection(selection);
+    });
+
+    await runFormatQuote(editor);
+
+    const quotes = findQuoteNodes(editor);
+    expect(quotes).toHaveLength(1);
+    editor.getEditorState().read(() => {
+      const children = quotes[0].getChildren();
+      expect(children).toHaveLength(3);
+      expect($isParagraphNode(children[0])).toBe(true);
+      expect($isListNode(children[1])).toBe(true);
+      expect($isParagraphNode(children[2])).toBe(true);
+      expect(quotes[0].getTextContent()).toBe("First paragraph\n\nFirst item\n\nSecond item\n\nLast paragraph");
+    });
+    removeTransform();
+  });
+
+  it("wraps a whole-document element selection in a single container quote", async () => {
+    const editor = await setupEditorWithHtml(
+      `<p>First paragraph</p><ul><li>First item</li><li>Second item</li></ul><p>Last paragraph</p>`
+    );
+    const removeTransform = editor.registerNodeTransform(ContainerQuoteNode, $normalizeQuoteChildren);
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      const selection = $createRangeSelection();
+      selection.anchor.set(root.getKey(), 0, "element");
+      selection.focus.set(root.getKey(), root.getChildrenSize(), "element");
+      $setSelection(selection);
+    });
+
+    await runFormatQuote(editor);
+
+    const quotes = findQuoteNodes(editor);
+    expect(quotes).toHaveLength(1);
+    editor.getEditorState().read(() => {
+      const children = quotes[0].getChildren();
+      expect(children).toHaveLength(3);
+      expect($isParagraphNode(children[0])).toBe(true);
+      expect($isListNode(children[1])).toBe(true);
+      expect($isParagraphNode(children[2])).toBe(true);
+      const selection = $getSelection();
+      expect($isRangeSelection(selection)).toBe(true);
+      if (!$isRangeSelection(selection)) {
+        throw new Error("Expected quote selection");
+      }
+      expect(selection.anchor.key).toBe(quotes[0].getKey());
+      expect(selection.anchor.offset).toBe(0);
+      expect(selection.focus.key).toBe(quotes[0].getKey());
+      expect(selection.focus.offset).toBe(3);
     });
     removeTransform();
   });

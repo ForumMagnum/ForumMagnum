@@ -24,11 +24,13 @@ import {$isTableSelection} from '@lexical/table';
 import {$findMatchingParent, $getNearestBlockElementAncestorOrThrow} from '@lexical/utils';
 import {
   $addUpdateTag,
+  $createRangeSelection,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
+  $setSelection,
   LexicalEditor,
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
@@ -274,7 +276,16 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     return a.isBefore(b) ? -1 : 1;
   });
 
-  $wrapInQuote(sortedElements);
+  const quoteNode = $wrapInQuote(sortedElements);
+
+  if (selection.anchor.type === 'element' || selection.focus.type === 'element') {
+    // Whole-block selections can point at root offsets that no longer exist
+    // after the selected blocks move into the quote.
+    const quoteSelection = $createRangeSelection();
+    quoteSelection.anchor.set(quoteNode.getKey(), 0, 'element');
+    quoteSelection.focus.set(quoteNode.getKey(), quoteNode.getChildrenSize(), 'element');
+    $setSelection(quoteSelection);
+  }
 }
 
 export const formatParagraph = (editor: LexicalEditor) => {
