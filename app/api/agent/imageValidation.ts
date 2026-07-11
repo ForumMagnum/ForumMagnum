@@ -14,6 +14,8 @@ interface MarkdownImageReference {
   url: string
 }
 
+const MARKDOWN_IMAGE_URL_REGEX = /!\[[^\]]*]\(\s*([^)\s]+)(?:\s+["'][^)]*["'])?\s*\)/g;
+
 function collectImageReferences(tokens: Token[], references: MarkdownImageReference[]): void {
   for (const token of tokens) {
     if (token.type === "image") {
@@ -28,10 +30,20 @@ function collectImageReferences(tokens: Token[], references: MarkdownImageRefere
   }
 }
 
+function collectMarkdownImageSyntaxReferences(markdown: string, references: MarkdownImageReference[]): void {
+  for (const match of markdown.matchAll(MARKDOWN_IMAGE_URL_REGEX)) {
+    const url = match[1];
+    if (url) {
+      references.push({ url });
+    }
+  }
+}
+
 function extractMarkdownImageReferences(markdown: string, markdownIt: MarkdownIt): MarkdownImageReference[] {
   const tokens = markdownIt.parse(markdown, {});
   const references: MarkdownImageReference[] = [];
   collectImageReferences(tokens, references);
+  collectMarkdownImageSyntaxReferences(markdown, references);
   return references;
 }
 
