@@ -25,12 +25,14 @@ import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { getMarkdownImageWarnings, noteWithAgentEditWarnings, type AgentEditWarning } from "../imageValidation";
 
 interface InsertBlockResult {
   inserted: boolean
   note: string
   insertionIndex?: number
   suggestionId?: string
+  warnings?: AgentEditWarning[]
   /** True when a suggestion was applied but its review thread couldn't be created. */
   threadCreationFailed?: boolean
 }
@@ -253,6 +255,11 @@ export async function insertMarkdownBlock({
     },
   });
 
+  if (result.inserted) {
+    result.warnings = await getMarkdownImageWarnings(markdown, getMarkdownItForAgentPosts());
+    result.note = noteWithAgentEditWarnings(result.note, result.warnings);
+  }
+
   if (mode === "suggest" && result.inserted && result.suggestionId) {
     const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
       collectionName: "Posts",
@@ -315,6 +322,7 @@ export async function POST(req: NextRequest) {
       insertionMode: mode,
       suggestionId: insertResult.suggestionId ?? null,
       threadCreationFailed: insertResult.threadCreationFailed ?? false,
+      warnings: insertResult.warnings ?? [],
       mode: "lexical-collaboration-insert-block",
       requestId: randomId(),
     });

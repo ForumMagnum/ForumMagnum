@@ -21,12 +21,14 @@ import {
   $computeNarrowing,
   $htmlToInlineNodes,
 } from "../applyEditAtSelection";
+import { getMarkdownImageWarnings, noteWithAgentEditWarnings, type AgentEditWarning } from "../imageValidation";
 
 interface ReplaceResult {
   replaced: boolean
   quoteFoundInDocument: boolean
   note: string
   suggestionId?: string
+  warnings?: AgentEditWarning[]
   /** True when a suggestion was applied but its review thread couldn't be created. */
   threadCreationFailed?: boolean
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
@@ -415,6 +417,11 @@ export async function replaceTextInMainDoc({
     },
   });
 
+  if (result.replaced) {
+    result.warnings = await getMarkdownImageWarnings(result.summaryReplacement ?? replacement, getMarkdownItForAgentPosts());
+    result.note = noteWithAgentEditWarnings(result.note, result.warnings);
+  }
+
   if (mode === "suggest" && result.replaced && result.suggestionId) {
     const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
       collectionName: "Posts",
@@ -478,6 +485,7 @@ export async function POST(req: NextRequest) {
       note: result.note,
       suggestionId: result.suggestionId ?? null,
       threadCreationFailed: result.threadCreationFailed ?? false,
+      warnings: result.warnings ?? [],
     });
   } catch (error) {
     // eslint-disable-next-line no-console

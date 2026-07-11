@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       mode,
       suggestionId: result.suggestionId ?? null,
       threadCreationFailed,
+      warnings: result.warnings ?? [],
       requestId: randomId(),
     });
   } catch (error) {

@@ -20,6 +20,7 @@ import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { replaceTextInResearchDocSchema } from "../../researchToolSchemas";
 import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
 import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
+import { getMarkdownImageWarnings, noteWithAgentEditWarnings, type AgentEditWarning } from "../../../../agent/imageValidation";
 
 const ROUTE = "documents.replaceText";
 
@@ -28,6 +29,7 @@ interface ReplaceResult {
   quoteFoundInDocument: boolean;
   note: string;
   suggestionId?: string;
+  warnings?: AgentEditWarning[];
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
   summaryQuote?: string;
   summaryReplacement?: string;
@@ -194,6 +196,11 @@ export async function POST(req: NextRequest) {
       mode,
     });
 
+    if (result.replaced) {
+      result.warnings = await getMarkdownImageWarnings(result.summaryReplacement ?? mentionResult.markdown, getMarkdownItForResearch());
+      result.note = noteWithAgentEditWarnings(result.note, result.warnings);
+    }
+
     const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
       mode,
       documentId,
@@ -231,6 +238,7 @@ export async function POST(req: NextRequest) {
       mode,
       suggestionId: result.suggestionId ?? null,
       threadCreationFailed,
+      warnings: result.warnings ?? [],
       requestId: randomId(),
     });
   } catch (error) {
