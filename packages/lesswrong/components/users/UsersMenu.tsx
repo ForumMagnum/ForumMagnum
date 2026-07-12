@@ -142,7 +142,9 @@ const UsersMenu = () => {
     {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
-  /** Prevent navigation to your dashboard on mobile, where the only way to open
+  const userButtonLink = currentUser.deleted ? "/account" : userGetProfileUrl(currentUser);
+
+  /** Prevent navigation from the header button on mobile, where the only way to open
    * the menu is to click the button */
   const menuButtonOnClick = (ev: MouseEvent) => {
     if (isMobile()) {
@@ -155,7 +157,7 @@ const UsersMenu = () => {
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to="/account">
+      <Link to={userButtonLink}>
         <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
