@@ -1,7 +1,8 @@
-import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
+import { $getRoot, $isElementNode, $isRootNode, $nodesOfType, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
+import { IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import {
   markdownQuoteToRenderedPlainText,
   type MarkdownQuoteSelectionResult,
@@ -483,6 +484,30 @@ export interface BlockPrefixResult {
   reason?: string
 }
 
+const WIDGET_FENCE_PREFIX_REGEX = /^\s*```widget\[([^\]\n]*)\]/;
+
+function $locateWidgetBlockByFencePrefix(prefix: string): BlockPrefixResult | null {
+  const match = WIDGET_FENCE_PREFIX_REGEX.exec(prefix);
+  if (!match) return null;
+
+  const widgetId = match[1];
+  if (!widgetId) {
+    return { node: null, reason: "Widget fence prefix did not include a widget ID." };
+  }
+
+  const matchedWidgets = $nodesOfType(IframeWidgetNode).filter((node) => node.getWidgetId() === widgetId);
+  if (matchedWidgets.length === 1) {
+    return { node: matchedWidgets[0] };
+  }
+  if (matchedWidgets.length === 0) {
+    return { node: null, reason: `No widget block found with ID: ${widgetId}` };
+  }
+  return {
+    node: null,
+    reason: `Ambiguous widget fence: ${matchedWidgets.length} widget blocks have ID ${widgetId}.`,
+  };
+}
+
 /**
  * The block a character position belongs to, for block-level operations: the
  * nearest ancestor that is a list item, or failing that the node's top-level
@@ -536,6 +561,9 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  * Must be called inside a Lexical read/update context.
  */
 export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
+  const widgetFenceResult = $locateWidgetBlockByFencePrefix(prefix);
+  if (widgetFenceResult) return widgetFenceResult;
+
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {

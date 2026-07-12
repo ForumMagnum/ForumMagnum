@@ -1,6 +1,7 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
+  $createTextNode,
   $createRangeSelection,
   $getRoot,
   $getSelection,
@@ -23,6 +24,7 @@ import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
+import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
@@ -385,6 +387,19 @@ describe("$locateBlockByPrefix", () => {
     const matched = findFor(editor, "$$\nE=mc^2\n$$");
     expect(matched).not.toBeNull();
     expect(matched?.type).toBe("math");
+  });
+
+  it("matches an iframe widget by its markdown fence prefix", async () => {
+    const editor = await setupEditorWithContent("Intro paragraph.\n\nOutro paragraph.");
+    await runEditorUpdate(editor, () => {
+      const widget = $createIframeWidgetNode("widget-test-id");
+      widget.append($createTextNode("<div>demo</div>"));
+      $getRoot().append(widget);
+    });
+
+    const matched = findFor(editor, "```widget[widget-test-id]");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("iframe-widget");
   });
 
   it("matches an item of a nested sub-list", async () => {
