@@ -84,7 +84,7 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
           )}
         </div>
         <DraftsList
-          limit={20}
+          limit={5}
           userId={userId}
           hideHeaderRow
           showAllDraftsLink={false}
