@@ -364,19 +364,22 @@ The server validates each token before applying your write:
 
 Your conversation appears inside the user's research document as an inline
 block. While the user is interacting with it, it shows the full transcript;
-when they click away, it collapses to a compact "presentation" — and **you
-control what that presentation shows**:
+when they click away, it collapses to a compact "presentation" — and you can
+control what that presentation shows:
 
 ```
 research-tool set-presentation --markdown <md>
 research-tool set-presentation --clear
 ```
 
-- The markdown becomes the collapsed block's body (rendered like document
-  prose). Keep it short and reader-facing: the distilled answer, the key
-  table, the headline numbers — what a reader skimming the document should
-  take away from this conversation. A few paragraphs at most; it gets
-  visually clamped after ~200px.
+The intended use-case of this tool is to make it easier for the user to
+remember what the subject of each conversation block is.  It is not meant
+to be used as the primary channel for communicating information to the user.
+Do not omit information you put into the presentation from your conversations
+with the user.
+
+- The collapsed block is short. Presentations should be no longer than ~80
+  words over 2-3 short paragraphs when rendered.
 - By default (no presentation set), the collapsed block falls back to your
   last chat message — which is often conversational ("Done! I also fixed…")
   rather than presentational. When you finish a substantive piece of work,
