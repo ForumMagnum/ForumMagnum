@@ -195,10 +195,9 @@ const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
     flexGrow: 1,
   },
   progressBarContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    position: 'relative',
     '--scrollAmount': '0%',
+    '--windowHeight': '10px',
     marginRight: -4,
     marginBottom: 0,
     width: 1,
@@ -206,24 +205,19 @@ const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
     overflowY: 'clip',
   },
   progressBar: {
-    flex: 'var(--scrollAmount)',
-    display: 'flex',
+    position: 'absolute',
+    top: 'calc(var(--scrollAmount) - var(--windowHeight))',
+    left: -0.5,
+    width: 2,
+    height: 'var(--windowHeight)',
+    background: theme.palette.grey[600],
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
     },
-    "&:after": {
-      content: "''",
-      marginLeft: -0.5,
-      paddingLeft: 2,
-      alignSelf: 'end',
-      height: 'var(--windowHeight)',
-      background: theme.palette.grey[600],
-    }
   },
   unfilledProgressBar: {
-    width: 1,
-    flex: 'calc(100% - var(--scrollAmount))',
+    display: 'none',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
