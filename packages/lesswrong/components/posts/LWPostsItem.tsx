@@ -36,7 +36,6 @@ import ReviewPostButton from "../review/ReviewPostButton";
 import PostReadCheckbox from "./PostReadCheckbox";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
-import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -469,6 +468,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
+    commentsHighlightDate,
     analyticsProps,
     translucentBackground,
     isRead,
@@ -672,7 +672,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
+                highlightDate: commentsHighlightDate ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />

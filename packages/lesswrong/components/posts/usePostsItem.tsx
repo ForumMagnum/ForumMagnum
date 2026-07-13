@@ -139,6 +139,7 @@ export const usePostsItem = ({
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
   const [readComments, setReadComments] = useState(false);
+  const [openedCommentsHighlightDate, setOpenedCommentsHighlightDate] = useState<Date | null | undefined>(undefined);
   const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
 
@@ -150,8 +151,10 @@ export const usePostsItem = ({
 
   const toggleComments = useCallback(
     () => {
+      const nextShowComments = !showComments;
+      setOpenedCommentsHighlightDate(nextShowComments ? maybeDate(post.lastVisitedAt) : undefined);
       void recordPostView({ post, extraEventProperties: { type: "toggleComments" }, recommendationOptions: recommendationEventOptions });
-      setShowComments(!showComments);
+      setShowComments(nextShowComments);
       setReadComments(true);
     },
     [post, recordPostView, setShowComments, showComments, setReadComments, recommendationEventOptions],
@@ -246,6 +249,7 @@ export const usePostsItem = ({
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
+    commentsHighlightDate: openedCommentsHighlightDate ?? maybeDate(post.lastVisitedAt),
     analyticsProps,
     translucentBackground,
     isRead,
