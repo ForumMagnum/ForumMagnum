@@ -32,6 +32,7 @@ import { decryptUserSecret } from "@/server/research/userSecretsCrypto";
 import { getSiteUrlFromHeaders } from "@/server/utils/getSiteUrl";
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { getPlatformAssets } from "./platformAssets";
+import { SESSION_STAGING_SUFFIX } from "./supervisor/sessionBootstrap";
 import {
   AGENT_CWD,
   CLAUDE_MD_PATH,
@@ -73,6 +74,38 @@ const DEFAULT_RUNTIME = "node24";
 /** The persistent sandbox name for a conversation. Stable across sessions. */
 export function sandboxNameForConversation(conversationId: string): string {
   return `${SANDBOX_NAME_PREFIX}${conversationId}`;
+}
+
+/**
+ * Absolute in-sandbox path of a conversation's Claude Code session JSONL:
+ * `<home>/.claude/projects/<encoded-cwd>/<sessionId>.jsonl`, where the encoded
+ * cwd is the agent cwd with `/` replaced by `-`. Must stay in agreement with
+ * the supervisor's `sessionJsonlPath` (supervisor/sessionBootstrap.ts), which
+ * computes the same path from inside the sandbox.
+ */
+export function claudeSessionJsonlPath(claudeSessionId: string): string {
+  const encodedCwd = AGENT_CWD.replace(/\//g, "-");
+  return `${SANDBOX_HOME_DIR}/.claude/projects/${encodedCwd}/${claudeSessionId}.jsonl`;
+}
+
+/**
+ * Stage a reconstructed Claude session file into the sandbox through the
+ * Sandbox filesystem API — never the supervisor's HTTP interface, whose body
+ * cap a long conversation's JSONL can exceed. `writeFiles` creates parent
+ * directories as needed. The write lands at a staging path rather than the
+ * session path itself: this API can't serialize with the supervisor's claude
+ * process lifecycle, so the supervisor installs the staged file at spawn
+ * time, under its per-conversation lock (`installStagedSessionJsonl`).
+ */
+export async function stageClaudeSessionFile(
+  sandbox: Sandbox,
+  claudeSessionId: string,
+  jsonlLines: string[],
+): Promise<void> {
+  const body = jsonlLines.join("\n") + "\n";
+  await sandbox.writeFiles([
+    { path: claudeSessionJsonlPath(claudeSessionId) + SESSION_STAGING_SUFFIX, content: body },
+  ]);
 }
 
 /** Inverse of `sandboxNameForConversation`; `null` if the name isn't ours. */

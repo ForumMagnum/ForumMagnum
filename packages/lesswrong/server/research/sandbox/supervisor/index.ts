@@ -244,7 +244,6 @@ export async function bootSupervisor() {
           prompt: req.prompt,
           claudeSessionId: req.claudeSessionId,
           sessionHasHistory: req.sessionHasHistory,
-          bootstrapJsonl: req.bootstrapJsonl,
         },
         {
           // The cwd the claude subprocess starts in — also the cwd the
