@@ -5,7 +5,11 @@ import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceTex
 import { $wrapBlockAsDeletionSuggestion } from "../../../app/api/agent/deleteBlock/route";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
-import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
+import {
+  $applyEditModeReplacement,
+  $selectionSpansTableCellBoundary,
+  CROSS_TABLE_CELL_REPLACEMENT_ERROR,
+} from "../../../app/api/agent/applyEditAtSelection";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
@@ -206,6 +210,69 @@ describe("replaceText within nested block structures", () => {
     // The tail of the first paragraph after the link must be covered too.
     expect(deletedText).toContain("about X.");
     expect(deletedText).toContain("It explains");
+  });
+});
+
+describe("replaceText within tables", () => {
+  const tableMarkdown = [
+    "| Figure | Description |",
+    "| --- | --- |",
+    "| Figure 2 | Negative emotion distills into Qwen and survives filtering |",
+  ].join("\n");
+
+  it("identifies quotes that cross table cell boundaries", async () => {
+    const editor = await setupEditorWithContent(tableMarkdown);
+    let selectionError: string | undefined;
+    await runEditorUpdate(editor, () => {
+      const result = $locateQuoteWithTextIndex("Figure 2 Negative emotion distills into Qwen");
+      if (!result.found || !result.anchor || !result.focus) return;
+      if ($selectionSpansTableCellBoundary(result.anchor, result.focus)) {
+        selectionError = CROSS_TABLE_CELL_REPLACEMENT_ERROR;
+      }
+    });
+
+    expect(selectionError).toBe(
+      "Quote crosses table cell boundaries; replaceText cannot edit across multiple cells. Use a quote contained within one table cell.",
+    );
+  });
+
+  it("does not apply edit-mode replacements across table cells", async () => {
+    const editor = await setupEditorWithContent(tableMarkdown);
+    const originalText = getPlainTextContent(editor);
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Figure 2 Negative emotion distills into Qwen",
+      "Figure 2 TODO reorder this row Negative emotion distills into Qwen",
+    );
+
+    expect(replaced).toBe(false);
+    expect(getPlainTextContent(editor)).toBe(originalText);
+  });
+
+  it("does not apply suggestions across table cells", async () => {
+    const editor = await setupEditorWithContent(tableMarkdown);
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "Figure 2 Negative emotion distills into Qwen",
+      "Figure 2 TODO reorder this row Negative emotion distills into Qwen",
+    );
+
+    expect(replaced).toBe(false);
+    expect(getAllSuggestions(editor)).toEqual([]);
+  });
+
+  it("still replaces text within one table cell", async () => {
+    const editor = await setupEditorWithContent(tableMarkdown);
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "survives filtering",
+      "remains after filtering",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain(
+      "Negative emotion distills into Qwen and remains after filtering",
+    );
   });
 });
 

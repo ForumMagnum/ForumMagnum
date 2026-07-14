@@ -20,6 +20,8 @@ import {
   $applyEditModeReplacement,
   $computeNarrowing,
   $htmlToInlineNodes,
+  $selectionSpansTableCellBoundary,
+  CROSS_TABLE_CELL_REPLACEMENT_ERROR,
 } from "../applyEditAtSelection";
 
 interface ReplaceResult {
@@ -287,6 +289,10 @@ export function $applySuggestionWithNarrowing({
   suggestionId: string
   markdownIt: MarkdownIt
 }): SuggestionNarrowingResult {
+  if ($selectionSpansTableCellBoundary(anchor, focus)) {
+    return { replaced: false, narrowedQuote: quote, narrowedReplacement: replacement };
+  }
+
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
@@ -342,6 +348,10 @@ export async function replaceTextInMainDoc({
           }
 
           const { anchor, focus } = selectionResult;
+          if ($selectionSpansTableCellBoundary(anchor, focus)) {
+            locateFailureReason = CROSS_TABLE_CELL_REPLACEMENT_ERROR;
+            return;
+          }
 
           if (mode === "edit") {
             const editResult = $applyEditModeReplacement({

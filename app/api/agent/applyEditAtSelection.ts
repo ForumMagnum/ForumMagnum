@@ -12,6 +12,7 @@ import {
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
+import { $isTableCellNode } from "@lexical/table";
 import {
   markdownQuoteToPlainText,
   type MarkdownSelectionPoint,
@@ -31,6 +32,9 @@ export interface FinalSelection {
   narrowedQuote: string
   narrowedReplacement: string
 }
+
+export const CROSS_TABLE_CELL_REPLACEMENT_ERROR =
+  "Quote crosses table cell boundaries; replaceText cannot edit across multiple cells. Use a quote contained within one table cell.";
 
 /**
  * Resolve the final selection and replacement after applying narrowing.
@@ -103,6 +107,7 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
+  if ($selectionSpansTableCellBoundary(anchor, focus)) return false;
   if (!$pointsShareBlock(anchor, focus)) {
     return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
   }
@@ -119,6 +124,40 @@ export function $applyEditAtSelection({
   return $applyEditMultiNode({ anchor, focus, inlineNodes });
 }
 
+function $nodeOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
+  let node = $getNodeByKey(point.key);
+  if (!node) return null;
+  if (point.type === "element" && $isElementNode(node)) {
+    const children = node.getChildren();
+    const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
+    node = children[index] ?? node;
+  }
+  return node;
+}
+
+function $tableCellOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
+  let current = $nodeOfPoint(point, isFocus);
+  while (current && !$isRootNode(current)) {
+    if ($isTableCellNode(current)) return current;
+    current = current.getParent();
+  }
+  return null;
+}
+
+/**
+ * Whether applying a replacement to this range could merge or restructure
+ * table cells. Replacements within one cell are safe, including ranges that
+ * span multiple paragraphs inside that cell.
+ */
+export function $selectionSpansTableCellBoundary(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const anchorCell = $tableCellOfPoint(anchor, false);
+  const focusCell = $tableCellOfPoint(focus, true);
+  return (!!anchorCell || !!focusCell) && anchorCell?.getKey() !== focusCell?.getKey();
+}
+
 /**
  * The nearest block-level node containing a selection point: the first
  * non-inline element or decorator ancestor (a paragraph inside a blockquote,
@@ -129,13 +168,8 @@ export function $applyEditAtSelection({
  * against: before it for an anchor, after it for a focus.
  */
 function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
-  let node = $getNodeByKey(point.key);
+  const node = $nodeOfPoint(point, isFocus);
   if (!node) return null;
-  if (point.type === "element" && $isElementNode(node)) {
-    const children = node.getChildren();
-    const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
-    node = children[index] ?? node;
-  }
   let current: LexicalNode | null = node;
   while (current && !$isRootNode(current)) {
     const isBlock = ($isElementNode(current) || $isDecoratorNode(current)) && !current.isInline();

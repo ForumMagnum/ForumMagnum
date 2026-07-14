@@ -5,7 +5,11 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateQuoteWithTextIndex } from "../../../../agent/textIndexQuoteLocator";
-import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
+import {
+  $applyEditModeReplacement,
+  $selectionSpansTableCellBoundary,
+  CROSS_TABLE_CELL_REPLACEMENT_ERROR,
+} from "../../../../agent/applyEditAtSelection";
 import { $applySuggestionWithNarrowing } from "../../../../agent/replaceText/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
@@ -69,6 +73,10 @@ async function replaceTextInResearchDoc({
             }
 
             const { anchor, focus } = selectionResult;
+            if ($selectionSpansTableCellBoundary(anchor, focus)) {
+              locateFailureReason = CROSS_TABLE_CELL_REPLACEMENT_ERROR;
+              return;
+            }
 
             if (mode === "edit") {
               // The research markdown-it instance is mention-aware, so
