@@ -5,6 +5,7 @@ import { DEVAUTH_SCOPE, signSupervisorToken } from "@/server/research/sandbox/su
 import { mintSandboxCallbackToken } from "../../../../app/api/research/agent/researchAgentAuth";
 import {
   devProxyUrlForSandbox,
+  ensureSandboxHomeTraversable,
   getOrCreateSandbox,
   getRunningSandbox,
   sandboxNameForConversation,
@@ -884,6 +885,10 @@ async function dispatchToSandbox(args: {
     await dispatchTurnViaSupervisor(dispatchArgs);
   } catch (err) {
     if (!(err instanceof SessionFileMissingError)) throw err;
+    // A running pre-fix supervisor can misreport EACCES under the legacy /root
+    // home as a missing session. Repair permissions only on this recovery path
+    // (never on every warm dispatch), then stage history if available and retry.
+    await ensureSandboxHomeTraversable(provisioned.sandbox);
     const events = args.bootstrapEvents?.length
       ? args.bootstrapEvents
       : await args.context.ResearchConversationEvents.find(
@@ -891,8 +896,9 @@ async function dispatchToSandbox(args: {
           { sort: { seq: 1 } },
         ).fetch();
     const lines = buildBootstrapJsonl(events, args.claudeSessionId);
-    if (lines.length === 0) throw err;
-    await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+    if (lines.length > 0) {
+      await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+    }
     await dispatchTurnViaSupervisor(dispatchArgs);
   }
 }
