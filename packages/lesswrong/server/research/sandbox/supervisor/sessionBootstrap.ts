@@ -55,6 +55,29 @@ export function sessionJsonlPath(target: BootstrapTarget): string {
   return path.join(home, ".claude", "projects", encodedCwd, `${target.claudeSessionId}.jsonl`);
 }
 
+function isFileMissingError(err: unknown): boolean {
+  return typeof err === "object" && err !== null && "code" in err && err.code === "ENOENT";
+}
+
+/**
+ * Check for a path using the process's effective filesystem credentials.
+ *
+ * Do not use `fs.access` here: Vercel runs sandbox code as the
+ * `vercel-sandbox` user with filesystem capabilities, and `access(2)` checks
+ * the real uid instead. It can therefore report EACCES for a path that the
+ * process can stat/open. Only ENOENT means the path is actually absent; other
+ * errors must surface rather than being misreported as a missing session.
+ */
+async function pathExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.stat(filePath);
+    return true;
+  } catch (err) {
+    if (isFileMissingError(err)) return false;
+    throw err;
+  }
+}
+
 /**
  * Whether the session JSONL exists on disk. Right after a sandbox resume the
  * snapshot restore can lag, so a single probe can transiently miss a file
@@ -62,12 +85,7 @@ export function sessionJsonlPath(target: BootstrapTarget): string {
  * few seconds first.
  */
 export async function sessionJsonlExists(target: BootstrapTarget): Promise<boolean> {
-  try {
-    await fs.access(sessionJsonlPath(target));
-    return true;
-  } catch {
-    return false;
-  }
+  return await pathExists(sessionJsonlPath(target));
 }
 
 /**
@@ -81,7 +99,7 @@ export async function sessionJsonlExists(target: BootstrapTarget): Promise<boole
 export async function installStagedSessionJsonl(target: BootstrapTarget): Promise<void> {
   const finalPath = sessionJsonlPath(target);
   const stagedPath = finalPath + SESSION_STAGING_SUFFIX;
-  const stagedExists = await fs.access(stagedPath).then(() => true, () => false);
+  const stagedExists = await pathExists(stagedPath);
   if (!stagedExists) return;
   if (await sessionJsonlExists(target)) {
     await fs.rm(stagedPath, { force: true });

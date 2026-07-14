@@ -265,12 +265,10 @@ async function reconcileClaudeCodeVersion(
  */
 async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Promise<void> {
   const supervisorEnv: Record<string, string> = {
-    // Pin HOME so the supervisor's `homedir()` resolves to the SAME directory
-    // the backend overlays platform files into (SANDBOX_HOME_DIR). Without this,
-    // if the runtime image's default home isn't `/root`, the supervisor would
-    // read `~/.claude/CLAUDE.md` and derive the research-tool PATH from a
-    // different home than the overlay wrote to. (If `/root` isn't writable the
-    // overlay's `writeFiles` fails loudly — better than silent path divergence.)
+    // Pin HOME so the supervisor's `homedir()` resolves to the SAME legacy
+    // directory the backend overlays platform files into (SANDBOX_HOME_DIR).
+    // `launchSupervisor` makes it traversable by Vercel's unprivileged
+    // `vercel-sandbox` runtime user before starting the process.
     HOME: SANDBOX_HOME_DIR,
     CLAUDE_CODE_OAUTH_TOKEN: env.claudeToken,
     SUPERVISOR_SECRET: env.supervisorSecret,
@@ -290,7 +288,7 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
   // the previous supervisor's crash output, but the log lives in the
   // snapshot-persisted home dir and must not grow without bound.
   const log = `${PLATFORM_DIR}/supervisor.log`;
-  await sandbox.runCommand({
+  const result = await sandbox.runCommand({
     cmd: "sh",
     args: [
       "-c",
@@ -299,13 +297,41 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
       // makes runCommand wait on the subshell's inherited output pipes, which
       // on a freshly created session never close — the provision then hangs
       // until the function times out.
-      `tail -c 262144 ${log} > ${log}.trim 2>/dev/null && mv ${log}.trim ${log}; ` +
+      // Keep the permission repair in this existing launch RPC: the chmod
+      // itself is negligible, while a separate runCommand adds a control-plane
+      // round trip. `o+x` permits traversal without allowing directory listing.
+      `sudo chmod o+x ${SANDBOX_HOME_DIR} || exit 1; ` +
+        `tail -c 262144 ${log} > ${log}.trim 2>/dev/null && mv ${log}.trim ${log}; ` +
         `echo "[launch] $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> ${log}; ` +
         `nohup setsid node ${SUPERVISOR_PATH} >> ${log} 2>&1 < /dev/null &`,
     ],
     env: supervisorEnv,
   });
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `supervisor launch command failed (exit ${result.exitCode}): ${(await result.stderr()).slice(0, 500)}`,
+    );
+  }
   await waitForSupervisorReady(supervisorUrlForSandbox(sandbox));
+}
+
+/**
+ * Repair the legacy home directory of an already-running sandbox. New launches
+ * do this inside their existing launch RPC; this separate call is reserved for
+ * the reactive session-file recovery path, so healthy warm dispatches pay no
+ * additional control-plane round trip.
+ */
+export async function ensureSandboxHomeTraversable(sandbox: Sandbox): Promise<void> {
+  const result = await sandbox.runCommand({
+    cmd: "chmod",
+    args: ["o+x", SANDBOX_HOME_DIR],
+    sudo: true,
+  });
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `sandbox home permission repair failed (exit ${result.exitCode}): ${(await result.stderr()).slice(0, 500)}`,
+    );
+  }
 }
 
 /**

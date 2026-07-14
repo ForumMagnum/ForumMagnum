@@ -40,6 +40,19 @@ describe("sessionBootstrap", () => {
     expect(await sessionJsonlExists(target)).toBe(true);
   });
 
+  it("does not misreport filesystem errors as a missing session", async () => {
+    const stat = jest.spyOn(fs, "stat").mockRejectedValueOnce(
+      Object.assign(new Error("permission denied"), { code: "EACCES" }),
+    );
+    try {
+      await expect(
+        sessionJsonlExists({ claudeSessionId: "permission-error", homeDir: tmpHome }),
+      ).rejects.toMatchObject({ code: "EACCES" });
+    } finally {
+      stat.mockRestore();
+    }
+  });
+
   describe("installStagedSessionJsonl", () => {
     it("renames a staged file into place when no session file exists", async () => {
       const target = { claudeSessionId: "install", homeDir: tmpHome };
@@ -64,6 +77,19 @@ describe("sessionBootstrap", () => {
       const target = { claudeSessionId: "nothing", homeDir: tmpHome };
       await installStagedSessionJsonl(target);
       expect(await sessionJsonlExists(target)).toBe(false);
+    });
+
+    it("does not misreport an inaccessible staged file as absent", async () => {
+      const stat = jest.spyOn(fs, "stat").mockRejectedValueOnce(
+        Object.assign(new Error("permission denied"), { code: "EACCES" }),
+      );
+      try {
+        await expect(
+          installStagedSessionJsonl({ claudeSessionId: "permission-error", homeDir: tmpHome }),
+        ).rejects.toMatchObject({ code: "EACCES" });
+      } finally {
+        stat.mockRestore();
+      }
     });
   });
 });
