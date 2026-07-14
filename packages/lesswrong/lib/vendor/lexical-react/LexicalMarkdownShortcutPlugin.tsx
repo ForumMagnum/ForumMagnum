@@ -14,9 +14,11 @@ import {
   $isHorizontalRuleNode,
   HorizontalRuleNode,
 } from '@lexical/extension';
-import {registerMarkdownShortcuts, TRANSFORMERS} from '@lexical/markdown';
+import {TRANSFORMERS} from '@lexical/markdown';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect} from 'react';
+
+import {registerMarkdownShortcuts} from '../lexical-markdown/MarkdownShortcuts';
 
 const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],

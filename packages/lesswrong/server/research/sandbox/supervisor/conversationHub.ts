@@ -38,9 +38,13 @@
  */
 import { randomUUID } from "node:crypto";
 import { ParsedJsonlLine, ClaudeEventKind } from "./jsonlParser";
-import { ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
+import { CanUseToolRequest, ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
 import { BackendEvent, PostPersister } from "./postPersister";
-import { writeBootstrapJsonl } from "./sessionBootstrap";
+import {
+  installStagedSessionJsonl,
+  SESSION_FILE_MISSING_REASON,
+  sessionJsonlExists,
+} from "./sessionBootstrap";
 import { ConversationState } from "./server";
 import { FLUSH_RESULT_SUBTYPE } from "../../../../lib/research/turnActivity";
 
@@ -52,6 +56,12 @@ const CANCEL_SIGKILL_GRACE_MS = 5_000;
 
 /** Subtype of the CLI's authoritative busy/idle event (see module doc). */
 const SESSION_STATE_SUBTYPE = "session_state_changed";
+
+const ASK_USER_QUESTION_TOOL = "AskUserQuestion";
+
+export type AnswerQuestionResult =
+  | { ok: true }
+  | { ok: false; reason: "no_pending_question" | "process_unavailable" };
 
 type SessionState = "idle" | "running" | "requires_action";
 
@@ -116,6 +126,7 @@ interface ConversationEntry {
    * heartbeat via `hasPendingWork`.
    */
   outstandingTaskIds: Set<string>;
+  pendingQuestions: Map<string, { requestId: string; input: Record<string, unknown> }>;
   /** Serializes spawn/teardown so two dispatches can't race a respawn. */
   opChain: Promise<void>;
 }
@@ -142,33 +153,24 @@ export interface DispatchInput {
   /**
    * True when a Claude session for this conversation has existed before (the
    * backend checks its persisted events for any line carrying a session_id).
-   * Decides `--resume` vs `--session-id` at spawn. This deliberately comes
-   * from the backend rather than a supervisor-side existence check on the
-   * session file: right after a sandbox resume the snapshot restore can lag,
-   * so a filesystem probe races it — observed as `--session-id` being chosen
-   * for an existing session, which the CLI rejects with "already in use".
+   * Decides `--resume` vs `--session-id` at spawn. This comes from the backend
+   * rather than being inferred from a session-file existence check: right
+   * after a sandbox resume the snapshot restore can lag, so a filesystem probe
+   * races it — observed as `--session-id` being chosen for an existing
+   * session, which the CLI rejects with "already in use". The hub still
+   * probes the file before an `--resume` spawn, but a miss never downgrades
+   * to `--session-id`; it rejects the dispatch as `session_file_missing` so
+   * the backend can ship a reconstruction and retry.
    */
   sessionHasHistory?: boolean;
-  /**
-   * Verbatim JSONL lines from prior `ResearchConversationEvents`, in seq order.
-   * If non-empty, the hub writes them to the Claude Code session dir before
-   * spawning so `--resume` finds the history. Each entry is one line of text.
-   * The write replaces any file already at that path: the backend only ships
-   * a bootstrap when the on-disk file can't be trusted (fresh rebuild — where
-   * any file present came from a stale base snapshot — or a legacy
-   * conversation with a just-derived id), so the reconstruction wins.
-   * Ignored when the conversation's process is already running (the live
-   * process owns the session file).
-   */
-  bootstrapJsonl?: string[];
 }
 
 /**
  * Ship a supervisor-synthesized terminal `result` for a turn that can't end
  * normally (process crash, cancel flush, sandbox restart). Uses the
  * `interrupted` subtype, which in-flight derivations treat as closing every
- * outstanding user turn; `writeBootstrapJsonl` strips result lines, so it
- * never lands back in Claude's resume context.
+ * outstanding user turn; the session reconstruction (`buildBootstrapJsonl`)
+ * strips result lines, so it never lands back in Claude's resume context.
  */
 export function enqueueSyntheticInterruptedResult(
   postPersister: PostPersister,
@@ -187,6 +189,27 @@ export function enqueueSyntheticInterruptedResult(
     claudeMessageUuid: null,
     supervisorEmittedAt: new Date(nowMs).toISOString(),
   });
+}
+
+const SESSION_PROBE_ATTEMPTS = 3;
+const SESSION_PROBE_RETRY_MS = 1500;
+
+/**
+ * Existence check for the session JSONL that tolerates the snapshot-restore
+ * lag documented on `DispatchInput.sessionHasHistory`: a file that is really
+ * on the snapshot can transiently read as absent right after a resume, so
+ * only a miss that persists across a few seconds counts.
+ */
+async function sessionFileExistsWithRetry(
+  target: { claudeSessionId: string; cwd?: string },
+): Promise<boolean> {
+  for (let attempt = 0; attempt < SESSION_PROBE_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, SESSION_PROBE_RETRY_MS));
+    }
+    if (await sessionJsonlExists(target)) return true;
+  }
+  return false;
 }
 
 export function createConversationHub(config: ConversationHubConfig) {
@@ -208,10 +231,42 @@ export function createConversationHub(config: ConversationHubConfig) {
       cancelPending: false,
       dispatchedDuringCancel: false,
       outstandingTaskIds: new Set(),
+      pendingQuestions: new Map(),
       opChain: Promise.resolve(),
     };
     conversations.set(conversationId, entry);
     return entry;
+  }
+
+  function handleCanUseTool(entry: ConversationEntry, req: CanUseToolRequest) {
+    if (req.toolName !== ASK_USER_QUESTION_TOOL) {
+      entry.proc?.respondPermission(req.requestId, {
+        behavior: "allow",
+        updatedInput: req.input,
+        toolUseId: req.toolUseId,
+      });
+      return;
+    }
+    entry.pendingQuestions.set(req.toolUseId, { requestId: req.requestId, input: req.input });
+  }
+
+  function answerQuestion(
+    conversationId: string,
+    toolUseId: string,
+    answers: Record<string, string>,
+  ): AnswerQuestionResult {
+    const entry = conversations.get(conversationId);
+    const pending = entry?.pendingQuestions.get(toolUseId);
+    if (!entry || !pending) return { ok: false, reason: "no_pending_question" };
+    if (!entry.proc?.alive()) return { ok: false, reason: "process_unavailable" };
+    const wrote = entry.proc.respondPermission(pending.requestId, {
+      behavior: "allow",
+      updatedInput: { ...pending.input, answers },
+      toolUseId,
+    });
+    if (!wrote) return { ok: false, reason: "process_unavailable" };
+    entry.pendingQuestions.delete(toolUseId);
+    return { ok: true };
   }
 
   function isBusy(entry: ConversationEntry): boolean {
@@ -311,22 +366,34 @@ export function createConversationHub(config: ConversationHubConfig) {
     const claudeSessionId = entry.claudeSessionId ?? input.claudeSessionId ?? randomUUID();
     entry.claudeSessionId = claudeSessionId;
 
-    let sessionExists = input.sessionHasHistory ?? false;
+    const sessionExists = input.sessionHasHistory ?? false;
 
-    if (input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
+    if (sessionExists) {
+      const target = { claudeSessionId, cwd: runnerOpts.cwd };
+      // A backend-staged session reconstruction is installed here — and only
+      // here — because the opChain guarantees no live process holds the
+      // session file at this point, which the backend's out-of-band staging
+      // write cannot guarantee on its own.
       try {
-        await writeBootstrapJsonl(
-          { claudeSessionId, cwd: runnerOpts.cwd },
-          input.bootstrapJsonl.map((line) => ({ payload: line })),
-        );
-        sessionExists = true;
+        await installStagedSessionJsonl(target);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error(
-          `[hub] bootstrap write failed for conv=${entry.conversationId} session=${claudeSessionId}:`,
+          `[hub] staged session install failed for conv=${entry.conversationId} session=${claudeSessionId}:`,
           err,
         );
-        return { ok: false, reason: "bootstrap_failed" };
+      }
+      // `--resume` hard-fails the spawn when the session file is gone (e.g.
+      // the sandbox was rebuilt from a base snapshot). A persistent miss
+      // rejects the dispatch with a reason the backend recognizes; it stages
+      // a reconstruction and re-dispatches.
+      const exists = await sessionFileExistsWithRetry(target);
+      if (!exists) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[hub] session file missing for conv=${entry.conversationId} session=${claudeSessionId}; rejecting dispatch for backend bootstrap`,
+        );
+        return { ok: false, reason: SESSION_FILE_MISSING_REASON };
       }
     }
 
@@ -338,6 +405,7 @@ export function createConversationHub(config: ConversationHubConfig) {
       cwd: runnerOpts.cwd,
       env: runnerOpts.env,
       onLine: (line) => emit(entry, line),
+      onCanUseTool: (req) => handleCanUseTool(entry, req),
       onExit: ({ code }) => {
         if (entry.proc !== proc) return;
         entry.proc = null;
@@ -367,6 +435,11 @@ export function createConversationHub(config: ConversationHubConfig) {
         // No process, no future re-invocation: pending tasks can't keep the
         // sandbox alive any more (orphaned task processes die with the sandbox).
         entry.outstandingTaskIds.clear();
+        // Any unanswered question's requestId belonged to the dead process;
+        // the synthetic terminal result above (or the dangling-turn heal on a
+        // restart) closes its turn, so a later answer must not resolve a stale
+        // request against a new process.
+        entry.pendingQuestions.clear();
       },
       onError: (err) => {
         // eslint-disable-next-line no-console
@@ -520,6 +593,7 @@ export function createConversationHub(config: ConversationHubConfig) {
   return {
     dispatch,
     cancel,
+    answerQuestion,
     snapshot,
     hasPendingWork,
     shutdown,
@@ -587,7 +661,8 @@ function updateOutstandingTasks(
  * `result` is persisted because it's the only line Claude Code emits exactly
  * once per turn regardless of how many intermediate events the turn produced;
  * the client uses its presence as a turn-end signal. It's filtered back out
- * in `writeBootstrapJsonl` so it never lands in Claude's resume context.
+ * of session reconstructions (`buildBootstrapJsonl`) so it never lands in
+ * Claude's resume context.
  */
 function mapKindForPersistence(kind: ClaudeEventKind): BackendEvent["kind"] | null {
   switch (kind) {

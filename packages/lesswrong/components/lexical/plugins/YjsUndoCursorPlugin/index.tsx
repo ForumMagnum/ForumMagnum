@@ -16,11 +16,13 @@ import { useEffect, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getNodeByKey,
+  $getSelection,
   $isRangeSelection,
   $setSelection,
   COMMAND_PRIORITY_LOW,
   COLLABORATION_TAG,
   HISTORIC_TAG,
+  HISTORY_PUSH_TAG,
   REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
@@ -55,6 +57,53 @@ export default function YjsUndoCursorPlugin(): null {
   const pendingHistoricActionRef = useRef<'undo' | 'redo' | null>(null);
 
   useEffect(() => {
+    /**
+     * Clear the current range selection before the Yjs UndoManager reverses a
+     * change. The reversal removes (and re-keys) nodes, and @lexical/yjs's sync
+     * update clones the pre-undo selection into the resulting editor state. If
+     * that selection points at a node the reversal removes, the clone dangles
+     * and Lexical throws from updateEditor:
+     *   "selection has been lost because the previously selected nodes have
+     *    been removed..."
+     *
+     * This bites, for example, after deleting from the very start of a
+     * paragraph in suggestion mode: the resulting collapsed selection is an
+     * element point on the paragraph (ProtonNode `selectPrevious()` falls back
+     * to `parent.select(0, 0)` when the delete suggestion is the first child),
+     * and an undo/redo/undo sequence ends up cloning it onto a removed node.
+     *
+     * Clearing the selection first means the sync update has nothing to dangle;
+     * the correct cursor is then restored from our selection-history stack in
+     * the update listener below. This runs at COMMAND_PRIORITY_LOW, before the
+     * UndoManager handler at COMMAND_PRIORITY_EDITOR, so it takes effect first.
+     *
+     * If the undo/redo turns out to be a no-op (nothing left in history), no
+     * HISTORIC update runs to restore the cursor, so we put the cleared
+     * selection back on the next microtask to avoid the cursor vanishing.
+     */
+    const $clearSelectionForHistory = (action: 'undo' | 'redo') => {
+      const current = $getSelection();
+      if (!$isRangeSelection(current)) {
+        return;
+      }
+      const saved = current.clone();
+      $setSelection(null);
+      queueMicrotask(() => {
+        // A HISTORIC undo/redo update consumes the action flag (see the update
+        // listener). If it's still set, the operation was a no-op and the
+        // cursor was never restored — so put the cleared selection back.
+        if (pendingHistoricActionRef.current !== action) {
+          return;
+        }
+        pendingHistoricActionRef.current = null;
+        editor.update(() => {
+          if ($selectionNodesExist(saved)) {
+            $setSelection(saved.clone());
+          }
+        });
+      });
+    };
+
     return mergeRegister(
       // Track local edits and save pre-edit selections
       editor.registerUpdateListener(({
@@ -125,15 +174,18 @@ export default function YjsUndoCursorPlugin(): null {
         const prevSelection = prevEditorState._selection;
 
         // Only save selection at the start of a new undo group (matching the
-        // UndoManager's 500ms capture timeout)
-        if (now - lastEditTimeRef.current > CAPTURE_TIMEOUT_MS) {
+        // UndoManager's 500ms capture timeout). An update tagged
+        // HISTORY_PUSH_TAG is its own undo group on both sides (the collab
+        // sync calls stopCapturing() around it), so mirror that here.
+        const isHistoryPush = tags.has(HISTORY_PUSH_TAG);
+        if (isHistoryPush || now - lastEditTimeRef.current > CAPTURE_TIMEOUT_MS) {
           if ($isRangeSelection(prevSelection)) {
             undoStackRef.current.push({ before: prevSelection.clone() });
           }
           // New edit clears redo stack (standard undo behavior)
           redoStackRef.current.length = 0;
         }
-        lastEditTimeRef.current = now;
+        lastEditTimeRef.current = isHistoryPush ? 0 : now;
       }),
 
       // Intercept UNDO_COMMAND to set the action flag before the default handler runs.
@@ -143,6 +195,7 @@ export default function YjsUndoCursorPlugin(): null {
         UNDO_COMMAND,
         () => {
           pendingHistoricActionRef.current = 'undo';
+          $clearSelectionForHistory('undo');
           return false; // Don't consume — let the default handler perform the actual undo
         },
         COMMAND_PRIORITY_LOW,
@@ -153,6 +206,7 @@ export default function YjsUndoCursorPlugin(): null {
         REDO_COMMAND,
         () => {
           pendingHistoricActionRef.current = 'redo';
+          $clearSelectionForHistory('redo');
           return false;
         },
         COMMAND_PRIORITY_LOW,

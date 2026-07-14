@@ -44,6 +44,17 @@ import {
 } from "./jsonlParser";
 import { RESEARCH_AGENT_MODEL } from "../sandboxLayout";
 
+export interface CanUseToolRequest {
+  requestId: string;
+  toolName: string;
+  toolUseId: string;
+  input: Record<string, unknown>;
+}
+
+export type PermissionDecision =
+  | { behavior: "allow"; updatedInput: Record<string, unknown>; toolUseId: string }
+  | { behavior: "deny"; message: string };
+
 export interface ClaudeProcessOptions {
   conversationId: string;
   /**
@@ -64,6 +75,7 @@ export interface ClaudeProcessOptions {
   env?: Record<string, string>;
   /** Called for every parsed JSONL line (and verbatim raw text). */
   onLine: (line: ParsedJsonlLine) => void;
+  onCanUseTool?: (req: CanUseToolRequest) => void;
   /** Called when the subprocess exits. `code` is null if killed by signal. */
   onExit: (info: { code: number | null; signal: NodeJS.Signals | null }) => void;
   /** Called when the subprocess fails to start or stdout/stderr produces an error. */
@@ -90,6 +102,7 @@ export interface ClaudeProcessHandle {
    * Returns false if the process is no longer writable.
    */
   interrupt(requestId: string): boolean;
+  respondPermission(requestId: string, decision: PermissionDecision): boolean;
   /** Escalation path; prefer `interrupt`. Default: SIGTERM. */
   kill(signal?: NodeJS.Signals): void;
   /** Resolves when the subprocess has fully exited and onExit has been called. */
@@ -135,6 +148,7 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
       alive: () => false,
       sendUserMessage: () => false,
       interrupt: () => false,
+      respondPermission: () => false,
       kill() {
         /* nothing to kill */
       },
@@ -147,7 +161,14 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
   proc.stdout.setEncoding("utf8");
   proc.stdout.on("data", (chunk: string) => {
     try {
-      for (const line of chunker.push(chunk)) opts.onLine(line);
+      for (const line of chunker.push(chunk)) {
+        const canUseTool = asCanUseToolRequest(line.parsed);
+        if (canUseTool) {
+          opts.onCanUseTool?.(canUseTool);
+        } else {
+          opts.onLine(line);
+        }
+      }
     } catch (err) {
       opts.onError(err as Error);
     }
@@ -205,6 +226,20 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
         request: { subtype: "interrupt" },
       });
     },
+    respondPermission(requestId: string, decision: PermissionDecision): boolean {
+      const response = decision.behavior === "allow"
+        ? {
+            behavior: "allow",
+            updatedInput: decision.updatedInput,
+            // The CLI keys the resolved tool call by this id.
+            toolUseID: decision.toolUseId,
+          }
+        : { behavior: "deny", message: decision.message };
+      return writeLine({
+        type: "control_response",
+        response: { subtype: "success", request_id: requestId, response },
+      });
+    },
     kill(signal: NodeJS.Signals = "SIGTERM") {
       if (exited) return;
       try {
@@ -215,6 +250,33 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
     },
     done,
   };
+}
+
+/**
+ * Recognize a `can_use_tool` control_request and normalize it, or return null.
+ * Shape (verified against Claude Code 2.1.198):
+ *   { type: "control_request", request_id, request: { subtype: "can_use_tool",
+ *     tool_name, tool_use_id, input } }
+ */
+function asCanUseToolRequest(parsed: Record<string, unknown> | null): CanUseToolRequest | null {
+  if (!parsed || parsed.type !== "control_request") return null;
+  const request = parsed.request;
+  if (!request || typeof request !== "object") return null;
+  const req = request as Record<string, unknown>;
+  if (req.subtype !== "can_use_tool") return null;
+  const requestId = parsed.request_id;
+  const toolName = req.tool_name;
+  const toolUseId = req.tool_use_id;
+  const input = req.input;
+  if (
+    typeof requestId !== "string" ||
+    typeof toolName !== "string" ||
+    typeof toolUseId !== "string" ||
+    !input || typeof input !== "object"
+  ) {
+    return null;
+  }
+  return { requestId, toolName, toolUseId, input: input as Record<string, unknown> };
 }
 
 export function buildArgs(
@@ -234,6 +296,12 @@ export function buildArgs(
     "--output-format", "stream-json",
     "--verbose",
     "--permission-mode", "auto",
+    // Route out-of-band tool decisions to us over stdio control_requests. Under
+    // `--permission-mode auto` the classifier still auto-approves safe tools
+    // (Bash, research-tool, edits) *before* this, so in practice only
+    // AskUserQuestion — which has no automatic answer — reaches the channel
+    // (verified empirically). Without it, AskUserQuestion dead-ends.
+    "--permission-prompt-tool", "stdio",
     "--model", RESEARCH_AGENT_MODEL,
   ];
   if (opts.sessionMode === "resume") {

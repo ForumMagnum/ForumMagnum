@@ -473,6 +473,11 @@ function FloatingLinkEditor({
                       children[i].remove();
                     }
                     firstChild.setTextContent(editedLinkText);
+                    // The existing selection may point past the end of the
+                    // newly-shortened text node, which would make Lexical throw
+                    // "$getTextNodeOffset: invalid offset" while reconciling.
+                    // Re-anchor the selection to the rewritten text node.
+                    firstChild.select(editedLinkText.length, editedLinkText.length);
                   }
                 }
               }

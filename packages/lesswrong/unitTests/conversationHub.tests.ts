@@ -1,4 +1,18 @@
+import { promises as fs } from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { createConversationHub } from "../server/research/sandbox/supervisor/conversationHub";
+
+// The session-file probe resolves ~ via os.homedir(), which the probe tests
+// must point at a temp dir. Neither $HOME (jest copies process.env, so writes
+// never reach the C environment homedir() reads) nor jest.spyOn (module
+// interop copies) redirect it reliably, so mock the module itself; the
+// override is read lazily, and everything else passes through.
+let mockHomedir: string | null = null;
+jest.mock("node:os", () => {
+  const actual = jest.requireActual<typeof import("node:os")>("node:os");
+  return { ...actual, homedir: () => mockHomedir ?? actual.homedir() };
+});
 import {
   ClaudeProcessHandle,
   ClaudeProcessOptions,
@@ -6,6 +20,10 @@ import {
 } from "../server/research/sandbox/supervisor/claudeRunner";
 import { createJsonlChunker } from "../server/research/sandbox/supervisor/jsonlParser";
 import { BackendEvent, PostPersister } from "../server/research/sandbox/supervisor/postPersister";
+import {
+  SESSION_STAGING_SUFFIX,
+  sessionJsonlPath,
+} from "../server/research/sandbox/supervisor/sessionBootstrap";
 
 interface FakeProcess {
   opts: ClaudeProcessOptions;
@@ -13,6 +31,7 @@ interface FakeProcess {
   sent: string[];
   interrupts: string[];
   kills: string[];
+  permissionResponses: Array<{ requestId: string; decision: unknown }>;
   /** Feed one stdout line (an object; stringified through the real chunker). */
   emit(payload: Record<string, unknown>): void;
   /** Simulate process exit. */
@@ -38,9 +57,24 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
       sent: [],
       interrupts: [],
       kills: [],
+      permissionResponses: [],
       emit(payload) {
         for (const line of chunker.push(`${JSON.stringify(payload)}\n`)) {
-          procOpts.onLine(line);
+          const req = line.parsed;
+          if (
+            req?.type === "control_request" &&
+            (req.request as Record<string, unknown> | undefined)?.subtype === "can_use_tool"
+          ) {
+            const r = req.request as Record<string, unknown>;
+            procOpts.onCanUseTool?.({
+              requestId: req.request_id as string,
+              toolName: r.tool_name as string,
+              toolUseId: r.tool_use_id as string,
+              input: r.input as Record<string, unknown>,
+            });
+          } else {
+            procOpts.onLine(line);
+          }
         }
       },
       exit(code) {
@@ -62,6 +96,11 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
         interrupt(requestId: string) {
           if (exited) return false;
           fake.interrupts.push(requestId);
+          return true;
+        },
+        respondPermission(requestId: string, decision) {
+          if (exited) return false;
+          fake.permissionResponses.push({ requestId, decision });
           return true;
         },
         kill(signal = "SIGTERM") {
@@ -133,17 +172,76 @@ describe("conversationHub", () => {
     expect(procs[0].sent).toEqual(["first", "second"]);
   });
 
-  it("resumes the session when the backend reports prior history", async () => {
-    const { hub, procs } = mkHub();
-    await hub.dispatch({
-      conversationId: "c1",
-      prompt: "continue",
-      claudeSessionId: "sess-1",
-      sessionHasHistory: true,
+  // The history-bearing dispatch path probes the real filesystem for the
+  // session JSONL (at ~/.claude/projects/...), so these tests point the
+  // (mocked) home directory at a temp dir and place (or omit) a real file
+  // there.
+  describe("session-file probe", () => {
+    let tmpHome: string;
+
+    beforeEach(async () => {
+      tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "hub-probe-"));
+      mockHomedir = tmpHome;
     });
-    // No filesystem probe: the backend's word decides --resume vs --session-id
-    // (an existence check races snapshot restore on freshly-resumed sandboxes).
-    expect(procs[0].opts.sessionMode).toBe("resume");
+
+    afterEach(async () => {
+      mockHomedir = null;
+      await fs.rm(tmpHome, { recursive: true, force: true });
+    });
+
+    async function writeSessionFile(filePath: string, content: string): Promise<void> {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, content, "utf8");
+    }
+
+    it("resumes the session when the backend reports prior history", async () => {
+      await writeSessionFile(
+        sessionJsonlPath({ claudeSessionId: "sess-1" }),
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(procs[0].opts.sessionMode).toBe("resume");
+    });
+
+    it("installs a backend-staged reconstruction before resuming", async () => {
+      const finalPath = sessionJsonlPath({ claudeSessionId: "sess-1" });
+      await writeSessionFile(
+        finalPath + SESSION_STAGING_SUFFIX,
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(r.accepted).toBe(true);
+      expect(procs[0].opts.sessionMode).toBe("resume");
+      await expect(fs.access(finalPath)).resolves.toBeUndefined();
+      await expect(fs.access(finalPath + SESSION_STAGING_SUFFIX)).rejects.toThrow();
+    });
+
+    it("rejects a history-bearing dispatch when the session file is missing", async () => {
+      const { hub, procs, events } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      // Never downgrade to --session-id (that silently drops the history): the
+      // backend reacts to this reason by writing a reconstruction and retrying.
+      expect(r).toEqual({ accepted: false, reason: "session_file_missing" });
+      expect(procs.length).toBe(0);
+      expect(events.length).toBe(0); // rejected before the user turn was recorded
+    }, 15000); // the probe retries over a few seconds before giving up
   });
 
   it("stays busy until the CLI reports idle, not at the first result", async () => {
@@ -372,5 +470,56 @@ describe("conversationHub", () => {
     await hub.cancel("c1");
     expect(procs[0].interrupts.length).toBe(0);
     expect(procs[0].kills.length).toBe(0);
+  });
+
+  const askControlRequest = {
+    type: "control_request",
+    request_id: "perm-1",
+    request: {
+      subtype: "can_use_tool",
+      tool_name: "AskUserQuestion",
+      tool_use_id: "toolu_q1",
+      input: { questions: [{ question: "Red or blue?", header: "Color", multiSelect: false, options: [{ label: "Red" }, { label: "Blue" }] }] },
+    },
+  };
+
+  it("parks an AskUserQuestion permission request and resolves it on answer", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "ask me", claudeSessionId: "sess-1" });
+    procs[0].emit(askControlRequest);
+    expect(procs[0].permissionResponses.length).toBe(0);
+
+    const result = hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Red" });
+    expect(result.ok).toBe(true);
+    expect(procs[0].permissionResponses.length).toBe(1);
+    const resp = procs[0].permissionResponses[0];
+    expect(resp.requestId).toBe("perm-1");
+    expect(resp.decision).toMatchObject({
+      behavior: "allow",
+      toolUseId: "toolu_q1",
+      updatedInput: { answers: { "Red or blue?": "Red" } },
+    });
+    expect((resp.decision as { updatedInput: { questions: unknown[] } }).updatedInput.questions).toBeDefined();
+
+    expect(hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Blue" }).ok).toBe(false);
+  });
+
+  it("auto-allows a non-AskUserQuestion permission request", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    procs[0].emit({
+      type: "control_request",
+      request_id: "perm-2",
+      request: { subtype: "can_use_tool", tool_name: "Bash", tool_use_id: "toolu_b1", input: { command: "ls" } },
+    });
+    expect(procs[0].permissionResponses.length).toBe(1);
+    expect(procs[0].permissionResponses[0].decision).toMatchObject({ behavior: "allow", toolUseId: "toolu_b1" });
+  });
+
+  it("reports no pending question when answering an unknown tool_use", async () => {
+    const { hub } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    const result = hub.answerQuestion("c1", "toolu_missing", { q: "a" });
+    expect(result).toEqual({ ok: false, reason: "no_pending_question" });
   });
 });

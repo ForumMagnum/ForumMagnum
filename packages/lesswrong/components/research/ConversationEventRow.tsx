@@ -3,121 +3,109 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import moment from '@/lib/moment-timezone';
-import ForumIcon from '@/components/common/ForumIcon';
 import { useTimezone } from '@/components/common/withTimezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
 import { ChunkContent } from './ChunkContent';
+import { researchChatProse, researchChatSans, researchMono, researchTransition, researchWarmAlpha, researchRadius } from './researchStyleUtils';
 import type { ConversationEvent } from './hooks/useConversationStream';
 
-const META_BODY_MAX_HEIGHT = 220;
-const SUMMARY_MAX_CHARS = 300;
+const META_BODY_MAX_HEIGHT = 240;
+const SUMMARY_MAX_CHARS = 200;
 
 const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
-  chatEvent: {
+  row: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
-    fontSize: 13,
-    lineHeight: 1.5,
-    borderRadius: 6,
-    wordBreak: 'break-word',
+    gap: 2,
     minWidth: 0,
+    wordBreak: 'break-word',
   },
-  chatUser: {
-    background: theme.palette.greyAlpha(0.06),
-    alignSelf: 'flex-end',
-    maxWidth: '85%',
-    padding: '4px 8px',
+  rowUser: {
+    margin: '12px 0 4px',
+    '&:first-child': {
+      marginTop: 0,
+    },
   },
-  chatAssistant: {
-    background: 'transparent',
-    color: theme.palette.text.primary,
+  rowAssistant: {
+    margin: '6px 0',
   },
-  chatMetaOnly: {
-    alignSelf: 'stretch',
+  rowMeta: {
+    margin: '1px 0',
   },
-  agentEventRow: {
+  userRow: {
     display: 'grid',
     gridTemplateColumns: 'auto 1fr',
-    columnGap: 12,
+    columnGap: 8,
     alignItems: 'baseline',
+    padding: '6px 10px 6px 9px',
+    borderRadius: researchRadius.sm,
+    border: `1px solid ${researchWarmAlpha(0.12)}`,
+    fontSize: 13,
+    lineHeight: 1.5,
+    color: theme.palette.text.primary,
   },
-  agentEventChunks: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    minWidth: 0,
+  userContent: {
+    ...researchChatProse(theme),
+    fontSize: 13.5,
+    fontFamily: researchChatSans,
   },
-  speaker: {
-    flex: 'none',
-    fontSize: '0.7em',
-    fontWeight: 600,
-    letterSpacing: '0.06em',
-    textTransform: 'uppercase',
-    color: theme.palette.greyAlpha(0.5),
+  userMarker: {
+    fontFamily: researchMono,
+    fontSize: 11,
+    color: researchWarmAlpha(0.45),
     userSelect: 'none',
   },
-  speakerUser: {
-    color: theme.palette.greyAlpha(0.7),
-  },
-  speakerAssistant: {
-    color: theme.palette.primary.main,
-  },
-  speakerError: {
-    color: theme.palette.error?.main ?? theme.palette.text.primary,
-  },
-  messageChunk: {
+  assistantText: {
+    ...researchChatProse(theme),
+    fontSize: 14.5,
+    lineHeight: 1.6,
+    fontFamily: researchChatSans,
     color: theme.palette.text.primary,
     overflowWrap: 'anywhere',
-    whiteSpace: 'normal',
   },
-  metaDisclosure: {
+  metaLine: {
     minWidth: 0,
-    border: theme.palette.greyBorder('1px', 0.08),
-    borderRadius: 4,
-    background: theme.palette.greyAlpha(0.04),
-    color: theme.palette.text.dim,
-    overflow: 'hidden',
-    fontFamily: 'monospace',
-    fontSize: '0.85em',
-  },
-  metaDisclosureChat: {
-    fontSize: 12,
-  },
-  metaDisclosureError: {
-    color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   metaHeader: {
     width: '100%',
     minWidth: 0,
     border: 'none',
     background: 'transparent',
-    color: 'inherit',
     cursor: 'pointer',
     display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    padding: '4px 8px',
-    font: 'inherit',
+    alignItems: 'baseline',
+    gap: 7,
+    padding: '1px 4px 1px 0',
+    borderRadius: researchRadius.xs,
+    fontFamily: researchMono,
+    fontSize: 11.5,
+    lineHeight: '18px',
+    color: theme.palette.text.dim,
     textAlign: 'left',
+    transition: `background ${researchTransition}`,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.04),
+      background: researchWarmAlpha(0.04),
     },
   },
-  metaChevron: {
-    '--icon-size': '12px',
+  metaGlyph: {
     flex: 'none',
-    color: theme.palette.greyAlpha(0.55),
-    transition: 'transform 120ms ease',
+    userSelect: 'none',
+    color: researchWarmAlpha(0.45),
   },
-  metaChevronExpanded: {
-    transform: 'rotate(90deg)',
+  metaGlyphTool: {
+    color: theme.palette.primary.main,
+  },
+  metaGlyphError: {
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   metaLabel: {
     flex: 'none',
     fontWeight: 600,
-    color: theme.palette.greyAlpha(0.65),
+    color: researchWarmAlpha(0.6),
+  },
+  metaLabelError: {
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   metaSummary: {
     flex: 1,
@@ -125,167 +113,119 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    color: theme.palette.text.dim,
+  },
+  metaSummaryThinking: {
+    fontStyle: 'italic',
+  },
+  metaIndented: {
+    paddingLeft: 16,
   },
   metaBody: {
     maxHeight: META_BODY_MAX_HEIGHT,
     overflowY: 'auto',
-    borderTop: theme.palette.greyBorder('1px', 0.08),
-    padding: '6px 8px',
+    margin: '2px 0 4px 16px',
+    padding: '6px 9px',
+    borderLeft: `2px solid ${researchWarmAlpha(0.1)}`,
+    fontFamily: researchMono,
+    fontSize: 11.5,
+    lineHeight: 1.55,
     whiteSpace: 'pre-wrap',
     color: theme.palette.text.dim,
-  },
-  metaBodyText: {
-    color: theme.palette.text.primary,
     overflowWrap: 'anywhere',
-    whiteSpace: 'normal',
   },
   metaBodyThinking: {
-    color: theme.palette.greyAlpha(0.55),
+    fontFamily: researchChatSans,
+    fontSize: 13.5,
     fontStyle: 'italic',
-    whiteSpace: 'pre-wrap',
+    color: researchWarmAlpha(0.6),
+    whiteSpace: 'normal',
   },
-  metaBodyTool: {
-    color: theme.palette.text.dim,
-    whiteSpace: 'pre-wrap',
-  },
+  metaBodyProse: researchChatProse(theme),
 }));
 
 interface ConversationEventRowProps {
   event: ConversationEvent;
-  surface: 'agentBlock' | 'chat';
 }
 
 export const ConversationEventRow = React.memo(function ConversationEventRow({
   event,
-  surface,
 }: ConversationEventRowProps) {
   const classes = useStyles(styles);
+  const { timezone } = useTimezone();
   const chunks = getConversationEventChunks(event);
   if (chunks.length === 0) return null;
 
-  if (surface === 'agentBlock') {
-    return <AgentBlockEventRow event={event} chunks={chunks} classes={classes} />;
-  }
-
-  return <ChatEventRow event={event} chunks={chunks} classes={classes} />;
-});
-
-interface EventRowClasses {
-  agentEventChunks: string;
-  agentEventRow: string;
-  chatAssistant: string;
-  chatEvent: string;
-  chatMetaOnly: string;
-  chatUser: string;
-  messageChunk: string;
-  metaBody: string;
-  metaBodyText: string;
-  metaBodyThinking: string;
-  metaBodyTool: string;
-  metaChevron: string;
-  metaChevronExpanded: string;
-  metaDisclosure: string;
-  metaDisclosureChat: string;
-  metaDisclosureError: string;
-  metaHeader: string;
-  metaLabel: string;
-  metaSummary: string;
-  speaker: string;
-  speakerAssistant: string;
-  speakerError: string;
-  speakerUser: string;
-}
-
-function AgentBlockEventRow({
-  event,
-  chunks,
-  classes,
-}: {
-  event: ConversationEvent;
-  chunks: ConversationEventChunk[];
-  classes: EventRowClasses;
-}) {
-  const speakerLabel = event.kind === 'user' ? 'You' : event.kind === 'error' ? 'Error' : 'Agent';
-  const speakerClass = classNames(classes.speaker, {
-    [classes.speakerUser]: event.kind === 'user',
-    [classes.speakerAssistant]: event.kind === 'assistant',
-    [classes.speakerError]: event.kind === 'error',
-  });
-
-  return (
-    <div className={classes.agentEventRow}>
-      <div className={speakerClass}>{speakerLabel}</div>
-      <div className={classes.agentEventChunks}>
-        {chunks.map((chunk, i) => (
-          <EventChunk key={i} event={event} chunk={chunk} classes={classes} surface="agentBlock" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ChatEventRow({
-  event,
-  chunks,
-  classes,
-}: {
-  event: ConversationEvent;
-  chunks: ConversationEventChunk[];
-  classes: EventRowClasses;
-}) {
-  const hasMessageChunk = chunks.some((chunk) => isMessageChunk(event, chunk));
-  const rootClass = classNames(classes.chatEvent, {
-    [classes.chatUser]: event.kind === 'user',
-    [classes.chatAssistant]: event.kind === 'assistant' && hasMessageChunk,
-    [classes.chatMetaOnly]: !hasMessageChunk,
-  });
-  const { timezone } = useTimezone();
   const timestampTitle = moment(event.createdAt).tz(timezone).format('LLL z');
 
-  return (
-    <div className={rootClass} title={timestampTitle}>
-      {chunks.map((chunk, i) => (
-        <EventChunk key={i} event={event} chunk={chunk} classes={classes} surface="chat" />
-      ))}
-    </div>
-  );
-}
-
-function EventChunk({
-  event,
-  chunk,
-  classes,
-  surface,
-}: {
-  event: ConversationEvent;
-  chunk: ConversationEventChunk;
-  classes: EventRowClasses;
-  surface: 'agentBlock' | 'chat';
-}) {
-  if (!isMessageChunk(event, chunk)) {
-    return <CollapsibleEventChunk event={event} chunk={chunk} classes={classes} surface={surface} />;
+  if (event.kind === 'user') {
+    return (
+      <div className={classNames(classes.row, classes.rowUser)} title={timestampTitle}>
+        {chunks.map((chunk, i) =>
+          chunk.kind === 'text' ? (
+            <div key={i} className={classes.userRow}>
+              <span className={classes.userMarker}>❯</span>
+              <ChunkContent chunk={chunk} className={classes.userContent} />
+            </div>
+          ) : (
+            <MetaLine key={i} eventKind={event.kind} chunk={chunk} />
+          ),
+        )}
+      </div>
+    );
   }
 
-  return <ChunkContent chunk={chunk} className={classes.messageChunk} />;
+  const rowKindClass = event.kind === 'assistant' ? classes.rowAssistant : classes.rowMeta;
+  return (
+    <div className={classNames(classes.row, rowKindClass)} title={timestampTitle}>
+      {chunks.map((chunk, i) =>
+        event.kind === 'assistant' && chunk.kind === 'text' ? (
+          <ChunkContent key={i} chunk={chunk} className={classes.assistantText} />
+        ) : (
+          <MetaLine key={i} eventKind={event.kind} chunk={chunk} />
+        ),
+      )}
+    </div>
+  );
+});
+
+interface MetaLineMeta {
+  glyph: string;
+  glyphClass?: 'tool' | 'error';
+  label: string;
+  summary: string;
+  indented: boolean;
+  thinking: boolean;
 }
 
-function CollapsibleEventChunk({
-  event,
+function getMetaLineMeta(eventKind: string, chunk: ConversationEventChunk): MetaLineMeta {
+  if (eventKind === 'error') {
+    return { glyph: '✕', glyphClass: 'error', label: 'error', summary: summarizeText(chunk.text), indented: false, thinking: false };
+  }
+  switch (chunk.kind) {
+    case 'thinking':
+      return { glyph: '✻', label: 'thinking', summary: summarizeText(chunk.text), indented: false, thinking: true };
+    case 'tool_use': {
+      const { name, args } = splitToolCall(chunk.text);
+      return { glyph: '⏺', glyphClass: 'tool', label: name, summary: summarizeText(args), indented: false, thinking: false };
+    }
+    case 'tool_result':
+      return { glyph: '⎿', label: '', summary: summarizeText(chunk.text), indented: true, thinking: false };
+    default:
+      return { glyph: '·', label: eventKind, summary: summarizeText(chunk.text), indented: false, thinking: false };
+  }
+}
+
+function MetaLine({
+  eventKind,
   chunk,
-  classes,
-  surface,
 }: {
-  event: ConversationEvent;
+  eventKind: string;
   chunk: ConversationEventChunk;
-  classes: EventRowClasses;
-  surface: 'agentBlock' | 'chat';
 }) {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
-  const { label, summary } = useMemo(
-    () => getMetaSummary(event.kind, chunk),
-    [event.kind, chunk],
-  );
+  const meta = useMemo(() => getMetaLineMeta(eventKind, chunk), [eventKind, chunk]);
+
   const toggleExpanded = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -293,13 +233,7 @@ function CollapsibleEventChunk({
   }, []);
 
   return (
-    <div
-      className={classNames(
-        classes.metaDisclosure,
-        surface === 'chat' && classes.metaDisclosureChat,
-        event.kind === 'error' && classes.metaDisclosureError,
-      )}
-    >
+    <div className={classNames(classes.metaLine, meta.indented && classes.metaIndented)}>
       <button
         type="button"
         className={classes.metaHeader}
@@ -307,70 +241,49 @@ function CollapsibleEventChunk({
         onClick={toggleExpanded}
         onMouseDown={(e) => e.preventDefault()}
       >
-        <ForumIcon
-          icon="ChevronRight"
-          className={classNames(classes.metaChevron, expanded && classes.metaChevronExpanded)}
-        />
-        <span className={classes.metaLabel}>{label}</span>
-        <span className={classes.metaSummary}>{summary}</span>
+        <span
+          className={classNames(classes.metaGlyph, {
+            [classes.metaGlyphTool]: meta.glyphClass === 'tool',
+            [classes.metaGlyphError]: meta.glyphClass === 'error',
+          })}
+        >
+          {meta.glyph}
+        </span>
+        {meta.label ? (
+          <span className={classNames(classes.metaLabel, meta.glyphClass === 'error' && classes.metaLabelError)}>
+            {meta.label}
+          </span>
+        ) : null}
+        <span className={classNames(classes.metaSummary, meta.thinking && classes.metaSummaryThinking)}>
+          {meta.summary}
+        </span>
       </button>
       {expanded ? (
-        <div className={classes.metaBody}>
-          <ChunkContent chunk={chunk} className={metaBodyClass(chunk, classes)} />
+        <div className={classNames(classes.metaBody, chunk.kind === 'thinking' && classes.metaBodyThinking)}>
+          {chunk.kind === 'thinking' ? (
+            <ChunkContent chunk={chunk} className={classes.metaBodyProse} />
+          ) : (
+            chunk.text
+          )}
         </div>
       ) : null}
     </div>
   );
 }
 
-function isMessageChunk(event: ConversationEvent, chunk: ConversationEventChunk): boolean {
-  return (event.kind === 'user' || event.kind === 'assistant') && chunk.kind === 'text';
-}
-
-function getMetaSummary(eventKind: string, chunk: ConversationEventChunk): { label: string; summary: string } {
-  switch (chunk.kind) {
-    case 'thinking':
-      return { label: 'Thinking', summary: summarizeText(chunk.text) };
-    case 'tool_use':
-      return { label: 'Tool', summary: summarizeText(chunk.text) };
-    case 'tool_result':
-      return { label: 'Result', summary: summarizeText(chunk.text) };
-    default:
-      return {
-        label: eventKind === 'error' ? 'Error' : labelForEventKind(eventKind),
-        summary: summarizeText(chunk.text),
-      };
-  }
-}
-
-function labelForEventKind(kind: string): string {
-  switch (kind) {
-    case 'error': return 'Error';
-    case 'thinking': return 'Thinking';
-    case 'tool_use': return 'Tool';
-    case 'tool_result': return 'Result';
-    default: return 'Event';
-  }
+function splitToolCall(text: string): { name: string; args: string } {
+  const parenIdx = text.indexOf('(');
+  if (parenIdx === -1) return { name: text, args: '' };
+  let args = text.slice(parenIdx + 1);
+  if (args.endsWith(')')) args = args.slice(0, -1);
+  return { name: text.slice(0, parenIdx), args };
 }
 
 function summarizeText(text: string): string {
   const trimmed = text.trim();
-  if (!trimmed) return 'No payload';
-
-  const lineCount = trimmed.split(/\r?\n/).length;
+  if (!trimmed) return '';
   const compact = trimmed.replace(/\s+/g, ' ');
-  const clipped = compact.length > SUMMARY_MAX_CHARS
-    ? compact.slice(0, SUMMARY_MAX_CHARS).trimEnd() + '...'
+  return compact.length > SUMMARY_MAX_CHARS
+    ? compact.slice(0, SUMMARY_MAX_CHARS).trimEnd() + '…'
     : compact;
-
-  return lineCount > 1 ? `${lineCount} lines - ${clipped}` : clipped;
-}
-
-function metaBodyClass(chunk: ConversationEventChunk, classes: EventRowClasses): string {
-  switch (chunk.kind) {
-    case 'thinking': return classes.metaBodyThinking;
-    case 'tool_use':
-    case 'tool_result': return classes.metaBodyTool;
-    default: return classes.metaBodyText;
-  }
 }

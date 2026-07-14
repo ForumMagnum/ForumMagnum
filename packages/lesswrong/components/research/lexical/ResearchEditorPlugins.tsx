@@ -3,6 +3,7 @@
 import React from 'react';
 import { QueryInputPlugin } from './QueryInputPlugin';
 import { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
+import { WorkspaceIntentPlugin } from './WorkspaceIntentPlugin';
 
 interface ResearchEditorPluginsProps {
   projectId: string;
@@ -17,6 +18,7 @@ export function ResearchEditorPlugins({ projectId }: ResearchEditorPluginsProps)
     <>
       <QueryInputPlugin />
       <MentionTypeaheadPlugin projectId={projectId} />
+      <WorkspaceIntentPlugin />
     </>
   );
 }

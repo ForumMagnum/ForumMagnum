@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import without from 'lodash/without';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => ({
   root: {
@@ -76,7 +76,7 @@ const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => 
 }))
 
 export const FormComponentCheckboxGroup = ({ field, label, options }: {
-  field: TypedFieldApi<string[] | null | undefined>
+  field: FieldValueBinding<string[] | null | undefined, string[]>
   label: string
   options: Array<{value: string, label: string}>
 }) => {

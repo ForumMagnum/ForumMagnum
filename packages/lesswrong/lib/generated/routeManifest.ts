@@ -76,9 +76,6 @@ export const routeTrie = {
         "migrations": {
           "hasPage": true
         },
-        "moderation": {
-          "hasPage": true
-        },
         "moderationTemplates": {
           "hasPage": true
         },
@@ -86,9 +83,6 @@ export const routeTrie = {
           "hasPage": true
         },
         "random-user": {
-          "hasPage": true
-        },
-        "recentlyActiveUsers": {
           "hasPage": true
         },
         "supermod": {
@@ -110,11 +104,9 @@ export const routeTrie = {
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
-        "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
         "pangram": "pangram",
         "random-user": "random-user",
-        "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
@@ -443,12 +435,16 @@ export const routeTrie = {
                         "events": {
                           "hasRoute": true
                         },
+                        "presentation": {
+                          "hasRoute": true
+                        },
                         "transcript": {
                           "hasRoute": true
                         }
                       },
                       "lowerCase": {
                         "events": "events",
+                        "presentation": "presentation",
                         "transcript": "transcript"
                       }
                     }
@@ -999,9 +995,6 @@ export const routeTrie = {
         }
       }
     },
-    "manageSubscriptions": {
-      "hasPage": true
-    },
     "meetups": {
       "hasPage": true
     },
@@ -1472,7 +1465,6 @@ export const routeTrie = {
     "login": "login",
     "logout": "logout",
     "lw": "lw",
-    "managesubscriptions": "manageSubscriptions",
     "meetups": "meetups",
     "message": "message",
     "moderation": "moderation",

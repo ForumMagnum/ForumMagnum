@@ -62,6 +62,21 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Custom sidebar icon in place of the default chat glyph: `svg:<id>`
+  // referencing the hand-drawn set in researchIconSet.tsx, or a bare Unicode
+  // emoji (legacy values from the retired emoji picker still render).
+  icon: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
   entrypointKind: {
     database: {
       type: "TEXT",
@@ -118,6 +133,33 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Agent-authored HTML shown as the conversation block's collapsed
+  // ("presentation") body in documents. Set via the agent backend endpoint
+  // (set-presentation), not by users; when null the client falls back to a
+  // truncated render of the last assistant message.
+  presentationHtml: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
+  userTurnCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: [userOwns, "admins"],
+      resolver: async (conversation, _args, context) => {
+        return await context.ResearchConversationEvents.find({
+          conversationId: conversation._id,
+          kind: "user",
+        }).count();
+      },
+    },
+  },
   // Denormalized for sidebar sort.
   lastActivityAt: {
     database: {
@@ -129,6 +171,43 @@ const schema = {
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: { optional: true },
+    },
+  },
+  /**
+   * When the owner last opened/viewed this conversation. Drives the sidebar's
+   * unread indicator: activity after this timestamp (with no turn in flight)
+   * shows as "completed, not yet looked at". Null = never explicitly opened
+   * since the field shipped; treated as read so old conversations don't all
+   * light up. Written only by `markResearchConversationRead`, which stamps
+   * the server clock — a client-supplied stamp could sit behind the
+   * server-written `lastActivityAt` and never clear the indicator.
+   */
+  lastReadAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
+  // Soft-archive flag. Archived conversations drop out of the sidebar's main
+  // list (the `byProject` view filters them out) and surface only in the
+  // collapsed "Archived" section, from which they can be restored. Toggled
+  // via the standard update mutation.
+  archived: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
       validation: { optional: true },
     },
   },

@@ -10,5 +10,13 @@ export const ResearchEnvironmentsByProjectQuery = gql(`
         createdAt
       }
     }
+    archivedEnvironments: researchEnvironments(selector: { byProjectArchived: { projectId: $projectId } }, limit: 200) {
+      results {
+        _id
+        label
+        sourceEventId
+        createdAt
+      }
+    }
   }
 `);

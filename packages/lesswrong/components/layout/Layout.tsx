@@ -36,7 +36,7 @@ import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isResearchRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -126,6 +126,28 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     },
     'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
       display: 'none !important',
+    },
+    '.research-active .Header-root': {
+      display: 'none !important',
+    },
+    // Zero out the header-height custom property for the whole research
+    // subtree. `--header-height` is declared 64px on the HeaderHeightProvider
+    // span that *wraps* the page, so `.research-active` (on
+    // PageBackgroundWrapper) is a descendant of it — a `.research-active
+    // .Header-headerHeight` selector can never match. Declaring the property
+    // on `.research-active` itself overrides the inherited value for
+    // everything inside, so the full-viewport editor's
+    // `min-height: calc(100vh - var(--header-height))` fills the pane instead
+    // of leaving a 64px gap at the bottom.
+    '.research-active': {
+      '--header-height': '0px',
+    },
+    '.research-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    'body:has(.research-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
     },
   },
   searchResultsArea: {
@@ -246,7 +268,6 @@ const Layout = ({children}: {
   )
 }
 
-
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
@@ -340,6 +361,7 @@ function PageBackgroundWrapper({children}: {
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
       'home-design-active': isSandboxedHomePage,
+      'research-active': isResearchRoute(pathname),
     },
   )}>
     {children}

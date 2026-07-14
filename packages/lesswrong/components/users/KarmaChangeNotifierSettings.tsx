@@ -9,7 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import { MenuItem } from "../common/Menus";
@@ -110,7 +110,7 @@ const getBatchingTimeLocalTZ = (settings: KarmaChangeSettingsType, timezone: any
 const KarmaChangeNotifierSettings = ({
   field,
 }: {
-  field: TypedFieldApi<KarmaChangeSettingsType>;
+  field: FieldValueBinding<KarmaChangeSettingsType>;
 }) => {
   const classes = useStyles(styles);
   const { timezone } = useTimezone();

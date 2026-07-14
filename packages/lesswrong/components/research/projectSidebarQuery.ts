@@ -14,6 +14,16 @@ export const ProjectSidebarQuery = gql(`
       results {
         _id
         title
+        icon
+        sortOrder
+        createdAt
+      }
+    }
+    archivedDocuments: researchDocuments(selector: { byProjectArchived: { projectId: $projectId } }, limit: 200) {
+      results {
+        _id
+        title
+        icon
         createdAt
       }
     }
@@ -21,8 +31,20 @@ export const ProjectSidebarQuery = gql(`
       results {
         _id
         title
+        icon
         lastActivityAt
         entrypointKind
+        entrypointDocumentId
+      }
+    }
+    archivedConversations: researchConversations(selector: { byProjectArchived: { projectId: $projectId } }, limit: 200) {
+      results {
+        _id
+        title
+        icon
+        lastActivityAt
+        entrypointKind
+        entrypointDocumentId
       }
     }
   }

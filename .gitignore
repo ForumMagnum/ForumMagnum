@@ -112,6 +112,7 @@ playwright-report
 .playwright-mcp/
 test-results
 .next
+.next-profile
 
 # Dependency cruiser output
 dependency-graph.svg

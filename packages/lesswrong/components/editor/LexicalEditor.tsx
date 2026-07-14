@@ -35,8 +35,6 @@ import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 import DeferRender from '../common/DeferRender';
 
-
-
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   editorContainer: {
     position: 'relative',
@@ -257,7 +255,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
 interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
-  onChange: (html: string) => void;
+  onChange?: (html: string) => void;
   onReady?: () => void;
   /**
    * Called with a function that generates HTML with all suggestions rejected,
@@ -441,9 +439,12 @@ const LexicalEditor = ({
     setEditorVersion((prev) => prev + 1);
   }, [shouldEnableCollaboration, data]);
 
-  const handleChange = useCallback((html: string) => {
-    lastEmittedHtmlRef.current = html;
-    onChange(html);
+  const handleChange = useMemo(() => {
+    if (!onChange) return undefined;
+    return (html: string) => {
+      lastEmittedHtmlRef.current = html;
+      onChange(html);
+    };
   }, [onChange]);
 
   const app = useMemo(

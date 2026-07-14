@@ -4,11 +4,13 @@
  * `buildResearchSandboxSnapshot` (which seeds them into the baseline snapshot),
  * so the two can't drift onto different paths.
  *
- * The sandbox's home directory: the runtime image runs as root, so this is
- * `/root`. The platform files live under here, *outside* the agent's cwd
- * (`/vercel/sandbox`), so the agent's cwd-scoped cleanup can't reach them. (The
- * in-sandbox supervisor pins `HOME=SANDBOX_HOME_DIR` so its `homedir()` resolves
- * to the same place the backend writes to.)
+ * The legacy home directory used by existing sandbox snapshots. Vercel runs
+ * user code as `vercel-sandbox`, not root, so launch and recovery paths must
+ * make this directory traversable before the supervisor reads it. The platform
+ * files live here, *outside* the agent's cwd (`/vercel/sandbox`), so the agent's
+ * cwd-scoped cleanup can't reach them. The in-sandbox supervisor pins
+ * `HOME=SANDBOX_HOME_DIR` so its `homedir()` resolves to the same place the
+ * backend writes to.
  */
 export const SANDBOX_HOME_DIR = "/root";
 
@@ -34,10 +36,9 @@ export const CLAUDE_MD_PATH = `${CLAUDE_DIR}/CLAUDE.md`;
  * this, rebuild the baseline snapshots, and existing sandboxes reconcile on
  * their next launch.
  */
-export const PINNED_CLAUDE_CODE_VERSION = "2.1.181";
+export const PINNED_CLAUDE_CODE_VERSION = "2.1.207";
 
 /** The model the research agent runs (`claude --model ...`). Requires a CLI
  * version that knows the model family — see PINNED_CLAUDE_CODE_VERSION. */
-// export const RESEARCH_AGENT_MODEL = "claude-fable-5";
-export const RESEARCH_AGENT_MODEL = "claude-opus-4-8";
-
+export const RESEARCH_AGENT_MODEL = "claude-fable-5";
+// export const RESEARCH_AGENT_MODEL = "claude-opus-4-8";

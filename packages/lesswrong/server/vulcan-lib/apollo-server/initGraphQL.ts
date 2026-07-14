@@ -184,6 +184,7 @@ import { createPostGqlMutation, updatePostGqlMutation, graphqlPostTypeDefs } fro
 import { createRSSFeedGqlMutation, updateRSSFeedGqlMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
 import { createReportGqlMutation, updateReportGqlMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
 import { updateResearchConversationGqlMutation, graphqlResearchConversationTypeDefs } from "@/server/collections/researchConversations/mutations";
+import { updateResearchEnvironmentGqlMutation, graphqlResearchEnvironmentTypeDefs } from "@/server/collections/researchEnvironments/mutations";
 import { createResearchDocumentGqlMutation, updateResearchDocumentGqlMutation, graphqlResearchDocumentTypeDefs } from "@/server/collections/researchDocuments/mutations";
 import { createResearchProjectGqlMutation, updateResearchProjectGqlMutation, graphqlResearchProjectTypeDefs } from "@/server/collections/researchProjects/mutations";
 import { updateRevisionGqlMutation, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
@@ -428,6 +429,7 @@ export const getTypeDefs = () => gql`
   ${graphqlRSSFeedTypeDefs}
   ${graphqlReportTypeDefs}
   ${graphqlResearchConversationTypeDefs}
+  ${graphqlResearchEnvironmentTypeDefs}
   ${graphqlResearchDocumentTypeDefs}
   ${graphqlResearchProjectTypeDefs}
   ${graphqlRevisionTypeDefs}
@@ -643,6 +645,7 @@ const getResolvers = () => ({
     createResearchDocument: createResearchDocumentGqlMutation,
     createResearchProject: createResearchProjectGqlMutation,
     updateResearchConversation: updateResearchConversationGqlMutation,
+    updateResearchEnvironment: updateResearchEnvironmentGqlMutation,
     updateResearchDocument: updateResearchDocumentGqlMutation,
     updateResearchProject: updateResearchProjectGqlMutation,
     updateReport: updateReportGqlMutation,

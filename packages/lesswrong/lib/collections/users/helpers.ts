@@ -1,6 +1,6 @@
 import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -372,6 +372,10 @@ export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: Has
   // user objects are safe, but if userOwns allowed them it would make the type
   // checks much less safe.
   return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
+}
+
+export const userCanSeeAdminSettingsTab = (user: UsersCurrent|DbUser|null): boolean => {
+  return userIsAdmin(user) || userIsMemberOf(user, 'realAdmins') || userIsMemberOf(user, 'alignmentForumAdmins');
 }
 
 interface UserLocation {

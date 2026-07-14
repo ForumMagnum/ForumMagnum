@@ -27,7 +27,8 @@ import {
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
-  getDefaultVotingSystem
+  getDefaultVotingSystem,
+  type RSVPType,
 } from "./helpers";
 import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -106,6 +107,15 @@ const rsvpType = new SimpleSchema({
     optional: true,
   },
 });
+
+function sanitizeRsvpForPublic(rsvp: RSVPType) {
+  const { email, ...publicRsvp } = rsvp;
+  return publicRsvp;
+}
+
+function userCanViewRsvpEmails(user: DbUser | null, post: DbPost) {
+  return userIsAdmin(user) || userOwns(user, post);
+}
 
 export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
@@ -1716,6 +1726,11 @@ const schema = {
       outputType: "[JSON!]",
       inputType: "[JSON!]",
       canRead: ["guests"],
+      resolver: (post, args, context) => {
+        if (!post.rsvps) return post.rsvps;
+        if (userCanViewRsvpEmails(context.currentUser, post)) return post.rsvps;
+        return post.rsvps.map(sanitizeRsvpForPublic);
+      },
       validation: {
         simpleSchema: [rsvpType],
         optional: true,

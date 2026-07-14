@@ -34,11 +34,15 @@ export interface SandboxCallbackTokenPayload {
   exp: number;
 }
 
-// Must stay longer than the sandbox session lifetime cap (5h on Vercel): the
-// agent-scoped token is handed to the long-lived claude process as spawn-time
-// env, so it has to outlive any process that could receive it.
-const SANDBOX_CALLBACK_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
-const SUPERVISOR_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
+// Both tokens ride as spawn-time env in long-lived in-sandbox processes, so
+// they must outlive any session that could hold them (Vercel's session cap is
+// 24h); one that expires mid-session silently 401s the supervisor's heartbeats
+// and event posts. The agent-scoped token authorizes document/conversation
+// writes and is readable by model-controlled code, so it gets only the
+// headroom the cap requires; the supervisor-scoped token gets a week of slack
+// against future cap increases.
+const SANDBOX_CALLBACK_TOKEN_MAX_TTL_SECONDS = 2 * 24 * 60 * 60;
+const SUPERVISOR_TOKEN_MAX_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export type SandboxCallbackValidationResult =
   | { kind: "valid"; payload: SandboxCallbackTokenPayload }

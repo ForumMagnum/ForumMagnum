@@ -7,7 +7,7 @@ import { mapsAPIKeySetting } from '@/lib/instanceSettings';
 import { rootStyles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
@@ -152,7 +152,9 @@ export const LocationFormComponent = ({
   variant = 'default',
   locationTypes,
 }: {
-  field: TypedFieldApi<AnyBecauseHard>;
+  field: FieldValueBinding<AnyBecauseHard> & {
+    form?: { setFieldValue: (name: AnyBecauseHard, value: AnyBecauseHard) => void };
+  };
   label: string;
   /** Optional sibling field that stores the plain‑string version of the location */
   stringVersionFieldName?: keyof localGroupsEdit | null;

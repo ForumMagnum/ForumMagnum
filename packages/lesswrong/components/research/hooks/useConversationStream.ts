@@ -118,11 +118,11 @@ export function useConversationStream(
   const [expectingTurn, setExpectingTurn] = useState(false);
   const expectingTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Only surface optimistic echoes belonging to the current conversation. The
-  // hook instance is shared across conversation switches (ChatPane isn't keyed),
-  // so a `seq < 0` echo from a previous conversation can still sit in `optimistic`
-  // until its persisted twin lands; without this filter it would leak into
-  // whatever conversation is shown next.
+  // Only surface optimistic echoes belonging to the current conversation. A
+  // hook instance can survive a conversation switch (when its host component
+  // isn't keyed by conversation), so a `seq < 0` echo from a previous
+  // conversation can still sit in `optimistic` until its persisted twin lands;
+  // without this filter it would leak into whatever conversation is shown next.
   const events = useMemo(
     () => [...persisted, ...optimistic.filter((e) => e.conversationId === conversationId)],
     [persisted, optimistic, conversationId],
