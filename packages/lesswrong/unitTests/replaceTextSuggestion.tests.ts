@@ -261,6 +261,21 @@ describe("replaceText within tables", () => {
     expect(getAllSuggestions(editor)).toEqual([]);
   });
 
+  it("does not apply a replacement that fully contains a table", async () => {
+    const editor = await setupEditorWithContent(
+      `Before the table.\n\n${tableMarkdown}\n\nAfter the table.`,
+    );
+    const originalText = getPlainTextContent(editor);
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Before the table. Figure Description Figure 2 Negative emotion distills into Qwen and survives filtering After the table.",
+      "Replacement paragraph.",
+    );
+
+    expect(replaced).toBe(false);
+    expect(getPlainTextContent(editor)).toBe(originalText);
+  });
+
   it("still replaces text within one table cell", async () => {
     const editor = await setupEditorWithContent(tableMarkdown);
     const replaced = await replaceTextInEditMode(

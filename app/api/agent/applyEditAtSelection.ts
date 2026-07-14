@@ -136,12 +136,27 @@ function $nodeOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalN
 }
 
 function $tableCellOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
-  let current = $nodeOfPoint(point, isFocus);
+  const node = $nodeOfPoint(point, isFocus);
+  return node ? $tableCellOfNode(node) : null;
+}
+
+function $tableCellOfNode(node: LexicalNode): LexicalNode | null {
+  let current: LexicalNode | null = node;
   while (current && !$isRootNode(current)) {
     if ($isTableCellNode(current)) return current;
     current = current.getParent();
   }
   return null;
+}
+
+function $selectionContainsTableCell(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  return selection.getNodes().some((node) => !!$tableCellOfNode(node));
 }
 
 /**
@@ -155,7 +170,10 @@ export function $selectionSpansTableCellBoundary(
 ): boolean {
   const anchorCell = $tableCellOfPoint(anchor, false);
   const focusCell = $tableCellOfPoint(focus, true);
-  return (!!anchorCell || !!focusCell) && anchorCell?.getKey() !== focusCell?.getKey();
+  if (anchorCell || focusCell) {
+    return anchorCell?.getKey() !== focusCell?.getKey();
+  }
+  return $selectionContainsTableCell(anchor, focus);
 }
 
 /**
