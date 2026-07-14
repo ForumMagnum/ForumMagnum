@@ -395,7 +395,7 @@ describe("$locateBlockByPrefix", () => {
 
     const matched = findFor(editor, `![](${src})`);
     expect(matched).not.toBeNull();
-    expect(matched?.type).toBe("image");
+    expect(matched?.type).toBe("paragraph");
   });
 
   it("matches an image by both alt text and source", async () => {
@@ -411,7 +411,7 @@ describe("$locateBlockByPrefix", () => {
 
     const matched = findFor(editor, "![diagram](https://example.com/second.png)");
     expect(matched).not.toBeNull();
-    expect(matched?.type).toBe("image");
+    expect(matched?.type).toBe("paragraph");
   });
 
   it("reports ambiguity when several images match the same markdown prefix", async () => {

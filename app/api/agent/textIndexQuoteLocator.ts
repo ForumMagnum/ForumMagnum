@@ -1,7 +1,7 @@
-import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
+import { $getRoot, $isElementNode, $isRootNode, $nodesOfType, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
 import { JSDOM } from "jsdom";
-import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
+import { ImageNode } from "@/components/lexical/nodes/ImageNode";
 import { markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
@@ -531,11 +531,28 @@ function $locateImageBlockByPrefix(prefix: string): BlockPrefixResult | null {
   const imagePrefix = parseStandaloneMarkdownImage(prefix);
   if (!imagePrefix) return null;
 
-  const matches = $getRoot().getChildren().filter(
-    (node) => $isImageNode(node)
-      && node.getAltText() === imagePrefix.altText
-      && node.getSrc() === imagePrefix.src,
-  );
+  const matches: LexicalNode[] = [];
+  for (const imageNode of $nodesOfType(ImageNode)) {
+    if (
+      imageNode.getAltText() !== imagePrefix.altText
+      || imageNode.getSrc() !== imagePrefix.src
+    ) {
+      continue;
+    }
+
+    const parent = imageNode.getParent();
+    if ($isRootNode(parent)) {
+      matches.push(imageNode);
+    } else if (
+      parent?.getChildrenSize() === 1
+      && $isRootNode(parent.getParent())
+    ) {
+      // Markdown imports place a standalone image inside an otherwise-empty
+      // top-level paragraph. Target the paragraph so deletion leaves no empty
+      // block behind.
+      matches.push(parent);
+    }
+  }
   if (matches.length === 1) {
     return { node: matches[0] };
   }
