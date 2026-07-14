@@ -10,9 +10,11 @@ import {
   sandboxNameForConversation,
   SandboxWarmingError,
   SESSION_TIMEOUT_MS,
+  stageClaudeSessionFile,
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
+import { SESSION_FILE_MISSING_REASON } from "@/server/research/sandbox/supervisor/sessionBootstrap";
 import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
 import { readSandboxTextFile } from "@/server/research/sandbox/readSandboxTextFile";
 import { getSandboxResourceStats } from "@/server/research/sandbox/sandboxResourceStats";
@@ -77,6 +79,18 @@ function signSupervisorBearer(target: SupervisorTarget): string {
 }
 
 /**
+ * Thrown when the supervisor rejects a dispatch because the session has
+ * history but its file is not on the sandbox's disk. The dispatch path
+ * reacts by staging a reconstruction and retrying.
+ */
+class SessionFileMissingError extends Error {
+  constructor() {
+    super("supervisor /dispatch rejected: session file missing");
+    this.name = "SessionFileMissingError";
+  }
+}
+
+/**
  * POSTs to the supervisor's /dispatch endpoint with a fresh signed bearer.
  *
  * The supervisor accepts the turn and starts Claude Code asynchronously,
@@ -93,7 +107,6 @@ async function dispatchTurnViaSupervisor(args: {
   prompt: string;
   claudeSessionId: string;
   sessionHasHistory: boolean;
-  bootstrapJsonl?: string[];
 }): Promise<void> {
   const { provisioned } = args;
   const bearer = signSupervisorBearer(provisioned);
@@ -118,7 +131,6 @@ async function dispatchTurnViaSupervisor(args: {
       prompt: args.prompt,
       claudeSessionId: args.claudeSessionId,
       sessionHasHistory: args.sessionHasHistory,
-      bootstrapJsonl: args.bootstrapJsonl,
       agentBackendToken,
     }),
   });
@@ -130,6 +142,9 @@ async function dispatchTurnViaSupervisor(args: {
   console.error(
     `[research] supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""} ${text}`,
   );
+  if (response.status === 409 && text.includes(SESSION_FILE_MISSING_REASON)) {
+    throw new SessionFileMissingError();
+  }
   throw new Error(
     `supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""}`,
   );
@@ -492,7 +507,7 @@ export const researchResolversMutations = {
       // A fork that recovered its source session resumes the session file on
       // the env snapshot; everything else is a brand-new session (a fork
       // without a recoverable source id resumes via the synthesized bootstrap
-      // instead, which the supervisor accounts for on its own).
+      // instead, which dispatchToSandbox writes and accounts for).
       sessionHasHistory: !!sourceSessionId,
       bootstrapEvents,
     });
@@ -812,14 +827,20 @@ async function provisionSandboxOrWarming(
  * Provision (or resume) the conversation's persistent sandbox and dispatch one
  * turn to its supervisor.
  *
- * `bootstrapEvents` is the conversation's persisted history, shipped so a
- * sandbox without the session file on disk can have the Claude session
- * reconstructed. It's sent when the sandbox was freshly built (a rebuild
- * after an expired snapshot, or a fork whose source session couldn't be
- * recovered) — a warm resume still has the file on disk, so `--resume` reads
- * it directly. `bootstrapEvenIfWarm` ships it regardless, for conversations
- * whose session id was just derived and so can't have a file anywhere; the
- * supervisor only writes the reconstruction when the file is actually absent.
+ * `bootstrapEvents` is the conversation's persisted history, from which the
+ * Claude session file can be reconstructed when it isn't on the sandbox's
+ * disk. The reconstruction is staged through the sandbox filesystem API —
+ * never the dispatch body, which is capped far below a long conversation's
+ * JSONL size — and the supervisor installs it at spawn time under its
+ * per-conversation lock. Staging happens in two cases:
+ *  - proactively, when this call freshly built the sandbox (a rebuild after an
+ *    expired snapshot, or a fork whose source session couldn't be recovered),
+ *    or when `bootstrapEvenIfWarm` says the session id was just derived and so
+ *    can't have a file anywhere;
+ *  - reactively, when the supervisor rejects the dispatch because a session
+ *    with history has no file on disk (the sandbox was rebuilt by a caller
+ *    that stages no bootstrap). Events are fetched here if the caller didn't
+ *    supply them, and the dispatch is retried once.
  */
 async function dispatchToSandbox(args: {
   context: ResolverContext;
@@ -830,8 +851,7 @@ async function dispatchToSandbox(args: {
   claudeSessionId: string;
   /**
    * Whether a Claude session for this conversation has ever actually run —
-   * forwarded to the supervisor, which uses it (not a filesystem probe, which
-   * races snapshot restore on a fresh resume) to pick `--resume` vs
+   * forwarded to the supervisor, which uses it to pick `--resume` vs
    * `--session-id`.
    */
   sessionHasHistory: boolean;
@@ -841,20 +861,40 @@ async function dispatchToSandbox(args: {
   const provisioned = await provisionSandboxOrWarming(args.conversationId, args.context);
 
   const shipBootstrap = provisioned.wasFreshlyCreated || args.bootstrapEvenIfWarm;
-  const bootstrapJsonl = shipBootstrap && args.bootstrapEvents?.length
-    ? buildBootstrapJsonl(args.bootstrapEvents, args.claudeSessionId)
-    : undefined;
+  let stagedBootstrap = false;
+  if (shipBootstrap && args.bootstrapEvents?.length) {
+    const lines = buildBootstrapJsonl(args.bootstrapEvents, args.claudeSessionId);
+    if (lines.length > 0) {
+      await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+      stagedBootstrap = true;
+    }
+  }
 
-  await dispatchTurnViaSupervisor({
+  const dispatchArgs = {
     provisioned,
     conversationId: args.conversationId,
     projectId: args.projectId,
     userId: args.userId,
     prompt: args.prompt,
     claudeSessionId: args.claudeSessionId,
-    sessionHasHistory: args.sessionHasHistory,
-    bootstrapJsonl,
-  });
+    sessionHasHistory: args.sessionHasHistory || stagedBootstrap,
+  };
+
+  try {
+    await dispatchTurnViaSupervisor(dispatchArgs);
+  } catch (err) {
+    if (!(err instanceof SessionFileMissingError)) throw err;
+    const events = args.bootstrapEvents?.length
+      ? args.bootstrapEvents
+      : await args.context.ResearchConversationEvents.find(
+          { conversationId: args.conversationId },
+          { sort: { seq: 1 } },
+        ).fetch();
+    const lines = buildBootstrapJsonl(events, args.claudeSessionId);
+    if (lines.length === 0) throw err;
+    await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+    await dispatchTurnViaSupervisor(dispatchArgs);
+  }
 }
 
 export const researchResolversQueries = {

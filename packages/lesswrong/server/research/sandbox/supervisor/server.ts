@@ -72,8 +72,6 @@ export interface DispatchRequest {
    * `--session-id` at spawn; see DispatchInput.sessionHasHistory.
    */
   sessionHasHistory?: boolean;
-  /** Synthesized JSONL lines to seed the session dir before --resume. */
-  bootstrapJsonl?: string[];
   /** References attached as part of the user turn (file paths, doc handles, etc.). */
   references?: unknown[];
   /**
@@ -153,10 +151,8 @@ async function handleRequest(
   }
 
   if (path === "/dispatch" && method === "POST") {
-    const body = await readJsonBody(req).catch((e) => ({ __err: e }));
-    if ("__err" in body) {
-      return json(res, 400, { error: "bad json" });
-    }
+    const body = await readJsonBodyOrRespond(req, res, "/dispatch");
+    if (!body) return;
     const dispatchReq = parseDispatchRequest(body);
     if (!dispatchReq) {
       return json(res, 400, { error: "missing conversationId or prompt" });
@@ -184,10 +180,8 @@ async function handleRequest(
     if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
       return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
     }
-    const body = await readJsonBody(req).catch((e) => ({ __err: e }));
-    if ("__err" in body) {
-      return json(res, 400, { error: "bad json" });
-    }
+    const body = await readJsonBodyOrRespond(req, res, "/answer");
+    if (!body) return;
     const answerReq = parseAnswerRequest(body);
     if (!answerReq) {
       return json(res, 400, { error: "missing toolUseId or answers" });
@@ -222,9 +216,6 @@ function parseDispatchRequest(body: Record<string, unknown>): DispatchRequest | 
   };
   if (typeof body.claudeSessionId === "string") out.claudeSessionId = body.claudeSessionId;
   if (typeof body.sessionHasHistory === "boolean") out.sessionHasHistory = body.sessionHasHistory;
-  if (Array.isArray(body.bootstrapJsonl)) {
-    out.bootstrapJsonl = body.bootstrapJsonl.filter((s): s is string => typeof s === "string");
-  }
   if (Array.isArray(body.references)) out.references = body.references;
   if (typeof body.agentBackendToken === "string") out.agentBackendToken = body.agentBackendToken;
   return out;
@@ -244,16 +235,70 @@ function parseAnswerRequest(
   return { toolUseId: body.toolUseId, answers: out };
 }
 
-async function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
-    if (chunks.reduce((n, c) => n + c.length, 0) > 1_000_000) {
-      throw new Error("payload too large");
-    }
+/**
+ * Sanity cap on request bodies, not a sizing constraint: every caller is our
+ * own authenticated backend, so this only guards against buffering a runaway
+ * body in memory.
+ */
+const MAX_BODY_BYTES = 20_000_000;
+
+class PayloadTooLargeError extends Error {
+  constructor(receivedBytes: number) {
+    super(`payload too large (${receivedBytes} bytes, cap ${MAX_BODY_BYTES})`);
+    this.name = "PayloadTooLargeError";
   }
+}
+
+async function readJsonBody(req: IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  let total = 0;
+  let overCap = false;
+  // An over-cap body is drained rather than aborted: throwing out of the
+  // async iterator destroys the request (and with it the socket), so the 413
+  // would reach the caller as a connection reset instead of a status.
+  for await (const chunk of req) {
+    const buf = typeof chunk === "string" ? Buffer.from(chunk) : chunk;
+    total += buf.length;
+    if (!overCap && total > MAX_BODY_BYTES) {
+      overCap = true;
+      chunks.length = 0;
+    }
+    if (!overCap) chunks.push(buf);
+  }
+  if (overCap) throw new PayloadTooLargeError(total);
   const text = Buffer.concat(chunks).toString("utf8");
   return text.length === 0 ? {} : JSON.parse(text);
+}
+
+/**
+ * Read and parse the JSON body, or answer the request with the right error
+ * status and return null: 413 for an over-cap body, 400 for unparseable JSON
+ * or JSON that isn't an object. Rejections are logged — a silently swallowed
+ * 4xx here is invisible from outside the sandbox and very hard to debug.
+ */
+async function readJsonBodyOrRespond(
+  req: IncomingMessage,
+  res: ServerResponse,
+  route: string,
+): Promise<Record<string, unknown> | null> {
+  let parsed: unknown;
+  try {
+    parsed = await readJsonBody(req);
+  } catch (err) {
+    const tooLarge = err instanceof PayloadTooLargeError;
+    const message = err instanceof Error ? err.message : String(err);
+    // eslint-disable-next-line no-console
+    console.error(`[supervisor] ${route} body rejected: ${message}`);
+    json(res, tooLarge ? 413 : 400, { error: tooLarge ? "payload too large" : "bad json" });
+    return null;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    // eslint-disable-next-line no-console
+    console.error(`[supervisor] ${route} body rejected: not a JSON object`);
+    json(res, 400, { error: "bad json" });
+    return null;
+  }
+  return parsed as Record<string, unknown>;
 }
 
 function json(res: ServerResponse, status: number, body: unknown) {

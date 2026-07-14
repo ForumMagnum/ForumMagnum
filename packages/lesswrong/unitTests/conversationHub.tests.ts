@@ -1,4 +1,18 @@
+import { promises as fs } from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { createConversationHub } from "../server/research/sandbox/supervisor/conversationHub";
+
+// The session-file probe resolves ~ via os.homedir(), which the probe tests
+// must point at a temp dir. Neither $HOME (jest copies process.env, so writes
+// never reach the C environment homedir() reads) nor jest.spyOn (module
+// interop copies) redirect it reliably, so mock the module itself; the
+// override is read lazily, and everything else passes through.
+let mockHomedir: string | null = null;
+jest.mock("node:os", () => {
+  const actual = jest.requireActual<typeof import("node:os")>("node:os");
+  return { ...actual, homedir: () => mockHomedir ?? actual.homedir() };
+});
 import {
   ClaudeProcessHandle,
   ClaudeProcessOptions,
@@ -6,6 +20,10 @@ import {
 } from "../server/research/sandbox/supervisor/claudeRunner";
 import { createJsonlChunker } from "../server/research/sandbox/supervisor/jsonlParser";
 import { BackendEvent, PostPersister } from "../server/research/sandbox/supervisor/postPersister";
+import {
+  SESSION_STAGING_SUFFIX,
+  sessionJsonlPath,
+} from "../server/research/sandbox/supervisor/sessionBootstrap";
 
 interface FakeProcess {
   opts: ClaudeProcessOptions;
@@ -154,17 +172,76 @@ describe("conversationHub", () => {
     expect(procs[0].sent).toEqual(["first", "second"]);
   });
 
-  it("resumes the session when the backend reports prior history", async () => {
-    const { hub, procs } = mkHub();
-    await hub.dispatch({
-      conversationId: "c1",
-      prompt: "continue",
-      claudeSessionId: "sess-1",
-      sessionHasHistory: true,
+  // The history-bearing dispatch path probes the real filesystem for the
+  // session JSONL (at ~/.claude/projects/...), so these tests point the
+  // (mocked) home directory at a temp dir and place (or omit) a real file
+  // there.
+  describe("session-file probe", () => {
+    let tmpHome: string;
+
+    beforeEach(async () => {
+      tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "hub-probe-"));
+      mockHomedir = tmpHome;
     });
-    // No filesystem probe: the backend's word decides --resume vs --session-id
-    // (an existence check races snapshot restore on freshly-resumed sandboxes).
-    expect(procs[0].opts.sessionMode).toBe("resume");
+
+    afterEach(async () => {
+      mockHomedir = null;
+      await fs.rm(tmpHome, { recursive: true, force: true });
+    });
+
+    async function writeSessionFile(filePath: string, content: string): Promise<void> {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, content, "utf8");
+    }
+
+    it("resumes the session when the backend reports prior history", async () => {
+      await writeSessionFile(
+        sessionJsonlPath({ claudeSessionId: "sess-1" }),
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(procs[0].opts.sessionMode).toBe("resume");
+    });
+
+    it("installs a backend-staged reconstruction before resuming", async () => {
+      const finalPath = sessionJsonlPath({ claudeSessionId: "sess-1" });
+      await writeSessionFile(
+        finalPath + SESSION_STAGING_SUFFIX,
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(r.accepted).toBe(true);
+      expect(procs[0].opts.sessionMode).toBe("resume");
+      await expect(fs.access(finalPath)).resolves.toBeUndefined();
+      await expect(fs.access(finalPath + SESSION_STAGING_SUFFIX)).rejects.toThrow();
+    });
+
+    it("rejects a history-bearing dispatch when the session file is missing", async () => {
+      const { hub, procs, events } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      // Never downgrade to --session-id (that silently drops the history): the
+      // backend reacts to this reason by writing a reconstruction and retrying.
+      expect(r).toEqual({ accepted: false, reason: "session_file_missing" });
+      expect(procs.length).toBe(0);
+      expect(events.length).toBe(0); // rejected before the user turn was recorded
+    }, 15000); // the probe retries over a few seconds before giving up
   });
 
   it("stays busy until the CLI reports idle, not at the first result", async () => {
