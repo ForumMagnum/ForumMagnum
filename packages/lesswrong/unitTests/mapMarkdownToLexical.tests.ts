@@ -387,6 +387,48 @@ describe("$locateBlockByPrefix", () => {
     expect(matched?.type).toBe("math");
   });
 
+  it("matches a standalone image by its markdown image prefix", async () => {
+    const src = "https://example.com/diagram.png";
+    const editor = await setupEditorWithContent(
+      `Before the image.\n\n![](${src})\n\nAfter the image.`
+    );
+
+    const matched = findFor(editor, `![](${src})`);
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("image");
+  });
+
+  it("matches an image by both alt text and source", async () => {
+    const editor = await setupEditorWithContent(
+      [
+        "diagram",
+        "",
+        "![diagram](https://example.com/first.png)",
+        "",
+        "![diagram](https://example.com/second.png)",
+      ].join("\n")
+    );
+
+    const matched = findFor(editor, "![diagram](https://example.com/second.png)");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("image");
+  });
+
+  it("reports ambiguity when several images match the same markdown prefix", async () => {
+    const src = "https://example.com/repeated.png";
+    const editor = await setupEditorWithContent(
+      `![](${src})\n\nBetween images.\n\n![](${src})`
+    );
+    let reason: string | undefined;
+    editor.getEditorState().read(() => {
+      const result = $locateBlockByPrefix(`![](${src})`);
+      expect(result.node).toBeNull();
+      reason = result.reason;
+    });
+
+    expect(reason).toContain("Ambiguous image prefix");
+  });
+
   it("matches an item of a nested sub-list", async () => {
     const editor = await setupEditorWithContent(
       "*   outer item\n    *   nested needle item\n*   second outer"

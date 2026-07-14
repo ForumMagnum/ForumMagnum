@@ -1,5 +1,8 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { JSDOM } from "jsdom";
+import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
+import { markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
 import {
@@ -483,6 +486,68 @@ export interface BlockPrefixResult {
   reason?: string
 }
 
+interface MarkdownImagePrefix {
+  altText: string
+  src: string
+}
+
+/**
+ * Parse a prefix that consists solely of one markdown image. Images have no
+ * rendered text, so the normal text-index projection cannot address them by
+ * the markdown token agents receive from the read API.
+ */
+function parseStandaloneMarkdownImage(prefix: string): MarkdownImagePrefix | null {
+  if (!prefix.trimStart().startsWith("![")) return null;
+
+  const dom = new JSDOM(markdownToHtmlNoMath(prefix));
+  try {
+    const { body } = dom.window.document;
+    if (body.children.length !== 1) return null;
+
+    const paragraph = body.firstElementChild;
+    if (
+      paragraph?.tagName !== "P"
+      || paragraph.childElementCount !== 1
+      || paragraph.textContent?.trim()
+    ) {
+      return null;
+    }
+
+    const image = paragraph.firstElementChild;
+    if (image?.tagName !== "IMG") return null;
+
+    const src = image.getAttribute("src");
+    if (!src) return null;
+    return {
+      altText: image.getAttribute("alt") ?? "",
+      src,
+    };
+  } finally {
+    dom.window.close();
+  }
+}
+
+function $locateImageBlockByPrefix(prefix: string): BlockPrefixResult | null {
+  const imagePrefix = parseStandaloneMarkdownImage(prefix);
+  if (!imagePrefix) return null;
+
+  const matches = $getRoot().getChildren().filter(
+    (node) => $isImageNode(node)
+      && node.getAltText() === imagePrefix.altText
+      && node.getSrc() === imagePrefix.src,
+  );
+  if (matches.length === 1) {
+    return { node: matches[0] };
+  }
+  if (matches.length === 0) {
+    return { node: null, reason: "No image block matches the given markdown image prefix." };
+  }
+  return {
+    node: null,
+    reason: `Ambiguous image prefix: ${matches.length} image blocks match it.`,
+  };
+}
+
 /**
  * The block a character position belongs to, for block-level operations: the
  * nearest ancestor that is a list item, or failing that the node's top-level
@@ -536,6 +601,9 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  * Must be called inside a Lexical read/update context.
  */
 export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
+  const imageResult = $locateImageBlockByPrefix(prefix);
+  if (imageResult) return imageResult;
+
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {

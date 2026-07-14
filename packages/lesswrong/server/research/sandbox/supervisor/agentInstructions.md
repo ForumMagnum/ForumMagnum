@@ -270,7 +270,8 @@ nesting depth — a single bullet's leading text deletes just that bullet and
 leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line; for
-widgets, match the `` ```widget[<id>] `` delimiter line.
+widgets, match the `` ```widget[<id>] `` delimiter line. For a standalone
+image, match its complete `![alt text](URL)` token from `fetch-doc`.
 
 ### Edit vs. suggest (`--mode`)
 
@@ -452,7 +453,8 @@ These rules come straight from the shared backend matcher:
   `fetch-doc`. For plain paragraphs, that's the paragraph text; for
   structured blocks like LLM content blocks, it's the `%%%` delimiter
   line. For list items it's the item's own leading text; for tables, the
-  first cell's leading text.
+  first cell's leading text; for standalone images, the complete
+  `![alt text](URL)` token.
 - **Equations are whole LaTeX tokens.** Inline math appears in `fetch-doc`
   output as `$...$` and display math as `$$...$$` (occasionally `\(...\)` /
   `\[...\]`). An equation has no separate rendered-text form — quote the whole

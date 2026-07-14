@@ -265,7 +265,8 @@ leading text — the matcher descends into lists at any nesting depth, so
 deleting "second item" removes just that item and leaves the surrounding
 list intact. Match a table by the leading text of its first cell; tables are
 always deleted as a whole (there is no per-cell deletion). Match a display
-equation by its whole \`$$...$$\` token.
+equation by its whole \`$$...$$\` token. Match a standalone image with its
+complete \`![alt text](URL)\` token exactly as it appears in the editPost output.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
@@ -313,6 +314,9 @@ Deleting a single list item by its own text:
 
 Deleting a whole table by its first cell:
     { "postId": "...", "key": "...", "prefix": "header cell content", "mode": "edit" }
+
+Deleting a standalone image:
+    { "postId": "...", "key": "...", "prefix": "![diagram](https://example.com/diagram.png)", "mode": "edit" }
 
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
