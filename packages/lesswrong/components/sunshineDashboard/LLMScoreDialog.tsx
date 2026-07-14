@@ -104,9 +104,7 @@ function LLMScoreDialog({
   const canRunCheck = !!documentId;
 
   const isPangramV3 = aceData?.pangramApiVersion === 'v3';
-  const score = isPangramV3
-    ? (aceData?.pangramAiInvolvedScore ?? aceData?.pangramScore)
-    : aceData?.pangramScore;
+  const score = aceData?.pangramScore;
   const maxScore = aceData?.pangramMaxScore;
   
   const highlightedHtml = aceData 

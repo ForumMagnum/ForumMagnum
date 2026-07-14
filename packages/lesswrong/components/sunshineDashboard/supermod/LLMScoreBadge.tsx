@@ -46,9 +46,7 @@ const LLMScoreBadge = ({
   const { openDialog } = useDialog();
 
   const isPangramV3 = automatedContentEvaluations?.pangramApiVersion === 'v3';
-  const score = isPangramV3
-    ? (automatedContentEvaluations?.pangramAiInvolvedScore ?? automatedContentEvaluations?.pangramScore)
-    : automatedContentEvaluations?.pangramScore;
+  const score = automatedContentEvaluations?.pangramScore;
   const maxScore = automatedContentEvaluations?.pangramMaxScore;
   const hasScore = typeof score === 'number';
 

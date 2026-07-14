@@ -42,7 +42,6 @@ const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
 export interface PangramEvaluationResult {
   pangramApiVersion: string | null;
   pangramScore: number;
-  pangramAiInvolvedScore: number | null;
   pangramFractionAi: number | null;
   pangramFractionAiAssisted: number | null;
   pangramFractionHuman: number | null;
@@ -112,12 +111,9 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     ...(w.confidence ? { confidence: w.confidence } : {}),
     ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
   })) ?? null;
-  const pangramAiInvolvedScore = validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted;
-
   return {
     pangramApiVersion: "v3",
-    pangramScore: pangramAiInvolvedScore,
-    pangramAiInvolvedScore,
+    pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
     pangramFractionAi: validatedResponse.data.fraction_ai,
     pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
     pangramFractionHuman: validatedResponse.data.fraction_human,
@@ -269,7 +265,6 @@ export async function createAutomatedContentEvaluation(
     aiCoT: null,
     pangramApiVersion: pangramEvaluation.pangramApiVersion,
     pangramScore: pangramEvaluation.pangramScore,
-    pangramAiInvolvedScore: pangramEvaluation.pangramAiInvolvedScore,
     pangramFractionAi: pangramEvaluation.pangramFractionAi,
     pangramFractionAiAssisted: pangramEvaluation.pangramFractionAiAssisted,
     pangramFractionHuman: pangramEvaluation.pangramFractionHuman,
@@ -339,7 +334,6 @@ export async function rerunLlmCheck(
         $set: {
           pangramApiVersion: pangramResult.pangramApiVersion,
           pangramScore: pangramResult.pangramScore,
-          pangramAiInvolvedScore: pangramResult.pangramAiInvolvedScore,
           pangramFractionAi: pangramResult.pangramFractionAi,
           pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
           pangramFractionHuman: pangramResult.pangramFractionHuman,
@@ -368,7 +362,6 @@ export async function rerunLlmCheck(
       aiCoT: null,
       pangramApiVersion: pangramResult.pangramApiVersion,
       pangramScore: pangramResult.pangramScore,
-      pangramAiInvolvedScore: pangramResult.pangramAiInvolvedScore,
       pangramFractionAi: pangramResult.pangramFractionAi,
       pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
       pangramFractionHuman: pangramResult.pangramFractionHuman,

@@ -111,17 +111,6 @@ const schema = {
     },
   },
 
-  pangramAiInvolvedScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["sunshineRegiment", "admins"],
-    },
-  },
-
   pangramFractionAi: {
     database: {
       type: "DOUBLE PRECISION",

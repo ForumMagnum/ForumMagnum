@@ -348,7 +348,7 @@ const _329=_o4(_8,_328)
 const _330=_o4(_8,_o3(_3,"startIndex"))
 const _331=_o4(_8,_o3(_3,"endIndex"))
 const _332=_o4(_8,_o3(_3,"label"))
-const _333=_o2(_2,_323,_o4(_5,_o3(_3,"AutomatedContentEvaluation")),_o5(_7,[_10,_87,_o6(_8,_o3(_3,"sentenceScores"),_o5(_7,[_o4(_8,_o3(_3,"sentence")),_87])),_o4(_8,_o3(_3,"aiChoice")),_o4(_8,_o3(_3,"aiReasoning")),_o4(_8,_o3(_3,"aiCoT")),_o4(_8,_o3(_3,"pangramApiVersion")),_324,_o4(_8,_o3(_3,"pangramAiInvolvedScore")),_o4(_8,_o3(_3,"pangramFractionAi")),_o4(_8,_o3(_3,"pangramFractionAiAssisted")),_o4(_8,_o3(_3,"pangramFractionHuman")),_325,_326,_o6(_8,_327,_o5(_7,[_329,_87,_330,_331,_332,_o4(_8,_o3(_3,"confidence")),_70]))]))
+const _333=_o2(_2,_323,_o4(_5,_o3(_3,"AutomatedContentEvaluation")),_o5(_7,[_10,_87,_o6(_8,_o3(_3,"sentenceScores"),_o5(_7,[_o4(_8,_o3(_3,"sentence")),_87])),_o4(_8,_o3(_3,"aiChoice")),_o4(_8,_o3(_3,"aiReasoning")),_o4(_8,_o3(_3,"aiCoT")),_o4(_8,_o3(_3,"pangramApiVersion")),_324,_o4(_8,_o3(_3,"pangramFractionAi")),_o4(_8,_o3(_3,"pangramFractionAiAssisted")),_o4(_8,_o3(_3,"pangramFractionHuman")),_325,_326,_o6(_8,_327,_o5(_7,[_329,_87,_330,_331,_332,_o4(_8,_o3(_3,"confidence")),_70]))]))
 const _334=_o3(_3,"SunshineCommentsList")
 const _335=_o4(_25,_321)
 const _336=_o5(_7,[_o4(_25,_323)])
@@ -2064,7 +2064,6 @@ export type AutomatedContentEvaluation = {
   aiCoT: Maybe<Scalars['String']['output']>;
   aiReasoning: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  pangramAiInvolvedScore: Maybe<Scalars['Float']['output']>;
   pangramApiVersion: Maybe<Scalars['String']['output']>;
   pangramFractionAi: Maybe<Scalars['Float']['output']>;
   pangramFractionAiAssisted: Maybe<Scalars['Float']['output']>;
@@ -20641,7 +20640,7 @@ export type updatePostPostsEditFormMutation = { __typename?: 'Mutation', updateP
       & SuggestAlignmentPost
     ) | null } | null };
 
-export type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, pangramApiVersion: string | null, pangramScore: number | null, pangramAiInvolvedScore: number | null, pangramFractionAi: number | null, pangramFractionAiAssisted: number | null, pangramFractionHuman: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> | null, pangramWindowScores: Array<{ __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number, label: string | null, confidence: string | null, wordCount: number | null }> | null };
+export type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, pangramApiVersion: string | null, pangramScore: number | null, pangramFractionAi: number | null, pangramFractionAiAssisted: number | null, pangramFractionHuman: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> | null, pangramWindowScores: Array<{ __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number, label: string | null, confidence: string | null, wordCount: number | null }> | null };
 
 export type BookmarksMinimumInfoFragment = { __typename?: 'Bookmark', _id: string, active: boolean };
 

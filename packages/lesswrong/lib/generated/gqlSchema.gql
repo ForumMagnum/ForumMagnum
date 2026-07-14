@@ -1573,7 +1573,6 @@ type AutomatedContentEvaluation {
   pangramApiVersion: String
   pangramScore: Float
   pangramMaxScore: Float
-  pangramAiInvolvedScore: Float
   pangramFractionAi: Float
   pangramFractionAiAssisted: Float
   pangramFractionHuman: Float

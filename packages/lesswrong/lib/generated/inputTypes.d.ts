@@ -1378,7 +1378,6 @@ interface AutomatedContentEvaluation {
   pangramApiVersion: string | null;
   pangramScore: number | null;
   pangramMaxScore: number | null;
-  pangramAiInvolvedScore: number | null;
   pangramFractionAi: number | null;
   pangramFractionAiAssisted: number | null;
   pangramFractionHuman: number | null;

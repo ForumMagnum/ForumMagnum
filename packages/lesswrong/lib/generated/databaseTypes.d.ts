@@ -42,7 +42,6 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
-  pangramAiInvolvedScore: number | null
   pangramApiVersion: string | null
   pangramFractionAi: number | null
   pangramFractionAiAssisted: number | null

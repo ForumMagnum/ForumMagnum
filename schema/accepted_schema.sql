@@ -63,7 +63,6 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "pangramApiVersion" TEXT,
   "pangramScore" DOUBLE PRECISION,
   "pangramMaxScore" DOUBLE PRECISION,
-  "pangramAiInvolvedScore" DOUBLE PRECISION,
   "pangramFractionAi" DOUBLE PRECISION,
   "pangramFractionAiAssisted" DOUBLE PRECISION,
   "pangramFractionHuman" DOUBLE PRECISION,

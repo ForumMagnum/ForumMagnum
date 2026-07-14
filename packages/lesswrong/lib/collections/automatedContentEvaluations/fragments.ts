@@ -13,7 +13,6 @@ export const AutomatedContentEvaluationsFragment = gql(`
     aiCoT
     pangramApiVersion
     pangramScore
-    pangramAiInvolvedScore
     pangramFractionAi
     pangramFractionAiAssisted
     pangramFractionHuman
