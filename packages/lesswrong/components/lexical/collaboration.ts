@@ -9,12 +9,13 @@
 import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
-import {Doc, encodeStateAsUpdate, XmlText} from 'yjs';
+import {Doc, encodeStateAsUpdate} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { captureException } from '@/lib/sentryWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import type { ApolloClient } from '@apollo/client/core';
+import { repairOrphanXmlTextsInRoot } from '@/lib/lexical/repairOrphanXmlTexts';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
@@ -40,61 +41,6 @@ export async function fetchHocuspocusToken(
     throw new Error('Failed to fetch collaboration token');
   }
   return token;
-}
-
-/**
- * Removes "orphan" XmlText embeds from the main doc's root — live children of
- * root that have no `__type` attribute and whose own `_map` is empty. These
- * are an artifact of yjs/yjs#534: undoing a tracked cascade-delete of an
- * XmlText whose attribute items had already been tombstoned via an untracked
- * origin. `redoItem` rebuilds the XmlText via `content.copy()`, which for
- * YXmlText returns a fresh empty instance, and the missing attr items never
- * get redone — producing a root embed that Lexical's
- * `$getOrInitCollabNodeFromSharedType` then rejects at load time with
- * "Expected shared type to include type attribute".
- *
- * The orphan carries no recoverable data (no attrs, no children), so removing
- * it is non-destructive; doing so via `root.delete` at the right offset emits
- * a normal Yjs update that propagates to peers and the Hocuspocus server,
- * self-healing the document. Returns the ids of items removed so the caller
- * can log.
- */
-function repairOrphanXmlTextsInRoot(doc: Doc): string[] {
-  const root = doc.get('root', XmlText);
-  const removed: string[] = [];
-  doc.transact(() => {
-    const delta = root.toDelta();
-    // Walk the delta to find orphan embeds and record their offsets. Embeds
-    // contribute length 1 to the parent XmlText; string inserts contribute
-    // their character length.
-    let offset = 0;
-    const orphanOffsets: number[] = [];
-    for (const entry of delta as Array<{ insert: unknown }>) {
-      const ins = entry.insert;
-      if (typeof ins === 'string') {
-        offset += ins.length;
-        continue;
-      }
-      if (ins instanceof XmlText) {
-        const hasType = ins.getAttribute('__type') !== undefined;
-        const mapSize = (ins as unknown as { _map: Map<string, unknown> })._map.size;
-        // Only remove items matching the exact yjs#534 shape: no __type and
-        // no entries in _map (i.e. the fresh `new YXmlText()` from _copy).
-        // Anything else might carry recoverable state and deserves inspection.
-        if (!hasType && mapSize === 0) {
-          orphanOffsets.push(offset);
-          const item = (ins as unknown as { _item?: { id: { client: number; clock: number } } })._item;
-          if (item) removed.push(`${item.id.client}@${item.id.clock}`);
-        }
-      }
-      offset += 1;
-    }
-    // Delete from the right so earlier offsets stay valid.
-    for (let i = orphanOffsets.length - 1; i >= 0; i--) {
-      root.delete(orphanOffsets[i], 1);
-    }
-  }, 'orphan-repair');
-  return removed;
 }
 
 export interface CollaborationConfig {
