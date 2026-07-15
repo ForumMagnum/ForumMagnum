@@ -1445,8 +1445,12 @@ interface AutomatedContentEvaluation {
   aiChoice: string | null;
   aiReasoning: string | null;
   aiCoT: string | null;
+  pangramApiVersion: string | null;
   pangramScore: number | null;
   pangramMaxScore: number | null;
+  pangramFractionAi: number | null;
+  pangramFractionAiAssisted: number | null;
+  pangramFractionHuman: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
 }
@@ -1461,6 +1465,9 @@ interface PangramWindowScore {
   score: number;
   startIndex: number;
   endIndex: number;
+  label: string | null;
+  confidence: string | null;
+  wordCount: number | null;
 }
 
 interface Ban {

@@ -204,6 +204,10 @@ type AutomatedContentEvaluation = {
   aiCoT?: Maybe<Scalars['String']['output']>;
   aiReasoning?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
+  pangramApiVersion?: Maybe<Scalars['String']['output']>;
+  pangramFractionAi?: Maybe<Scalars['Float']['output']>;
+  pangramFractionAiAssisted?: Maybe<Scalars['Float']['output']>;
+  pangramFractionHuman?: Maybe<Scalars['Float']['output']>;
   pangramMaxScore?: Maybe<Scalars['Float']['output']>;
   pangramPrediction?: Maybe<Scalars['String']['output']>;
   pangramScore?: Maybe<Scalars['Float']['output']>;
@@ -5052,10 +5056,13 @@ type PangramTextEvaluationResult = {
 
 type PangramWindowScore = {
   __typename?: 'PangramWindowScore';
+  confidence?: Maybe<Scalars['String']['output']>;
   endIndex: Scalars['Int']['output'];
+  label?: Maybe<Scalars['String']['output']>;
   score: Scalars['Float']['output'];
   startIndex: Scalars['Int']['output'];
   text: Scalars['String']['output'];
+  wordCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type PartiallyReadSequenceItemInput = {
@@ -23538,9 +23545,9 @@ type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 
-type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number, label: string | null, confidence: string | null, wordCount: number | null };
 
-type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null, pangramWindowScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
+type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, pangramApiVersion: string | null, pangramScore: number | null, pangramFractionAi: number | null, pangramFractionAiAssisted: number | null, pangramFractionHuman: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null, pangramWindowScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
 
 type BookmarksMinimumInfoFragment = { __typename?: 'Bookmark', _id: string, active: boolean };
 

@@ -1,5 +1,4 @@
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
-import { cheerioParse } from "@/server/utils/htmlUtil";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
@@ -10,6 +9,7 @@ import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { updateComment } from "@/server/collections/comments/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { stripExcludedContentForAIDetection } from "./preprocessing";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -22,39 +22,40 @@ const saplingResponseSchema = z.object({
 });
 
 const pangramResponseSchema = z.object({
-  avg_ai_likelihood: z.number(),
-  max_ai_likelihood: z.number().optional(),
+  fraction_human: z.number(),
+  fraction_ai: z.number(),
+  fraction_ai_assisted: z.number(),
   prediction_short: z.enum(["AI", "Human", "Mixed"]).optional(),
   windows: z.array(z.object({
     text: z.string(),
-    ai_likelihood: z.number(),
+    ai_assistance_score: z.number(),
     start_index: z.number(),
     end_index: z.number(),
+    label: z.string().optional(),
+    confidence: z.string().optional(),
+    word_count: z.number().optional(),
   })).optional(),
 });
 
+const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
+
 export interface PangramEvaluationResult {
+  pangramApiVersion: string | null;
   pangramScore: number;
+  pangramFractionAi: number | null;
+  pangramFractionAiAssisted: number | null;
+  pangramFractionHuman: number | null;
   pangramMaxScore: number | null;
   pangramPrediction: "AI" | "Human" | "Mixed" | null;
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null;
-}
-
-/**
- * Strip elements from HTML that should not be included in AI detection scoring.
- * This includes:
- * - LLM content blocks (`div.llm-content-block`): explicitly labeled as AI-generated
- * - Collapsible sections (`.detailsBlock`): our policy permits AI content in collapsible sections
- * - Iframe widgets (`iframe[data-lexical-iframe-widget]`): contain code/HTML, not prose
- * - Code blocks (`.code-block`): contain code, not prose
- */
-function stripExcludedContentForAIDetection(html: string): string {
-  const $ = cheerioParse(html);
-  $('div.llm-content-block').remove();
-  $('.detailsBlock').remove();
-  $('iframe[data-lexical-iframe-widget]').remove();
-  $('.code-block').remove();
-  return $.html();
+  pangramWindowScores: {
+    text: string;
+    score: number;
+    startIndex: number;
+    endIndex: number;
+    label?: string;
+    confidence?: string;
+    wordCount?: number;
+  }[] | null;
 }
 
 export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
@@ -67,7 +68,7 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
   // an entire long post in one go isn't usually worth the extra $$$.
   const textToCheck = text.slice(0, 30_000);
 
-  const response = await fetch('https://text-extended.api.pangram.com', {
+  const response = await fetch('https://text.api.pangram.com/v3', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -101,16 +102,26 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     throw error;
   }
 
+  const pangramWindowScores = validatedResponse.data.windows?.map(w => ({
+    text: w.text,
+    score: w.ai_assistance_score,
+    startIndex: w.start_index,
+    endIndex: w.end_index,
+    ...(w.label ? { label: w.label } : {}),
+    ...(w.confidence ? { confidence: w.confidence } : {}),
+    ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
+  })) ?? null;
   return {
-    pangramScore: validatedResponse.data.avg_ai_likelihood,
-    pangramMaxScore: validatedResponse.data.max_ai_likelihood ?? null,
+    pangramApiVersion: "v3",
+    pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
+    pangramFractionAi: validatedResponse.data.fraction_ai,
+    pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
+    pangramFractionHuman: validatedResponse.data.fraction_human,
+    pangramMaxScore: pangramWindowScores?.length
+      ? Math.max(...pangramWindowScores.map(w => w.score))
+      : null,
     pangramPrediction: validatedResponse.data.prediction_short ?? null,
-    pangramWindowScores: validatedResponse.data.windows?.map(w => ({
-      text: w.text,
-      score: w.ai_likelihood,
-      startIndex: w.start_index,
-      endIndex: w.end_index,
-    })) ?? null,
+    pangramWindowScores,
   };
 }
 
@@ -252,13 +263,17 @@ export async function createAutomatedContentEvaluation(
     aiChoice: null,
     aiReasoning: null,
     aiCoT: null,
+    pangramApiVersion: pangramEvaluation.pangramApiVersion,
     pangramScore: pangramEvaluation.pangramScore,
+    pangramFractionAi: pangramEvaluation.pangramFractionAi,
+    pangramFractionAiAssisted: pangramEvaluation.pangramFractionAiAssisted,
+    pangramFractionHuman: pangramEvaluation.pangramFractionHuman,
     pangramMaxScore: pangramEvaluation.pangramMaxScore,
     pangramPrediction: pangramEvaluation.pangramPrediction,
     pangramWindowScores: pangramEvaluation.pangramWindowScores,
   });
 
-  if (autoreject && (pangramEvaluation.pangramScore ?? 0) > .25) {
+  if (autoreject && (pangramEvaluation.pangramScore ?? 0) > PANGRAM_AUTOREJECT_THRESHOLD) {
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
@@ -317,7 +332,11 @@ export async function rerunLlmCheck(
       { _id: existingAce._id },
       {
         $set: {
+          pangramApiVersion: pangramResult.pangramApiVersion,
           pangramScore: pangramResult.pangramScore,
+          pangramFractionAi: pangramResult.pangramFractionAi,
+          pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+          pangramFractionHuman: pangramResult.pangramFractionHuman,
           pangramMaxScore: pangramResult.pangramMaxScore,
           pangramPrediction: pangramResult.pangramPrediction,
           pangramWindowScores: pangramResult.pangramWindowScores,
@@ -341,7 +360,11 @@ export async function rerunLlmCheck(
       aiChoice: null,
       aiReasoning: null,
       aiCoT: null,
+      pangramApiVersion: pangramResult.pangramApiVersion,
       pangramScore: pangramResult.pangramScore,
+      pangramFractionAi: pangramResult.pangramFractionAi,
+      pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+      pangramFractionHuman: pangramResult.pangramFractionHuman,
       pangramMaxScore: pangramResult.pangramMaxScore,
       pangramPrediction: pangramResult.pangramPrediction,
       pangramWindowScores: pangramResult.pangramWindowScores,
