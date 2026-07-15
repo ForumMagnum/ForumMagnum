@@ -25,6 +25,7 @@ import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
 import type MarkdownIt from "markdown-it";
+import { repairOrphanXmlTextsInRoot } from "@/lib/lexical/repairOrphanXmlTexts";
 
 /**
  * Render agent-supplied markdown to sanitized HTML for import into a Lexical
@@ -418,6 +419,24 @@ export async function withMainDocEditorSession<T>({
     document: doc,
     token,
     connect: false,
+    preserveConnection: false,
+    onSynced: () => {
+      try {
+        const removed = repairOrphanXmlTextsInRoot(doc);
+        if (removed.length > 0) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[headless:${operationLabel}] repaired ${removed.length} orphan XmlText(s) in ${documentName}: ${removed.join(", ")}`,
+          );
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[headless:${operationLabel}] repairOrphanXmlTextsInRoot threw:`,
+          err,
+        );
+      }
+    },
   });
   const editor = createHeadlessEditor(operationLabel);
   const lexicalProvider = getLexicalCompatibleProvider(provider);
@@ -528,6 +547,7 @@ export async function withCommentsDocSession<T>({
     document: doc,
     token,
     connect: false,
+    preserveConnection: false,
   });
 
   try {
