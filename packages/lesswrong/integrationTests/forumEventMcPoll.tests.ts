@@ -8,7 +8,12 @@ import ForumEventsRepo from "../server/repos/ForumEventsRepo";
  * the `publicData` JSONB column (see forumEventCallbacks.upsertMcPoll).
  */
 describe("ForumEventsRepo multiple-choice polls", () => {
-  const repo = new ForumEventsRepo();
+  // Construct the repo inside a hook, not at module load: AbstractRepo needs the
+  // SQL client, which the integration test harness only initialises in its setup.
+  let repo: ForumEventsRepo;
+  beforeAll(() => {
+    repo = new ForumEventsRepo();
+  });
 
   const insertMcEvent = async (_id: string) => {
     const db = getSqlClientOrThrow();
