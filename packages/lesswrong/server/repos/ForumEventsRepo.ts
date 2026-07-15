@@ -1,7 +1,7 @@
 import ForumEvents from "@/server/collections/forumEvents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker } from "@/lib/collections/forumEvents/types";
+import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker, McPollAnswer } from "@/lib/collections/forumEvents/types";
 
 class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   constructor() {
@@ -34,6 +34,76 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       SET "publicData" = "publicData" - $1
       WHERE "_id" = $2
     `, [userId, _id])
+  }
+
+  // --- Multiple-choice polls: answers/mode + per-user votes live in publicData ---
+  // publicData shape: { answers: [{_id, text}], multiSelect: boolean, votes: { [userId]: { answerIds: string[] } } }
+
+  async getMcUserVote(_id: string, userId: string) {
+    const res = await this.getRawDb().oneOrNone(`
+      -- ForumEventsRepo.getMcUserVote
+      SELECT "publicData"->'votes'->$2 AS vote
+      FROM "ForumEvents"
+      WHERE "_id" = $1
+    `, [_id, userId])
+    return res ? res.vote : null
+  }
+
+  async addMcVote(_id: string, userId: string, vote: Json) {
+    return this.none(`
+      -- ForumEventsRepo.addMcVote
+      UPDATE "ForumEvents"
+      SET "publicData" = jsonb_set(
+        jsonb_set(
+          COALESCE("publicData", '{}'::jsonb),
+          '{votes}',
+          COALESCE("publicData"->'votes', '{}'::jsonb),
+          true
+        ),
+        ARRAY['votes', $2],
+        $3::jsonb,
+        true
+      )
+      WHERE "_id" = $1
+    `, [_id, userId, JSON.stringify(vote)])
+  }
+
+  async removeMcVote(_id: string, userId: string) {
+    return this.none(`
+      -- ForumEventsRepo.removeMcVote
+      UPDATE "ForumEvents"
+      SET "publicData" = jsonb_set(
+        COALESCE("publicData", '{}'::jsonb),
+        '{votes}',
+        COALESCE("publicData"->'votes', '{}'::jsonb) - $2,
+        true
+      )
+      WHERE "_id" = $1
+    `, [_id, userId])
+  }
+
+  /** Write a multiple-choice poll's answer options + mode without touching votes. */
+  async setMcPollOptions({ forumEventId, answers, multiSelect }: {
+    forumEventId: string;
+    answers: McPollAnswer[];
+    multiSelect: boolean;
+  }) {
+    return this.none(`
+      -- ForumEventsRepo.setMcPollOptions
+      UPDATE "ForumEvents"
+      SET "publicData" = jsonb_set(
+        jsonb_set(
+          COALESCE("publicData", '{}'::jsonb),
+          '{answers}',
+          $2::jsonb,
+          true
+        ),
+        '{multiSelect}',
+        to_jsonb($3::boolean),
+        true
+      )
+      WHERE "_id" = $1
+    `, [forumEventId, JSON.stringify(answers), multiSelect])
   }
 
   /**

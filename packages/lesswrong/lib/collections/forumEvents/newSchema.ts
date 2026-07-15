@@ -474,7 +474,16 @@ const schema = {
     graphql: {
       outputType: "Int!",
       canRead: ["guests"],
-      resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
+      resolver: ({ publicData }) => {
+        if (!publicData) return 0;
+        // Multiple-choice polls nest per-user votes under `publicData.votes`
+        // (alongside `answers`/`multiSelect`); the slider stores each vote at
+        // the top level keyed by userId.
+        if (Array.isArray(publicData.answers)) {
+          return Object.keys(publicData.votes ?? {}).length;
+        }
+        return Object.keys(publicData).length;
+      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"ForumEvents">>;
