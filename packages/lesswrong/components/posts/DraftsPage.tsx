@@ -9,6 +9,8 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import DraftsList from "./DraftsList";
 import CommentsDraftList from "../comments/CommentsDraftList";
+import PostsList2 from "./PostsList2";
+import SectionTitle from "../common/SectionTitle";
 
 const DraftsPage = () => {
   const currentUser = useCurrentUser()
@@ -16,10 +18,24 @@ const DraftsPage = () => {
   if (!currentUser) {
     return <ErrorAccessDenied />
   }
+
+  const unlistedTerms: PostsViewTerms = {
+    view: "unlisted",
+    userId: currentUser._id,
+    limit: 50,
+  };
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
       <DraftsList limit={50} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
+      <PostsList2
+        header={<SectionTitle title="Unlisted Posts" />}
+        terms={unlistedTerms}
+        hideAuthor
+        showDraftTag={false}
+        showNoResults={false}
+        showLoading={false}
+      />
       <CommentsDraftList
         userId={currentUser._id}
         initialLimit={50}
