@@ -14,10 +14,10 @@ const DashboardSequencesTab = ({userId, isOwnAccount}: {userId: string, isOwnAcc
 
   return (
     <AnalyticsContext pageElementContext="dashboardSequencesTab">
-      {/* Draft sequences section */}
+      {/* Draft and unlisted sequences section */}
       <div className={classes.section}>
         <div className={classes.sectionHeader}>
-          <div className={classes.sectionLabel}>Drafts</div>
+          <div className={classes.sectionLabel}>Drafts & unlisted</div>
           {isOwnAccount && <Link to="/sequencesnew">
             <SectionButton>New Sequence</SectionButton>
           </Link>}

@@ -68,13 +68,18 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
     sortedBy: currentPostSortingMode,
     excludeEvents: !includeEvents,
   }), [userId, currentPostSortingMode, includeEvents]);
+  const unlistedTerms: PostsViewTerms = useMemo(() => ({
+    view: 'unlisted',
+    userId,
+    limit: 5,
+  }), [userId]);
 
   return (
     <AnalyticsContext pageElementContext="dashboardPostsTab">
-      {/* Drafts section */}
+      {/* Drafts and unlisted section */}
       <div className={classes.section}>
         <div className={classes.sectionHeader}>
-          <div className={classes.sectionLabel}>Drafts</div>
+          <div className={classes.sectionLabel}>Drafts & unlisted</div>
           {isOwnAccount && currentUser && userCanPost(currentUser) && (
             <Link to="/newPost">
               <SectionButton>
@@ -88,6 +93,14 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
           userId={userId}
           hideHeaderRow
           showAllDraftsLink={false}
+        />
+        <PostsList2
+          terms={unlistedTerms}
+          hideAuthor
+          showDraftTag={false}
+          showNoResults={false}
+          showLoading={false}
+          showLoadMore={false}
         />
       </div>
 
