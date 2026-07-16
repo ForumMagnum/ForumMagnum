@@ -30,6 +30,7 @@ const ProfilePageCommentsQuery = gql(`
 `);
 
 const INITIAL_COMMENTS_TO_SHOW = 20;
+const COMMENTS_PER_LOAD = 100;
 
 export const profilePageCommentsTabSortOrderSchema = z.enum(["new", "top"]);
 export const profilePageCommentsTabSettingsSchema = z.object({
@@ -84,7 +85,7 @@ export function ProfilePageCommentsTabContents({user, settings}: {
       limit: INITIAL_COMMENTS_TO_SHOW,
       enableTotal: true,
     },
-    itemsPerPage: INITIAL_COMMENTS_TO_SHOW,
+    itemsPerPage: COMMENTS_PER_LOAD,
     fetchPolicy: "cache-and-network",
   });
 

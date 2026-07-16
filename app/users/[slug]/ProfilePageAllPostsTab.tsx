@@ -262,6 +262,7 @@ const ProfilePostsQuery = gql(`
 `);
 
 const INITIAL_POSTS_TO_SHOW = 7;
+const POSTS_PER_LOAD = 100;
 export const allPostsTabSortingModeSchema = z.enum(["new", "top", "topInflation", "recentComments", "old", "magic"]);
 export type AllPostsTabSortingMode = z.infer<typeof allPostsTabSortingModeSchema>;
 
@@ -361,7 +362,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
-    itemsPerPage: INITIAL_POSTS_TO_SHOW,
+    itemsPerPage: POSTS_PER_LOAD,
     fetchPolicy: "cache-and-network",
   });
   const recentPosts = recentPostsData?.posts?.results ?? [];
