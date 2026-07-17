@@ -83,8 +83,8 @@ Helping Users With Drafts
 =========================
 (This feature is currently in development, the API should not be assumed stable,
 and users using it should be reminded of LessWrong's policy on LLM writing, found
-at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
-path if providing a link to the user]. Before using our API to leave feedback,
+at https://www.lesswrong.com/posts/nQWavk9mnwcv6ScMR/new-lesswrong-editor-also-an-update-to-our-llm-policy#Policy_on_LLM_Use.
+Before using our API to leave feedback,
 you should check whether you have network access to our domain.  You can do this by
 checking the "Allowed Domains" list in your network configuration's settings, or by
 making an empty test POST via curl to https://www.lesswrong.com/api/agent/ping and
