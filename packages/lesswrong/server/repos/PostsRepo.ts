@@ -1069,6 +1069,26 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `);
     return row?.curatedDate ?? null;
   }
+
+  async getPostsPublishedPerDay({ windowStart, windowEnd }: { windowStart: Date; windowEnd: Date }): Promise<{ date: string; count: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; count: string }>(`
+      -- PostsRepo.getPostsPublishedPerDay
+      SELECT
+        to_char(p."postedAt", 'YYYY-MM-DD') AS date,
+        COUNT(*) AS count
+      FROM "Posts" p
+      WHERE
+        p."postedAt" >= $(windowStart)
+        AND p."postedAt" < $(windowEnd)
+        AND p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+        AND p."isEvent" IS NOT TRUE
+        AND p."rejected" IS NOT TRUE
+      GROUP BY 1
+      ORDER BY 1
+    `, { windowStart, windowEnd });
+    return results.map(({ date, count }) => ({ date, count: parseInt(count) }));
+  }
 }
 
 recordPerfMetrics(PostsRepo);

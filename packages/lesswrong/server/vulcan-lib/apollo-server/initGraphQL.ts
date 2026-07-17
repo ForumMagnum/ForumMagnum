@@ -17,6 +17,7 @@ import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResol
 import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutations, graphqlQueries as commentQueries } from '@/server/resolvers/commentResolvers'
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
+import { siteUsageStatsGraphQLQueries, siteUsageStatsGraphQLTypeDefs } from '@/server/resolvers/siteUsageStatsResolvers';
 import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
 import { crossSiteLinkPreviewGraphQLQueries, crossSiteLinkPreviewGraphQLTypeDefs } from '@/server/resolvers/linkPreviewResolver';
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
@@ -260,6 +261,7 @@ export const getTypeDefs = () => gql`
   # # End vote typedefs
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
+  ${siteUsageStatsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
   ${crossSiteLinkPreviewGraphQLTypeDefs}
   ${elicitPredictionsGraphQLTypeDefs}
@@ -456,6 +458,7 @@ const getResolvers = () => ({
     ...notificationQueries,
     ...commentQueries,
     ...analyticsGraphQLQueries,
+    ...siteUsageStatsGraphQLQueries,
     ...arbitalGraphQLQueries,
     ...crossSiteLinkPreviewGraphQLQueries,
     ...elicitPredictionsGraphQLQueries,
