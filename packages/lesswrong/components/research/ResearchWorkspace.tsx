@@ -193,6 +193,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   // URL changes go through navigate({skipRouter:true}) so doc switching is
   // one React state update rather than a full Next route re-render.
   const [activeDocumentId, setActiveDocumentIdState] = useState<string | null>(null);
+  const [hasReadDocumentIdFromUrl, setHasReadDocumentIdFromUrl] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [resizing, setResizing] = useState(false);
@@ -214,6 +215,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     const readDocIdFromUrl = () => {
       const params = new URLSearchParams(window.location.search);
       setActiveDocumentIdState(params.get('documentId'));
+      setHasReadDocumentIdFromUrl(true);
     };
     readDocIdFromUrl();
     window.addEventListener('popstate', readDocIdFromUrl);
@@ -237,13 +239,16 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
 
   useEffect(() => {
     const firstDocId = firstDocData?.researchDocuments?.results?.[0]?._id;
-    if (!activeDocumentId && firstDocId) {
+    // The first-document query can already be cached from SSR. Wait for the
+    // URL read to commit so its documentId cannot be overwritten during the
+    // same mount-effect flush.
+    if (hasReadDocumentIdFromUrl && !activeDocumentId && firstDocId) {
       setActiveDocumentIdState(firstDocId);
       const currentLocation = locationRef.current;
       const newQuery = { ...currentLocation.query, documentId: firstDocId };
       navigateRef.current({ ...currentLocation.location, search: `?${qs.stringify(newQuery)}` }, { skipRouter: true, replace: true });
     }
-  }, [activeDocumentId, firstDocData]);
+  }, [activeDocumentId, firstDocData, hasReadDocumentIdFromUrl]);
 
   const setActiveDocumentId = useCallback((documentId: string) => {
     setActiveDocumentIdState(documentId);
