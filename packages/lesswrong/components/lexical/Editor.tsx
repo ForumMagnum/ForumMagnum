@@ -141,6 +141,7 @@ import { QUERY_INPUT_DOM_CLASS } from '@/components/research/lexical/QueryInputN
 import { QUERY_INPUT_HEADER_DOM_CLASS } from '@/components/research/lexical/QueryInputHeaderNode';
 import { QUERY_INPUT_CONTENT_DOM_CLASS } from '@/components/research/lexical/QueryInputContentNode';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import IOSKeyboardSuggestionsPlugin from './plugins/IOSKeyboardSuggestionsPlugin';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -1073,6 +1074,7 @@ export default function Editor({
             <HistoryPlugin externalHistoryState={historyState} />
           </>
         )}
+        <IOSKeyboardSuggestionsPlugin />
         {(isCharLimit || isCharLimitUtf8) && (
           <CharacterLimitPlugin
             charset={isCharLimit ? 'UTF-16' : 'UTF-8'}
