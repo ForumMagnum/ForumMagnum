@@ -84,7 +84,11 @@ describe("iOS keyboard suggestions", () => {
   it("preserves Backspace outdent handling at the start of an indented block", async () => {
     const editor = await createEditorWithSelection(1);
     await runEditorUpdate(editor, () => {
-      $getRoot().getFirstDescendantOrThrow().selectStart();
+      const firstDescendant = $getRoot().getFirstDescendant();
+      if (!firstDescendant) {
+        throw new Error("Expected an indented paragraph with text");
+      }
+      firstDescendant.selectStart();
     });
     const fallback = jest.fn();
     const unregisterFallback = registerPreventingFallback(editor, fallback);
