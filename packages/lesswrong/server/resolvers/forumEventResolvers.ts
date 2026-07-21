@@ -100,9 +100,11 @@ export const forumEventGqlMutations = {
 
     const empty = newAnswerIds.length === 0;
     await Promise.all([
+      // MC votes are stored at the top level of publicData keyed by userId, like
+      // the slider, so voting reuses the slider's add/remove vote repo methods.
       empty
-        ? repos.forumEvents.removeMcVote(forumEventId, currentUser._id)
-        : repos.forumEvents.addMcVote(forumEventId, currentUser._id, { answerIds: newAnswerIds }),
+        ? repos.forumEvents.removeVote(forumEventId, currentUser._id)
+        : repos.forumEvents.addVote(forumEventId, currentUser._id, { answerIds: newAnswerIds }),
       repos.comments.setLatestMcPollVote({
         forumEventId,
         latestAnswerIds: empty ? null : newAnswerIds,

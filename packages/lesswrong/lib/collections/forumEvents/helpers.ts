@@ -1,22 +1,34 @@
 import { parseDocumentFromString } from "@/lib/domParser";
 import { postGetPageUrl, PostsMinimumForGetPageUrl } from "../posts/helpers";
-import type { McPollAnswer, McPollPublicData } from "./types";
+import type { McPollAnswer, McPollPublicData, McPollVote } from "./types";
 
 /**
- * Read the multiple-choice payload out of a forum event's `publicData`,
- * tolerating a not-yet-voted event (empty votes) and legacy/empty data.
+ * Both poll formats store each user's vote at the top level of `publicData`,
+ * keyed by userId (see ForumEventsRepo.addVote). Multiple-choice polls also
+ * keep their answer options and mode under these reserved keys, which are poll
+ * config rather than votes.
+ */
+const MC_POLL_RESERVED_KEYS = new Set(["answers", "multiSelect"]);
+
+/**
+ * Read the multiple-choice payload out of a forum event's `publicData`: the
+ * answer options, mode, and every user's vote (each stored at the top level
+ * keyed by userId, exactly like the slider). Tolerates a not-yet-voted or empty
+ * event.
  */
 export function getMcPollPublicData(publicData: unknown): McPollPublicData {
-  const data = (publicData ?? {}) as Partial<McPollPublicData>;
+  const data = (publicData ?? {}) as Record<string, unknown>;
+  const votes: Record<string, McPollVote> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (!MC_POLL_RESERVED_KEYS.has(key)) {
+      votes[key] = value as McPollVote;
+    }
+  }
   return {
-    answers: data.answers ?? [],
+    answers: (data.answers as McPollAnswer[] | undefined) ?? [],
     multiSelect: !!data.multiSelect,
-    votes: data.votes ?? {},
+    votes,
   };
-}
-
-export function getMcPollAnswers(publicData: unknown): McPollAnswer[] {
-  return getMcPollPublicData(publicData).answers;
 }
 
 /**

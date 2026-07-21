@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
-import { stripFootnotes, getMcPollAnswers } from "@/lib/collections/forumEvents/helpers";
+import { stripFootnotes, getMcPollPublicData } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
@@ -44,7 +44,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const mcPoll = comment.forumEventMetadata?.mcPoll;
   if (mcPoll) {
     const chosenIds = mcPoll.latestAnswerIds ?? mcPoll.answerIdsWhenPublished;
-    const answers = getMcPollAnswers(forumEvent?.publicData);
+    const { answers } = getMcPollPublicData(forumEvent?.publicData);
     const chosenText = chosenIds
       .map((id) => answers.find((a) => a._id === id)?.text)
       .filter((text): text is string => !!text)

@@ -46,7 +46,7 @@ describe("ForumEventsRepo multiple-choice polls", () => {
     expect(publicData.multiSelect).toBe(true);
   });
 
-  it("addMcVote / getMcUserVote / removeMcVote round-trip, and editing options preserves votes", async () => {
+  it("addVote / getUserVote / removeVote round-trip, and editing options preserves votes", async () => {
     const _id = "mc-votes";
     await insertMcEvent(_id);
     await repo.setMcPollOptions({
@@ -55,12 +55,14 @@ describe("ForumEventsRepo multiple-choice polls", () => {
       multiSelect: true,
     });
 
-    await repo.addMcVote(_id, "user1", { answerIds: ["a1", "a2"] });
-    expect(await repo.getMcUserVote(_id, "user1")).toEqual({ answerIds: ["a1", "a2"] });
+    // MC votes are stored at the top level of publicData keyed by userId, just
+    // like the slider, so voting reuses the shared addVote/getUserVote/removeVote.
+    await repo.addVote(_id, "user1", { answerIds: ["a1", "a2"] });
+    expect(await repo.getUserVote(_id, "user1")).toEqual({ answerIds: ["a1", "a2"] });
 
     // Re-submitting replaces the user's selection.
-    await repo.addMcVote(_id, "user1", { answerIds: ["a2"] });
-    expect(await repo.getMcUserVote(_id, "user1")).toEqual({ answerIds: ["a2"] });
+    await repo.addVote(_id, "user1", { answerIds: ["a2"] });
+    expect(await repo.getUserVote(_id, "user1")).toEqual({ answerIds: ["a2"] });
 
     // Editing the answer options must not clobber existing votes.
     await repo.setMcPollOptions({
@@ -68,9 +70,9 @@ describe("ForumEventsRepo multiple-choice polls", () => {
       answers: [{ _id: "a1", text: "A (edited)" }, { _id: "a2", text: "B" }],
       multiSelect: false,
     });
-    expect(await repo.getMcUserVote(_id, "user1")).toEqual({ answerIds: ["a2"] });
+    expect(await repo.getUserVote(_id, "user1")).toEqual({ answerIds: ["a2"] });
 
-    await repo.removeMcVote(_id, "user1");
-    expect(await repo.getMcUserVote(_id, "user1")).toBeNull();
+    await repo.removeVote(_id, "user1");
+    expect(await repo.getUserVote(_id, "user1")).toBeNull();
   });
 });

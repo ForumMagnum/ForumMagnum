@@ -36,51 +36,11 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     `, [userId, _id])
   }
 
-  // --- Multiple-choice polls: answers/mode + per-user votes live in publicData ---
-  // publicData shape: { answers: [{_id, text}], multiSelect: boolean, votes: { [userId]: { answerIds: string[] } } }
-
-  async getMcUserVote(_id: string, userId: string) {
-    const res = await this.getRawDb().oneOrNone(`
-      -- ForumEventsRepo.getMcUserVote
-      SELECT "publicData"->'votes'->$2 AS vote
-      FROM "ForumEvents"
-      WHERE "_id" = $1
-    `, [_id, userId])
-    return res ? res.vote : null
-  }
-
-  async addMcVote(_id: string, userId: string, vote: Json) {
-    return this.none(`
-      -- ForumEventsRepo.addMcVote
-      UPDATE "ForumEvents"
-      SET "publicData" = jsonb_set(
-        jsonb_set(
-          COALESCE("publicData", '{}'::jsonb),
-          '{votes}',
-          COALESCE("publicData"->'votes', '{}'::jsonb),
-          true
-        ),
-        ARRAY['votes', $2],
-        $3::jsonb,
-        true
-      )
-      WHERE "_id" = $1
-    `, [_id, userId, JSON.stringify(vote)])
-  }
-
-  async removeMcVote(_id: string, userId: string) {
-    return this.none(`
-      -- ForumEventsRepo.removeMcVote
-      UPDATE "ForumEvents"
-      SET "publicData" = jsonb_set(
-        COALESCE("publicData", '{}'::jsonb),
-        '{votes}',
-        COALESCE("publicData"->'votes', '{}'::jsonb) - $2,
-        true
-      )
-      WHERE "_id" = $1
-    `, [_id, userId])
-  }
+  // --- Multiple-choice polls ---
+  // Answers/mode live in publicData under `answers`/`multiSelect`; each user's
+  // vote is stored at the top level keyed by userId, exactly like the slider —
+  // so voting reuses getUserVote/addVote/removeVote above, and publicData holds
+  // { answers: [{_id, text}], multiSelect: boolean, [userId]: { answerIds } }.
 
   /** Write a multiple-choice poll's answer options + mode without touching votes. */
   async setMcPollOptions({ forumEventId, answers, multiSelect }: {
@@ -90,20 +50,12 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   }) {
     return this.none(`
       -- ForumEventsRepo.setMcPollOptions
+      -- Top-level merge replaces the answer options and mode while preserving
+      -- the per-user votes (and any other keys) already in publicData.
       UPDATE "ForumEvents"
-      SET "publicData" = jsonb_set(
-        jsonb_set(
-          COALESCE("publicData", '{}'::jsonb),
-          '{answers}',
-          $2::jsonb,
-          true
-        ),
-        '{multiSelect}',
-        to_jsonb($3::boolean),
-        true
-      )
+      SET "publicData" = COALESCE("publicData", '{}'::jsonb) || $2::jsonb
       WHERE "_id" = $1
-    `, [forumEventId, JSON.stringify(answers), multiSelect])
+    `, [forumEventId, JSON.stringify({ answers, multiSelect })])
   }
 
   /**

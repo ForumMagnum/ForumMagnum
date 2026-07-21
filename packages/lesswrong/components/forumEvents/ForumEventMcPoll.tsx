@@ -298,7 +298,7 @@ export const ForumEventMcPoll = ({
   const [commentFormOpen, setCommentFormOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
 
-  // Voters for a multiple-choice poll are the keys of publicData.votes.
+  // The voters are the userIds that have a vote recorded in publicData.
   const voterIds = useMemo(
     () => Object.keys(getMcPollPublicData(event?.publicData).votes),
     [event?.publicData]

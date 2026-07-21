@@ -476,13 +476,11 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ publicData }) => {
         if (!publicData) return 0;
-        // Multiple-choice polls nest per-user votes under `publicData.votes`
-        // (alongside `answers`/`multiSelect`); the slider stores each vote at
-        // the top level keyed by userId.
-        if (Array.isArray(publicData.answers)) {
-          return Object.keys(publicData.votes ?? {}).length;
-        }
-        return Object.keys(publicData).length;
+        // Both poll formats store each user's vote at the top level of
+        // publicData keyed by userId; multiple-choice polls also keep their
+        // answer options and mode under these reserved keys, which aren't votes.
+        const reservedKeys = new Set(["answers", "multiSelect"]);
+        return Object.keys(publicData).filter((key) => !reservedKeys.has(key)).length;
       },
     },
   },

@@ -3,7 +3,7 @@ import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import ForumEventsRepo from "../repos/ForumEventsRepo";
-import { getPollUrl, stripFootnotes, forumEventIsMcPoll, getMcPollPublicData } from "@/lib/collections/forumEvents/helpers";
+import { getPollUrl, stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { Notifications } from "../collections/notifications/collection";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -12,14 +12,11 @@ const TWO_DAYS_MS = 2 * ONE_DAY_MS;
 
 function getVoterUserIds(publicData: Record<string, unknown> | null): string[] {
   if (!publicData) return [];
-  // Multiple-choice polls nest per-user votes under `publicData.votes`
-  // (alongside `answers`/`multiSelect`); the slider stores each vote at the top
-  // level keyed by userId. Without this branch, MC polls would return the
-  // literal keys "answers"/"multiSelect"/"votes" as if they were voter ids.
-  if (forumEventIsMcPoll(publicData)) {
-    return Object.keys(getMcPollPublicData(publicData).votes);
-  }
-  return Object.keys(publicData).filter(key => key !== "format");
+  // Both poll formats store each vote at the top level of publicData keyed by
+  // userId. Exclude the non-vote keys: a multiple-choice poll's answers/mode,
+  // and the sticker "format" tag.
+  const reservedKeys = new Set(["answers", "multiSelect", "format"]);
+  return Object.keys(publicData).filter(key => !reservedKeys.has(key));
 }
 
 async function getPollQuestion(context: ResolverContext, forumEventId: string): Promise<string> {

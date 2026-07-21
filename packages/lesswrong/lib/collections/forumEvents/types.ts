@@ -33,9 +33,11 @@ export type McPollAnswer = { _id: string; text: string };
 export type McPollVote = { answerIds: string[] };
 
 /**
- * Shape of `ForumEvents.publicData` for a multiple-choice poll (stored with
- * eventFormat "POLL"). The answer options, mode, and every user's vote live
- * here, so no schema/table change is needed.
+ * The parsed contents of a multiple-choice poll's `publicData` (see
+ * `getMcPollPublicData`), stored with eventFormat "POLL" so no schema change is
+ * needed: `answers`/`multiSelect` are stored under those keys, and each user's
+ * vote is stored at the top level keyed by userId (exactly like the slider) —
+ * `votes` here is that per-user map, gathered for convenience.
  */
 export type McPollPublicData = {
   answers: McPollAnswer[];
