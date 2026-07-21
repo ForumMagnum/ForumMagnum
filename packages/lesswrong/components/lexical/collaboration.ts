@@ -204,7 +204,8 @@ function cleanupPersistence(documentName: string): void {
   const indexedDbKey = getIndexedDbKey(documentName);
   const persistence = persistenceInstances.get(indexedDbKey);
   if (persistence) {
-    void persistence.destroy();
+    // destroy() rejects when the instance's IndexedDB open had failed.
+    void persistence.destroy().catch(() => {});
     persistenceInstances.delete(indexedDbKey);
   }
 }
@@ -244,15 +245,23 @@ function setupPersistence(
       complete();
     });
 
-    persistence.on('error', (error: Error) => {
+    // y-indexeddb has no error event ('synced' is the only event it emits),
+    // so watch its internal open promise. On failure, clearData() would
+    // reject on this same promise before deleting anything, so delete the
+    // database directly.
+    void persistence._db.catch((error: unknown) => {
       // eslint-disable-next-line no-console
-      console.error('[Collaboration] IndexedDB persistence error:', error);
+      console.error('[Collaboration] IndexedDB persistence failed:', error);
       config.onError?.(new Error('IndexedDB persistence failed. Continuing without offline support.'));
-      // Try to clear bad data, then proceed
-      void persistence.clearData().finally(() => {
-        clearTimeout(timeoutId);
-        complete();
-      });
+      void persistence.destroy().catch(() => {});
+      persistenceInstances.delete(indexedDbKey);
+      try {
+        indexedDB.deleteDatabase(indexedDbKey);
+      } catch {
+        // No usable indexedDB in this environment at all.
+      }
+      clearTimeout(timeoutId);
+      complete();
     });
   });
 }
