@@ -1,15 +1,20 @@
 // Builds the inline rule that recognizes `\(...\)` / `\[...\]` / `\begin{}...`
-// math. `singleBackslash` selects the delimiter dialect:
+// math. `singleBackslashInline` selects the inline delimiter dialect:
 //  - false (default, reader surfaces): legacy doubled delimiters, i.e.
 //    markdown source `\\(...\\)` / `\\[...\\]`.
-//  - true (agent surfaces): bare `\(...\)` / `\[...\]` — the form the agent
-//    read API emits and that agents send back.
+//  - true (agent surfaces): bare `\(...\)` for inline math, while display math
+//    keeps the legacy doubled delimiter.
+//
+// Agent markdown deliberately does not recognize bare `\[...\]` as display
+// math. CommonMark uses that syntax for escaped literal square brackets, and
+// the agent read API emits it for prose such as `[section]`. Display math from
+// agents has the unambiguous `$$...$$` form instead.
 // `\begin{env}...\end{env}` is single-backslash in both dialects.
-function makeMathRule (singleBackslash: boolean) {
-  var openInline = singleBackslash ? '\\(' : '\\\\('
-  var openDisplay = singleBackslash ? '\\[' : '\\\\['
-  var closeInline = singleBackslash ? '\\)' : '\\\\)'
-  var closeDisplay = singleBackslash ? '\\]' : '\\\\]'
+function makeMathRule (singleBackslashInline: boolean) {
+  var openInline = singleBackslashInline ? '\\(' : '\\\\('
+  var openDisplay = '\\\\['
+  var closeInline = singleBackslashInline ? '\\)' : '\\\\)'
+  var closeDisplay = '\\\\]'
   return function math (state: AnyBecauseTodo, silent: AnyBecauseTodo) {
     var src: string = state.src
     var pos: number = state.pos
@@ -136,14 +141,14 @@ export default function (options?: any) {
   // round-trips into real MathNodes; the publishing path leaves the bare
   // delimiters for `renderMathInHtml` to pre-render for readers.
   var wrapInMathTex = !!(options && options.wrapInMathTex)
-  // When set, `\(...\)` / `\[...\]` open math with a single backslash (the
-  // form the agent read API emits). Reader surfaces leave this off and keep
-  // the legacy doubled-backslash delimiters. See `makeMathRule`.
-  var singleBackslashDelimiters = !!(options && options.singleBackslashDelimiters)
+  // When set, `\(...\)` opens inline math with a single backslash. Bare
+  // `\[...\]` remains escaped literal brackets because that syntax is
+  // ambiguous in CommonMark; agent display math uses `$$...$$`.
+  var singleBackslashInlineDelimiter = !!(options && options.singleBackslashInlineDelimiter)
   options = extend(options || {}, defaults)
 
   return function (md: AnyBecauseTodo) {
-    md.inline.ruler.before('escape', 'math', makeMathRule(singleBackslashDelimiters))
+    md.inline.ruler.before('escape', 'math', makeMathRule(singleBackslashInlineDelimiter))
     md.inline.ruler.push('texMath', texMath)
 
     Object.keys(mapping).forEach(function (key) {

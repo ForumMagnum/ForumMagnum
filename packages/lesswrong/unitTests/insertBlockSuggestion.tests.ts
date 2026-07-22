@@ -20,6 +20,14 @@ function getAllSuggestionTexts(editor: LexicalEditor): string[] {
   return getAllSuggestions(editor).map(s => s.textContent);
 }
 
+function getEditorText(editor: LexicalEditor): string {
+  let text = "";
+  editor.getEditorState().read(() => {
+    text = $getRoot().getTextContent();
+  });
+  return text;
+}
+
 function countInsertedNodesWithSuggestions(editor: LexicalEditor): { total: number, withSuggestions: number } {
   let total = 0;
   let withSuggestions = 0;
@@ -200,12 +208,13 @@ describe("insertBlock with LaTeX — alternate delimiter forms", () => {
     expect(findMathEquations(editor)).toEqual(["x^2"]);
   });
 
-  it("imports single-backslash \\[...\\] display math as a real MathNode", async () => {
+  it("preserves escaped literal square brackets instead of importing display math", async () => {
     const editor = await setupEditorWithContent("Existing paragraph.");
 
-    await insertBlock(editor, "\\[a^2 + b^2 = c^2\\]", "end", "edit");
+    await insertBlock(editor, "See \\[section\\] for details.", "end", "edit");
 
-    expect(findMathEquations(editor)).toEqual(["a^2 + b^2 = c^2"]);
+    expect(findMathEquations(editor)).toEqual([]);
+    expect(getEditorText(editor)).toContain("See [section] for details.");
   });
 
   it("inserts a standalone $$...$$ block as a top-level display MathNode", async () => {

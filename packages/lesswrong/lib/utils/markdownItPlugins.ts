@@ -175,9 +175,10 @@ function applyCommonPlugins(mdi: markdownIt): void {
 // collapsible sections + mathjax). The two axes that vary:
 //  - `mathDialect`: "reader" renders math as bare `\(...\)` text for
 //    `renderMathInHtml` to pre-render; "agent" renders `math-tex` spans (the
-//    editable dialect `MathNode.importDOM` consumes) and recognizes bare
-//    single-backslash delimiters, so agent-supplied math round-trips into real
-//    MathNodes.
+//    editable dialect `MathNode.importDOM` consumes) and recognizes the bare
+//    single-backslash inline delimiter, so agent-supplied math round-trips into
+//    real MathNodes. Display math uses `$$...$$`; bare `\[...\]` remains
+//    escaped literal brackets.
 //  - `mentions`: whether `@[doc:...]` mention tokens are recognized (research
 //    surface only).
 function buildFullMarkdownIt({ mathDialect, mentions }: {
@@ -187,7 +188,7 @@ function buildFullMarkdownIt({ mathDialect, mentions }: {
   const mdi = markdownIt({ linkify: true });
   mdi.use(markdownItMathjax(
     mathDialect === "agent"
-      ? { wrapInMathTex: true, singleBackslashDelimiters: true }
+      ? { wrapInMathTex: true, singleBackslashInlineDelimiter: true }
       : {},
   ));
   applyCommonPlugins(mdi);
