@@ -272,6 +272,16 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     '& li, & blockquote': {
       fontFamily: 'inherit',
     },
+    // Some imported transcripts have every text run marked as superscript.
+    // ContentItemBody identifies those blocks so they can use the LLM block's
+    // intended typography without changing genuine inline superscripts.
+    '& .all-text-superscript > sup': {
+      verticalAlign: 'baseline',
+      top: 'auto',
+      fontSize: 'inherit',
+      position: 'static',
+      lineHeight: 'inherit',
+    },
     // Render the model label inline so the content starts immediately after it.
     '&::before': {
       content: 'attr(data-model-name)',

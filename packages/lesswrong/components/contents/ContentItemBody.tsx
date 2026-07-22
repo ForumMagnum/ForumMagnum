@@ -45,6 +45,48 @@ export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: 
   }
 }
 
+const textBlockTags = new Set(['p', 'li', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+const allTextSuperscriptClass = 'all-text-superscript';
+
+interface SuperscriptTextState {
+  hasSuperscriptText: boolean;
+  hasNonSuperscriptText: boolean;
+}
+
+function inspectSuperscriptText(
+  node: DomHandlerNode,
+  insideSuperscript: boolean,
+  state: SuperscriptTextState,
+): void {
+  if (node instanceof DomHandlerText) {
+    if (node.data.trim()) {
+      if (insideSuperscript) {
+        state.hasSuperscriptText = true;
+      } else {
+        state.hasNonSuperscriptText = true;
+      }
+    }
+    return;
+  }
+
+  if (node instanceof DomHandlerElement) {
+    const childIsInsideSuperscript = insideSuperscript || node.tagName.toLowerCase() === 'sup';
+    for (const child of node.childNodes) {
+      inspectSuperscriptText(child, childIsInsideSuperscript, state);
+    }
+  }
+}
+
+export const containsOnlySuperscriptText = (node: DomHandlerNode): boolean => {
+  const state: SuperscriptTextState = {
+    hasSuperscriptText: false,
+    hasNonSuperscriptText: false,
+  };
+
+  inspectSuperscriptText(node, false, state);
+  return state.hasSuperscriptText && !state.hasNonSuperscriptText;
+};
+
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
@@ -197,6 +239,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+
+      if (textBlockTags.has(TagName) && containsOnlySuperscriptText(parsedHtml)) {
+        attribs.className = [attribs.className, allTextSuperscriptClass].filter(Boolean).join(' ');
+      }
 
       let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
