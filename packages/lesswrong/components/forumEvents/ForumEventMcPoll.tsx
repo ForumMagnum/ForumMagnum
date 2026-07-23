@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { gql, useMutation } from "@apollo/client";
 import { PartialDeep } from "type-fest";
 import { useCurrentUser } from "../common/withUser";
-import { useMulti } from "@/lib/crud/withMulti";
 import { useSingle } from "@/lib/crud/withSingle";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
@@ -12,7 +11,6 @@ import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useMessages } from "../common/withMessages";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import {
   getMcPollPublicData,
   getMcPollVoteForUser,
@@ -22,7 +20,8 @@ import type { McPollAnswer } from "@/lib/collections/forumEvents/types";
 import DeferRender from "../common/DeferRender";
 import Loading from "../vulcan-core/Loading";
 import ForumEventResultIcon, { ForumEventVoteDisplay } from "./ForumEventResultIcon";
-import ForumEventCommentForm from "./ForumEventCommentForm";
+import PollCommentForm from "./PollCommentForm";
+import { usePollParticipants } from "./usePollParticipants";
 
 const MAX_AVATARS_PER_ROW = 8;
 
@@ -303,35 +302,12 @@ export const ForumEventMcPoll = ({
     () => Object.keys(getMcPollPublicData(event?.publicData).votes),
     [event?.publicData]
   );
-  const votersRef = useRef<UsersMinimumInfo[]>([]);
-  const { results: voters } = useMulti({
-    terms: { view: "usersByUserIds", userIds: voterIds, limit: 1000 },
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    enableTotal: false,
-    skip: voterIds.length === 0,
-  });
-  if (voters !== undefined) {
-    votersRef.current = voters;
-  }
-  const { results: comments, refetch: refetchComments } = useMulti({
-    terms: { view: "forumEventComments", forumEventId: event?._id, limit: 1000 },
-    collectionName: "Comments",
-    fragmentName: "ShortformComments",
-    enableTotal: false,
-    skip: !event?._id,
-  });
+  const { voters, comments, currentUserComment, refetchComments, votesLoading } =
+    usePollParticipants({ eventId: event?._id, voterIds, currentUser });
 
   const { results, voterCount } = useMemo(
-    () => aggregateMcPollVotes({ event, voters: votersRef.current, comments }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [event, votersRef.current, comments]
-  );
-  const votesLoading = voters === undefined && votersRef.current.length === 0;
-
-  const currentUserComment = useMemo(
-    () => comments?.find((comment) => comment.userId === currentUser?._id) || null,
-    [comments, currentUser]
+    () => aggregateMcPollVotes({ event, voters, comments }),
+    [event, voters, comments]
   );
 
   const [addMcVote] = useMutation(gql`
@@ -396,7 +372,6 @@ export const ForumEventMcPoll = ({
             mcPoll: {
               answerIdsWhenPublished: submittedAnswerIds,
               latestAnswerIds: null,
-              pollQuestionWhenPublished: event.pollQuestion?._id ?? null,
               commentPrompt,
             },
           },
@@ -491,42 +466,15 @@ export const ForumEventMcPoll = ({
 
         {resultsVisible && votesLoading && <Loading className={classes.loading} white />}
 
-        {event.post && (
-          <ForumEventCommentForm
-            open={commentFormOpen}
-            comment={currentUserComment}
-            prefilledProps={commentPrefilledProps}
-            successMessage="Success! Open the results to view everyone's votes and comments."
-            forumEvent={event}
-            cancelLabel="Skip"
-            cancelCallback={() => setCommentFormOpen(false)}
-            successCallback={refetchComments}
-            anchorEl={anchorRef.current}
-            post={event.post}
-            title="What made you vote this way?"
-            subtitle={(post, comment) => (
-              <div>
-                Your response will appear as a comment on{" "}
-                {event.isGlobal ? (
-                  <Link
-                    to={
-                      comment
-                        ? commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })
-                        : postGetPageUrl(post)
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    this Debate Week post
-                  </Link>
-                ) : (
-                  "this post"
-                )}
-                , and show next to your avatar in the results.
-              </div>
-            )}
-          />
-        )}
+        <PollCommentForm
+          event={event}
+          open={commentFormOpen}
+          setOpen={setCommentFormOpen}
+          currentUserComment={currentUserComment}
+          prefilledProps={commentPrefilledProps}
+          refetchComments={refetchComments}
+          anchorEl={anchorRef.current}
+        />
       </div>
     </AnalyticsContext>
   );

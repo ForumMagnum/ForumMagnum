@@ -64,9 +64,8 @@ export type ForumEventCommentMetadata = {
     answerIdsWhenPublished: string[]
     /** The user's latest selection, if it has changed since publishing */
     latestAnswerIds?: string[] | null
-    /** _id of the revision of the question when the comment was published */
-    pollQuestionWhenPublished?: string | null
-    /** The content that is prefilled into the comment box after voting */
+    /** The content that is prefilled into the comment box after voting. Read
+     * server-side to reject comments containing only the prefilled prompt. */
     commentPrompt?: string | null
   } | null
 }
@@ -144,11 +143,6 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
       },
       'latestAnswerIds.$': {
         type: String,
-      },
-      pollQuestionWhenPublished: {
-        type: String,
-        optional: true,
-        nullable: true
       },
       commentPrompt: {
         type: String,
