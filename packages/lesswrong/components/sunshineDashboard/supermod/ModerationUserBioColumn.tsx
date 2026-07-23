@@ -8,6 +8,8 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
   column: {
     flex: 1,
     minWidth: 0,
+    // Keep a few lines of bio visible when the sections above are tall
+    minHeight: 140,
     marginTop: 8,
     display: 'flex',
     flexDirection: 'column',
@@ -30,7 +32,7 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
       maxWidth: '100%',
     },
     overflow: 'auto',
-    maxHeight: 120,
+    minHeight: 0,
   },
   headerWebsite: {
     fontSize: 13,

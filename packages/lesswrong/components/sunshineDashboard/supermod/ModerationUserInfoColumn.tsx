@@ -18,6 +18,9 @@ const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 16,
     flexGrow: 1,
+    // Let a long bio shrink; scroll the header if the rest overflows
+    minHeight: 0,
+    overflow: 'auto',
     ...theme.typography.commentStyle,
   },
   rightSection: {
