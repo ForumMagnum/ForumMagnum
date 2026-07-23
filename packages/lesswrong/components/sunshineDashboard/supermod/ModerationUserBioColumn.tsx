@@ -31,7 +31,6 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
     '& img': {
       maxWidth: '100%',
     },
-    // Natural height, but shrink and scroll when space runs out
     overflow: 'auto',
     minHeight: 0,
   },
