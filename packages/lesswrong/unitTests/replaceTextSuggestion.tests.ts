@@ -12,6 +12,7 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
+import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
 
 async function replaceTextAsSuggestion(
   editor: LexicalEditor,
@@ -134,6 +135,35 @@ describe("replaceText across block boundaries", () => {
     );
     expect(inserts.length).toBe(1);
     expect(inserts[0].textContent).toBe("ends differently. A new start,");
+  });
+
+  it("creates a collapsible section from a cross-paragraph replacement", async () => {
+    const editor = await setupEditorWithContent(
+      "Question paragraph to replace.\n\nAnswer paragraph to replace.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Question paragraph to replace.\n\nAnswer paragraph to replace.",
+      "+++ FAQ title\nReplacement body.\n+++",
+    );
+
+    expect(replaced).toBe(true);
+
+    let collapsibleCount = 0;
+    editor.getEditorState().read(() => {
+      for (const child of $getRoot().getChildren()) {
+        if ($isCollapsibleSectionContainerNode(child)) {
+          collapsibleCount++;
+        }
+      }
+    });
+    expect(collapsibleCount).toBe(1);
+
+    const markdown = getMarkdownContent(editor);
+    expect(markdown).toContain("+++ FAQ title");
+    expect(markdown.match(/Replacement body\./g)).toHaveLength(1);
+    expect(markdown).not.toContain("paragraph to replace");
   });
 });
 

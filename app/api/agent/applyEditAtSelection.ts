@@ -75,7 +75,7 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
   const dom = new JSDOM(html);
   try {
     const nodes = $generateNodesFromDOM(editor, dom.window.document);
-    if (nodes.length === 1 && $isElementNode(nodes[0])) {
+    if (nodes.length === 1 && $isParagraphNode(nodes[0])) {
       return nodes[0].getChildren();
     }
     return nodes;
