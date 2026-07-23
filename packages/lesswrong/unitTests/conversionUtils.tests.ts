@@ -162,6 +162,16 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
   });
 });
 
+describe("collapsible section markdown round-trip", () => {
+  it("preserves emphasis when title text ends in punctuation", () => {
+    const markdown = "+++ **Title test?**\n\nBody copy.\n\n+++";
+    const html = markdownToHtml(markdown);
+
+    expect(html).toContain("<strong>Title test?</strong>");
+    expect(htmlToMarkdown(html)).toContain("+++ **Title test?**");
+  });
+});
+
 /**
  * Spoiler blocks (`>!`-prefixed lines) round-trip between Lexical's
  * `<div class="spoilers">` HTML and Markdown for the agent API.

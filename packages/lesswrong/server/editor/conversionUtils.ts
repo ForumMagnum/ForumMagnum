@@ -39,7 +39,7 @@ const blockTags = new Set([
   'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
   'FIGCAPTION', 'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
   'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'NOSCRIPT', 'OL', 'P', 'PRE', 'SECTION',
-  'TABLE', 'TFOOT', 'UL',
+  'SUMMARY', 'TABLE', 'TFOOT', 'UL',
 ]);
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
