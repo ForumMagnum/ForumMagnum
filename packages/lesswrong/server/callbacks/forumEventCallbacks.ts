@@ -2,6 +2,7 @@ import { hasPolls } from '@/lib/betas';
 import { z } from 'zod';
 import { cheerioParse } from '@/server/utils/htmlUtil';
 import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
+import { McPollAnswer } from '@/lib/collections/forumEvents/types';
 
 // Duplicate of ckEditor/src/ckeditor5-poll/constants.ts
 type PollProps = {
@@ -14,6 +15,13 @@ type PollProps = {
   endDate?: string;
   /** Set by CKEditor when user edits duration on a published poll. Signals server to update endDate. */
   durationEdited?: boolean;
+  /**
+   * Present only for multiple-choice polls. When `answers` is set the poll is
+   * upserted as a multiple-choice poll (still `eventFormat: "POLL"`, with the
+   * answers/mode/votes stored in `publicData`) rather than the agree/disagree slider.
+   */
+  answers?: McPollAnswer[];
+  multiSelect?: boolean;
 };
 
 const PollPropsSchema = z.object({
@@ -32,11 +40,33 @@ const PollPropsSchema = z.object({
   }),
   endDate: z.string().optional(),
   durationEdited: z.boolean().optional(),
+  answers: z.array(z.object({ _id: z.string(), text: z.string() })).optional(),
+  multiSelect: z.boolean().optional(),
 });
 
 const ONE_MINUTE_MS = 60 * 1000;
 const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
 const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
+/**
+ * Determine a poll's endDate (shared by the slider and multiple-choice paths):
+ * 1. If the parent (post/comment) is a draft, no endDate — the timer starts on publish.
+ * 2. If propsEndDate exists in the HTML (injected by preprocessing), use it.
+ * 3. Otherwise preserve the existing poll's endDate, or compute from duration.
+ */
+function resolvePollEndDate({ duration, propsEndDate, existingPoll, parentIsDraft }: {
+  duration: PollProps["duration"];
+  propsEndDate?: string;
+  existingPoll?: DbForumEvent;
+  parentIsDraft: boolean;
+}): Date | null {
+  if (parentIsDraft) return null;
+  if (propsEndDate) return new Date(propsEndDate);
+  if (existingPoll?.endDate) return existingPoll.endDate;
+  return new Date(
+    Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
+  );
+}
 
 // Upsert a ForumEvent with eventFormat = "POLL"
 async function upsertPoll({
@@ -56,28 +86,8 @@ async function upsertPoll({
   post: Pick<DbPost, '_id' | 'draft'>;
   comment?: Pick<DbComment, '_id' | 'draft'>;
 } & PollProps, context: ResolverContext) {
-  const endDateFromDuration = new Date(
-    Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
-  );
-
   const parentIsDraft = comment ? comment.draft : post.draft;
-
-  // Determine endDate:
-  // 1. If draft, no endDate
-  // 2. If propsEndDate exists in HTML (injected by preprocessing), use it
-  // 3. Otherwise fall back to existing poll's endDate or compute from duration
-  let endDate: Date | null;
-  if (parentIsDraft) {
-    endDate = null;
-  } else if (propsEndDate) {
-    endDate = new Date(propsEndDate);
-  } else if (existingPoll?.endDate) {
-    // Preserve existing endDate (old poll without endDate in HTML)
-    endDate = existingPoll.endDate;
-  } else {
-    // First publish without preprocessing (shouldn't happen except for old/malformed data)
-    endDate = endDateFromDuration;
-  }
+  const endDate = resolvePollEndDate({ duration, propsEndDate, existingPoll, parentIsDraft });
 
   const dataPayload = {
     eventFormat: "POLL" as const,
@@ -119,6 +129,85 @@ async function upsertPoll({
       context
     );
   }
+}
+
+// Upsert a multiple-choice poll. Stored like the slider (eventFormat "POLL"),
+// with the answer options/mode/votes living in `publicData` (managed via the
+// repo, like slider votes and stickers), so no schema change is needed. The
+// display distinguishes the two by the presence of `publicData.answers`.
+async function upsertMcPoll({
+  _id,
+  post,
+  comment,
+  existingPoll,
+  question,
+  agreeWording,
+  disagreeWording,
+  colorScheme,
+  duration,
+  endDate: propsEndDate,
+  answers,
+  multiSelect,
+}: {
+  _id: string;
+  existingPoll?: DbForumEvent;
+  post: Pick<DbPost, '_id' | 'draft'>;
+  comment?: Pick<DbComment, '_id' | 'draft'>;
+} & PollProps, context: ResolverContext) {
+  const parentIsDraft = comment ? comment.draft : post.draft;
+  const endDate = resolvePollEndDate({ duration, propsEndDate, existingPoll, parentIsDraft });
+
+  const dataPayload = {
+    eventFormat: "POLL" as const,
+    pollQuestion: {
+      originalContents: {
+        data: `<p>${question}</p>`,
+        type: "ckEditorMarkup" as const,
+      },
+    },
+    // Kept for column parity with the slider; the multiple-choice display ignores them.
+    pollAgreeWording: agreeWording,
+    pollDisagreeWording: disagreeWording,
+    endDate,
+    ...colorScheme,
+    postId: post._id,
+    commentId: comment?._id,
+  };
+
+  const forumEventId = existingPoll ? existingPoll._id : _id;
+
+  if (existingPoll) {
+    await updateForumEvent(
+      {
+        selector: { _id: existingPoll._id },
+        data: dataPayload,
+      },
+      context
+    );
+  } else {
+    await createForumEvent(
+      {
+        data: {
+          // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
+          // @ts-expect-error
+          _id,
+          title: `New Poll for ${_id}`,
+          startDate: new Date(),
+          isGlobal: false,
+          ...dataPayload,
+        },
+      },
+      context
+    );
+  }
+
+  // Write the answer options + mode into publicData without clobbering existing
+  // votes (so editing a published poll's wording preserves votes).
+  await context.repos.forumEvents.setMcPollOptions({
+    forumEventId,
+    answers: answers ?? [],
+    multiSelect: !!multiSelect,
+  });
 }
 
 function getPollElements($: ReturnType<typeof cheerioParse>) {
@@ -201,10 +290,15 @@ export async function upsertPolls({
 
   const validExistingPolls = existingPolls.filter((fe): fe is DbForumEvent => !(fe instanceof Error) && !!fe?._id);
 
-  // Upsert a poll for each internal id found in the HTML
+  // Upsert a poll for each internal id found in the HTML. A poll with `answers`
+  // is a multiple-choice poll; otherwise it's the agree/disagree slider.
   for (const data of pollData) {
     const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
-    await upsertPoll({ ...data, post: fetchedPost, comment, existingPoll }, context);
+    if (Array.isArray(data.answers)) {
+      await upsertMcPoll({ ...data, post: fetchedPost, comment, existingPoll }, context);
+    } else {
+      await upsertPoll({ ...data, post: fetchedPost, comment, existingPoll }, context);
+    }
   }
 };
 

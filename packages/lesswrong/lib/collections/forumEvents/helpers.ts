@@ -1,5 +1,54 @@
 import { parseDocumentFromString } from "@/lib/domParser";
 import { postGetPageUrl, PostsMinimumForGetPageUrl } from "../posts/helpers";
+import type { McPollAnswer, McPollPublicData, McPollVote } from "./types";
+
+/**
+ * Both poll formats store each user's vote at the top level of `publicData`,
+ * keyed by userId (see ForumEventsRepo.addVote). Multiple-choice polls also
+ * keep their answer options and mode under these reserved keys, which are poll
+ * config rather than votes.
+ */
+const MC_POLL_RESERVED_KEYS = new Set(["answers", "multiSelect"]);
+
+/**
+ * Read the multiple-choice payload out of a forum event's `publicData`: the
+ * answer options, mode, and every user's vote (each stored at the top level
+ * keyed by userId, exactly like the slider). Tolerates a not-yet-voted or empty
+ * event.
+ */
+export function getMcPollPublicData(publicData: unknown): McPollPublicData {
+  const data = (publicData ?? {}) as Record<string, unknown>;
+  const votes: Record<string, McPollVote> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (!MC_POLL_RESERVED_KEYS.has(key)) {
+      votes[key] = value as McPollVote;
+    }
+  }
+  return {
+    answers: (data.answers as McPollAnswer[] | undefined) ?? [],
+    multiSelect: !!data.multiSelect,
+    votes,
+  };
+}
+
+/**
+ * A forum event is a multiple-choice poll when its `publicData` carries an
+ * `answers` array. Both poll formats share eventFormat "POLL", so this presence
+ * check (not `eventFormat`) is what distinguishes them.
+ */
+export function forumEventIsMcPoll(publicData: unknown): boolean {
+  const data = (publicData ?? {}) as Partial<McPollPublicData>;
+  return Array.isArray(data.answers);
+}
+
+/** The given user's selected answer ids, or null if they haven't voted. */
+export function getMcPollVoteForUser(
+  publicData: unknown,
+  userId: string | null | undefined,
+): string[] | null {
+  if (!userId) return null;
+  return getMcPollPublicData(publicData).votes[userId]?.answerIds ?? null;
+}
 
 /**
  * Gets a URL to a poll on a post page. The poll will scroll into view when the page loads.

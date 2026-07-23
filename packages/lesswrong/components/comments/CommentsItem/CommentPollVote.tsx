@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
-import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
+import { stripFootnotes, getMcPollPublicData } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
@@ -38,6 +38,32 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
+
+  // Multiple-choice poll comment: show the chosen answer text(s) instead of a
+  // percentage. Distinguished from the slider by the `mcPoll` metadata block.
+  const mcPoll = comment.forumEventMetadata?.mcPoll;
+  if (mcPoll) {
+    const chosenIds = mcPoll.latestAnswerIds ?? mcPoll.answerIdsWhenPublished;
+    const { answers } = getMcPollPublicData(forumEvent?.publicData);
+    const chosenText = chosenIds
+      .map((id) => answers.find((a) => a._id === id)?.text)
+      .filter((text): text is string => !!text)
+      .join(", ");
+    if (!chosenText) return null;
+    const mcQuestion = forumEvent?.pollQuestion?.html && stripFootnotes(forumEvent.pollQuestion.html);
+    const McTag = isGlobal ? 'span' : 'a';
+    return (
+      <span className={classes.root}>
+        <LWTooltip
+          title={mcQuestion && <span>On "{mcQuestion}"</span>}
+          placement="top"
+          popperClassName={classes.tooltip}
+        >
+          <McTag className={classes.agreePollVote} href={pollLink}>{chosenText}</McTag>
+        </LWTooltip>
+      </span>
+    );
+  }
 
   if (voteWhenPublished === null || voteWhenPublished === undefined) return null;
 

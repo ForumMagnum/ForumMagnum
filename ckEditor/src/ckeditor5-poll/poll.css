@@ -40,6 +40,9 @@
 	border-radius: 4px;
 	opacity: 0.8;
 	background: var(--palette-grey-200);
+	/* A visible outline so the field reads as a box in both light and dark mode
+	   (its fill is otherwise nearly the same as the form background in dark). */
+	border: 1px solid var(--palette-grey-300);
 	width: 100%;
 	padding: 8px;
 	font-size: 13px;
@@ -160,4 +163,88 @@
 .ck-poll-label {
   font-weight: 500;
   color: var(--forum-event-banner-text);
+}
+
+/* "Insert poll" toolbar dropdown: give the icon room from the chevron, and the
+   menu items' icons room from their labels. */
+.ck.ck-poll-dropdown .ck-dropdown__arrow {
+	margin-left: 6px;
+}
+.ck.ck-poll-dropdown .ck-dropdown__panel .ck-button__label {
+	margin-left: 8px;
+}
+
+/* Multiple-choice authoring fields: show either the slider group or the
+   multiple-choice group depending on the selected poll's type. */
+.ck-reset_all .ck-poll-form-mc-group {
+	display: none;
+	gap: 4px;
+}
+.ck-reset_all .ck-poll-form--mc .ck-poll-form-slider-group {
+	display: none;
+}
+.ck-reset_all .ck-poll-form--mc .ck-poll-form-mc-group {
+	display: flex;
+	flex-direction: column;
+}
+.ck-reset_all .ck-poll-answers-input {
+	resize: vertical;
+	min-height: 96px;
+	line-height: 1.5;
+}
+.ck-reset_all .ck-poll-multiselect-toggle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	align-self: flex-start;
+	margin-top: 6px;
+	cursor: pointer;
+	font-family: var(--palette-fonts-sansSerifStack);
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--palette-grey-1000);
+}
+/* CKEditor's `.ck-reset_all` forces its own text colour onto child elements,
+   which hides the label on a dark background. Restore the label colour. */
+.ck-reset_all .ck-poll-multiselect-toggle span {
+	color: var(--palette-grey-1000);
+}
+.ck-reset_all .ck-poll-multiselect-checkbox {
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+	/* Render the tick/box in the theme's text colour so it's visible in dark mode. */
+	accent-color: var(--palette-grey-1000);
+}
+
+/* Multiple-choice poll preview (in-editor only; not part of the saved HTML) */
+.ck-poll-mc-options {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 4px 20px 0;
+}
+.ck-poll-mc-option {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: 6px;
+	text-align: left;
+	border: 1px solid color-mix(in oklab, var(--forum-event-foreground) 22%, transparent);
+}
+.ck-poll-mc-bullet {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 2px solid color-mix(in oklab, var(--forum-event-foreground) 60%, transparent);
+}
+.ck-poll-mc-bullet-square {
+	border-radius: 4px;
+}
+.ck-poll-mc-label {
+	flex: 1;
+	font-weight: 500;
+	color: var(--forum-event-banner-text);
 }
