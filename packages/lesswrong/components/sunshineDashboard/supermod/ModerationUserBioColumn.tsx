@@ -8,7 +8,9 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
   column: {
     flex: 1,
     minWidth: 0,
-    minHeight: 0,
+    // Fill the space left over by the sections above, but when they crowd
+    // the column, keep at least enough room for a few lines of bio.
+    minHeight: 140,
     marginTop: 8,
     display: 'flex',
     flexDirection: 'column',
@@ -33,7 +35,7 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
     // Grow to the bio's natural height, but shrink (and scroll) when the
     // column runs out of vertical space rather than overflowing it.
     overflow: 'auto',
-    minHeight: 100,
+    minHeight: 0,
   },
   headerWebsite: {
     fontSize: 13,

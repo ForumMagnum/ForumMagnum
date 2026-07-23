@@ -19,8 +19,11 @@ const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
     gap: 16,
     flexGrow: 1,
     // Allow the bio section to shrink-and-scroll instead of stretching the
-    // whole column past the viewport when the bio is long.
+    // whole column past the viewport when the bio is long. If the sections
+    // above the bio are themselves too tall to fit, scroll the whole header
+    // rather than bleeding over the undo queue below it.
     minHeight: 0,
+    overflow: 'auto',
     ...theme.typography.commentStyle,
   },
   rightSection: {
