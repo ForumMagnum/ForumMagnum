@@ -8,14 +8,14 @@ import { createModeratorAction, updateModeratorAction } from "../collections/mod
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 import { backgroundTask } from "../utils/backgroundTask";
 
-export type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "unreviewedPost" | "unreviewedComment" | "biography" | "profileImageId" | "newContent";
+export type ReasonReviewIsNeeded = "firstPost" | "firstComment" | "unreviewedPost" | "unreviewedComment" | "biography" | "profileImageId" | "newContent";
 
 async function createModeratorActionForReview(userId: string, reason: ReasonReviewIsNeeded, context: ResolverContext) {
   const moderatorActionType = REVIEW_REASON_TO_MODERATOR_ACTION[reason];
   await createModeratorAction({ data: { userId, type: moderatorActionType } }, context);
 }
 
-type ReviewCheckTrigger = 'newComment' | 'updatedComment' | 'publishedPost' | 'mapLocation' | 'biography' | 'profileImageId';
+type ReviewCheckTrigger = 'newComment' | 'updatedComment' | 'publishedPost' | 'biography' | 'profileImageId';
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -36,7 +36,6 @@ export async function triggerReviewIfNeeded(userId: string, trigger: ReviewCheck
       case 'updatedComment':
         return await createModeratorActionForReview(userId, 'newContent', context);
       // If the user is snoozed, we don't want want to put them back in the review queue for updating these fields
-      case 'mapLocation':
       case 'biography':
       case 'profileImageId':
         return;
@@ -58,7 +57,6 @@ export async function triggerReviewIfNeeded(userId: string, trigger: ReviewCheck
       return await createModeratorActionForReview(userId, user.reviewedAt ? 'unreviewedComment' : 'firstComment', context);
     case 'publishedPost':
       return await createModeratorActionForReview(userId, user.reviewedAt ? 'unreviewedPost' : 'firstPost', context);
-    case 'mapLocation':
     case 'biography':
     case 'profileImageId':
       return await createModeratorActionForReview(userId, trigger, context);

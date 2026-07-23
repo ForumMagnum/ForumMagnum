@@ -365,7 +365,8 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context, oldDocument}: UpdateCallbackProperties<"Users">) {
-  const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
+  // Deliberately excludes mapLocation; updating your map location shouldn't land you in the review queue
+  const reviewTriggerFields = ['biography', 'profileImageId'] as const;
 
   const updatedField = reviewTriggerFields.find(field => {
     if (!(field in data)) return false;
@@ -380,18 +381,10 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
       return !!fieldValue;
     }
 
-    // I don't want to figure out how to introspect on mapLocation objects;
-    // this come up infrequently enough that I think it's fine to trigger review
-    // if it ever changes for an unreviewed user.  (Note: I don't think we actually
-    // have a way to see the location that they set for themselves in the UI.)
-    if (field === 'mapLocation') {
-      return true;
-    }
-
     // Biography is an editable field and I don't want to trigger review if the value
     // is updated to an empty string.
     if (field === 'biography') {
-      return !!fieldValue?.originalContents?.data;
+      return !!data.biography?.originalContents?.data;
     }
   });
 

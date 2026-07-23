@@ -134,7 +134,6 @@ export const getMaxAllowedContactsBeforeBlock = () => forumSelect({ EAForum: 4, 
 
 export const REVIEW_REASON_TO_MODERATOR_ACTION = {
   biography: UNREVIEWED_BIO_UPDATE,
-  mapLocation: UNREVIEWED_MAP_LOCATION_UPDATE,
   profileImageId: UNREVIEWED_PROFILE_IMAGE_UPDATE,
   firstPost: UNREVIEWED_FIRST_POST,
   firstComment: UNREVIEWED_FIRST_COMMENT,
