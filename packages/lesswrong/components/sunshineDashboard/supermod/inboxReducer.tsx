@@ -20,7 +20,7 @@ export interface UndoHistoryItem {
   expiresAt: number;
   timeoutId: NodeJS.Timeout;
   executeAction: () => Promise<void>;
-  // View context where the action was performed, so undoing can return there
+  // View context of the action, so undo can return there
   sourceTab: TabId;
   wasDetailView: boolean;
 };
@@ -130,8 +130,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         clearTimeout(item.timeoutId);
       }
 
-      // Return to where the action was performed: reopen the user's detail view
-      // if the action was done there, otherwise refocus them in the inbox
       return {
         ...state,
         users: [...state.users, item.user],
