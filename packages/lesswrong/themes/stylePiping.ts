@@ -596,6 +596,9 @@ const baseBodyStyles = (theme: ThemeType) => ({
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
   },
+  '& h1 b, & h1 strong, & h2 b, & h2 strong, & h3 b, & h3 strong': {
+    fontWeight: 600,
+  },
   '& h3:first-child': {
     marginTop: 0,
     marginBlockStart: 0,
