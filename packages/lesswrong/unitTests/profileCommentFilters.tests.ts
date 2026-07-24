@@ -5,7 +5,7 @@ describe("profile comment filters", () => {
   const profileCommentsView = CommentsViews.getView("profileComments");
   const defaultView = CommentsViews.getDefaultView();
 
-  it("categorizes only top-level shortform comments as quick takes", () => {
+  it("categorizes only top-level shortform comments as quick takes", async () => {
     const terms: CommentsViewTerms = {
       view: "profileComments",
       userId: "testUserId",
@@ -13,7 +13,7 @@ describe("profile comment filters", () => {
     };
 
     const params = profileCommentsView(terms);
-    const defaultParams = defaultView?.(terms);
+    const defaultParams = await defaultView?.(terms);
 
     expect(params.selector).toMatchObject({
       shortform: true,
@@ -22,7 +22,7 @@ describe("profile comment filters", () => {
     expect(defaultParams?.selector).not.toHaveProperty("shortform");
   });
 
-  it("includes replies on shortform posts with regular comments", () => {
+  it("includes replies on shortform posts with regular comments", async () => {
     const terms: CommentsViewTerms = {
       view: "profileComments",
       userId: "testUserId",
@@ -30,7 +30,7 @@ describe("profile comment filters", () => {
     };
 
     const params = profileCommentsView(terms);
-    const defaultParams = defaultView?.(terms);
+    const defaultParams = await defaultView?.(terms);
 
     expect(params.selector).toMatchObject({
       $or: [
@@ -41,13 +41,13 @@ describe("profile comment filters", () => {
     expect(defaultParams?.selector).not.toHaveProperty("shortform");
   });
 
-  it("preserves raw shortform filtering for other comment views", () => {
+  it("preserves raw shortform filtering for other comment views", async () => {
     const terms: CommentsViewTerms = {
       view: "draftComments",
       shortform: true,
     };
 
-    const defaultParams = defaultView?.(terms);
+    const defaultParams = await defaultView?.(terms);
 
     expect(defaultParams?.selector).toMatchObject({
       shortform: true,
