@@ -88,6 +88,7 @@ export const persistentDisplayedModeratorActions = new TupleSet([
   AUTO_BLOCKED_FROM_SENDING_DMS,
   RECEIVED_VOTING_PATTERN_WARNING,
   POTENTIAL_TARGETED_DOWNVOTING,
+  AI_DETECTED_OBVIOUS_SPAM,
 ] as const);
 
 export const MODERATOR_ACTION_TYPES = {
