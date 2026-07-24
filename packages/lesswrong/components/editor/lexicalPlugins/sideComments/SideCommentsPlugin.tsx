@@ -125,7 +125,9 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
   },
   replyComposer: {
     position: 'relative',
-    borderTop: theme.palette.greyBorder('1px', 0.08),
+    borderTop: theme.palette.greyBorder('1px', 0.1),
+    paddingTop: 2,
+    paddingBottom: 2,
   },
 }));
 
@@ -303,6 +305,7 @@ const SideCommentItem = ({
               submitAddComment={submitAddComment}
               thread={thread}
               placeholder="Reply..."
+              autoFocus
             />
           </div>
         )}
