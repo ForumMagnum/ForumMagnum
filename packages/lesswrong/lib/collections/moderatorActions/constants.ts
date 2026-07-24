@@ -37,6 +37,7 @@ export const STRICTER_COMMENT_AUTOMOD_RATE_LIMIT = "stricterCommentAutomodRateLi
 export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
 export const MANUAL_RATE_LIMIT_EXPIRED = "manualRateLimitExpired";
 export const VOTING_DISABLED = "votingDisabled";
+export const AI_DETECTED_OBVIOUS_SPAM = "aiDetectedObviousSpam";
 
 
 export const postRateLimits = [] as const;
@@ -87,6 +88,7 @@ export const persistentDisplayedModeratorActions = new TupleSet([
   AUTO_BLOCKED_FROM_SENDING_DMS,
   RECEIVED_VOTING_PATTERN_WARNING,
   POTENTIAL_TARGETED_DOWNVOTING,
+  AI_DETECTED_OBVIOUS_SPAM,
 ] as const);
 
 export const MODERATOR_ACTION_TYPES = {
@@ -124,6 +126,7 @@ export const MODERATOR_ACTION_TYPES = {
   [STRICTER_POST_AUTOMOD_RATE_LIMIT]: "Stricter post automod rate limit",
   [MANUAL_RATE_LIMIT_EXPIRED]: "Manual rate limit expired",
   [VOTING_DISABLED]: "Voting disabled",
+  [AI_DETECTED_OBVIOUS_SPAM]: "AI says 'Obvious Spam'",
 } satisfies Record<ModeratorActionType, string>;
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */

@@ -43,6 +43,7 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     stricterPostAutomodRateLimit
     manualRateLimitExpired
     votingDisabled
+    aiDetectedObviousSpam
   }
   
   input SingleModeratorActionInput {
