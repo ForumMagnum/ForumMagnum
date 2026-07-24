@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -59,6 +59,23 @@ function createMockUser(
     }],
     ...partialUser,
   } as SunshineUsersList;
+}
+
+function createUndoItem(
+  user: SunshineUsersList,
+  overrides?: Partial<UndoHistoryItem>
+): UndoHistoryItem {
+  return {
+    user,
+    actionLabel: 'Approved',
+    timestamp: 0,
+    expiresAt: 0,
+    timeoutId: setTimeout(() => {}, 0),
+    executeAction: async () => {},
+    sourceTab: 'all',
+    wasDetailView: false,
+    ...overrides,
+  };
 }
 
 describe('Moderation Inbox Reducer', () => {
@@ -405,6 +422,92 @@ describe('Moderation Inbox Reducer', () => {
       expect(state.focusedUserId).toBe(null);
       expect(state.openedUserId).toBe(null);
       expect(state.users.length).toBe(0);
+    });
+  });
+
+  describe('UNDO_ACTION', () => {
+    test('reopens the user detail view when the action was done there', () => {
+      const undoneUser = createMockUser('user1', 'newContent');
+      const users = [
+        createMockUser('user2', 'newContent'),
+        createMockUser('user3', 'highContext'),
+      ];
+
+      const state: InboxState = {
+        users,
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'all',
+        focusedUserId: null,
+        openedUserId: 'user2',
+        focusedPostId: null,
+        focusedContentIndex: 3,
+        undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
+        history: [],
+        runningLlmCheckId: null,
+      };
+
+      const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
+
+      expect(newState.users.map(u => u._id)).toContain('user1');
+      expect(newState.undoQueue.length).toBe(0);
+      expect(newState.activeTab).toBe('newContent');
+      expect(newState.openedUserId).toBe('user1');
+      expect(newState.focusedUserId).toBe('user1');
+      expect(newState.focusedContentIndex).toBe(0);
+    });
+
+    test('refocuses the user in the inbox when the action was done from the inbox', () => {
+      const undoneUser = createMockUser('user1', 'newContent');
+      const users = [
+        createMockUser('user2', 'newContent'),
+        createMockUser('user3', 'highContext'),
+      ];
+
+      const state: InboxState = {
+        users,
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'highContext',
+        focusedUserId: null,
+        openedUserId: 'user3',
+        focusedPostId: null,
+        focusedContentIndex: 1,
+        undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
+        history: [],
+        runningLlmCheckId: null,
+      };
+
+      const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
+
+      expect(newState.users.map(u => u._id)).toContain('user1');
+      expect(newState.undoQueue.length).toBe(0);
+      expect(newState.activeTab).toBe('newContent');
+      expect(newState.openedUserId).toBe(null);
+      expect(newState.focusedUserId).toBe('user1');
+    });
+
+    test('does nothing when the user is not in the undo queue', () => {
+      const state: InboxState = {
+        users: [createMockUser('user2', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user2',
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+      };
+
+      const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
+
+      expect(newState).toBe(state);
     });
   });
 
