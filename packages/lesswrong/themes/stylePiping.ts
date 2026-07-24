@@ -197,6 +197,8 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
+  fontSize: '0.875em',
+  fontFamily: theme.typography.commentStyle.fontFamily,
 });
 
 const tableCellStyles = (theme: ThemeType) => ({
