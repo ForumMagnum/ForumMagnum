@@ -23,16 +23,6 @@ function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const wikiRoutesWithoutTagPreview = new Set([
-  "create",
-  "dashboard",
-  "random",
-]);
-
-function isWikiRouteWithoutTagPreview(slug: string) {
-  return wikiRoutesWithoutTagPreview.has(slug);
-}
-
 export const TagHoverPreview = ({
   href,
   targetLocation,
@@ -53,9 +43,8 @@ export const TagHoverPreview = ({
   // Slice the hash to remove the leading # (which won't be a part of the
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
-  const skipTagPreview = isWikiRouteWithoutTagPreview(slug);
 
-  const {tag, loading} = useTagPreview(slug, hashId, noPrefetch || skipTagPreview);
+  const {tag, loading} = useTagPreview(slug, hashId, noPrefetch);
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
   const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
@@ -63,17 +52,6 @@ export const TagHoverPreview = ({
   const previewSlug = lensQuery ?? slug;
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
-
-  if (skipTagPreview) {
-    return (
-      <Link
-        className={classNames(!showPostCount && linkClasses.link)}
-        to={linkTarget}
-      >
-        {children}
-      </Link>
-    );
-  }
 
   const isRead = tag?.isRead;
   const isRedLink = hasWikiLenses() && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);

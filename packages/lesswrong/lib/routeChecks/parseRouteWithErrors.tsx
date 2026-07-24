@@ -1,5 +1,6 @@
 import { routePreviewComponentMapping } from '@/lib/routeChecks/hoverPreviewRoutes';
-import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
+import { parseRoute } from '@/lib/routeChecks/parseRoute';
+import { parsePath } from '@/lib/routeChecks/parsePath';
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string, extraRoutePatterns?: T) => {
   return parseRoute<((keyof typeof routePreviewComponentMapping) | T[number])[]>({

@@ -157,76 +157,8 @@ export type RouteNode = {
 
 export const routeTrie = `;
 
-  const body = JSON.stringify(root, null, 2) + ' satisfies RouteNode;'
-  const footer = `
-
-export function canonicalizePath(pathname: string): string | null {
-  // Normalize
-  const qIndex = pathname.indexOf('?')
-  const hIndex = pathname.indexOf('#')
-  const cut = (v: number, acc: number) => (v === -1 ? acc : Math.min(v, acc))
-  const end = cut(hIndex, cut(qIndex, pathname.length))
-  const raw = pathname.slice(0, end)
-  const segments = raw.split('/').filter(Boolean)
-
-  let node: RouteNode | undefined = routeTrie
-  const canonical: string[] = []
-
-  function acceptLeaf(n: RouteNode | undefined): boolean {
-    if (!n) return false
-    return !!(n.hasPage || n.hasRoute)
-  }
-
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i]
-    if (!node) return null
-
-    // Prefer static match (case-insensitive)
-    if (node.lowerCase && node.staticChildren) {
-      const canon: string = node.lowerCase[seg.toLowerCase()]
-      if (canon && node.staticChildren[canon]) {
-        canonical.push(canon)
-        node = node.staticChildren[canon]
-        continue
-      }
-    }
-
-    // Dynamic
-    if (node.dynamicChild) {
-      canonical.push(seg)
-      node = node.dynamicChild.child
-      continue
-    }
-
-    // Catch-all
-    if (node.catchAll) {
-      for (let j = i; j < segments.length; j++) canonical.push(segments[j])
-      node = node.catchAll.child
-      // Entire remainder consumed
-      i = segments.length
-      break
-    }
-
-    // Optional catch-all
-    if (node.optionalCatchAll) {
-      for (let j = i; j < segments.length; j++) canonical.push(segments[j])
-      node = node.optionalCatchAll.child
-      i = segments.length
-      break
-    }
-
-    return null
-  }
-
-  // If we ended before consuming all segments due to catch-all, fine. Otherwise ensure leaf exists
-  if (!segments.length) {
-    return acceptLeaf(node) ? '/' : null
-  }
-
-  return acceptLeaf(node) ? '/' + canonical.join('/') : null
-}
-`
-  return header + body + footer
+  const body = JSON.stringify(root, null, 2) + ' satisfies RouteNode;\n'
+  return header + body
 }
 
 export function generateRouteManifest() {

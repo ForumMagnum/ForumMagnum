@@ -17,7 +17,7 @@ import KarmaChangesDisplay from './KarmaChangesDisplay';
 import LWPopper from '../../common/LWPopper';
 import DeferRender from '@/components/common/DeferRender';
 import { useLocation } from '@/lib/routeUtil';
-import { canonicalizePath } from '@/lib/generated/routeManifest';
+import { canonicalizePath } from '@/lib/routeChecks/nextRouteMatching';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 

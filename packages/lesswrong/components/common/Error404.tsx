@@ -3,7 +3,7 @@ import React from 'react';
 import SingleColumnSection from "./SingleColumnSection";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import { canonicalizePath } from '@/lib/generated/routeManifest';
+import { canonicalizePath } from '@/lib/routeChecks/nextRouteMatching';
 import PermanentRedirect from './PermanentRedirect';
 import { useLocation } from '@/lib/routeUtil';
 import qs from 'qs';
