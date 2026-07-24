@@ -1,6 +1,7 @@
 import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
 
 export const collectionNameToTypeName = {
+  AiDigestIssues: 'AiDigestIssue',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRels: 'ArbitalTagContentRel',
   AutomatedContentEvaluations: 'AutomatedContentEvaluation',
@@ -56,6 +57,7 @@ export const collectionNameToTypeName = {
   PostEmbeddings: 'PostEmbedding',
   PostRecommendations: 'PostRecommendation',
   PostRelations: 'PostRelation',
+  PostSummaries: 'PostSummary',
   PostViewTimes: 'PostViewTime',
   PostViews: 'PostViews',
   Posts: 'Post',
@@ -105,6 +107,7 @@ export const collectionNameToTypeName = {
 } as const;
 
 export const typeNameToCollectionName = {
+  AiDigestIssue: 'AiDigestIssues',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRel: 'ArbitalTagContentRels',
   AutomatedContentEvaluation: 'AutomatedContentEvaluations',
@@ -160,6 +163,7 @@ export const typeNameToCollectionName = {
   PostEmbedding: 'PostEmbeddings',
   PostRecommendation: 'PostRecommendations',
   PostRelation: 'PostRelations',
+  PostSummary: 'PostSummaries',
   PostViewTime: 'PostViewTimes',
   PostViews: 'PostViews',
   Post: 'Posts',
@@ -209,6 +213,7 @@ export const typeNameToCollectionName = {
 } as const;
 
 export const tableNameToCollectionName = {
+  aidigestissues: 'AiDigestIssues',
   arbitalcaches: 'ArbitalCaches',
   arbitaltagcontentrels: 'ArbitalTagContentRels',
   automatedcontentevaluations: 'AutomatedContentEvaluations',
@@ -264,6 +269,7 @@ export const tableNameToCollectionName = {
   postembeddings: 'PostEmbeddings',
   postrecommendations: 'PostRecommendations',
   postrelations: 'PostRelations',
+  postsummaries: 'PostSummaries',
   postviewtimes: 'PostViewTimes',
   postviews: 'PostViews',
   posts: 'Posts',

@@ -1579,6 +1579,71 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
+type AiDigestEmailSampleSummary {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  selectionModelId: String!
+}
+
+type AiDigestEmailSamplePreview {
+  email: EmailPreview!
+  selectionSystemPrompt: String
+  selectionUserPrompt: String
+  inputTokenCount: Int
+  uncachedInputTokenCount: Int
+  cacheReadInputTokenCount: Int
+  cacheWriteInputTokenCount: Int
+}
+
+extend type Query {
+  DigestEmailPreview: EmailPreview!
+  AiDigestEmailSamples(userSlug: String!, limit: Int): [AiDigestEmailSampleSummary!]!
+  AiDigestEmailSamplePreview(issueId: String!): AiDigestEmailSamplePreview!
+}
+
+extend type Mutation {
+  GenerateAiDigestEmailSamples(userSlug: String!, count: Int): [AiDigestEmailSampleSummary!]!
+}
+
+type ContentForYouIssueSummary {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  trigger: String!
+  personalInstructions: String
+}
+
+type ContentForYouIssue {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  trigger: String!
+  personalInstructions: String
+  spec: JSON!
+}
+
+type ContentForYouGenerationStatus {
+  nextAllowedAt: Date
+  generatedInLast24Hours: Int!
+  dailyLimit: Int!
+}
+
+type GenerateContentForYouIssueResult {
+  issue: ContentForYouIssueSummary!
+  nextAllowedAt: Date
+}
+
+extend type Query {
+  ContentForYouIssues(limit: Int): [ContentForYouIssueSummary!]!
+  ContentForYouIssue(issueId: String!): ContentForYouIssue!
+  ContentForYouGenerationStatus: ContentForYouGenerationStatus!
+}
+
+extend type Mutation {
+  GenerateContentForYouIssue: GenerateContentForYouIssueResult!
+}
+
 type ArbitalCaches {
   _id: String!
   schemaVersion: Float!
@@ -7716,6 +7781,7 @@ type User {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -7843,6 +7909,7 @@ type User {
   hideSunshineSidebar: Boolean
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  aiDigestPersonalInstructions: String
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
@@ -9815,6 +9882,7 @@ input CreateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -9986,6 +10054,7 @@ input UpdateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10061,6 +10130,7 @@ input UpdateUserDataInput {
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
   recommendationSettings: RecommendationSettingsInput
+  aiDigestPersonalInstructions: String
 }
 
 input UpdateUserInput {

@@ -5,6 +5,7 @@
 import { isAnyTest } from '../executionEnvironment';
 
 // Collection imports
+import { default as AiDigestIssues } from '../collections/aiDigestIssues/newSchema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
 import { default as AutomatedContentEvaluations } from '../collections/automatedContentEvaluations/newSchema';
@@ -60,6 +61,7 @@ import { default as Podcasts } from '../collections/podcasts/newSchema';
 import { default as PostEmbeddings } from '../collections/postEmbeddings/newSchema';
 import { default as PostRecommendations } from '../collections/postRecommendations/newSchema';
 import { default as PostRelations } from '../collections/postRelations/newSchema';
+import { default as PostSummaries } from '../collections/postSummaries/newSchema';
 import { default as PostViewTimes } from '../collections/postViewTimes/newSchema';
 import { default as PostViews } from '../collections/postViews/newSchema';
 import { default as Posts } from '../collections/posts/newSchema';
@@ -109,12 +111,12 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AiDigestIssues, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
-  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,

@@ -431,6 +431,7 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AiDigestIssues: allowAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -487,6 +488,7 @@ const accessFilters = {
   PostEmbeddings: allowAccess,
   PostRecommendations: allowAccess,
   PostRelations: allowAccess,
+  PostSummaries: allowAccess,
   PostViewTimes: allowAccess,
   PostViews: allowAccess,
   ReadStatuses: allowAccess,

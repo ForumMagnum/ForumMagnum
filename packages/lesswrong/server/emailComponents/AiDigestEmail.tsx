@@ -1,0 +1,1326 @@
+import React from "react";
+import classNames from "classnames";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { gql } from "@/lib/generated/gql-codegen";
+import type {
+  AiDigestEmailComment,
+  AiDigestEmailPost,
+} from "@/lib/generated/gql-codegen/graphql";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import {
+  countAiDigestWords as countWords,
+  formatAiDigestDate as formatDate,
+  selectAiDigestExcerpt as selectExcerpt,
+} from "@/lib/aiDigest/aiDigestDisplay";
+import type { JssStyles } from "@/lib/jssStyles";
+import { emailUseQuery } from "@/server/vulcan-lib/query";
+import type {
+  AiDigestAiNote,
+  AiDigestItem,
+  AiDigestSection,
+  AiDigestSpec,
+} from "./AiDigestSpec";
+import { EmailContextType, emailUseStyles } from "./emailContext";
+
+const emailSansFont =
+  'Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "Liberation Sans", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
+const emailTitleFont =
+  'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif';
+const emailSerifFont =
+  'warnock-pro, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif';
+const emailAiBlockFont =
+  '"cronos-pro", "Trebuchet MS", Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Arial, sans-serif';
+const mastheadUnsubscribeUrl = "/account?tab=settings-notifications";
+
+function CompassRoseIcon({ className }: {
+  className?: string;
+}) {
+  return (
+    <svg className={className} width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M29.1,29.2l6.4,11.6l4.3-0.8l0.8-4.3L29.1,29.2z M40.7,64.5l-0.8-4.3l-4.3-0.8L29.2,71L40.7,64.5z M70.9,70.9l-6.4-11.6l-4.3,0.8l-0.8,4.3L70.9,70.9z M64.4,40.8l6.4-11.6l-11.6,6.4l0.8,4.3L64.4,40.8z M67.4,58.8l10.8,19.4L58.8,67.4L50,98.8l-8.8-31.4L21.9,78.2l10.8-19.4L1.2,50.1l31.4-8.8L21.9,21.9l19.4,10.8L50,1.3l8.8,31.4l19.4-10.8L67.4,41.3L98.8,50L67.4,58.8zM57.7,57.8L83.5,50L50,50.1l7.7-7.7L50,16.6v33.5l-7.7-7.7l-25.8,7.7H50l-7.7,7.7L50,83.5V50.1L57.7,57.8z"
+      />
+    </svg>
+  );
+}
+
+function TuneIcon({ className }: {
+  className?: string;
+}) {
+  return (
+    <svg className={className} width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"
+      />
+    </svg>
+  );
+}
+
+const AiDigestEmailPostsQuery = gql(`
+  query AiDigestEmailPosts($postIds: [String!]) {
+    posts(
+      selector: { default: { exactPostIds: $postIds } }
+      limit: 20
+      enableTotal: false
+    ) {
+      results {
+        ...AiDigestEmailPost
+      }
+    }
+  }
+
+  fragment AiDigestEmailPost on Post {
+    _id
+    slug
+    title
+    postedAt
+    user {
+      _id
+      displayName
+    }
+    coauthors {
+      _id
+      displayName
+    }
+    socialPreviewData {
+      imageUrl
+    }
+    contents {
+      plaintextDescription
+      wordCount
+    }
+  }
+`);
+
+const AiDigestEmailCommentsQuery = gql(`
+  query AiDigestEmailComments($commentIds: [String!]) {
+    comments(
+      selector: { default: { commentIds: $commentIds } }
+      limit: 20
+      enableTotal: false
+    ) {
+      results {
+        ...AiDigestEmailComment
+      }
+    }
+  }
+
+  fragment AiDigestEmailComment on Comment {
+    _id
+    postedAt
+    parentCommentId
+    shortform
+    tagCommentType
+    contents {
+      plaintextMainText
+    }
+    user {
+      _id
+      displayName
+    }
+    post {
+      _id
+      slug
+      title
+    }
+    tag {
+      _id
+      slug
+      name
+    }
+  }
+`);
+
+const styles = defineStyles("AiDigestEmail", () => ({
+  preheader: {
+    display: "none",
+    maxHeight: 0,
+    overflow: "hidden",
+    fontSize: 1,
+    lineHeight: "1px",
+    color: "#f5f0e7",
+  },
+  shell: {
+    width: "100%",
+    backgroundColor: "#f5f0e7",
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+  },
+  shellCell: {
+    padding: "28px 28px 40px",
+  },
+  masthead: {
+    width: "100%",
+    borderTop: "4px solid #53633f",
+  },
+  mastheadCompassCell: {
+    width: 34,
+    padding: "14px 8px 0 0",
+    verticalAlign: "top",
+  },
+  mastheadNameCell: {
+    padding: "14px 0 0",
+    verticalAlign: "top",
+  },
+  mastheadCompassLink: {
+    display: "block",
+    color: "#1a1a1a",
+    textDecoration: "none",
+  },
+  mastheadCompassIcon: {
+    display: "block",
+    width: 26,
+    height: 26,
+  },
+  wordmark: {
+    color: "#1a1a1a",
+    display: "block",
+    fontFamily: emailTitleFont,
+    fontSize: 24,
+    fontWeight: 600,
+    letterSpacing: "-0.2px",
+    lineHeight: 1.1,
+    textDecoration: "none",
+  },
+  mastheadProductName: {
+    marginTop: 3,
+    color: "#53633f",
+    fontFamily: emailSansFont,
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "1.8px",
+    lineHeight: 1.2,
+    textTransform: "uppercase",
+  },
+  mastheadUnsubscribeCell: {
+    width: 88,
+    padding: "14px 0 0 10px",
+    textAlign: "right",
+    verticalAlign: "middle",
+  },
+  mastheadUnsubscribeLink: {
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 14,
+    textDecoration: "none",
+  },
+  aiNote: {
+    width: "100%",
+    marginTop: 22,
+    backgroundColor: "#e5eadc",
+    borderRadius: 6,
+  },
+  aiNoteCell: {
+    padding: "17px 20px 18px",
+  },
+  aiNoteLabel: {
+    marginBottom: 8,
+    color: "#596650",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    fontWeight: 600,
+    letterSpacing: "1.4px",
+    lineHeight: 1.2,
+    textTransform: "uppercase",
+  },
+  aiNoteParagraph: {
+    margin: "10px 0 0",
+    color: "#333333",
+    fontFamily: emailAiBlockFont,
+    fontSize: 15,
+    lineHeight: 1.5,
+  },
+  aiNoteFirstParagraph: {
+    marginTop: 0,
+  },
+  aiNoteFooter: {
+    width: "100%",
+    marginTop: 12,
+  },
+  aiNoteFooterLeftCell: {
+    verticalAlign: "baseline",
+  },
+  aiNoteFooterRightCell: {
+    paddingLeft: 12,
+    textAlign: "right",
+    verticalAlign: "baseline",
+  },
+  aiNoteTuneLink: {
+    display: "inline-block",
+    color: "#5f9b65",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    fontWeight: 600,
+    textDecoration: "none",
+  },
+  aiNoteExplanationLink: {
+    color: "#8a9179",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  },
+  tuneIcon: {
+    display: "inline-block",
+    width: 15,
+    height: 15,
+    verticalAlign: "-3px",
+  },
+  tuneIconWithLabel: {
+    marginRight: 6,
+  },
+  section: {
+    width: "100%",
+    marginTop: 36,
+  },
+  sectionHeadingCell: {
+    paddingBottom: 0,
+  },
+  sectionTitle: {
+    margin: 0,
+    color: "#1a1a1a",
+    fontFamily: emailTitleFont,
+    fontSize: 21,
+    fontWeight: 500,
+    lineHeight: 1.2,
+  },
+  itemCell: {
+    paddingTop: 24,
+  },
+  headlineCard: {
+    width: "100%",
+    backgroundColor: "#fffdf9",
+    borderRadius: 6,
+  },
+  headlineImage: {
+    display: "block",
+    width: "100%",
+    height: 220,
+    objectFit: "cover",
+    borderRadius: "6px 6px 0 0",
+  },
+  headlineBody: {
+    padding: "20px 24px 24px",
+  },
+  headlineTitle: {
+    margin: "0 0 6px",
+    color: "#1a1a1a",
+    fontFamily: emailTitleFont,
+    fontSize: 22,
+    fontWeight: 500,
+    letterSpacing: "-0.3px",
+    lineHeight: 1.2,
+  },
+  titleLink: {
+    color: "#1a1a1a",
+    textDecoration: "none",
+  },
+  metadata: {
+    marginBottom: 12,
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    lineHeight: 1.4,
+  },
+  metadataLink: {
+    color: "#8a8a8a",
+    textDecoration: "none",
+  },
+  textLink: {
+    color: "inherit",
+    textDecoration: "none",
+  },
+  excerpt: {
+    margin: "0 0 12px",
+    color: "#333333",
+    fontFamily: emailSerifFont,
+    fontSize: 16,
+    lineHeight: 1.55,
+  },
+  readLink: {
+    color: "#5f9b65",
+    flexShrink: 0,
+    fontFamily: emailSansFont,
+    fontSize: 14,
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  },
+  compactCard: {
+    width: "100%",
+    backgroundColor: "#fffdf9",
+    borderRadius: 6,
+  },
+  compactTextCell: {
+    padding: "16px 16px 8px 20px",
+    verticalAlign: "top",
+  },
+  compactImageCell: {
+    width: 112,
+    padding: "16px 20px 8px 0",
+    verticalAlign: "top",
+  },
+  compactImage: {
+    display: "block",
+    width: 112,
+    height: 76,
+    objectFit: "cover",
+    borderRadius: 3,
+  },
+  compactTitle: {
+    margin: "0 0 4px",
+    color: "#1a1a1a",
+    fontFamily: emailTitleFont,
+    fontSize: 17,
+    fontWeight: 500,
+    lineHeight: 1.25,
+  },
+  compactByline: {
+    display: "block",
+    marginBottom: 8,
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 12.5,
+    fontWeight: 400,
+    textDecoration: "none",
+  },
+  compactExcerpt: {
+    margin: "0 0 10px",
+    color: "#333333",
+    fontFamily: emailSerifFont,
+    fontSize: 14,
+    lineHeight: 1.45,
+  },
+  quickTakeCard: {
+    width: "100%",
+    backgroundColor: "#fffdf9",
+    borderRadius: 6,
+  },
+  quickTakeBody: {
+    padding: "14px 16px 12px",
+  },
+  quickTakeLabel: {
+    display: "inline-block",
+    padding: "2px 7px 3px",
+    borderRadius: 10,
+    backgroundColor: "#e5eadc",
+    color: "#647259",
+    fontFamily: emailSansFont,
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: 1.2,
+    whiteSpace: "nowrap",
+  },
+  quickTakeMeta: {
+    width: "100%",
+    marginBottom: 8,
+  },
+  quickTakeAuthorCell: {
+    verticalAlign: "middle",
+  },
+  quickTakeLabelCell: {
+    paddingLeft: 12,
+    textAlign: "right",
+    verticalAlign: "middle",
+    whiteSpace: "nowrap",
+  },
+  quickTakeAuthor: {
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  quickTakeDate: {
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    fontWeight: 400,
+    marginLeft: 8,
+  },
+  quickTakeLink: {
+    display: "block",
+    color: "inherit",
+    textDecoration: "none",
+  },
+  quickTakeText: {
+    margin: "0 0 12px",
+    color: "#333333",
+    fontFamily: emailSansFont,
+    fontSize: 14.5,
+    lineHeight: 1.5,
+  },
+  compactMetadata: {
+    marginBottom: 6,
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    lineHeight: 1.35,
+  },
+  discussionCard: {
+    width: "100%",
+    backgroundColor: "#fffdf9",
+    borderRadius: 6,
+  },
+  discussionBody: {
+    padding: "18px 22px 20px",
+  },
+  discussionTitle: {
+    margin: "0 0 4px",
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+    fontSize: 16,
+    fontWeight: 600,
+    lineHeight: 1.3,
+  },
+  discussionThreadTitle: {
+    margin: "0 0 7px",
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+    fontSize: 15,
+    fontWeight: 600,
+    lineHeight: 1.3,
+  },
+  discussionExcerpt: {
+    margin: "10px 0 12px",
+    color: "#333333",
+    fontFamily: emailSansFont,
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+  commentBox: {
+    margin: "0 0 10px",
+    padding: "10px 14px 12px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e6dfd2",
+    borderRadius: 4,
+  },
+  commentBoxReply: {
+    marginLeft: 18,
+  },
+  commentBoxNestedReply: {
+    marginLeft: 32,
+  },
+  commentByline: {
+    marginBottom: 4,
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  commentBylineDate: {
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    fontWeight: 400,
+    marginLeft: 8,
+  },
+  commentText: {
+    color: "#333333",
+    fontFamily: emailSansFont,
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+  commentLink: {
+    display: "block",
+    color: "inherit",
+    textDecoration: "none",
+  },
+  footerRow: {
+    width: "100%",
+  },
+  footerCell: {
+    borderTop: "1px solid #efe9dc",
+    paddingTop: 10,
+  },
+  footerLayout: {
+    alignItems: "baseline",
+    columnGap: 16,
+    display: "flex",
+    flexWrap: "wrap",
+    rowGap: 4,
+  },
+  footerReason: {
+    color: "#9a958a",
+    flex: "1 1 220px",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    fontStyle: "italic",
+    lineHeight: 1.4,
+    minWidth: 0,
+    textAlign: "right",
+    textWrap: "balance",
+  },
+  compactFooterCell: {
+    padding: "0 20px 14px",
+  },
+  curatedHeading: {
+    width: "100%",
+  },
+  curatedHeadingLabelCell: {
+    color: "#8a8577",
+    fontFamily: emailSansFont,
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "1.8px",
+    lineHeight: 1.2,
+    paddingRight: 12,
+    textTransform: "uppercase",
+    whiteSpace: "nowrap",
+  },
+  curatedHeadingRuleCell: {
+    lineHeight: 1,
+    verticalAlign: "middle",
+    width: "100%",
+  },
+  curatedHeadingRule: {
+    borderTop: "1px solid #d8d1c0",
+    fontSize: 0,
+    lineHeight: 0,
+    width: "100%",
+  },
+  quietItemFirstCell: {
+    paddingTop: 14,
+  },
+  quietItemCell: {
+    paddingTop: 12,
+  },
+  quietItem: {
+    color: "#1a1a1a",
+    fontFamily: emailSansFont,
+    lineHeight: 1.35,
+  },
+  quietTitleLink: {
+    color: "#1a1a1a",
+    fontFamily: emailTitleFont,
+    fontSize: 16,
+    fontWeight: 500,
+    textDecoration: "none",
+  },
+  quietByline: {
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    marginLeft: 8,
+    textDecoration: "none",
+  },
+  missingItem: {
+    padding: "14px 0",
+    color: "#8a8a8a",
+    fontFamily: emailSansFont,
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+}), { allowNonThemeColors: true });
+
+interface DigestContentLookup {
+  postsById: Map<string, AiDigestEmailPost>;
+  commentsById: Map<string, AiDigestEmailComment>;
+}
+
+function formatPostAuthors(post: AiDigestEmailPost): string {
+  const primaryAuthor = post.user?.displayName;
+  const coauthors = post.coauthors?.flatMap((author) =>
+    author.displayName ? [author.displayName] : [],
+  ) ?? [];
+  return [primaryAuthor, ...coauthors].flatMap((author) => author ? [author] : []).join(", ");
+}
+
+function itemKey(item: AiDigestItem): string {
+  return `${item.documentRef.documentType}:${item.documentRef.documentId}`;
+}
+
+function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): string {
+  const wordCount = post.contents?.wordCount;
+  if (!wordCount) {
+    return "Read more";
+  }
+  const remainingWordCount = Math.max(0, wordCount - countWords(displayedExcerpt));
+  if (!remainingWordCount) {
+    return "Read more";
+  }
+  const wordLabel = remainingWordCount === 1 ? "word" : "words";
+  return `Read more (${remainingWordCount.toLocaleString("en-US")} ${wordLabel})`;
+}
+
+const tuneDigestUrl = "https://www.lesswrong.com/contentForYou";
+// Placeholder until the dedicated explainer exists.
+const digestExplanationUrl = "https://www.lesswrong.com/content-for-you";
+
+function AiNote({ note, classes }: {
+  note: AiDigestAiNote;
+  classes: JssStyles;
+}) {
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.aiNote}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.aiNoteCell}>
+            <div className={classes.aiNoteLabel}>AI Note · {note.modelName}</div>
+            {note.paragraphs.map((paragraph, index) => (
+              <p
+                key={index}
+                className={classNames(
+                  classes.aiNoteParagraph,
+                  index === 0 && classes.aiNoteFirstParagraph,
+                )}
+              >
+                {paragraph}
+              </p>
+            ))}
+            <table
+              role="presentation"
+              width="100%"
+              cellPadding={0}
+              cellSpacing={0}
+              className={classes.aiNoteFooter}
+            >
+              <tbody>
+                <tr>
+                  <td className={classes.aiNoteFooterLeftCell}>
+                    <a href={tuneDigestUrl} className={classes.aiNoteTuneLink}>
+                      <TuneIcon className={classNames(classes.tuneIcon, classes.tuneIconWithLabel)} />
+                      tune your AI recommendations
+                    </a>
+                  </td>
+                  <td className={classes.aiNoteFooterRightCell}>
+                    <a href={digestExplanationUrl} className={classes.aiNoteExplanationLink}>
+                      what is this?
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function ItemFooter({ readMoreUrl, readMoreLabel, reason, classes }: {
+  readMoreUrl?: string;
+  readMoreLabel?: string;
+  reason?: string;
+  classes: JssStyles;
+}) {
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.footerRow}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.footerCell}>
+            <div className={classes.footerLayout}>
+              {readMoreUrl && (
+                <a href={readMoreUrl} className={classes.readLink}>{readMoreLabel ?? "Read more"}</a>
+              )}
+              {reason && <div className={classes.footerReason}>{reason}</div>}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function HeadlinePost({ post, item, classes }: {
+  post: AiDigestEmailPost;
+  item: AiDigestItem;
+  classes: JssStyles;
+}) {
+  const postUrl = postGetPageUrl(post, true);
+  const imageUrl = post.socialPreviewData.imageUrl;
+  const excerpt = selectExcerpt(item.excerpt, post.contents?.plaintextDescription ?? "", 470);
+
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.headlineCard}
+    >
+      <tbody>
+        {imageUrl && (
+          <tr>
+            <td>
+              <a href={postUrl} aria-label={`Open ${post.title}`}>
+                <img
+                  src={imageUrl}
+                  width="544"
+                  height="220"
+                  alt=""
+                  className={classes.headlineImage}
+                />
+              </a>
+            </td>
+          </tr>
+        )}
+        <tr>
+          <td className={classes.headlineBody}>
+            <h2 className={classes.headlineTitle}>
+              <a href={postUrl} className={classes.titleLink}>{post.title}</a>
+            </h2>
+            <div className={classes.metadata}>
+              <a href={postUrl} className={classes.metadataLink}>{formatPostAuthors(post)}</a>
+            </div>
+            {excerpt && (
+              <a href={postUrl} className={classes.textLink}>
+                <p className={classes.excerpt}>{excerpt}</p>
+              </a>
+            )}
+            <ItemFooter
+              readMoreUrl={postUrl}
+              readMoreLabel={postReadMoreLabel(post, excerpt)}
+              reason={item.reason}
+              classes={classes}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function CompactPost({ post, item, classes }: {
+  post: AiDigestEmailPost;
+  item: AiDigestItem;
+  classes: JssStyles;
+}) {
+  const postUrl = postGetPageUrl(post, true);
+  const imageUrl = post.socialPreviewData.imageUrl;
+  const excerpt = selectExcerpt(item.excerpt, post.contents?.plaintextDescription ?? "", 175);
+
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.compactCard}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.compactTextCell}>
+            <h3 className={classes.compactTitle}>
+              <a href={postUrl} className={classes.titleLink}>{post.title}</a>
+            </h3>
+            <a href={postUrl} className={classes.compactByline}>{formatPostAuthors(post)}</a>
+            {excerpt && (
+              <a href={postUrl} className={classes.textLink}>
+                <p className={classes.compactExcerpt}>{excerpt}</p>
+              </a>
+            )}
+          </td>
+          {imageUrl && (
+            <td className={classes.compactImageCell}>
+              <a href={postUrl} aria-label={`Open ${post.title}`}>
+                <img src={imageUrl} width="112" height="76" alt="" className={classes.compactImage} />
+              </a>
+            </td>
+          )}
+        </tr>
+        <tr>
+          <td colSpan={imageUrl ? 2 : 1} className={classes.compactFooterCell}>
+            <ItemFooter
+              readMoreUrl={postUrl}
+              readMoreLabel={postReadMoreLabel(post, excerpt)}
+              reason={item.reason}
+              classes={classes}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+/** Low-emphasis text row for the curated module: title and author, no card, no reason. */
+function QuietPost({ post, classes }: {
+  post: AiDigestEmailPost;
+  classes: JssStyles;
+}) {
+  const postUrl = postGetPageUrl(post, true);
+  return (
+    <div className={classes.quietItem}>
+      <a href={postUrl} className={classes.quietTitleLink}>{post.title}</a>
+      <a href={postUrl} className={classes.quietByline}>{formatPostAuthors(post)}</a>
+    </div>
+  );
+}
+
+function getCommentUrl(comment: AiDigestEmailComment): string {
+  return commentGetPageUrlFromIds({
+    postId: comment.post?._id,
+    postSlug: comment.post?.slug,
+    tagSlug: comment.tag?.slug,
+    tagCommentType: comment.tagCommentType,
+    commentId: comment._id,
+    isAbsolute: true,
+  });
+}
+
+function QuickTakeItem({ comment, item, compact, classes }: {
+  comment: AiDigestEmailComment;
+  item: AiDigestItem;
+  compact: boolean;
+  classes: JssStyles;
+}) {
+  const commentUrl = getCommentUrl(comment);
+  const text = selectExcerpt(
+    item.excerpt,
+    comment.contents?.plaintextMainText ?? "",
+    compact ? 210 : 260,
+  );
+
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.quickTakeCard}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.quickTakeBody}>
+            <table
+              role="presentation"
+              width="100%"
+              cellPadding={0}
+              cellSpacing={0}
+              className={classes.quickTakeMeta}
+            >
+              <tbody>
+                <tr>
+                  <td className={classes.quickTakeAuthorCell}>
+                    <a href={commentUrl} className={classes.quickTakeLink}>
+                      <span className={classes.quickTakeAuthor}>
+                        {comment.user?.displayName ?? "A LessWrong reader"}
+                      </span>
+                      <span className={classes.quickTakeDate}>{formatDate(comment.postedAt)}</span>
+                    </a>
+                  </td>
+                  <td className={classes.quickTakeLabelCell}>
+                    <span className={classes.quickTakeLabel}>Quick take</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            {text && (
+              <a href={commentUrl} className={classes.quickTakeLink}>
+                <p className={classes.quickTakeText}>{text}</p>
+              </a>
+            )}
+            <ItemFooter
+              readMoreUrl={commentUrl}
+              readMoreLabel="Read more"
+              reason={item.reason}
+              classes={classes}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function commentTitle(comment: AiDigestEmailComment): string {
+  const author = comment.user?.displayName ?? "A LessWrong reader";
+  if (comment.shortform) {
+    return `${author}’s quick take`;
+  }
+  if (comment.post) {
+    return `${author} on “${comment.post.title}”`;
+  }
+  if (comment.tag) {
+    return `${author} in ${comment.tag.name}`;
+  }
+  return `Comment by ${author}`;
+}
+
+/** Thread heading: the comment boxes carry author bylines, so drop the author here. */
+function threadTitle(comment: AiDigestEmailComment): string {
+  if (comment.shortform) {
+    const author = comment.user?.displayName ?? "A LessWrong reader";
+    return `${author}’s quick take`;
+  }
+  if (comment.post) {
+    return `Comments on “${comment.post.title}”`;
+  }
+  if (comment.tag) {
+    return `Comments on ${comment.tag.name}`;
+  }
+  return "Comments";
+}
+
+interface DigestThreadComment {
+  comment: AiDigestEmailComment;
+  excerpt?: string;
+  nestingLevel: number;
+}
+
+interface DigestThreadCommentCandidate {
+  comment: AiDigestEmailComment;
+  excerpt?: string;
+}
+
+function compareCommentsByDate(
+  firstComment: DigestThreadCommentCandidate,
+  secondComment: DigestThreadCommentCandidate,
+): number {
+  return new Date(firstComment.comment.postedAt).getTime()
+    - new Date(secondComment.comment.postedAt).getTime();
+}
+
+function flattenThreadComments(
+  parentCommentId: string,
+  comments: DigestThreadCommentCandidate[],
+  nestingLevel = 1,
+): DigestThreadComment[] {
+  const directReplies = comments
+    .filter(({ comment }) => comment.parentCommentId === parentCommentId)
+    .sort(compareCommentsByDate);
+  const remainingComments = comments.filter(
+    ({ comment }) => comment.parentCommentId !== parentCommentId,
+  );
+
+  return directReplies.flatMap(({ comment, excerpt }) => [
+    { comment, excerpt, nestingLevel },
+    ...flattenThreadComments(comment._id, remainingComments, nestingLevel + 1),
+  ]);
+}
+
+function CommentBox({ comment, excerpt, maxLength, nestingLevel = 0, classes }: {
+  comment: AiDigestEmailComment;
+  excerpt?: string;
+  maxLength: number;
+  nestingLevel?: number;
+  classes: JssStyles;
+}) {
+  const text = selectExcerpt(excerpt, comment.contents?.plaintextMainText ?? "", maxLength);
+  const commentUrl = getCommentUrl(comment);
+  return (
+    <div
+      className={classNames(
+        classes.commentBox,
+        nestingLevel === 1 && classes.commentBoxReply,
+        nestingLevel >= 2 && classes.commentBoxNestedReply,
+      )}
+    >
+      <a href={commentUrl} className={classes.commentLink}>
+        <div className={classes.commentByline}>
+          {comment.user?.displayName ?? "A LessWrong reader"}
+          <span className={classes.commentBylineDate}>{formatDate(comment.postedAt)}</span>
+        </div>
+        <div className={classes.commentText}>{text}</div>
+      </a>
+    </div>
+  );
+}
+
+function DiscussionItem({ comment, item, threadComments, classes }: {
+  comment: AiDigestEmailComment;
+  item: AiDigestItem;
+  threadComments: DigestThreadComment[];
+  classes: JssStyles;
+}) {
+  const commentUrl = getCommentUrl(comment);
+
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.discussionCard}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.discussionBody}>
+            <h3 className={classes.discussionThreadTitle}>
+              <a href={commentUrl} className={classes.titleLink}>{threadTitle(comment)}</a>
+            </h3>
+            <CommentBox comment={comment} excerpt={item.excerpt} maxLength={680} classes={classes} />
+            {threadComments.map(({ comment: reply, excerpt, nestingLevel }) => (
+              <CommentBox
+                key={reply._id}
+                comment={reply}
+                excerpt={excerpt}
+                maxLength={320}
+                nestingLevel={nestingLevel}
+                classes={classes}
+              />
+            ))}
+            <ItemFooter
+              readMoreUrl={commentUrl}
+              readMoreLabel="View thread"
+              reason={item.reason}
+              classes={classes}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function CompactComment({ comment, item, classes }: {
+  comment: AiDigestEmailComment;
+  item: AiDigestItem;
+  classes: JssStyles;
+}) {
+  const commentUrl = getCommentUrl(comment);
+  const excerpt = selectExcerpt(item.excerpt, comment.contents?.plaintextMainText ?? "", 280);
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.compactCard}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.compactTextCell}>
+            <h3 className={classes.discussionTitle}>
+              <a href={commentUrl} className={classes.titleLink}>{commentTitle(comment)}</a>
+              <a href={commentUrl} className={classes.compactByline}>{formatDate(comment.postedAt)}</a>
+            </h3>
+            {excerpt && (
+              <a href={commentUrl} className={classes.textLink}>
+                <p className={classes.discussionExcerpt}>{excerpt}</p>
+              </a>
+            )}
+          </td>
+        </tr>
+        <tr>
+          <td className={classes.compactFooterCell}>
+            <ItemFooter
+              readMoreUrl={commentUrl}
+              readMoreLabel="Open comment"
+              reason={item.reason}
+              classes={classes}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function DigestItem({ item, content, classes }: {
+  item: AiDigestItem;
+  content: DigestContentLookup;
+  classes: JssStyles;
+}) {
+  if (item.documentRef.documentType === "post") {
+    const post = content.postsById.get(item.documentRef.documentId);
+    if (!post) {
+      return <div className={classes.missingItem}>This post is no longer available.</div>;
+    }
+    if (item.placement === "quiet") {
+      return <QuietPost post={post} classes={classes} />;
+    }
+    if (item.placement === "compact") {
+      return <CompactPost post={post} item={item} classes={classes} />;
+    }
+    return <HeadlinePost post={post} item={item} classes={classes} />;
+  }
+
+  const comment = content.commentsById.get(item.documentRef.documentId);
+  if (!comment) {
+    return <div className={classes.missingItem}>This discussion item is no longer available.</div>;
+  }
+  if (item.documentRef.documentType === "quickTake") {
+    return (
+      <QuickTakeItem
+        comment={comment}
+        item={item}
+        compact={item.placement === "compact"}
+        classes={classes}
+      />
+    );
+  }
+  if (item.placement === "compact") {
+    return <CompactComment comment={comment} item={item} classes={classes} />;
+  }
+  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId, excerpt }) => {
+    const threadComment = content.commentsById.get(commentId);
+    return threadComment ? [{ comment: threadComment, excerpt }] : [];
+  });
+  const threadComments = flattenThreadComments(comment._id, candidateThreadComments);
+  return <DiscussionItem comment={comment} item={item} threadComments={threadComments} classes={classes} />;
+}
+
+function DigestSection({ section, content, classes }: {
+  section: AiDigestSection;
+  content: DigestContentLookup;
+  classes: JssStyles;
+}) {
+  const isCuratedSection = section.kind === "curated";
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.section}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.sectionHeadingCell}>
+            {isCuratedSection ? (
+              <table
+                role="presentation"
+                width="100%"
+                cellPadding={0}
+                cellSpacing={0}
+                className={classes.curatedHeading}
+              >
+                <tbody>
+                  <tr>
+                    <td className={classes.curatedHeadingLabelCell}>{section.title}</td>
+                    <td className={classes.curatedHeadingRuleCell}>
+                      <div className={classes.curatedHeadingRule}>&nbsp;</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            ) : (
+              <h2 className={classes.sectionTitle}>{section.title}</h2>
+            )}
+          </td>
+        </tr>
+        {section.items.map((item, index) => (
+          <tr key={itemKey(item)}>
+            <td
+              className={
+                item.placement === "quiet"
+                  ? (index === 0 ? classes.quietItemFirstCell : classes.quietItemCell)
+                  : classes.itemCell
+              }
+            >
+              <DigestItem
+                item={item}
+                content={content}
+                classes={classes}
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export async function AiDigestEmail({ spec, emailContext }: {
+  spec: AiDigestSpec;
+  emailContext: EmailContextType;
+}) {
+  const classes = emailUseStyles(styles, emailContext);
+  const items = spec.sections.flatMap((section) => section.items);
+  const postIds = items.flatMap((item) =>
+    item.documentRef.documentType === "post" ? [item.documentRef.documentId] : [],
+  );
+  const commentIds = items.flatMap((item) => [
+    ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
+    ...(item.threadComments ?? []).map(({ commentId }) => commentId),
+  ]);
+
+  const [postsResult, commentsResult] = await Promise.all([
+    emailUseQuery(AiDigestEmailPostsQuery, {
+      variables: { postIds },
+      emailContext,
+      skip: postIds.length === 0,
+    }),
+    emailUseQuery(AiDigestEmailCommentsQuery, {
+      variables: { commentIds },
+      emailContext,
+      skip: commentIds.length === 0,
+    }),
+  ]);
+
+  const posts = postsResult.data?.posts?.results ?? [];
+  const comments = commentsResult.data?.comments?.results ?? [];
+  const content: DigestContentLookup = {
+    postsById: new Map(posts.map((post) => [post._id, post])),
+    commentsById: new Map(comments.map((comment) => [comment._id, comment])),
+  };
+
+  return (
+    <>
+      <div className={classes.preheader}>{spec.preheader}</div>
+      <table
+        role="presentation"
+        width="100%"
+        cellPadding={0}
+        cellSpacing={0}
+        className={classes.shell}
+      >
+        <tbody>
+          <tr>
+            <td className={classes.shellCell}>
+              <table
+                role="presentation"
+                width="100%"
+                cellPadding={0}
+                cellSpacing={0}
+                className={classes.masthead}
+              >
+                <tbody>
+                  <tr>
+                    <td className={classes.mastheadCompassCell}>
+                      <a
+                        href="https://www.lesswrong.com"
+                        className={classes.mastheadCompassLink}
+                        aria-label="LessWrong"
+                      >
+                        <CompassRoseIcon className={classes.mastheadCompassIcon} />
+                      </a>
+                    </td>
+                    <td className={classes.mastheadNameCell}>
+                      <a href="https://www.lesswrong.com" className={classes.wordmark}>LessWrong</a>
+                      <div className={classes.mastheadProductName}>Content for You</div>
+                    </td>
+                    <td className={classes.mastheadUnsubscribeCell}>
+                      <a
+                        href={mastheadUnsubscribeUrl}
+                        className={classes.mastheadUnsubscribeLink}
+                      >
+                        unsubscribe
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <AiNote note={spec.aiNote} classes={classes} />
+
+              {spec.sections.map((section) => (
+                <DigestSection
+                  key={section.kind}
+                  section={section}
+                  content={content}
+                  classes={classes}
+                />
+              ))}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </>
+  );
+}

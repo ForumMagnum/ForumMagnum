@@ -11,6 +11,14 @@ interface PostEmbeddingDistanceInfo {
   quality_adjusted_score: unknown
 }
 
+export interface AiDigestNearestNeighborOptions {
+  minKarma: number;
+  publishedBefore?: Date | null;
+  publishedAfter?: Date | null;
+  limit: number;
+  excludePostIds?: string[];
+}
+
 class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   constructor() {
     super(PostEmbeddings);
@@ -59,6 +67,26 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     LIMIT $(limit)
   `;
 
+  private aiDigestPostIdsByEmbeddingDistanceSelector = `
+    SELECT
+      p._id,
+      p.title,
+      ed.distance AS raw_distance,
+      (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) AS quality_adjusted_score
+    FROM embedding_distances ed
+    LEFT JOIN "Posts" p ON p._id = ed."postId"
+    WHERE ${getViewablePostsSelector('p')}
+    AND p."baseScore" >= $(minKarma)
+    AND ($(publishedAfter)::timestamptz IS NULL OR p."postedAt" >= $(publishedAfter))
+    AND ($(publishedBefore)::timestamptz IS NULL OR p."postedAt" < $(publishedBefore))
+    AND (
+      CARDINALITY($(excludePostIds)::text[]) = 0
+      OR p."_id" <> ALL($(excludePostIds)::text[])
+    )
+    ORDER BY (0.8 * (1 / (distance + 0.1)) + 0.2 * log(p."baseScore")) DESC
+    LIMIT $(limit)
+  `;
+
   async getNearestPostIdsWeightedByQuality(
     inputEmbedding: number[],
     limit = 5,
@@ -101,6 +129,70 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
       )
       ${this.postIdsByEmbeddingDistanceSelector}
     `, { postId, limit });
+
+    return results.map(({ _id }) => _id);
+  }
+
+  async getAiDigestNearestPostIdsWeightedByQuality(
+    inputEmbedding: number[],
+    options: AiDigestNearestNeighborOptions,
+  ): Promise<string[]> {
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
+      -- PostEmbeddingsRepo.getAiDigestNearestPostIdsWeightedByQuality
+      WITH embedding_distances AS (
+        SELECT
+          pe."postId",
+          pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
+        FROM public."PostEmbeddings" pe
+        ORDER BY distance
+        LIMIT 200
+      )
+      ${this.aiDigestPostIdsByEmbeddingDistanceSelector}
+    `, {
+      inputEmbedding,
+      minKarma: options.minKarma,
+      publishedAfter: options.publishedAfter ?? null,
+      publishedBefore: options.publishedBefore ?? null,
+      excludePostIds: options.excludePostIds ?? [],
+      limit: options.limit,
+    });
+
+    return results.map(({ _id }) => _id);
+  }
+
+  async getAiDigestNearestPostIdsWeightedByQualityByPostId(
+    postId: string,
+    options: AiDigestNearestNeighborOptions,
+  ): Promise<string[]> {
+    const excludePostIds = Array.from(new Set([
+      postId,
+      ...(options.excludePostIds ?? []),
+    ]));
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
+      -- PostEmbeddingsRepo.getAiDigestNearestPostIdsWeightedByQualityByPostId
+      WITH source_embedding AS (
+        SELECT embeddings
+        FROM public."PostEmbeddings"
+        WHERE "postId" = $(postId)
+      ),
+      embedding_distances AS (
+        SELECT
+          pe."postId",
+          pe.embeddings <#> (SELECT embeddings FROM source_embedding) AS distance
+        FROM public."PostEmbeddings" pe
+        WHERE pe."postId" != $(postId)
+        ORDER BY distance
+        LIMIT 200
+      )
+      ${this.aiDigestPostIdsByEmbeddingDistanceSelector}
+    `, {
+      postId,
+      minKarma: options.minKarma,
+      publishedAfter: options.publishedAfter ?? null,
+      publishedBefore: options.publishedBefore ?? null,
+      excludePostIds,
+      limit: options.limit,
+    });
 
     return results.map(({ _id }) => _id);
   }

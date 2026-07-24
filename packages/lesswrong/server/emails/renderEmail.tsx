@@ -92,7 +92,7 @@ function addEmailBoilerplate({ css, title, body }: {
   return `
     <html lang="en">
     <head>
-      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       <!-- So that mobile webkit will display zoomed in -->
       <meta name="viewport" content="initial-scale=1.0"/>
       <!-- disable auto telephone linking in iOS -->
@@ -231,7 +231,8 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  emailContext: providedEmailContext,
 }: {
   user: DbUser | null;
   to: string;
@@ -239,10 +240,11 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  emailContext?: EmailContextType;
 }): Promise<RenderedEmail> => {
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   
-  const emailContext = await createEmailContext(user);
+  const emailContext = providedEmailContext ?? await createEmailContext(user);
 
   return await generateEmail({
     user,

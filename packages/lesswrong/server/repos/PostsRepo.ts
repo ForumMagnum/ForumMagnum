@@ -17,6 +17,153 @@ type MeanPostKarma = {
   meanKarma: number,
 }
 
+export interface AiDigestPostReferenceRow {
+  postId: string;
+  title: string;
+  authorId: string | null;
+  authorName: string;
+  postedAt: string;
+  occurredAt: string;
+}
+
+export interface AiDigestPositiveVoteRow extends AiDigestPostReferenceRow {
+  voteStrength: "regular" | "strong";
+}
+
+export interface AiDigestAuthorCountRow {
+  authorId: string;
+  authorName: string;
+  readCount: number;
+}
+
+export interface AiDigestTopicCountRow {
+  tagId: string;
+  tagName: string;
+  readCount: number;
+}
+
+export interface AiDigestSeeLessRow {
+  eventId: string;
+  collectionName: "Posts" | "Comments" | "Spotlights";
+  documentId: string;
+  createdAt: string;
+  targetPostId: string | null;
+  targetTitle: string | null;
+  targetAuthor: string | null;
+  targetTagNames: string[];
+  feedbackReasons: {
+    author?: boolean;
+    topic?: boolean;
+    contentType?: boolean;
+    other?: boolean;
+    text?: string;
+  } | null;
+}
+
+export interface AiDigestSubscribedAuthorRow {
+  authorId: string;
+  authorName: string;
+}
+
+export interface AiDigestReaderDataRow {
+  totalReadCount: number;
+  recentReadCount30Days: number;
+  recentReadCount180Days: number;
+  topAuthors: AiDigestAuthorCountRow[];
+  topTopics: AiDigestTopicCountRow[];
+  recentReads: AiDigestPostReferenceRow[];
+  recentPositiveVotes: AiDigestPositiveVoteRow[];
+  recentAuthoredPosts: AiDigestPostReferenceRow[];
+  recentCommentedPosts: AiDigestPostReferenceRow[];
+  readAgeBuckets: {
+    under7Days: number;
+    from7To30Days: number;
+    from31To180Days: number;
+    over180Days: number;
+  };
+  seeLessFeedback: AiDigestSeeLessRow[];
+  subscribedAuthors: AiDigestSubscribedAuthorRow[];
+}
+
+export interface AiDigestCanonicalPostCandidateRow {
+  postId: string;
+  revisionId: string;
+  title: string;
+  author: string;
+  authorIds: string[];
+  publicationDate: Date;
+  baseScore: number;
+  score: number;
+  tagNames: string[];
+  isCurated: boolean;
+}
+
+export interface AiDigestPostCandidateByIdRow extends Omit<AiDigestCanonicalPostCandidateRow, "revisionId" | "publicationDate"> {
+  revisionId: string | null;
+  publicationDate: Date | null;
+  status: number;
+  draft: boolean;
+  deletedDraft: boolean;
+  rejected: boolean;
+  isFuture: boolean;
+  unlisted: boolean;
+  authorIsUnreviewed: boolean;
+  onlyVisibleToLoggedIn: boolean;
+  onlyVisibleToEstablishedAccounts: boolean;
+  disableRecommendation: boolean;
+  shortform: boolean;
+  isEvent: boolean;
+  hiddenRelatedQuestion: boolean;
+  groupId: string | null;
+  postCategory: DbPost["postCategory"];
+  question: boolean;
+  debate: boolean;
+  meta: boolean;
+  podcastEpisodeId: string | null;
+  hideAuthor: boolean;
+  frontpageDate: Date | null;
+  noIndex: boolean;
+  sticky: boolean;
+  defaultRecommendation: boolean;
+  userId: string | null;
+  coauthorUserIds: string[];
+}
+
+export interface AiDigestPostBodyRow {
+  postId: string;
+  title: string;
+  author: string;
+  revisionHtml: string;
+}
+
+export interface AiDigestCandidateAnnotationRow {
+  postId: string;
+  isSubscribedToAuthor: boolean;
+  isRead: boolean;
+  positivePreferenceStrength: "regular" | "strong" | null;
+  hasActiveSeeLess: boolean;
+  recipientAuthored: boolean;
+}
+
+export interface AiDigestPostSummaryTargetRow {
+  postId: string;
+  revisionId: string;
+  title: string;
+  author: string;
+  revisionHtml: string;
+}
+
+export interface AiDigestPostInteractionRow {
+  postId: string;
+  title: string;
+  author: string;
+  publicationDate: Date;
+  isRead: boolean;
+  readAt: Date | null;
+  positivePreferenceStrength: "regular" | "strong" | null;
+  positivePreferenceAt: Date | null;
+}
+
 const constructFilters = (
   {
     startDate,
@@ -1033,6 +1180,676 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT $1
     `, [limit]);
   }
+
+  async getAiDigestReaderData({
+    userId,
+    recentActivitySince,
+    thirtyDaysAgo,
+    oneHundredEightyDaysAgo,
+    listLimit,
+    affinityLimit,
+  }: {
+    userId: string;
+    recentActivitySince: Date;
+    thirtyDaysAgo: Date;
+    oneHundredEightyDaysAgo: Date;
+    listLimit: number;
+    affinityLimit: number;
+  }): Promise<AiDigestReaderDataRow> {
+    return this.getRawDb().one<AiDigestReaderDataRow>(`
+      -- PostsRepo.getAiDigestReaderData
+      WITH read_rows AS (
+        SELECT rs."postId", rs."lastUpdated"
+        FROM "ReadStatuses" rs
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" IS TRUE
+      ),
+      published_posts AS (
+        SELECT p.*
+        FROM "Posts" p
+        WHERE p."status" = 2
+          AND p."draft" IS FALSE
+          AND p."isFuture" IS FALSE
+          AND p."unlisted" IS FALSE
+          AND p."authorIsUnreviewed" IS FALSE
+          AND p."postedAt" IS NOT NULL
+          AND p."postedAt" <= NOW()
+      )
+      SELECT
+        (SELECT COUNT(*)::int FROM read_rows) AS "totalReadCount",
+        (
+          SELECT COUNT(*)::int
+          FROM read_rows
+          WHERE "lastUpdated" >= $(thirtyDaysAgo)
+        ) AS "recentReadCount30Days",
+        (
+          SELECT COUNT(*)::int
+          FROM read_rows
+          WHERE "lastUpdated" >= $(oneHundredEightyDaysAgo)
+        ) AS "recentReadCount180Days",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(top_authors) ORDER BY top_authors."readCount" DESC, top_authors."authorId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              p."userId" AS "authorId",
+              COALESCE(u."displayName", p.author, 'LessWrong contributor') AS "authorName",
+              COUNT(DISTINCT rr."postId")::int AS "readCount"
+            FROM read_rows rr
+            INNER JOIN published_posts p ON p."_id" = rr."postId"
+            INNER JOIN "Users" u ON u."_id" = p."userId"
+            WHERE rr."lastUpdated" >= $(recentActivitySince)
+              AND p."hideAuthor" IS FALSE
+              AND p."userId" IS NOT NULL
+            GROUP BY p."userId", u."displayName", p.author
+            ORDER BY "readCount" DESC, p."userId"
+            LIMIT $(affinityLimit)
+          ) top_authors
+        ) AS "topAuthors",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(top_topics) ORDER BY top_topics."readCount" DESC, top_topics."tagId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              t."_id" AS "tagId",
+              COALESCE(t."shortName", t.name) AS "tagName",
+              COUNT(DISTINCT rr."postId")::int AS "readCount"
+            FROM read_rows rr
+            INNER JOIN published_posts p ON p."_id" = rr."postId"
+            INNER JOIN "TagRels" tr ON tr."postId" = p."_id"
+            INNER JOIN "Tags" t ON t."_id" = tr."tagId"
+            WHERE rr."lastUpdated" >= $(recentActivitySince)
+              AND tr.deleted IS FALSE
+              AND tr."baseScore" > 0
+              AND t.deleted IS FALSE
+            GROUP BY t."_id", t."shortName", t.name
+            ORDER BY "readCount" DESC, t."_id"
+            LIMIT $(affinityLimit)
+          ) top_topics
+        ) AS "topTopics",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(recent_reads) ORDER BY recent_reads."occurredAt" DESC, recent_reads."postId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              p."_id" AS "postId",
+              p.title,
+              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
+              CASE
+                WHEN p."hideAuthor" THEN 'Anonymous'
+                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
+              END AS "authorName",
+              p."postedAt" AS "postedAt",
+              rr."lastUpdated" AS "occurredAt"
+            FROM read_rows rr
+            INNER JOIN published_posts p ON p."_id" = rr."postId"
+            LEFT JOIN "Users" u ON u."_id" = p."userId"
+            WHERE rr."lastUpdated" >= $(recentActivitySince)
+            ORDER BY rr."lastUpdated" DESC, p."_id"
+            LIMIT $(listLimit)
+          ) recent_reads
+        ) AS "recentReads",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(positive_votes) ORDER BY positive_votes."occurredAt" DESC, positive_votes."postId"), '[]'::jsonb)
+          FROM (
+            SELECT *
+            FROM (
+              SELECT DISTINCT ON (p."_id")
+                p."_id" AS "postId",
+                p.title,
+                CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
+                CASE
+                  WHEN p."hideAuthor" THEN 'Anonymous'
+                  ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
+                END AS "authorName",
+                p."postedAt" AS "postedAt",
+                v."votedAt" AS "occurredAt",
+                CASE WHEN v."voteType" = 'bigUpvote' THEN 'strong' ELSE 'regular' END AS "voteStrength"
+              FROM "Votes" v
+              INNER JOIN published_posts p ON p."_id" = v."documentId"
+              LEFT JOIN "Users" u ON u."_id" = p."userId"
+              WHERE v."userId" = $(userId)
+                AND v."collectionName" = 'Posts'
+                AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+                AND v.cancelled IS FALSE
+                AND v."isUnvote" IS FALSE
+                AND v."votedAt" >= $(recentActivitySince)
+              ORDER BY p."_id", v."votedAt" DESC
+            ) current_positive_votes
+            ORDER BY "occurredAt" DESC, "postId"
+            LIMIT $(listLimit)
+          ) positive_votes
+        ) AS "recentPositiveVotes",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(authored_posts) ORDER BY authored_posts."occurredAt" DESC, authored_posts."postId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              p."_id" AS "postId",
+              p.title,
+              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
+              CASE
+                WHEN p."hideAuthor" THEN 'Anonymous'
+                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
+              END AS "authorName",
+              p."postedAt" AS "postedAt",
+              p."postedAt" AS "occurredAt"
+            FROM published_posts p
+            LEFT JOIN "Users" u ON u."_id" = p."userId"
+            WHERE (
+              p."userId" = $(userId)
+              OR $(userId) = ANY(p."coauthorUserIds")
+            )
+              AND p."postedAt" >= $(recentActivitySince)
+            ORDER BY p."postedAt" DESC, p."_id"
+            LIMIT $(listLimit)
+          ) authored_posts
+        ) AS "recentAuthoredPosts",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(commented_posts) ORDER BY commented_posts."occurredAt" DESC, commented_posts."postId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              p."_id" AS "postId",
+              p.title,
+              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
+              CASE
+                WHEN p."hideAuthor" THEN 'Anonymous'
+                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
+              END AS "authorName",
+              p."postedAt" AS "postedAt",
+              MAX(c."postedAt") AS "occurredAt"
+            FROM "Comments" c
+            INNER JOIN published_posts p ON p."_id" = c."postId"
+            LEFT JOIN "Users" u ON u."_id" = p."userId"
+            WHERE c."userId" = $(userId)
+              AND c."postedAt" >= $(recentActivitySince)
+              AND c.draft IS FALSE
+              AND c.deleted IS FALSE
+              AND c.rejected IS FALSE
+            GROUP BY p."_id", p.title, p."hideAuthor", p."userId", u."displayName", p.author, p."postedAt"
+            ORDER BY "occurredAt" DESC, p."_id"
+            LIMIT $(listLimit)
+          ) commented_posts
+        ) AS "recentCommentedPosts",
+        (
+          SELECT jsonb_build_object(
+            'under7Days', COUNT(*) FILTER (WHERE rr."lastUpdated" - p."postedAt" < INTERVAL '7 days')::int,
+            'from7To30Days', COUNT(*) FILTER (
+              WHERE rr."lastUpdated" - p."postedAt" >= INTERVAL '7 days'
+                AND rr."lastUpdated" - p."postedAt" < INTERVAL '31 days'
+            )::int,
+            'from31To180Days', COUNT(*) FILTER (
+              WHERE rr."lastUpdated" - p."postedAt" >= INTERVAL '31 days'
+                AND rr."lastUpdated" - p."postedAt" < INTERVAL '181 days'
+            )::int,
+            'over180Days', COUNT(*) FILTER (WHERE rr."lastUpdated" - p."postedAt" >= INTERVAL '181 days')::int
+          )
+          FROM read_rows rr
+          INNER JOIN "Posts" p ON p."_id" = rr."postId"
+          WHERE rr."lastUpdated" >= $(recentActivitySince)
+            AND p."postedAt" IS NOT NULL
+            AND p."postedAt" <= rr."lastUpdated"
+        ) AS "readAgeBuckets",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(see_less) ORDER BY see_less."createdAt" DESC, see_less."eventId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              ufe."_id" AS "eventId",
+              ufe."collectionName",
+              ufe."documentId",
+              ufe."createdAt",
+              target_post."_id" AS "targetPostId",
+              target_post.title AS "targetTitle",
+              CASE
+                WHEN ufe."collectionName" = 'Comments'
+                  THEN COALESCE(target_comment_author."displayName", 'LessWrong contributor')
+                WHEN ufe."collectionName" = 'Posts' AND target_post."hideAuthor"
+                  THEN 'Anonymous'
+                WHEN ufe."collectionName" = 'Posts'
+                  THEN COALESCE(target_post_author."displayName", target_post.author, 'LessWrong contributor')
+                ELSE NULL
+              END AS "targetAuthor",
+              COALESCE(ARRAY(
+                SELECT COALESCE(target_tag."shortName", target_tag.name)
+                FROM "TagRels" target_tag_rel
+                INNER JOIN "Tags" target_tag ON target_tag."_id" = target_tag_rel."tagId"
+                WHERE target_tag_rel."postId" = target_post."_id"
+                  AND target_tag_rel.deleted IS FALSE
+                  AND target_tag_rel."baseScore" > 0
+                  AND target_tag.deleted IS FALSE
+                ORDER BY target_tag_rel."baseScore" DESC, target_tag."_id"
+              ), ARRAY[]::text[]) AS "targetTagNames",
+              ufe.event -> 'feedbackReasons' AS "feedbackReasons"
+            FROM "UltraFeedEvents" ufe
+            LEFT JOIN "Comments" target_comment
+              ON ufe."collectionName" = 'Comments'
+              AND target_comment."_id" = ufe."documentId"
+            LEFT JOIN published_posts target_post
+              ON target_post."_id" = CASE
+                WHEN ufe."collectionName" = 'Posts' THEN ufe."documentId"
+                WHEN ufe."collectionName" = 'Comments' THEN target_comment."postId"
+                ELSE NULL
+              END
+            LEFT JOIN "Users" target_post_author
+              ON target_post_author."_id" = target_post."userId"
+            LEFT JOIN "Users" target_comment_author
+              ON target_comment_author."_id" = target_comment."userId"
+            WHERE ufe."userId" = $(userId)
+              AND ufe."eventType" = 'seeLess'
+              AND COALESCE((ufe.event ->> 'cancelled')::boolean, FALSE) IS FALSE
+              AND ufe.event ? 'feedbackReasons'
+              AND ufe."createdAt" >= $(recentActivitySince)
+            ORDER BY ufe."createdAt" DESC, ufe."_id"
+            LIMIT $(listLimit)
+          ) see_less
+        ) AS "seeLessFeedback",
+        (
+          SELECT COALESCE(jsonb_agg(to_jsonb(subscribed_authors) ORDER BY subscribed_authors."authorName", subscribed_authors."authorId"), '[]'::jsonb)
+          FROM (
+            SELECT
+              s."documentId" AS "authorId",
+              u."displayName" AS "authorName"
+            FROM "Subscriptions" s
+            INNER JOIN "Users" u ON u."_id" = s."documentId"
+            WHERE s."userId" = $(userId)
+              AND s."collectionName" = 'Users'
+              AND s.state = 'subscribed'
+              AND s.deleted IS FALSE
+            GROUP BY s."documentId", u."displayName"
+            ORDER BY u."displayName", s."documentId"
+            LIMIT 100
+          ) subscribed_authors
+        ) AS "subscribedAuthors"
+    `, {
+      userId,
+      recentActivitySince,
+      thirtyDaysAgo,
+      oneHundredEightyDaysAgo,
+      listLimit,
+      affinityLimit,
+    });
+  }
+
+  async getAiDigestPostSummaryTargetRows({
+    aboutPostId,
+    minPostedAt,
+    minKarma,
+  }: {
+    aboutPostId: string;
+    minPostedAt: Date;
+    minKarma: number;
+  }): Promise<AiDigestPostSummaryTargetRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestPostSummaryTargetRow>(`
+      -- PostsRepo.getAiDigestPostSummaryTargetRows
+      SELECT
+        p."_id" AS "postId",
+        p."contents_latest" AS "revisionId",
+        p.title,
+        CASE
+          WHEN p."hideAuthor" THEN 'Anonymous'
+          ELSE concat_ws(
+            ', ',
+            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
+            NULLIF((
+              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+            ), '')
+          )
+        END AS author,
+        r.html AS "revisionHtml"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON r."_id" = p."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      WHERE p."status" = 2
+        AND p."draft" IS FALSE
+        AND p."deletedDraft" IS FALSE
+        AND p.rejected IS FALSE
+        AND p."isFuture" IS FALSE
+        AND p."unlisted" IS FALSE
+        AND p."authorIsUnreviewed" IS FALSE
+        AND p."onlyVisibleToEstablishedAccounts" IS FALSE
+        AND p."disableRecommendation" IS FALSE
+        AND p.shortform IS FALSE
+        AND p."isEvent" IS FALSE
+        AND p."hiddenRelatedQuestion" IS FALSE
+        AND p."postedAt" IS NOT NULL
+        AND p."postedAt" <= NOW()
+        AND p."postedAt" >= $(minPostedAt)
+        AND p."baseScore" >= $(minKarma)
+        AND p."_id" <> $(aboutPostId)
+        AND r.html IS NOT NULL
+        AND length(trim(r.html)) > 0
+      ORDER BY p."postedAt" DESC, p."baseScore" DESC, p."_id"
+    `, {
+      aboutPostId,
+      minPostedAt,
+      minKarma,
+    });
+  }
+
+  async getAiDigestCanonicalPostCandidateRows({
+    aboutPostId,
+    minPostedAt,
+    minKarma,
+    limit,
+  }: {
+    aboutPostId: string;
+    minPostedAt: Date;
+    minKarma: number;
+    limit: number;
+  }): Promise<AiDigestCanonicalPostCandidateRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestCanonicalPostCandidateRow>(`
+      -- PostsRepo.getAiDigestCanonicalPostCandidateRows
+      SELECT
+        p."_id" AS "postId",
+        p."contents_latest" AS "revisionId",
+        p.title,
+        CASE
+          WHEN p."hideAuthor" THEN 'Anonymous'
+          ELSE concat_ws(
+            ', ',
+            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
+            NULLIF((
+              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+            ), '')
+          )
+        END AS author,
+        CASE
+          WHEN p."hideAuthor" THEN ARRAY[]::text[]
+          ELSE array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL)
+        END AS "authorIds",
+        p."postedAt" AS "publicationDate",
+        p."baseScore",
+        p.score,
+        ARRAY(
+          SELECT COALESCE(t."shortName", t.name)
+          FROM "TagRels" tr
+          INNER JOIN "Tags" t ON t."_id" = tr."tagId"
+          WHERE tr."postId" = p."_id"
+            AND tr.deleted IS FALSE
+            AND tr."baseScore" > 0
+            AND t.deleted IS FALSE
+          ORDER BY tr."baseScore" DESC, t."_id"
+          LIMIT 8
+        ) AS "tagNames",
+        (p."curatedDate" IS NOT NULL) AS "isCurated"
+      FROM "Posts" p
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      WHERE p."status" = 2
+        AND p."draft" IS FALSE
+        AND p."deletedDraft" IS FALSE
+        AND p.rejected IS FALSE
+        AND p."isFuture" IS FALSE
+        AND p."unlisted" IS FALSE
+        AND p."authorIsUnreviewed" IS FALSE
+        AND p."onlyVisibleToEstablishedAccounts" IS FALSE
+        AND p."disableRecommendation" IS FALSE
+        AND p.shortform IS FALSE
+        AND p."isEvent" IS FALSE
+        AND p."hiddenRelatedQuestion" IS FALSE
+        AND p."groupId" IS NULL
+        AND p."postedAt" IS NOT NULL
+        AND p."postedAt" <= NOW()
+        AND p."postedAt" >= $(minPostedAt)
+        AND p."baseScore" >= $(minKarma)
+        AND p."_id" <> $(aboutPostId)
+        AND p."contents_latest" IS NOT NULL
+      ORDER BY p."postedAt" DESC, p."baseScore" DESC, p."_id"
+      LIMIT $(limit)
+    `, {
+      aboutPostId,
+      minPostedAt,
+      minKarma,
+      limit,
+    });
+  }
+
+  async getAiDigestPostCandidateRowsByIds({
+    postIds,
+  }: {
+    postIds: string[];
+  }): Promise<AiDigestPostCandidateByIdRow[]> {
+    if (postIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestPostCandidateByIdRow>(`
+      -- PostsRepo.getAiDigestPostCandidateRowsByIds
+      SELECT
+        p."_id" AS "postId",
+        p."contents_latest" AS "revisionId",
+        p.title,
+        CASE
+          WHEN p."hideAuthor" THEN 'Anonymous'
+          ELSE concat_ws(
+            ', ',
+            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
+            NULLIF((
+              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+            ), '')
+          )
+        END AS author,
+        CASE
+          WHEN p."hideAuthor" THEN ARRAY[]::text[]
+          ELSE array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL)
+        END AS "authorIds",
+        p."postedAt" AS "publicationDate",
+        p."baseScore",
+        p.score,
+        ARRAY(
+          SELECT COALESCE(t."shortName", t.name)
+          FROM "TagRels" tr
+          INNER JOIN "Tags" t ON t."_id" = tr."tagId"
+          WHERE tr."postId" = p."_id"
+            AND tr.deleted IS FALSE
+            AND tr."baseScore" > 0
+            AND t.deleted IS FALSE
+          ORDER BY tr."baseScore" DESC, t."_id"
+          LIMIT 8
+        ) AS "tagNames",
+        (p."curatedDate" IS NOT NULL) AS "isCurated",
+        p.status,
+        p.draft,
+        p."deletedDraft",
+        p.rejected,
+        p."isFuture",
+        p.unlisted,
+        p."authorIsUnreviewed",
+        p."onlyVisibleToLoggedIn",
+        p."onlyVisibleToEstablishedAccounts",
+        p."disableRecommendation",
+        p.shortform,
+        p."isEvent",
+        p."hiddenRelatedQuestion",
+        p."groupId",
+        p."postCategory",
+        p.question,
+        p.debate,
+        p.meta,
+        p."podcastEpisodeId",
+        p."hideAuthor",
+        p."frontpageDate",
+        p."noIndex",
+        p.sticky,
+        p."defaultRecommendation",
+        p."userId",
+        COALESCE(p."coauthorUserIds", ARRAY[]::text[]) AS "coauthorUserIds"
+      FROM "Posts" p
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      WHERE p."_id" IN ($(postIds:csv))
+    `, {
+      postIds,
+    });
+  }
+
+  async getAiDigestPostBodyRowsByIds({
+    postIds,
+  }: {
+    postIds: string[];
+  }): Promise<AiDigestPostBodyRow[]> {
+    if (postIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestPostBodyRow>(`
+      -- PostsRepo.getAiDigestPostBodyRowsByIds
+      SELECT
+        p."_id" AS "postId",
+        p.title,
+        CASE
+          WHEN p."hideAuthor" THEN 'Anonymous'
+          ELSE concat_ws(
+            ', ',
+            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
+            NULLIF((
+              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+            ), '')
+          )
+        END AS author,
+        r.html AS "revisionHtml"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON r."_id" = p."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      WHERE p."_id" IN ($(postIds:csv))
+        AND p."contents_latest" IS NOT NULL
+        AND length(trim(r.html)) > 0
+    `, {
+      postIds,
+    });
+  }
+
+  async getAiDigestCandidateAnnotationRows({
+    userId,
+    postIds,
+  }: {
+    userId: string;
+    postIds: string[];
+  }): Promise<AiDigestCandidateAnnotationRow[]> {
+    if (postIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestCandidateAnnotationRow>(`
+      -- PostsRepo.getAiDigestCandidateAnnotationRows
+      SELECT
+        p."_id" AS "postId",
+        (
+          p."hideAuthor" IS FALSE
+          AND EXISTS (
+            SELECT 1
+            FROM "Subscriptions" s
+            WHERE s."userId" = $(userId)
+              AND s."collectionName" = 'Users'
+              AND s.state = 'subscribed'
+              AND s.deleted IS FALSE
+              AND (
+                s."documentId" = p."userId"
+                OR s."documentId" = ANY(p."coauthorUserIds")
+              )
+          )
+        ) AS "isSubscribedToAuthor",
+        EXISTS (
+          SELECT 1
+          FROM "ReadStatuses" rs
+          WHERE rs."postId" = p."_id"
+            AND rs."userId" = $(userId)
+            AND rs."isRead" IS TRUE
+        ) AS "isRead",
+        (
+          SELECT CASE
+            WHEN v."voteType" = 'bigUpvote' THEN 'strong'
+            ELSE 'regular'
+          END
+          FROM "Votes" v
+          WHERE v."userId" = $(userId)
+            AND v."collectionName" = 'Posts'
+            AND v."documentId" = p."_id"
+            AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+            AND v.cancelled IS FALSE
+            AND v."isUnvote" IS FALSE
+          ORDER BY v."votedAt" DESC
+          LIMIT 1
+        ) AS "positivePreferenceStrength",
+        EXISTS (
+          SELECT 1
+          FROM "UltraFeedEvents" ufe
+          WHERE ufe."userId" = $(userId)
+            AND ufe."collectionName" = 'Posts'
+            AND ufe."documentId" = p."_id"
+            AND ufe."eventType" = 'seeLess'
+            AND COALESCE((ufe.event ->> 'cancelled')::boolean, FALSE) IS FALSE
+        ) AS "hasActiveSeeLess",
+        (
+          p."userId" = $(userId)
+          OR $(userId) = ANY(p."coauthorUserIds")
+        ) AS "recipientAuthored"
+      FROM "Posts" p
+      WHERE p."_id" IN ($(postIds:csv))
+    `, {
+      userId,
+      postIds,
+    });
+  }
+
+  async getAiDigestPostInteractionRows({
+    userId,
+    postIds,
+  }: {
+    userId: string;
+    postIds: string[];
+  }): Promise<AiDigestPostInteractionRow[]> {
+    if (postIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestPostInteractionRow>(`
+      -- PostsRepo.getAiDigestPostInteractionRows
+      SELECT
+        p."_id" AS "postId",
+        p.title,
+        CASE
+          WHEN p."hideAuthor" THEN 'Anonymous'
+          ELSE concat_ws(
+            ', ',
+            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
+            NULLIF((
+              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+            ), '')
+          )
+        END AS author,
+        p."postedAt" AS "publicationDate",
+        COALESCE(rs."isRead", FALSE) AS "isRead",
+        CASE WHEN rs."isRead" IS TRUE THEN rs."lastUpdated" ELSE NULL END AS "readAt",
+        positive_vote."positivePreferenceStrength",
+        positive_vote."positivePreferenceAt"
+      FROM "Posts" p
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      LEFT JOIN "ReadStatuses" rs
+        ON rs."postId" = p."_id"
+        AND rs."userId" = $(userId)
+      LEFT JOIN LATERAL (
+        SELECT
+          CASE
+            WHEN v."voteType" = 'bigUpvote' THEN 'strong'
+            ELSE 'regular'
+          END AS "positivePreferenceStrength",
+          v."votedAt" AS "positivePreferenceAt"
+        FROM "Votes" v
+        WHERE v."userId" = $(userId)
+          AND v."collectionName" = 'Posts'
+          AND v."documentId" = p."_id"
+          AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+          AND v.cancelled IS FALSE
+          AND v."isUnvote" IS FALSE
+        ORDER BY v."votedAt" DESC
+        LIMIT 1
+      ) positive_vote ON TRUE
+      WHERE p."_id" = ANY($(postIds)::text[])
+        AND p."postedAt" IS NOT NULL
+    `, { userId, postIds });
+  }
+
   getCurationCandidatePosts(limit: number): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getCurationCandidatePosts

@@ -64,6 +64,7 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
+  AiDigestIssues: new CollectionViewSet('AiDigestIssues', {}),
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
@@ -120,6 +121,7 @@ export const allViews = {
   PostEmbeddings: new CollectionViewSet('PostEmbeddings', {}),
   PostRecommendations: new CollectionViewSet('PostRecommendations', {}),
   PostRelations: PostRelationsViews,
+  PostSummaries: new CollectionViewSet('PostSummaries', {}),
   PostViewTimes: new CollectionViewSet('PostViewTimes', {}),
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),

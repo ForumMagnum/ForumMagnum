@@ -813,11 +813,17 @@ export const routeTrie = {
     "contact": {
       "hasPage": true
     },
+    "contentForYou": {
+      "hasPage": true
+    },
     "crosspostLogin": {
       "hasPage": true
     },
     "debug": {
       "staticChildren": {
+        "digestEmailPreview": {
+          "hasPage": true
+        },
         "emailHistory": {
           "hasPage": true
         },
@@ -835,6 +841,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "digestemailpreview": "digestEmailPreview",
         "emailhistory": "emailHistory",
         "linkpreview": "linkPreview",
         "markdownapi": "markdownApi",
@@ -1437,6 +1444,7 @@ export const routeTrie = {
     "community": "community",
     "compare": "compare",
     "contact": "contact",
+    "contentforyou": "contentForYou",
     "crosspostlogin": "crosspostLogin",
     "debug": "debug",
     "dialogues": "dialogues",

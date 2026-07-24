@@ -1,0 +1,208 @@
+import {
+  DEFAULT_CREATED_AT_FIELD,
+  DEFAULT_ID_FIELD,
+  DEFAULT_LEGACY_DATA_FIELD,
+  DEFAULT_SCHEMA_VERSION_FIELD,
+} from "@/lib/collections/helpers/sharedFieldConstants";
+import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
+
+const userIsIssueRecipient = (user: DbUser | null, issue: DbAiDigestIssue): boolean =>
+  !!user && user._id === issue.recipientId;
+
+const schema = {
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
+  createdAt: DEFAULT_CREATED_AT_FIELD,
+  legacyData: DEFAULT_LEGACY_DATA_FIELD,
+  recipientId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Users",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String!",
+      canRead: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  recipient: {
+    graphql: {
+      outputType: "User",
+      canRead: ["admins"],
+      resolver: generateIdResolverSingle({
+        foreignCollectionName: "Users",
+        fieldName: "recipientId",
+      }),
+    },
+  },
+  postIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      onCreate: arrayOfForeignKeysOnCreate,
+    },
+  },
+  posts: {
+    graphql: {
+      outputType: "[Post!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Posts",
+        fieldName: "postIds",
+      }),
+    },
+  },
+  generatedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Date!",
+      inputType: "Date!",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+  trigger: {
+    database: {
+      type: "TEXT",
+      defaultValue: "adminSample",
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      validation: {
+        allowedValues: ["adminSample", "userPreview", "scheduled"],
+        optional: true,
+      },
+    },
+  },
+  personalInstructions: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  selectionModelId: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String!",
+      canRead: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  promptVersion: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String!",
+      canRead: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  selectionSystemPrompt: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+  selectionUserPrompt: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+  inputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  uncachedInputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  cacheReadInputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  cacheWriteInputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  spec: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      typescriptType: "import(\"@/server/emailComponents/AiDigestSpec\").AiDigestSpec",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+} satisfies Record<string, CollectionFieldSpecification<"AiDigestIssues">>;
+
+export default schema;

@@ -1,3 +1,4 @@
+type AiDigestIssuesViewName = never
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type AutomatedContentEvaluationsViewName = never
@@ -53,6 +54,7 @@ type PodcastsViewName = never
 type PostEmbeddingsViewName = never
 type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
+type PostSummariesViewName = never
 type PostViewTimesViewName = never
 type PostViewsViewName = never
 type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"community"|"communityResourcePosts"|"communityRss"|"curated"|"curatedRss"|"currentOpenThread"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpageReviewWidget"|"frontpageRss"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"metaRss"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewRecentDiscussionThreadsList2018"|"reviewRecentDiscussionThreadsList2019"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineAutoClassifiedPosts"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
@@ -93,6 +95,7 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
+  AiDigestIssues: ViewTermsBase
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
   AutomatedContentEvaluations: ViewTermsBase
@@ -148,6 +151,7 @@ interface ViewTermsByCollectionName {
   PostEmbeddings: ViewTermsBase
   PostRecommendations: ViewTermsBase
   PostRelations: PostRelationsViewTerms
+  PostSummaries: ViewTermsBase
   PostViewTimes: ViewTermsBase
   PostViews: ViewTermsBase
   Posts: PostsViewTerms

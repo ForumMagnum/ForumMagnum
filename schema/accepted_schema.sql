@@ -17,6 +17,31 @@ CREATE EXTENSION IF NOT EXISTS "vector" CASCADE;
 -- Extension "pg_trgm"
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
+-- Table "AiDigestIssues"
+CREATE TABLE "AiDigestIssues" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "recipientId" VARCHAR(27) NOT NULL,
+  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "generatedAt" TIMESTAMPTZ NOT NULL,
+  "trigger" TEXT NOT NULL DEFAULT 'adminSample',
+  "personalInstructions" TEXT,
+  "selectionModelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL,
+  "selectionSystemPrompt" TEXT,
+  "selectionUserPrompt" TEXT,
+  "inputTokenCount" INTEGER,
+  "uncachedInputTokenCount" INTEGER,
+  "cacheReadInputTokenCount" INTEGER,
+  "cacheWriteInputTokenCount" INTEGER,
+  "spec" JSONB
+);
+
+-- Index "idx_AiDigestIssues_recipientId_generatedAt"
+CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_generatedAt" ON "AiDigestIssues" USING btree ("recipientId", "generatedAt");
+
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1376,6 +1401,27 @@ CREATE TABLE "PostRelations" (
 
 -- Index "idx_PostRelations_sourcePostId_order_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations" USING btree ("sourcePostId", "order", "createdAt");
+
+-- Table "PostSummaries"
+CREATE TABLE "PostSummaries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "summary" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostSummaries_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostSummaries_postId_revisionId_modelId_promptVersion" ON "PostSummaries" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
 
 -- Table "PostViewTimes"
 CREATE TABLE "PostViewTimes" (
@@ -3190,6 +3236,7 @@ CREATE TABLE "Users" (
   "karmaChangeLastOpened" TIMESTAMPTZ,
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
+  "emailSubscribedToAiDigest" BOOL,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,
@@ -3295,6 +3342,7 @@ CREATE TABLE "Users" (
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "recommendationSettings" JSONB,
+  "aiDigestPersonalInstructions" TEXT,
   "claudeLinkedAt" TIMESTAMPTZ,
   "claudeCodeOAuthTokenEncrypted" TEXT
 );

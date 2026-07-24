@@ -213,6 +213,7 @@ export const loginDataGraphQLMutations = {
       }],
       username: username,
       emailSubscribedToCurated: subscribeToCurated,
+      emailSubscribedToAiDigest: subscribeToCurated,
       signUpReCaptchaRating: recaptchaScore,
       abTestKey,
     };

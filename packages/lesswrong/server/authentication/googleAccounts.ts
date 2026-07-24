@@ -66,6 +66,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
       username,
       displayName: profile.name,
       emailSubscribedToCurated: true,
+      emailSubscribedToAiDigest: true,
       // These two are spread into the object because this gets around
       // typescript complaining that they don't exist on `CreateUserInput`,
       // which is true, but we need to create them anyways.
