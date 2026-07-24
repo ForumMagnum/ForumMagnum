@@ -1,20 +1,20 @@
+import { generateObject } from "ai";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
 import { AI_DETECTED_OBVIOUS_SPAM } from "@/lib/collections/moderatorActions/constants";
-import { getAnthropicClientOrThrow } from "./anthropicClient";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
 
-const SPAM_CHECK_MODEL = "claude-opus-4-8";
+const SPAM_CHECK_MODEL = "anthropic/claude-opus-4.8";
 const MAX_POSTS = 10;
 const MAX_COMMENTS = 20;
 const MAX_WIKI_REVISIONS = 10;
 const MAX_CHARS_PER_ITEM = 3000;
 
 const spamVerdictSchema = z.object({
-  isObviousSpam: z.boolean(),
-  reasoning: z.string(),
+  isObviousSpam: z.boolean().describe("True only if this account is unmistakably spam."),
+  reasoning: z.string().describe("One or two sentences explaining the verdict."),
 });
 
 function truncateForPrompt(text: string, maxChars = MAX_CHARS_PER_ITEM): string {
@@ -113,34 +113,23 @@ Your only job is to determine whether this account is VERY OBVIOUSLY spam. Obvio
 - Scam or phishing content
 - Machine-generated gibberish with no relation to the site's subject matter
 
-Err on the side of "no". A confused newbie, a low-quality-but-sincere poster, an AI-assisted but on-topic writer, or an empty profile is NOT obvious spam. Only answer "yes" when a human moderator glancing at the account would immediately and confidently conclude it's spam.
-
-Respond with ONLY a JSON object, no other text, in this exact format:
-{"isObviousSpam": true or false, "reasoning": "one or two sentences explaining your verdict"}`;
+Err on the side of "no". A confused newbie, a low-quality-but-sincere poster, an AI-assisted but on-topic writer, or an empty profile is NOT obvious spam. Only answer "yes" when a human moderator glancing at the account would immediately and confidently conclude it's spam.`;
 
 export async function getObviousSpamVerdict(user: DbUser, context: ResolverContext) {
   const profileSection = buildUserProfileSection(user);
   const contentSection = await buildUserContentSections(user, context);
   const userPrompt = `# User profile\n${profileSection}\n\n${contentSection}\n\nIs this account very obviously spam?`;
 
-  const client = getAnthropicClientOrThrow();
-  const result = await client.messages.create({
+  const result = await generateObject({
     model: SPAM_CHECK_MODEL,
-    max_tokens: 1000,
+    schema: spamVerdictSchema,
+    schemaName: "ObviousSpamVerdict",
+    schemaDescription: "Whether a newly-registered user's account is unmistakably spam.",
     system: SPAM_CHECK_SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userPrompt }],
+    prompt: userPrompt,
+    maxOutputTokens: 1000,
   });
-
-  const responseBlock = result.content[0];
-  if (responseBlock?.type !== "text") {
-    throw new Error("Obvious-spam check returned a non-text response");
-  }
-
-  const jsonMatch = responseBlock.text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error(`Obvious-spam check response contained no JSON: ${responseBlock.text}`);
-  }
-  return spamVerdictSchema.parse(JSON.parse(jsonMatch[0]));
+  return result.object;
 }
 
 /**
