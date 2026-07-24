@@ -119,7 +119,10 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
 };
 
 function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
-  const validFields = pick(terms, 'userId', 'authorIsUnreviewed', 'shortform');
+  const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
+  // profileComments treats shortform as a content-category filter rather than
+  // the denormalized "parent post is a shortform feed" field.
+  const shortformSelector = terms.view === "profileComments" ? {} : pick(terms, "shortform");
 
   const alignmentForum = isAF() ? {af: true} : {}
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
@@ -168,6 +171,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: Resolv
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
+      ...shortformSelector,
       debateResponse: { $ne: true },
       rejected: includeRejected ? viewFieldAllowAny : { $ne: true },
       ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
@@ -320,9 +324,25 @@ function profileRecentComments(terms: CommentsViewTerms) {
 
 function profileComments(terms: CommentsViewTerms) {
   const sortBy = terms.sortBy ?? "new"
+  const shortformSelector = terms.shortform === true
+    ? {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
+    }
+    : terms.shortform === false
+      ? {
+        $or: [
+          {shortform: {$ne: true}},
+          {parentCommentId: {$ne: null}},
+        ],
+      }
+      : {};
   
   return {
-    selector: {deletedPublic: false},
+    selector: {
+      deletedPublic: false,
+      ...shortformSelector,
+    },
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
 }
