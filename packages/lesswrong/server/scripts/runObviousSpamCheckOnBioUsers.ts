@@ -10,11 +10,6 @@ const MAX_CONCURRENT_CHECKS = 4;
 /* eslint-disable no-console */
 
 /**
- * Users who are currently in the review queue because of an unreviewed bio
- * update. "Fresh" means the action was created after they were last removed
- * from the queue, matching how the supermod UI groups review triggers.
- */
-/**
  * When a user is taken out of the review queue we log a FieldChange setting
  * needsReview to false; the most recent one is when they last left the queue.
  * (Mirrors the resolver behind `Users.lastRemovedFromReviewQueueAt`.)
@@ -37,6 +32,11 @@ async function getLastRemovedFromReviewQueueAt(context: ResolverContext, userIds
   return lastRemovedByUser;
 }
 
+/**
+ * Users who are currently in the review queue because of an unreviewed bio
+ * update. "Fresh" means the action was created after they were last removed
+ * from the queue, matching how the supermod UI groups review triggers.
+ */
 async function getOutstandingBioReviewUsers(context: ResolverContext) {
   const { Users, ModeratorActions } = context;
 
