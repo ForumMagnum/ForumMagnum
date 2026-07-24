@@ -34,10 +34,13 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   // Embed a reference to the generated-per-episode buzzsprout script, which is
   // responsible for hydrating the player div (with the id
   // `buzzsprout-player-${externalEpisodeId}`).
+  // Note: some legacy episodeLink rows in the database contain HTML-encoded
+  // "&amp;" instead of "&", which Buzzsprout's player endpoint 404s on. Decode
+  // defensively so that the player still works for those rows.
   useEffect(() => {
     const newScript = document.createElement('script');
     newScript.async=true;
-    newScript.src=podcastEpisode.episodeLink;
+    newScript.src=podcastEpisode.episodeLink.replace(/&amp;/g, '&');
     document.head.appendChild(newScript);
     
     return () => {
