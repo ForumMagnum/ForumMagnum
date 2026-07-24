@@ -16,6 +16,7 @@ import { TeX } from 'mathjax-full/js/input/tex.js';
 import { CHTML } from 'mathjax-full/js/output/chtml.js';
 import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js';
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
+import { AssistiveMmlHandler } from 'mathjax-full/js/a11y/assistive-mml.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
@@ -460,7 +461,10 @@ function getMathjax3() {
 
   const adaptor = liteAdaptor();
   // eslint-disable-next-line babel/new-cap
-  RegisterHTMLHandler(adaptor);
+  const handler = RegisterHTMLHandler(adaptor);
+  // Embed assistive MathML, which helps screen readers and provides elements
+  // that don't require custom JS for RSS readers
+  AssistiveMmlHandler(handler);
 
   const tex = new TeX({
     packages: AllPackages,
