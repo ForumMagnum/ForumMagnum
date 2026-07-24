@@ -544,7 +544,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'flex',
     position: 'relative',
     outline: 0,
-    zIndex: 0,
     resize: 'vertical',
   },
   editorScrollerComment: {
@@ -558,7 +557,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     position: 'relative',
     resize: 'vertical',
     minHeight: '100%',
-    zIndex: 0,
   },
   cursorsContainer: {
     position: 'absolute',
