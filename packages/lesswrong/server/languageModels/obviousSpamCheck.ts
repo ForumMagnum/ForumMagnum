@@ -27,7 +27,7 @@ function htmlToPromptMarkdown(html: string | null | undefined): string {
   return truncateForPrompt(dataToMarkdown(html, "html").trim());
 }
 
-async function buildUserProfileSection(user: DbUser): Promise<string> {
+function buildUserProfileSection(user: DbUser): string {
   const lines: string[] = [
     `Username: ${user.username ?? "(none)"}`,
     `Display name: ${user.displayName ?? "(none)"}`,
@@ -119,7 +119,7 @@ Respond with ONLY a JSON object, no other text, in this exact format:
 {"isObviousSpam": true or false, "reasoning": "one or two sentences explaining your verdict"}`;
 
 async function getObviousSpamVerdict(user: DbUser, context: ResolverContext) {
-  const profileSection = await buildUserProfileSection(user);
+  const profileSection = buildUserProfileSection(user);
   const contentSection = await buildUserContentSections(user, context);
   const userPrompt = `# User profile\n${profileSection}\n\n${contentSection}\n\nIs this account very obviously spam?`;
 
