@@ -382,15 +382,6 @@ const collapsibleMarkerStyles = (theme: ThemeType) => ({
 });
 
 /**
- * No border and no background by design: the only chrome is the disclosure
- * triangle, plus a thin left rule alongside the contents when open. The title
- * and contents impose no font, size or weight, so an author's own formatting
- * shows through and the editor matches the rendered page.
- *
- * Rendered, this is <details>/<summary>/<div>. Both editors instead use a
- * <div> for the container and title, marking closed ones with a class
- * (`closed` in CkEditor, `detailsBlockClosed` in Lexical), so that native
- * collapsing doesn't disrupt editing — hence the `div` vs `details` selectors.
  */
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
