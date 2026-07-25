@@ -357,46 +357,122 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
   },
 });
 
+/**
+ * Width of the gutter to the left of a collapsible section's title, which the
+ * disclosure triangle is absolutely positioned into. Exported because the
+ * Lexical plugin uses it to decide whether a click on the title landed on the
+ * triangle (toggle) or on the title text (place the cursor).
+ */
+export const COLLAPSIBLE_MARKER_GUTTER = 22;
+
+const COLLAPSIBLE_MARKER_WIDTH = 6;
+const COLLAPSIBLE_MARKER_HEIGHT = 8;
+
+/**
+ * The disclosure triangle, drawn with borders rather than as a character so
+ * that it can't be substituted with an emoji glyph (which is what mobile
+ * browsers do to "▶" U+25B6) and so that it can rotate smoothly when the
+ * section is opened.
+ *
+ * Absolutely positioned into the title's left gutter, vertically centered on
+ * the title's first line, so that block-level content in the title (which is
+ * how both editors represent it) still lays out normally.
+ */
+const collapsibleMarkerStyles = (theme: ThemeType) => ({
+  content: '""',
+  position: "absolute",
+  left: (COLLAPSIBLE_MARKER_GUTTER - COLLAPSIBLE_MARKER_WIDTH) / 2,
+  top: `calc((1lh - ${COLLAPSIBLE_MARKER_HEIGHT}px) / 2)`,
+  width: 0,
+  height: 0,
+  borderStyle: "solid",
+  borderWidth: `${COLLAPSIBLE_MARKER_HEIGHT / 2}px 0 ${COLLAPSIBLE_MARKER_HEIGHT / 2}px ${COLLAPSIBLE_MARKER_WIDTH}px`,
+  borderColor: `transparent transparent transparent ${theme.palette.grey[600]}`,
+  transform: "rotate(0deg)",
+  transition: "transform 0.15s ease",
+  cursor: "pointer",
+});
+
+/**
+ * Collapsible sections deliberately have no border and no background: the only
+ * chrome is the disclosure triangle, plus a thin left rule alongside the
+ * contents once the section is open. Neither the title nor the contents impose
+ * a font, size or weight, so whatever formatting the author applies inside them
+ * shows through, and the editor matches the rendered page.
+ *
+ * The rendered representation is
+ *     <details class="detailsBlock">
+ *       <summary class="detailsBlockTitle">...</summary>
+ *       <div class="detailsBlockContent">...</div>
+ *     </details>
+ * Both editors instead use a <div> for the container and the title, tracking
+ * open/closed with a class (`closed` in CkEditor, `detailsBlockClosed` in
+ * Lexical) so that editing isn't disrupted by the native collapse behaviour.
+ * Hence the selectors below that key off `div` vs `details`/`summary`.
+ */
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
-    // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
-    // that tries to turn border off and on to indicate selection. Use
-    // !important to ensure it's visible.
-    border: theme.palette.border.normal+' !important',
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 8,
+    // CkEditor turns a border on and off on `.ck .ck-editor__nested-editable`
+    // to indicate selection, which would make the section jump around as the
+    // cursor moves in and out of it.
+    border: 'none !important',
+    marginTop: '1em',
+    marginBottom: '1em',
   },
   '& .detailsBlockTitle': {
-    padding: 8,
-    borderRadius: 0,
+    position: "relative",
+    padding: `2px 0 2px ${COLLAPSIBLE_MARKER_GUTTER}px`,
 
-    // give background !important to take precedence over CkEditor making it
-    // pure-white when the cursor is inside it, which would make the
-    // title-vs-contents distinction invisible
-    background: theme.palette.panelBackground.darken05+'!important',
-    
-    "&>*": {
-      display: "inline",
+    // !important to take precedence over CkEditor making the title pure-white
+    // when the cursor is inside it.
+    background: 'transparent !important',
+
+    // Suppress the native <summary> disclosure marker in favour of our own.
+    listStyle: "none",
+    '&::-webkit-details-marker': {
+      display: "none",
     },
-  },
-  '& .detailsBlockTitle[open]': {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+    '&::marker': {
+      content: '""',
+    },
+    '&::before': {
+      ...collapsibleMarkerStyles(theme),
+    },
   },
   '& summary.detailsBlockTitle': {
     cursor: "pointer",
   },
+  // The rule descends from directly under the disclosure triangle, and the
+  // contents indent a little past the title text.
   '& .detailsBlockContent': {
-    padding: 8,
+    marginTop: 8,
+    marginLeft: COLLAPSIBLE_MARKER_GUTTER / 2,
+    paddingLeft: 14,
+    borderLeft: `1px solid ${theme.palette.grey[400]}`,
   },
-  // Cancel out a global paragraph style that adds bottom margin to paragraphs
-  // in the editor for some reason, which would create a page/editor mismatch
-  // and mess up the bottom margin of detail block contents.
-  "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
+  // Cancel out the global paragraph styles, which would otherwise add margin
+  // above the first and below the last block in a title or in the contents
+  // (and do so differently in the editor than on the rendered page).
+  "& .detailsBlockContent > *:first-child, & .detailsBlockTitle > *:first-child": {
+    marginTop: '0 !important',
+  },
+  "& .detailsBlockContent > *:last-child, & .detailsBlockTitle > *:last-child": {
     marginBottom: '0 !important',
   },
-  
+
+  // A section that's open points its triangle down. On the rendered page that's
+  // the native [open] attribute; in the editors the <div> representation is
+  // open unless it carries a closed-marker class.
+  '& details.detailsBlock[open] > .detailsBlockTitle::before, & div.detailsBlockTitle::before': {
+    transform: "rotate(90deg)",
+  },
+  '& .detailsBlock.closed div.detailsBlockTitle::before, & .detailsBlockClosed div.detailsBlockTitle::before': {
+    transform: "rotate(0deg)",
+  },
+  "& .detailsBlock.closed .detailsBlockContent, & .detailsBlockClosed .detailsBlockContent": {
+    display: "none",
+  },
+
   // Placeholder text in the editor for a collapsible section with no title.
   // CkEditor represents this with a <br> placeholder as:
   //     <p><br data-cke-filler="true"/></p>
@@ -405,33 +481,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.3),
     pointerEvents: "none",
     position: "absolute",
-    top: 8,
+    top: 0,
   },
-  
-  "& .detailsBlock.closed .detailsBlockContent": {
-    display: "none",
-  },
-  
-  // The 'div' part of this selector makes it specific to the editor (outside
-  // the editor it would be a <summary> tag)
-  '& div.detailsBlockTitle': {
-    position: "relative",
-    paddingLeft: 24,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-
-  // The 'div' part of this selector makes it specific to the editor (outside
-  // the editor it would be a <summary> tag)
-  '& div.detailsBlockTitle::before': {
-    content: '"▼"',
-    cursor: "pointer",
-    fontSize: 14,
-    position: "absolute",
-    left: 8,
-  },
-  '& .detailsBlock.closed div.detailsBlockTitle::before': {
-    content: '"▶"',
-  }
 });
 
 const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({

@@ -1,6 +1,6 @@
 import React, { Component, MutableRefObject } from 'react';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
+import { editorStyles, ckEditorStyles, COLLAPSIBLE_MARKER_GUTTER } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -636,7 +636,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     // pseudo-element and clicking on its parent, but we know the expand-arrow
     // will fill the left edge of the title block, so use `offsetX`.
     if ((target as HTMLElement).classList?.contains("detailsBlockTitle")
-      && ev.nativeEvent.offsetX < 24
+      && ev.nativeEvent.offsetX < COLLAPSIBLE_MARKER_GUTTER
     ) {
       const parentElement = (target as HTMLElement).parentElement;
       if (parentElement?.classList.contains("detailsBlock")) {

@@ -32,6 +32,7 @@ import {
   $isParagraphNode,
 } from 'lexical';
 import { mergeRegister, $insertNodeToNearestRoot } from '@lexical/utils';
+import { COLLAPSIBLE_MARKER_GUTTER } from '@/themes/stylePiping';
 import {
   CollapsibleSectionContainerNode,
   $createCollapsibleSectionContainerNode,
@@ -299,9 +300,11 @@ export function CollapsibleSectionsPlugin(): null {
             if (clickedInText) {
               return false;
             }
+            // Only clicks in the left gutter, where the disclosure triangle is,
+            // toggle the section; clicks on the title text place the cursor.
             const rect = titleElement.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
-            if (clickX > 24) {
+            if (clickX > COLLAPSIBLE_MARKER_GUTTER) {
               return false;
             }
             // Don't toggle if clicking on actual text content inside
