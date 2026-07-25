@@ -42,8 +42,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
-  // An enclosing custom hover preview has already claimed this phrase; showing the
-  // destination's own preview on top of it would pop up two cards.
+  // An enclosing custom preview already claimed this phrase.
   const suppressPreview = useContext(SuppressDefaultLinkPreviewContext);
   href = href ? href.trim() : href;
 

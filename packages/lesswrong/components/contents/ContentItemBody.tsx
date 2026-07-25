@@ -329,8 +329,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           {result}
         </MaybeScrollableBlock>
       } else if (TagName === 'span' && attribs['data-hover-preview']) {
-        // The preview span wraps the link rather than sitting inside it, so the href for the
-        // card's footer has to be read out of the subtree here.
+        // The preview wraps the link, so its href lives in the subtree.
         return <CustomHoverPreview
           previewHtml={attribs['data-hover-preview']}
           href={findDescendantHref(parsedHtml)}
@@ -363,7 +362,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   }
 }
 
-/** The href of the first link anywhere under this node, for a hover preview's footer. */
 function findDescendantHref(node: DomHandlerChildNode): string | undefined {
   if (node.type === htmlparser2.ElementType.Tag && node.name === 'a' && node.attribs.href) {
     return node.attribs.href;

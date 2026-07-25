@@ -10,20 +10,14 @@ import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-/**
- * How deeply custom previews may nest. A preview body is itself rendered through
- * ContentItemBody, so a link inside a preview can carry its own preview; without a bound
- * a document could nest them indefinitely.
- */
+/** A preview body can contain previews; bound the recursion. */
 const MAX_PREVIEW_DEPTH = 3;
 
 const CustomPreviewDepthContext = React.createContext<number>(0);
 
 /**
- * Set while rendering inside a custom hover preview's anchor text. The preview span wraps the
- * link, so this flows down to HoverPreviewLink and tells it to render a plain link rather than
- * attaching the destination's own preview — otherwise a linked phrase with a custom preview
- * would pop up two cards.
+ * Tells an enclosed HoverPreviewLink to render a plain link, so a
+ * linked phrase with a custom preview doesn't pop up two cards.
  */
 export const SuppressDefaultLinkPreviewContext = React.createContext<boolean>(false);
 
@@ -44,7 +38,7 @@ const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     fontSize: '1rem',
     color: theme.palette.grey[600],
-    // The prettified url is already short, but a long slug still has to stay on one line.
+    // A long slug still has to stay on one line.
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
     WebkitLineClamp: 1,
@@ -54,9 +48,8 @@ const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
 }));
 
 /**
- * Text carrying an author-written hover preview. May wrap a link — in which case this preview
- * replaces whatever preview the destination would otherwise get — or plain unlinked text.
- * See HoverPreviewNode for the editor side.
+ * Text carrying an author-written hover preview, wrapping a link or
+ * plain text. See HoverPreviewNode for the editor side.
  */
 const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', children }: {
   previewHtml: string,
@@ -71,8 +64,8 @@ const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', c
     eventProps: { pageElementContext: 'linkPreview', hoverPreviewType: 'CustomHoverPreview', href },
   });
 
-  // sanitize-html does not recurse into attribute values, so the document-level sanitize()
-  // that let this attribute through did NOT sanitize what is inside it.
+  // sanitize() does not recurse into attributes, so the body that
+  // arrived inside one is still unsanitized here.
   const sanitizedHtml = useMemo(() => sanitize(previewHtml), [previewHtml]);
   const prettyUrl = useMemo(() => (href ? prettifyLinkUrl(href) : ''), [href]);
 
