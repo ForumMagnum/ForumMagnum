@@ -25,7 +25,7 @@ const HTML_FIELDS = [
   "description",
 ];
 
-export const elasticExactAnalyzerFilters = [
+export const elasticNameExactAnalyzerFilters = [
   "lowercase",
   "asciifolding",
   "decimal_digit",
@@ -362,7 +362,15 @@ export class ElasticExporter {
                 fm_exact_analyzer: {
                   type: "custom",
                   tokenizer: "standard",
-                  filter: elasticExactAnalyzerFilters,
+                  filter: [
+                    "lowercase",
+                    "decimal_digit",
+                  ],
+                },
+                fm_name_exact_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: elasticNameExactAnalyzerFilters,
                 },
                 fm_synonym_analyzer: {
                   type: "custom",

@@ -139,7 +139,7 @@ const nameTextMapping: MappingProperty = {
   fields: {
     exact: {
       type: "text",
-      analyzer: "fm_exact_analyzer",
+      analyzer: "fm_name_exact_analyzer",
     },
     sort: {
       type: "keyword",

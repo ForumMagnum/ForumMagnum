@@ -1,11 +1,11 @@
 import {
-  elasticExactAnalyzerFilters,
+  elasticNameExactAnalyzerFilters,
   elasticNameAnalyzerFilters,
 } from "../../server/search/elastic/ElasticExporter";
 
 describe("ElasticExporter analyzers", () => {
   it.each([
-    ["exact", elasticExactAnalyzerFilters],
+    ["exact name", elasticNameExactAnalyzerFilters],
     ["name", elasticNameAnalyzerFilters],
   ])("folds diacritics in the %s analyzer", (_analyzer, filters) => {
     expect(filters).toContain("asciifolding");
