@@ -1,4 +1,5 @@
 import { tool } from "ai";
+import type { ToolSet } from "ai";
 import { z } from "zod";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import {
@@ -313,7 +314,7 @@ export function createAiDigestSelectionTools({
   const minKarma = toolsContext.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
   const embeddingsEnabled = isEmbeddingsAPIEnabled();
 
-  const searchTools = embeddingsEnabled
+  const searchTools: ToolSet = embeddingsEnabled
     ? {
       searchPosts: tool({
         description:
@@ -343,43 +344,6 @@ export function createAiDigestSelectionTools({
                   limit: fetchLimit,
                 },
               ),
-          });
-          const results = await buildGroupedSearchResults({
-            ...groups,
-            includeRead,
-            limit,
-            toolsContext,
-            registry,
-          });
-          counts.discoveredCandidateCount = registry.byPostId.size;
-          return wrapUntrustedToolPayload("SEARCH_RESULTS", results);
-        },
-      }),
-      similarPosts: tool({
-        description:
-          "Find posts semantically similar to a known post ID from the corpus, "
-          + "discovered search results, or the reader's dossier interactions. "
-          + "Useful for sequels, rebuttals, and related threads.",
-        inputSchema: z.object({
-          postId: z.string().min(1),
-          includeRead: z.boolean().optional(),
-          limit: z.number().int().min(1).max(AI_DIGEST_SELECTION_SEARCH_MAX_LIMIT).optional(),
-        }),
-        execute: async ({ postId, includeRead = false, limit: requestedLimit }) => {
-          counts.toolCallCount += 1;
-          counts.searchCount += 1;
-          const limit = clampSearchLimit(requestedLimit);
-          const groups = await nearestNeighborGroups({
-            toolsContext,
-            limit,
-            resolvePostIds: ({ publishedAfter, limit: fetchLimit }) =>
-              toolsContext.context.repos.postEmbeddings
-                .getAiDigestNearestPostIdsWeightedByQualityByPostId(postId, {
-                  minKarma,
-                  publishedAfter,
-                  publishedBefore: null,
-                  limit: fetchLimit,
-                }),
           });
           const results = await buildGroupedSearchResults({
             ...groups,

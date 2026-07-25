@@ -111,7 +111,8 @@ export async function generateAiDigestPostSelectionPreview(
   console.log(`JSON: ${jsonPath}`);
   console.log(
     `Sources: ${result.metadata.candidateCount} candidates, ${result.metadata.evidenceCount} evidence signals, `
-    + `${result.metadata.reusedSummaryCount} cached summaries, ${result.metadata.skippedPostCount} missing summaries, `
+    + `${result.metadata.reusedSummaryCount} cached summaries, ${result.metadata.generatedSummaryCount} generated summaries, `
+    + `${result.metadata.skippedPostCount} skipped posts, `
     + `${result.metadata.historyIssueCount} prior issues`,
   );
   console.log(

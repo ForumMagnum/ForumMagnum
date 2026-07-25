@@ -13,6 +13,7 @@ import {
   formatAiDigestDate as formatDate,
   selectAiDigestExcerpt as selectExcerpt,
 } from "@/lib/aiDigest/aiDigestDisplay";
+import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
 import type {
@@ -209,36 +210,36 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   aiNote: {
     width: "100%",
-    marginTop: 22,
+    marginTop: aiDigestPresentation.aiNote.marginTop,
     backgroundColor: "#e5eadc",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.aiNote.borderRadius,
   },
   aiNoteCell: {
-    padding: "17px 20px 18px",
+    padding: aiDigestPresentation.aiNote.padding,
   },
   aiNoteLabel: {
-    marginBottom: 8,
+    marginBottom: aiDigestPresentation.aiNote.labelMarginBottom,
     color: "#596650",
     fontFamily: emailSansFont,
-    fontSize: 12,
-    fontWeight: 600,
-    letterSpacing: "1.4px",
-    lineHeight: 1.2,
+    fontSize: aiDigestPresentation.aiNote.labelFontSize,
+    fontWeight: aiDigestPresentation.aiNote.labelFontWeight,
+    letterSpacing: aiDigestPresentation.aiNote.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.aiNote.labelLineHeight,
     textTransform: "uppercase",
   },
   aiNoteParagraph: {
-    margin: "10px 0 0",
+    margin: aiDigestPresentation.aiNote.paragraphMargin,
     color: "#333333",
     fontFamily: emailAiBlockFont,
-    fontSize: 15,
-    lineHeight: 1.5,
+    fontSize: aiDigestPresentation.aiNote.paragraphFontSize,
+    lineHeight: aiDigestPresentation.aiNote.paragraphLineHeight,
   },
   aiNoteFirstParagraph: {
     marginTop: 0,
   },
   aiNoteFooter: {
     width: "100%",
-    marginTop: 12,
+    marginTop: aiDigestPresentation.aiNote.footerMarginTop,
   },
   aiNoteFooterLeftCell: {
     verticalAlign: "baseline",
@@ -274,7 +275,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   section: {
     width: "100%",
-    marginTop: 36,
+    marginTop: aiDigestPresentation.section.marginTop,
   },
   sectionHeadingCell: {
     paddingBottom: 0,
@@ -283,47 +284,47 @@ const styles = defineStyles("AiDigestEmail", () => ({
     margin: 0,
     color: "#1a1a1a",
     fontFamily: emailTitleFont,
-    fontSize: 21,
-    fontWeight: 500,
-    lineHeight: 1.2,
+    fontSize: aiDigestPresentation.section.titleFontSize,
+    fontWeight: aiDigestPresentation.section.titleFontWeight,
+    lineHeight: aiDigestPresentation.section.titleLineHeight,
   },
   itemCell: {
-    paddingTop: 24,
+    paddingTop: aiDigestPresentation.section.itemSpacing,
   },
   headlineCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.card.borderRadius,
   },
   headlineImage: {
     display: "block",
     width: "100%",
-    height: 220,
+    height: aiDigestPresentation.headline.imageHeight,
     objectFit: "cover",
-    borderRadius: "6px 6px 0 0",
+    borderRadius: `${aiDigestPresentation.card.borderRadius}px ${aiDigestPresentation.card.borderRadius}px 0 0`,
   },
   headlineBody: {
-    padding: "20px 24px 24px",
+    padding: aiDigestPresentation.headline.bodyPadding,
   },
   headlineTitle: {
-    margin: "0 0 6px",
+    margin: aiDigestPresentation.headline.titleMargin,
     color: "#1a1a1a",
     fontFamily: emailTitleFont,
-    fontSize: 22,
-    fontWeight: 500,
-    letterSpacing: "-0.3px",
-    lineHeight: 1.2,
+    fontSize: aiDigestPresentation.headline.titleFontSize,
+    fontWeight: aiDigestPresentation.headline.titleFontWeight,
+    letterSpacing: aiDigestPresentation.headline.titleLetterSpacing,
+    lineHeight: aiDigestPresentation.headline.titleLineHeight,
   },
   titleLink: {
     color: "#1a1a1a",
     textDecoration: "none",
   },
   metadata: {
-    marginBottom: 12,
+    marginBottom: aiDigestPresentation.headline.metadataMarginBottom,
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 13,
-    lineHeight: 1.4,
+    fontSize: aiDigestPresentation.headline.metadataFontSize,
+    lineHeight: aiDigestPresentation.headline.metadataLineHeight,
   },
   metadataLink: {
     color: "#8a8a8a",
@@ -334,88 +335,88 @@ const styles = defineStyles("AiDigestEmail", () => ({
     textDecoration: "none",
   },
   excerpt: {
-    margin: "0 0 12px",
+    margin: aiDigestPresentation.headline.excerptMargin,
     color: "#333333",
     fontFamily: emailSerifFont,
-    fontSize: 16,
-    lineHeight: 1.55,
+    fontSize: aiDigestPresentation.headline.excerptFontSize,
+    lineHeight: aiDigestPresentation.headline.excerptLineHeight,
   },
   readLink: {
     color: "#5f9b65",
     flexShrink: 0,
     fontFamily: emailSansFont,
-    fontSize: 14,
+    fontSize: aiDigestPresentation.footer.readLinkFontSize,
     textDecoration: "none",
     whiteSpace: "nowrap",
   },
   compactCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.card.borderRadius,
   },
   compactTextCell: {
-    padding: "16px 16px 8px 20px",
+    padding: aiDigestPresentation.compact.textPadding,
     verticalAlign: "top",
   },
   compactImageCell: {
-    width: 112,
-    padding: "16px 20px 8px 0",
+    width: aiDigestPresentation.compact.imageWidth,
+    padding: aiDigestPresentation.compact.imagePadding,
     verticalAlign: "top",
   },
   compactImage: {
     display: "block",
-    width: 112,
-    height: 76,
+    width: aiDigestPresentation.compact.imageWidth,
+    height: aiDigestPresentation.compact.imageHeight,
     objectFit: "cover",
-    borderRadius: 3,
+    borderRadius: aiDigestPresentation.compact.imageBorderRadius,
   },
   compactTitle: {
-    margin: "0 0 4px",
+    margin: aiDigestPresentation.compact.titleMargin,
     color: "#1a1a1a",
     fontFamily: emailTitleFont,
-    fontSize: 17,
-    fontWeight: 500,
-    lineHeight: 1.25,
+    fontSize: aiDigestPresentation.compact.titleFontSize,
+    fontWeight: aiDigestPresentation.compact.titleFontWeight,
+    lineHeight: aiDigestPresentation.compact.titleLineHeight,
   },
   compactByline: {
     display: "block",
-    marginBottom: 8,
+    marginBottom: aiDigestPresentation.compact.metadataMarginBottom,
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 12.5,
+    fontSize: aiDigestPresentation.compact.metadataFontSize,
     fontWeight: 400,
     textDecoration: "none",
   },
   compactExcerpt: {
-    margin: "0 0 10px",
+    margin: aiDigestPresentation.compact.excerptMargin,
     color: "#333333",
     fontFamily: emailSerifFont,
-    fontSize: 14,
-    lineHeight: 1.45,
+    fontSize: aiDigestPresentation.compact.excerptFontSize,
+    lineHeight: aiDigestPresentation.compact.excerptLineHeight,
   },
   quickTakeCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.card.borderRadius,
   },
   quickTakeBody: {
-    padding: "14px 16px 12px",
+    padding: aiDigestPresentation.quickTake.bodyPadding,
   },
   quickTakeLabel: {
     display: "inline-block",
-    padding: "2px 7px 3px",
-    borderRadius: 10,
+    padding: aiDigestPresentation.quickTake.labelPadding,
+    borderRadius: aiDigestPresentation.quickTake.labelBorderRadius,
     backgroundColor: "#e5eadc",
     color: "#647259",
     fontFamily: emailSansFont,
-    fontSize: 11,
-    fontWeight: 600,
-    lineHeight: 1.2,
+    fontSize: aiDigestPresentation.quickTake.labelFontSize,
+    fontWeight: aiDigestPresentation.quickTake.labelFontWeight,
+    lineHeight: aiDigestPresentation.quickTake.labelLineHeight,
     whiteSpace: "nowrap",
   },
   quickTakeMeta: {
     width: "100%",
-    marginBottom: 8,
+    marginBottom: aiDigestPresentation.quickTake.metaMarginBottom,
   },
   quickTakeAuthorCell: {
     verticalAlign: "middle",
@@ -429,15 +430,15 @@ const styles = defineStyles("AiDigestEmail", () => ({
   quickTakeAuthor: {
     color: "#1a1a1a",
     fontFamily: emailSansFont,
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: aiDigestPresentation.quickTake.authorFontSize,
+    fontWeight: aiDigestPresentation.quickTake.authorFontWeight,
   },
   quickTakeDate: {
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 12,
+    fontSize: aiDigestPresentation.quickTake.dateFontSize,
     fontWeight: 400,
-    marginLeft: 8,
+    marginLeft: aiDigestPresentation.quickTake.dateMarginLeft,
   },
   quickTakeLink: {
     display: "block",
@@ -445,11 +446,11 @@ const styles = defineStyles("AiDigestEmail", () => ({
     textDecoration: "none",
   },
   quickTakeText: {
-    margin: "0 0 12px",
+    margin: aiDigestPresentation.quickTake.textMargin,
     color: "#333333",
     fontFamily: emailSansFont,
-    fontSize: 14.5,
-    lineHeight: 1.5,
+    fontSize: aiDigestPresentation.quickTake.textFontSize,
+    lineHeight: aiDigestPresentation.quickTake.textLineHeight,
   },
   compactMetadata: {
     marginBottom: 6,
@@ -461,66 +462,66 @@ const styles = defineStyles("AiDigestEmail", () => ({
   discussionCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.card.borderRadius,
   },
   discussionBody: {
-    padding: "18px 22px 20px",
+    padding: aiDigestPresentation.discussion.bodyPadding,
   },
   discussionTitle: {
-    margin: "0 0 4px",
+    margin: aiDigestPresentation.discussion.titleMargin,
     color: "#1a1a1a",
     fontFamily: emailSansFont,
-    fontSize: 16,
-    fontWeight: 600,
-    lineHeight: 1.3,
+    fontSize: aiDigestPresentation.discussion.titleFontSize,
+    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
   discussionThreadTitle: {
-    margin: "0 0 7px",
+    margin: aiDigestPresentation.discussion.threadTitleMargin,
     color: "#1a1a1a",
     fontFamily: emailSansFont,
-    fontSize: 15,
-    fontWeight: 600,
-    lineHeight: 1.3,
+    fontSize: aiDigestPresentation.discussion.threadTitleFontSize,
+    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
   discussionExcerpt: {
-    margin: "10px 0 12px",
+    margin: aiDigestPresentation.discussion.excerptMargin,
     color: "#333333",
     fontFamily: emailSansFont,
-    fontSize: 14,
-    lineHeight: 1.5,
+    fontSize: aiDigestPresentation.discussion.excerptFontSize,
+    lineHeight: aiDigestPresentation.discussion.excerptLineHeight,
   },
   commentBox: {
-    margin: "0 0 10px",
-    padding: "10px 14px 12px",
+    margin: aiDigestPresentation.discussion.commentMargin,
+    padding: aiDigestPresentation.discussion.commentPadding,
     backgroundColor: "#ffffff",
     border: "1px solid #e6dfd2",
-    borderRadius: 4,
+    borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
   },
   commentBoxReply: {
-    marginLeft: 18,
+    marginLeft: aiDigestPresentation.discussion.replyMarginLeft,
   },
   commentBoxNestedReply: {
-    marginLeft: 32,
+    marginLeft: aiDigestPresentation.discussion.nestedReplyMarginLeft,
   },
   commentByline: {
-    marginBottom: 4,
+    marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
     color: "#1a1a1a",
     fontFamily: emailSansFont,
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: aiDigestPresentation.discussion.bylineFontSize,
+    fontWeight: aiDigestPresentation.discussion.bylineFontWeight,
   },
   commentBylineDate: {
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 12,
+    fontSize: aiDigestPresentation.discussion.dateFontSize,
     fontWeight: 400,
-    marginLeft: 8,
+    marginLeft: aiDigestPresentation.discussion.dateMarginLeft,
   },
   commentText: {
     color: "#333333",
     fontFamily: emailSansFont,
-    fontSize: 14,
-    lineHeight: 1.5,
+    fontSize: aiDigestPresentation.discussion.textFontSize,
+    lineHeight: aiDigestPresentation.discussion.textLineHeight,
   },
   commentLink: {
     display: "block",
@@ -532,28 +533,28 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   footerCell: {
     borderTop: "1px solid #efe9dc",
-    paddingTop: 10,
+    paddingTop: aiDigestPresentation.footer.paddingTop,
   },
   footerLayout: {
     alignItems: "baseline",
-    columnGap: 16,
+    columnGap: aiDigestPresentation.footer.columnGap,
     display: "flex",
     flexWrap: "wrap",
-    rowGap: 4,
+    rowGap: aiDigestPresentation.footer.rowGap,
   },
   footerReason: {
     color: "#9a958a",
-    flex: "1 1 220px",
+    flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
     fontFamily: emailSansFont,
-    fontSize: 12,
+    fontSize: aiDigestPresentation.footer.reasonFontSize,
     fontStyle: "italic",
-    lineHeight: 1.4,
+    lineHeight: aiDigestPresentation.footer.reasonLineHeight,
     minWidth: 0,
     textAlign: "right",
     textWrap: "balance",
   },
   compactFooterCell: {
-    padding: "0 20px 14px",
+    padding: aiDigestPresentation.compact.footerPadding,
   },
   curatedHeading: {
     width: "100%",
@@ -561,11 +562,11 @@ const styles = defineStyles("AiDigestEmail", () => ({
   curatedHeadingLabelCell: {
     color: "#8a8577",
     fontFamily: emailSansFont,
-    fontSize: 11,
-    fontWeight: 600,
-    letterSpacing: "1.8px",
-    lineHeight: 1.2,
-    paddingRight: 12,
+    fontSize: aiDigestPresentation.curated.labelFontSize,
+    fontWeight: aiDigestPresentation.curated.labelFontWeight,
+    letterSpacing: aiDigestPresentation.curated.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.curated.labelLineHeight,
+    paddingRight: aiDigestPresentation.curated.labelPaddingRight,
     textTransform: "uppercase",
     whiteSpace: "nowrap",
   },
@@ -581,35 +582,35 @@ const styles = defineStyles("AiDigestEmail", () => ({
     width: "100%",
   },
   quietItemFirstCell: {
-    paddingTop: 14,
+    paddingTop: aiDigestPresentation.curated.firstItemPaddingTop,
   },
   quietItemCell: {
-    paddingTop: 12,
+    paddingTop: aiDigestPresentation.curated.itemPaddingTop,
   },
   quietItem: {
     color: "#1a1a1a",
     fontFamily: emailSansFont,
-    lineHeight: 1.35,
+    lineHeight: aiDigestPresentation.curated.itemLineHeight,
   },
   quietTitleLink: {
     color: "#1a1a1a",
     fontFamily: emailTitleFont,
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: aiDigestPresentation.curated.titleFontSize,
+    fontWeight: aiDigestPresentation.curated.titleFontWeight,
     textDecoration: "none",
   },
   quietByline: {
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 13,
-    marginLeft: 8,
+    fontSize: aiDigestPresentation.curated.bylineFontSize,
+    marginLeft: aiDigestPresentation.curated.bylineMarginLeft,
     textDecoration: "none",
   },
   missingItem: {
-    padding: "14px 0",
+    padding: aiDigestPresentation.missingItem.padding,
     color: "#8a8a8a",
     fontFamily: emailSansFont,
-    fontSize: 12,
+    fontSize: aiDigestPresentation.missingItem.fontSize,
     fontStyle: "italic",
   },
 }), { allowNonThemeColors: true });
@@ -742,7 +743,11 @@ function HeadlinePost({ post, item, classes }: {
 }) {
   const postUrl = postGetPageUrl(post, true);
   const imageUrl = post.socialPreviewData.imageUrl;
-  const excerpt = selectExcerpt(item.excerpt, post.contents?.plaintextDescription ?? "", 470);
+  const excerpt = selectExcerpt(
+    item.excerpt,
+    post.contents?.plaintextDescription ?? "",
+    aiDigestPresentation.excerptCharacters.headlinePost,
+  );
 
   return (
     <table
@@ -801,7 +806,11 @@ function CompactPost({ post, item, classes }: {
 }) {
   const postUrl = postGetPageUrl(post, true);
   const imageUrl = post.socialPreviewData.imageUrl;
-  const excerpt = selectExcerpt(item.excerpt, post.contents?.plaintextDescription ?? "", 175);
+  const excerpt = selectExcerpt(
+    item.excerpt,
+    post.contents?.plaintextDescription ?? "",
+    aiDigestPresentation.excerptCharacters.compactPost,
+  );
 
   return (
     <table
@@ -882,7 +891,9 @@ function QuickTakeItem({ comment, item, compact, classes }: {
   const text = selectExcerpt(
     item.excerpt,
     comment.contents?.plaintextMainText ?? "",
-    compact ? 210 : 260,
+    compact
+      ? aiDigestPresentation.excerptCharacters.compactQuickTake
+      : aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
 
   return (
@@ -1053,13 +1064,18 @@ function DiscussionItem({ comment, item, threadComments, classes }: {
             <h3 className={classes.discussionThreadTitle}>
               <a href={commentUrl} className={classes.titleLink}>{threadTitle(comment)}</a>
             </h3>
-            <CommentBox comment={comment} excerpt={item.excerpt} maxLength={680} classes={classes} />
+            <CommentBox
+              comment={comment}
+              excerpt={item.excerpt}
+              maxLength={aiDigestPresentation.excerptCharacters.discussionRoot}
+              classes={classes}
+            />
             {threadComments.map(({ comment: reply, excerpt, nestingLevel }) => (
               <CommentBox
                 key={reply._id}
                 comment={reply}
                 excerpt={excerpt}
-                maxLength={320}
+                maxLength={aiDigestPresentation.excerptCharacters.discussionReply}
                 nestingLevel={nestingLevel}
                 classes={classes}
               />
@@ -1083,7 +1099,11 @@ function CompactComment({ comment, item, classes }: {
   classes: JssStyles;
 }) {
   const commentUrl = getCommentUrl(comment);
-  const excerpt = selectExcerpt(item.excerpt, comment.contents?.plaintextMainText ?? "", 280);
+  const excerpt = selectExcerpt(
+    item.excerpt,
+    comment.contents?.plaintextMainText ?? "",
+    aiDigestPresentation.excerptCharacters.compactComment,
+  );
   return (
     <table
       role="presentation"

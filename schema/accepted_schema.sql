@@ -27,15 +27,19 @@ CREATE TABLE "AiDigestIssues" (
   "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "generatedAt" TIMESTAMPTZ NOT NULL,
   "trigger" TEXT NOT NULL DEFAULT 'adminSample',
+  "countsTowardHistory" BOOL NOT NULL DEFAULT TRUE,
   "personalInstructions" TEXT,
   "selectionModelId" TEXT NOT NULL,
   "promptVersion" TEXT NOT NULL,
   "selectionSystemPrompt" TEXT,
   "selectionUserPrompt" TEXT,
   "inputTokenCount" INTEGER,
+  "outputTokenCount" INTEGER,
   "uncachedInputTokenCount" INTEGER,
   "cacheReadInputTokenCount" INTEGER,
   "cacheWriteInputTokenCount" INTEGER,
+  "selectionCostUsd" DOUBLE PRECISION,
+  "generationDurationMs" INTEGER NOT NULL DEFAULT 0,
   "spec" JSONB
 );
 

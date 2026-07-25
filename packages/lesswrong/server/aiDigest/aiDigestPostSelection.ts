@@ -1,5 +1,5 @@
 import { generateText, Output, stepCountIs } from "ai";
-import type { ModelMessage, TextPart } from "ai";
+import type { ModelMessage, ProviderMetadata, TextPart } from "ai";
 import { z } from "zod";
 import {
   type AiDigestSelectedPostCandidate,
@@ -11,7 +11,7 @@ import {
 } from "./aiDigestPostCandidates";
 import {
   AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
-  loadCachedAiDigestPostSummaries,
+  ensureAiDigestPostSummaries,
 } from "./aiDigestPostSummaries";
 import {
   loadAiDigestHistory,
@@ -76,10 +76,30 @@ export function buildAiDigestSelectionMessages({
   }];
 }
 
+export function sumAiDigestSelectionCostUsd(
+  providerMetadataByStep: ReadonlyArray<ProviderMetadata | undefined>,
+): number | null {
+  const costs = providerMetadataByStep.flatMap((providerMetadata) => {
+    const cost = providerMetadata?.gateway?.cost;
+    if (typeof cost !== "string") {
+      return [];
+    }
+    const parsedCost = Number(cost);
+    return Number.isFinite(parsedCost) && parsedCost >= 0 ? [parsedCost] : [];
+  });
+  return costs.length > 0
+    ? costs.reduce((total, cost) => total + cost, 0)
+    : null;
+}
+
 const selectionOutputSchema = z.object({
   selectedPosts: z.array(z.object({
     postId: z.string(),
-    reason: z.string().nullable(),
+    reason: z.string().nullable().describe(
+      "Why this post connects to this reader, e.g. \"Because you follow author X\". "
+      + "Never describe what the post is about or how popular it is, including in a "
+      + "clause appended after a dash or colon. Null if there is no connection to state.",
+    ),
   })).length(5),
   subject: z.string(),
   preheader: z.string(),
@@ -95,6 +115,7 @@ export interface AiDigestPostSelectionOptions {
   candidateOptions?: LoadAiDigestPostCandidatesOptions;
   historyIssueLimit?: number;
   trigger?: AiDigestIssueTrigger;
+  countsTowardHistory?: boolean;
   /**
    * When false, run selection/validation/assembly without writing an AiDigestIssues
    * row. Defaults to true for production digests.
@@ -115,6 +136,7 @@ export interface AiDigestPostSelectionResult {
     candidateCount: number;
     evidenceCount: number;
     reusedSummaryCount: number;
+    generatedSummaryCount: number;
     skippedPostCount: number;
     historyIssueCount: number;
     pastRecommendationCount: number;
@@ -123,9 +145,12 @@ export interface AiDigestPostSelectionResult {
     readPostCount: number;
     discoveredCandidateCount: number;
     inputTokenCount: number | null;
+    outputTokenCount: number | null;
     uncachedInputTokenCount: number | null;
     cacheReadInputTokenCount: number | null;
     cacheWriteInputTokenCount: number | null;
+    selectionCostUsd: number | null;
+    generationDurationMs: number;
   };
 }
 
@@ -144,6 +169,30 @@ function assertLength(name: string, text: string, maximum: number): void {
   if (!text.trim() || text.length > maximum) {
     throw new Error(`${name} must contain 1-${maximum} characters`);
   }
+}
+
+// Models occasionally double-escape unicode in structured output, leaving
+// literal sequences like "\u2014" in the parsed strings.
+function decodeStrayUnicodeEscapes(text: string): string {
+  return text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) =>
+    String.fromCharCode(parseInt(hex, 16)),
+  );
+}
+
+export function sanitizeAiDigestPostSelectionOutput(
+  output: AiDigestPostSelectionModelOutput,
+): AiDigestPostSelectionModelOutput {
+  return {
+    selectedPosts: output.selectedPosts.map((selection) => ({
+      postId: selection.postId,
+      reason: selection.reason === null
+        ? null
+        : decodeStrayUnicodeEscapes(selection.reason),
+    })),
+    subject: decodeStrayUnicodeEscapes(output.subject),
+    preheader: decodeStrayUnicodeEscapes(output.preheader),
+    aiNote: output.aiNote.map(decodeStrayUnicodeEscapes),
+  };
 }
 
 export function validateAiDigestPostSelectionOutput(
@@ -271,8 +320,11 @@ export async function finalizeAiDigestPostSelection({
   selectionSystemPrompt,
   selectionUserPrompt,
   tokenUsage,
+  selectionCostUsd,
   generatedAt,
+  generationDurationMs,
   trigger,
+  countsTowardHistory,
   personalInstructions,
   output,
   candidates,
@@ -286,15 +338,18 @@ export async function finalizeAiDigestPostSelection({
   selectionSystemPrompt: string;
   selectionUserPrompt: string;
   tokenUsage: AiDigestSelectionTokenUsage;
+  selectionCostUsd: number | null;
   generatedAt: Date;
+  generationDurationMs: number;
   trigger: AiDigestIssueTrigger;
+  countsTowardHistory: boolean;
   personalInstructions: string | null;
   output: AiDigestPostSelectionModelOutput;
   candidates: AiDigestSelectedPostCandidate[];
   dependencies: AiDigestPostSelectionFinalizationDependencies;
 }): Promise<AiDigestPostSelectionFinalizationResult> {
   const validatedOutput = validateAiDigestPostSelectionOutput(
-    output,
+    sanitizeAiDigestPostSelectionOutput(output),
     candidates,
   );
   const spec = buildAiDigestSpecFromPostSelection({
@@ -315,13 +370,16 @@ export async function finalizeAiDigestPostSelection({
       recipientId,
       postIds: selectedCandidates.map((candidate) => candidate.postId),
       generatedAt,
+      generationDurationMs,
       trigger,
+      countsTowardHistory,
       personalInstructions,
       selectionModelId,
       promptVersion,
       selectionSystemPrompt,
       selectionUserPrompt,
       ...tokenUsage,
+      selectionCostUsd,
       spec,
     })
     : null;
@@ -350,6 +408,7 @@ export async function generateAiDigestPostSelection({
   context: ResolverContext;
   options?: AiDigestPostSelectionOptions;
 }): Promise<AiDigestPostSelectionResult> {
+  const generationStartedAt = Date.now();
   const selectionModelId = options.selectionModelId ?? AI_DIGEST_DEFAULT_SELECTION_MODEL_ID;
   const selectionModelLabel = options.selectionModelLabel
     ?? humanizeAiDigestModelId(selectionModelId);
@@ -369,8 +428,9 @@ export async function generateAiDigestPostSelection({
     now: asOf,
     postHistoryById: history.postHistoryById,
   });
-  const summaryResult = await loadCachedAiDigestPostSummaries({
+  const summaryResult = await ensureAiDigestPostSummaries({
     candidates,
+    context,
     modelId: summaryModelId,
   });
   const candidateCards = buildAiDigestPostCandidateCards(summaryResult.candidates);
@@ -426,10 +486,15 @@ export async function generateAiDigestPostSelection({
   const toolUsage = getUsageCounts();
   const tokenUsage: AiDigestSelectionTokenUsage = {
     inputTokenCount: result.totalUsage.inputTokens ?? null,
+    outputTokenCount: result.totalUsage.outputTokens ?? null,
     uncachedInputTokenCount: result.totalUsage.inputTokenDetails.noCacheTokens ?? null,
     cacheReadInputTokenCount: result.totalUsage.inputTokenDetails.cacheReadTokens ?? null,
     cacheWriteInputTokenCount: result.totalUsage.inputTokenDetails.cacheWriteTokens ?? null,
   };
+  const selectionCostUsd = sumAiDigestSelectionCostUsd(
+    result.steps.map((step) => step.providerMetadata),
+  );
+  const generationDurationMs = Date.now() - generationStartedAt;
   const generatedAt = new Date();
   const shouldPersistIssue = options.persistIssue !== false;
   const validationCandidates: AiDigestSelectedPostCandidate[] = [
@@ -445,8 +510,11 @@ export async function generateAiDigestPostSelection({
     selectionSystemPrompt: prompt.system,
     selectionUserPrompt: prompt.prompt,
     tokenUsage,
+    selectionCostUsd,
     generatedAt,
+    generationDurationMs,
     trigger: options.trigger ?? "adminSample",
+    countsTowardHistory: options.countsTowardHistory ?? true,
     personalInstructions,
     output: result.output,
     candidates: validationCandidates,
@@ -468,11 +536,14 @@ export async function generateAiDigestPostSelection({
       candidateCount: candidateCards.length,
       evidenceCount: readerContext.evidenceCount,
       reusedSummaryCount: summaryResult.reusedSummaryCount,
+      generatedSummaryCount: summaryResult.generatedSummaryCount,
       skippedPostCount: summaryResult.skippedPostCount,
       historyIssueCount: history.issues.length,
       pastRecommendationCount: history.pastRecommendations.length,
       ...toolUsage,
       ...tokenUsage,
+      selectionCostUsd,
+      generationDurationMs,
     },
   };
 }

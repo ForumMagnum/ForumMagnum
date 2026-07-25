@@ -1584,6 +1584,7 @@ type AiDigestEmailSampleSummary {
   subject: String!
   generatedAt: Date!
   selectionModelId: String!
+  countsTowardHistory: Boolean!
 }
 
 type AiDigestEmailSamplePreview {
@@ -1591,9 +1592,12 @@ type AiDigestEmailSamplePreview {
   selectionSystemPrompt: String
   selectionUserPrompt: String
   inputTokenCount: Int
+  outputTokenCount: Int
   uncachedInputTokenCount: Int
   cacheReadInputTokenCount: Int
   cacheWriteInputTokenCount: Int
+  selectionCostUsd: Float
+  generationDurationMs: Int!
 }
 
 extend type Query {
@@ -1603,7 +1607,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  GenerateAiDigestEmailSamples(userSlug: String!, count: Int): [AiDigestEmailSampleSummary!]!
+  GenerateAiDigestEmailSamples(userSlug: String!, count: Int, countsTowardHistory: Boolean): [AiDigestEmailSampleSummary!]!
+  ClearAiDigestEmailSampleHistory(userSlug: String!, days: Int!): Int!
 }
 
 type ContentForYouIssueSummary {
@@ -1611,6 +1616,7 @@ type ContentForYouIssueSummary {
   subject: String!
   generatedAt: Date!
   trigger: String!
+  countsTowardHistory: Boolean!
   personalInstructions: String
 }
 
@@ -1619,14 +1625,17 @@ type ContentForYouIssue {
   subject: String!
   generatedAt: Date!
   trigger: String!
+  countsTowardHistory: Boolean!
   personalInstructions: String
   spec: JSON!
 }
 
 type ContentForYouGenerationStatus {
   nextAllowedAt: Date
-  generatedInLast24Hours: Int!
-  dailyLimit: Int!
+  remainingThisHour: Int!
+  hourlyLimit: Int!
+  typicalDurationMsLow: Int
+  typicalDurationMsHigh: Int
 }
 
 type GenerateContentForYouIssueResult {
@@ -1641,7 +1650,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  GenerateContentForYouIssue: GenerateContentForYouIssueResult!
+  GenerateContentForYouIssue(countsTowardHistory: Boolean): GenerateContentForYouIssueResult!
+  ClearContentForYouRecommendationHistory(days: Int!): Int!
 }
 
 type ArbitalCaches {

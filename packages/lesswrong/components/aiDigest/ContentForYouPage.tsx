@@ -2,14 +2,17 @@
 
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client/react";
-import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import ForumDropdown from "@/components/common/ForumDropdown";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { useCurrentUser } from "@/components/common/withUser";
+import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
+import { useMessages } from "@/components/common/withMessages";
 import Loading from "@/components/vulcan-core/Loading";
 import { AiDigestIssueView } from "./AiDigestIssueView";
 
@@ -25,13 +28,14 @@ const ContentForYouOverviewQuery = gql(`
       issueId
       subject
       generatedAt
-      trigger
+      countsTowardHistory
       personalInstructions
     }
     ContentForYouGenerationStatus {
       nextAllowedAt
-      generatedInLast24Hours
-      dailyLimit
+      remainingThisHour
+      typicalDurationMsLow
+      typicalDurationMsHigh
     }
   }
 `);
@@ -42,7 +46,7 @@ const ContentForYouIssueQuery = gql(`
       issueId
       subject
       generatedAt
-      trigger
+      countsTowardHistory
       personalInstructions
       spec
     }
@@ -64,13 +68,13 @@ const UpdateContentForYouInstructionsMutation = gql(`
 `);
 
 const GenerateContentForYouIssueMutation = gql(`
-  mutation GenerateContentForYouIssueMutation {
-    GenerateContentForYouIssue {
+  mutation GenerateContentForYouIssueMutation($countsTowardHistory: Boolean) {
+    GenerateContentForYouIssue(countsTowardHistory: $countsTowardHistory) {
       issue {
         issueId
         subject
         generatedAt
-        trigger
+        countsTowardHistory
         personalInstructions
       }
       nextAllowedAt
@@ -78,16 +82,25 @@ const GenerateContentForYouIssueMutation = gql(`
   }
 `);
 
+const ClearContentForYouRecommendationHistoryMutation = gql(`
+  mutation ClearContentForYouRecommendationHistoryMutation($days: Int!) {
+    ClearContentForYouRecommendationHistory(days: $days)
+  }
+`);
+
 const ISSUE_LIMIT = 24;
 const INSTRUCTION_MAX_LENGTH = 2_000;
-const EDITION_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
+const CHARACTER_COUNT_VISIBLE_FROM = INSTRUCTION_MAX_LENGTH * 0.8;
+const DEFAULT_HISTORY_CLEAR_DAYS = 30;
+const MAX_HISTORY_CLEAR_DAYS = 3_650;
 const GENERATION_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   month: "short",
   day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+const RATE_LIMIT_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   hour: "numeric",
   minute: "2-digit",
 });
@@ -97,86 +110,62 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
     width: "calc(100vw - 32px)",
     maxWidth: 760,
     paddingBottom: 80,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    // Form controls don't inherit fonts by default
+    "& button, & input, & select, & textarea": {
+      fontFamily: "inherit",
+    },
     [theme.breakpoints.down("xs")]: {
       width: "calc(100vw - 20px)",
     },
   },
-  masthead: {
-    display: "flex",
-    alignItems: "center",
-    gap: 13,
-    margin: "44px 0 0",
-    padding: "19px 0 18px",
-    borderTop: `4px solid ${theme.palette.primary.main}`,
-    borderBottom: theme.palette.border.normal,
-  },
-  compass: {
-    width: 34,
-    height: 34,
-    flexShrink: 0,
-    color: theme.palette.text.normal,
-  },
-  lessWrong: {
+  pageTitle: {
+    margin: "18px 0 8px",
     ...theme.typography.headerStyle,
-    fontSize: 27,
-    fontWeight: 600,
-    lineHeight: 1,
-  },
-  productName: {
-    marginTop: 5,
-    color: theme.palette.primary.main,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: "0.16em",
-    lineHeight: 1,
-    textTransform: "uppercase",
+    fontSize: 30,
+    fontWeight: 500,
+    lineHeight: 1.2,
   },
   intro: {
-    maxWidth: 620,
-    margin: "22px 0 34px",
+    margin: "0 0 30px",
     color: theme.palette.text.dim2,
-    ...theme.typography.postStyle,
-    fontSize: 17,
+    fontSize: 15,
     lineHeight: 1.55,
   },
+  subscriptionToggle: {
+    background: "none",
+    border: "none",
+    padding: 0,
+    font: "inherit",
+    cursor: "pointer",
+    color: theme.palette.primary.main,
+    "&:hover": {
+      color: theme.palette.primary.dark,
+    },
+    "&:disabled": {
+      cursor: "default",
+      opacity: 0.7,
+    },
+  },
   instructionsPanel: {
-    position: "relative",
-    marginBottom: 42,
-    padding: "25px 27px 23px",
-    overflow: "hidden",
+    marginBottom: 36,
+    padding: "22px 24px 20px",
     border: theme.palette.border.normal,
     borderRadius: 5,
     background: theme.palette.panelBackground.default,
-    boxShadow: `0 16px 44px ${theme.palette.greyAlpha(0.06)}`,
-    "&:before": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: 4,
-      height: "100%",
-      background: theme.palette.primary.main,
-    },
     [theme.breakpoints.down("xs")]: {
-      padding: "21px 19px 20px 22px",
+      padding: "20px 18px 18px",
     },
   },
   instructionsHeading: {
-    margin: "0 0 5px",
-    ...theme.typography.headerStyle,
-    fontSize: 21,
-    fontWeight: 500,
-  },
-  instructionsDescription: {
-    margin: "0 0 15px",
-    color: theme.palette.text.dim3,
-    fontSize: 13,
-    lineHeight: 1.5,
+    margin: "0 0 12px",
+    fontSize: 16,
+    fontWeight: 600,
   },
   textarea: {
     display: "block",
     width: "100%",
-    minHeight: 132,
+    minHeight: 120,
     boxSizing: "border-box",
     padding: "13px 14px",
     resize: "vertical",
@@ -185,12 +174,14 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
     outline: "none",
     background: theme.palette.background.default,
     color: theme.palette.text.normal,
-    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: 1.5,
     "&:focus": {
       borderColor: theme.palette.primary.main,
       boxShadow: `0 0 0 2px ${theme.palette.background.primaryTranslucent}`,
+    },
+    "&:disabled": {
+      opacity: 0.6,
     },
   },
   editorFooter: {
@@ -198,58 +189,64 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 16,
-    marginTop: 8,
+    marginTop: 12,
     [theme.breakpoints.down("xs")]: {
       alignItems: "flex-start",
       flexDirection: "column",
     },
   },
+  quota: {
+    color: theme.palette.text.dim3,
+    fontSize: 12,
+    lineHeight: 1.45,
+  },
   characterCount: {
+    marginLeft: 10,
     color: theme.palette.text.dim3,
     fontSize: 11,
     whiteSpace: "nowrap",
   },
   actions: {
     display: "flex",
-    gap: 9,
-    [theme.breakpoints.down("xs")]: {
-      width: "100%",
+    alignItems: "center",
+    flexShrink: 0,
+    gap: 14,
+  },
+  historyOption: {
+    display: "flex",
+    alignItems: "center",
+    gap: 7,
+    color: theme.palette.text.dim2,
+    cursor: "pointer",
+    fontSize: 12,
+    lineHeight: 1.4,
+    "& input": {
+      margin: 0,
     },
   },
-  button: {
+  primaryButton: {
     minHeight: 36,
-    padding: "8px 15px",
-    border: theme.palette.border.normal,
-    borderRadius: 3,
-    background: theme.palette.panelBackground.default,
-    color: theme.palette.text.normal,
+    padding: "8px 20px",
+    border: "none",
+    borderRadius: 4,
+    background: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.15)}`,
     cursor: "pointer",
     fontSize: 13,
-    fontWeight: 600,
+    fontWeight: 500,
+    letterSpacing: "0.5px",
+    textTransform: "uppercase",
     "&:hover": {
-      background: theme.palette.panelBackground.hoverHighlightGrey,
+      background: theme.palette.primary.dark,
     },
     "&:disabled": {
       opacity: 0.5,
       cursor: "default",
     },
-    [theme.breakpoints.down("xs")]: {
-      flex: 1,
-    },
   },
-  primaryButton: {
-    borderColor: theme.palette.primary.main,
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    "&:hover": {
-      background: theme.palette.primary.dark,
-    },
-  },
-  status: {
-    margin: "15px 0 0",
-    paddingTop: 12,
-    borderTop: theme.palette.border.faint,
-    color: theme.palette.text.dim3,
+  statusMessage: {
+    marginTop: 10,
     fontSize: 12,
     lineHeight: 1.45,
   },
@@ -257,93 +254,64 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
     color: theme.palette.primary.dark,
     fontWeight: 600,
   },
+  waiting: {
+    color: theme.palette.text.dim2,
+  },
   error: {
     color: theme.palette.error.main,
   },
-  generating: {
-    color: theme.palette.text.normal,
-    fontStyle: "italic",
-  },
-  editionToolbar: {
+  generatedRow: {
     display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 18,
-    marginBottom: 18,
-    paddingBottom: 13,
-    borderBottom: theme.palette.border.normal,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginBottom: 4,
+  },
+  generatedDropdown: {
+    flexShrink: 0,
+  },
+  adminTools: {
+    marginTop: 44,
+    color: theme.palette.text.dim3,
+    fontSize: 12,
+    "& summary": {
+      cursor: "pointer",
+      fontWeight: 600,
+    },
+  },
+  adminToolsRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
     [theme.breakpoints.down("xs")]: {
       alignItems: "stretch",
       flexDirection: "column",
     },
   },
-  editionEyebrow: {
-    marginBottom: 4,
-    color: theme.palette.text.dim3,
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: "0.13em",
-    textTransform: "uppercase",
+  historyDaysInput: {
+    width: 64,
+    height: 30,
+    boxSizing: "border-box",
+    padding: "5px 7px",
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    background: theme.palette.background.default,
+    color: theme.palette.text.normal,
   },
-  editionTitle: {
-    margin: 0,
-    ...theme.typography.headerStyle,
-    fontSize: 25,
-    fontWeight: 500,
-    lineHeight: 1.2,
-  },
-  select: {
-    width: 250,
-    maxWidth: "100%",
-    height: 36,
-    padding: "7px 30px 7px 10px",
+  clearHistoryButton: {
+    minHeight: 30,
+    padding: "5px 10px",
     border: theme.palette.border.normal,
     borderRadius: 3,
     background: theme.palette.panelBackground.default,
-    color: theme.palette.text.normal,
-    fontSize: 12,
-    [theme.breakpoints.down("xs")]: {
-      width: "100%",
-    },
-  },
-  issueMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 18,
-    color: theme.palette.text.dim3,
-    fontSize: 12,
-  },
-  issueBadge: {
-    padding: "3px 8px",
-    borderRadius: 20,
-    background: theme.palette.background.primaryTranslucent,
-    color: theme.palette.primary.dark,
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-  },
-  instructionsSnapshot: {
-    margin: "0 0 24px",
-    padding: "11px 14px",
-    border: theme.palette.border.faint,
-    borderRadius: 3,
-    background: theme.palette.panelBackground.darken03,
-    color: theme.palette.text.dim2,
-    fontSize: 12.5,
-    lineHeight: 1.5,
-    "& summary": {
-      cursor: "pointer",
-      color: theme.palette.text.dim3,
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: "0.06em",
-      textTransform: "uppercase",
-    },
-    "& p": {
-      margin: "10px 0 2px",
-      whiteSpace: "pre-wrap",
+    color: theme.palette.error.main,
+    cursor: "pointer",
+    fontSize: 11,
+    fontWeight: 600,
+    "&:disabled": {
+      opacity: 0.5,
+      cursor: "default",
     },
   },
   emptyState: {
@@ -356,66 +324,74 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
 
 interface InstructionsEditorProps {
   savedInstructions: string;
+  disabled: boolean;
   saveLoading: boolean;
   generationLoading: boolean;
   nextAllowedAt: string | null;
+  remainingThisHour: number | null;
+  typicalDurationMsLow: number | null;
+  typicalDurationMsHigh: number | null;
+  showRemainingQuota: boolean;
+  isAdmin: boolean;
   message: string | null;
   errorMessage: string | null;
-  onSave: (instructions: string) => void;
-  onSaveAndGenerate: (instructions: string) => void;
-}
-
-function CompassRoseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 100 100" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M29.1,29.2l6.4,11.6l4.3-0.8l0.8-4.3L29.1,29.2z M40.7,64.5l-0.8-4.3l-4.3-0.8L29.2,71L40.7,64.5z M70.9,70.9l-6.4-11.6l-4.3,0.8l-0.8,4.3L70.9,70.9z M64.4,40.8l6.4-11.6l-11.6,6.4l0.8,4.3L64.4,40.8z M67.4,58.8l10.8,19.4L58.8,67.4L50,98.8l-8.8-31.4L21.9,78.2l10.8-19.4L1.2,50.1l31.4-8.8L21.9,21.9l19.4,10.8L50,1.3l8.8,31.4l19.4-10.8L67.4,41.3L98.8,50L67.4,58.8zM57.7,57.8L83.5,50L50,50.1l7.7-7.7L50,16.6v33.5l-7.7-7.7l-25.8,7.7H50l-7.7,7.7L50,83.5V50.1L57.7,57.8z"
-      />
-    </svg>
-  );
-}
-
-function issueTypeLabel(trigger: string): string {
-  if (trigger === "scheduled") {
-    return "Email edition";
-  }
-  if (trigger === "userPreview") {
-    return "Sample";
-  }
-  return "Prototype";
-}
-
-function formatEditionDate(timestamp: string): string {
-  return EDITION_DATE_FORMATTER.format(new Date(timestamp));
+  onSaveAndGenerate: (instructions: string, countsTowardHistory: boolean) => void;
 }
 
 function formatGenerationTime(timestamp: string): string {
   return GENERATION_TIME_FORMATTER.format(new Date(timestamp));
 }
 
+function formatRateLimitTime(timestamp: string): string {
+  return RATE_LIMIT_TIME_FORMATTER.format(new Date(timestamp));
+}
+
+function generationsLeftLabel(remainingThisHour: number): string {
+  return remainingThisHour === 1
+    ? "1 generation left this hour"
+    : `${remainingThisHour.toLocaleString()} generations left this hour`;
+}
+
+function formatTypicalDurationRange(
+  lowMs: number | null,
+  highMs: number | null,
+): string {
+  if (!lowMs || !highMs) {
+    return "a minute or two";
+  }
+  // Floor the low bound and ceil the high bound so the promise stays generous
+  const lowMinutes = Math.max(1, Math.floor(lowMs / 60_000));
+  const highMinutes = Math.max(lowMinutes, Math.ceil(highMs / 60_000));
+  if (lowMinutes === highMinutes) {
+    return lowMinutes === 1 ? "about a minute" : `about ${lowMinutes} minutes`;
+  }
+  return `${lowMinutes}–${highMinutes} minutes`;
+}
+
 function InstructionsEditor({
   savedInstructions,
+  disabled,
   saveLoading,
   generationLoading,
   nextAllowedAt,
+  remainingThisHour,
+  typicalDurationMsLow,
+  typicalDurationMsHigh,
+  showRemainingQuota,
+  isAdmin,
   message,
   errorMessage,
-  onSave,
   onSaveAndGenerate,
 }: InstructionsEditorProps) {
   const classes = useStyles(styles);
-  const [instructions, setInstructions] = useState(savedInstructions);
-  const normalizedInstructions = instructions.trim();
-  const isDirty = normalizedInstructions !== savedInstructions.trim();
+  const [editedInstructions, setEditedInstructions] = useState<string | null>(null);
+  const [countsTowardHistory, setCountsTowardHistory] = useState(true);
+  const instructions = editedInstructions ?? savedInstructions;
   const isBusy = saveLoading || generationLoading;
   const rateLimited = !!nextAllowedAt;
 
-  const handleSave = () => {
-    onSave(normalizedInstructions);
-  };
   const handleSaveAndGenerate = () => {
-    onSaveAndGenerate(normalizedInstructions);
+    onSaveAndGenerate(instructions.trim(), countsTowardHistory);
   };
 
   return (
@@ -423,53 +399,57 @@ function InstructionsEditor({
       <h2 id="digest-instructions-heading" className={classes.instructionsHeading}>
         Tune your recommendations
       </h2>
-      <p className={classes.instructionsDescription}>
-        Tell the AI what you want more of, what to avoid, or which questions and authors
-        you want it to follow. These instructions take priority over inferred interests.
-      </p>
       <textarea
         className={classes.textarea}
         value={instructions}
         maxLength={INSTRUCTION_MAX_LENGTH}
-        onChange={(event) => setInstructions(event.target.value)}
+        disabled={disabled}
+        onChange={(event) => setEditedInstructions(event.target.value)}
         placeholder="For example: More technical alignment work and decision theory. Include good comments I may have missed. Fewer introductory AI governance posts."
         aria-label="Personal instructions for Content for You"
       />
       <div className={classes.editorFooter}>
-        <span className={classes.characterCount}>
-          {instructions.length.toLocaleString()} / {INSTRUCTION_MAX_LENGTH.toLocaleString()}
+        <span className={classes.quota}>
+          {rateLimited && nextAllowedAt
+            ? `No generations left this hour. You can generate again after ${formatRateLimitTime(nextAllowedAt)}.`
+            : showRemainingQuota && remainingThisHour !== null
+              ? generationsLeftLabel(remainingThisHour)
+              : null}
+          {instructions.length > CHARACTER_COUNT_VISIBLE_FROM && (
+            <span className={classes.characterCount}>
+              {instructions.length.toLocaleString()} / {INSTRUCTION_MAX_LENGTH.toLocaleString()}
+            </span>
+          )}
         </span>
         <div className={classes.actions}>
+          {isAdmin && (
+            <label className={classes.historyOption}>
+              <input
+                type="checkbox"
+                checked={countsTowardHistory}
+                disabled={disabled || isBusy}
+                onChange={(event) => setCountsTowardHistory(event.target.checked)}
+              />
+              <span>Counts toward history</span>
+            </label>
+          )}
           <button
             type="button"
-            className={classes.button}
-            disabled={!isDirty || isBusy}
-            onClick={handleSave}
-          >
-            {saveLoading && !generationLoading ? "Saving…" : "Save"}
-          </button>
-          <button
-            type="button"
-            className={classNames(classes.button, classes.primaryButton)}
-            disabled={isBusy || rateLimited}
+            className={classes.primaryButton}
+            disabled={disabled || isBusy || rateLimited}
             onClick={handleSaveAndGenerate}
           >
-            {generationLoading ? "Generating…" : "Save & generate sample"}
+            {isBusy ? "Generating…" : "Save & generate"}
           </button>
         </div>
       </div>
-      <div className={classes.status} aria-live="polite">
-        {generationLoading ? (
-          <span className={classes.generating}>
-            Selecting and writing your sample. This usually takes one or two minutes;
-            you can leave this page open while it works.
-          </span>
-        ) : rateLimited && nextAllowedAt ? (
-          <span>
-            You can generate another sample after {formatGenerationTime(nextAllowedAt)}.
-          </span>
-        ) : (
-          <span>Sample generation is unrestricted while this page is in admin preview.</span>
+      <div className={classes.statusMessage} aria-live="polite">
+        {isBusy && (
+          <div className={classes.waiting}>
+            Generations typically take{" "}
+            {formatTypicalDurationRange(typicalDurationMsLow, typicalDurationMsHigh)}.
+            You will be notified when it completes.
+          </div>
         )}
         {message && <div className={classes.success}>{message}</div>}
         {errorMessage && <div className={classes.error}>{errorMessage}</div>}
@@ -482,8 +462,15 @@ export function ContentForYouPage() {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const hasAccess = userIsAdmin(currentUser);
+  const isAdmin = userIsAdmin(currentUser);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [hasGeneratedThisSession, setHasGeneratedThisSession] = useState(false);
+  const [historyClearDays, setHistoryClearDays] = useState(DEFAULT_HISTORY_CLEAR_DAYS);
+  const updateCurrentUser = useUpdateCurrentUser();
+  const { flash } = useMessages();
+  const [subscriptionUpdating, setSubscriptionUpdating] = useState(false);
+  const isSubscribed = !!currentUser?.emailSubscribedToAiDigest;
   const {
     data: overviewData,
     loading: overviewLoading,
@@ -506,13 +493,22 @@ export function ContentForYouPage() {
     loading: generationLoading,
     error: generationError,
   }] = useMutation(GenerateContentForYouIssueMutation);
+  const [clearRecommendationHistory, {
+    loading: historyClearLoading,
+    error: historyClearError,
+  }] = useMutation(ClearContentForYouRecommendationHistoryMutation);
 
   const issues = overviewData?.ContentForYouIssues ?? [];
   const effectiveIssueId = selectedIssueId
     && issues.some((issue) => issue.issueId === selectedIssueId)
     ? selectedIssueId
     : issues[0]?.issueId ?? null;
-  const selectedSummary = issues.find((issue) => issue.issueId === effectiveIssueId) ?? null;
+  const generationOptions: Record<string, SettingsOption> = Object.fromEntries(
+    issues.map((issue) => [issue.issueId, {
+      label: `${isAdmin && !issue.countsTowardHistory ? "Not counted · " : ""}${formatGenerationTime(issue.generatedAt)} · ${issue.subject}`,
+      shortLabel: formatGenerationTime(issue.generatedAt),
+    }]),
+  );
   const {
     data: issueData,
     loading: issueLoading,
@@ -524,11 +520,15 @@ export function ContentForYouPage() {
     fetchPolicy: "network-only",
   });
 
-  const handleSave = (instructions: string) => {
+  const handleSaveAndGenerate = (
+    instructions: string,
+    countsTowardHistory: boolean,
+  ) => {
     if (!currentUser) {
       return;
     }
     setMessage(null);
+    setHasGeneratedThisSession(true);
     void updateInstructions({
       variables: {
         selector: { _id: currentUser._id },
@@ -536,28 +536,55 @@ export function ContentForYouPage() {
           aiDigestPersonalInstructions: instructions || null,
         },
       },
-    }).then(() => {
-      setMessage("Your instructions were saved.");
+    }).then(() => generateIssue({
+      variables: {
+        countsTowardHistory,
+      },
+    })).then(({ data }) => {
+      const newIssueId = data?.GenerateContentForYouIssue.issue.issueId ?? null;
+      setSelectedIssueId(newIssueId);
+      setMessage("Your new recommendations are ready.");
       void refetchOverview();
     }, () => undefined);
   };
 
-  const handleSaveAndGenerate = (instructions: string) => {
-    if (!currentUser) {
+  const handleToggleSubscription = () => {
+    const subscribing = !isSubscribed;
+    setSubscriptionUpdating(true);
+    void updateCurrentUser({
+      emailSubscribedToAiDigest: subscribing,
+    }).then(() => {
+      flash({
+        messageString: subscribing ? "You are now subscribed" : "You are now unsubscribed",
+        type: "success",
+      });
+    }, () => {
+      flash({
+        messageString: "Could not update subscription",
+        type: "error",
+      });
+    }).finally(() => setSubscriptionUpdating(false));
+  };
+
+  const handleClearRecommendationHistory = () => {
+    if (!window.confirm(
+      `Delete counted history from the last ${historyClearDays} days? `
+      + "Generations that don't count toward history will be kept.",
+    )) {
       return;
     }
     setMessage(null);
-    void updateInstructions({
+    void clearRecommendationHistory({
       variables: {
-        selector: { _id: currentUser._id },
-        data: {
-          aiDigestPersonalInstructions: instructions || null,
-        },
+        days: historyClearDays,
       },
-    }).then(() => generateIssue()).then(({ data }) => {
-      const newIssueId = data?.GenerateContentForYouIssue.issue.issueId ?? null;
-      setSelectedIssueId(newIssueId);
-      setMessage("Your new sample is ready.");
+    }).then(({ data }) => {
+      const deletedCount = data?.ClearContentForYouRecommendationHistory ?? 0;
+      setSelectedIssueId(null);
+      setMessage(
+        `Cleared ${deletedCount} counted ${deletedCount === 1 ? "generation" : "generations"} `
+        + `from the last ${historyClearDays} days.`,
+      );
       void refetchOverview();
     }, () => undefined);
   };
@@ -572,36 +599,55 @@ export function ContentForYouPage() {
     overviewData?.user?.result?.aiDigestPersonalInstructions ?? "";
   const generationStatus = overviewData?.ContentForYouGenerationStatus;
   const selectedIssue = issueData?.ContentForYouIssue;
-  const mutationError = saveError ?? generationError;
+  const mutationError = saveError ?? generationError ?? historyClearError;
 
   return (
     <SingleColumnSection className={classes.page}>
-      <header className={classes.masthead}>
-        <CompassRoseIcon className={classes.compass} />
-        <div>
-          <div className={classes.lessWrong}>LessWrong</div>
-          <div className={classes.productName}>Content for You</div>
-        </div>
-      </header>
+      <h1 className={classes.pageTitle}>Content for You</h1>
       <p className={classes.intro}>
-        A weekly, personalized reading list of worthwhile LessWrong posts and discussions
-        you may not have seen. You can steer the assistant directly, then preview what it
-        would choose for you.
+        Personalized reading for you based on your read and upvote history.{" "}
+        {isSubscribed ? (
+          <>
+            <button
+              type="button"
+              className={classes.subscriptionToggle}
+              onClick={handleToggleSubscription}
+              disabled={subscriptionUpdating}
+            >
+              You are subscribed
+            </button>{" "}
+            and will receive an email weekly.
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              className={classes.subscriptionToggle}
+              onClick={handleToggleSubscription}
+              disabled={subscriptionUpdating}
+            >
+              Click here to subscribe
+            </button>{" "}
+            to a weekly email.
+          </>
+        )}
       </p>
 
-      {overviewLoading ? <Loading /> : (
-        <InstructionsEditor
-          key={savedInstructions}
-          savedInstructions={savedInstructions}
-          saveLoading={saveLoading}
-          generationLoading={generationLoading}
-          nextAllowedAt={generationStatus?.nextAllowedAt ?? null}
-          message={message}
-          errorMessage={mutationError?.message ?? null}
-          onSave={handleSave}
-          onSaveAndGenerate={handleSaveAndGenerate}
-        />
-      )}
+      <InstructionsEditor
+        savedInstructions={savedInstructions}
+        disabled={overviewLoading}
+        saveLoading={saveLoading}
+        generationLoading={generationLoading}
+        nextAllowedAt={generationStatus?.nextAllowedAt ?? null}
+        remainingThisHour={generationStatus?.remainingThisHour ?? null}
+        typicalDurationMsLow={generationStatus?.typicalDurationMsLow ?? null}
+        typicalDurationMsHigh={generationStatus?.typicalDurationMsHigh ?? null}
+        showRemainingQuota={hasGeneratedThisSession}
+        isAdmin={isAdmin}
+        message={message}
+        errorMessage={mutationError?.message ?? null}
+        onSaveAndGenerate={handleSaveAndGenerate}
+      />
 
       {overviewError && (
         <p className={classes.error}>Could not load Content for You: {overviewError.message}</p>
@@ -609,56 +655,64 @@ export function ContentForYouPage() {
 
       {!overviewLoading && !overviewError && issues.length === 0 && (
         <div className={classes.emptyState}>
-          Save your preferences and generate a sample to create your first edition.
+          Press Save &amp; generate to create your first personalized reading list.
         </div>
       )}
 
       {issues.length > 0 && (
         <>
-          <div className={classes.editionToolbar}>
-            <div>
-              <div className={classes.editionEyebrow}>Your reading list</div>
-              <h1 className={classes.editionTitle}>Current edition</h1>
-            </div>
-            <select
-              className={classes.select}
+          <div className={classes.generatedRow}>
+            <ForumDropdown
               value={effectiveIssueId ?? ""}
-              onChange={(event) => setSelectedIssueId(event.target.value)}
-              aria-label="Choose an edition"
-            >
-              {issues.map((issue) => (
-                <option key={issue.issueId} value={issue.issueId}>
-                  {formatEditionDate(issue.generatedAt)} · {issue.subject}
-                </option>
-              ))}
-            </select>
+              options={generationOptions}
+              onSelect={setSelectedIssueId}
+              menuPlacement="bottom-end"
+              className={classes.generatedDropdown}
+            />
           </div>
-
-          {selectedSummary && (
-            <div className={classes.issueMeta}>
-              <span className={classes.issueBadge}>{issueTypeLabel(selectedSummary.trigger)}</span>
-              <span>{formatEditionDate(selectedSummary.generatedAt)}</span>
-            </div>
-          )}
-
-          {selectedIssue && (
-            <details className={classes.instructionsSnapshot}>
-              <summary>Instructions used for this edition</summary>
-              <p>
-                {selectedIssue.personalInstructions
-                  || "No additional personal instructions were supplied."}
-              </p>
-            </details>
-          )}
 
           {issueLoading && <Loading />}
           {issueError && (
-            <p className={classes.error}>Could not load this edition: {issueError.message}</p>
+            <p className={classes.error}>Could not load this content: {issueError.message}</p>
           )}
           {!issueLoading && selectedIssue && (
-            <AiDigestIssueView spec={selectedIssue.spec} />
+            <AiDigestIssueView
+              spec={selectedIssue.spec}
+              personalInstructions={selectedIssue.personalInstructions}
+            />
           )}
         </>
+      )}
+
+      {isAdmin && (
+        <details className={classes.adminTools}>
+          <summary>Admin tools</summary>
+          <div className={classes.adminToolsRow}>
+            <span>Clear counted history from the last</span>
+            <input
+              className={classes.historyDaysInput}
+              type="number"
+              min={1}
+              max={MAX_HISTORY_CLEAR_DAYS}
+              value={historyClearDays}
+              disabled={historyClearLoading}
+              aria-label="Days of recommendation history to clear"
+              onChange={(event) => {
+                const days = Number(event.target.value);
+                setHistoryClearDays(Math.max(1, Math.min(MAX_HISTORY_CLEAR_DAYS, days)));
+              }}
+            />
+            <span>days</span>
+            <button
+              type="button"
+              className={classes.clearHistoryButton}
+              disabled={historyClearLoading}
+              onClick={handleClearRecommendationHistory}
+            >
+              {historyClearLoading ? "Clearing…" : "Clear history"}
+            </button>
+          </div>
+        </details>
       )}
     </SingleColumnSection>
   );

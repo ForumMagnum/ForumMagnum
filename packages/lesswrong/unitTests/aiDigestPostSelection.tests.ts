@@ -52,6 +52,8 @@ import {
   buildAiDigestSelectionMessages,
   buildAiDigestSpecFromPostSelection,
   finalizeAiDigestPostSelection,
+  sanitizeAiDigestPostSelectionOutput,
+  sumAiDigestSelectionCostUsd,
   validateAiDigestPostSelectionOutput,
 } from "@/server/aiDigest/aiDigestPostSelection";
 import { rubyAiDigestSpec } from "@/server/emailComponents/AiDigestSpec";
@@ -213,12 +215,14 @@ function makeIssue(
   index: number,
   generatedAt: Date,
   postIds: string[] = [`post-${index}`],
+  countsTowardHistory = true,
 ): AiDigestIssueRecord {
   return {
     _id: `issue-${index}`,
     recipientId: "reader-1",
     postIds,
     generatedAt,
+    countsTowardHistory,
     selectionModelId: "selection-model",
     promptVersion: "selection-v2",
   };
@@ -241,10 +245,13 @@ function makeValidOutput(): AiDigestPostSelectionModelOutput {
 
 const TEST_TOKEN_USAGE = {
   inputTokenCount: 2_000,
+  outputTokenCount: 800,
   uncachedInputTokenCount: 500,
   cacheReadInputTokenCount: 1_500,
   cacheWriteInputTokenCount: 0,
 };
+const TEST_SELECTION_COST_USD = 0.00849;
+const TEST_GENERATION_DURATION_MS = 75_000;
 
 describe("AI digest newsletter eligibility policy", () => {
   const options = {
@@ -431,6 +438,27 @@ describe("AI digest reader dossier", () => {
 });
 
 describe("AI digest recommendation history", () => {
+  it("ignores scratch issues that do not count toward history", () => {
+    const countedIssue = makeIssue(
+      1,
+      new Date("2026-07-10T12:00:00.000Z"),
+      ["post-counted"],
+    );
+    const scratchIssue = makeIssue(
+      2,
+      new Date("2026-07-11T12:00:00.000Z"),
+      ["post-scratch"],
+      false,
+    );
+    const selected = selectRecentAiDigestIssues([countedIssue, scratchIssue]);
+    expect(selected.map((issue) => issue._id)).toEqual([countedIssue._id]);
+
+    const history = buildAiDigestHistory([countedIssue, scratchIssue], []);
+    expect(history.issues.map((issue) => issue._id)).toEqual([countedIssue._id]);
+    expect(history.postHistoryById.has("post-counted")).toBe(true);
+    expect(history.postHistoryById.has("post-scratch")).toBe(false);
+  });
+
   it("bounds recent issues and aggregates repeated inclusions", () => {
     const issues = Array.from({ length: AI_DIGEST_HISTORY_ISSUE_LIMIT + 2 }, (_, index) =>
       makeIssue(
@@ -881,6 +909,28 @@ describe("AI digest selection prompt", () => {
   });
 });
 
+describe("AI digest selection cost tracking", () => {
+  it("sums gateway costs across tool-loop steps", () => {
+    expect(sumAiDigestSelectionCostUsd([
+      { gateway: { cost: "0.00849" } },
+      { gateway: { cost: "0.00151" } },
+    ])).toBeCloseTo(0.01);
+  });
+
+  it("ignores missing or malformed step costs", () => {
+    expect(sumAiDigestSelectionCostUsd([
+      undefined,
+      { gateway: { generationId: "generation-1" } },
+      { gateway: { cost: "not-a-number" } },
+      { gateway: { cost: "0.0025" } },
+    ])).toBe(0.0025);
+    expect(sumAiDigestSelectionCostUsd([
+      undefined,
+      { gateway: { generationId: "generation-2" } },
+    ])).toBeNull();
+  });
+});
+
 describe("AI digest model-output validation and spec mapping", () => {
   const candidates = [1, 2, 3, 4, 5, 6].map((index) => ({
     ...makeCandidateCard(index),
@@ -890,6 +940,20 @@ describe("AI digest model-output validation and spec mapping", () => {
     lastIncludedAt: null,
     exclusionReason: null,
   }));
+
+  it("decodes stray unicode escape sequences left in model copy", () => {
+    const output = makeValidOutput();
+    output.subject = "The Halo Defense \\u2014 and more";
+    output.preheader = "Community dynamics \\u2019 explored";
+    output.aiNote = ["First \\u2014 paragraph", "No escapes here"];
+    output.selectedPosts[0].reason = "Because you liked \\u201CPrediction\\u201D.";
+    const sanitized = sanitizeAiDigestPostSelectionOutput(output);
+    expect(sanitized.subject).toBe("The Halo Defense — and more");
+    expect(sanitized.preheader).toBe("Community dynamics ’ explored");
+    expect(sanitized.aiNote).toEqual(["First — paragraph", "No escapes here"]);
+    expect(sanitized.selectedPosts[0].reason).toBe("Because you liked “Prediction”.");
+    expect(sanitized.selectedPosts[1]).toEqual(output.selectedPosts[1]);
+  });
 
   it("rejects duplicate and unknown post IDs", () => {
     const duplicateOutput = makeValidOutput();
@@ -1042,8 +1106,11 @@ describe("AI digest model-output validation and spec mapping", () => {
       selectionSystemPrompt: "System prompt",
       selectionUserPrompt: "User prompt",
       tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
       generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
       trigger: "userPreview",
+      countsTowardHistory: false,
       personalInstructions: "More decision theory, please.",
       output: makeValidOutput(),
       candidates,
@@ -1054,13 +1121,16 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientId: "reader-1",
       postIds: ["post-1", "post-2", "post-3", "post-4", "post-5"],
       generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
       trigger: "userPreview",
+      countsTowardHistory: false,
       personalInstructions: "More decision theory, please.",
       selectionModelId: "selection-model",
       promptVersion: "selection-v2",
       selectionSystemPrompt: "System prompt",
       selectionUserPrompt: "User prompt",
       ...TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
       spec: finalized.spec,
     });
 
@@ -1076,8 +1146,11 @@ describe("AI digest model-output validation and spec mapping", () => {
       selectionSystemPrompt: "System prompt",
       selectionUserPrompt: "User prompt",
       tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
       generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
       trigger: "userPreview",
+      countsTowardHistory: false,
       personalInstructions: "More decision theory, please.",
       output: invalidOutput,
       candidates,
@@ -1097,8 +1170,11 @@ describe("AI digest model-output validation and spec mapping", () => {
       selectionSystemPrompt: "System prompt",
       selectionUserPrompt: "User prompt",
       tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
       generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
       trigger: "adminSample",
+      countsTowardHistory: true,
       personalInstructions: null,
       output: makeValidOutput(),
       candidates,

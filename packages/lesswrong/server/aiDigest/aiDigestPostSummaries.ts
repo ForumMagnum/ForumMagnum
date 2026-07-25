@@ -76,6 +76,10 @@ export interface AiDigestCachedSummaryLoadResult {
   skippedPostCount: number;
 }
 
+export interface AiDigestEnsuredSummaryLoadResult extends AiDigestCachedSummaryLoadResult {
+  generatedSummaryCount: number;
+}
+
 export interface AiDigestSummaryGenerationInput {
   target: AiDigestPostSummaryTarget;
   body: string;
@@ -493,6 +497,71 @@ export async function loadCachedAiDigestPostSummaries({
     modelId,
     promptVersion,
   });
+}
+
+/**
+ * Attach summaries to digest corpus candidates, generating and caching any that
+ * are missing. Corpus candidates must always carry summaries into the selection
+ * prompt; only posts whose bodies are unusable are dropped.
+ */
+export async function ensureAiDigestPostSummaries({
+  candidates,
+  context,
+  modelId = AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
+  promptVersion = AI_DIGEST_POST_SUMMARY_PROMPT_VERSION,
+  concurrency = 8,
+}: {
+  candidates: Array<AiDigestPostCandidate & AiDigestPostSummaryTarget>;
+  context: ResolverContext;
+  modelId?: string;
+  promptVersion?: string;
+  concurrency?: number;
+}): Promise<AiDigestEnsuredSummaryLoadResult> {
+  const cachedSummaries = await fetchCachedAiDigestPostSummaries({
+    targets: candidates,
+    modelId,
+    promptVersion,
+  });
+  const { missingTargets } = findCachedAiDigestPostSummaries(
+    candidates,
+    cachedSummaries,
+    modelId,
+    promptVersion,
+  );
+  const bodyRows = await context.repos.posts.getAiDigestPostBodyRowsByIds({
+    postIds: missingTargets.map((candidate) => candidate.postId),
+  });
+  const bodyRowsByPostId = new Map(bodyRows.map((row) => [row.postId, row]));
+  const bodiesByRevisionId = new Map(missingTargets.flatMap((candidate) => {
+    const row = bodyRowsByPostId.get(candidate.postId);
+    const body = row ? usableBodyFromRevisionHtml(row.revisionHtml) : null;
+    return body ? [[candidate.revisionId, body] as const] : [];
+  }));
+  const populationResult = await populateMissingAiDigestPostSummaries({
+    targets: candidates,
+    cachedSummaries,
+    bodiesByRevisionId,
+    modelId,
+    promptVersion,
+    concurrency,
+    dependencies: {
+      generateSummary: generatePostSummary,
+      saveSummary: savePostSummary,
+    },
+  });
+  const summariesByPostId = new Map(
+    populationResult.summaries.map((summary) => [summary.postId, summary]),
+  );
+  const summarizedCandidates = candidates.flatMap((candidate) => {
+    const summary = summariesByPostId.get(candidate.postId);
+    return summary ? [withSummary(candidate, summary)] : [];
+  });
+  return {
+    candidates: summarizedCandidates,
+    reusedSummaryCount: populationResult.reusedSummaryCount,
+    generatedSummaryCount: populationResult.generatedSummaryCount,
+    skippedPostCount: populationResult.skippedPostCount,
+  };
 }
 
 export async function populateAiDigestPostSummaries({

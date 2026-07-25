@@ -13,14 +13,18 @@ interface DbAiDigestIssue extends DbObject {
   __collectionName?: "AiDigestIssues"
   cacheReadInputTokenCount: number | null
   cacheWriteInputTokenCount: number | null
+  countsTowardHistory: boolean
   createdAt: Date
   generatedAt: Date
+  generationDurationMs: number
   inputTokenCount: number | null
   legacyData: any | null
+  outputTokenCount: number | null
   personalInstructions: string | null
   postIds: Array<string>
   promptVersion: string
   recipientId: string
+  selectionCostUsd: number | null
   selectionModelId: string
   selectionSystemPrompt: string | null
   selectionUserPrompt: string | null

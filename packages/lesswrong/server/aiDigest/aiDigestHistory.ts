@@ -3,6 +3,8 @@ import type { AiDigestSpec } from "@/server/emailComponents/AiDigestSpec";
 import type { AiDigestPostInteractionRow } from "@/server/repos/PostsRepo";
 
 export const AI_DIGEST_HISTORY_ISSUE_LIMIT = 8;
+export const AI_DIGEST_CLEAR_HISTORY_MAX_DAYS = 3_650;
+const DAY_MS = 24 * 60 * 60 * 1_000;
 
 export type AiDigestIssueTrigger = "adminSample" | "userPreview" | "scheduled";
 
@@ -11,6 +13,7 @@ export interface AiDigestIssueRecord {
   recipientId: string;
   postIds: string[];
   generatedAt: Date;
+  countsTowardHistory: boolean;
   selectionModelId: string;
   promptVersion: string;
 }
@@ -39,6 +42,7 @@ export interface AiDigestHistory {
 
 export interface AiDigestSelectionTokenUsage {
   inputTokenCount: number | null;
+  outputTokenCount: number | null;
   uncachedInputTokenCount: number | null;
   cacheReadInputTokenCount: number | null;
   cacheWriteInputTokenCount: number | null;
@@ -48,12 +52,15 @@ export interface AiDigestIssueInsert extends AiDigestSelectionTokenUsage {
   recipientId: string;
   postIds: string[];
   generatedAt: Date;
+  generationDurationMs: number;
   trigger: AiDigestIssueTrigger;
+  countsTowardHistory: boolean;
   personalInstructions: string | null;
   selectionModelId: string;
   promptVersion: string;
   selectionSystemPrompt: string;
   selectionUserPrompt: string;
+  selectionCostUsd: number | null;
   spec: AiDigestSpec;
 }
 
@@ -65,7 +72,8 @@ export function selectRecentAiDigestIssues(
   issues: AiDigestIssueRecord[],
   limit = AI_DIGEST_HISTORY_ISSUE_LIMIT,
 ): AiDigestIssueRecord[] {
-  return [...issues]
+  return issues
+    .filter((issue) => issue.countsTowardHistory)
     .sort((first, second) =>
       second.generatedAt.getTime() - first.generatedAt.getTime()
       || second._id.localeCompare(first._id),
@@ -138,10 +146,11 @@ export function buildAiDigestHistory(
   issues: AiDigestIssueRecord[],
   interactions: AiDigestPostInteractionRow[],
 ): AiDigestHistory {
+  const countedIssues = issues.filter((issue) => issue.countsTowardHistory);
   return {
-    issues,
-    postHistoryById: buildAiDigestPostHistoryById(issues),
-    pastRecommendations: buildAiDigestPastRecommendations(issues, interactions),
+    issues: countedIssues,
+    postHistoryById: buildAiDigestPostHistoryById(countedIssues),
+    pastRecommendations: buildAiDigestPastRecommendations(countedIssues, interactions),
   };
 }
 
@@ -159,13 +168,17 @@ export async function loadAiDigestHistory({
     return buildAiDigestHistory([], []);
   }
   const issues = await AiDigestIssues.find(
-    { recipientId: userId },
+    {
+      recipientId: userId,
+      countsTowardHistory: true,
+    },
     { sort: { generatedAt: -1, _id: -1 }, limit },
     {
       _id: 1,
       recipientId: 1,
       postIds: 1,
       generatedAt: 1,
+      countsTowardHistory: 1,
       selectionModelId: 1,
       promptVersion: 1,
     },
@@ -182,4 +195,31 @@ export async function persistAiDigestIssue(
   issue: AiDigestIssueInsert,
 ): Promise<string> {
   return await AiDigestIssues.rawInsert(issue);
+}
+
+export async function clearAiDigestRecommendationHistory({
+  recipientId,
+  days,
+  now = new Date(),
+}: {
+  recipientId: string;
+  days: number;
+  now?: Date;
+}): Promise<number> {
+  if (
+    !Number.isInteger(days)
+    || days < 1
+    || days > AI_DIGEST_CLEAR_HISTORY_MAX_DAYS
+  ) {
+    throw new Error(
+      `History window must be an integer from 1 to ${AI_DIGEST_CLEAR_HISTORY_MAX_DAYS} days`,
+    );
+  }
+  const generatedAfter = new Date(now.getTime() - (days * DAY_MS));
+  const result = await AiDigestIssues.rawRemove({
+    recipientId,
+    countsTowardHistory: true,
+    generatedAt: { $gte: generatedAfter },
+  });
+  return result.deletedCount;
 }

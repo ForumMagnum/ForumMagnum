@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { isDevelopment } from "@/lib/executionEnvironment";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHistory";
 import {
   generateAiDigestPostSelection,
 } from "@/server/aiDigest/aiDigestPostSelection";
@@ -29,6 +30,7 @@ interface AiDigestEmailSampleSummary {
   subject: string;
   generatedAt: Date;
   selectionModelId: string;
+  countsTowardHistory: boolean;
 }
 
 function renderRubyDigest(emailContext: EmailContextType) {
@@ -69,7 +71,10 @@ async function findUserBySlug(userSlug: string): Promise<DbUser> {
 }
 
 function storedSampleSummary(
-  issue: Pick<DbAiDigestIssue, "_id" | "spec" | "generatedAt" | "selectionModelId">,
+  issue: Pick<
+    DbAiDigestIssue,
+    "_id" | "spec" | "generatedAt" | "selectionModelId" | "countsTowardHistory"
+  >,
 ): AiDigestEmailSampleSummary {
   if (!issue.spec) {
     throw new Error(`AI digest issue ${issue._id} has no stored spec`);
@@ -79,6 +84,7 @@ function storedSampleSummary(
     subject: issue.spec.subject,
     generatedAt: issue.generatedAt,
     selectionModelId: issue.selectionModelId,
+    countsTowardHistory: issue.countsTowardHistory,
   };
 }
 
@@ -112,7 +118,13 @@ async function renderDigestSampleForUser({
   });
 }
 
-async function generateOneStoredDigestSample(user: DbUser): Promise<AiDigestEmailSampleSummary> {
+async function generateOneStoredDigestSample({
+  user,
+  countsTowardHistory,
+}: {
+  user: DbUser;
+  countsTowardHistory: boolean;
+}): Promise<AiDigestEmailSampleSummary> {
   let lastError: Error | null = null;
   for (let attempt = 0; attempt < SAMPLE_GENERATION_ATTEMPTS; attempt++) {
     try {
@@ -122,6 +134,9 @@ async function generateOneStoredDigestSample(user: DbUser): Promise<AiDigestEmai
           user,
           isSSR: false,
         }),
+        options: {
+          countsTowardHistory,
+        },
       });
       if (!result.issueId) {
         throw new Error("Generated digest sample was not persisted");
@@ -131,6 +146,7 @@ async function generateOneStoredDigestSample(user: DbUser): Promise<AiDigestEmai
         subject: result.spec.subject,
         generatedAt: result.generatedAt,
         selectionModelId: result.metadata.selectionModelId,
+        countsTowardHistory,
       };
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
@@ -184,6 +200,7 @@ export const digestEmailPreviewGraphQLQueries = {
         spec: 1,
         generatedAt: 1,
         selectionModelId: 1,
+        countsTowardHistory: 1,
       },
     ).fetch();
     return issues.map(storedSampleSummary);
@@ -212,9 +229,12 @@ export const digestEmailPreviewGraphQLQueries = {
       selectionSystemPrompt: issue.selectionSystemPrompt,
       selectionUserPrompt: issue.selectionUserPrompt,
       inputTokenCount: issue.inputTokenCount,
+      outputTokenCount: issue.outputTokenCount,
       uncachedInputTokenCount: issue.uncachedInputTokenCount,
       cacheReadInputTokenCount: issue.cacheReadInputTokenCount,
       cacheWriteInputTokenCount: issue.cacheWriteInputTokenCount,
+      selectionCostUsd: issue.selectionCostUsd,
+      generationDurationMs: issue.generationDurationMs,
     };
   },
 };
@@ -222,7 +242,15 @@ export const digestEmailPreviewGraphQLQueries = {
 export const digestEmailPreviewGraphQLMutations = {
   async GenerateAiDigestEmailSamples(
     _root: void,
-    { userSlug, count }: { userSlug: string; count?: number | null },
+    {
+      userSlug,
+      count,
+      countsTowardHistory,
+    }: {
+      userSlug: string;
+      count?: number | null;
+      countsTowardHistory?: boolean | null;
+    },
     context: ResolverContext,
   ) {
     assertAdminDevelopmentPreview(context.currentUser);
@@ -230,8 +258,27 @@ export const digestEmailPreviewGraphQLMutations = {
     const user = await findUserBySlug(userSlug);
     const sampleCount = boundedSampleCount(count);
     return Promise.all(
-      Array.from({ length: sampleCount }, () => generateOneStoredDigestSample(user)),
+      Array.from(
+        { length: sampleCount },
+        () => generateOneStoredDigestSample({
+          user,
+          countsTowardHistory: countsTowardHistory ?? true,
+        }),
+      ),
     );
+  },
+
+  async ClearAiDigestEmailSampleHistory(
+    _root: void,
+    { userSlug, days }: { userSlug: string; days: number },
+    context: ResolverContext,
+  ) {
+    assertAdminDevelopmentPreview(context.currentUser);
+    const user = await findUserBySlug(userSlug);
+    return await clearAiDigestRecommendationHistory({
+      recipientId: user._id,
+      days,
+    });
   },
 };
 
@@ -241,6 +288,7 @@ export const digestEmailPreviewGraphQLTypeDefs = gql`
     subject: String!
     generatedAt: Date!
     selectionModelId: String!
+    countsTowardHistory: Boolean!
   }
 
   type AiDigestEmailSamplePreview {
@@ -248,9 +296,12 @@ export const digestEmailPreviewGraphQLTypeDefs = gql`
     selectionSystemPrompt: String
     selectionUserPrompt: String
     inputTokenCount: Int
+    outputTokenCount: Int
     uncachedInputTokenCount: Int
     cacheReadInputTokenCount: Int
     cacheWriteInputTokenCount: Int
+    selectionCostUsd: Float
+    generationDurationMs: Int!
   }
 
   extend type Query {
@@ -262,6 +313,11 @@ export const digestEmailPreviewGraphQLTypeDefs = gql`
     GenerateAiDigestEmailSamples(
       userSlug: String!
       count: Int
+      countsTowardHistory: Boolean
     ): [AiDigestEmailSampleSummary!]!
+    ClearAiDigestEmailSampleHistory(
+      userSlug: String!
+      days: Int!
+    ): Int!
   }
 `;

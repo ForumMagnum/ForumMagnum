@@ -27,12 +27,21 @@ const DigestEmailPreviewQuery = gql(`
 `);
 
 const GenerateAiDigestEmailSamplesMutation = gql(`
-  mutation GenerateAiDigestEmailSamplesMutation($userSlug: String!, $count: Int) {
-    GenerateAiDigestEmailSamples(userSlug: $userSlug, count: $count) {
+  mutation GenerateAiDigestEmailSamplesMutation(
+    $userSlug: String!
+    $count: Int
+    $countsTowardHistory: Boolean
+  ) {
+    GenerateAiDigestEmailSamples(
+      userSlug: $userSlug
+      count: $count
+      countsTowardHistory: $countsTowardHistory
+    ) {
       issueId
       subject
       generatedAt
       selectionModelId
+      countsTowardHistory
     }
   }
 `);
@@ -44,7 +53,14 @@ const AiDigestEmailSamplesQuery = gql(`
       subject
       generatedAt
       selectionModelId
+      countsTowardHistory
     }
+  }
+`);
+
+const ClearAiDigestEmailSampleHistoryMutation = gql(`
+  mutation ClearAiDigestEmailSampleHistoryMutation($userSlug: String!, $days: Int!) {
+    ClearAiDigestEmailSampleHistory(userSlug: $userSlug, days: $days)
   }
 `);
 
@@ -60,15 +76,20 @@ const AiDigestEmailSamplePreviewQuery = gql(`
       selectionSystemPrompt
       selectionUserPrompt
       inputTokenCount
+      outputTokenCount
       uncachedInputTokenCount
       cacheReadInputTokenCount
       cacheWriteInputTokenCount
+      selectionCostUsd
+      generationDurationMs
     }
   }
 `);
 
 const DEFAULT_SAMPLE_SLUG = "ruby";
 const DEFAULT_SAMPLE_COUNT = 3;
+const DEFAULT_HISTORY_CLEAR_DAYS = 30;
+const MAX_HISTORY_CLEAR_DAYS = 3_650;
 const STORED_SAMPLE_LIMIT = 50;
 const SAMPLE_LIST_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -168,6 +189,41 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       gridTemplateColumns: "1fr",
     },
+  },
+  historyOption: {
+    display: "flex",
+    alignItems: "center",
+    gridColumn: "1 / -1",
+    gap: 7,
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    fontSize: 12,
+    "& input": {
+      margin: 0,
+    },
+  },
+  historyAdminBar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 8,
+    margin: "-7px 0 18px",
+    color: theme.palette.grey[600],
+    fontSize: 11,
+    [theme.breakpoints.down("xs")]: {
+      alignItems: "stretch",
+      flexDirection: "column",
+    },
+  },
+  historyDaysInput: {
+    width: 64,
+    height: 30,
+    boxSizing: "border-box",
+    padding: "5px 7px",
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.text.normal,
   },
   field: {
     display: "flex",
@@ -301,6 +357,12 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: 11,
     whiteSpace: "nowrap",
+  },
+  scratchLabel: {
+    color: theme.palette.text.dim3,
+    fontSize: 10,
+    fontWeight: 500,
+    textTransform: "uppercase",
   },
   previewPanel: {
     minWidth: 0,
@@ -461,6 +523,25 @@ function formatSampleListDate(generatedAt: string): string {
   return SAMPLE_LIST_DATE_FORMATTER.format(new Date(generatedAt));
 }
 
+function formatGenerationDuration(durationMs: number | undefined): string {
+  if (!durationMs) {
+    return "Not recorded";
+  }
+  const totalSeconds = Math.round(durationMs / 1_000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) {
+    return `${seconds} sec`;
+  }
+  return seconds === 0 ? `${minutes} min` : `${minutes} min ${seconds} sec`;
+}
+
+function formatSelectionCost(costUsd: number | null | undefined): string {
+  return costUsd === null || costUsd === undefined
+    ? "Not reported"
+    : `$${costUsd.toFixed(4)}`;
+}
+
 export default function DigestEmailPreviewPage() {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -474,6 +555,9 @@ export default function DigestEmailPreviewPage() {
   const [sampleSlug, setSampleSlug] = useState(initialUserSlug);
   const [activeSlug, setActiveSlug] = useState(initialUserSlug);
   const [sampleCount, setSampleCount] = useState(DEFAULT_SAMPLE_COUNT);
+  const [countsTowardHistory, setCountsTowardHistory] = useState(true);
+  const [historyClearDays, setHistoryClearDays] = useState(DEFAULT_HISTORY_CLEAR_DAYS);
+  const [historyMessage, setHistoryMessage] = useState<string | null>(null);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(
     query.issue || null,
   );
@@ -490,6 +574,10 @@ export default function DigestEmailPreviewPage() {
     loading: samplesLoading,
     error: samplesError,
   }] = useMutation(GenerateAiDigestEmailSamplesMutation);
+  const [clearSampleHistory, {
+    loading: historyClearLoading,
+    error: historyClearError,
+  }] = useMutation(ClearAiDigestEmailSampleHistoryMutation);
   const {
     data: storedSamplesData,
     loading: storedSamplesLoading,
@@ -548,6 +636,7 @@ export default function DigestEmailPreviewPage() {
     if (!trimmedSlug) {
       return;
     }
+    setHistoryMessage(null);
     if (trimmedSlug !== activeSlug) {
       setActiveSlug(trimmedSlug);
       setSelectedIssueId(null);
@@ -556,6 +645,7 @@ export default function DigestEmailPreviewPage() {
       variables: {
         userSlug: trimmedSlug,
         count: sampleCount,
+        countsTowardHistory,
       },
     }).then(({ data: generatedData }) => {
       const newestIssueId = generatedData?.GenerateAiDigestEmailSamples[0]?.issueId ?? null;
@@ -571,6 +661,34 @@ export default function DigestEmailPreviewPage() {
       }, { replace: true, scroll: false });
       void refetchStoredSamples({
         userSlug: trimmedSlug,
+        limit: STORED_SAMPLE_LIMIT,
+      });
+    }, () => undefined);
+  };
+
+  const handleClearSampleHistory = () => {
+    if (!window.confirm(
+      `Delete counted recommendation-history samples for ${activeSlug} from the last `
+      + `${historyClearDays} days? Scratch samples will be kept.`,
+    )) {
+      return;
+    }
+    setHistoryMessage(null);
+    void clearSampleHistory({
+      variables: {
+        userSlug: activeSlug,
+        days: historyClearDays,
+      },
+    }).then(({ data: clearData }) => {
+      const deletedCount = clearData?.ClearAiDigestEmailSampleHistory ?? 0;
+      setSelectedIssueId(null);
+      setPromptsExpanded(false);
+      setHistoryMessage(
+        `Cleared ${deletedCount} counted ${deletedCount === 1 ? "sample" : "samples"} `
+        + `for ${activeSlug}.`,
+      );
+      void refetchStoredSamples({
+        userSlug: activeSlug,
         limit: STORED_SAMPLE_LIMIT,
       });
     }, () => undefined);
@@ -698,7 +816,42 @@ export default function DigestEmailPreviewPage() {
             >
               {samplesLoading ? "Generating…" : `Generate ${sampleCount}`}
             </button>
+            <label className={classes.historyOption}>
+              <input
+                type="checkbox"
+                checked={countsTowardHistory}
+                disabled={samplesLoading}
+                onChange={(event) => setCountsTowardHistory(event.target.checked)}
+              />
+              <span>Count generated samples toward recommendation history</span>
+            </label>
           </form>
+
+          <div className={classes.historyAdminBar}>
+            <span>Clear counted history for {activeSlug} from the last</span>
+            <input
+              className={classes.historyDaysInput}
+              type="number"
+              min={1}
+              max={MAX_HISTORY_CLEAR_DAYS}
+              value={historyClearDays}
+              disabled={historyClearLoading}
+              aria-label="Days of recommendation history to clear"
+              onChange={(event) => {
+                const days = Number(event.target.value);
+                setHistoryClearDays(Math.max(1, Math.min(MAX_HISTORY_CLEAR_DAYS, days)));
+              }}
+            />
+            <span>days</span>
+            <button
+              type="button"
+              className={classes.button}
+              disabled={historyClearLoading}
+              onClick={handleClearSampleHistory}
+            >
+              {historyClearLoading ? "Clearing…" : "Clear history"}
+            </button>
+          </div>
 
           {samplesLoading && (
             <div className={classes.generationStatus}>
@@ -710,6 +863,14 @@ export default function DigestEmailPreviewPage() {
             <p className={classes.error}>
               Could not generate samples: {samplesError.message}
             </p>
+          )}
+          {historyClearError && (
+            <p className={classes.error}>
+              Could not clear recommendation history: {historyClearError.message}
+            </p>
+          )}
+          {historyMessage && (
+            <div className={classes.generationStatus}>{historyMessage}</div>
           )}
 
           <div className={classes.workbench}>
@@ -742,7 +903,12 @@ export default function DigestEmailPreviewPage() {
                       )}
                       onClick={() => handleSelectSample(sample.issueId)}
                     >
-                      <span className={classes.sampleSubject}>{sample.subject}</span>
+                      <span className={classes.sampleSubject}>
+                        {sample.subject}
+                        {!sample.countsTowardHistory && (
+                          <> <span className={classes.scratchLabel}>scratch</span></>
+                        )}
+                      </span>
                       <span className={classes.sampleMetadata}>
                         {formatSampleListDate(sample.generatedAt)}
                       </span>
@@ -848,9 +1014,23 @@ export default function DigestEmailPreviewPage() {
                     <dd className={classes.metadataValue}>
                       {selectedSampleSummary.selectionModelId}
                     </dd>
+                    <dt className={classes.metadataLabel}>Recommendation history</dt>
+                    <dd className={classes.metadataValue}>
+                      {selectedSampleSummary.countsTowardHistory
+                        ? "Counted"
+                        : "Scratch sample (not counted)"}
+                    </dd>
+                    <dt className={classes.metadataLabel}>Generation time</dt>
+                    <dd className={classes.metadataValue}>
+                      {formatGenerationDuration(selectedSampleDetails?.generationDurationMs)}
+                    </dd>
                     <dt className={classes.metadataLabel}>Input tokens</dt>
                     <dd className={classes.metadataValue}>
                       {selectedSampleDetails?.inputTokenCount ?? "Not reported"}
+                    </dd>
+                    <dt className={classes.metadataLabel}>Output tokens</dt>
+                    <dd className={classes.metadataValue}>
+                      {selectedSampleDetails?.outputTokenCount ?? "Not reported"}
                     </dd>
                     <dt className={classes.metadataLabel}>Uncached input</dt>
                     <dd className={classes.metadataValue}>
@@ -863,6 +1043,10 @@ export default function DigestEmailPreviewPage() {
                     <dt className={classes.metadataLabel}>Cache write</dt>
                     <dd className={classes.metadataValue}>
                       {selectedSampleDetails?.cacheWriteInputTokenCount ?? "Not reported"}
+                    </dd>
+                    <dt className={classes.metadataLabel}>Cost</dt>
+                    <dd className={classes.metadataValue}>
+                      {formatSelectionCost(selectedSampleDetails?.selectionCostUsd)}
                     </dd>
                     <dt className={classes.metadataLabel}>Issue ID</dt>
                     <dd className={classes.metadataValue}>

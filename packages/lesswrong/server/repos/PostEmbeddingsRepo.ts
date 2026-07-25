@@ -159,43 +159,6 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
 
     return results.map(({ _id }) => _id);
   }
-
-  async getAiDigestNearestPostIdsWeightedByQualityByPostId(
-    postId: string,
-    options: AiDigestNearestNeighborOptions,
-  ): Promise<string[]> {
-    const excludePostIds = Array.from(new Set([
-      postId,
-      ...(options.excludePostIds ?? []),
-    ]));
-    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
-      -- PostEmbeddingsRepo.getAiDigestNearestPostIdsWeightedByQualityByPostId
-      WITH source_embedding AS (
-        SELECT embeddings
-        FROM public."PostEmbeddings"
-        WHERE "postId" = $(postId)
-      ),
-      embedding_distances AS (
-        SELECT
-          pe."postId",
-          pe.embeddings <#> (SELECT embeddings FROM source_embedding) AS distance
-        FROM public."PostEmbeddings" pe
-        WHERE pe."postId" != $(postId)
-        ORDER BY distance
-        LIMIT 200
-      )
-      ${this.aiDigestPostIdsByEmbeddingDistanceSelector}
-    `, {
-      postId,
-      minKarma: options.minKarma,
-      publishedAfter: options.publishedAfter ?? null,
-      publishedBefore: options.publishedBefore ?? null,
-      excludePostIds,
-      limit: options.limit,
-    });
-
-    return results.map(({ _id }) => _id);
-  }
 }
 
 recordPerfMetrics(PostEmbeddingsRepo);

@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   countAiDigestWords,
-  formatAiDigestDate,
   selectAiDigestExcerpt,
+  truncateAiDigestText,
 } from "@/lib/aiDigest/aiDigestDisplay";
+import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import { gql } from "@/lib/generated/gql-codegen";
 import type {
   AiDigestEmailComment,
@@ -21,6 +22,9 @@ import type {
 } from "@/server/emailComponents/AiDigestSpec";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import FormatDate from "@/components/common/FormatDate";
+import ForumIcon from "@/components/common/ForumIcon";
+import SectionTitle from "@/components/common/SectionTitle";
 import Loading from "@/components/vulcan-core/Loading";
 
 const AiDigestIssueContentQuery = gql(`
@@ -51,138 +55,145 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     color: theme.palette.text.normal,
   },
   aiNote: {
-    marginBottom: 46,
-    padding: "22px 26px 24px",
-    border: theme.palette.border.faint,
-    borderLeft: `4px solid ${theme.palette.primary.main}`,
-    borderRadius: 4,
-    background: theme.palette.background.primaryTranslucent,
-    [theme.breakpoints.down("xs")]: {
-      padding: "18px 18px 20px",
-    },
+    marginTop: aiDigestPresentation.aiNote.marginTop,
+    padding: aiDigestPresentation.aiNote.padding,
+    borderRadius: aiDigestPresentation.aiNote.borderRadius,
+    background: "light-dark(#e5eadc, #303a2f)",
   },
   aiNoteLabel: {
-    marginBottom: 10,
-    color: theme.palette.primary.main,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: "0.13em",
+    marginBottom: aiDigestPresentation.aiNote.labelMarginBottom,
+    color: "light-dark(#596650, #aab7a0)",
+    // Matches emailSansFont in AiDigestEmail.tsx
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: aiDigestPresentation.aiNote.labelFontSize,
+    fontWeight: aiDigestPresentation.aiNote.labelFontWeight,
+    letterSpacing: aiDigestPresentation.aiNote.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.aiNote.labelLineHeight,
     textTransform: "uppercase",
   },
   aiNoteParagraph: {
-    margin: "9px 0 0",
+    margin: aiDigestPresentation.aiNote.paragraphMargin,
     fontFamily: '"cronos-pro", "Trebuchet MS", Calibri, sans-serif',
-    fontSize: 16,
-    lineHeight: 1.55,
+    fontSize: aiDigestPresentation.aiNote.paragraphFontSize,
+    lineHeight: aiDigestPresentation.aiNote.paragraphLineHeight,
     "&:first-of-type": {
       marginTop: 0,
+    },
+  },
+  customPrompt: {
+    marginTop: 14,
+    padding: "15px 20px 16px",
+    borderRadius: 6,
+    background: theme.palette.panelBackground.darken05,
+    color: theme.palette.text.dim2,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    lineHeight: 1.55,
+  },
+  customPromptLabel: {
+    marginBottom: 6,
+    color: theme.palette.text.dim3,
+    fontSize: aiDigestPresentation.aiNote.labelFontSize,
+    fontWeight: aiDigestPresentation.aiNote.labelFontWeight,
+    letterSpacing: aiDigestPresentation.aiNote.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.aiNote.labelLineHeight,
+    textTransform: "uppercase",
+  },
+  customPromptText: {
+    fontStyle: "italic",
+    whiteSpace: "pre-wrap",
+  },
+  customPromptToggle: {
+    padding: 0,
+    border: "none",
+    background: "none",
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+    fontFamily: "inherit",
+    fontSize: 13,
+    "&:hover": {
+      color: theme.palette.primary.dark,
     },
   },
   section: {
-    marginTop: 44,
-    "&:first-of-type": {
-      marginTop: 0,
-    },
-  },
-  sectionTitle: {
-    margin: "0 0 18px",
-    ...theme.typography.headerStyle,
-    fontSize: 24,
-    fontWeight: 500,
-    lineHeight: 1.2,
+    marginTop: aiDigestPresentation.section.marginTop,
   },
   curatedTitle: {
     display: "flex",
     alignItems: "center",
-    gap: 14,
-    margin: "42px 0 16px",
-    color: theme.palette.text.dim3,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: "0.14em",
+    margin: 0,
+    color: "light-dark(#8a8577, #a8a397)",
+    fontSize: aiDigestPresentation.curated.labelFontSize,
+    fontWeight: aiDigestPresentation.curated.labelFontWeight,
+    letterSpacing: aiDigestPresentation.curated.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.curated.labelLineHeight,
     textTransform: "uppercase",
     "&:after": {
       content: '""',
       height: 1,
       flex: 1,
-      background: theme.palette.greyAlpha(0.16),
+      marginLeft: aiDigestPresentation.curated.labelPaddingRight,
+      background: "light-dark(#d8d1c0, #535049)",
     },
   },
   item: {
-    marginTop: 18,
-    "&:first-of-type": {
-      marginTop: 0,
-    },
+    marginTop: aiDigestPresentation.section.itemSpacing,
+  },
+  quietItemContainer: {
+    marginTop: aiDigestPresentation.curated.itemPaddingTop,
+  },
+  quietItemFirstContainer: {
+    marginTop: aiDigestPresentation.curated.firstItemPaddingTop,
   },
   card: {
     overflow: "hidden",
-    border: theme.palette.border.faint,
-    borderRadius: 5,
-    background: theme.palette.panelBackground.default,
-    boxShadow: `0 10px 30px ${theme.palette.greyAlpha(0.05)}`,
+    borderRadius: aiDigestPresentation.card.borderRadius,
+    background: "light-dark(#fffdf9, #2d2d2b)",
   },
   headlineImage: {
     display: "block",
     width: "100%",
-    height: 250,
+    height: aiDigestPresentation.headline.imageHeight,
     objectFit: "cover",
-    [theme.breakpoints.down("xs")]: {
-      height: 190,
-    },
   },
   headlineBody: {
-    padding: "24px 28px 26px",
-    [theme.breakpoints.down("xs")]: {
-      padding: "20px 20px 22px",
-    },
+    padding: aiDigestPresentation.headline.bodyPadding,
   },
   headlineTitle: {
-    margin: "0 0 7px",
+    margin: aiDigestPresentation.headline.titleMargin,
     ...theme.typography.headerStyle,
-    fontSize: 25,
-    fontWeight: 500,
-    letterSpacing: "-0.01em",
-    lineHeight: 1.18,
+    fontSize: aiDigestPresentation.headline.titleFontSize,
+    fontWeight: aiDigestPresentation.headline.titleFontWeight,
+    letterSpacing: aiDigestPresentation.headline.titleLetterSpacing,
+    lineHeight: aiDigestPresentation.headline.titleLineHeight,
   },
   compactCard: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr) 142px",
-    [theme.breakpoints.down("xs")]: {
-      gridTemplateColumns: "minmax(0, 1fr) 94px",
-    },
+    gridTemplateColumns: `minmax(0, 1fr) ${aiDigestPresentation.compact.imageWidth}px`,
   },
   compactWithoutImage: {
     gridTemplateColumns: "1fr",
   },
   compactBody: {
     minWidth: 0,
-    padding: "19px 22px 8px",
-    [theme.breakpoints.down("xs")]: {
-      padding: "16px 16px 7px",
-    },
+    padding: aiDigestPresentation.compact.textPadding,
   },
   compactImageWrap: {
-    padding: "18px 20px 10px 0",
-    [theme.breakpoints.down("xs")]: {
-      padding: "15px 14px 8px 0",
-    },
+    padding: aiDigestPresentation.compact.imagePadding,
   },
   compactImage: {
     display: "block",
     width: "100%",
-    height: 90,
-    borderRadius: 3,
+    height: aiDigestPresentation.compact.imageHeight,
+    borderRadius: aiDigestPresentation.compact.imageBorderRadius,
     objectFit: "cover",
-    [theme.breakpoints.down("xs")]: {
-      height: 72,
-    },
   },
   compactTitle: {
-    margin: "0 0 4px",
+    margin: aiDigestPresentation.compact.titleMargin,
     ...theme.typography.headerStyle,
-    fontSize: 19,
-    fontWeight: 500,
-    lineHeight: 1.25,
+    fontSize: aiDigestPresentation.compact.titleFontSize,
+    fontWeight: aiDigestPresentation.compact.titleFontWeight,
+    lineHeight: aiDigestPresentation.compact.titleLineHeight,
   },
   titleLink: {
     color: theme.palette.text.normal,
@@ -195,44 +206,83 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     color: "inherit",
     textDecoration: "none",
   },
-  byline: {
-    marginBottom: 12,
+  metadataRow: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
     color: theme.palette.text.dim3,
-    fontSize: 12.5,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  headlineMetadata: {
+    marginBottom: aiDigestPresentation.headline.metadataMarginBottom,
+    fontSize: aiDigestPresentation.headline.metadataFontSize,
+    lineHeight: aiDigestPresentation.headline.metadataLineHeight,
+  },
+  compactMetadata: {
+    marginBottom: aiDigestPresentation.compact.metadataMarginBottom,
+    fontSize: aiDigestPresentation.compact.metadataFontSize,
     lineHeight: 1.4,
   },
+  metadataSeparator: {
+    margin: "0 6px",
+    color: theme.palette.text.dim4,
+  },
+  emphasizedMetadataAuthor: {
+    color: theme.palette.text.normal,
+    fontSize: aiDigestPresentation.discussion.bylineFontSize,
+    fontWeight: aiDigestPresentation.discussion.bylineFontWeight,
+  },
+  permalink: {
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: 7,
+    color: theme.palette.text.dim3,
+    opacity: 0.72,
+    textDecoration: "none",
+    "&:hover": {
+      color: theme.palette.primary.main,
+      opacity: 1,
+    },
+    "&:focus-visible": {
+      color: theme.palette.primary.main,
+      opacity: 1,
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+      borderRadius: 2,
+    },
+  },
+  permalinkIcon: {
+    fontSize: 13,
+  },
   excerpt: {
-    margin: "0 0 14px",
+    margin: aiDigestPresentation.headline.excerptMargin,
     ...theme.typography.postStyle,
-    fontSize: 16,
-    lineHeight: 1.55,
+    fontSize: aiDigestPresentation.headline.excerptFontSize,
+    lineHeight: aiDigestPresentation.headline.excerptLineHeight,
   },
   compactExcerpt: {
-    margin: "8px 0 10px",
+    margin: aiDigestPresentation.compact.excerptMargin,
     ...theme.typography.postStyle,
-    fontSize: 14,
-    lineHeight: 1.48,
+    fontSize: aiDigestPresentation.compact.excerptFontSize,
+    lineHeight: aiDigestPresentation.compact.excerptLineHeight,
   },
   footer: {
     display: "flex",
     alignItems: "baseline",
     flexWrap: "wrap",
-    gap: "5px 16px",
-    paddingTop: 11,
-    borderTop: theme.palette.border.faint,
+    columnGap: aiDigestPresentation.footer.columnGap,
+    rowGap: aiDigestPresentation.footer.rowGap,
+    paddingTop: aiDigestPresentation.footer.paddingTop,
+    borderTop: "1px solid light-dark(#efe9dc, #4a4844)",
   },
   compactFooter: {
     gridColumn: "1 / -1",
-    padding: "0 22px 17px",
-    [theme.breakpoints.down("xs")]: {
-      padding: "0 16px 15px",
-    },
+    padding: aiDigestPresentation.compact.footerPadding,
   },
   readMore: {
-    color: theme.palette.primary.main,
+    color: "light-dark(#5f9b65, #8bbf91)",
     flexShrink: 0,
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: aiDigestPresentation.footer.readLinkFontSize,
     textDecoration: "none",
     "&:hover": {
       textDecoration: "underline",
@@ -240,11 +290,11 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   },
   reason: {
     minWidth: 0,
-    flex: "1 1 230px",
+    flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
     color: theme.palette.text.dim3,
-    fontSize: 12,
+    fontSize: aiDigestPresentation.footer.reasonFontSize,
     fontStyle: "italic",
-    lineHeight: 1.4,
+    lineHeight: aiDigestPresentation.footer.reasonLineHeight,
     textAlign: "right",
     textWrap: "balance",
     [theme.breakpoints.down("xs")]: {
@@ -252,106 +302,100 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     },
   },
   quickTakeBody: {
-    padding: "18px 22px 20px",
-    [theme.breakpoints.down("xs")]: {
-      padding: "16px",
-    },
+    padding: aiDigestPresentation.quickTake.bodyPadding,
   },
   quickTakeMeta: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 14,
-    marginBottom: 10,
+    gap: 12,
+    marginBottom: aiDigestPresentation.quickTake.metaMarginBottom,
   },
-  quickTakeAuthor: {
-    color: theme.palette.text.normal,
-    fontSize: 13,
-    fontWeight: 700,
-  },
-  date: {
-    marginLeft: 8,
-    color: theme.palette.text.dim3,
-    fontSize: 12,
+  quickTakeMetadata: {
+    minWidth: 0,
+    fontSize: aiDigestPresentation.quickTake.dateFontSize,
+    lineHeight: aiDigestPresentation.quickTake.labelLineHeight,
   },
   pill: {
-    padding: "3px 8px",
-    borderRadius: 20,
-    background: theme.palette.background.primaryTranslucent,
-    color: theme.palette.primary.dark,
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: "0.05em",
+    flexShrink: 0,
+    padding: aiDigestPresentation.quickTake.labelPadding,
+    borderRadius: aiDigestPresentation.quickTake.labelBorderRadius,
+    background: "light-dark(#e5eadc, #303a2f)",
+    color: "light-dark(#647259, #aab7a0)",
+    fontSize: aiDigestPresentation.quickTake.labelFontSize,
+    fontWeight: aiDigestPresentation.quickTake.labelFontWeight,
+    lineHeight: aiDigestPresentation.quickTake.labelLineHeight,
     textTransform: "uppercase",
   },
   quickTakeText: {
-    margin: "0 0 14px",
-    fontSize: 15,
-    lineHeight: 1.55,
+    margin: aiDigestPresentation.quickTake.textMargin,
+    fontSize: aiDigestPresentation.quickTake.textFontSize,
+    lineHeight: aiDigestPresentation.quickTake.textLineHeight,
   },
   discussionBody: {
-    padding: "21px 24px 23px",
-    [theme.breakpoints.down("xs")]: {
-      padding: "17px 16px 19px",
-    },
+    padding: aiDigestPresentation.discussion.bodyPadding,
   },
   discussionTitle: {
-    margin: "0 0 12px",
-    fontSize: 16,
-    fontWeight: 700,
-    lineHeight: 1.35,
+    margin: aiDigestPresentation.discussion.titleMargin,
+    fontSize: aiDigestPresentation.discussion.titleFontSize,
+    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
+  },
+  discussionThreadTitle: {
+    margin: aiDigestPresentation.discussion.threadTitleMargin,
+    fontSize: aiDigestPresentation.discussion.threadTitleFontSize,
+    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
+  },
+  discussionExcerpt: {
+    margin: aiDigestPresentation.discussion.excerptMargin,
+    fontSize: aiDigestPresentation.discussion.excerptFontSize,
+    lineHeight: aiDigestPresentation.discussion.excerptLineHeight,
   },
   commentBox: {
-    marginBottom: 10,
-    padding: "13px 16px 15px",
-    border: theme.palette.border.faint,
-    borderRadius: 3,
-    background: theme.palette.background.default,
+    margin: aiDigestPresentation.discussion.commentMargin,
+    padding: aiDigestPresentation.discussion.commentPadding,
+    border: "1px solid light-dark(#e6dfd2, #4a4844)",
+    borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
+    background: "light-dark(#ffffff, #252525)",
   },
   reply: {
-    marginLeft: 22,
-    [theme.breakpoints.down("xs")]: {
-      marginLeft: 12,
-    },
+    marginLeft: aiDigestPresentation.discussion.replyMarginLeft,
   },
   nestedReply: {
-    marginLeft: 40,
-    [theme.breakpoints.down("xs")]: {
-      marginLeft: 24,
-    },
+    marginLeft: aiDigestPresentation.discussion.nestedReplyMarginLeft,
   },
   commentByline: {
-    marginBottom: 5,
-    fontSize: 13,
-    fontWeight: 700,
+    marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
+    fontSize: aiDigestPresentation.discussion.dateFontSize,
+    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
   commentText: {
-    fontSize: 14,
-    lineHeight: 1.55,
+    fontSize: aiDigestPresentation.discussion.textFontSize,
+    lineHeight: aiDigestPresentation.discussion.textLineHeight,
   },
   quietItem: {
-    padding: "5px 0",
-    lineHeight: 1.4,
+    lineHeight: aiDigestPresentation.curated.itemLineHeight,
   },
   quietTitle: {
     ...theme.typography.headerStyle,
     color: theme.palette.text.normal,
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: aiDigestPresentation.curated.titleFontSize,
+    fontWeight: aiDigestPresentation.curated.titleFontWeight,
     textDecoration: "none",
     "&:hover": {
       color: theme.palette.primary.main,
     },
   },
   quietAuthor: {
-    marginLeft: 8,
+    marginLeft: aiDigestPresentation.curated.bylineMarginLeft,
     color: theme.palette.text.dim3,
-    fontSize: 12.5,
+    fontSize: aiDigestPresentation.curated.bylineFontSize,
   },
   missingItem: {
-    padding: "14px 0",
+    padding: aiDigestPresentation.missingItem.padding,
     color: theme.palette.text.dim3,
-    fontSize: 13,
+    fontSize: aiDigestPresentation.missingItem.fontSize,
     fontStyle: "italic",
   },
   error: {
@@ -409,6 +453,32 @@ function getCommentUrl(comment: AiDigestEmailComment): string {
   });
 }
 
+function getCommentPermalinkUrl(comment: AiDigestEmailComment): string {
+  return commentGetPageUrlFromIds({
+    postId: comment.post?._id,
+    postSlug: comment.post?.slug,
+    tagSlug: comment.tag?.slug,
+    tagCommentType: comment.tagCommentType,
+    commentId: comment._id,
+    permalink: true,
+    isAbsolute: false,
+  });
+}
+
+function commentTitle(comment: AiDigestEmailComment): string {
+  const author = comment.user?.displayName ?? "A LessWrong reader";
+  if (comment.shortform) {
+    return `${author}’s quick take`;
+  }
+  if (comment.post) {
+    return `${author} on “${comment.post.title}”`;
+  }
+  if (comment.tag) {
+    return `${author} in ${comment.tag.name}`;
+  }
+  return `Comment by ${author}`;
+}
+
 function threadTitle(comment: AiDigestEmailComment): string {
   if (comment.shortform) {
     return `${comment.user?.displayName ?? "A LessWrong reader"}’s quick take`;
@@ -447,6 +517,39 @@ function flattenThreadComments(
   ]);
 }
 
+function ItemMetadata({
+  author,
+  postedAt,
+  permalinkUrl,
+  permalinkLabel,
+  className,
+  authorClassName,
+}: {
+  author: string;
+  postedAt: string;
+  permalinkUrl: string;
+  permalinkLabel: string;
+  className: string;
+  authorClassName?: string;
+}) {
+  const classes = useStyles(styles);
+  return (
+    <div className={classNames(classes.metadataRow, className)}>
+      <span className={authorClassName}>{author}</span>
+      <span className={classes.metadataSeparator} aria-hidden="true">·</span>
+      <FormatDate date={postedAt} />
+      <a
+        href={permalinkUrl}
+        className={classes.permalink}
+        aria-label={permalinkLabel}
+        title="Permalink"
+      >
+        <ForumIcon icon="Link" className={classes.permalinkIcon} />
+      </a>
+    </div>
+  );
+}
+
 function ItemFooter({
   url,
   label,
@@ -483,7 +586,7 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
     const excerpt = selectAiDigestExcerpt(
       item.excerpt,
       post.contents?.plaintextDescription ?? "",
-      220,
+      aiDigestPresentation.excerptCharacters.compactPost,
     );
     return (
       <article
@@ -497,7 +600,13 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
           <h3 className={classes.compactTitle}>
             <a href={postUrl} className={classes.titleLink}>{post.title}</a>
           </h3>
-          <div className={classes.byline}>{formatPostAuthors(post)}</div>
+          <ItemMetadata
+            author={formatPostAuthors(post) || "A LessWrong author"}
+            postedAt={post.postedAt}
+            permalinkUrl={postUrl}
+            permalinkLabel={`Permalink to ${post.title}`}
+            className={classes.compactMetadata}
+          />
           {excerpt && (
             <a href={postUrl} className={classes.textLink}>
               <p className={classes.compactExcerpt}>{excerpt}</p>
@@ -523,7 +632,7 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
   const excerpt = selectAiDigestExcerpt(
     item.excerpt,
     post.contents?.plaintextDescription ?? "",
-    520,
+    aiDigestPresentation.excerptCharacters.headlinePost,
   );
   return (
     <article className={classes.card}>
@@ -536,7 +645,13 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
         <h2 className={classes.headlineTitle}>
           <a href={postUrl} className={classes.titleLink}>{post.title}</a>
         </h2>
-        <div className={classes.byline}>{formatPostAuthors(post)}</div>
+        <ItemMetadata
+          author={formatPostAuthors(post) || "A LessWrong author"}
+          postedAt={post.postedAt}
+          permalinkUrl={postUrl}
+          permalinkLabel={`Permalink to ${post.title}`}
+          className={classes.headlineMetadata}
+        />
         {excerpt && (
           <a href={postUrl} className={classes.textLink}>
             <p className={classes.excerpt}>{excerpt}</p>
@@ -561,26 +676,33 @@ function QuickTakeItem({
 }) {
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
+  const commentPermalinkUrl = getCommentPermalinkUrl(comment);
   const text = selectAiDigestExcerpt(
     item.excerpt,
     comment.contents?.plaintextMainText ?? "",
-    item.placement === "compact" ? 240 : 330,
+    item.placement === "compact"
+      ? aiDigestPresentation.excerptCharacters.compactQuickTake
+      : aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
   return (
     <article className={classes.card}>
       <div className={classes.quickTakeBody}>
-        <a href={commentUrl} className={classes.textLink}>
-          <div className={classes.quickTakeMeta}>
-            <div>
-              <span className={classes.quickTakeAuthor}>
-                {comment.user?.displayName ?? "A LessWrong reader"}
-              </span>
-              <span className={classes.date}>{formatAiDigestDate(comment.postedAt)}</span>
-            </div>
-            <span className={classes.pill}>Quick take</span>
-          </div>
-          {text && <p className={classes.quickTakeText}>{text}</p>}
-        </a>
+        <div className={classes.quickTakeMeta}>
+          <ItemMetadata
+            author={comment.user?.displayName ?? "A LessWrong reader"}
+            postedAt={comment.postedAt}
+            permalinkUrl={commentPermalinkUrl}
+            permalinkLabel="Permalink to this quick take"
+            className={classes.quickTakeMetadata}
+            authorClassName={classes.emphasizedMetadataAuthor}
+          />
+          <span className={classes.pill}>Quick take</span>
+        </div>
+        {text && (
+          <a href={commentUrl} className={classes.textLink}>
+            <p className={classes.quickTakeText}>{text}</p>
+          </a>
+        )}
         <ItemFooter url={commentUrl} label="Read more" reason={item.reason} />
       </div>
     </article>
@@ -599,6 +721,7 @@ function CommentBox({
   nestingLevel?: number;
 }) {
   const classes = useStyles(styles);
+  const commentUrl = getCommentUrl(comment);
   const text = selectAiDigestExcerpt(
     excerpt,
     comment.contents?.plaintextMainText ?? "",
@@ -612,14 +735,58 @@ function CommentBox({
         nestingLevel >= 2 && classes.nestedReply,
       )}
     >
-      <a href={getCommentUrl(comment)} className={classes.textLink}>
-        <div className={classes.commentByline}>
-          {comment.user?.displayName ?? "A LessWrong reader"}
-          <span className={classes.date}>{formatAiDigestDate(comment.postedAt)}</span>
-        </div>
+      <ItemMetadata
+        author={comment.user?.displayName ?? "A LessWrong reader"}
+        postedAt={comment.postedAt}
+        permalinkUrl={getCommentPermalinkUrl(comment)}
+        permalinkLabel="Permalink to this comment"
+        className={classes.commentByline}
+        authorClassName={classes.emphasizedMetadataAuthor}
+      />
+      <a href={commentUrl} className={classes.textLink}>
         <div className={classes.commentText}>{text}</div>
       </a>
     </div>
+  );
+}
+
+function CompactComment({
+  comment,
+  item,
+}: {
+  comment: AiDigestEmailComment;
+  item: AiDigestItem;
+}) {
+  const classes = useStyles(styles);
+  const commentUrl = getCommentUrl(comment);
+  const excerpt = selectAiDigestExcerpt(
+    item.excerpt,
+    comment.contents?.plaintextMainText ?? "",
+    aiDigestPresentation.excerptCharacters.compactComment,
+  );
+  return (
+    <article className={classNames(classes.card, classes.compactCard, classes.compactWithoutImage)}>
+      <div className={classes.compactBody}>
+        <h3 className={classes.discussionTitle}>
+          <a href={commentUrl} className={classes.titleLink}>{commentTitle(comment)}</a>
+        </h3>
+        <ItemMetadata
+          author={comment.user?.displayName ?? "A LessWrong reader"}
+          postedAt={comment.postedAt}
+          permalinkUrl={getCommentPermalinkUrl(comment)}
+          permalinkLabel="Permalink to this comment"
+          className={classes.compactMetadata}
+        />
+        {excerpt && (
+          <a href={commentUrl} className={classes.textLink}>
+            <p className={classes.discussionExcerpt}>{excerpt}</p>
+          </a>
+        )}
+      </div>
+      <div className={classes.compactFooter}>
+        <ItemFooter url={commentUrl} label="Open comment" reason={item.reason} />
+      </div>
+    </article>
   );
 }
 
@@ -642,16 +809,20 @@ function DiscussionItem({
   return (
     <article className={classes.card}>
       <div className={classes.discussionBody}>
-        <h3 className={classes.discussionTitle}>
+        <h3 className={classes.discussionThreadTitle}>
           <a href={commentUrl} className={classes.titleLink}>{threadTitle(comment)}</a>
         </h3>
-        <CommentBox comment={comment} excerpt={item.excerpt} maxLength={720} />
+        <CommentBox
+          comment={comment}
+          excerpt={item.excerpt}
+          maxLength={aiDigestPresentation.excerptCharacters.discussionRoot}
+        />
         {threadComments.map(({ comment: replyComment, excerpt, nestingLevel }) => (
           <CommentBox
             key={replyComment._id}
             comment={replyComment}
             excerpt={excerpt}
-            maxLength={360}
+            maxLength={aiDigestPresentation.excerptCharacters.discussionReply}
             nestingLevel={nestingLevel}
           />
         ))}
@@ -680,8 +851,11 @@ function DigestItem({
   if (!comment) {
     return <div className={classes.missingItem}>This discussion item is no longer available.</div>;
   }
-  return item.documentRef.documentType === "quickTake"
-    ? <QuickTakeItem comment={comment} item={item} />
+  if (item.documentRef.documentType === "quickTake") {
+    return <QuickTakeItem comment={comment} item={item} />;
+  }
+  return item.placement === "compact"
+    ? <CompactComment comment={comment} item={item} />
     : <DiscussionItem comment={comment} item={item} content={content} />;
 }
 
@@ -697,9 +871,17 @@ function DigestSection({
     <section className={classes.section}>
       {section.kind === "curated"
         ? <div className={classes.curatedTitle}>{section.title}</div>
-        : <h2 className={classes.sectionTitle}>{section.title}</h2>}
-      {section.items.map((item) => (
-        <div className={classes.item} key={itemKey(item)}>
+        : <SectionTitle title={section.title} noTopMargin noBottomPadding />}
+      {section.items.map((item, index) => (
+        <div
+          className={section.kind === "curated"
+            ? classNames(
+              classes.quietItemContainer,
+              index === 0 && classes.quietItemFirstContainer,
+            )
+            : classes.item}
+          key={itemKey(item)}
+        >
           <DigestItem item={item} content={content} />
         </div>
       ))}
@@ -707,7 +889,42 @@ function DigestSection({
   );
 }
 
-export function AiDigestIssueView({ spec }: { spec: AiDigestSpec }) {
+const CUSTOM_PROMPT_PREVIEW_LENGTH = 200;
+
+function CustomPromptCard({ personalInstructions }: { personalInstructions: string }) {
+  const classes = useStyles(styles);
+  const [expanded, setExpanded] = useState(false);
+  const preview = truncateAiDigestText(personalInstructions, CUSTOM_PROMPT_PREVIEW_LENGTH);
+  const isTruncated = preview.length < personalInstructions.replace(/\s+/g, " ").trim().length;
+  return (
+    <div className={classes.customPrompt}>
+      <div className={classes.customPromptLabel}>Custom prompt</div>
+      <span className={classes.customPromptText}>
+        {expanded ? personalInstructions : preview}
+      </span>
+      {isTruncated && (
+        <>
+          {" "}
+          <button
+            type="button"
+            className={classes.customPromptToggle}
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? "see less" : "see more"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function AiDigestIssueView({
+  spec,
+  personalInstructions,
+}: {
+  spec: AiDigestSpec;
+  personalInstructions?: string | null;
+}) {
   const classes = useStyles(styles);
   const items = spec.sections.flatMap((section) => section.items);
   const postIds = items.flatMap((item) =>
@@ -726,7 +943,7 @@ export function AiDigestIssueView({ spec }: { spec: AiDigestSpec }) {
     return <Loading />;
   }
   if (error) {
-    return <p className={classes.error}>Could not load this edition: {error.message}</p>;
+    return <p className={classes.error}>Could not load this content: {error.message}</p>;
   }
 
   const posts = data?.posts?.results ?? [];
@@ -739,11 +956,14 @@ export function AiDigestIssueView({ spec }: { spec: AiDigestSpec }) {
   return (
     <div className={classes.root}>
       <aside className={classes.aiNote}>
-        <div className={classes.aiNoteLabel}>From the AI assistant · {spec.aiNote.modelName}</div>
+        <div className={classes.aiNoteLabel}>AI Note · {spec.aiNote.modelName}</div>
         {spec.aiNote.paragraphs.map((paragraph, index) => (
           <p className={classes.aiNoteParagraph} key={index}>{paragraph}</p>
         ))}
       </aside>
+      {personalInstructions && (
+        <CustomPromptCard personalInstructions={personalInstructions} />
+      )}
       {spec.sections.map((section) => (
         <DigestSection key={section.kind} section={section} content={content} />
       ))}

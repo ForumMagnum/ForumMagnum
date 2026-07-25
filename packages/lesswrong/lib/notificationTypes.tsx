@@ -722,6 +722,21 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
+export const AiDigestReadyNotification = createNotificationType({
+  name: "aiDigestReady",
+  // No user setting: this only fires in response to a generation the user
+  // explicitly requested, so there's nothing to opt out of.
+  userSettingField: null,
+  allowedChannels: ["onsite"],
+  async getMessage({extraData}: GetMessageProps) {
+    const subject = extraData?.subject;
+    return subject
+      ? `Your Content for You recommendations are ready: "${subject}"`
+      : "Your Content for You recommendations are ready";
+  },
+  getLink: () => "/contentForYou",
+});
+
 const notificationTypesArray = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -763,6 +778,7 @@ const notificationTypesArray = [
   CoauthorAcceptNotification,
   NewMentionNotification,
   TypoSuggestionNotification,
+  AiDigestReadyNotification,
 ];
 
 export type NotificationTypesByName = {

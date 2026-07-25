@@ -22,7 +22,7 @@ assertRouteAttributes("/contentForYou", {
 
 export default function Page() {
   return (
-    <RouteRoot>
+    <RouteRoot subtitle="For You">
       <Suspense fallback={null}>
         <ContentForYouPage />
       </Suspense>

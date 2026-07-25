@@ -109,7 +109,10 @@ type AiDigestEmailSamplePreview = {
   cacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
   cacheWriteInputTokenCount?: Maybe<Scalars['Int']['output']>;
   email: EmailPreview;
+  generationDurationMs: Scalars['Int']['output'];
   inputTokenCount?: Maybe<Scalars['Int']['output']>;
+  outputTokenCount?: Maybe<Scalars['Int']['output']>;
+  selectionCostUsd?: Maybe<Scalars['Float']['output']>;
   selectionSystemPrompt?: Maybe<Scalars['String']['output']>;
   selectionUserPrompt?: Maybe<Scalars['String']['output']>;
   uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
@@ -117,6 +120,7 @@ type AiDigestEmailSamplePreview = {
 
 type AiDigestEmailSampleSummary = {
   __typename?: 'AiDigestEmailSampleSummary';
+  countsTowardHistory: Scalars['Boolean']['output'];
   generatedAt: Scalars['Date']['output'];
   issueId: Scalars['String']['output'];
   selectionModelId: Scalars['String']['output'];
@@ -1093,13 +1097,16 @@ type ContentCollectionName =
 
 type ContentForYouGenerationStatus = {
   __typename?: 'ContentForYouGenerationStatus';
-  dailyLimit: Scalars['Int']['output'];
-  generatedInLast24Hours: Scalars['Int']['output'];
+  hourlyLimit: Scalars['Int']['output'];
   nextAllowedAt?: Maybe<Scalars['Date']['output']>;
+  remainingThisHour: Scalars['Int']['output'];
+  typicalDurationMsHigh?: Maybe<Scalars['Int']['output']>;
+  typicalDurationMsLow?: Maybe<Scalars['Int']['output']>;
 };
 
 type ContentForYouIssue = {
   __typename?: 'ContentForYouIssue';
+  countsTowardHistory: Scalars['Boolean']['output'];
   generatedAt: Scalars['Date']['output'];
   issueId: Scalars['String']['output'];
   personalInstructions?: Maybe<Scalars['String']['output']>;
@@ -1110,6 +1117,7 @@ type ContentForYouIssue = {
 
 type ContentForYouIssueSummary = {
   __typename?: 'ContentForYouIssueSummary';
+  countsTowardHistory: Scalars['Boolean']['output'];
   generatedAt: Scalars['Date']['output'];
   issueId: Scalars['String']['output'];
   personalInstructions?: Maybe<Scalars['String']['output']>;
@@ -3902,6 +3910,8 @@ type Mutation = {
   __typename?: 'Mutation';
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   CancelRSVPToEvent?: Maybe<Post>;
+  ClearAiDigestEmailSampleHistory: Scalars['Int']['output'];
+  ClearContentForYouRecommendationHistory: Scalars['Int']['output'];
   GenerateAiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
   GenerateContentForYouIssue: GenerateContentForYouIssueResult;
   ImportGoogleDoc?: Maybe<Post>;
@@ -4083,9 +4093,26 @@ type MutationCancelRSVPToEventArgs = {
 };
 
 
+type MutationClearAiDigestEmailSampleHistoryArgs = {
+  days: Scalars['Int']['input'];
+  userSlug: Scalars['String']['input'];
+};
+
+
+type MutationClearContentForYouRecommendationHistoryArgs = {
+  days: Scalars['Int']['input'];
+};
+
+
 type MutationGenerateAiDigestEmailSamplesArgs = {
   count?: InputMaybe<Scalars['Int']['input']>;
+  countsTowardHistory?: InputMaybe<Scalars['Boolean']['input']>;
   userSlug: Scalars['String']['input'];
+};
+
+
+type MutationGenerateContentForYouIssueArgs = {
+  countsTowardHistory?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -13268,9 +13295,9 @@ type ContentForYouOverviewQuery_user_SingleUserOutput_result_User = { __typename
 
 type ContentForYouOverviewQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: ContentForYouOverviewQuery_user_SingleUserOutput_result_User | null };
 
-type ContentForYouOverviewQuery_ContentForYouIssues_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, trigger: string, personalInstructions: string | null };
+type ContentForYouOverviewQuery_ContentForYouIssues_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null };
 
-type ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus = { __typename?: 'ContentForYouGenerationStatus', nextAllowedAt: string | null, generatedInLast24Hours: number, dailyLimit: number };
+type ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus = { __typename?: 'ContentForYouGenerationStatus', nextAllowedAt: string | null, remainingThisHour: number, typicalDurationMsLow: number | null, typicalDurationMsHigh: number | null };
 
 type ContentForYouOverviewQuery_Query = { __typename?: 'Query', user: ContentForYouOverviewQuery_user_SingleUserOutput | null, ContentForYouIssues: Array<ContentForYouOverviewQuery_ContentForYouIssues_ContentForYouIssueSummary>, ContentForYouGenerationStatus: ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus };
 
@@ -13283,7 +13310,7 @@ type ContentForYouOverviewQueryVariables = Exact<{
 
 type ContentForYouOverviewQuery = ContentForYouOverviewQuery_Query;
 
-type ContentForYouIssueQueryQuery_ContentForYouIssue_ContentForYouIssue = { __typename?: 'ContentForYouIssue', issueId: string, subject: string, generatedAt: string, trigger: string, personalInstructions: string | null, spec: any };
+type ContentForYouIssueQueryQuery_ContentForYouIssue_ContentForYouIssue = { __typename?: 'ContentForYouIssue', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null, spec: any };
 
 type ContentForYouIssueQueryQuery_Query = { __typename?: 'Query', ContentForYouIssue: ContentForYouIssueQueryQuery_ContentForYouIssue_ContentForYouIssue };
 
@@ -13310,17 +13337,29 @@ type UpdateContentForYouInstructionsMutationVariables = Exact<{
 
 type UpdateContentForYouInstructionsMutation = UpdateContentForYouInstructionsMutation_Mutation;
 
-type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult_issue_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, trigger: string, personalInstructions: string | null };
+type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult_issue_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null };
 
 type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult = { __typename?: 'GenerateContentForYouIssueResult', nextAllowedAt: string | null, issue: GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult_issue_ContentForYouIssueSummary };
 
 type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateContentForYouIssue: GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult };
 
 
-type GenerateContentForYouIssueMutationMutationVariables = Exact<{ [key: string]: never; }>;
+type GenerateContentForYouIssueMutationMutationVariables = Exact<{
+  countsTowardHistory: InputMaybe<Scalars['Boolean']['input']>;
+}>;
 
 
 type GenerateContentForYouIssueMutationMutation = GenerateContentForYouIssueMutationMutation_Mutation;
+
+type ClearContentForYouRecommendationHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearContentForYouRecommendationHistory: number };
+
+
+type ClearContentForYouRecommendationHistoryMutationMutationVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+type ClearContentForYouRecommendationHistoryMutationMutation = ClearContentForYouRecommendationHistoryMutationMutation_Mutation;
 
 type multiCommentAFUnreviewedCommentCountQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -16782,7 +16821,7 @@ type DigestEmailPreviewQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type DigestEmailPreviewQueryQuery = DigestEmailPreviewQueryQuery_Query;
 
-type GenerateAiDigestEmailSamplesMutationMutation_GenerateAiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string };
+type GenerateAiDigestEmailSamplesMutationMutation_GenerateAiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string, countsTowardHistory: boolean };
 
 type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestEmailSamples: Array<GenerateAiDigestEmailSamplesMutationMutation_GenerateAiDigestEmailSamples_AiDigestEmailSampleSummary> };
 
@@ -16790,12 +16829,13 @@ type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mut
 type GenerateAiDigestEmailSamplesMutationMutationVariables = Exact<{
   userSlug: Scalars['String']['input'];
   count: InputMaybe<Scalars['Int']['input']>;
+  countsTowardHistory: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
 type GenerateAiDigestEmailSamplesMutationMutation = GenerateAiDigestEmailSamplesMutationMutation_Mutation;
 
-type AiDigestEmailSamplesQueryQuery_AiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string };
+type AiDigestEmailSamplesQueryQuery_AiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string, countsTowardHistory: boolean };
 
 type AiDigestEmailSamplesQueryQuery_Query = { __typename?: 'Query', AiDigestEmailSamples: Array<AiDigestEmailSamplesQueryQuery_AiDigestEmailSamples_AiDigestEmailSampleSummary> };
 
@@ -16808,9 +16848,20 @@ type AiDigestEmailSamplesQueryQueryVariables = Exact<{
 
 type AiDigestEmailSamplesQueryQuery = AiDigestEmailSamplesQueryQuery_Query;
 
+type ClearAiDigestEmailSampleHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearAiDigestEmailSampleHistory: number };
+
+
+type ClearAiDigestEmailSampleHistoryMutationMutationVariables = Exact<{
+  userSlug: Scalars['String']['input'];
+  days: Scalars['Int']['input'];
+}>;
+
+
+type ClearAiDigestEmailSampleHistoryMutationMutation = ClearAiDigestEmailSampleHistoryMutationMutation_Mutation;
+
 type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
 
-type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview = { __typename?: 'AiDigestEmailSamplePreview', selectionSystemPrompt: string | null, selectionUserPrompt: string | null, inputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, email: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview };
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview = { __typename?: 'AiDigestEmailSamplePreview', selectionSystemPrompt: string | null, selectionUserPrompt: string | null, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, selectionCostUsd: number | null, generationDurationMs: number, email: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview };
 
 type AiDigestEmailSamplePreviewQueryQuery_Query = { __typename?: 'Query', AiDigestEmailSamplePreview: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview };
 

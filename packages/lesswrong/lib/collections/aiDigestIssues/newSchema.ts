@@ -92,6 +92,23 @@ const schema = {
       },
     },
   },
+  countsTowardHistory: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   personalInstructions: {
     database: {
       type: "TEXT",
@@ -161,6 +178,16 @@ const schema = {
       canRead: ["admins"],
     },
   },
+  outputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
   uncachedInputTokenCount: {
     database: {
       type: "INTEGER",
@@ -188,6 +215,28 @@ const schema = {
     },
     graphql: {
       outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  selectionCostUsd: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["admins"],
+    },
+  },
+  generationDurationMs: {
+    database: {
+      type: "INTEGER",
+      defaultValue: 0,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Int!",
       canRead: ["admins"],
     },
   },

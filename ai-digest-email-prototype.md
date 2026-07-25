@@ -61,7 +61,7 @@ The page is currently restricted to admins but is designed around the eventual r
 - Renders the stored `AiDigestSpec` as native, theme-aware site components rather than embedding email HTML
 - Shows the instruction snapshot that produced each edition
 
-Each issue records whether it was an admin sample, user preview, or scheduled edition. User previews count toward recommendation history because the reader has seen those selections. The generation API includes a ten-minute cooldown and a ten-per-24-hours cap for ordinary users; admins bypass those limits while the page remains an internal prototype.
+Each issue records whether it was an admin sample, user preview, or scheduled edition. User previews count toward recommendation history by default because the reader has seen those selections. Admins can instead persist a generated sample as a scratch issue with `countsTowardHistory: false`; it remains browsable but is omitted from repeat-avoidance history. Both admin generation surfaces can also clear counted issues for a selected recent-day window. The generation API includes a ten-minute cooldown and a ten-per-24-hours cap for ordinary users; admins bypass those limits while the page remains an internal prototype.
 
 ## Subscription state
 
@@ -281,7 +281,7 @@ Upvotes can affect selection and support wording such as “related to a post yo
 
 The pool is loaded directly from PostgreSQL, not Recombee or UltraFeed ranking. The prototype uses a 14-day window, karma of at least 20, and a deterministic cap of 60 posts; callers may override them. The production target is a 28-day pool once cost and operational behavior are validated.
 
-Selection may also retrieve additional posts via embedding search tools (`searchPosts` / `similarPosts`) against `PostEmbeddings`. Tool-discovered posts use the same eligibility predicate as the recent pool, keep the karma ≥ 20 floor, have no age limit, return titles/metadata only (no summaries), and must be read with `readPost` before selection. Already-read posts are dropped from search results by default. Their retrieval provenance is `selectionToolSearch`, and validated selections may mix recent-pool and tool-discovered IDs.
+Selection may also retrieve additional posts via the embedding search tool (`searchPosts`) against `PostEmbeddings`. Tool-discovered posts use the same eligibility predicate as the recent pool, keep the karma ≥ 20 floor, have no age limit, return titles/metadata only (no summaries), and must be read with `readPost` before selection. Already-read posts are dropped from search results by default. Their retrieval provenance is `selectionToolSearch`, and validated selections may mix recent-pool and tool-discovered IDs. Sequel/rebuttal-style relatedness to posts the reader already engaged with is not a model-initiated tool call; if that case is needed later, the server should precompute similar candidates and supply them in the corpus.
 
 The helper audit produced this explicit policy:
 
@@ -303,7 +303,7 @@ Summary generation receives only the post title, displayed author, and bounded s
 
 Per-user newsletter creation never generates summaries. It loads only the exact expected Fable/revision/prompt cache key, omits cache misses, and reports the missing count. The selection model sees direct post IDs, cached summaries, bounded reader evidence, bounded past recommendations, optional embedding-search tool results, and explicit untrusted-data delimiters. Validation rejects duplicate or unknown post IDs (IDs must come from the recent pool or the tool-discovered registry) and copy exceeding fixed budgets.
 
-`AiDigestIssues` stores each prototype issue’s recipient, ordered selected post IDs, generation time, trigger, personal-instruction snapshot, selection model, prompt version, and display-ready spec. Only the newest bounded set is loaded for recommendation history. It supplies per-post inclusion counts and dated past recommendations; read and upvote outcomes count only when their interaction timestamp follows that recommendation. A generated issue is inserted only after deterministic model-output validation and spec assembly succeed.
+`AiDigestIssues` stores each prototype issue’s recipient, ordered selected post IDs, generation time, trigger, `countsTowardHistory` flag, personal-instruction snapshot, selection model, prompt version, and display-ready spec. Only the newest bounded set with `countsTowardHistory: true` is loaded for recommendation history. It supplies per-post inclusion counts and dated past recommendations; read and upvote outcomes count only when their interaction timestamp follows that recommendation. A generated issue is inserted only after deterministic model-output validation and spec assembly succeed.
 
 ## Privacy and trust
 

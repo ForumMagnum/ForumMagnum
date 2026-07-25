@@ -311,7 +311,9 @@ interface Mutation {
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   GenerateAiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
+  ClearAiDigestEmailSampleHistory: number;
   GenerateContentForYouIssue: GenerateContentForYouIssueResult;
+  ClearContentForYouRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -1403,6 +1405,7 @@ interface AiDigestEmailSampleSummary {
   subject: string;
   generatedAt: Date;
   selectionModelId: string;
+  countsTowardHistory: boolean;
 }
 
 interface AiDigestEmailSamplePreview {
@@ -1410,9 +1413,12 @@ interface AiDigestEmailSamplePreview {
   selectionSystemPrompt: string | null;
   selectionUserPrompt: string | null;
   inputTokenCount: number | null;
+  outputTokenCount: number | null;
   uncachedInputTokenCount: number | null;
   cacheReadInputTokenCount: number | null;
   cacheWriteInputTokenCount: number | null;
+  selectionCostUsd: number | null;
+  generationDurationMs: number;
 }
 
 interface ContentForYouIssueSummary {
@@ -1420,6 +1426,7 @@ interface ContentForYouIssueSummary {
   subject: string;
   generatedAt: Date;
   trigger: string;
+  countsTowardHistory: boolean;
   personalInstructions: string | null;
 }
 
@@ -1428,14 +1435,17 @@ interface ContentForYouIssue {
   subject: string;
   generatedAt: Date;
   trigger: string;
+  countsTowardHistory: boolean;
   personalInstructions: string | null;
   spec: any;
 }
 
 interface ContentForYouGenerationStatus {
   nextAllowedAt: Date | null;
-  generatedInLast24Hours: number;
-  dailyLimit: number;
+  remainingThisHour: number;
+  hourlyLimit: number;
+  typicalDurationMsLow: number | null;
+  typicalDurationMsHigh: number | null;
 }
 
 interface GenerateContentForYouIssueResult {
