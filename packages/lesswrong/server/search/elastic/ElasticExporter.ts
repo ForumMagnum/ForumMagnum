@@ -25,6 +25,20 @@ const HTML_FIELDS = [
   "description",
 ];
 
+export const elasticExactAnalyzerFilters = [
+  "lowercase",
+  "asciifolding",
+  "decimal_digit",
+];
+
+export const elasticNameAnalyzerFilters = [
+  "lowercase",
+  "asciifolding",
+  "fm_synonym_filter",
+  "fm_shingle_filter",
+  "fm_ngram_filter",
+];
+
 /**
  * Class containing functions for exporting to the ElasticSearch index. Most
  * methods are suitable for calling with "yarn repl"; some are also called
@@ -348,10 +362,7 @@ export class ElasticExporter {
                 fm_exact_analyzer: {
                   type: "custom",
                   tokenizer: "standard",
-                  filter: [
-                    "lowercase",
-                    "decimal_digit",
-                  ],
+                  filter: elasticExactAnalyzerFilters,
                 },
                 fm_synonym_analyzer: {
                   type: "custom",
@@ -384,12 +395,7 @@ export class ElasticExporter {
                 fm_name_analyzer: {
                   type: "custom",
                   tokenizer: "standard",
-                  filter: [
-                    "lowercase",
-                    "fm_synonym_filter",
-                    "fm_shingle_filter",
-                    "fm_ngram_filter",
-                  ],
+                  filter: elasticNameAnalyzerFilters,
                   char_filter: [
                     "fm_punctuation_filter",
                   ],
