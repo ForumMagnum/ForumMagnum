@@ -154,6 +154,11 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    // Post headings intentionally ignore bold formatting when rendered.
+    // Mirror that behavior in the editor so formatting is not misleading.
+    '& h1 .text-bold, & h2 .text-bold, & h3 .text-bold, & h4 .text-bold, & h5 .text-bold, & h6 .text-bold': {
+      fontWeight: 'inherit',
+    },
     // --gutter-chars is set by CodeKeyboardPlugin to the digit count
     // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
