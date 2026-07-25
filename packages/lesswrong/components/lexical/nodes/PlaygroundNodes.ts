@@ -19,6 +19,7 @@ import {HeadingNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
 import { ContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
+import { PreviewLinkNode, $replaceLinkNodeWithPreviewLink } from '@/components/editor/lexicalPlugins/links/PreviewLinkNode';
 
 import { CollapsibleSectionContainerNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { CollapsibleSectionContentNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
@@ -90,7 +91,16 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   HashtagNode,
   CodeHighlightNode,
   AutoLinkNode,
-  LinkNode,
+  PreviewLinkNode,
+  // Registered as an explicit replacement rather than in place of LinkNode under the same
+  // type: $createLinkNode constructs a LinkNode directly, and $applyNodeReplacement only
+  // swaps the class when a replacement is configured. AutoLinkNode has its own type and is
+  // unaffected.
+  LinkNode: {
+    replace: LinkNode,
+    with: $replaceLinkNodeWithPreviewLink,
+    withKlass: PreviewLinkNode,
+  },
   OverflowNode,
   PollNode,
   // StickyNode,

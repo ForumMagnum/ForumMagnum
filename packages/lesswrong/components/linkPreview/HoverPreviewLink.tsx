@@ -10,6 +10,7 @@ import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
 import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview';
 import FootnotePreview from "./FootnotePreview";
+import CustomHoverPreview from "./CustomHoverPreview";
 import { NoSideItems } from '../contents/SideItems';
 
 import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
@@ -29,7 +30,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 // ContentItemBody as a replacement for <a> tags in user-provided content.
 // Props
 //   href: The link destination, the href attribute on the original <a> tag.
-const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children }: {
+const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children, ...attribs }: {
   href: string,
   id?: string,
   rel?: string,
@@ -38,6 +39,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   contentStyleType?: ContentStyleType,
   className?: string,
   children: React.ReactNode,
+  'data-hover-preview'?: string,
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
@@ -48,6 +50,24 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
     return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
+  }
+
+  // An author-attached preview replaces whatever preview the destination would otherwise
+  // get, so this has to come before the route-based dispatch below.
+  const customPreviewHtml = attribs['data-hover-preview'];
+  if (customPreviewHtml) {
+    return <AnalyticsContext pageElementContext="linkPreview" href={href} hoverPreviewType="CustomHoverPreview">
+      <CustomHoverPreview
+        href={href}
+        previewHtml={customPreviewHtml}
+        id={id}
+        rel={rel}
+        className={className}
+        contentStyleType={contentStyleType}
+      >
+        {children}
+      </CustomHoverPreview>
+    </AnalyticsContext>
   }
 
   // Within-page relative link?

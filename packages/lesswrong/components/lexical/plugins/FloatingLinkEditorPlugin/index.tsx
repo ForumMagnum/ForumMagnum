@@ -22,6 +22,7 @@ import {
   $isRangeSelection,
   $isTextNode,
   BaseSelection,
+  LexicalNode,
   CLICK_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_HIGH,
@@ -45,6 +46,8 @@ import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
 import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import { $isPreviewLinkNode } from '@/components/editor/lexicalPlugins/links/PreviewLinkNode';
+import { HoverPreviewEditor } from '@/components/editor/lexicalPlugins/links/HoverPreviewEditor';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -141,6 +144,43 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     display: 'flex',
     alignItems: 'center',
   },
+  previewHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    margin: '0 12px',
+    minHeight: 20,
+  },
+  previewLabel: {
+    ...theme.typography.commentStyle,
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: theme.palette.grey[600],
+  },
+  previewAction: {
+    width: 22,
+    height: 22,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 2,
+    borderRadius: 4,
+    cursor: 'pointer',
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.grey[600],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+      color: theme.palette.error.main,
+    },
+  },
+  previewIcon: {
+    width: 13,
+    height: 13,
+    display: 'block',
+  },
   linkUrlInput: {
     flex: 1,
     minWidth: 0,
@@ -161,6 +201,31 @@ function preventDefault(
   event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>,
 ): void {
   event.preventDefault();
+}
+
+function getPreviewHtmlOf(node: LexicalNode): string {
+  return $isPreviewLinkNode(node) ? node.getPreviewHtml() : '';
+}
+
+/** Treats markup that renders as nothing (an empty paragraph, stray whitespace) as absent. */
+function isBlankHtml(html: string): boolean {
+  return !html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+}
+
+/**
+ * Writes the hover preview onto whichever link node the selection now sits in. Must run
+ * inside an editor.update, after the link itself has been created or updated.
+ */
+function $applyPreviewToSelectedLink(previewHtml: string): void {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) {
+    return;
+  }
+  const node = getSelectedNode(selection);
+  const linkNode = $findMatchingParent(node, $isLinkNode) ?? node;
+  if ($isPreviewLinkNode(linkNode)) {
+    linkNode.setPreviewHtml(isBlankHtml(previewHtml) ? '' : previewHtml);
+  }
 }
 
 function FloatingLinkEditor({
@@ -193,6 +258,12 @@ function FloatingLinkEditor({
   const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
   const [editedLinkText, setEditedLinkText] = useState('');
+  const [linkPreviewHtml, setLinkPreviewHtml] = useState('');
+  // The preview field's live value. The nested editor reads its starting content once on
+  // mount, so entering edit mode remounts it via editedPreviewKey.
+  const editedPreviewHtmlRef = useRef('');
+  const [editedPreviewKey, setEditedPreviewKey] = useState(0);
+  const [hasEditedPreview, setHasEditedPreview] = useState(false);
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -206,12 +277,15 @@ function FloatingLinkEditor({
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
         setLinkText(linkParent.getTextContent());
+        setLinkPreviewHtml(getPreviewHtmlOf(linkParent));
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
         setLinkText(node.getTextContent());
+        setLinkPreviewHtml(getPreviewHtmlOf(node));
       } else {
         setLinkUrl('');
         setLinkText(selection.getTextContent());
+        setLinkPreviewHtml('');
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
@@ -225,12 +299,15 @@ function FloatingLinkEditor({
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
           setLinkText(parent.getTextContent());
+          setLinkPreviewHtml(getPreviewHtmlOf(parent));
         } else if ($isLinkNode(node)) {
           setLinkUrl(node.getURL());
           setLinkText(node.getTextContent());
+          setLinkPreviewHtml(getPreviewHtmlOf(node));
         } else {
           setLinkUrl('');
           setLinkText('');
+          setLinkPreviewHtml('');
         }
         if (isLinkEditMode) {
           setEditedLinkUrl(linkUrl);
@@ -352,6 +429,30 @@ function FloatingLinkEditor({
       inputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
+
+  // Seed the hover preview field when edit mode opens. Deliberately keyed off
+  // isLinkEditMode alone: the nested editor reads its content once on mount, so re-seeding
+  // whenever linkPreviewHtml changes would throw away whatever is being typed.
+  useEffect(() => {
+    if (!isLinkEditMode) {
+      return;
+    }
+    editedPreviewHtmlRef.current = linkPreviewHtml;
+    setHasEditedPreview(!isBlankHtml(linkPreviewHtml));
+    setEditedPreviewKey((key) => key + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLinkEditMode]);
+
+  const handlePreviewChange = useCallback((html: string) => {
+    editedPreviewHtmlRef.current = html;
+    setHasEditedPreview(!isBlankHtml(html));
+  }, []);
+
+  const clearPreview = () => {
+    editedPreviewHtmlRef.current = '';
+    setHasEditedPreview(false);
+    setEditedPreviewKey((key) => key + 1);
+  };
 
   // Toggling into edit mode adds the URL input row, which makes the floating
   // editor taller. Re-run positioning against the last target rect so the
@@ -482,6 +583,8 @@ function FloatingLinkEditor({
                 }
               }
             }
+
+            $applyPreviewToSelectedLink(editedPreviewHtmlRef.current);
           });
         }
       }
@@ -539,6 +642,31 @@ function FloatingLinkEditor({
               <SuccessAltIcon className={classes.linkIcon} />
             </button>
           </div>
+          {/* Suggestion mode has no representation for a preview change, so it is not
+              offered there rather than being silently dropped on accept. */}
+          {!isSuggestionMode && (
+            <>
+              <div className={classes.previewHeader}>
+                <span className={classes.previewLabel}>Hover preview</span>
+                {hasEditedPreview && (
+                  <button
+                    className={classes.previewAction}
+                    type="button"
+                    tabIndex={0}
+                    onMouseDown={preventDefault}
+                    onClick={clearPreview}
+                    aria-label="Clear hover preview">
+                    <Trash3Icon className={classes.previewIcon} />
+                  </button>
+                )}
+              </div>
+              <HoverPreviewEditor
+                key={editedPreviewKey}
+                initialHtml={editedPreviewHtmlRef.current}
+                onChangeHtml={handlePreviewChange}
+              />
+            </>
+          )}
         </div>
       ) : (
         <div className={classes.linkView}>

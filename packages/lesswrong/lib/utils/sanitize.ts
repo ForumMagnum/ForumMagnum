@@ -98,7 +98,10 @@ export const sanitize = function(s: string): string {
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
-      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
+      // data-hover-preview holds escaped HTML. sanitize-html does not recurse into attribute
+      // values, so allowing it here does NOT sanitize its contents; the rendering side must
+      // sanitize the decoded value itself. See CustomHoverPreview.
+      a: ['class', 'href', 'name', 'target', 'rel', 'data-href', 'data-hover-preview'],
       iframe: ['src', 'allowfullscreen', 'allow', 'srcdoc', 'sandbox', 'title', 'data-lexical-iframe-widget'],
       li: ['id', 'role', 'value'],
 
