@@ -55,7 +55,7 @@ const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({
 }));
 
 // Only the marks that make sense in a two-sentence card. Nested hover previews are
-// deliberately not available here: PreviewLinkNode is not registered, so links written
+// deliberately not available here: HoverPreviewNode is not registered, so links written
 // inside a preview are plain links.
 const hoverPreviewTheme = {
   link: 'hoverPreviewEditorLink',

@@ -5,6 +5,7 @@ import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Ele
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
+import CustomHoverPreview from '../linkPreview/CustomHoverPreview';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -327,6 +328,16 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
+      } else if (TagName === 'span' && attribs['data-hover-preview']) {
+        // The preview span wraps the link rather than sitting inside it, so the href for the
+        // card's footer has to be read out of the subtree here.
+        return <CustomHoverPreview
+          previewHtml={attribs['data-hover-preview']}
+          href={findDescendantHref(parsedHtml)}
+          {...passedThroughProps}
+        >
+          {result}
+        </CustomHoverPreview>
       } else if (TagName === 'a') {
         return <HoverPreviewLink
           href={attribs.href}
@@ -350,6 +361,22 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.Comment:
       return null;
   }
+}
+
+/** The href of the first link anywhere under this node, for a hover preview's footer. */
+function findDescendantHref(node: DomHandlerChildNode): string | undefined {
+  if (node.type === htmlparser2.ElementType.Tag && node.name === 'a' && node.attribs.href) {
+    return node.attribs.href;
+  }
+  if ('childNodes' in node) {
+    for (const child of node.childNodes) {
+      const href = findDescendantHref(child);
+      if (href) {
+        return href;
+      }
+    }
+  }
+  return undefined;
 }
 
 /**

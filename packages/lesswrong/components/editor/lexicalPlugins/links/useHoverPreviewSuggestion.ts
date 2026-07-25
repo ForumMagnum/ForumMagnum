@@ -3,7 +3,8 @@ import { useMutation } from '@apollo/client/react';
 import { $getRoot, $nodesOfType, type LexicalEditor } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { gql } from '@/lib/generated/gql-codegen';
-import { PreviewLinkNode } from './PreviewLinkNode';
+import { HoverPreviewNode } from './HoverPreviewNode';
+import { $isLinkNode } from '@lexical/link';
 import {
   findHrefForPhrase,
   findTwinPreview,
@@ -26,15 +27,21 @@ export interface HoverPreviewSuggestion {
   href: string;
 }
 
-/** Every link in the document, as candidate sources for reuse. */
+/**
+ * Every hover preview already in the document, as candidate sources for reuse. The preview
+ * wraps the link rather than sitting inside it, so the href comes from a child.
+ */
 function collectHoverPreviewEntries(editor: LexicalEditor): HoverPreviewEntry[] {
   return editor.getEditorState().read(() => (
-    $nodesOfType(PreviewLinkNode).map(node => ({
-      text: node.getTextContent(),
-      previewHtml: node.getPreviewHtml(),
-      href: node.getURL(),
-      nodeKey: node.getKey(),
-    }))
+    $nodesOfType(HoverPreviewNode).map(node => {
+      const link = node.getChildren().find($isLinkNode);
+      return {
+        text: node.getTextContent(),
+        previewHtml: node.getPreviewHtml(),
+        href: link ? link.getURL() : '',
+        nodeKey: node.getKey(),
+      };
+    })
   ));
 }
 
@@ -51,7 +58,7 @@ function readSurroundingText(editor: LexicalEditor, targetNodeKey: string): stri
     return '';
   }
   return editor.getEditorState().read(() => {
-    const target = $nodesOfType(PreviewLinkNode).find(node => node.getKey() === targetNodeKey);
+    const target = $nodesOfType(HoverPreviewNode).find(node => node.getKey() === targetNodeKey);
     if (!target) {
       return '';
     }
