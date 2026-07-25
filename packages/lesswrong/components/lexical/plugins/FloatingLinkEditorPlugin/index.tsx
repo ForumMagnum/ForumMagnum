@@ -6,6 +6,7 @@
  *
  */
 import React, { type JSX } from 'react';
+import classNames from 'classnames';
 
 import {
   $createLinkNode,
@@ -48,6 +49,9 @@ import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { $isPreviewLinkNode } from '@/components/editor/lexicalPlugins/links/PreviewLinkNode';
 import { HoverPreviewEditor } from '@/components/editor/lexicalPlugins/links/HoverPreviewEditor';
+import { HoverPreviewSpinner } from '@/components/editor/lexicalPlugins/links/HoverPreviewSpinner';
+import { useHoverPreviewSuggestion } from '@/components/editor/lexicalPlugins/links/useHoverPreviewSuggestion';
+import { SparklesIcon } from '../../icons/SparklesIcon';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -159,6 +163,13 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     letterSpacing: 0.5,
     color: theme.palette.grey[600],
   },
+  previewActions: {
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+  previewActionError: {
+    color: theme.palette.error.main,
+  },
   previewAction: {
     width: 22,
     height: 22,
@@ -259,6 +270,8 @@ function FloatingLinkEditor({
   const [linkText, setLinkText] = useState('');
   const [editedLinkText, setEditedLinkText] = useState('');
   const [linkPreviewHtml, setLinkPreviewHtml] = useState('');
+  // Identifies the link being edited so autogenerate never reuses that link's own preview.
+  const [linkNodeKey, setLinkNodeKey] = useState('');
   // The preview field's live value. The nested editor reads its starting content once on
   // mount, so entering edit mode remounts it via editedPreviewKey.
   const editedPreviewHtmlRef = useRef('');
@@ -278,14 +291,17 @@ function FloatingLinkEditor({
         setLinkUrl(linkParent.getURL());
         setLinkText(linkParent.getTextContent());
         setLinkPreviewHtml(getPreviewHtmlOf(linkParent));
+        setLinkNodeKey(linkParent.getKey());
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
         setLinkText(node.getTextContent());
         setLinkPreviewHtml(getPreviewHtmlOf(node));
+        setLinkNodeKey(node.getKey());
       } else {
         setLinkUrl('');
         setLinkText(selection.getTextContent());
         setLinkPreviewHtml('');
+        setLinkNodeKey('');
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
@@ -452,6 +468,26 @@ function FloatingLinkEditor({
     editedPreviewHtmlRef.current = '';
     setHasEditedPreview(false);
     setEditedPreviewKey((key) => key + 1);
+  };
+
+  const { status: suggestionStatus, error: suggestionError, suggest } = useHoverPreviewSuggestion(editor);
+
+  const autogeneratePreview = async () => {
+    if (suggestionStatus === 'pending') {
+      return;
+    }
+    const phrase = editedLinkText.trim() || linkText;
+    const suggestion = await suggest({ targetNodeKey: linkNodeKey, phrase, href: editedLinkUrl });
+    if (!suggestion) {
+      return;
+    }
+    editedPreviewHtmlRef.current = suggestion.html;
+    setHasEditedPreview(!isBlankHtml(suggestion.html));
+    setEditedPreviewKey((key) => key + 1);
+    // Only fills a gap — a URL the author already typed is left alone.
+    if (!editedLinkUrl.trim() && suggestion.href) {
+      setEditedLinkUrl(suggestion.href);
+    }
   };
 
   // Toggling into edit mode adds the URL input row, which makes the floating
@@ -648,17 +684,34 @@ function FloatingLinkEditor({
             <>
               <div className={classes.previewHeader}>
                 <span className={classes.previewLabel}>Hover preview</span>
-                {hasEditedPreview && (
+                <span className={classes.previewActions}>
                   <button
-                    className={classes.previewAction}
+                    className={classNames(classes.previewAction, {
+                      [classes.previewActionError]: suggestionStatus === 'error',
+                    })}
                     type="button"
                     tabIndex={0}
+                    disabled={suggestionStatus === 'pending'}
+                    title={suggestionError ?? 'Autogenerate a preview (reads the post, and searches for a link if there is none)'}
                     onMouseDown={preventDefault}
-                    onClick={clearPreview}
-                    aria-label="Clear hover preview">
-                    <Trash3Icon className={classes.previewIcon} />
+                    onClick={autogeneratePreview}
+                    aria-label="Autogenerate hover preview">
+                    {suggestionStatus === 'pending'
+                      ? <HoverPreviewSpinner className={classes.previewIcon} />
+                      : <SparklesIcon className={classes.previewIcon} />}
                   </button>
-                )}
+                  {hasEditedPreview && (
+                    <button
+                      className={classes.previewAction}
+                      type="button"
+                      tabIndex={0}
+                      onMouseDown={preventDefault}
+                      onClick={clearPreview}
+                      aria-label="Clear hover preview">
+                      <Trash3Icon className={classes.previewIcon} />
+                    </button>
+                  )}
+                </span>
               </div>
               <HoverPreviewEditor
                 key={editedPreviewKey}

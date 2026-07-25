@@ -286,6 +286,7 @@ interface Mutation {
   resyncRssFeed: boolean;
   updateContinueReading: boolean | null;
   getNewJargonTerms: Array<JargonTerm | null> | null;
+  generateHoverPreview: HoverPreviewSuggestion;
   RSVPToEvent: Post | null;
   CancelRSVPToEvent: Post | null;
   addOrUpvoteTag: TagRel | null;
@@ -1242,6 +1243,11 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface HoverPreviewSuggestion {
+  html: string;
+  href: string;
 }
 
 interface ReviewResultsPostEntry {
@@ -9359,6 +9365,7 @@ interface GraphQLTypeMap {
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  HoverPreviewSuggestion: HoverPreviewSuggestion;
   ReviewResultsPostEntry: ReviewResultsPostEntry;
   ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;

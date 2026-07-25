@@ -53,6 +53,7 @@ import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnre
 import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
 import { partiallyReadSequencesMutations, partiallyReadSequencesTypeDefs } from '@/server/partiallyReadSequences';
 import { jargonTermsGraphQLMutations, jargonTermsGraphQLTypeDefs } from '@/server/resolvers/jargonResolvers/jargonTermMutations';
+import { hoverPreviewGraphQLMutations, hoverPreviewGraphQLTypeDefs } from '@/server/resolvers/hoverPreviewResolvers';
 import { rsvpToEventsMutations, rsvpToEventsTypeDefs } from '@/server/rsvpToEvent';
 import { siteAdminMetadataGraphQLQueries, siteAdminMetadataGraphQLTypeDefs } from '@/server/siteAdminMetadata';
 import { tagsGqlMutations, tagsGqlTypeDefs } from '@/server/tagging/tagsGraphQL';
@@ -295,6 +296,7 @@ export const getTypeDefs = () => gql`
   ${cronGraphQLTypeDefs}
   ${partiallyReadSequencesTypeDefs}
   ${jargonTermsGraphQLTypeDefs}
+  ${hoverPreviewGraphQLTypeDefs}
   ${rsvpToEventsTypeDefs}
   ${siteAdminMetadataGraphQLTypeDefs}
   ${tagsGqlTypeDefs}
@@ -589,6 +591,7 @@ const getResolvers = () => ({
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
     ...jargonTermsGraphQLMutations,
+    ...hoverPreviewGraphQLMutations,
     ...generateCoverImagesForPostGraphQLMutations,
     ...flipSplashArtImageGraphQLMutations,
     ...upscaleReviewWinnerArtGraphQLMutations,
