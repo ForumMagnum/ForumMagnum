@@ -46,7 +46,7 @@ import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
 import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
-import { $isPreviewLinkNode } from '@/components/editor/lexicalPlugins/links/PreviewLinkNode';
+import { $getSelectedHoverPreviewNode, $setHoverPreviewOnSelection } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
 import { HoverPreviewEditor } from '@/components/editor/lexicalPlugins/links/HoverPreviewEditor';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
@@ -203,8 +203,8 @@ function preventDefault(
   event.preventDefault();
 }
 
-function getPreviewHtmlOf(node: LexicalNode): string {
-  return $isPreviewLinkNode(node) ? node.getPreviewHtml() : '';
+function $readSelectedPreviewHtml(): string {
+  return $getSelectedHoverPreviewNode()?.getPreviewHtml() ?? '';
 }
 
 /** Treats markup that renders as nothing (an empty paragraph, stray whitespace) as absent. */
@@ -213,19 +213,11 @@ function isBlankHtml(html: string): boolean {
 }
 
 /**
- * Writes the hover preview onto whichever link node the selection now sits in. Must run
- * inside an editor.update, after the link itself has been created or updated.
+ * Writes the hover preview onto the current selection. Must run inside an editor.update, and
+ * after the link (if any) has been created, so the preview wraps the finished link.
  */
-function $applyPreviewToSelectedLink(previewHtml: string): void {
-  const selection = $getSelection();
-  if (!$isRangeSelection(selection)) {
-    return;
-  }
-  const node = getSelectedNode(selection);
-  const linkNode = $findMatchingParent(node, $isLinkNode) ?? node;
-  if ($isPreviewLinkNode(linkNode)) {
-    linkNode.setPreviewHtml(isBlankHtml(previewHtml) ? '' : previewHtml);
-  }
+function $applyPreviewToSelection(previewHtml: string): void {
+  $setHoverPreviewOnSelection(isBlankHtml(previewHtml) ? '' : previewHtml);
 }
 
 function FloatingLinkEditor({
@@ -270,6 +262,8 @@ function FloatingLinkEditor({
 
   const $updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
+    // A hover preview is independent of the link: it may wrap one, or sit on plain text.
+    setLinkPreviewHtml($readSelectedPreviewHtml());
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
       const linkParent = $findMatchingParent(node, $isLinkNode);
@@ -277,15 +271,15 @@ function FloatingLinkEditor({
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
         setLinkText(linkParent.getTextContent());
-        setLinkPreviewHtml(getPreviewHtmlOf(linkParent));
+
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
         setLinkText(node.getTextContent());
-        setLinkPreviewHtml(getPreviewHtmlOf(node));
+
       } else {
         setLinkUrl('');
         setLinkText(selection.getTextContent());
-        setLinkPreviewHtml('');
+
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
@@ -299,15 +293,15 @@ function FloatingLinkEditor({
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
           setLinkText(parent.getTextContent());
-          setLinkPreviewHtml(getPreviewHtmlOf(parent));
+
         } else if ($isLinkNode(node)) {
           setLinkUrl(node.getURL());
           setLinkText(node.getTextContent());
-          setLinkPreviewHtml(getPreviewHtmlOf(node));
+
         } else {
           setLinkUrl('');
           setLinkText('');
-          setLinkPreviewHtml('');
+
         }
         if (isLinkEditMode) {
           setEditedLinkUrl(linkUrl);
@@ -532,7 +526,11 @@ function FloatingLinkEditor({
   ) => {
     event.preventDefault();
     if (lastSelection !== null) {
-      if (editedLinkUrl.trim() !== '') {
+      // A hover preview stands on its own, so an empty URL is not the same as nothing to do:
+      // it may mean "annotate this text without linking it", or "remove the link and keep the
+      // preview". Only bail when there is neither a URL nor a preview to write.
+      const hasPreview = !isBlankHtml(editedPreviewHtmlRef.current);
+      if (editedLinkUrl.trim() !== '' || hasPreview) {
         const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
         if (isSuggestionMode) {
           const { linkNode, linkTextNode } = getCurrentLinkChangePayload();
@@ -544,9 +542,10 @@ function FloatingLinkEditor({
           });
         } else {
           editor.update(() => {
+            // A blank URL removes the link (or never creates one) while leaving the preview.
             editor.dispatchCommand(
               TOGGLE_LINK_COMMAND,
-              sanitizeUrl(normalizeUrl(editedLinkUrl)),
+              editedLinkUrl.trim() ? sanitizeUrl(normalizeUrl(editedLinkUrl)) : null,
             );
             const selection = $getSelection();
             if ($isRangeSelection(selection)) {
@@ -584,7 +583,7 @@ function FloatingLinkEditor({
               }
             }
 
-            $applyPreviewToSelectedLink(editedPreviewHtmlRef.current);
+            $applyPreviewToSelection(editedPreviewHtmlRef.current);
           });
         }
       }

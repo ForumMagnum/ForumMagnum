@@ -1,11 +1,8 @@
 import React, { useContext, useMemo } from 'react';
 import { Card } from '@/components/widgets/Paper';
-import { Link } from '@/lib/reactRouterWrapper';
-import { classifyLink } from '@/lib/routeUtil';
 import { sanitize } from '@/lib/utils/sanitize';
 import { prettifyLinkUrl } from '@/lib/utils/prettifyLinkUrl';
 import { useHover } from '../common/withHover';
-import AnalyticsTracker from '../common/AnalyticsTracker';
 import ContentStyles from '../common/ContentStyles';
 import LWPopper from '../common/LWPopper';
 import { ContentItemBody } from '../contents/ContentItemBody';
@@ -21,6 +18,14 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 const MAX_PREVIEW_DEPTH = 3;
 
 const CustomPreviewDepthContext = React.createContext<number>(0);
+
+/**
+ * Set while rendering inside a custom hover preview's anchor text. The preview span wraps the
+ * link, so this flows down to HoverPreviewLink and tells it to render a plain link rather than
+ * attaching the destination's own preview — otherwise a linked phrase with a custom preview
+ * would pop up two cards.
+ */
+export const SuppressDefaultLinkPreviewContext = React.createContext<boolean>(false);
 
 const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
   hovercard: {
@@ -49,16 +54,13 @@ const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
 }));
 
 /**
- * A link whose author attached a custom hover preview, shown instead of whatever preview
- * the destination would otherwise get. The body is author-written HTML carried on the
- * anchor's data-hover-preview attribute; see PreviewLinkNode for the editor side.
+ * Text carrying an author-written hover preview. May wrap a link — in which case this preview
+ * replaces whatever preview the destination would otherwise get — or plain unlinked text.
+ * See HoverPreviewNode for the editor side.
  */
-const CustomHoverPreview = ({ href, previewHtml, id, rel, className, contentStyleType = 'comment', children }: {
-  href: string,
+const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', children }: {
   previewHtml: string,
-  id?: string,
-  rel?: string,
-  className?: string,
+  href?: string,
   contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
@@ -72,20 +74,14 @@ const CustomHoverPreview = ({ href, previewHtml, id, rel, className, contentStyl
   // sanitize-html does not recurse into attribute values, so the document-level sanitize()
   // that let this attribute through did NOT sanitize what is inside it.
   const sanitizedHtml = useMemo(() => sanitize(previewHtml), [previewHtml]);
-  const prettyUrl = useMemo(() => prettifyLinkUrl(href), [href]);
-
-  const linkBody = classifyLink(href) === 'onsite'
-    ? <Link to={href} id={id} rel={rel} className={className}>{children}</Link>
-    : <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
-        <a href={href} id={id} rel={rel} className={className}>{children}</a>
-      </AnalyticsTracker>;
+  const prettyUrl = useMemo(() => (href ? prettifyLinkUrl(href) : ''), [href]);
 
   if (depth >= MAX_PREVIEW_DEPTH || !sanitizedHtml) {
-    return linkBody;
+    return <>{children}</>;
   }
 
   return (
-    <span {...eventHandlers}>
+    <span {...eventHandlers} className="hoverPreview">
       {everHovered && <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable flip>
         <InteractionWrapper>
           <Card>
@@ -98,7 +94,9 @@ const CustomHoverPreview = ({ href, previewHtml, id, rel, className, contentStyl
           </Card>
         </InteractionWrapper>
       </LWPopper>}
-      {linkBody}
+      <SuppressDefaultLinkPreviewContext.Provider value={true}>
+        {children}
+      </SuppressDefaultLinkPreviewContext.Provider>
     </span>
   );
 };

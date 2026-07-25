@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { classifyLink, useLocation } from '../../lib/routeUtil';
@@ -10,7 +10,7 @@ import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
 import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview';
 import FootnotePreview from "./FootnotePreview";
-import CustomHoverPreview from "./CustomHoverPreview";
+import { SuppressDefaultLinkPreviewContext } from "./CustomHoverPreview";
 import { NoSideItems } from '../contents/SideItems';
 
 import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
@@ -30,7 +30,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 // ContentItemBody as a replacement for <a> tags in user-provided content.
 // Props
 //   href: The link destination, the href attribute on the original <a> tag.
-const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children, ...attribs }: {
+const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children }: {
   href: string,
   id?: string,
   rel?: string,
@@ -39,10 +39,12 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   contentStyleType?: ContentStyleType,
   className?: string,
   children: React.ReactNode,
-  'data-hover-preview'?: string,
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
+  // An enclosing custom hover preview has already claimed this phrase; showing the
+  // destination's own preview on top of it would pop up two cards.
+  const suppressPreview = useContext(SuppressDefaultLinkPreviewContext);
   href = href ? href.trim() : href;
 
   // Invalid link with no href? Don't transform it.
@@ -52,22 +54,10 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
     </a>
   }
 
-  // An author-attached preview replaces whatever preview the destination would otherwise
-  // get, so this has to come before the route-based dispatch below.
-  const customPreviewHtml = attribs['data-hover-preview'];
-  if (customPreviewHtml) {
-    return <AnalyticsContext pageElementContext="linkPreview" href={href} hoverPreviewType="CustomHoverPreview">
-      <CustomHoverPreview
-        href={href}
-        previewHtml={customPreviewHtml}
-        id={id}
-        rel={rel}
-        className={className}
-        contentStyleType={contentStyleType}
-      >
-        {children}
-      </CustomHoverPreview>
-    </AnalyticsContext>
+  if (suppressPreview) {
+    return <a href={href} id={id} rel={rel} className={className}>
+      {children}
+    </a>
   }
 
   // Within-page relative link?
