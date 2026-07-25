@@ -300,8 +300,6 @@ export function CollapsibleSectionsPlugin(): null {
             if (clickedInText) {
               return false;
             }
-            // Only clicks in the left gutter, where the disclosure triangle is,
-            // toggle the section; clicks on the title text place the cursor.
             const rect = titleElement.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             if (clickX > COLLAPSIBLE_MARKER_GUTTER) {

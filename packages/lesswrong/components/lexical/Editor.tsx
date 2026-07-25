@@ -267,11 +267,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         width: 'calc(100% - 20px)',
       },
     },
-    // The look of collapsible sections, including hiding the contents of a
-    // closed one, lives in `collapsibleSectionStyles` in stylePiping, which
-    // applies here too (via the ContentStyles wrapper around the editor) so
-    // that the editor matches the rendered page. Only Lexical-specific
-    // affordances belong here.
+    // Collapsible sections are styled by `collapsibleSectionStyles` in
+    // stylePiping, which reaches the editor via its ContentStyles wrapper.
+    // Only Lexical-specific affordances belong here.
     '& .detailsBlock.detailsBlockSelected': {
       outline: `2px solid ${theme.palette.primary.main}`,
       outlineOffset: 2,
