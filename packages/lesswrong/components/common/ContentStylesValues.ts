@@ -32,7 +32,8 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     margin: '0 auto',
     padding: '44px 32px 160px',
   },
-  '& [contenteditable="true"] p:not(.research-agent-block *)': {
+  // Collapsible sections share the paragraph rule so they can't drift from it.
+  '& [contenteditable="true"] p:not(.research-agent-block *), & [contenteditable="true"] .detailsBlock:not(.research-agent-block *)': {
     margin: '0 0 0.7em',
   },
   '& [contenteditable="true"] h1:not(.research-agent-block *)': {
