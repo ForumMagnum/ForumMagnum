@@ -33,8 +33,6 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     padding: '44px 32px 160px',
   },
   // Collapsible sections share the paragraph rule so they can't drift from it.
-  // Left to the `1em` margins they inherit from `postBodyStyles`, they'd sit in
-  // more space than the paragraphs around them.
   '& [contenteditable="true"] p:not(.research-agent-block *), & [contenteditable="true"] .detailsBlock:not(.research-agent-block *)': {
     margin: '0 0 0.7em',
   },
