@@ -27,10 +27,7 @@ export interface HoverPreviewSuggestion {
   href: string;
 }
 
-/**
- * Every hover preview already in the document, as candidate sources for reuse. The preview
- * wraps the link rather than sitting inside it, so the href comes from a child.
- */
+/** The preview wraps the link, so the href comes from a child. */
 function collectHoverPreviewEntries(editor: LexicalEditor): HoverPreviewEntry[] {
   return editor.getEditorState().read(() => (
     $nodesOfType(HoverPreviewNode).map(node => {
@@ -49,10 +46,7 @@ function readDocumentHtml(editor: LexicalEditor): string {
   return editor.getEditorState().read(() => $generateHtmlFromNodes(editor, null));
 }
 
-/**
- * The block the link sits in, so the model can see how the phrase is being used rather than
- * having to locate it in the whole document.
- */
+/** The enclosing block, so the model sees how the phrase is used. */
 function readSurroundingText(editor: LexicalEditor, targetNodeKey: string): string {
   if (!targetNodeKey) {
     return '';
@@ -68,11 +62,8 @@ function readSurroundingText(editor: LexicalEditor, targetNodeKey: string): stri
 }
 
 /**
- * Fills in a link's hover preview (and, when it has no link yet, its URL).
- *
- * Checks the rest of the document first: the same phrase or the same destination explained
- * twice deserves one explanation, and copying is both cheaper and more consistent than asking
- * a model to write a near-duplicate.
+ * Fills in a preview, and a URL when the phrase has no link yet.
+ * Checks the document for a reusable one before calling the model.
  */
 export function useHoverPreviewSuggestion(editor: LexicalEditor | null) {
   const [status, setStatus] = useState<HoverPreviewSuggestionStatus>('idle');
@@ -91,7 +82,7 @@ export function useHoverPreviewSuggestion(editor: LexicalEditor | null) {
     setError(null);
 
     const entries = collectHoverPreviewEntries(editor);
-    // An unlinked phrase the document links elsewhere already has its destination.
+    // A phrase linked elsewhere already has a destination.
     const knownHref = href.trim() || findHrefForPhrase(entries, targetNodeKey, phrase);
 
     const twin = findTwinPreview(entries, targetNodeKey, phrase, knownHref);
@@ -114,7 +105,7 @@ export function useHoverPreviewSuggestion(editor: LexicalEditor | null) {
         throw new Error('No hover preview was returned');
       }
       setStatus('idle');
-      // Only ever fills a gap: a link the author already chose is never replaced.
+      // Only fills a gap; never replaces the author's own link.
       return { html: suggestion.html, href: href.trim() ? href.trim() : (suggestion.href || knownHref) };
     } catch (e) {
       setStatus('error');

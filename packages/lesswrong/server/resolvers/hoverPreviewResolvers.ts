@@ -4,8 +4,7 @@ import { sanitize } from "@/lib/utils/sanitize";
 import { getUrlClass } from "@/server/utils/getUrlClass";
 import type { MessageParam, ToolUnion } from "@anthropic-ai/sdk/resources/messages.mjs";
 
-// The top Opus-tier model. Note there is no "Opus 5" — the Claude 5 family is
-// Fable 5 / Sonnet 5; claude-fable-5 is more capable but roughly 2x the price.
+// claude-fable-5 is more capable, at roughly twice the price.
 const HOVER_PREVIEW_MODEL = 'claude-opus-4-8';
 
 const MAX_DOCUMENT_CHARS = 80_000;
@@ -38,9 +37,8 @@ The phrase's own link:
 
 Reply with exactly one line reading HREF: followed by that URL — or HREF: none — and then the card's HTML on the lines after it: <p> paragraphs, with <em>, <strong>, or <a href> inside if they earn their place. No markdown, no code fences, no headings, no commentary.`;
 
-// A model-suggested link lands in someone's post, so take only what is unambiguously a web
-// address: http(s), a real-looking host, and nothing that merely happens to parse — a bare
-// "N/A" is a valid URL path.
+// This lands in someone's post, and parsing is not enough on its own:
+// a bare "N/A" is a valid URL path.
 export function safeSuggestedHref(value: string): string {
   const trimmed = value.trim();
   if (!trimmed || /\s/.test(trimmed)) {
@@ -82,8 +80,8 @@ function buildPrompt({ documentHtml, phrase, surroundingText, href }: {
 }
 
 /**
- * A leading HREF: line rather than a tool call or JSON, because card HTML is full of quotes and
- * an unescaped one would cost the whole response.
+ * A leading HREF: line rather than JSON, because card HTML is full of
+ * quotes and one unescaped quote would cost the whole response.
  */
 function parseSuggestion(text: string): { html: string, suggestedHref: string } {
   const answer = text.trim().replace(/^```(?:html)?\n?|\n?```$/g, '').trim();
@@ -99,8 +97,8 @@ function collectResponseText(content: Array<{ type: string, text?: string }>): s
 }
 
 /**
- * Search is only offered when the phrase has no link yet — when it already points somewhere, the
- * post has committed to that destination and the model's only job is to describe it.
+ * Search is offered only when the phrase has no link: once the author
+ * has chosen a destination, the model's job is just to describe it.
  */
 function toolsForRequest(hasHref: boolean): ToolUnion[] {
   const webFetch: ToolUnion = { type: 'web_fetch_20260209', name: 'web_fetch', max_uses: MAX_FETCHES };
@@ -122,8 +120,7 @@ export async function generateHoverPreview({ documentHtml, phrase, surroundingTe
     content: buildPrompt({ documentHtml, phrase, surroundingText, href }),
   }];
 
-  // Streamed because web search plus several serial fetches can run well past the SDK's
-  // non-streaming HTTP timeout.
+  // Search plus serial fetches runs past the non-streaming timeout.
   const stream = client.messages.stream({
     model: HOVER_PREVIEW_MODEL,
     max_tokens: MAX_OUTPUT_TOKENS,

@@ -382,10 +382,8 @@ const collapsibleMarkerStyles = (theme: ThemeType) => ({
 });
 
 /**
- * Text carrying an author-written hover preview. The faint dashed underline is the only
- * marker: a link keeps its own colour on top, so a linked phrase with a preview shows both,
- * and an unlinked phrase with a preview shows just the dashes. Shared between the editor and
- * rendered posts so the two look the same.
+ * A preview adds only the dashed underline, so a link keeps its
+ * colour on top and a linked phrase with a preview shows both.
  */
 const hoverPreviewStyles = (theme: ThemeType) => ({
   '& .hoverPreview': {

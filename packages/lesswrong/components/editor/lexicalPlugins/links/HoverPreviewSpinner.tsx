@@ -2,8 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('HoverPreviewSpinner', (theme: ThemeType) => ({
-  // A three-quarter ring rotating once per 0.7s, matching the lightcone-commons editor's
-  // generating indicator. Sized in em so it scales with whatever it sits next to.
+  // Sized in em so it scales with whatever it sits next to.
   spinner: {
     display: 'inline-block',
     width: '1em',

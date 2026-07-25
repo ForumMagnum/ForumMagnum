@@ -17,13 +17,10 @@ import {
   type Spread,
 } from 'lexical';
 
-/**
- * The attribute a custom hover preview is stored in, as escaped HTML. Read on the rendering
- * side by ContentItemBody, which turns the span into a CustomHoverPreview.
- */
+/** Holds the preview body as escaped HTML. */
 export const HOVER_PREVIEW_ATTRIBUTE = 'data-hover-preview';
 
-/** Marks the span so it can be styled with the faint dashed underline. */
+/** Styling hook for the dashed underline; see stylePiping. */
 export const HOVER_PREVIEW_CLASS = 'hoverPreview';
 
 export type SerializedHoverPreviewNode = Spread<
@@ -34,11 +31,8 @@ export type SerializedHoverPreviewNode = Spread<
 /**
  * An inline span carrying an author-written hover preview.
  *
- * Deliberately a node of its own rather than an attribute on the link: a preview does not
- * require a link, and text with a preview but no destination has to be representable. When
- * there is also a link, this node wraps it (`<span><a>text</a></span>`) rather than nesting
- * inside it, so the rendering side can suppress the link's own preview via React context —
- * context flows down, so the preview has to be the outer element.
+ * Wraps the link rather than nesting inside it, so the renderer can
+ * suppress the link's own preview via context, which only flows down.
  */
 export class HoverPreviewNode extends ElementNode {
   __previewHtml: string;
@@ -126,7 +120,7 @@ export class HoverPreviewNode extends ElementNode {
     return false;
   }
 
-  /** Typing at either edge should land outside the preview, as it does for links. */
+  /** Typing at the edges lands outside, as it does for links. */
   canInsertTextBefore(): false {
     return false;
   }
@@ -154,7 +148,6 @@ export function $isHoverPreviewNode(
   return node instanceof HoverPreviewNode;
 }
 
-/** The hover preview covering the current selection, if there is one. */
 export function $getSelectedHoverPreviewNode(): HoverPreviewNode | null {
   const selection = $getSelection();
   if (!$isRangeSelection(selection)) {
@@ -175,12 +168,7 @@ function $unwrapHoverPreview(node: HoverPreviewNode): void {
   node.remove();
 }
 
-/**
- * Adds, updates, or (with an empty string) removes the hover preview on the current selection.
- *
- * When the selection sits inside a link, the whole link is wrapped rather than its text, so the
- * preview stays the outer element even if the link was created first.
- */
+/** An empty previewHtml removes the preview. */
 export function $setHoverPreviewOnSelection(previewHtml: string): void {
   const selection = $getSelection();
   if (!$isRangeSelection(selection)) {
@@ -205,8 +193,7 @@ export function $setHoverPreviewOnSelection(previewHtml: string): void {
     return;
   }
 
-  // Prefer wrapping an enclosing link over its text, so link-then-preview and
-  // preview-then-link produce the same structure.
+  // Wrap an enclosing link so either creation order gives one shape.
   const linkParent = $findMatchingParent(nodes[0], $isLinkNode);
   const wrapTarget = linkParent && nodes.every(node => linkParent.isParentOf(node))
     ? linkParent

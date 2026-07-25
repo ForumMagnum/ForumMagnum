@@ -214,15 +214,12 @@ function preventDefault(
   event.preventDefault();
 }
 
-/** Treats markup that renders as nothing (an empty paragraph, stray whitespace) as absent. */
+/** An empty paragraph or stray whitespace counts as blank. */
 function isBlankHtml(html: string): boolean {
   return !html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
 }
 
-/**
- * Writes the hover preview onto the current selection. Must run inside an editor.update, and
- * after the link (if any) has been created, so the preview wraps the finished link.
- */
+/** Run inside editor.update, after the link, so it wraps the link. */
 function $applyPreviewToSelection(previewHtml: string): void {
   $setHoverPreviewOnSelection(isBlankHtml(previewHtml) ? '' : previewHtml);
 }
@@ -258,10 +255,9 @@ function FloatingLinkEditor({
   const [linkText, setLinkText] = useState('');
   const [editedLinkText, setEditedLinkText] = useState('');
   const [linkPreviewHtml, setLinkPreviewHtml] = useState('');
-  // Identifies the preview being edited so autogenerate never reuses its own text.
+  // The preview being edited, so it isn't its own reuse source.
   const [linkNodeKey, setLinkNodeKey] = useState('');
-  // The preview field's live value. The nested editor reads its starting content once on
-  // mount, so entering edit mode remounts it via editedPreviewKey.
+  // Kept out of state so typing in the nested editor can't remount it.
   const editedPreviewHtmlRef = useRef('');
   const [editedPreviewKey, setEditedPreviewKey] = useState(0);
   const [hasEditedPreview, setHasEditedPreview] = useState(false);
@@ -271,10 +267,9 @@ function FloatingLinkEditor({
 
   const $updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
-    // A hover preview is independent of the link: it may wrap one, or sit on plain text.
+    // Independent of the link: may wrap one, or sit on plain text.
     const selectedPreview = $getSelectedHoverPreviewNode();
     setLinkPreviewHtml(selectedPreview?.getPreviewHtml() ?? '');
-    // Identifies the preview being edited so autogenerate never reuses its own text.
     setLinkNodeKey(selectedPreview?.getKey() ?? '');
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
@@ -436,9 +431,8 @@ function FloatingLinkEditor({
     }
   }, [isLinkEditMode, isLink]);
 
-  // Seed the hover preview field when edit mode opens. Deliberately keyed off
-  // isLinkEditMode alone: the nested editor reads its content once on mount, so re-seeding
-  // whenever linkPreviewHtml changes would throw away whatever is being typed.
+  // Keyed off isLinkEditMode alone: the nested editor reads content
+  // once on mount, so re-seeding mid-edit would discard the typing.
   useEffect(() => {
     if (!isLinkEditMode) {
       return;
@@ -558,9 +552,8 @@ function FloatingLinkEditor({
   ) => {
     event.preventDefault();
     if (lastSelection !== null) {
-      // A hover preview stands on its own, so an empty URL is not the same as nothing to do:
-      // it may mean "annotate this text without linking it", or "remove the link and keep the
-      // preview". Only bail when there is neither a URL nor a preview to write.
+      // An empty URL is not a no-op: it can mean "annotate without
+      // linking", or "drop the link, keep the preview".
       const hasPreview = !isBlankHtml(editedPreviewHtmlRef.current);
       if (editedLinkUrl.trim() !== '' || hasPreview) {
         const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
@@ -574,7 +567,7 @@ function FloatingLinkEditor({
           });
         } else {
           editor.update(() => {
-            // A blank URL removes the link (or never creates one) while leaving the preview.
+            // A blank URL drops the link but keeps the preview.
             editor.dispatchCommand(
               TOGGLE_LINK_COMMAND,
               editedLinkUrl.trim() ? sanitizeUrl(normalizeUrl(editedLinkUrl)) : null,
@@ -673,8 +666,8 @@ function FloatingLinkEditor({
               <SuccessAltIcon className={classes.linkIcon} />
             </button>
           </div>
-          {/* Suggestion mode has no representation for a preview change, so it is not
-              offered there rather than being silently dropped on accept. */}
+          {/* Suggestion mode can't represent a preview change, so hide it
+              rather than silently dropping it on accept. */}
           {!isSuggestionMode && (
             <>
               <div className={classes.previewHeader}>

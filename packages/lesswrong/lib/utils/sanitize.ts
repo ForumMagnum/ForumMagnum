@@ -94,9 +94,8 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
-      // data-hover-preview holds escaped HTML. sanitize-html does not recurse into attribute
-      // values, so allowing it here does NOT sanitize its contents; the rendering side must
-      // sanitize the decoded value itself. See CustomHoverPreview.
+      // data-hover-preview holds escaped HTML, which this does NOT
+      // sanitize. CustomHoverPreview sanitizes it on render.
       span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title', 'data-hover-preview'],
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
