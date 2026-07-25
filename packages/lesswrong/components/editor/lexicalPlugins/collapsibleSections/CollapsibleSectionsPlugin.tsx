@@ -32,6 +32,7 @@ import {
   $isParagraphNode,
 } from 'lexical';
 import { mergeRegister, $insertNodeToNearestRoot } from '@lexical/utils';
+import { COLLAPSIBLE_MARKER_GUTTER } from '@/themes/stylePiping';
 import {
   CollapsibleSectionContainerNode,
   $createCollapsibleSectionContainerNode,
@@ -301,7 +302,7 @@ export function CollapsibleSectionsPlugin(): null {
             }
             const rect = titleElement.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
-            if (clickX > 24) {
+            if (clickX > COLLAPSIBLE_MARKER_GUTTER) {
               return false;
             }
             // Don't toggle if clicking on actual text content inside
