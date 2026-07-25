@@ -12,6 +12,7 @@ import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { $getRoot, $insertNodes, type EditorState, type LexicalEditor } from 'lexical';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { validateUrl } from '@/components/lexical/utils/url';
+import { buildTextNodeExportMap } from '@/components/editor/lexicalDomExport';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({
@@ -116,6 +117,9 @@ export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus }: {
         theme: hoverPreviewTheme,
         onError: onHoverPreviewEditorError,
         editorState: seedFromHtml(initialHtml),
+        // Same TextNode export override the main editor uses, so bold or italic preview
+        // text exports as a single semantic element instead of <b><strong>text</strong></b>.
+        html: { export: buildTextNodeExportMap() },
       }}>
         <RichTextPlugin
           contentEditable={
