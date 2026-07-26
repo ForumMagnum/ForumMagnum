@@ -22,7 +22,6 @@ import {
   $isRangeSelection,
   $isTextNode,
   BaseSelection,
-  LexicalNode,
   CLICK_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_HIGH,
@@ -203,18 +202,9 @@ function preventDefault(
   event.preventDefault();
 }
 
-function $readSelectedPreviewHtml(): string {
-  return $getSelectedHoverPreviewNode()?.getPreviewHtml() ?? '';
-}
-
 /** An empty paragraph or stray whitespace counts as blank. */
 function isBlankHtml(html: string): boolean {
   return !html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-}
-
-/** Run inside editor.update, after the link, so it wraps the link. */
-function $applyPreviewToSelection(previewHtml: string): void {
-  $setHoverPreviewOnSelection(isBlankHtml(previewHtml) ? '' : previewHtml);
 }
 
 function FloatingLinkEditor({
@@ -259,7 +249,7 @@ function FloatingLinkEditor({
   const $updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
     // Independent of the link: may wrap one, or sit on plain text.
-    setLinkPreviewHtml($readSelectedPreviewHtml());
+    setLinkPreviewHtml($getSelectedHoverPreviewNode()?.getPreviewHtml() ?? '');
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
       const linkParent = $findMatchingParent(node, $isLinkNode);
@@ -267,15 +257,12 @@ function FloatingLinkEditor({
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
         setLinkText(linkParent.getTextContent());
-
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
         setLinkText(node.getTextContent());
-
       } else {
         setLinkUrl('');
         setLinkText(selection.getTextContent());
-
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
@@ -289,15 +276,12 @@ function FloatingLinkEditor({
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
           setLinkText(parent.getTextContent());
-
         } else if ($isLinkNode(node)) {
           setLinkUrl(node.getURL());
           setLinkText(node.getTextContent());
-
         } else {
           setLinkUrl('');
           setLinkText('');
-
         }
         if (isLinkEditMode) {
           setEditedLinkUrl(linkUrl);
@@ -523,7 +507,7 @@ function FloatingLinkEditor({
     if (lastSelection !== null) {
       // An empty URL is not a no-op: it can mean "annotate without
       // linking", or "drop the link, keep the preview".
-      const hasPreview = !isBlankHtml(editedPreviewHtmlRef.current);
+      const hasPreview = !isSuggestionMode && !isBlankHtml(editedPreviewHtmlRef.current);
       if (editedLinkUrl.trim() !== '' || hasPreview) {
         const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
         if (isSuggestionMode) {
@@ -577,7 +561,8 @@ function FloatingLinkEditor({
               }
             }
 
-            $applyPreviewToSelection(editedPreviewHtmlRef.current);
+            // Last, so the preview wraps the finished link.
+            $setHoverPreviewOnSelection(hasPreview ? editedPreviewHtmlRef.current : '');
           });
         }
       }

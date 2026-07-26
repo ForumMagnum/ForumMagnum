@@ -1,7 +1,6 @@
-import {
-  $findMatchingParent,
-} from '@lexical/utils';
+import { $findMatchingParent } from '@lexical/utils';
 import { $isLinkNode } from '@lexical/link';
+import { getSelectedNode } from '@/components/lexical/utils/getSelectedNode';
 import {
   $getSelection,
   $isRangeSelection,
@@ -21,7 +20,7 @@ import {
 export const HOVER_PREVIEW_ATTRIBUTE = 'data-hover-preview';
 
 /** Styling hook for the dashed underline; see stylePiping. */
-export const HOVER_PREVIEW_CLASS = 'hoverPreview';
+const HOVER_PREVIEW_CLASS = 'hoverPreview';
 
 export type SerializedHoverPreviewNode = Spread<
   { previewHtml: string },
@@ -66,10 +65,7 @@ export class HoverPreviewNode extends ElementNode {
   }
 
   createDOM(_config: EditorConfig): HTMLElement {
-    const element = document.createElement('span');
-    element.className = HOVER_PREVIEW_CLASS;
-    element.setAttribute(HOVER_PREVIEW_ATTRIBUTE, this.__previewHtml);
-    return element;
+    return createHoverPreviewElement(this.__previewHtml);
   }
 
   updateDOM(prevNode: this, element: HTMLElement): boolean {
@@ -80,10 +76,7 @@ export class HoverPreviewNode extends ElementNode {
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement('span');
-    element.className = HOVER_PREVIEW_CLASS;
-    element.setAttribute(HOVER_PREVIEW_ATTRIBUTE, this.__previewHtml);
-    return { element };
+    return { element: createHoverPreviewElement(this.__previewHtml) };
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -134,6 +127,13 @@ export class HoverPreviewNode extends ElementNode {
   }
 }
 
+function createHoverPreviewElement(previewHtml: string): HTMLElement {
+  const element = document.createElement('span');
+  element.className = HOVER_PREVIEW_CLASS;
+  element.setAttribute(HOVER_PREVIEW_ATTRIBUTE, previewHtml);
+  return element;
+}
+
 function convertHoverPreviewElement(domNode: HTMLElement): DOMConversionOutput {
   return { node: $createHoverPreviewNode(domNode.getAttribute(HOVER_PREVIEW_ATTRIBUTE) ?? '') };
 }
@@ -153,11 +153,7 @@ export function $getSelectedHoverPreviewNode(): HoverPreviewNode | null {
   if (!$isRangeSelection(selection)) {
     return null;
   }
-  const [node] = selection.getNodes();
-  if (!node) {
-    return null;
-  }
-  const matched = $findMatchingParent(node, $isHoverPreviewNode);
+  const matched = $findMatchingParent(getSelectedNode(selection), $isHoverPreviewNode);
   return $isHoverPreviewNode(matched) ? matched : null;
 }
 

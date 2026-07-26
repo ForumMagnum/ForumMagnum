@@ -1,7 +1,5 @@
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
-const URLClass = getUrlClass();
-
 /** Kept short deliberately: `blog.`, `docs.` etc carry meaning. */
 const noiseSubdomains = ['www.', 'www2.', 'm.', 'mobile.'];
 
@@ -79,6 +77,7 @@ export function prettifyLinkUrl(url: string): string {
     ? trimmed
     : `https:${trimmed.startsWith('//') ? '' : '//'}${trimmed}`;
 
+  const URLClass = getUrlClass();
   let parsed;
   try {
     parsed = new URLClass(toParse);
