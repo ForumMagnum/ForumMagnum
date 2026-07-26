@@ -257,6 +257,23 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [postIds, startDate, endDate]);
   }
 
+  async getCommentsPostedPerDay({ windowStart, windowEnd }: { windowStart: Date; windowEnd: Date }): Promise<{ date: string; count: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; count: string }>(`
+      -- CommentsRepo.getCommentsPostedPerDay
+      SELECT
+        to_char(c."postedAt", 'YYYY-MM-DD') AS date,
+        COUNT(*) AS count
+      FROM "Comments" c
+      WHERE
+        c."postedAt" >= $(windowStart)
+        AND c."postedAt" < $(windowEnd)
+        AND c."deleted" IS NOT TRUE
+      GROUP BY 1
+      ORDER BY 1
+    `, { windowStart, windowEnd });
+    return results.map(({ date, count }) => ({ date, count: parseInt(count) }));
+  }
+
   async getCommentsWithElicitData(): Promise<DbComment[]> {
     return await this.any(`
       -- CommentsRepo.getCommentsWithElicitData

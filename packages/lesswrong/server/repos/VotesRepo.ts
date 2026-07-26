@@ -494,6 +494,26 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [documentIds, startDate, endDate]);
   }
 
+  async getVotesCastPerDay({ windowStart, windowEnd }: { windowStart: Date; windowEnd: Date }): Promise<{ date: string; count: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; count: string }>(`
+      -- VotesRepo.getVotesCastPerDay
+      SELECT
+        to_char(v."votedAt", 'YYYY-MM-DD') AS date,
+        COUNT(*) AS count
+      FROM "Votes" v
+      WHERE
+        v."votedAt" >= $(windowStart)
+        AND v."votedAt" < $(windowEnd)
+        AND v."cancelled" IS NOT TRUE
+        AND v."isUnvote" IS NOT TRUE
+        AND v."voteType" != 'neutral'
+        AND NOT v."authorIds" @> ARRAY[v."userId"]
+      GROUP BY 1
+      ORDER BY 1
+    `, { windowStart, windowEnd });
+    return results.map(({ date, count }) => ({ date, count: parseInt(count) }));
+  }
+
   /**
    * Get the ids of all votes where user1 and user2 have voted on the same document. This is mainly
    * for the purpose of nullifying votes where a user has double-voted from an alt.

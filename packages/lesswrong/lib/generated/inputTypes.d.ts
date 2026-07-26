@@ -17,6 +17,8 @@ interface Query {
   PostAnalytics: PostAnalyticsResult;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   AnalyticsSeries: Array<AnalyticsSeriesValue | null> | null;
+  SiteUsageStats: SiteUsageStatsResult;
+  SiteUsageHistory: Array<SiteUsageHistoryDay>;
   ArbitalPageData: ArbitalPageData | null;
   crossSiteLinkPreview: CrossSiteLinkPreviewData | null;
   ElicitBlockData: ElicitBlockData | null;
@@ -767,6 +769,36 @@ interface AnalyticsSeriesValue {
   reads: number | null;
   karma: number | null;
   comments: number | null;
+}
+
+interface SiteUsageStatsDay {
+  date: string;
+  views: number;
+  uniqueViews: number;
+  postsPublished: number;
+  commentsPosted: number;
+  votesCast: number;
+  newUsers: number;
+}
+
+interface SiteUsageTopPost {
+  postId: string;
+  title: string | null;
+  slug: string | null;
+  views: number;
+  uniqueViews: number;
+}
+
+interface SiteUsageStatsResult {
+  days: Array<SiteUsageStatsDay>;
+  totalViews: number;
+  totalUniqueViews: number;
+  topPosts: Array<SiteUsageTopPost>;
+}
+
+interface SiteUsageHistoryDay {
+  date: string;
+  views: number;
 }
 
 interface ArbitalPageData {
@@ -9281,6 +9313,10 @@ interface GraphQLTypeMap {
   PostAnalytics2Result: PostAnalytics2Result;
   MultiPostAnalyticsResult: MultiPostAnalyticsResult;
   AnalyticsSeriesValue: AnalyticsSeriesValue;
+  SiteUsageStatsDay: SiteUsageStatsDay;
+  SiteUsageTopPost: SiteUsageTopPost;
+  SiteUsageStatsResult: SiteUsageStatsResult;
+  SiteUsageHistoryDay: SiteUsageHistoryDay;
   ArbitalPageData: ArbitalPageData;
   CrossSiteLinkPreviewData: CrossSiteLinkPreviewData;
   ElicitUser: ElicitUser;

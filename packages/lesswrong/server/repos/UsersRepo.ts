@@ -582,6 +582,23 @@ class UsersRepo extends AbstractRepo<"Users"> {
       LIMIT $2
     `, [clientId, limit, days]);
   }
+
+  async getNewUsersPerDay({ windowStart, windowEnd }: { windowStart: Date; windowEnd: Date }): Promise<{ date: string; count: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; count: string }>(`
+      -- UsersRepo.getNewUsersPerDay
+      SELECT
+        to_char(u."createdAt", 'YYYY-MM-DD') AS date,
+        COUNT(*) AS count
+      FROM "Users" u
+      WHERE
+        u."createdAt" >= $(windowStart)
+        AND u."createdAt" < $(windowEnd)
+        AND u."deleted" IS NOT TRUE
+      GROUP BY 1
+      ORDER BY 1
+    `, { windowStart, windowEnd });
+    return results.map(({ date, count }) => ({ date, count: parseInt(count) }));
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });

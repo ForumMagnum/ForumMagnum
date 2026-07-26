@@ -7267,6 +7267,8 @@ type Query = {
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
   SiteData?: Maybe<Site>;
+  SiteUsageHistory: Array<SiteUsageHistoryDay>;
+  SiteUsageStats: SiteUsageStatsResult;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
   SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
@@ -7647,6 +7649,18 @@ type QueryRevisionsDiffArgs = {
 
 type QueryRssPostChangesArgs = {
   postId: Scalars['String']['input'];
+};
+
+
+type QuerySiteUsageHistoryArgs = {
+  endDate: Scalars['Date']['input'];
+  startDate: Scalars['Date']['input'];
+};
+
+
+type QuerySiteUsageStatsArgs = {
+  endDate: Scalars['Date']['input'];
+  startDate: Scalars['Date']['input'];
 };
 
 
@@ -10066,6 +10080,40 @@ type Site = {
   logoUrl?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   url?: Maybe<Scalars['String']['output']>;
+};
+
+type SiteUsageHistoryDay = {
+  __typename?: 'SiteUsageHistoryDay';
+  date: Scalars['String']['output'];
+  views: Scalars['Int']['output'];
+};
+
+type SiteUsageStatsDay = {
+  __typename?: 'SiteUsageStatsDay';
+  commentsPosted: Scalars['Int']['output'];
+  date: Scalars['String']['output'];
+  newUsers: Scalars['Int']['output'];
+  postsPublished: Scalars['Int']['output'];
+  uniqueViews: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
+  votesCast: Scalars['Int']['output'];
+};
+
+type SiteUsageStatsResult = {
+  __typename?: 'SiteUsageStatsResult';
+  days: Array<SiteUsageStatsDay>;
+  topPosts: Array<SiteUsageTopPost>;
+  totalUniqueViews: Scalars['Int']['output'];
+  totalViews: Scalars['Int']['output'];
+};
+
+type SiteUsageTopPost = {
+  __typename?: 'SiteUsageTopPost';
+  postId: Scalars['String']['output'];
+  slug?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  uniqueViews: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
 };
 
 type SocialPreviewInput = {
@@ -13154,6 +13202,36 @@ type MigrationsDashboardQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type MigrationsDashboardQueryQuery = MigrationsDashboardQueryQuery_Query;
+
+type SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult_days_SiteUsageStatsDay = { __typename?: 'SiteUsageStatsDay', date: string, views: number, uniqueViews: number, postsPublished: number, commentsPosted: number, votesCast: number, newUsers: number };
+
+type SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult_topPosts_SiteUsageTopPost = { __typename?: 'SiteUsageTopPost', postId: string, title: string | null, slug: string | null, views: number, uniqueViews: number };
+
+type SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult = { __typename?: 'SiteUsageStatsResult', totalViews: number, totalUniqueViews: number, days: Array<SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult_days_SiteUsageStatsDay>, topPosts: Array<SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult_topPosts_SiteUsageTopPost> };
+
+type SiteUsageStatsQueryQuery_Query = { __typename?: 'Query', SiteUsageStats: SiteUsageStatsQueryQuery_SiteUsageStats_SiteUsageStatsResult };
+
+
+type SiteUsageStatsQueryQueryVariables = Exact<{
+  startDate: Scalars['Date']['input'];
+  endDate: Scalars['Date']['input'];
+}>;
+
+
+type SiteUsageStatsQueryQuery = SiteUsageStatsQueryQuery_Query;
+
+type SiteUsageHistoryQueryQuery_SiteUsageHistory_SiteUsageHistoryDay = { __typename?: 'SiteUsageHistoryDay', date: string, views: number };
+
+type SiteUsageHistoryQueryQuery_Query = { __typename?: 'Query', SiteUsageHistory: Array<SiteUsageHistoryQueryQuery_SiteUsageHistory_SiteUsageHistoryDay> };
+
+
+type SiteUsageHistoryQueryQueryVariables = Exact<{
+  startDate: Scalars['Date']['input'];
+  endDate: Scalars['Date']['input'];
+}>;
+
+
+type SiteUsageHistoryQueryQuery = SiteUsageHistoryQueryQuery_Query;
 
 type multiCommentAFUnreviewedCommentCountQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }

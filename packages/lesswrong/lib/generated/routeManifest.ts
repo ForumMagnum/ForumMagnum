@@ -93,6 +93,9 @@ export const routeTrie = {
         },
         "tagMerge": {
           "hasPage": true
+        },
+        "usageStats": {
+          "hasPage": true
         }
       },
       "lowerCase": {
@@ -109,7 +112,8 @@ export const routeTrie = {
         "random-user": "random-user",
         "supermod": "supermod",
         "synonyms": "synonyms",
-        "tagmerge": "tagMerge"
+        "tagmerge": "tagMerge",
+        "usagestats": "usageStats"
       },
       "hasPage": true
     },

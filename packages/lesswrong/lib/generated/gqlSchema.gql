@@ -499,6 +499,41 @@ extend type Query {
   AnalyticsSeries(userId: String, postIds: [String], startDate: Date, endDate: Date): [AnalyticsSeriesValue]
 }
 
+type SiteUsageStatsDay {
+  date: String!
+  views: Int!
+  uniqueViews: Int!
+  postsPublished: Int!
+  commentsPosted: Int!
+  votesCast: Int!
+  newUsers: Int!
+}
+
+type SiteUsageTopPost {
+  postId: String!
+  title: String
+  slug: String
+  views: Int!
+  uniqueViews: Int!
+}
+
+type SiteUsageStatsResult {
+  days: [SiteUsageStatsDay!]!
+  totalViews: Int!
+  totalUniqueViews: Int!
+  topPosts: [SiteUsageTopPost!]!
+}
+
+type SiteUsageHistoryDay {
+  date: String!
+  views: Int!
+}
+
+extend type Query {
+  SiteUsageStats(startDate: Date!, endDate: Date!): SiteUsageStatsResult!
+  SiteUsageHistory(startDate: Date!, endDate: Date!): [SiteUsageHistoryDay!]!
+}
+
 type ArbitalPageData {
   html: String
   title: String
