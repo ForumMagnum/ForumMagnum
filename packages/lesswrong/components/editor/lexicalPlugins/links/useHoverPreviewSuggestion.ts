@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
-import { $getRoot, $nodesOfType, type LexicalEditor } from 'lexical';
+import { $getNodeByKey, $getRoot, $nodesOfType, type LexicalEditor } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { gql } from '@/lib/generated/gql-codegen';
 import { HoverPreviewNode } from './HoverPreviewNode';
@@ -52,7 +52,7 @@ function readSurroundingText(editor: LexicalEditor, targetNodeKey: string): stri
     return '';
   }
   return editor.getEditorState().read(() => {
-    const target = $nodesOfType(HoverPreviewNode).find(node => node.getKey() === targetNodeKey);
+    const target = $getNodeByKey(targetNodeKey);
     if (!target) {
       return '';
     }
@@ -105,8 +105,8 @@ export function useHoverPreviewSuggestion(editor: LexicalEditor | null) {
         throw new Error('No hover preview was returned');
       }
       setStatus('idle');
-      // Only fills a gap; never replaces the author's own link.
-      return { html: suggestion.html, href: href.trim() ? href.trim() : (suggestion.href || knownHref) };
+      // Only fills a gap; never replaces a link already on the phrase.
+      return { html: suggestion.html, href: knownHref || suggestion.href };
     } catch (e) {
       setStatus('error');
       setError(e instanceof Error ? e.message : 'Generating the hover preview failed');

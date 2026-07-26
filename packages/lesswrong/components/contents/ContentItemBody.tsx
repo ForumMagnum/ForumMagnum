@@ -333,7 +333,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         return <CustomHoverPreview
           previewHtml={attribs['data-hover-preview']}
           href={findDescendantHref(parsedHtml)}
-          {...passedThroughProps}
+          contentStyleType={passedThroughProps.contentStyleType}
         >
           {result}
         </CustomHoverPreview>

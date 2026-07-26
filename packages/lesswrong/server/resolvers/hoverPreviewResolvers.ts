@@ -2,7 +2,8 @@ import gql from "graphql-tag";
 import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { sanitize } from "@/lib/utils/sanitize";
 import { getUrlClass } from "@/server/utils/getUrlClass";
-import type { MessageParam, ToolUnion } from "@anthropic-ai/sdk/resources/messages.mjs";
+import type { ContentBlock, MessageParam, ToolUnion } from "@anthropic-ai/sdk/resources/messages.mjs";
+import { userCanAutogenerateHoverPreviews } from "@/lib/betas";
 
 // claude-fable-5 is more capable, at roughly twice the price.
 const HOVER_PREVIEW_MODEL = 'claude-opus-4-8';
@@ -39,7 +40,7 @@ Reply with exactly one line reading HREF: followed by that URL — or HREF: none
 
 // This lands in someone's post, and parsing is not enough on its own:
 // a bare "N/A" is a valid URL path.
-export function safeSuggestedHref(value: string): string {
+function safeSuggestedHref(value: string): string {
   const trimmed = value.trim();
   if (!trimmed || /\s/.test(trimmed)) {
     return '';
@@ -92,8 +93,8 @@ function parseSuggestion(text: string): { html: string, suggestedHref: string } 
   };
 }
 
-function collectResponseText(content: Array<{ type: string, text?: string }>): string {
-  return content.filter(block => block.type === 'text').map(block => block.text ?? '').join('');
+function collectResponseText(content: ContentBlock[]): string {
+  return content.filter(block => block.type === 'text').map(block => block.text).join('');
 }
 
 /**
@@ -108,7 +109,7 @@ function toolsForRequest(hasHref: boolean): ToolUnion[] {
   return [{ type: 'web_search_20260209', name: 'web_search', max_uses: MAX_SEARCHES }, webFetch];
 }
 
-export async function generateHoverPreview({ documentHtml, phrase, surroundingText, href }: {
+async function generateHoverPreview({ documentHtml, phrase, surroundingText, href }: {
   documentHtml: string,
   phrase: string,
   surroundingText: string,
@@ -168,6 +169,9 @@ export const hoverPreviewGraphQLMutations = {
     const { currentUser } = context;
     if (!currentUser) {
       throw new Error('You need to be logged in to generate a hover preview');
+    }
+    if (!userCanAutogenerateHoverPreviews(currentUser)) {
+      throw new Error('This feature is not yet available to all users');
     }
     if (!documentHtml.trim() || !phrase.trim()) {
       throw new Error('A hover preview needs both the document and the phrase it describes');

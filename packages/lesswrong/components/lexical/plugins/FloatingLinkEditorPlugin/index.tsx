@@ -23,7 +23,6 @@ import {
   $isRangeSelection,
   $isTextNode,
   BaseSelection,
-  LexicalNode,
   CLICK_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_HIGH,
@@ -47,6 +46,8 @@ import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
 import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userCanAutogenerateHoverPreviews } from '@/lib/betas';
 import { $getSelectedHoverPreviewNode, $setHoverPreviewOnSelection } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
 import { HoverPreviewEditor } from '@/components/editor/lexicalPlugins/links/HoverPreviewEditor';
 import { HoverPreviewSpinner } from '@/components/editor/lexicalPlugins/links/HoverPreviewSpinner';
@@ -219,11 +220,6 @@ function isBlankHtml(html: string): boolean {
   return !html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
 }
 
-/** Run inside editor.update, after the link, so it wraps the link. */
-function $applyPreviewToSelection(previewHtml: string): void {
-  $setHoverPreviewOnSelection(isBlankHtml(previewHtml) ? '' : previewHtml);
-}
-
 function FloatingLinkEditor({
   editor,
   isLink,
@@ -278,15 +274,12 @@ function FloatingLinkEditor({
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
         setLinkText(linkParent.getTextContent());
-
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
         setLinkText(node.getTextContent());
-
       } else {
         setLinkUrl('');
         setLinkText(selection.getTextContent());
-
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
@@ -300,15 +293,12 @@ function FloatingLinkEditor({
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
           setLinkText(parent.getTextContent());
-
         } else if ($isLinkNode(node)) {
           setLinkUrl(node.getURL());
           setLinkText(node.getTextContent());
-
         } else {
           setLinkUrl('');
           setLinkText('');
-
         }
         if (isLinkEditMode) {
           setEditedLinkUrl(linkUrl);
@@ -454,6 +444,8 @@ function FloatingLinkEditor({
     setEditedPreviewKey((key) => key + 1);
   };
 
+  const currentUser = useCurrentUser();
+  const canAutogenerate = userCanAutogenerateHoverPreviews(currentUser);
   const { status: suggestionStatus, error: suggestionError, suggest } = useHoverPreviewSuggestion(editor);
 
   const autogeneratePreview = async () => {
@@ -554,7 +546,7 @@ function FloatingLinkEditor({
     if (lastSelection !== null) {
       // An empty URL is not a no-op: it can mean "annotate without
       // linking", or "drop the link, keep the preview".
-      const hasPreview = !isBlankHtml(editedPreviewHtmlRef.current);
+      const hasPreview = !isSuggestionMode && !isBlankHtml(editedPreviewHtmlRef.current);
       if (editedLinkUrl.trim() !== '' || hasPreview) {
         const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
         if (isSuggestionMode) {
@@ -608,7 +600,8 @@ function FloatingLinkEditor({
               }
             }
 
-            $applyPreviewToSelection(editedPreviewHtmlRef.current);
+            // Last, so the preview wraps the finished link.
+            $setHoverPreviewOnSelection(hasPreview ? editedPreviewHtmlRef.current : '');
           });
         }
       }
@@ -673,7 +666,7 @@ function FloatingLinkEditor({
               <div className={classes.previewHeader}>
                 <span className={classes.previewLabel}>Hover preview</span>
                 <span className={classes.previewActions}>
-                  <button
+                  {canAutogenerate && <button
                     className={classNames(classes.previewAction, {
                       [classes.previewActionError]: suggestionStatus === 'error',
                     })}
@@ -687,7 +680,7 @@ function FloatingLinkEditor({
                     {suggestionStatus === 'pending'
                       ? <HoverPreviewSpinner className={classes.previewIcon} />
                       : <SparklesIcon className={classes.previewIcon} />}
-                  </button>
+                  </button>}
                   {hasEditedPreview && (
                     <button
                       className={classes.previewAction}
