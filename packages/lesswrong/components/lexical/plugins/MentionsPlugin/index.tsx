@@ -35,7 +35,6 @@ import {
   type MentionFeed,
   type MentionItemWithHit,
 } from '@/components/editor/lexicalPlugins/mentions/lexicalMentionsConfig';
-import { userMentionQuery, userMentionValue } from '@/lib/pingback';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from '@/components/search/useSearchAnalytics';
 
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
@@ -164,18 +163,7 @@ function findNearestLinkNode(node: TextNode): LinkNode | null {
   return null;
 }
 
-function isMentionLink(url: string): boolean {
-  try {
-    const parsedUrl = typeof window !== 'undefined'
-      ? new URL(url, window.location.origin)
-      : new URL(url, 'https://example.invalid');
-    return parsedUrl.searchParams.get(userMentionQuery) === userMentionValue;
-  } catch {
-    return false;
-  }
-}
-
-function isSelectionInsideMentionLink(): boolean {
+function isSelectionInsideLink(): boolean {
   const selection = $getSelection();
   if (!$isRangeSelection(selection)) {
     return false;
@@ -185,7 +173,7 @@ function isSelectionInsideMentionLink(): boolean {
     return false;
   }
   const linkNode = findNearestLinkNode(anchorNode);
-  return !!linkNode && isMentionLink(linkNode.getURL());
+  return !!linkNode;
 }
 
 class MentionTypeaheadOption extends MenuOption {
@@ -347,7 +335,7 @@ export default function MentionsPlugin(): JSX.Element | null {
         return null;
       }
 
-      if (editor.getEditorState().read(() => isSelectionInsideMentionLink())) {
+      if (editor.getEditorState().read(() => isSelectionInsideLink())) {
         if (activeFeedRef.current) {
           activeFeedRef.current = null;
           setActiveFeed(null);
