@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -7,12 +7,21 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
-import { LinkNode } from '@lexical/link';
+
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
-import { $getRoot, $insertNodes, type EditorState, type LexicalEditor } from 'lexical';
+import {
+  $getRoot,
+  $insertNodes,
+  COMMAND_PRIORITY_NORMAL,
+  KEY_DOWN_COMMAND,
+  type EditorState,
+  type LexicalEditor,
+} from 'lexical';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { validateUrl } from '@/components/lexical/utils/url';
 import { buildTextNodeExportMap } from '@/components/editor/lexicalDomExport';
+import FloatingLinkEditorPlugin from '@/components/lexical/plugins/FloatingLinkEditorPlugin';
+import { hoverPreviewEditorNodes, MAX_HOVER_PREVIEW_DEPTH } from './HoverPreviewNode';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({
@@ -54,9 +63,6 @@ const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({
   },
 }));
 
-// Only the marks that make sense in a two-sentence card. Nested hover previews are
-// deliberately not available here: HoverPreviewNode is not registered, so links written
-// inside a preview are plain links.
 const hoverPreviewTheme = {
   link: 'hoverPreviewEditorLink',
   text: {
@@ -83,6 +89,26 @@ function seedFromHtml(html: string) {
   };
 }
 
+/** Cmd/Ctrl-K, matching the shortcut the main editor uses. */
+function OpenLinkEditorShortcut({ onOpen }: { onOpen: () => void }) {
+  const [editor] = useLexicalComposerContext();
+
+  React.useEffect(() => editor.registerCommand(
+    KEY_DOWN_COMMAND,
+    (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') {
+        return false;
+      }
+      event.preventDefault();
+      onOpen();
+      return true;
+    },
+    COMMAND_PRIORITY_NORMAL,
+  ), [editor, onOpen]);
+
+  return null;
+}
+
 function HoverPreviewChangeHandler({ onChangeHtml }: { onChangeHtml: (html: string) => void }) {
   const [editor] = useLexicalComposerContext();
 
@@ -101,19 +127,28 @@ function HoverPreviewChangeHandler({ onChangeHtml }: { onChangeHtml: (html: stri
  * edits a detached HTML string, not a subtree of the document being edited.
  *
  * `initialHtml` is read once on mount; remount with a new `key` to reset it.
+ *
+ * A preview body may itself contain previews, so this mounts its own link editor until
+ * MAX_HOVER_PREVIEW_DEPTH. The floating editor portals to the outer anchorElem rather than
+ * this box, which scrolls and would clip it.
  */
-export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus }: {
+export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus, depth = 1, anchorElem }: {
   initialHtml: string,
   onChangeHtml: (html: string) => void,
   autoFocus?: boolean,
+  depth?: number,
+  anchorElem?: HTMLElement,
 }) {
   const classes = useStyles(styles);
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const openLinkEditor = useCallback(() => setIsLinkEditMode(true), []);
+  const canNest = depth < MAX_HOVER_PREVIEW_DEPTH;
 
   return (
     <div className={classes.root}>
       <LexicalComposer initialConfig={{
         namespace: 'HoverPreviewEditor',
-        nodes: [LinkNode],
+        nodes: hoverPreviewEditorNodes,
         theme: hoverPreviewTheme,
         onError: onHoverPreviewEditorError,
         editorState: seedFromHtml(initialHtml),
@@ -135,6 +170,15 @@ export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus }: {
         <HistoryPlugin />
         <LinkPlugin validateUrl={validateUrl} />
         <HoverPreviewChangeHandler onChangeHtml={onChangeHtml} />
+        {canNest && <>
+          <OpenLinkEditorShortcut onOpen={openLinkEditor} />
+          <FloatingLinkEditorPlugin
+            anchorElem={anchorElem}
+            isLinkEditMode={isLinkEditMode}
+            setIsLinkEditMode={setIsLinkEditMode}
+            depth={depth}
+          />
+        </>}
       </LexicalComposer>
     </div>
   );

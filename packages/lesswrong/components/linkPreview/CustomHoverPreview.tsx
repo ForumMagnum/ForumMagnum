@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { Card } from '@/components/widgets/Paper';
 import { sanitize } from '@/lib/utils/sanitize';
 import { prettifyLinkUrl } from '@/lib/utils/prettifyLinkUrl';
+import { MAX_HOVER_PREVIEW_DEPTH } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
 import { useHover } from '../common/withHover';
 import ContentStyles from '../common/ContentStyles';
 import LWPopper from '../common/LWPopper';
@@ -9,9 +10,6 @@ import { ContentItemBody } from '../contents/ContentItemBody';
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-
-/** A preview body can contain previews; bound the recursion. */
-const MAX_PREVIEW_DEPTH = 3;
 
 const CustomPreviewDepthContext = React.createContext<number>(0);
 
@@ -69,7 +67,7 @@ const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', c
   const sanitizedHtml = useMemo(() => sanitize(previewHtml), [previewHtml]);
   const prettyUrl = useMemo(() => (href ? prettifyLinkUrl(href) : ''), [href]);
 
-  if (depth >= MAX_PREVIEW_DEPTH || !sanitizedHtml) {
+  if (depth >= MAX_HOVER_PREVIEW_DEPTH || !sanitizedHtml) {
     return <>{children}</>;
   }
 

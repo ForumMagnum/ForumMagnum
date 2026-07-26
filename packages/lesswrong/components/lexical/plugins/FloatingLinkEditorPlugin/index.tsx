@@ -228,6 +228,7 @@ function FloatingLinkEditor({
   isLinkEditMode,
   setIsLinkEditMode,
   isSuggestionMode,
+  depth,
 }: {
   editor: LexicalEditor;
   isLink: boolean;
@@ -236,6 +237,7 @@ function FloatingLinkEditor({
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   isSuggestionMode: boolean;
+  depth: number;
 }): JSX.Element {
   const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -698,6 +700,8 @@ function FloatingLinkEditor({
                 key={editedPreviewKey}
                 initialHtml={editedPreviewHtmlRef.current}
                 onChangeHtml={handlePreviewChange}
+                depth={depth + 1}
+                anchorElem={anchorElem}
               />
             </>
           )}
@@ -757,6 +761,7 @@ function useFloatingLinkEditorToolbar(
   isLinkEditMode: boolean,
   setIsLinkEditMode: Dispatch<boolean>,
   isSuggestionMode: boolean,
+  depth: number,
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
@@ -853,6 +858,7 @@ function useFloatingLinkEditorToolbar(
       isLinkEditMode={isLinkEditMode}
       setIsLinkEditMode={setIsLinkEditMode}
       isSuggestionMode={isSuggestionMode}
+      depth={depth}
     />,
     anchorElem,
   );
@@ -863,11 +869,14 @@ export default function FloatingLinkEditorPlugin({
   isLinkEditMode,
   setIsLinkEditMode,
   isSuggestionMode = false,
+  depth = 0,
 }: {
   anchorElem?: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   isSuggestionMode?: boolean;
+  /** Which preview body this editor sits in; 0 is the document itself. */
+  depth?: number;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   return useFloatingLinkEditorToolbar(
@@ -876,5 +885,6 @@ export default function FloatingLinkEditorPlugin({
     isLinkEditMode,
     setIsLinkEditMode,
     isSuggestionMode,
+    depth,
   );
 }

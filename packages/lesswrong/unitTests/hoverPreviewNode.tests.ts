@@ -1,13 +1,15 @@
 import { JSDOM } from "jsdom";
-import { $generateHtmlFromNodes } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import { $createLinkNode, $isLinkNode } from "@lexical/link";
 import {
   $createParagraphNode,
   $createRangeSelection,
   $createTextNode,
   $getRoot,
+  $insertNodes,
   $isTextNode,
   $setSelection,
+  createEditor,
   type LexicalEditor,
   type LexicalNode,
   type TextNode,
@@ -17,8 +19,10 @@ import {
   $isHoverPreviewNode,
   $setHoverPreviewOnSelection,
   HOVER_PREVIEW_ATTRIBUTE,
+  hoverPreviewEditorNodes,
   type HoverPreviewNode,
 } from "@/components/editor/lexicalPlugins/links/HoverPreviewNode";
+
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { runEditorUpdate, setupEditorWithHtml, walkLexicalNodes } from "./lexicalTestHelpers";
 
@@ -224,5 +228,34 @@ describe("$setHoverPreviewOnSelection", () => {
       expect(previews[0].getPreviewHtml()).toBe("<p>Updated note.</p>");
       expect(previews[0].getTextContent()).toBe("text");
     });
+  });
+});
+
+describe("the node set used inside a preview body", () => {
+  // A preview may contain previews. Registering HoverPreviewNode is what keeps a
+  // nested one alive: without it the attribute is silently dropped on import.
+  it("round-trips a nested preview", () => {
+    const nested = `<p><span data-hover-preview="${ESCAPED_PREVIEW_HTML}">deep</span></p>`;
+    const editor = createEditor({
+      nodes: hoverPreviewEditorNodes,
+      onError: (error) => { throw error; },
+    });
+
+    let html = "";
+    withDomGlobals(() => {
+      editor.update(() => {
+        const doc = parseFragment(nested);
+        $getRoot().clear();
+        $insertNodes($generateNodesFromDOM(editor, doc));
+      }, { discrete: true });
+      editor.getEditorState().read(() => {
+        html = $generateHtmlFromNodes(editor, null);
+      });
+    });
+
+    const span = parseFragment(html).querySelector(`span[${HOVER_PREVIEW_ATTRIBUTE}]`);
+    expect(span).not.toBeNull();
+    expect(span?.getAttribute(HOVER_PREVIEW_ATTRIBUTE)).toBe(PREVIEW_HTML);
+    expect(span?.textContent).toBe("deep");
   });
 });
