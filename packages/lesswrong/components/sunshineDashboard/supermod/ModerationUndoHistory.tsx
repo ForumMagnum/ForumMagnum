@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useMessages } from '@/components/common/withMessages';
 
 const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
@@ -44,6 +45,11 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[800],
     },
+  },
+  markAllProgressContainer: {
+    height: 2,
+    backgroundColor: theme.palette.grey[200],
+    marginBottom: 8,
   },
   item: {
     marginBottom: 8,
@@ -168,10 +174,16 @@ const ModerationUndoHistory = ({
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
+  const { flash } = useMessages();
+  // Non-null while "Mark all done" mutations are in flight
+  const [markAllProgress, setMarkAllProgress] = useState<{ done: number; total: number } | null>(null);
+  const markAllInFlight = markAllProgress !== null;
 
-  // Warn user if they try to close the tab or navigate away while there are pending actions
+  // Warn user if they try to close the tab or navigate away while there are
+  // pending actions or in-flight "Mark all done" mutations (unloading aborts
+  // in-flight requests, so leaving early would silently drop actions)
   useEffect(() => {
-    if (undoQueue.length === 0) return;
+    if (undoQueue.length === 0 && !markAllInFlight) return;
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -186,18 +198,37 @@ const ModerationUndoHistory = ({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [undoQueue.length]);
+  }, [undoQueue.length, markAllInFlight]);
 
   const handleUndo = (userId: string) => {
     dispatch({ type: 'UNDO_ACTION', userId });
   };
 
-  const handleMarkAllDone = () => {
-    for (const item of undoQueue) {
+  const handleMarkAllDone = async () => {
+    if (markAllInFlight) return;
+    // Skip items whose expiration timeout may have already fired (our undoQueue
+    // prop could be one render stale), so their action doesn't run twice
+    const items = undoQueue.filter(item => item.expiresAt > Date.now());
+    if (items.length === 0) return;
+
+    for (const item of items) {
       // Cancel the pending expiration timeout so the action doesn't run twice
       clearTimeout(item.timeoutId);
       dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: item.user._id });
-      void item.executeAction();
+    }
+
+    setMarkAllProgress({ done: 0, total: items.length });
+    const results = await Promise.allSettled(items.map(async (item) => {
+      await item.executeAction();
+      setMarkAllProgress(prev => prev && { ...prev, done: prev.done + 1 });
+    }));
+    setMarkAllProgress(null);
+
+    const failedNames = items
+      .filter((_, i) => results[i].status === 'rejected')
+      .map(item => item.user.displayName);
+    if (failedNames.length > 0) {
+      flash({ messageString: `Failed to execute action for: ${failedNames.join(', ')}` });
     }
   };
 
@@ -212,6 +243,14 @@ const ModerationUndoHistory = ({
             </div>
           )}
         </div>
+        {markAllProgress && (
+          <div className={classes.markAllProgressContainer}>
+            <div
+              className={classes.progressBar}
+              style={{ width: `${(markAllProgress.done / markAllProgress.total) * 100}%` }}
+            />
+          </div>
+        )}
         {undoQueue.length === 0 ? (
           <div className={classes.empty}>No pending actions</div>
         ) : (
