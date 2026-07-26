@@ -310,19 +310,32 @@ function $wrapBlocksInCollapsibleSection(blocks: LexicalNode[]): void {
 }
 
 /**
+ * True if this section half holds nothing but the placeholder empty paragraph
+ * that a section is always kept stocked with. Deliberately narrower than "has
+ * no text", so that a body holding only an image or an equation isn't treated
+ * as empty and thrown away when unwrapping.
+ */
+function $holdsOnlyPlaceholderParagraph(node: ElementNode): boolean {
+  const children = node.getChildren();
+  return children.length === 1
+    && $isParagraphNode(children[0])
+    && children[0].getChildrenSize() === 0;
+}
+
+/**
  * Unwrap a collapsible section, moving the title and body content back out to
- * where the section was. An empty title is dropped rather than leaving behind
- * a stray empty paragraph.
+ * where the section was. An empty title or body is dropped rather than leaving
+ * behind a stray empty paragraph.
  */
 function $unwrapCollapsibleSection(container: CollapsibleSectionContainerNode): void {
   const title = $findTitleInCollapsible(container);
   const content = $findContentInCollapsible(container);
 
   const restoredBlocks: LexicalNode[] = [];
-  if (title && title.getTextContent().trim() !== '') {
+  if (title && !$holdsOnlyPlaceholderParagraph(title)) {
     restoredBlocks.push(...title.getChildren());
   }
-  if (content) {
+  if (content && !$holdsOnlyPlaceholderParagraph(content)) {
     restoredBlocks.push(...content.getChildren());
   }
 
