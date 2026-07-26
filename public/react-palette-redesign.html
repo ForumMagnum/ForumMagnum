@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>React Palette Redesign — Preview</title>
+<style>
+  :root {
+    --bg: #fff;
+    --panel: #fff;
+    --text: rgba(0,0,0,.87);
+    --text-dim: rgba(0,0,0,.55);
+    --border-faint: rgba(0,0,0,.08);
+    --border: rgba(0,0,0,.2);
+    --hover: rgba(0,0,0,.04);
+    --card: #fafafa;
+    --icon-alpha: 0.72;          /* strength of NEW icons in palette context */
+    --accent: #5f9b65;
+    --shadow: 0 2px 12px rgba(0,0,0,.15);
+  }
+  html.dark {
+    --bg: #1c1c1c;
+    --panel: #262626;
+    --text: rgba(255,255,255,.87);
+    --text-dim: rgba(255,255,255,.55);
+    --border-faint: rgba(255,255,255,.1);
+    --border: rgba(255,255,255,.25);
+    --hover: rgba(255,255,255,.06);
+    --card: #222;
+    --shadow: 0 2px 12px rgba(0,0,0,.6);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Calibri, "Gill Sans", "Gill Sans MT", "Trebuchet MS", -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  a { color: inherit; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding: 10px 22px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border-faint);
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .topbar h1 { font-size: 17px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  .topbar .spacer { flex: 1; }
+  .ctrl { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-dim); }
+  .ctrl input[type=range] { width: 110px; accent-color: var(--accent); }
+  button.toggle {
+    font: inherit; font-size: 13px;
+    padding: 4px 12px; border-radius: 14px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text);
+    cursor: pointer;
+  }
+  button.toggle:hover { background: var(--hover); }
+  .jump { font-size: 13px; color: var(--text-dim); text-decoration: none; }
+  .jump:hover { color: var(--text); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 26px 22px 80px; }
+  h2 { font-size: 21px; font-weight: 600; margin: 44px 0 6px; }
+  h2:first-child { margin-top: 6px; }
+  .sub { color: var(--text-dim); margin: 0 0 18px; max-width: 760px; }
+
+  /* ---------- palette mockups ---------- */
+  .mockRow { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 12px; }
+  .mockCol { }
+  .mockLabel {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--text-dim); margin: 0 0 6px 2px;
+  }
+  .palette {
+    width: 376px;
+    background: var(--panel);
+    border: 1px solid var(--border-faint);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    padding: 12px 12px 6px;
+  }
+  .searchRow { display: flex; align-items: center; gap: 6px; }
+  .searchBox {
+    border: 1px solid var(--border-faint); border-radius: 3px;
+    width: 100%; padding: 4px 6px; font: inherit; font-size: 13px;
+    background: var(--panel); color: var(--text-dim);
+  }
+  .viewBtns { display: flex; gap: 4px; color: var(--text-dim); }
+  .viewBtns svg { width: 18px; height: 18px; opacity: .55; }
+  .scrollRegion { margin-top: 12px; }
+  .primarySection { margin-bottom: 13px; }
+  .iconSection {
+    border-bottom: 1px solid var(--border-faint);
+    padding-bottom: 6px; margin-bottom: 6px; margin-right: 7px;
+    display: flex; flex-wrap: wrap;
+  }
+  .plainSection { display: flex; flex-wrap: wrap; }
+  .bottomSection { margin-top: 13px; }
+  .paletteIcon1 {
+    cursor: pointer; padding: 4px; margin: 2px; border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .paletteIcon1:hover { background: var(--hover); }
+  .paletteEntry {
+    cursor: pointer; width: 162px; margin-bottom: 1px;
+    display: flex; align-items: center; border-radius: 3px;
+  }
+  .paletteEntry:hover { background: var(--hover); }
+  .paletteIcon2 { padding: 3px; margin: 1px; display: inline-flex; }
+  .entryLabel { margin-left: 10px; flex: 1; font-size: 13.5px; white-space: pre-wrap; }
+  .entryLabel.small { font-size: 10.5px; line-height: 1.15; }
+  .paletteFooter { text-align: center; padding: 8px 6px 6px; font-size: 12.5px; color: var(--text-dim); }
+
+  /* old icons render like production: dimmed + inverted in dark mode */
+  .oldIcon { display: inline-flex; }
+  html.dark .oldIcon img { filter: invert(1); }
+  .oldIcon img { display: block; }
+
+  /* new icons: inline svg, currentColor */
+  .newIcon { display: inline-flex; color: var(--text); opacity: var(--icon-alpha); }
+  .newIcon svg { display: block; }
+  .fullStrength .newIcon { opacity: 1; }
+
+  /* ---------- tooltip ---------- */
+  #tooltip {
+    position: fixed; z-index: 100; pointer-events: none;
+    max-width: 310px;
+    background: rgba(35,35,35,.96); color: rgba(255,255,255,.92);
+    border-radius: 6px; padding: 10px 14px;
+    display: none; align-items: center; gap: 14px;
+    font-size: 13px; line-height: 1.35;
+    box-shadow: 0 4px 18px rgba(0,0,0,.4);
+  }
+  html.dark #tooltip { background: rgba(250,250,250,.97); color: rgba(0,0,0,.85); }
+  #tooltip.show { display: flex; }
+  #tooltip .ttIcon { flex-shrink: 0; width: 40px; display: flex; justify-content: center; }
+  #tooltip .ttIcon .newIcon { color: #fff; opacity: 1; }
+  html.dark #tooltip .ttIcon .newIcon { color: #000; }
+  #tooltip .ttIcon .oldIcon img { filter: invert(1); }
+  html.dark #tooltip .ttIcon .oldIcon img { filter: none; }
+  #tooltip .ttLabel { font-size: 15px; font-weight: 600; white-space: pre-wrap; }
+  #tooltip .ttDesc { margin-top: 2px; opacity: .8; }
+
+  /* ---------- inventory ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border-faint);
+    border-radius: 8px; padding: 12px 14px 10px;
+  }
+  .cardHead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .cardNum {
+    font-size: 11px; font-weight: 700; color: var(--text-dim);
+    background: var(--hover); border-radius: 10px; padding: 1px 7px;
+  }
+  .cardLabel { font-weight: 600; font-size: 14.5px; white-space: pre; }
+  .cardName { font-size: 11.5px; color: var(--text-dim); font-family: ui-monospace, Menlo, monospace; }
+  .cardRow { display: flex; align-items: center; gap: 16px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 52px; }
+  .cellIcon { height: 44px; display: flex; align-items: center; justify-content: center; }
+  .cellTag { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-dim); }
+  .card .newIcon { opacity: 1; }
+  .arrow { color: var(--text-dim); font-size: 16px; }
+  .sizeStrip { display: flex; align-items: flex-end; gap: 8px; margin-left: auto; }
+  .sizeStrip .newIcon { opacity: 1; }
+  .cardNote { font-size: 12.5px; color: var(--text-dim); margin-top: 8px; line-height: 1.35; }
+  .secHead { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin: 26px 0 10px; }
+  .secHead:first-of-type { margin-top: 4px; }
+
+  /* ---------- notes ---------- */
+  .notes { max-width: 800px; }
+  .notes li { margin-bottom: 7px; }
+  .notes .q { font-weight: 600; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: .88em; background: var(--hover); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>React Palette Redesign <span style="font-weight:400;color:var(--text-dim)">— preview</span></h1>
+  <span class="spacer"></span>
+  <a class="jump" href="#mocks">Palette</a>
+  <a class="jump" href="#inventory">Old&nbsp;vs&nbsp;New</a>
+  <a class="jump" href="#notes">Design&nbsp;notes</a>
+  <span class="ctrl">icon strength <input id="alpha" type="range" min="35" max="100" value="72"><span id="alphaVal">72%</span></span>
+  <button class="toggle" id="darkToggle">Dark mode</button>
+</div>
+
+<div class="wrap">
+
+  <h2 id="mocks">The palette, before and after</h2>
+  <p class="sub">Faithful mockups of the real reaction palette (350px popup, same sections and ordering, hover for the real tooltip).
+     <b>Left: current icons</b>, rendered exactly as production does (per-icon opacity/scale fudge filters, <code>invert(1)</code> in dark mode).
+     <b>Right: the redesigned set</b> — one 24px grid, one 2px stroke, <code>currentColor</code>, no per-icon fudging.</p>
+
+  <div class="mockRow">
+    <div class="mockCol"><p class="mockLabel">List view — current</p><div id="listOld"></div></div>
+    <div class="mockCol"><p class="mockLabel">List view — redesign</p><div id="listNew"></div></div>
+  </div>
+  <div class="mockRow">
+    <div class="mockCol"><p class="mockLabel">Grid view — current</p><div id="gridOld"></div></div>
+    <div class="mockCol"><p class="mockLabel">Grid view — redesign</p><div id="gridNew"></div></div>
+  </div>
+
+  <h2 id="inventory">Every react, old vs new</h2>
+  <p class="sub">All 63 curated reacts. Reference any icon by its number (or name) when giving feedback —
+     e.g. “#42 needs a longer colon”. New icons are shown at full strength, 24px and 40px.</p>
+  <div id="cardsHost"></div>
+
+  <h2 id="notes">Design notes &amp; open questions</h2>
+  <div class="notes">
+    <p style="max-width:800px;margin:0 0 14px;padding:11px 14px;background:var(--hover);border-radius:8px;">
+      <b>Revision 3.</b> This round: <b>changed my mind</b> is the iconic hollow delta with the heavy bottom
+      edge · <b>thanks</b> is praying hands with the forearms flaring wide at the base (was reading as a pen) ·
+      <b>Moloch</b> now has its arms raised on the altar (the recognizable statue) · <b>oops</b> and
+      <b>thinking</b> are redrawn to sit in the same style/weight as the other emotion faces (thinking is a
+      self-contained pondering face; no beard-hand, no floating bubble) · <b>sneer</b> now shows real
+      contempt — angry brows, scrunched nose, a one-sided lip curl.
+    </p>
+    <ul>
+      <li><b>System:</b> every icon is drawn on a 24×24 grid with a 2px stroke, round caps/joins, and small filled dots for accents. Everything is original vector work — no more Noun Project / OpenMoji / openclipart mix, no PNGs, no Cloudinary hotlink.</li>
+      <li><b>Metaphors kept:</b> the concept of each react is unchanged (bowels is still intestines, concrete is still a cement mixer, llm-smell is still a nose sniffing sparkles). Only the drawing style changed. Exceptions worth flagging: <b>soldier</b> is now a combat helmet (was a tiny guard-with-flag figure that read poorly at 18px), and <b>sneer</b> drops the little “×” badge (the face alone reads better small — easy to re-add).</li>
+      <li><b>Color &amp; dark mode:</b> icons are <code>currentColor</code> strokes, so they inherit theme color directly — the dark-mode <code>invert(1)</code> filter and per-icon <code>opacity/saturate</code> filters become unnecessary. Overall palette dimming becomes a single shared value (the “icon strength” slider above; production default would replace the current 0.4–1.0 per-icon spread).</li>
+      <li><b>Fudge filters die:</b> the per-react <code>scale/translateX/translateY</code> corrections in <code>reactions.tsx</code> exist because the source images had inconsistent margins. The new set is optically centered on a shared grid, so all of that can be deleted.</li>
+      <li><b>Likelihood badges</b> are a uniform type treatment (semibold, same box, same baseline). In this preview they're SVG <code>&lt;text&gt;</code>; for shipping I'd outline them to paths so they're font-independent.</li>
+      <li><b>Rollout path:</b> once you're happy, I export each icon as a standalone SVG into <code>public/reactionImages/v2/</code>, point <code>reactions.tsx</code> at them, and strip the filter fudges. (Deprecated/uncurated reacts can keep their old art or get redrawn as a follow-up.)</li>
+    </ul>
+    <ul>
+      <li class="q">Open questions for you:</li>
+      <li>1. Stroke look ok, or do you want a chunkier/filled style closer to the old Noun Project weight? (I can do a filled-silhouette variant of the same drawings.)</li>
+      <li>2. Default icon strength — try the slider; I'd propose ~0.72 (current default is 0.4, which is why reacts look so faint today).</li>
+      <li>3. Any metaphors you want to take the opportunity to change while we're here?</li>
+    </ul>
+  </div>
+</div>
+
+<div id="tooltip"><div class="ttIcon"></div><div><div class="ttLabel"></div><div class="ttDesc"></div></div></div>
+
+<!-- ============ NEW ICON SET ============ -->
+<script type="application/json" id="new-icons">
+{
+"agree": "<path d='M4.8 12.6 L10 17.8 L19.2 6.6'/>",
+"disagree": "<path d='M6.4 6.4 L17.6 17.6 M17.6 6.4 L6.4 17.6'/>",
+"important": "<path d='M12 4.4 V14'/><circle cx='12' cy='19.1' r='1.5' fill='currentColor' stroke='none'/>",
+"dontUnderstand": "<path d='M8.9 9.2 a3.2 3.2 0 1 1 5.1 2.6 c-1.3 1 -2.1 1.7 -2.1 3.2'/><circle cx='12' cy='19.2' r='1.4' fill='currentColor' stroke='none'/>",
+"plus": "<path d='M12 5.2 V18.8 M5.2 12 H18.8'/>",
+"shrug": "<circle cx='12' cy='4.9' r='2.5'/><path d='M10.3 10.4 L10.8 15.2 H13.2 L13.7 10.4'/><path d='M9 10.7 Q12 8.7 15 10.7'/><path d='M9 10.7 L6.1 13.8 L3.7 11.3'/><path d='M15 10.7 L17.9 13.8 L20.3 11.3'/><path d='M2.6 11.3 Q3.7 12.8 4.8 11.3'/><path d='M19.2 11.3 Q20.3 12.8 21.4 11.3'/>",
+"thumbs-up": "<rect x='3.2' y='10.8' width='3.4' height='9' rx='1'/><path d='M6.6 12.4 L9.8 6.2 Q10.3 5.1 11.5 5.1 Q13.4 5.1 13.4 7 L12.4 10.4 H17.9 Q19.8 10.4 19.6 12.3 L18.8 17.9 Q18.5 19.8 16.6 19.8 H6.6 Z'/>",
+"thumbs-down": "<g transform='rotate(180 12 12)'><rect x='3.2' y='10.8' width='3.4' height='9' rx='1'/><path d='M6.6 12.4 L9.8 6.2 Q10.3 5.1 11.5 5.1 Q13.4 5.1 13.4 7 L12.4 10.4 H17.9 Q19.8 10.4 19.6 12.3 L18.8 17.9 Q18.5 19.8 16.6 19.8 H6.6 Z'/></g>",
+"seen": "<ellipse cx='7.8' cy='12' rx='3.5' ry='4.8'/><ellipse cx='16.2' cy='12' rx='3.5' ry='4.8'/><circle cx='8.7' cy='13.1' r='1.35' fill='currentColor' stroke='none'/><circle cx='17.1' cy='13.1' r='1.35' fill='currentColor' stroke='none'/>",
+
+"smile": "<circle cx='12' cy='12' r='9.2'/><circle cx='8.7' cy='9.9' r='1.15' fill='currentColor' stroke='none'/><circle cx='15.3' cy='9.9' r='1.15' fill='currentColor' stroke='none'/><path d='M7.9 14 q4.1 3.8 8.2 0'/>",
+"laugh": "<circle cx='12' cy='12' r='9.2'/><path d='M7.1 9.3 q1.6 -1.9 3.2 0 M13.7 9.3 q1.6 -1.9 3.2 0'/><path d='M7.7 13.4 h8.6 a4.3 4.3 0 0 1 -8.6 0 Z'/>",
+"sad": "<circle cx='12' cy='12' r='9.2'/><path d='M6.9 8.9 l3.3 -.8 M17.1 8.9 l-3.3 -.8'/><circle cx='8.7' cy='11.3' r='1.15' fill='currentColor' stroke='none'/><circle cx='15.3' cy='11.3' r='1.15' fill='currentColor' stroke='none'/><path d='M7.9 16.8 q4.1 -3.8 8.2 0'/>",
+"disappointed": "<circle cx='12' cy='12' r='9.2'/><circle cx='8.6' cy='10.5' r='1.15' fill='currentColor' stroke='none'/><circle cx='15.4' cy='10.5' r='1.15' fill='currentColor' stroke='none'/><path d='M8.4 16.9 Q11 16.1 12.6 15.6 Q14.4 15.1 15.6 13.8'/>",
+"confused": "<circle cx='12' cy='12' r='9.2'/><path d='M6.9 9 l3.2 -.4 M13.6 7.5 q1.7 -1 3.4 .1'/><circle cx='8.7' cy='11.4' r='1.15' fill='currentColor' stroke='none'/><circle cx='15.3' cy='11.1' r='1.15' fill='currentColor' stroke='none'/><path d='M8.2 15.7 q1.9 -1.5 3.8 0 q1.9 1.5 3.8 0'/>",
+"thinking": "<circle cx='12' cy='12' r='9.2'/><path d='M6.8 8.8 Q8.4 7.6 10 8.6 M14 8.6 Q15.6 7.6 17.2 8.8'/><circle cx='8.7' cy='9.9' r='1.1' fill='currentColor' stroke='none'/><circle cx='14.7' cy='9.9' r='1.1' fill='currentColor' stroke='none'/><path d='M10.6 15.4 Q12 14.6 13.4 15.2 Q12.5 16 11.4 15.6'/>",
+"oops": "<circle cx='12' cy='12' r='9.2'/><path d='M5.4 10.6 Q5.2 13 7.2 13.1 H16.6 Q18.8 13 18.6 10.8 Q18.4 9.4 16.6 9.5 Q12 10.1 7 9.5 Q5.6 9.4 5.4 10.6 Z'/><path d='M9.2 9.9 V13 M11.6 10 V13.1 M14 9.9 V13'/><path d='M18.5 11.4 Q19.9 11.8 19.8 13.5'/><path d='M9.4 16.6 Q12 15.4 14.6 16.6'/>",
+"surprise": "<circle cx='12' cy='12' r='9.2'/><path d='M7 7.8 q1.6 -1.2 3.2 -.3 M13.8 7.5 q1.6 -.9 3.2 .3'/><circle cx='8.7' cy='10.7' r='1.2' fill='currentColor' stroke='none'/><circle cx='15.3' cy='10.7' r='1.2' fill='currentColor' stroke='none'/><ellipse cx='12' cy='15.6' rx='2' ry='2.6'/>",
+"excitement": "<path d='M4.6 19.4 L8.8 9.4 L14.6 15.2 Z'/><path d='M7.4 12.7 l3.9 3.9'/><path d='M13.6 7.6 l1.2 -2.9 M16.4 10.4 l2.9 -1.2'/><path d='M15.9 8.1 c2.1 -.6 2.6 -2.4 1.5 -3.9'/><circle cx='18.3' cy='5.2' r='1.1' fill='currentColor' stroke='none'/><circle cx='20.4' cy='12.9' r='1.1' fill='currentColor' stroke='none'/><circle cx='12.4' cy='3.9' r='1' fill='currentColor' stroke='none'/>",
+
+"changemind": "<path fill='currentColor' stroke='none' fill-rule='evenodd' d='M12 3.6 L20.6 20.4 L3.4 20.4 Z M12 9 L16.6 16.2 L7.4 16.2 Z'/>",
+"changed-mind-on-point": "<path fill='currentColor' stroke='none' fill-rule='evenodd' d='M9.6 5.4 L16.8 19.8 L2.4 19.8 Z M9.6 10 L13.6 16.2 L5.6 16.2 Z'/><circle cx='19.6' cy='17.6' r='1.7' fill='currentColor' stroke='none'/>",
+"heart": "<path d='M12 19.7 C7.2 15.6 4.2 12.9 4.2 9.7 4.2 7.3 6 5.5 8.4 5.5 c1.5 0 2.9 .7 3.6 1.9 .7 -1.2 2.1 -1.9 3.6 -1.9 2.4 0 4.2 1.8 4.2 4.2 0 3.2 -3 5.9 -7.8 10 Z'/>",
+"goodpoint": "<path d='M9.2 14.8 C7.3 13.7 6 11.8 6 9.7 6 6.4 8.7 3.8 12 3.8 s6 2.6 6 5.9 c0 2.1 -1.3 4 -3.2 5.1'/><path d='M9.5 17.4 h5 M10.3 20.1 h3.4'/>",
+"thanks": "<path d='M12 4.2 C9.8 6 7.1 8.5 6.7 11.3 C6.5 13 6.8 14.1 7.3 15 L3.9 20.5 L7.7 20.5 L12 15.4 L16.3 20.5 L20.1 20.5 L16.7 15 C17.2 14.1 17.5 13 17.3 11.3 C16.9 8.5 14.2 6 12 4.2 Z'/><path d='M12 4.8 V14.4'/>",
+"typo": "<path d='M6.2 5.8 H15 M10.6 5.8 V14.2'/><path d='M5.4 18.7 q1.55 -1.7 3.1 0 t3.1 0 t3.1 0 t3.1 0'/>",
+"why": "<path d='M8.3 4.8 H5.9 V19.2 H8.3 M15.7 4.8 h2.4 V19.2 h-2.4'/><path d='M10.1 9.5 a2.1 2.1 0 1 1 3.4 1.6 c-.9 .7 -1.3 1.1 -1.3 2'/><circle cx='12.2' cy='16.5' r='1.25' fill='currentColor' stroke='none'/>",
+"resolved": "<path d='M6.4 4.9 h11.2 a2.2 2.2 0 0 1 2.2 2.2 v6.6 a2.2 2.2 0 0 1 -2.2 2.2 H11 l-4 3.6 v-3.6 h-.6 a2.2 2.2 0 0 1 -2.2 -2.2 V7.1 a2.2 2.2 0 0 1 2.2 -2.2 Z'/><path d='M8.9 10.3 l2.2 2.2 4.2 -4.5'/>",
+"beautiful": "<path d='M7.2 5.2 C6.6 7.1 6.3 8.9 6.3 10.2 a5.7 5.7 0 0 0 11.4 0 C17.7 8.9 17.4 7.1 16.8 5.2 15.8 6.7 14.9 7.4 14.2 7.6 13.5 6.5 12.7 5.4 12 4.4 11.3 5.4 10.5 6.5 9.8 7.6 9.1 7.4 8.2 6.7 7.2 5.2 Z'/><path d='M12 15.9 V21'/><path d='M12 20.8 q-3.4 -.4 -4.6 -3.6 M12 20.8 q3.4 -.4 4.6 -3.6'/>",
+"hat": "<g transform='rotate(-14 13.4 11.5)'><path d='M10.4 4.4 H16.4 V11.6 H10.4 Z'/><path d='M10.4 9.5 h6'/><path d='M7.2 11.6 q6.2 1.9 12.4 0'/></g><path d='M2.8 8.6 l2.6 -.9 M3.2 13 l2.7 -.4 M4.4 17.2 l2.5 .2'/>",
+"offtopic": "<path d='M10.3 20 C7.2 16.3 5.5 13.7 5.5 11.2 a4.8 4.8 0 0 1 9.6 0 c0 2.5 -1.7 5.1 -4.8 8.8 Z'/><circle cx='10.3' cy='11.1' r='1.7'/><path d='M17.5 15.7 l3.6 3.6 M21.1 15.7 l-3.6 3.6'/>",
+"coveredAlready2": "<rect x='3.2' y='6.4' width='13.4' height='10.2' rx='1.8'/><path d='M3.8 7.8 l6.1 4.5 6 -4.5'/><path d='M15.4 16.4 l2.3 2.3 3.9 -4.2'/>",
+
+"strong-argument": "<g transform='rotate(-45 12 12)'><rect x='1.9' y='9.3' width='9.4' height='5.4' rx='2.7'/><rect x='12.7' y='9.3' width='9.4' height='5.4' rx='2.7'/></g>",
+"weak-argument": "<g transform='rotate(-45 12 12)'><rect x='1.4' y='9.3' width='8.6' height='5.4' rx='2.7'/><rect x='14' y='9.3' width='8.6' height='5.4' rx='2.7'/><path d='M11.2 8.2 l.8 -1.6 M12.8 15.8 l-.8 1.6'/></g>",
+"crux": "<path d='M12 20.4 V11.6 M12 11.6 L6.6 6.2 M12 11.6 L17.4 6.2'/><path d='M6.6 8.5 V6.2 h2.3 M17.4 8.5 V6.2 h-2.3'/>",
+"notacrux": "<path d='M12 20.4 V4.6 M12 4.6 L8.4 8.2 M12 4.6 L15.6 8.2'/>",
+"hitsTheMark": "<circle cx='11' cy='13' r='7.8'/><circle cx='11' cy='13' r='4'/><circle cx='11' cy='13' r='1.1' fill='currentColor' stroke='none'/><path d='M11 13 L20.2 3.8'/><path d='M17.3 4 l2.9 -.3 -.3 2.9'/>",
+"miss": "<circle cx='7.6' cy='16.4' r='4.4'/><circle cx='7.6' cy='16.4' r='1.2' fill='currentColor' stroke='none'/><path d='M4 6.6 H19.4'/><path d='M16.8 4.7 L19.7 6.6 L16.8 8.5'/>",
+"strawman": "<path d='M4.9 4.1 h5.6 a2 2 0 0 1 2 2 v2.9 a2 2 0 0 1 -2 2 H7.6 L4.7 13.5 v-2.6 a2 2 0 0 1 -1.8 -2 V6.1 a2 2 0 0 1 2 -2 Z'/><circle cx='7.7' cy='7.5' r='1.7' stroke-width='1.7'/><path d='M19.1 12.5 h-5.6 a2 2 0 0 0 -2 2 v2.9 a2 2 0 0 0 2 2 h2.9 l2.9 2.5 v-2.6 a2 2 0 0 0 1.8 -2 v-2.8 a2 2 0 0 0 -2 -2 Z'/><path d='M16.3 14.4 l1.9 3.2 h-3.8 Z' stroke-width='1.7'/>",
+"nitpick": "<circle cx='10.2' cy='10.2' r='6.4'/><path d='M14.9 14.9 L20 20'/><circle cx='10.2' cy='10.3' r='1.5' fill='currentColor' stroke='none'/><path d='M8.7 9.2 l-1.5 -.9 M8.7 11.4 l-1.5 .9 M11.7 9.2 l1.5 -.9 M11.7 11.4 l1.5 .9' stroke-width='1.4'/>",
+"addc": "<path d='M8.6 6.8 l2.3 2.3 4.1 -4.4'/><path d='M6.4 12 H17.6'/><path d='M9.6 15.2 l4.8 4.8 M14.4 15.2 l-4.8 4.8'/>",
+"bet": "<circle cx='12' cy='12' r='8.4'/><path d='M14.9 9.1 c-.5 -1 -1.5 -1.6 -2.9 -1.6 -1.7 0 -2.9 .9 -2.9 2.2 0 1.3 1.1 1.9 2.9 2.3 1.9 .4 3 1.1 3 2.4 0 1.4 -1.3 2.3 -3 2.3 -1.5 0 -2.6 -.6 -3.1 -1.7'/><path d='M12 5.8 V7.5 M12 16.5 v1.7'/>",
+"llm-smell": "<path d='M15.8 3.4 C15.8 9 15.1 11.2 12.6 14.1 c-1.1 1.3 -.5 3 1.2 3.2 1.1 .2 2.1 -.2 2.7 -.9'/><path d='M12.2 19.2 c1.2 1 2.9 .9 4 -.1'/><path d='M9.4 9.8 q1.3 -.5 2.3 .3' stroke-width='1.5'/><path d='M6 4.6 c.35 1.8 1.25 2.7 3.05 3.05 -1.8 .35 -2.7 1.25 -3.05 3.05 -.35 -1.8 -1.25 -2.7 -3.05 -3.05 1.8 -.35 2.7 -1.25 3.05 -3.05 Z' stroke-width='1.7'/><path d='M8.1 13.4 c.25 1.15 .8 1.7 1.95 1.95 -1.15 .25 -1.7 .8 -1.95 1.95 -.25 -1.15 -.8 -1.7 -1.95 -1.95 1.15 -.25 1.7 -.8 1.95 -1.95 Z' stroke-width='1.5'/>",
+"bowels": "<path d='M15.6 18.5 C15.6 16 17.4 15.4 17.4 11.6 C17.4 8.2 15 6.4 12 6.4 C9 6.4 6.6 8.2 6.6 11.6 C6.6 15.4 8.4 16 8.4 18.5'/><path d='M9.9 12.2 C9.9 10.8 14.1 10.8 14.1 12.5 C14.1 13.9 10.5 13.7 10.5 15.1 C10.5 16.3 13.7 16.4 13.9 15.1'/><path d='M12 18.4 C11.2 19.6 11.2 21 12 21.4 C12.8 21 12.8 19.6 12 18.4 Z' stroke-width='1.4'/>",
+"moloch": "<path d='M10 5.4 C8.4 4 7.6 2.6 8 1.3 M14 5.4 C15.6 4 16.4 2.6 16 1.3'/><circle cx='12' cy='7.2' r='2.5'/><circle cx='11' cy='7' r='.8' fill='currentColor' stroke='none'/><circle cx='13' cy='7' r='.8' fill='currentColor' stroke='none'/><path d='M9.8 10 L6.2 8.2 L4.6 5.4 M14.2 10 L17.8 8.2 L19.4 5.4'/><path d='M9.6 9.8 C9 12.5 8.8 15 9 16.6 H15 C15.2 15 15 12.5 14.4 9.8'/><path d='M6.6 16.6 L5.6 20.6 H18.4 L17.4 16.6 Z'/><path d='M10.6 20.6 V18 H13.4 V20.6'/>",
+"paperclip": "<path d='M15.4 6.2 L9 12.6 a2.4 2.4 0 0 0 3.4 3.4 l6.2 -6.2 a4.1 4.1 0 0 0 -5.8 -5.8 L6.1 10.7 a5.8 5.8 0 0 0 8.2 8.2 l5.4 -5.4'/>",
+
+"clear": "<circle cx='12' cy='12' r='4.3'/><path d='M12 3 v2.5 M12 18.5 V21 M3 12 h2.5 M18.5 12 H21 M5.6 5.6 l1.8 1.8 M16.6 16.6 l1.8 1.8 M18.4 5.6 l-1.8 1.8 M7.4 16.6 l-1.8 1.8'/>",
+"muddled": "<path d='M17 13.4 H9.2 a4.6 4.6 0 1 1 4.4 -5.9 h.4 A3.45 3.45 0 1 1 17 13.4 Z'/><path d='M4.6 16.8 h10.2 M9 20 h10.4'/>",
+"scholarship": "<path d='M12 4.8 L21.2 8.9 12 13 2.8 8.9 Z'/><path d='M6.8 10.7 v4.5 c0 1.5 10.4 1.5 10.4 0 V10.7'/><path d='M21.2 9.2 V14'/><circle cx='21.2' cy='15.4' r='1.1' fill='currentColor' stroke='none'/>",
+"facilitation": "<path d='M18.9 7.9 A8 8 0 0 0 5.5 9.5 M5.1 5.3 v4.2 h4.2'/><path d='M5.1 16.1 A8 8 0 0 0 18.5 14.5 M18.9 18.7 v-4.2 h-4.2'/>",
+"concrete": "<circle cx='7' cy='18' r='1.9'/><circle cx='16.4' cy='18' r='1.9'/><path d='M3 16 H5.1 M8.9 16 h5.6 M18.3 16 H21'/><path d='M14.9 15.9 V10.9 h3.1 l2.9 3.2 v1.8'/><g transform='rotate(-10 8.5 9.5)'><rect x='3.4' y='6.3' width='10.2' height='6.4' rx='3.2'/><path d='M8.6 6.3 v6.4'/></g>",
+"examples": "<path d='M8.3 3.9 l3 5.1 H5.3 Z'/><rect x='4.3' y='13.6' width='6.2' height='6.2' rx='1.2'/><circle cx='16.9' cy='16.7' r='3.6'/>",
+"scout": "<circle cx='7.6' cy='15' r='3.9'/><circle cx='16.4' cy='15' r='3.9'/><circle cx='7.6' cy='15' r='1.4'/><circle cx='16.4' cy='15' r='1.4'/><path d='M5 12 V8.2 a2.6 2.6 0 0 1 5.2 0 V12'/><path d='M13.8 12 V8.2 a2.6 2.6 0 0 1 5.2 0 V12'/><path d='M10.2 8.9 H13.8'/><path d='M12 8.9 V6.9'/>",
+"soldier": "<path d='M4.8 13.8 C4.8 8.8 8 6 12 6 C16 6 19.2 8.8 19.2 13.8'/><path d='M3.6 13.9 Q12 16.4 20.4 13.9'/><path d='M7.9 14.6 V16.6 Q7.9 19 12 19.1 Q16.1 19 16.1 16.6 V14.6'/><circle cx='9.9' cy='16.1' r='.9' fill='currentColor' stroke='none'/><circle cx='14.1' cy='16.1' r='.9' fill='currentColor' stroke='none'/><path stroke-linejoin='miter' stroke-width='1' d='M12 8.4 L12.5 9.9 L14.1 9.9 L12.8 10.9 L13.3 12.4 L12 11.5 L10.7 12.4 L11.2 10.9 L9.9 9.9 L11.5 9.9 Z'/>",
+"unnecessarily-combative": "<path d='M18.6 5.4 L7.4 16.6 M5.6 14.8 L9.2 18.4 M7.4 16.6 L6 18'/><circle cx='5.3' cy='18.7' r='.9' fill='currentColor' stroke='none'/><g transform='matrix(-1 0 0 1 24 0)'><path d='M18.6 5.4 L7.4 16.6 M5.6 14.8 L9.2 18.4 M7.4 16.6 L6 18'/><circle cx='5.3' cy='18.7' r='.9' fill='currentColor' stroke='none'/></g>",
+"sneer": "<circle cx='11' cy='12.6' r='8.2'/><path d='M6.2 9.2 L9.4 10.8 M15.8 9.2 L12.6 10.8'/><path d='M7 11.6 L9.2 12.1 M15 11.6 L12.8 12.1'/><path d='M10.2 13.6 Q11 13 11.8 13.6 M10.4 14.6 Q11.1 14.1 11.8 14.6'/><path d='M7.8 17.2 Q10 16.4 11.8 16.7 Q13.6 17 14.4 15.6'/><path stroke-width='1.9' d='M17.4 3.4 L20.8 6.8 M20.8 3.4 L17.4 6.8'/>"
+}
+</script>
+
+<!-- ============ REACT METADATA (labels, descriptions, old icon + production filters) ============ -->
+<script type="application/json" id="react-data">
+{
+"agree":            {"label":"Agreed","old":"/reactionImages/nounproject/check.svg","f":{},"desc":"","note":"Kept: checkmark. Was a brush-stroke check; now matches system stroke."},
+"disagree":         {"label":"Disagree","old":"/reactionImages/nounproject/x.svg","f":{},"desc":"","note":"Kept: ×. Same weight as the check so the pair reads as a pair."},
+"important":        {"label":"Important","old":"/reactionImages/nounproject/exclamation.svg","f":{},"desc":"","note":"Kept: exclamation. Dot is a filled accent, bar has round caps."},
+"dontUnderstand":   {"label":"I don't understand","old":"/reactionImages/nounproject/noun-question-5771604.svg","f":{"ty":2,"scale":0.9},"desc":"","note":"Kept: question mark, redrawn on the shared grid."},
+"plus":             {"label":"Plus One","old":"/reactionImages/nounproject/Plus.png","f":{"scale":1.2,"opacity":0.5},"desc":"","note":"Was a PNG! Now a stroked + consistent with the set."},
+"shrug":            {"label":"Unsure","old":"/reactionImages/nounproject/shrug.svg","f":{},"desc":"I don't know what to think of this","note":"Kept: shrugging figure — raised shoulders, arms out, palms turned up."},
+"thumbs-up":        {"label":"Thumbs Up","old":"/reactionImages/nounproject/noun-thumbs-up-1686284.svg","f":{"opacity":0.5,"ty":2},"desc":"I saw this, and feel vaguely good about it","note":"Kept: thumb + cuff, original drawing."},
+"thumbs-down":      {"label":"Thumbs Down","old":"/reactionImages/nounproject/noun-thumbs-down-1686285.svg","f":{"opacity":0.5,"ty":3},"desc":"I saw this, and vaguely dislike it","note":"Exact 180° rotation of thumbs-up — guaranteed visual pairing."},
+"seen":             {"label":"I Saw This","old":"/reactionImages/nounproject/eyes.svg","f":{"opacity":0.8},"desc":"...and thought it'd be useful to let people know.","note":"Kept: pair of eyes, pupils glancing at the content."},
+
+"smile":            {"label":"Smile","old":"/reactionImages/nounproject/noun-smile-925549.svg","f":{"opacity":0.5,"ty":2,"scale":1.4},"desc":"This makes me happy. :)","note":"All 8 faces now share one head, one eye style, one stroke."},
+"laugh":            {"label":"Haha!","old":"/reactionImages/nounproject/noun-laughing-761845.svg","f":{"opacity":0.9,"scale":1.4,"ty":2},"desc":"","note":"Closed happy eyes + open D-mouth."},
+"sad":              {"label":"Sad","old":"/reactionImages/nounproject/noun-sad-1152961.svg","f":{"opacity":0.7,"scale":1.4,"ty":2.5},"desc":"","note":"Drooping eyelids + frown."},
+"disappointed":     {"label":"Disappointed","old":"/reactionImages/nounproject/noun-sad-5760577.svg","f":{"opacity":0.9,"ty":2},"desc":"","note":"The askew ':/' mouth (restored) is what separates it from Sad."},
+"confused":         {"label":"I notice I'm confused","old":"/reactionImages/confused2.svg","f":{"opacity":0.9,"ty":-2.5},"desc":"I don't have a clear explanation of what's going on here","note":"One raised brow + wavy mouth."},
+"thinking":         {"label":"Thinking","old":"/reactionImages/nounproject/thinking-nice-eyebrows.svg","f":{"opacity":1,"scale":1.4,"ty":2.6},"desc":"Food for thought","note":"Self-contained pondering face: raised 'nice' brows, eyes glancing up, a small pursed mouth. (No hand — it read as a beard; no floating bubble — it clashed with the other faces.)"},
+"oops":             {"label":"Oops!","old":"/reactionImages/nounproject/Oops!.png","f":{"opacity":1,"scale":1.3,"ty":1},"desc":"Oops! I made a mistake or error.","note":"Was a PNG. A hand drawn cleanly over the eyes + a grimace — same face style/weight as the other emotions."},
+"surprise":         {"label":"Surprise","old":"/reactionImages/nounproject/surprise.svg","f":{"opacity":0.8},"desc":"I did not expect that!","note":"Raised brows + O mouth."},
+"excitement":       {"label":"Exciting","old":"/reactionImages/nounproject/partypopper.svg","f":{"ty":-1},"desc":"This is exciting!","note":"Kept: party popper — cone, streamer, confetti dots."},
+
+"changemind":       {"label":"Changed My Mind","old":"/reactionImages/nounproject/noun-triangle-305128.svg","f":{"opacity":0.4,"scale":1.4,"ty":1},"desc":"I updated my beliefs based on this. (In math, the triangle 'delta' means 'change')","note":"The iconic delta Δ — hollow triangle with the heavy calligraphic bottom edge kept."},
+"changed-mind-on-point": {"label":"Changed My Mind\n(on this point)","old":"/reactionImages/nounproject/changedmindonpoint.svg","f":{"scale":1.2,"tx":0.4},"desc":"I've changed my mind on this particular point (not necessarily on any larger claims).","note":"Kept: Δ + point (filled dot)."},
+"heart":            {"label":"Heart","old":"/reactionImages/nounproject/noun-heart-1212629.svg","f":{"opacity":0.6,"ty":1,"scale":1.05},"desc":"","note":"Kept: heart, redrawn to system proportions."},
+"goodpoint":        {"label":"Good point!","old":"/reactionImages/nounproject/lightbulb.svg","f":{},"desc":"This comment makes a good point","note":"Kept: lightbulb; was a filled glowing bulb, now an outline bulb + base."},
+"thanks":           {"label":"Thanks","old":"/reactionImages/nounproject/thankyou.svg","f":{"scale":0.9,"opacity":0.5},"desc":"","note":"Kept: pressed praying hands — the forearms now flare wide at the base (the earlier narrow version read as a pen)."},
+"typo":             {"label":"Typo","old":"/reactionImages/nounproject/type-text.svg","f":{"scale":0.9,"ty":2},"desc":"This contains a typo, or minor editing error","note":"A 'T' with a spellcheck squiggle (was 'Tx')."},
+"why":              {"label":"Why? / Citation?","old":"/reactionImages/nounproject/noun-brackets-1942334-updated.svg","f":{"scale":1.2},"desc":"Why do you believe that? Or, what's your source for that?","note":"Kept: [?] — citation-needed brackets."},
+"resolved":         {"label":"Question Answered","old":"/reactionImages/nounproject/resolved.svg","f":{"opacity":0.7,"scale":1.3},"desc":"This resolved my question! Thanks.","note":"Kept: speech bubble with check."},
+"beautiful":        {"label":"Beautiful!","old":"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1758861219/Beautiful_ynilb1.svg","f":{"opacity":1,"scale":1.2},"desc":"","note":"Was hotlinked from Cloudinary. Kept: tulip, redrawn."},
+"hat":              {"label":"Bowing Out","old":"/reactionImages/nounproject/HatInMotion.png","f":{"opacity":0.7,"scale":1.5},"desc":"I'm bowing out of this thread at this point. Goodbye for now!","note":"Was a PNG. Kept: tipped top hat + motion lines."},
+"offtopic":         {"label":"Seems Offtopic?","old":"/reactionImages/nounproject/mapandpin.svg","f":{"opacity":1,"scale":0.9},"desc":"I don't see how this is relevant to what's being discussed.","note":"Kept: map pin + stray ×."},
+"coveredAlready2":  {"label":"Already addressed","old":"/reactionImages/nounproject/noun-mail-checkmark-5316519.svg","f":{"opacity":0.6,"scale":1.2,"ty":2},"desc":"This has been covered earlier in the post or comment thread.","note":"Kept: envelope + check."},
+
+"strong-argument":  {"label":"Strong Argument","old":"/reactionImages/nounproject/strong-argument2.svg","f":{"opacity":0.5,"scale":1.3},"desc":"This is a strong, well-reasoned argument.","note":"Kept: solid chain links."},
+"weak-argument":    {"label":"Weak Argument","old":"/reactionImages/nounproject/weak-argument2.svg","f":{"opacity":0.5,"scale":1.3},"desc":"This argument is weak or poorly reasoned.","note":"Kept: snapped chain link — exact counterpart of Strong."},
+"crux":             {"label":"That's a crux","old":"/reactionImages/nounproject/branchingpath.svg","f":{"opacity":0.6},"desc":"My other beliefs would be different if I had different beliefs about this","note":"Kept: forking path (Y arrows)."},
+"notacrux":         {"label":"Not a crux","old":"/reactionImages/nounproject/nonbranchingpath2.svg","f":{"opacity":0.6},"desc":"My other beliefs would not change if I had different beliefs about this","note":"Kept: straight non-branching arrow."},
+"hitsTheMark":      {"label":"Hits the Mark","old":"/reactionImages/nounproject/bullseye.svg","f":{},"desc":"This hits the mark","note":"Kept: arrow in the bullseye."},
+"miss":             {"label":"Missed the point","old":"/reactionImages/nounproject/inaccurate.svg","f":{},"desc":"I think this misses what I (or the other person) actually believes and was trying to say","note":"Kept: arrow sailing over the target."},
+"strawman":         {"label":"Misunderstands position?","old":"/reactionImages/nounproject/noun-misunderstanding-4936548-updated.svg","f":{"opacity":0.5,"scale":1.3,"ty":1,"tx":1},"desc":"This seems to misunderstand the thing that it argues against","note":"Kept: mismatched speech bubbles (○ said, △ heard)."},
+"nitpick":          {"label":"Nitpick","old":"/reactionImages/nounproject/nitpick.svg","f":{"opacity":0.5,"scale":1.1},"desc":"This seems like it's focusing on a relatively unimportant point.","note":"Kept: magnifier over a tiny nit (bug)."},
+"addc":             {"label":"Agree Denotationally, Disagree Connotationally","old":"/reactionImages/nounproject/ADDC.svg","f":{"opacity":0.5,"scale":1.2},"desc":"I agree with the explicit meaning of these words, but not with the subtext.","note":"Kept: ✓ over ✕ 'fraction'."},
+"bet":              {"label":"Let's make a bet!","old":"/reactionImages/nounproject/bet.svg","f":{"opacity":0.8,"scale":1.2},"desc":"I'm willing to put money on this claim!","note":"Kept: $ coin."},
+"llm-smell":        {"label":"Smells like LLM","old":"/reactionImages/nounproject/llm-smell.svg","f":{"opacity":0.6,"saturate":0.6,"scale":1.3},"desc":"This reads to me like it could've been written by a language model.","note":"Kept: nose sniffing AI sparkles."},
+"bowels":           {"label":"\"I beseech you!\"","old":"/reactionImages/nounproject/bowels.svg","f":{"opacity":0.9,"scale":1.1},"desc":"\"I beseech you, in the bowels of Christ, think it possible you may be mistaken\" — Cromwell, 1650","note":"Kept (of course): the bowels — the colon framing the coiled gut, with the rectum drop below."},
+"moloch":           {"label":"Moloch","old":"/reactionImages/nounproject/moloch-bw-2.svg","f":{"scale":1.1,"opacity":0.5,"ty":-1},"desc":"Moloch whose mind is pure machinery! Moloch whose blood is running money!","note":"Was a detailed engraving; redrawn as the seated horned idol with arms raised, on its furnace-altar."},
+"paperclip":        {"label":"Paperclip","old":"/reactionImages/nounproject/paperclip.svg","f":{},"desc":"","note":"Kept: the paperclip (maximized)."},
+
+"clear":            {"label":"Clearly Written","old":"/reactionImages/nounproject/noun-clear-sky-1958882.svg","f":{"opacity":0.7,"scale":1.2},"desc":"I had an easy time understanding this","note":"Kept: clear sky — reduced to a sun."},
+"muddled":          {"label":"Difficult to Parse","old":"/reactionImages/nounproject/noun-fog-1028590.svg","f":{"opacity":0.7,"scale":1.2},"desc":"I had trouble reading this.","note":"Kept: fog bank — cloud + haze lines."},
+"scholarship":      {"label":"Nice Scholarship!","old":"/reactionImages/nounproject/scholarship.svg","f":{},"desc":"Good job looking into existing literature and citing sources","note":"Kept: mortarboard + tassel."},
+"facilitation":     {"label":"Good Facilitation","old":"/reactionImages/nounproject/noun-dialog-2172.svg","f":{"ty":2,"scale":1.3},"desc":"This seemed to help people understand each other","note":"Kept: circulating-conversation arrows."},
+"concrete":         {"label":"Concrete","old":"/reactionImages/nounproject/concrete.svg","f":{"scale":1.1},"desc":"This makes things more concrete by bringing in specifics or examples.","note":"Kept the cement-mixer joke, simplified to drum + cab + wheels."},
+"examples":         {"label":"Examples?","old":"/reactionImages/nounproject/shapes.svg","f":{"opacity":0.6},"desc":"I'd be interested in seeing concrete examples of this","note":"Kept: example shapes — triangle, square, circle."},
+"scout":            {"label":"Scout Mindset","old":"/reactionImages/nounproject/binoculars.svg","f":{},"desc":"Good job focusing on figuring out what's true, rather than fighting for a side","note":"Kept: binoculars — twin lenses, hinge bridge, focus knob."},
+"soldier":          {"label":"Soldier Mindset","old":"/reactionImages/nounproject/noun-soldier-5069240.svg","f":{"opacity":0.7,"ty":1,"scale":1.2},"desc":"This seems to be trying to fight for a side rather than figure out what's true","note":"Was a tiny guard-with-flag figure; now a combat helmet with a service star worn over a face — reads as 'soldier' at 18px."},
+"unnecessarily-combative": {"label":"Too Combative?","old":"/reactionImages/nounproject/swords.svg","f":{"padding":2},"desc":"This seems more combative than it needs to be to communicate its point.","note":"Kept: crossed swords, now stroked with guards + pommels."},
+"sneer":            {"label":"Too Sneering?","old":"/reactionImages/nounproject/NoSneeringThick.png","f":{"opacity":0.8},"desc":"This is too much sneering relative to its substantive critique.","note":"Was a PNG. Contempt: angry angled brows, a scrunched nose, a one-sided lip curl — plus the 'no-sneering' × badge."},
+
+"1percent":  {"label":"Less than 1% likely","old":"/reactionImages/1percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put 1% or less likelihood on this claim","note":"Uniform type treatment across all nine badges. The '<' is back.","pct":"<1%"},
+"10percent": {"label":"10% likely","old":"/reactionImages/10percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 10% likelihood on this claim","note":"","pct":"10%"},
+"25percent": {"label":"~25% likely","old":"/reactionImages/25percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":1.25,"tx":0.5},"desc":"I put about 25% likelihood on this claim","note":"","pct":"25%"},
+"40percent": {"label":"~40% likely","old":"/reactionImages/40percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 40% likelihood on this claim","note":"","pct":"40%"},
+"50percent": {"label":"~50% likely","old":"/reactionImages/50percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 50% likelihood on this claim","note":"","pct":"50%"},
+"60percent": {"label":"~60% likely","old":"/reactionImages/60percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 60% likelihood on this claim","note":"","pct":"60%"},
+"75percent": {"label":"~75% likely","old":"/reactionImages/75percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 75% likelihood on this claim","note":"","pct":"75%"},
+"90percent": {"label":"~90% likely","old":"/reactionImages/90percent.svg","f":{"scale":1.4,"opacity":0.5,"ty":0.75,"tx":0.5},"desc":"I put about 90% likelihood on this claim","note":"","pct":"90%"},
+"99percent": {"label":"99+% likely","old":"/reactionImages/99percent.svg","f":{"scale":1.25,"opacity":0.5,"ty":0.75,"tx":1},"desc":"I put 99% (or more) likelihood on this claim","note":"The '+' is back.","pct":"99+%"}
+}
+</script>
+
+<script>
+const NEW_ICONS = JSON.parse(document.getElementById('new-icons').textContent);
+const DATA = JSON.parse(document.getElementById('react-data').textContent);
+
+/* section layouts — copied from lib/voting/curatedReactionsList.ts */
+const listPrimary = ['agree','disagree','important','dontUnderstand','plus','shrug','thumbs-up','thumbs-down','seen'];
+const listEmotions = ['smile','laugh','sad','disappointed','confused','thinking','oops','surprise','excitement'];
+const listViewSectionB = ['changemind','changed-mind-on-point','heart','goodpoint','thanks','typo','why','resolved','beautiful','hat','offtopic','coveredAlready2'];
+const listViewSectionC = ['strong-argument','weak-argument','crux','notacrux','hitsTheMark','miss','strawman','nitpick','addc','bet','llm-smell','bowels','moloch','paperclip'];
+const listViewSectionD = ['clear','muddled','scholarship','facilitation','concrete','examples','scout','soldier','unnecessarily-combative','sneer'];
+const likelihoods = ['1percent','10percent','25percent','40percent','50percent','60percent','75percent','90percent','99percent'];
+const gridSectionB = ['changemind','strong-argument','crux','hitsTheMark','clear','concrete','scout','moloch','why','changed-mind-on-point','weak-argument','notacrux','miss','muddled','examples','soldier','paperclip','resolved'];
+const gridSectionC = ['heart','coveredAlready2','beautiful','goodpoint','strawman','addc','llm-smell','scholarship','unnecessarily-combative','thanks','hat','nitpick','offtopic','facilitation','bowels','typo','bet','sneer'];
+
+const INVENTORY = [
+  ['Primary row', listPrimary],
+  ['Emotions', listEmotions],
+  ['Section B — epistemics & courtesy', listViewSectionB],
+  ['Section C — argumentation', listViewSectionC],
+  ['Section D — discourse quality', listViewSectionD],
+  ['Likelihoods', likelihoods],
+];
+
+function svgFor(name, size) {
+  const body = NEW_ICONS[name];
+  const d = DATA[name];
+  let inner;
+  if (d && d.pct) {
+    const L = d.pct.length;
+    const fs = L >= 4 ? 8 : L === 3 ? 9.6 : 11.2;
+    const ls = L >= 4 ? -0.6 : -0.2;
+    const esc = d.pct.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    inner = "<text x='12' y='12.6' text-anchor='middle' dominant-baseline='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif' font-weight='650' font-size='" + fs + "' letter-spacing='" + ls + "' fill='currentColor' stroke='none'>" + esc + "</text>";
+  } else if (body) {
+    inner = body;
+  } else {
+    inner = "<rect x='4' y='4' width='16' height='16' rx='3' stroke-dasharray='3 2'/>";
+  }
+  return "<svg width='" + size + "' height='" + size + "' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + "</svg>";
+}
+
+function newIconEl(name, size) {
+  const span = document.createElement('span');
+  span.className = 'newIcon';
+  span.innerHTML = svgFor(name, size);
+  return span;
+}
+
+function oldIconEl(name, size) {
+  const d = DATA[name];
+  const f = d.f || {};
+  const opacity = f.opacity ?? 0.4;
+  const saturate = f.saturate ?? 0.6;
+  const scale = f.scale ?? 1;
+  const tx = f.tx ?? 0, ty = f.ty ?? 0;
+  const span = document.createElement('span');
+  span.className = 'oldIcon';
+  const img = document.createElement('img');
+  img.src = d.old;
+  img.style.cssText = 'width:' + size + 'px;height:' + size + 'px;' +
+    'filter:opacity(' + opacity + ') saturate(' + saturate + ');' +
+    'transform:scale(' + scale + ') translate(' + tx + 'px,' + ty + 'px);' +
+    (f.padding ? 'padding:' + f.padding + 'px;' : '');
+  span.appendChild(img);
+  return span;
+}
+
+function iconEl(name, size, mode) { return mode === 'old' ? oldIconEl(name, size) : newIconEl(name, size); }
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById('tooltip');
+function attachTooltip(el, name, mode) {
+  el.addEventListener('mouseenter', () => {
+    const d = DATA[name];
+    tip.querySelector('.ttIcon').innerHTML = '';
+    tip.querySelector('.ttIcon').appendChild(iconEl(name, 40, mode));
+    if (mode === 'old') { // tooltip shows full-strength in prod
+      const img = tip.querySelector('.ttIcon img');
+      if (img) img.style.filter = 'opacity(1) saturate(1)';
+    }
+    tip.querySelector('.ttLabel').textContent = d.label;
+    tip.querySelector('.ttDesc').textContent = d.desc || '';
+    tip.querySelector('.ttDesc').style.display = d.desc ? '' : 'none';
+    tip.classList.add('show');
+  });
+  el.addEventListener('mousemove', (ev) => {
+    const pad = 14;
+    let x = ev.clientX + pad, y = ev.clientY + pad;
+    const r = tip.getBoundingClientRect();
+    if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - pad;
+    if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - pad;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  });
+  el.addEventListener('mouseleave', () => tip.classList.remove('show'));
+}
+
+/* ---------- palette mockups ---------- */
+function gridBtn(name, mode, size) {
+  const div = document.createElement('div');
+  div.className = 'paletteIcon1';
+  div.appendChild(iconEl(name, size || 24, mode));
+  attachTooltip(div, name, mode);
+  return div;
+}
+function listBtn(name, mode) {
+  const div = document.createElement('div');
+  div.className = 'paletteEntry';
+  const ic = document.createElement('span');
+  ic.className = 'paletteIcon2';
+  ic.appendChild(iconEl(name, 22, mode));
+  const label = document.createElement('span');
+  label.className = 'entryLabel' + (name === 'addc' ? ' small' : '');
+  label.textContent = DATA[name].label;
+  div.appendChild(ic); div.appendChild(label);
+  attachTooltip(div, name, mode);
+  return div;
+}
+function paletteChrome() {
+  const pal = document.createElement('div');
+  pal.className = 'palette';
+  pal.innerHTML =
+    "<div class='searchRow'><input class='searchBox' placeholder='Search' disabled>" +
+    "<span class='viewBtns'>" +
+    "<svg viewBox='0 0 24 24' fill='currentColor'><path d='M4 6h4v3H4zM10 6h10v3H10zM4 11h4v3H4zM10 11h10v3H10zM4 16h4v3H4zM10 16h10v3H10z'/></svg>" +
+    "<svg viewBox='0 0 24 24' fill='currentColor'><path d='M4 4h4.5v4.5H4zM9.75 4h4.5v4.5h-4.5zM15.5 4H20v4.5h-4.5zM4 9.75h4.5v4.5H4zM9.75 9.75h4.5v4.5h-4.5zM15.5 9.75H20v4.5h-4.5zM4 15.5h4.5V20H4zM9.75 15.5h4.5V20h-4.5zM15.5 15.5H20V20h-4.5z'/></svg>" +
+    "</span></div>";
+  const scroll = document.createElement('div');
+  scroll.className = 'scrollRegion';
+  pal.appendChild(scroll);
+  return { pal, scroll };
+}
+function buildListPalette(mode) {
+  const { pal, scroll } = paletteChrome();
+  const prim = document.createElement('div'); prim.className = 'primarySection';
+  listPrimary.forEach(n => prim.appendChild(gridBtn(n, mode)));
+  scroll.appendChild(prim);
+  [listViewSectionB, listViewSectionC].forEach(sec => {
+    const s = document.createElement('div'); s.className = 'iconSection';
+    sec.forEach(n => s.appendChild(listBtn(n, mode)));
+    scroll.appendChild(s);
+  });
+  const sd = document.createElement('div'); sd.className = 'plainSection';
+  listViewSectionD.forEach(n => sd.appendChild(listBtn(n, mode)));
+  scroll.appendChild(sd);
+  const bottom = document.createElement('div'); bottom.className = 'bottomSection';
+  likelihoods.forEach(n => bottom.appendChild(gridBtn(n, mode)));
+  listEmotions.forEach(n => bottom.appendChild(gridBtn(n, mode)));
+  scroll.appendChild(bottom);
+  const foot = document.createElement('div'); foot.className = 'paletteFooter'; foot.textContent = 'Show Fewer';
+  pal.appendChild(foot);
+  return pal;
+}
+function buildGridPalette(mode) {
+  const { pal, scroll } = paletteChrome();
+  const a = document.createElement('div'); a.className = 'iconSection';
+  listPrimary.forEach(n => a.appendChild(gridBtn(n, mode)));
+  listEmotions.forEach(n => a.appendChild(gridBtn(n, mode)));
+  scroll.appendChild(a);
+  [gridSectionB, gridSectionC].forEach(sec => {
+    const s = document.createElement('div'); s.className = 'iconSection';
+    sec.forEach(n => s.appendChild(gridBtn(n, mode)));
+    scroll.appendChild(s);
+  });
+  const lk = document.createElement('div'); lk.className = 'plainSection';
+  likelihoods.forEach(n => lk.appendChild(gridBtn(n, mode)));
+  scroll.appendChild(lk);
+  return pal;
+}
+document.getElementById('listOld').appendChild(buildListPalette('old'));
+document.getElementById('listNew').appendChild(buildListPalette('new'));
+document.getElementById('gridOld').appendChild(buildGridPalette('old'));
+document.getElementById('gridNew').appendChild(buildGridPalette('new'));
+
+/* ---------- inventory cards ---------- */
+const host = document.getElementById('cardsHost');
+let num = 0;
+INVENTORY.forEach(([secName, names]) => {
+  const h = document.createElement('div'); h.className = 'secHead'; h.textContent = secName;
+  host.appendChild(h);
+  const grid = document.createElement('div'); grid.className = 'cards';
+  names.forEach(name => {
+    num++;
+    const d = DATA[name];
+    const card = document.createElement('div');
+    card.className = 'card'; card.id = 'r-' + name;
+    const head = document.createElement('div'); head.className = 'cardHead';
+    head.innerHTML = "<span class='cardNum'>#" + num + "</span><span class='cardLabel'>" + d.label.replace(/\n/g, ' ') + "</span><span class='cardName'>" + name + "</span>";
+    card.appendChild(head);
+    const row = document.createElement('div'); row.className = 'cardRow';
+    const mk = (tag, el) => {
+      const c = document.createElement('div'); c.className = 'cell';
+      const ci = document.createElement('div'); ci.className = 'cellIcon'; ci.appendChild(el);
+      const t = document.createElement('div'); t.className = 'cellTag'; t.textContent = tag;
+      c.appendChild(ci); c.appendChild(t); return c;
+    };
+    row.appendChild(mk('old · 24', oldIconEl(name, 24)));
+    const arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '→';
+    row.appendChild(arrow);
+    row.appendChild(mk('new · 24', newIconEl(name, 24)));
+    const strip = document.createElement('div'); strip.className = 'sizeStrip';
+    const c40 = mk('new · 40', newIconEl(name, 40));
+    strip.appendChild(c40);
+    row.appendChild(strip);
+    card.appendChild(row);
+    if (d.note) {
+      const note = document.createElement('div'); note.className = 'cardNote'; note.textContent = d.note;
+      card.appendChild(note);
+    }
+    attachTooltip(card.querySelector('.cellIcon'), name, 'old');
+    grid.appendChild(card);
+  });
+  host.appendChild(grid);
+});
+
+/* ---------- controls ---------- */
+const darkToggle = document.getElementById('darkToggle');
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  darkToggle.textContent = document.documentElement.classList.contains('dark') ? 'Light mode' : 'Dark mode';
+});
+const alpha = document.getElementById('alpha');
+alpha.addEventListener('input', () => {
+  document.documentElement.style.setProperty('--icon-alpha', alpha.value / 100);
+  document.getElementById('alphaVal').textContent = alpha.value + '%';
+});
+</script>
+</body>
+</html>
