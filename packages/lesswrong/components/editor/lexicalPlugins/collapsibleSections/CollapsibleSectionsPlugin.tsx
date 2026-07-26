@@ -30,9 +30,12 @@ import {
   CLICK_COMMAND,
   ElementNode,
   $isParagraphNode,
+  $isRootOrShadowRoot,
+  RangeSelection,
 } from 'lexical';
-import { mergeRegister, $insertNodeToNearestRoot } from '@lexical/utils';
+import { mergeRegister, $insertNodeToNearestRoot, $findMatchingParent } from '@lexical/utils';
 import { COLLAPSIBLE_MARKER_GUTTER } from '@/themes/stylePiping';
+import { useMessages } from '@/components/common/withMessages';
 import {
   CollapsibleSectionContainerNode,
   $createCollapsibleSectionContainerNode,
@@ -54,6 +57,14 @@ export const INSERT_COLLAPSIBLE_SECTION_COMMAND: LexicalCommand<void> = createCo
 );
 export const TOGGLE_COLLAPSIBLE_SECTION_COMMAND: LexicalCommand<string> = createCommand(
   'TOGGLE_COLLAPSIBLE_SECTION_COMMAND'
+);
+/**
+ * Turns the currently selected blocks into a collapsible section (first block
+ * becomes the summary, the rest become the body), or unwraps the section the
+ * selection is already inside.
+ */
+export const WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND: LexicalCommand<void> = createCommand(
+  'WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND'
 );
 
 /**
@@ -209,6 +220,129 @@ function $deleteCollapsibleSection(container: CollapsibleSectionContainerNode): 
 }
 
 /**
+ * True if the current selection sits inside a collapsible section. Used by the
+ * floating toolbar to show the collapsible-section button as active.
+ */
+export function $isSelectionInCollapsibleSection(): boolean {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) {
+    return false;
+  }
+  return !!$findCollapsibleParent(selection.anchor.getNode());
+}
+
+/**
+ * Collect the block elements spanned by a range selection that are eligible to
+ * be moved into a collapsible section, in document order.
+ *
+ * "Top-level" is relative to the nearest root or shadow root, so blocks inside
+ * eg a quote resolve within that container rather than at the document root. A
+ * selection that starts inside one container and ends outside it produces
+ * blocks with different parents; we keep only the ones that are siblings of the
+ * first, so that wrapping never tears a block out of its container.
+ */
+function $getSelectedTopLevelBlocks(selection: RangeSelection): LexicalNode[] {
+  const blocks = new Set<LexicalNode>();
+  for (const node of selection.getNodes()) {
+    const topLevel = $findMatchingParent(node, (candidate) => {
+      const parent = candidate.getParent();
+      return parent !== null && $isRootOrShadowRoot(parent);
+    });
+    if (topLevel) {
+      blocks.add(topLevel);
+    }
+  }
+  const sortedBlocks = Array.from(blocks).sort((a, b) => (a.isBefore(b) ? -1 : 1));
+  if (sortedBlocks.length === 0) {
+    return [];
+  }
+  const commonParent = sortedBlocks[0].getParent();
+  return sortedBlocks.filter((block) => block.getParent() === commonParent);
+}
+
+/**
+ * True if every child of this block is inline content, which means the block's
+ * children can be moved into the section title's paragraph as-is. Blocks with
+ * block-level children (lists, quotes, nested sections) can't be flattened.
+ */
+function $hasOnlyInlineChildren(block: LexicalNode): boolean {
+  if (!$isElementNode(block)) {
+    return false;
+  }
+  return block.getChildren().every((child) => !$isElementNode(child) || child.isInline());
+}
+
+/**
+ * Wrap the given blocks (which must be siblings, in document order) in a new
+ * collapsible section. The first block becomes the title/summary and the rest
+ * become the body. If the first block can't be flattened into a summary (eg
+ * it's a list), all the blocks go into the body and the title starts empty.
+ */
+function $wrapBlocksInCollapsibleSection(blocks: LexicalNode[]): void {
+  const container = $createCollapsibleSectionContainerNode(true, false);
+  const title = $createCollapsibleSectionTitleNode();
+  const content = $createCollapsibleSectionContentNode();
+  const titleParagraph = $createParagraphNode();
+  title.append(titleParagraph);
+  container.append(title);
+  container.append(content);
+
+  const [firstBlock, ...remainingBlocks] = blocks;
+  firstBlock.insertBefore(container);
+
+  let contentBlocks = blocks;
+  if ($hasOnlyInlineChildren(firstBlock) && $isElementNode(firstBlock)) {
+    for (const child of firstBlock.getChildren()) {
+      titleParagraph.append(child);
+    }
+    firstBlock.remove();
+    contentBlocks = remainingBlocks;
+  }
+
+  for (const block of contentBlocks) {
+    content.append(block);
+  }
+  if (content.getChildrenSize() === 0) {
+    content.append($createParagraphNode());
+  }
+
+  titleParagraph.selectEnd();
+}
+
+/**
+ * Unwrap a collapsible section, moving the title and body content back out to
+ * where the section was. An empty title is dropped rather than leaving behind
+ * a stray empty paragraph.
+ */
+function $unwrapCollapsibleSection(container: CollapsibleSectionContainerNode): void {
+  const title = $findTitleInCollapsible(container);
+  const content = $findContentInCollapsible(container);
+
+  const restoredBlocks: LexicalNode[] = [];
+  if (title && title.getTextContent().trim() !== '') {
+    restoredBlocks.push(...title.getChildren());
+  }
+  if (content) {
+    restoredBlocks.push(...content.getChildren());
+  }
+
+  for (const block of restoredBlocks) {
+    container.insertBefore(block);
+  }
+
+  const firstRestored = restoredBlocks[0];
+  if (firstRestored && $isElementNode(firstRestored)) {
+    firstRestored.selectStart();
+  } else {
+    const paragraph = $createParagraphNode();
+    container.insertBefore(paragraph);
+    paragraph.selectStart();
+  }
+
+  container.remove();
+}
+
+/**
  * Select the entire collapsible section as a NodeSelection
  */
 function $selectCollapsibleSection(container: CollapsibleSectionContainerNode): void {
@@ -225,14 +359,17 @@ const EMPTY_TITLE_CLASS = 'detailsBlockTitleEmpty';
  * 
  * Features:
  * - Insert collapsible sections via command or toolbar
+ * - Convert a selection into a collapsible section (first block becomes the
+ *   summary, the rest becomes the body), or unwrap an existing one
  * - Auto-format: type "<details>" or "+++" at start of line to create section
  * - Tab key moves from title to content
  * - Enter in title moves to content
  * - Enter in empty content paragraph exits the section
  * - Click on title bar (not text) toggles collapsed state
  */
-export function CollapsibleSectionsPlugin(): null {
+export function CollapsibleSectionsPlugin({ isSuggestionMode }: { isSuggestionMode?: boolean }): null {
   const [editor] = useLexicalComposerContext();
+  const { flash } = useMessages();
 
   useEffect(() => {
     // Verify nodes are registered
@@ -266,6 +403,54 @@ export function CollapsibleSectionsPlugin(): null {
                 firstChild.selectStart();
               }
             }
+          });
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND
+      editor.registerCommand(
+        WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND,
+        () => {
+          if (isSuggestionMode) {
+            flash({
+              messageString: 'Collapsible sections are not supported in suggestion mode',
+              type: 'error',
+            });
+            return true;
+          }
+          // Selections that span an existing section would nest one section
+          // inside another, which we don't support; check before mutating.
+          const spansExistingSection = editor.getEditorState().read(() => {
+            const selection = $getSelection();
+            if (!$isRangeSelection(selection)) return false;
+            if ($findCollapsibleParent(selection.anchor.getNode())) return false;
+            return $getSelectedTopLevelBlocks(selection).some($isCollapsibleSectionContainerNode);
+          });
+          if (spansExistingSection) {
+            flash({
+              messageString: "Collapsible sections can't be nested inside each other",
+              type: 'error',
+            });
+            return true;
+          }
+
+          editor.update(() => {
+            const selection = $getSelection();
+            if (!$isRangeSelection(selection)) return;
+
+            // Already inside a section: toggle it back off instead of nesting.
+            const existingSection = $findCollapsibleParent(selection.anchor.getNode());
+            if (existingSection) {
+              $unwrapCollapsibleSection(existingSection);
+              return;
+            }
+
+            const blocks = $getSelectedTopLevelBlocks(selection);
+            if (blocks.length === 0) return;
+
+            $wrapBlocksInCollapsibleSection(blocks);
           });
           return true;
         },
@@ -1090,7 +1275,7 @@ export function CollapsibleSectionsPlugin(): null {
         });
       })
     );
-  }, [editor]);
+  }, [editor, isSuggestionMode, flash]);
 
   return null;
 }

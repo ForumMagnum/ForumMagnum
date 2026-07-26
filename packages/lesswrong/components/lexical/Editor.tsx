@@ -981,7 +981,7 @@ export default function Editor({
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
-            <CollapsibleSectionsPlugin />
+            <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />
             <ContainerQuotePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
