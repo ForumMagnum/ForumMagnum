@@ -408,6 +408,16 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
+        "mailgun": {
+          "staticChildren": {
+            "webhook": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "webhook": "webhook"
+          }
+        },
         "mcp": {
           "hasRoute": true
         },
@@ -653,6 +663,7 @@ export const routeTrie = {
         "health": "health",
         "homedesignchat": "homeDesignChat",
         "homedesigns": "homeDesigns",
+        "mailgun": "mailgun",
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",

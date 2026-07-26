@@ -867,11 +867,14 @@ function DigestSection({
   content: DigestContentLookup;
 }) {
   const classes = useStyles(styles);
+  // Recommendations sections render without a heading; specs stored before the
+  // heading was removed still carry "Recommended for you", so drop it here too.
+  const title = section.kind === "recommendations" ? undefined : section.title;
   return (
     <section className={classes.section}>
-      {section.kind === "curated"
-        ? <div className={classes.curatedTitle}>{section.title}</div>
-        : <SectionTitle title={section.title} noTopMargin noBottomPadding />}
+      {title && (section.kind === "curated"
+        ? <div className={classes.curatedTitle}>{title}</div>
+        : <SectionTitle title={title} noTopMargin noBottomPadding />)}
       {section.items.map((item, index) => (
         <div
           className={section.kind === "curated"

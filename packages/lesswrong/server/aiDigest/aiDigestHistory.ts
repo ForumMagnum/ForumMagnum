@@ -1,4 +1,6 @@
+import { AI_DIGEST_EMAIL_TYPE } from "@/lib/emails/emailTracking";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
+import EmailEvents from "@/server/collections/emailEvents/collection";
 import type { AiDigestSpec } from "@/server/emailComponents/AiDigestSpec";
 import type { AiDigestPostInteractionRow } from "@/server/repos/PostsRepo";
 
@@ -32,6 +34,15 @@ export interface AiDigestPastRecommendation {
   subsequentlyRead: boolean;
   upvoteStrength: "regular" | "strong" | null;
   upvotedAt: string | null;
+  /** When the recipient first clicked this post's link in the issue that recommended it. */
+  clickedAt: string | null;
+}
+
+/** A click on a digest link, as recorded by the Mailgun webhook. */
+export interface AiDigestClickRecord {
+  campaignId: string;
+  documentId: string;
+  occurredAt: Date;
 }
 
 export interface AiDigestHistory {
@@ -107,13 +118,37 @@ function occurredAfter(
   return !!interactionAt && interactionAt > recommendationAt;
 }
 
+function clickKey(campaignId: string, documentId: string): string {
+  return `${campaignId}:${documentId}`;
+}
+
+/**
+ * Earliest click per (issue, document). A single recommendation can generate several
+ * click events — five links point at the same post, and scanners re-fetch them — but
+ * for selection purposes the only question is whether and when they engaged.
+ */
+function firstClickByIssueAndDocument(
+  clicks: AiDigestClickRecord[],
+): Map<string, Date> {
+  return clicks.reduce((earliest, click) => {
+    const key = clickKey(click.campaignId, click.documentId);
+    const previous = earliest.get(key);
+    if (!previous || click.occurredAt < previous) {
+      earliest.set(key, click.occurredAt);
+    }
+    return earliest;
+  }, new Map<string, Date>());
+}
+
 export function buildAiDigestPastRecommendations(
   issues: AiDigestIssueRecord[],
   interactions: AiDigestPostInteractionRow[],
+  clicks: AiDigestClickRecord[],
 ): AiDigestPastRecommendation[] {
   const interactionsByPostId = new Map(
     interactions.map((interaction) => [interaction.postId, interaction]),
   );
+  const firstClickAt = firstClickByIssueAndDocument(clicks);
   return issues
     .flatMap((issue) =>
       issue.postIds.flatMap((postId) => {
@@ -137,6 +172,7 @@ export function buildAiDigestPastRecommendations(
             && occurredAfter(interaction.readAt, issue.generatedAt),
           upvoteStrength: upvotedAt ? interaction.positivePreferenceStrength : null,
           upvotedAt,
+          clickedAt: firstClickAt.get(clickKey(issue._id, postId))?.toISOString() ?? null,
         }];
       }),
     );
@@ -145,13 +181,51 @@ export function buildAiDigestPastRecommendations(
 export function buildAiDigestHistory(
   issues: AiDigestIssueRecord[],
   interactions: AiDigestPostInteractionRow[],
+  clicks: AiDigestClickRecord[] = [],
 ): AiDigestHistory {
   const countedIssues = issues.filter((issue) => issue.countsTowardHistory);
   return {
     issues: countedIssues,
     postHistoryById: buildAiDigestPostHistoryById(countedIssues),
-    pastRecommendations: buildAiDigestPastRecommendations(countedIssues, interactions),
+    pastRecommendations: buildAiDigestPastRecommendations(countedIssues, interactions, clicks),
   };
+}
+
+/**
+ * Clicks the recipient made on the supplied issues. Bot-flagged events are dropped;
+ * email scanners and link proxies click links, so they would otherwise read as
+ * engagement.
+ */
+async function loadAiDigestClicks({
+  userId,
+  issueIds,
+}: {
+  userId: string;
+  issueIds: string[];
+}): Promise<AiDigestClickRecord[]> {
+  if (!issueIds.length) {
+    return [];
+  }
+  const events = await EmailEvents.find(
+    {
+      userId,
+      eventType: "clicked",
+      emailType: AI_DIGEST_EMAIL_TYPE,
+      campaignId: { $in: issueIds },
+      isBot: { $ne: true },
+    },
+    {},
+    { campaignId: 1, documentId: 1, occurredAt: 1 },
+  ).fetch();
+  return events.flatMap((event) =>
+    event.campaignId && event.documentId
+      ? [{
+        campaignId: event.campaignId,
+        documentId: event.documentId,
+        occurredAt: event.occurredAt,
+      }]
+      : [],
+  );
 }
 
 export async function loadAiDigestHistory({
@@ -184,11 +258,17 @@ export async function loadAiDigestHistory({
     },
   ).fetch();
   const postIds = Array.from(new Set(issues.flatMap((issue) => issue.postIds)));
-  const interactions = await context.repos.posts.getAiDigestPostInteractionRows({
-    userId,
-    postIds,
-  });
-  return buildAiDigestHistory(issues, interactions);
+  const [interactions, clicks] = await Promise.all([
+    context.repos.posts.getAiDigestPostInteractionRows({
+      userId,
+      postIds,
+    }),
+    loadAiDigestClicks({
+      userId,
+      issueIds: issues.map((issue) => issue._id),
+    }),
+  ]);
+  return buildAiDigestHistory(issues, interactions, clicks);
 }
 
 export async function persistAiDigestIssue(

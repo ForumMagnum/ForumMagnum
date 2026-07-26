@@ -757,6 +757,31 @@ CREATE TABLE "ElicitQuestions" (
   "resolvesBy" TIMESTAMPTZ
 );
 
+-- Table "EmailEvents"
+CREATE TABLE "EmailEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "eventType" TEXT NOT NULL,
+  "mailgunEventId" TEXT NOT NULL,
+  "emailType" TEXT,
+  "campaignId" VARCHAR(27),
+  "userId" VARCHAR(27),
+  "url" TEXT,
+  "documentType" TEXT,
+  "documentId" VARCHAR(27),
+  "isBot" BOOL,
+  "occurredAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_EmailEvents_mailgunEventId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_EmailEvents_mailgunEventId" ON "EmailEvents" USING btree ("mailgunEventId");
+
+-- Index "idx_EmailEvents_userId_occurredAt"
+CREATE INDEX IF NOT EXISTS "idx_EmailEvents_userId_occurredAt" ON "EmailEvents" USING btree ("userId", "occurredAt");
+
+-- Index "idx_EmailEvents_emailType_campaignId"
+CREATE INDEX IF NOT EXISTS "idx_EmailEvents_emailType_campaignId" ON "EmailEvents" USING btree ("emailType", "campaignId");
+
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
   _id VARCHAR(27) PRIMARY KEY,

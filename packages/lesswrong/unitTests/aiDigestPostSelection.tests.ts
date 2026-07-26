@@ -38,6 +38,7 @@ import {
   selectRecentAiDigestIssues,
 } from "@/server/aiDigest/aiDigestHistory";
 import type {
+  AiDigestClickRecord,
   AiDigestIssueRecord,
   AiDigestPastRecommendation,
 } from "@/server/aiDigest/aiDigestHistory";
@@ -502,12 +503,59 @@ describe("AI digest recommendation history", () => {
       subsequentlyRead: false,
       upvoteStrength: "strong",
       upvotedAt: "2026-07-13T12:00:00.000Z",
+      clickedAt: null,
     });
     expect(recommendations[1]).toMatchObject({
       postId: "post-1",
       subsequentlyRead: true,
       upvoteStrength: "strong",
       upvotedAt: "2026-07-13T12:00:00.000Z",
+      clickedAt: null,
+    });
+  });
+
+  it("attributes clicks to the issue that produced them, keeping the earliest", () => {
+    const firstRecommendationAt = new Date("2026-07-10T12:00:00.000Z");
+    const secondRecommendationAt = new Date("2026-07-12T12:00:00.000Z");
+    const issues = [
+      makeIssue(2, secondRecommendationAt, ["post-1"]),
+      makeIssue(1, firstRecommendationAt, ["post-1"]),
+    ];
+    const interactions: AiDigestPostInteractionRow[] = [{
+      postId: "post-1",
+      title: "A prior recommendation",
+      author: "Ada",
+      publicationDate: new Date("2026-07-01T12:00:00.000Z"),
+      isRead: false,
+      readAt: null,
+      positivePreferenceStrength: null,
+      positivePreferenceAt: null,
+    }];
+    const clicks: AiDigestClickRecord[] = [
+      {
+        campaignId: "issue-1",
+        documentId: "post-1",
+        occurredAt: new Date("2026-07-10T18:00:00.000Z"),
+      },
+      {
+        campaignId: "issue-1",
+        documentId: "post-1",
+        occurredAt: new Date("2026-07-10T13:00:00.000Z"),
+      },
+    ];
+    const recommendations = buildAiDigestHistory(
+      issues,
+      interactions,
+      clicks,
+    ).pastRecommendations;
+    expect(recommendations).toHaveLength(2);
+    expect(recommendations[0]).toMatchObject({
+      recommendedAt: secondRecommendationAt.toISOString(),
+      clickedAt: null,
+    });
+    expect(recommendations[1]).toMatchObject({
+      recommendedAt: firstRecommendationAt.toISOString(),
+      clickedAt: "2026-07-10T13:00:00.000Z",
     });
   });
 });
@@ -674,6 +722,7 @@ describe("AI digest selection prompt", () => {
     subsequentlyRead: true,
     upvoteStrength: "regular",
     upvotedAt: "2026-07-11T12:00:00.000Z",
+    clickedAt: "2026-07-10T12:00:00.000Z",
   }], "Prioritize decision theory and avoid introductory AI safety posts.", NOW);
 
   it("uses the committed prompt version and expected section ordering", () => {
@@ -706,7 +755,7 @@ describe("AI digest selection prompt", () => {
     expect(prompt.prompt).toContain("</UNTRUSTED_READER_INSTRUCTIONS>");
     expect(prompt.prompt).toContain("<UNTRUSTED_PAST_RECOMMENDATIONS>");
     expect(prompt.prompt).toContain("Earlier recommendation");
-    expect(prompt.prompt).toContain('[[7,true,"regular",6,1]]');
+    expect(prompt.prompt).toContain('[[7,true,"regular",6,7,1]]');
     expect(prompt.prompt).not.toContain("earlier-post");
     expect(prompt.prompt).toContain("<UNTRUSTED_CANDIDATE_ANNOTATIONS>");
     expect(prompt.prompt).toContain("Candidate 1");
@@ -802,6 +851,7 @@ describe("AI digest selection prompt", () => {
       subsequentlyRead: true,
       upvoteStrength: "regular",
       upvotedAt: "2026-07-11T12:00:00.000Z",
+      clickedAt: null,
     };
     const repeatedPrompt = buildAiDigestPostSelectionPrompt(
       readerContext.dossier,
@@ -816,7 +866,7 @@ describe("AI digest selection prompt", () => {
       "</UNTRUSTED_PAST_RECOMMENDATIONS>",
     );
 
-    expect(historyPayload).toContain('[[7,true,"regular",6,2]]');
+    expect(historyPayload).toContain('[[7,true,"regular",6,null,2]]');
     expect(historyPayload.split("Earlier recommendation")).toHaveLength(2);
   });
 
@@ -1117,6 +1167,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       dependencies: { persistIssue },
     });
     expect(finalized.issueId).toBe("issue-new");
+    expect(finalized.spec.personalInstructions).toBe("More decision theory, please.");
     expect(persistIssue).toHaveBeenCalledWith({
       recipientId: "reader-1",
       postIds: ["post-1", "post-2", "post-3", "post-4", "post-5"],
@@ -1197,6 +1248,7 @@ describe("AI digest model-output validation and spec mapping", () => {
     const spec = buildAiDigestSpecFromPostSelection({
       recipientName: "Developer",
       modelLabel: "Test Model",
+      personalInstructions: null,
       output,
       candidates,
     });
@@ -1204,6 +1256,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       modelName: "Test Model",
       paragraphs: output.aiNote,
     });
+    expect(spec.personalInstructions).toBeUndefined();
     const recommendations = spec.sections.find(
       (section) => section.kind === "recommendations",
     );

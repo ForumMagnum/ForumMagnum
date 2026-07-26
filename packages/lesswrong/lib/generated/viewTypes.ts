@@ -22,6 +22,7 @@ type DialogueChecksViewName = "userDialogueChecks"|"userTargetDialogueChecks";
 type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type ElicitQuestionPredictionsViewName = never
 type ElicitQuestionsViewName = never
+type EmailEventsViewName = never
 type EmailTokensViewName = never
 type FieldChangesViewName = never
 type GoogleServiceAccountSessionsViewName = never
@@ -119,6 +120,7 @@ interface ViewTermsByCollectionName {
   DialogueMatchPreferences: DialogueMatchPreferencesViewTerms
   ElicitQuestionPredictions: ViewTermsBase
   ElicitQuestions: ViewTermsBase
+  EmailEvents: ViewTermsBase
   EmailTokens: ViewTermsBase
   FieldChanges: ViewTermsBase
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms

@@ -88,6 +88,7 @@ export const allViews = {
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
+  EmailEvents: new CollectionViewSet('EmailEvents', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FieldChanges: FieldChangesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,

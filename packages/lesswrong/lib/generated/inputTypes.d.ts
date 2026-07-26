@@ -10272,6 +10272,7 @@ interface CreateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
+  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
@@ -10369,6 +10370,7 @@ interface UpdateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
+  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;

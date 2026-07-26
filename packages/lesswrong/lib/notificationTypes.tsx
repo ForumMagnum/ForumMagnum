@@ -731,8 +731,8 @@ export const AiDigestReadyNotification = createNotificationType({
   async getMessage({extraData}: GetMessageProps) {
     const subject = extraData?.subject;
     return subject
-      ? `Your Content for You recommendations are ready: "${subject}"`
-      : "Your Content for You recommendations are ready";
+      ? `Your tailored recommendations are ready: "${subject}"`
+      : "Your tailored recommendations are ready";
   },
   getLink: () => "/contentForYou",
 });

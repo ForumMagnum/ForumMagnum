@@ -265,11 +265,13 @@ function selectedPostItem(
 export function buildAiDigestSpecFromPostSelection({
   recipientName,
   modelLabel,
+  personalInstructions,
   output,
   candidates,
 }: {
   recipientName: string;
   modelLabel: string;
+  personalInstructions: string | null;
   output: AiDigestPostSelectionModelOutput;
   candidates: AiDigestSelectedPostCandidate[];
 }): AiDigestSpec {
@@ -307,6 +309,7 @@ export function buildAiDigestSpecFromPostSelection({
       modelName: modelLabel,
       paragraphs: output.aiNote,
     },
+    ...(personalInstructions !== null ? { personalInstructions } : {}),
     sections,
   };
 }
@@ -355,6 +358,7 @@ export async function finalizeAiDigestPostSelection({
   const spec = buildAiDigestSpecFromPostSelection({
     recipientName,
     modelLabel,
+    personalInstructions,
     output: validatedOutput,
     candidates,
   });

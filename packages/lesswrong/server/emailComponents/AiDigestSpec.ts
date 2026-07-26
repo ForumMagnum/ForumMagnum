@@ -26,7 +26,8 @@ export interface AiDigestItem {
 
 export interface AiDigestSection {
   kind: AiDigestSectionKind;
-  title: string;
+  /** Omitted for sections that render without a heading (e.g. recommendations). */
+  title?: string;
   items: AiDigestItem[];
 }
 
@@ -42,6 +43,8 @@ export interface AiDigestSpec {
   preheader: string;
   /** One to three short paragraphs explaining the personalized recommendations. */
   aiNote: AiDigestAiNote;
+  /** The reader's own custom instructions, echoed back beneath the AI note. */
+  personalInstructions?: string;
   sections: AiDigestSection[];
 }
 
@@ -65,7 +68,6 @@ export const rubyAiDigestSpec: AiDigestSpec = {
   sections: [
     {
       kind: "recommendations",
-      title: "Recommended for you",
       items: [
         {
           documentRef: {

@@ -6,6 +6,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 import ForumDropdown from "@/components/common/ForumDropdown";
@@ -149,18 +150,15 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
   },
   instructionsPanel: {
     marginBottom: 36,
-    padding: "22px 24px 20px",
-    border: theme.palette.border.normal,
-    borderRadius: 5,
-    background: theme.palette.panelBackground.default,
-    [theme.breakpoints.down("xs")]: {
-      padding: "20px 18px 18px",
-    },
   },
   instructionsHeading: {
-    margin: "0 0 12px",
-    fontSize: 16,
-    fontWeight: 600,
+    margin: "0 0 10px",
+    color: theme.palette.grey[800],
+    fontSize: aiDigestPresentation.aiNote.labelFontSize,
+    fontWeight: aiDigestPresentation.aiNote.labelFontWeight,
+    letterSpacing: aiDigestPresentation.aiNote.labelLetterSpacing,
+    lineHeight: aiDigestPresentation.aiNote.labelLineHeight,
+    textTransform: "uppercase",
   },
   textarea: {
     display: "block",
@@ -172,7 +170,7 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
     border: theme.palette.border.normal,
     borderRadius: 3,
     outline: "none",
-    background: theme.palette.background.default,
+    background: theme.palette.panelBackground.default,
     color: theme.palette.text.normal,
     fontSize: 14,
     lineHeight: 1.5,

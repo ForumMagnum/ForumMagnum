@@ -1,5 +1,5 @@
 import { htmlToText } from 'html-to-text';
-import { sendMailgunEmail } from './sendEmail';
+import { sendMailgunEmail, type EmailTracking } from './sendEmail';
 import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
@@ -269,7 +269,8 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  tracking,
 }: {
   user: DbUser | null;
   force?: boolean;
@@ -278,6 +279,7 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  tracking?: EmailTracking;
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -295,7 +297,7 @@ export const wrapAndSendEmail = async ({
 
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
-    const succeeded = await sendEmail(email);
+    const succeeded = await sendEmail(email, tracking);
     backgroundTask(logSentEmail(email, user, {succeeded}));
     return succeeded;
   } catch(e) {
@@ -306,7 +308,7 @@ export const wrapAndSendEmail = async ({
   }
 }
 
-async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
+async function sendEmail(renderedEmail: RenderedEmail, tracking?: EmailTracking): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
@@ -314,7 +316,7 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendMailgunEmail(renderedEmail);
+    return sendMailgunEmail(renderedEmail, tracking);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
