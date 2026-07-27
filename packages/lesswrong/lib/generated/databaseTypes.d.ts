@@ -16,6 +16,7 @@ interface DbAiDigestIssue extends DbObject {
   countsTowardHistory: boolean
   createdAt: Date
   discussionCommentIds: Array<string>
+  emailedAt: Date | null
   generatedAt: Date
   generationDurationMs: number
   inputTokenCount: number | null
@@ -900,6 +901,20 @@ interface DbPostEmbedding extends DbObject {
   model: string
   postHash: string
   postId: string
+}
+
+type PostPreviewsCollection = PgCollection<"PostPreviews">;
+
+interface DbPostPreview extends DbObject {
+  __collectionName?: "PostPreviews"
+  createdAt: Date
+  legacyData: any | null
+  modelId: string
+  postId: string
+  previewHtml: string
+  promptVersion: string
+  revisionId: string
+  startBlockIndex: number
 }
 
 type PostRecommendationsCollection = PgCollection<"PostRecommendations">;
@@ -2433,6 +2448,7 @@ interface CollectionsByName {
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
   PostEmbeddings: PostEmbeddingsCollection
+  PostPreviews: PostPreviewsCollection
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   PostSummaries: PostSummariesCollection
@@ -2532,6 +2548,7 @@ interface ObjectsByCollectionName {
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
   PostEmbeddings: DbPostEmbedding
+  PostPreviews: DbPostPreview
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   PostSummaries: DbPostSummary
@@ -2631,6 +2648,7 @@ interface ObjectsByTypeName {
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast
   PostEmbedding: DbPostEmbedding
+  PostPreview: DbPostPreview
   PostRecommendation: DbPostRecommendation
   PostRelation: DbPostRelation
   PostSummary: DbPostSummary

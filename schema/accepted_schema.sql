@@ -28,6 +28,7 @@ CREATE TABLE "AiDigestIssues" (
   "quickTakeIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "discussionCommentIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "generatedAt" TIMESTAMPTZ NOT NULL,
+  "emailedAt" TIMESTAMPTZ,
   "trigger" TEXT NOT NULL DEFAULT 'adminSample',
   "countsTowardHistory" BOOL NOT NULL DEFAULT TRUE,
   "personalInstructions" TEXT,
@@ -1403,6 +1404,28 @@ CREATE TABLE "PostEmbeddings" (
 
 -- Index "idx_PostEmbeddings_postId_model"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbeddings" USING btree ("postId", "model");
+
+-- Table "PostPreviews"
+CREATE TABLE "PostPreviews" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "previewHtml" TEXT NOT NULL,
+  "startBlockIndex" INTEGER NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostPreviews_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostPreviews_postId_revisionId_modelId_promptVersion" ON "PostPreviews" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
 
 -- Table "PostRecommendations"
 CREATE TABLE "PostRecommendations" (

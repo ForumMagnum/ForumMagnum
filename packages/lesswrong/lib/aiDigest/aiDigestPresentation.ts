@@ -6,6 +6,16 @@ export const aiDigestPresentation = {
     discussionRoot: 680,
     discussionReply: 320,
   },
+  /**
+   * Budgets for the html post previews, which are truncated with `truncate`
+   * from `@/lib/editor/ellipsize`. That counts markup along with the text and
+   * then trims a further quarter off the budget, so these are the plaintext
+   * excerpt budgets grossed up for both.
+   */
+  previewHtmlCharacters: {
+    headlinePost: 780,
+    compactPost: 290,
+  },
   aiNote: {
     marginTop: 22,
     borderRadius: 6,

@@ -229,6 +229,10 @@ export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<n
 
 export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
 
+/** Kill switch for the scheduled "Content for You" digest send. */
+export const aiDigestScheduledEmailsEnabledSetting = new ParsedServerSetting<boolean>('aiDigestScheduledEmailsEnabled', false)
+export const aiDigestEmailCadenceDaysSetting = new ParsedServerSetting<number>('aiDigestEmailCadenceDays', 2)
+
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])
 

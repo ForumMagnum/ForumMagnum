@@ -60,6 +60,7 @@ import { default as PetrovDayLaunchs } from '../collections/petrovDayLaunchs/new
 import { default as PodcastEpisodes } from '../collections/podcastEpisodes/newSchema';
 import { default as Podcasts } from '../collections/podcasts/newSchema';
 import { default as PostEmbeddings } from '../collections/postEmbeddings/newSchema';
+import { default as PostPreviews } from '../collections/postPreviews/newSchema';
 import { default as PostRecommendations } from '../collections/postRecommendations/newSchema';
 import { default as PostRelations } from '../collections/postRelations/newSchema';
 import { default as PostSummaries } from '../collections/postSummaries/newSchema';
@@ -118,7 +119,7 @@ export const allSchemas = {
   JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
-  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,

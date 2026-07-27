@@ -25,6 +25,12 @@ export interface AiDigestItem {
   isRead?: boolean;
   /** A literal author-written passage selected for this email. */
   excerpt?: string;
+  /**
+   * For post items: the opening of the post as HTML, with any epistemic-status
+   * style preamble trimmed off. Absent when no cleaned preview could be built,
+   * in which case the plaintext description is shown instead.
+   */
+  previewHtml?: string;
   /** For discussion items: selected replies and their literal excerpts. */
   threadComments?: AiDigestThreadComment[];
 }

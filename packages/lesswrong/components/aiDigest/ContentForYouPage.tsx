@@ -614,7 +614,7 @@ export function ContentForYouPage() {
             >
               You are subscribed
             </button>{" "}
-            and will receive an email weekly.
+            and will receive an email every couple of days.
           </>
         ) : (
           <>
@@ -626,7 +626,7 @@ export function ContentForYouPage() {
             >
               Click here to subscribe
             </button>{" "}
-            to a weekly email.
+            to an email every couple of days.
           </>
         )}
       </p>

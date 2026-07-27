@@ -53,6 +53,7 @@ type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
 type PostEmbeddingsViewName = never
+type PostPreviewsViewName = never
 type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
 type PostSummariesViewName = never
@@ -151,6 +152,7 @@ interface ViewTermsByCollectionName {
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase
   PostEmbeddings: ViewTermsBase
+  PostPreviews: ViewTermsBase
   PostRecommendations: ViewTermsBase
   PostRelations: PostRelationsViewTerms
   PostSummaries: ViewTermsBase

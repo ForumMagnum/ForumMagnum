@@ -10294,6 +10294,7 @@ interface CreateInputsByCollectionName {
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
   PostSummaries: never;
@@ -10393,6 +10394,7 @@ interface UpdateInputsByCollectionName {
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
   PostSummaries: never;

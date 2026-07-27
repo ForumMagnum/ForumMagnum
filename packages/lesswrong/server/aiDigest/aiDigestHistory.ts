@@ -6,7 +6,11 @@ import type { AiDigestPostInteractionRow } from "@/server/repos/PostsRepo";
 import type { AiDigestQuickTakeInteractionRow } from "@/server/repos/CommentsRepo";
 import { boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
 
-export const AI_DIGEST_HISTORY_ISSUE_LIMIT = 8;
+/**
+ * Enough issues to cover the full candidate window at the scheduled cadence,
+ * with room to spare for admin previews, which also count toward history.
+ */
+export const AI_DIGEST_HISTORY_ISSUE_LIMIT = 14;
 export const AI_DIGEST_CLEAR_HISTORY_MAX_DAYS = 3_650;
 const AI_DIGEST_PAST_QUICK_TAKE_SNIPPET_MAX_CHARS = 160;
 const DAY_MS = 24 * 60 * 60 * 1_000;
@@ -395,7 +399,9 @@ export async function loadAiDigestHistory({
 export async function persistAiDigestIssue(
   issue: AiDigestIssueInsert,
 ): Promise<string> {
-  return await AiDigestIssues.rawInsert(issue);
+  // An issue exists before it is mailed out, if it ever is; the scheduled send
+  // stamps `emailedAt` once the email is actually accepted for delivery.
+  return await AiDigestIssues.rawInsert({ ...issue, emailedAt: null });
 }
 
 export async function clearAiDigestRecommendationHistory({

@@ -478,7 +478,7 @@ export function getAiDigestPostIneligibilityReason(
   return null;
 }
 
-function candidateExclusionReason(
+export function aiDigestCandidateExclusionReason(
   annotation: AiDigestCandidateAnnotationRow | undefined,
   hiddenByRecipient: boolean,
   documentHistory: AiDigestPostHistory | undefined,
@@ -523,7 +523,7 @@ function toAiDigestPostCandidate(
     upvoteStrength: annotation?.positivePreferenceStrength ?? null,
     previousDigestInclusionCount: postHistory?.previousDigestInclusionCount ?? 0,
     lastIncludedAt: postHistory?.lastIncludedAt ?? null,
-    exclusionReason: candidateExclusionReason(annotation, hiddenByRecipient, postHistory),
+    exclusionReason: aiDigestCandidateExclusionReason(annotation, hiddenByRecipient, postHistory),
     retrievalProvenance: {
       source: retrievalSource,
       maxAgeDays,
@@ -620,7 +620,7 @@ export function relaxPreviousInclusionExclusions<
       : candidate);
 }
 
-function quickTakeExclusionReason(
+export function aiDigestQuickTakeExclusionReason(
   annotation: AiDigestQuickTakeAnnotationRow | undefined,
   documentHistory: AiDigestPostHistory | undefined,
 ): AiDigestCandidateExclusionReason | null {
@@ -659,7 +659,7 @@ function toAiDigestQuickTakeCandidate(
     isSubscribedToAuthor: annotation?.isSubscribedToAuthor ?? false,
     previousDigestInclusionCount: documentHistory?.previousDigestInclusionCount ?? 0,
     lastIncludedAt: documentHistory?.lastIncludedAt ?? null,
-    exclusionReason: quickTakeExclusionReason(annotation, documentHistory),
+    exclusionReason: aiDigestQuickTakeExclusionReason(annotation, documentHistory),
   };
 }
 

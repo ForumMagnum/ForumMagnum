@@ -492,6 +492,7 @@ const accessFilters = {
   Podcasts: allowAccess,
   Posts: postCheckAccess,
   PostEmbeddings: allowAccess,
+  PostPreviews: allowAccess,
   PostRecommendations: allowAccess,
   PostRelations: allowAccess,
   PostSummaries: allowAccess,

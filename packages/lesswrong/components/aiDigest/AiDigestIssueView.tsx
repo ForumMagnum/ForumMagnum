@@ -5,6 +5,7 @@ import classNames from "classnames";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
+  buildAiDigestPreview,
   countAiDigestWords,
   formatAiDigestPostAuthors as formatPostAuthors,
   selectAiDigestExcerpt,
@@ -23,6 +24,8 @@ import type {
 } from "@/server/emailComponents/AiDigestSpec";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import ContentStyles from "@/components/common/ContentStyles";
+import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import FormatDate from "@/components/common/FormatDate";
 import ForumIcon from "@/components/common/ForumIcon";
 import SectionTitle from "@/components/common/SectionTitle";
@@ -50,6 +53,38 @@ const AiDigestIssueContentQuery = gql(`
     }
   }
 `);
+
+/**
+ * Styles for author-written html standing in for a plaintext excerpt. The
+ * preview keeps the excerpt's typography, and, following ContentExcerpt, drops
+ * multimedia and mutes links so it reads as running text rather than as a
+ * second card inside the card.
+ */
+function previewBodyStyles(theme: ThemeType, { margin, fontSize, lineHeight }: {
+  margin: string;
+  fontSize: number;
+  lineHeight: number;
+}) {
+  return {
+    margin,
+    "& p, & blockquote": {
+      fontSize: `${fontSize}px !important`,
+      lineHeight,
+    },
+    "& p:first-child, & blockquote:first-child": {
+      marginTop: 0,
+    },
+    "& p:last-child, & blockquote:last-child": {
+      marginBottom: 0,
+    },
+    "& a": {
+      color: `${theme.palette.text.normal} !important`,
+    },
+    "& img, & iframe, & video": {
+      display: "none",
+    },
+  };
+}
 
 const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   root: {
@@ -267,6 +302,16 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     fontSize: aiDigestPresentation.compact.excerptFontSize,
     lineHeight: aiDigestPresentation.compact.excerptLineHeight,
   },
+  previewBody: previewBodyStyles(theme, {
+    margin: aiDigestPresentation.headline.excerptMargin,
+    fontSize: aiDigestPresentation.headline.excerptFontSize,
+    lineHeight: aiDigestPresentation.headline.excerptLineHeight,
+  }),
+  compactPreviewBody: previewBodyStyles(theme, {
+    margin: aiDigestPresentation.compact.excerptMargin,
+    fontSize: aiDigestPresentation.compact.excerptFontSize,
+    lineHeight: aiDigestPresentation.compact.excerptLineHeight,
+  }),
   footer: {
     display: "flex",
     alignItems: "baseline",
@@ -583,11 +628,19 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
   }
 
   if (item.placement === "compact") {
-    const excerpt = selectAiDigestExcerpt(
-      item.excerpt,
-      post.contents?.plaintextDescription ?? "",
-      aiDigestPresentation.excerptCharacters.compactPost,
-    );
+    const preview = item.previewHtml
+      ? buildAiDigestPreview(
+        item.previewHtml,
+        aiDigestPresentation.previewHtmlCharacters.compactPost,
+      )
+      : null;
+    const excerpt = preview
+      ? preview.text
+      : selectAiDigestExcerpt(
+        item.excerpt,
+        post.contents?.plaintextDescription ?? "",
+        aiDigestPresentation.excerptCharacters.compactPost,
+      );
     return (
       <article
         className={classNames(
@@ -607,7 +660,14 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
             permalinkLabel={`Permalink to ${post.title}`}
             className={classes.compactMetadata}
           />
-          {excerpt && (
+          {preview ? (
+            <ContentStyles contentType="post">
+              <ContentItemBody
+                className={classes.compactPreviewBody}
+                dangerouslySetInnerHTML={{ __html: preview.html }}
+              />
+            </ContentStyles>
+          ) : excerpt && (
             <a href={postUrl} className={classes.textLink}>
               <p className={classes.compactExcerpt}>{excerpt}</p>
             </a>
@@ -629,11 +689,19 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
     );
   }
 
-  const excerpt = selectAiDigestExcerpt(
-    item.excerpt,
-    post.contents?.plaintextDescription ?? "",
-    aiDigestPresentation.excerptCharacters.headlinePost,
-  );
+  const preview = item.previewHtml
+    ? buildAiDigestPreview(
+      item.previewHtml,
+      aiDigestPresentation.previewHtmlCharacters.headlinePost,
+    )
+    : null;
+  const excerpt = preview
+    ? preview.text
+    : selectAiDigestExcerpt(
+      item.excerpt,
+      post.contents?.plaintextDescription ?? "",
+      aiDigestPresentation.excerptCharacters.headlinePost,
+    );
   return (
     <article className={classes.card}>
       {imageUrl && (
@@ -652,7 +720,14 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
           permalinkLabel={`Permalink to ${post.title}`}
           className={classes.headlineMetadata}
         />
-        {excerpt && (
+        {preview ? (
+          <ContentStyles contentType="post">
+            <ContentItemBody
+              className={classes.previewBody}
+              dangerouslySetInnerHTML={{ __html: preview.html }}
+            />
+          </ContentStyles>
+        ) : excerpt && (
           <a href={postUrl} className={classes.textLink}>
             <p className={classes.excerpt}>{excerpt}</p>
           </a>

@@ -1,3 +1,6 @@
+import { truncate } from "@/lib/editor/ellipsize";
+import { htmlToTextDefault } from "@/lib/htmlToText";
+
 export function truncateAiDigestText(text: string, maxLength: number): string {
   const normalizedText = text.replace(/\s+/g, " ").trim();
   if (normalizedText.length <= maxLength) {
@@ -15,6 +18,24 @@ export function selectAiDigestExcerpt(
   maxLength: number,
 ): string {
   return truncateAiDigestText(selectedExcerpt?.trim() || fallbackText, maxLength);
+}
+
+export interface AiDigestPreview {
+  html: string;
+  /** The plaintext of `html`, so callers can count the words already shown. */
+  text: string;
+}
+
+/**
+ * Trim a cleaned post preview to a placement's html budget. Truncation is
+ * html-aware, so the result closes any tags it opened.
+ */
+export function buildAiDigestPreview(
+  previewHtml: string,
+  maxHtmlLength: number,
+): AiDigestPreview {
+  const html = truncate(previewHtml, maxHtmlLength, "characters", "…", false);
+  return { html, text: htmlToTextDefault(html) };
 }
 
 export function countAiDigestWords(text: string): number {

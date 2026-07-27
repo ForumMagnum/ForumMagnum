@@ -21,6 +21,11 @@ import {
   ensureAiDigestPostSummaries,
 } from "./aiDigestPostSummaries";
 import {
+  AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID,
+  ensureAiDigestPostPreviews,
+  type AiDigestPostPreviewTarget,
+} from "./aiDigestPostPreviews";
+import {
   loadAiDigestHistory,
   persistAiDigestIssue,
   type AiDigestIssueTrigger,
@@ -97,6 +102,7 @@ export interface AiDigestPostSelectionOptions {
   selectionModelId?: string;
   selectionModelLabel?: string;
   summaryModelId?: string;
+  previewModelId?: string;
   candidateOptions?: LoadAiDigestPostCandidatesOptions;
   historyIssueLimit?: number;
   trigger?: AiDigestIssueTrigger;
@@ -150,6 +156,13 @@ export interface AiDigestPostSelectionResult {
 
 export interface AiDigestPostSelectionFinalizationDependencies {
   persistIssue?: (issue: AiDigestIssueInsert) => Promise<string>;
+  /**
+   * Cleaned preview HTML for the selected posts, keyed by post ID. Omitted
+   * posts keep their plaintext excerpt.
+   */
+  loadPreviewHtml?: (
+    posts: AiDigestPostPreviewTarget[],
+  ) => Promise<Map<string, string>>;
 }
 
 export interface AiDigestPostSelectionFinalizationResult {
@@ -265,6 +278,7 @@ function selectedItem(
   selection: AiDigestPostSelectionModelOutput["selectedItems"][number],
   resolved: AiDigestSelectedItemCandidate,
   index: number,
+  previewHtmlByPostId: Map<string, string>,
 ): AiDigestItem {
   if (resolved.documentType === "quickTake") {
     return {
@@ -276,6 +290,7 @@ function selectedItem(
       reason: selection.reason,
     };
   }
+  const previewHtml = previewHtmlByPostId.get(resolved.candidate.postId);
   return {
     documentRef: {
       documentType: "post",
@@ -283,6 +298,7 @@ function selectedItem(
     },
     placement: index < 2 ? "headline" : "compact",
     reason: selection.reason,
+    ...(previewHtml ? { previewHtml } : {}),
   };
 }
 
@@ -357,6 +373,7 @@ export function buildAiDigestSpecFromPostSelection({
   quickTakeCandidates = [],
   curatedPosts = [],
   selectedThreads = [],
+  previewHtmlByPostId = new Map(),
 }: {
   recipientName: string;
   modelLabel: string;
@@ -366,6 +383,7 @@ export function buildAiDigestSpecFromPostSelection({
   quickTakeCandidates?: AiDigestQuickTakeCandidate[];
   curatedPosts?: AiDigestCuratedPostRow[];
   selectedThreads?: AiDigestSelectedThread[];
+  previewHtmlByPostId?: Map<string, string>;
 }): AiDigestSpec {
   const postsById = new Map(
     postCandidates.map((candidate) => [candidate.postId, candidate]),
@@ -382,7 +400,7 @@ export function buildAiDigestSpecFromPostSelection({
     if (!resolved) {
       throw new Error(`Cannot assemble unknown item ${selection.itemId}`);
     }
-    return selectedItem(selection, resolved, index);
+    return selectedItem(selection, resolved, index, previewHtmlByPostId);
   });
   const discussionItems = buildAiDigestDiscussionItems(selectedThreads, selectedItems);
   const curatedItems = buildAiDigestCuratedItems(curatedPosts, selectedItems);
@@ -512,6 +530,17 @@ export async function finalizeAiDigestPostSelection({
     postCandidates,
     quickTakeCandidates,
   );
+  const selectedCandidates = resolveSelectedCandidates(
+    validatedOutput,
+    postCandidates,
+    quickTakeCandidates,
+  );
+  const selectedPosts = selectedCandidates.flatMap((item) =>
+    item.documentType === "post" ? [item.candidate] : [],
+  );
+  const previewHtmlByPostId = dependencies.loadPreviewHtml
+    ? await dependencies.loadPreviewHtml(selectedPosts)
+    : new Map<string, string>();
   const spec = buildAiDigestSpecFromPostSelection({
     recipientName,
     modelLabel,
@@ -521,15 +550,9 @@ export async function finalizeAiDigestPostSelection({
     quickTakeCandidates,
     curatedPosts,
     selectedThreads: threadSelection?.selectedThreads ?? [],
+    previewHtmlByPostId,
   });
-  const selectedCandidates = resolveSelectedCandidates(
-    validatedOutput,
-    postCandidates,
-    quickTakeCandidates,
-  );
-  const postIds = selectedCandidates.flatMap((item) =>
-    item.documentType === "post" ? [item.candidate.postId] : [],
-  );
+  const postIds = selectedPosts.map((candidate) => candidate.postId);
   const quickTakeIds = selectedCandidates.flatMap((item) =>
     item.documentType === "quickTake" ? [item.candidate.commentId] : [],
   );
@@ -569,6 +592,22 @@ export async function finalizeAiDigestPostSelection({
     spec,
     selectedCandidates,
     issueId,
+  };
+}
+
+/**
+ * Previews are only worth generating for the handful of posts that made the
+ * slate, so they are loaded during finalization rather than alongside the
+ * corpus-wide summaries.
+ */
+function aiDigestPreviewLoader(context: ResolverContext, modelId: string) {
+  return async (targets: AiDigestPostPreviewTarget[]) => {
+    const { previewHtmlByPostId } = await ensureAiDigestPostPreviews({
+      targets,
+      context,
+      modelId,
+    });
+    return previewHtmlByPostId;
   };
 }
 
@@ -690,6 +729,7 @@ export async function generateAiDigestPostSelection({
   const selectionModelLabel = options.selectionModelLabel
     ?? humanizeAiDigestModelId(selectionModelId);
   const summaryModelId = options.summaryModelId ?? AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID;
+  const previewModelId = options.previewModelId ?? AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID;
   const personalInstructions = user.aiDigestPersonalInstructions?.trim() || null;
   const asOf = options.candidateOptions?.now ?? new Date();
   const [readerContext, history] = await Promise.all([
@@ -743,6 +783,7 @@ export async function generateAiDigestPostSelection({
       postHistoryById: history.postHistoryById,
       now: asOf,
       minKarma: options.candidateOptions?.minKarma,
+      allowPreviousInclusions: pools.relaxedPreviousInclusions,
     },
     registry: discoveredRegistry,
   });
@@ -827,9 +868,10 @@ export async function generateAiDigestPostSelection({
     curatedPosts,
     threadSelection: threadSelectionInput,
     toolUsage,
-    dependencies: shouldPersistIssue
-      ? { persistIssue: persistAiDigestIssue }
-      : {},
+    dependencies: {
+      ...(shouldPersistIssue ? { persistIssue: persistAiDigestIssue } : {}),
+      loadPreviewHtml: aiDigestPreviewLoader(context, previewModelId),
+    },
   });
 
   return {

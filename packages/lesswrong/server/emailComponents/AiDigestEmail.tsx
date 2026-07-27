@@ -9,6 +9,7 @@ import type {
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
+  buildAiDigestPreview as buildPreview,
   countAiDigestWords as countWords,
   formatAiDigestDate as formatDate,
   formatAiDigestPostAuthors as formatPostAuthors,
@@ -25,6 +26,7 @@ import type {
 } from "./AiDigestSpec";
 import { untrackedLinkProps } from "@/lib/emails/emailTracking";
 import { absoluteEmailUrl, aiDigestLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
+import { EmailContentItemBody } from "./EmailContentItemBody";
 import { EmailContextType, emailUseStyles } from "./emailContext";
 
 const emailSansFont =
@@ -143,6 +145,50 @@ const AiDigestEmailCommentsQuery = gql(`
     }
   }
 `);
+
+/**
+ * Styles for author-written html standing in for a plaintext excerpt. The
+ * preview keeps the excerpt's typography, and, following ContentExcerpt, drops
+ * multimedia and mutes links so it reads as running text rather than as a
+ * second card inside the card.
+ */
+function previewBodyStyles({ margin, fontSize, mobileFontSize, lineHeight }: {
+  margin: string;
+  fontSize: number;
+  mobileFontSize: number;
+  lineHeight: number;
+}) {
+  const blockStyles = {
+    margin,
+    color: "#333333",
+    fontFamily: emailSerifFont,
+    fontSize,
+    lineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: `${mobileFontSize}px !important`,
+    },
+  };
+  return {
+    ...blockStyles,
+    "& p": blockStyles,
+    "& p:last-child": {
+      marginBottom: 0,
+    },
+    "& blockquote": {
+      ...blockStyles,
+      padding: "0 0 0 12px",
+      borderLeft: "2px solid #ded7c8",
+      fontStyle: "italic",
+    },
+    "& a": {
+      color: "inherit",
+      textDecoration: "none",
+    },
+    "& img, & iframe, & video": {
+      display: "none",
+    },
+  };
+}
 
 const styles = defineStyles("AiDigestEmail", () => ({
   preheader: {
@@ -416,6 +462,12 @@ const styles = defineStyles("AiDigestEmail", () => ({
       fontSize: "15px !important",
     },
   },
+  previewBody: previewBodyStyles({
+    margin: aiDigestPresentation.headline.excerptMargin,
+    fontSize: aiDigestPresentation.headline.excerptFontSize,
+    mobileFontSize: 15,
+    lineHeight: aiDigestPresentation.headline.excerptLineHeight,
+  }),
   readLink: {
     color: "#5f9b65",
     flexShrink: 0,
@@ -492,6 +544,12 @@ const styles = defineStyles("AiDigestEmail", () => ({
       fontSize: "13px !important",
     },
   },
+  compactPreviewBody: previewBodyStyles({
+    margin: aiDigestPresentation.compact.excerptMargin,
+    fontSize: aiDigestPresentation.compact.excerptFontSize,
+    mobileFontSize: 13,
+    lineHeight: aiDigestPresentation.compact.excerptLineHeight,
+  }),
   quickTakeCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
@@ -886,11 +944,19 @@ function HeadlinePost({ post, item, slot, classes }: {
 }) {
   const postUrl = postGetPageUrl(post, true);
   const imageUrl = post.socialPreviewData.imageUrl;
-  const excerpt = selectExcerpt(
-    item.excerpt,
-    post.contents?.plaintextDescription ?? "",
-    aiDigestPresentation.excerptCharacters.headlinePost,
-  );
+  const preview = item.previewHtml
+    ? buildPreview(
+      item.previewHtml,
+      aiDigestPresentation.previewHtmlCharacters.headlinePost,
+    )
+    : null;
+  const excerpt = preview
+    ? preview.text
+    : selectExcerpt(
+      item.excerpt,
+      post.contents?.plaintextDescription ?? "",
+      aiDigestPresentation.excerptCharacters.headlinePost,
+    );
 
   return (
     <table
@@ -931,7 +997,12 @@ function HeadlinePost({ post, item, slot, classes }: {
                 {formatPostAuthors(post)}
               </a>
             </div>
-            {excerpt && (
+            {preview ? (
+              <EmailContentItemBody
+                className={classes.previewBody}
+                dangerouslySetInnerHTML={{ __html: preview.html }}
+              />
+            ) : excerpt && (
               <a href={aiDigestLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
                 <p className={classes.excerpt}>{excerpt}</p>
               </a>
@@ -957,11 +1028,19 @@ function CompactPost({ post, item, slot, classes }: {
 }) {
   const postUrl = postGetPageUrl(post, true);
   const imageUrl = post.socialPreviewData.imageUrl;
-  const excerpt = selectExcerpt(
-    item.excerpt,
-    post.contents?.plaintextDescription ?? "",
-    aiDigestPresentation.excerptCharacters.compactPost,
-  );
+  const preview = item.previewHtml
+    ? buildPreview(
+      item.previewHtml,
+      aiDigestPresentation.previewHtmlCharacters.compactPost,
+    )
+    : null;
+  const excerpt = preview
+    ? preview.text
+    : selectExcerpt(
+      item.excerpt,
+      post.contents?.plaintextDescription ?? "",
+      aiDigestPresentation.excerptCharacters.compactPost,
+    );
 
   return (
     <table
@@ -982,7 +1061,12 @@ function CompactPost({ post, item, slot, classes }: {
             <a href={aiDigestLinkUrl(postUrl, "byline", slot)} className={classes.compactByline}>
               {formatPostAuthors(post)}
             </a>
-            {excerpt && (
+            {preview ? (
+              <EmailContentItemBody
+                className={classes.compactPreviewBody}
+                dangerouslySetInnerHTML={{ __html: preview.html }}
+              />
+            ) : excerpt && (
               <a href={aiDigestLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
                 <p className={classes.compactExcerpt}>{excerpt}</p>
               </a>

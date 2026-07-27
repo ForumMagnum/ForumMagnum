@@ -120,6 +120,7 @@ export const allViews = {
   Podcasts: new CollectionViewSet('Podcasts', {}),
   Posts: PostsViews,
   PostEmbeddings: new CollectionViewSet('PostEmbeddings', {}),
+  PostPreviews: new CollectionViewSet('PostPreviews', {}),
   PostRecommendations: new CollectionViewSet('PostRecommendations', {}),
   PostRelations: PostRelationsViews,
   PostSummaries: new CollectionViewSet('PostSummaries', {}),

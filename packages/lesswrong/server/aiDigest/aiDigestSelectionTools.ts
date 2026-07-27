@@ -12,6 +12,7 @@ import {
   aiDigestEligibilityInputFromByIdRow,
   getAiDigestPostIneligibilityReason,
   isSelectableAiDigestCandidate,
+  relaxPreviousInclusionExclusions,
   toAiDigestToolSearchCandidate,
   type AiDigestPostCandidate,
 } from "./aiDigestPostCandidates";
@@ -63,6 +64,8 @@ export interface AiDigestSelectionToolsContext {
   postHistoryById: Map<string, AiDigestPostHistory>;
   now: Date;
   minKarma?: number;
+  /** Set when the corpus pool was too thin and repeats were unlocked there too. */
+  allowPreviousInclusions: boolean;
 }
 
 function clampSearchLimit(limit: number | undefined): number {
@@ -184,7 +187,7 @@ async function loadEligibleSearchCandidates({
     minKarma,
     now: toolsContext.now,
   };
-  return orderedRows.flatMap((row) => {
+  const candidates = orderedRows.flatMap((row) => {
     const annotation = annotationsByPostId.get(row.postId);
     const hiddenByRecipient = hiddenPostIds.has(row.postId);
     const ineligibilityReason = getAiDigestPostIneligibilityReason(
@@ -194,21 +197,20 @@ async function loadEligibleSearchCandidates({
     if (ineligibilityReason || !row.revisionId || !row.publicationDate) {
       return [];
     }
-    const candidate = toAiDigestToolSearchCandidate(
+    return [toAiDigestToolSearchCandidate(
       row,
       annotation,
       hiddenByRecipient,
       minKarma,
       toolsContext.postHistoryById.get(row.postId),
-    );
-    if (!isSelectableAiDigestCandidate(candidate)) {
-      return [];
-    }
-    if (!includeRead && candidate.isRead) {
-      return [];
-    }
-    return [candidate];
+    )];
   });
+  return (toolsContext.allowPreviousInclusions
+    ? relaxPreviousInclusionExclusions(candidates)
+    : candidates
+  ).filter((candidate) =>
+    isSelectableAiDigestCandidate(candidate)
+    && (includeRead || !candidate.isRead));
 }
 
 async function nearestNeighborGroups({

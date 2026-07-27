@@ -125,6 +125,17 @@ const schema = {
       canCreate: ["admins"],
     },
   },
+  /** When the issue was successfully emailed; null for issues never sent. */
+  emailedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+    },
+  },
   trigger: {
     database: {
       type: "TEXT",
