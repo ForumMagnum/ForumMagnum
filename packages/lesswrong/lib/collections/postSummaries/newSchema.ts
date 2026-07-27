@@ -18,16 +18,16 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
-      canRead: ["admins"],
+      canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
   post: {
     graphql: {
       outputType: "Post",
-      canRead: ["admins"],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({
         foreignCollectionName: "Posts",
         fieldName: "postId",
@@ -41,9 +41,9 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
-      canRead: ["admins"],
+      canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
@@ -53,9 +53,9 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
-      canRead: ["admins"],
+      canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
@@ -65,9 +65,9 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
-      canRead: ["admins"],
+      canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
@@ -77,9 +77,9 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
-      canRead: ["admins"],
+      canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
