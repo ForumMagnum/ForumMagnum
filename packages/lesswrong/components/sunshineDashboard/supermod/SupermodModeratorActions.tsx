@@ -8,11 +8,14 @@ import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
-  modActionsRow: {
+  modActionsColumn: {
     display: 'flex',
-    gap: 16,
-    alignItems: 'flex-start',
-    marginBottom: 16,
+    flexDirection: 'column',
+    gap: 8,
+    marginTop: 16,
+    '&:empty': {
+      display: 'none',
+    },
   },
   modActionItem: {},
   rateLimitSection: {
@@ -40,13 +43,6 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
 
   return (
     <div>
-      <div className={classes.modActionsRow}>
-          {activeModeratorActions.map(action => (
-            <div key={action._id} className={classes.modActionItem}>
-              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
-            </div>
-          ))}
-        </div>
       <div className={classes.rateLimitSection}>
         <ModerationPermissionButtons user={user} dispatch={dispatch} />
         <div
@@ -55,6 +51,13 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
         >
           Limits
         </div>
+      </div>
+      <div className={classes.modActionsColumn}>
+        {activeModeratorActions.map(action => (
+          <div key={action._id} className={classes.modActionItem}>
+            <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+          </div>
+        ))}
       </div>
       {/* 
         TODO: rework rate limits into a nicer UI and/or get rid of them completely
