@@ -114,7 +114,17 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     fontSize: 12,
     fontStyle: 'italic',
   },
+  loadMore: {
+    fontSize: 12,
+    color: theme.palette.grey[500],
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
 }));
+
+const HISTORY_PAGE_SIZE = 2;
 
 const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDuration: number }) => {
   const classes = useStyles(styles);
@@ -168,6 +178,7 @@ const ModerationUndoHistory = ({
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
+  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
 
   // Warn user if they try to close the tab or navigate away while there are pending actions
   useEffect(() => {
@@ -242,16 +253,23 @@ const ModerationUndoHistory = ({
         {history.length === 0 ? (
           <div className={classes.empty}>No history</div>
         ) : (
-          history.slice(-5).reverse().map((item) => (
-            <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
-              <div className={classes.itemContent}>
-                <div className={classes.itemLeft}>
-                  <span className={classes.userName}>{item.user.displayName}</span>
-                  <span className={classes.actionLabel}>{item.actionLabel}</span>
+          <>
+            {history.slice(-historyLimit).reverse().map((item) => (
+              <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
+                <div className={classes.itemContent}>
+                  <div className={classes.itemLeft}>
+                    <span className={classes.userName}>{item.user.displayName}</span>
+                    <span className={classes.actionLabel}>{item.actionLabel}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+            {history.length > historyLimit && (
+              <div className={classes.loadMore} onClick={() => setHistoryLimit(historyLimit + HISTORY_PAGE_SIZE)}>
+                Load more
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
