@@ -22,10 +22,7 @@ export const HOVER_PREVIEW_ATTRIBUTE = 'data-hover-preview';
 /** Styling hook for the dashed underline; see stylePiping. */
 const HOVER_PREVIEW_CLASS = 'hoverPreview';
 
-/**
- * How many previews may nest. Shared by the editor and the renderer so a
- * preview that can be written can also be displayed.
- */
+/** Shared by editor and renderer, so writable previews all display. */
 export const MAX_HOVER_PREVIEW_DEPTH = 3;
 
 export type SerializedHoverPreviewNode = Spread<
@@ -159,8 +156,7 @@ export function $getSelectedHoverPreviewNode(): HoverPreviewNode | null {
   if (!$isRangeSelection(selection)) {
     return null;
   }
-  const matched = $findMatchingParent(getSelectedNode(selection), $isHoverPreviewNode);
-  return $isHoverPreviewNode(matched) ? matched : null;
+  return $findMatchingParent(getSelectedNode(selection), $isHoverPreviewNode);
 }
 
 function $unwrapHoverPreview(node: HoverPreviewNode): void {
@@ -214,8 +210,5 @@ export function $setHoverPreviewOnSelection(previewHtml: string): void {
   }
 }
 
-/**
- * What a preview body may contain. HoverPreviewNode is included so a nested
- * preview survives being edited; without it the attribute is dropped on import.
- */
+/** HoverPreviewNode registered so nested previews survive import. */
 export const hoverPreviewEditorNodes = [LinkNode, HoverPreviewNode];
