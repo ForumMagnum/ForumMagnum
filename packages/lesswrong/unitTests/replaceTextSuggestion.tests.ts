@@ -152,8 +152,10 @@ describe("replaceText across block boundaries", () => {
     editor.getEditorState().read(() => {
       expect($getRoot().getChildren().some($isTableNode)).toBe(true);
     });
-    expect(getMarkdownContent(editor)).toContain("| First | Alpha |");
-    expect(getMarkdownContent(editor)).toContain("| Second | Beta |");
+    const markdown = getMarkdownContent(editor);
+    expect(markdown).toContain("| First | Alpha |");
+    expect(markdown).toContain("| Second | Beta |");
+    expect(markdown).not.toContain("prompt paragraph");
   });
 });
 
