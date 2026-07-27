@@ -12,7 +12,6 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 20,
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -20,6 +19,9 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   },
   section: {
     marginBottom: 16,
+    '&:last-child': {
+      marginBottom: 0,
+    },
   },
   sectionTitle: {
     fontSize: 12,
@@ -47,6 +49,9 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   },
   item: {
     marginBottom: 8,
+    '&:last-child': {
+      marginBottom: 0,
+    },
     borderRadius: 4,
     border: theme.palette.border.faint,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
