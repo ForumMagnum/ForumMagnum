@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -19,6 +19,7 @@ import {
 } from 'lexical';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { validateUrl } from '@/components/lexical/utils/url';
+import { isInsertLink } from '@/components/lexical/plugins/ShortcutsPlugin/shortcuts';
 import { buildTextNodeExportMap } from '@/components/editor/lexicalDomExport';
 import FloatingLinkEditorPlugin from '@/components/lexical/plugins/FloatingLinkEditorPlugin';
 import { hoverPreviewEditorNodes, MAX_HOVER_PREVIEW_DEPTH } from './HoverPreviewNode';
@@ -63,14 +64,6 @@ const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({
   },
 }));
 
-const hoverPreviewTheme = {
-  link: 'hoverPreviewEditorLink',
-  text: {
-    bold: 'hoverPreviewEditorBold',
-    italic: 'hoverPreviewEditorItalic',
-  },
-};
-
 function onHoverPreviewEditorError(error: Error): void {
   // eslint-disable-next-line no-console
   console.error('Hover preview editor error', error);
@@ -89,14 +82,14 @@ function seedFromHtml(html: string) {
   };
 }
 
-/** Cmd/Ctrl-K, matching the shortcut the main editor uses. */
+/** The body editor has no toolbar, so Cmd/Ctrl-K is the only way in. */
 function OpenLinkEditorShortcut({ onOpen }: { onOpen: () => void }) {
   const [editor] = useLexicalComposerContext();
 
-  React.useEffect(() => editor.registerCommand(
+  useEffect(() => editor.registerCommand(
     KEY_DOWN_COMMAND,
     (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') {
+      if (!isInsertLink(event)) {
         return false;
       }
       event.preventDefault();
@@ -122,22 +115,19 @@ function HoverPreviewChangeHandler({ onChangeHtml }: { onChangeHtml: (html: stri
 }
 
 /**
- * The small rich-text field used to write a link's custom hover preview, shown inside the
- * floating link editor. A standalone Lexical instance rather than a nested composer: it
- * edits a detached HTML string, not a subtree of the document being edited.
+ * The rich-text field for a preview body. A standalone Lexical instance,
+ * not a nested composer: it edits a detached HTML string, read once on
+ * mount (remount with a new `key` to reset).
  *
- * `initialHtml` is read once on mount; remount with a new `key` to reset it.
- *
- * A preview body may itself contain previews, so this mounts its own link editor until
- * MAX_HOVER_PREVIEW_DEPTH. The floating editor portals to the outer anchorElem rather than
- * this box, which scrolls and would clip it.
+ * Mounts its own link editor so previews nest, up to
+ * MAX_HOVER_PREVIEW_DEPTH. That editor portals to the outer anchorElem;
+ * this box scrolls and would clip it.
  */
-export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus, depth = 1, anchorElem }: {
+export function HoverPreviewEditor({ initialHtml, onChangeHtml, depth, anchorElem }: {
   initialHtml: string,
   onChangeHtml: (html: string) => void,
-  autoFocus?: boolean,
-  depth?: number,
-  anchorElem?: HTMLElement,
+  depth: number,
+  anchorElem: HTMLElement,
 }) {
   const classes = useStyles(styles);
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
@@ -149,7 +139,6 @@ export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus, depth
       <LexicalComposer initialConfig={{
         namespace: 'HoverPreviewEditor',
         nodes: hoverPreviewEditorNodes,
-        theme: hoverPreviewTheme,
         onError: onHoverPreviewEditorError,
         editorState: seedFromHtml(initialHtml),
         // Same TextNode export override the main editor uses, so bold or italic preview
@@ -160,7 +149,6 @@ export function HoverPreviewEditor({ initialHtml, onChangeHtml, autoFocus, depth
           contentEditable={
             <ContentEditable
               className={classes.contentEditable}
-              autoFocus={autoFocus}
               aria-label="Hover preview text"
             />
           }
