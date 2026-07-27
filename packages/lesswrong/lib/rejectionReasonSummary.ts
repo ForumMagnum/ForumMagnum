@@ -1,10 +1,6 @@
 import { parseDocumentFromString } from '@/lib/domParser';
 
-// Extracts a summary from HTML rejection reasons:
-// - For lists (<ul>/<ol>): extracts text from each <li> item
-// - For paragraphs: extracts the first <p> content
-// - Text extraction includes multiple sentences if they are all bold, or just the first sentence if they are not. (Since we often use bold to convey multi-sentence-summaries)
-
+// Bold often holds a multi-sentence summary, so keep the whole run.
 function extractLeadingText(element: Element): string {
   const firstChild = element.firstElementChild;
   if (firstChild && (firstChild.tagName === 'STRONG' || firstChild.tagName === 'B')) {

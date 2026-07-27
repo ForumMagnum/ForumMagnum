@@ -251,15 +251,12 @@ const ModerationUserContentItem = ({
     />
   );
 
-  // The same summary that's shown to authors on post pages: the bold lead-in of each
-  // bullet point (or its first sentence, when it isn't bold).
   const rejectedReasonSummary = useMemo(
     () => item.rejectedReason ? extractRejectionReasonSummary(item.rejectedReason) : [],
     [item.rejectedReason]
   );
 
-  // Autorejections all share the same boilerplate reason, so labelling the tag with it
-  // would be less informative than saying that it was autorejected.
+  // Autorejections all share one boilerplate reason, so don't show it.
   const isAutorejected = !!score && score > PANGRAM_AUTOREJECT_THRESHOLD;
   const rejectionLabel = isAutorejected
     ? 'Autorejected'
