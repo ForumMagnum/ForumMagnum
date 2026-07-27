@@ -36,9 +36,11 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     height: 'calc(100vh - 64px)',
     ...prettyScrollbars(theme),
   },
+  // Sits flush against the bottom of the column, taking only the height its
+  // contents need, so the rest goes to the user info above it.
   undoQueueColumn: {
     marginTop: 'auto',
-    marginBottom: 50
+    flexShrink: 0,
   }
 }));
 
