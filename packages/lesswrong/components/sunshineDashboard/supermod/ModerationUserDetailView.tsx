@@ -24,6 +24,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     borderRight: theme.palette.border.normal,
     display: 'flex',
     flexDirection: 'column',
+    height: 'calc(100vh - 64px)',
   },
   contentListColumn: {
     minWidth: 0,

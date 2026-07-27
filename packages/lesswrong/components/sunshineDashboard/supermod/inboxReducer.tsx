@@ -20,6 +20,9 @@ export interface UndoHistoryItem {
   expiresAt: number;
   timeoutId: NodeJS.Timeout;
   executeAction: () => Promise<void>;
+  // View context of the action, so undo can return there
+  sourceTab: TabId;
+  wasDetailView: boolean;
 };
 
 
@@ -131,6 +134,11 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         users: [...state.users, item.user],
         undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
+        activeTab: item.sourceTab,
+        focusedUserId: item.user._id,
+        openedUserId: item.wasDetailView ? item.user._id : null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
       };
     }
 

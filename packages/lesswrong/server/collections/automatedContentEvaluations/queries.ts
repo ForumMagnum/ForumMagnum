@@ -16,6 +16,9 @@ export const graphqlAutomatedContentEvaluationQueryTypeDefs = gql`
     score: Float!
     startIndex: Int!
     endIndex: Int!
+    label: String
+    confidence: String
+    wordCount: Int
   }
 `;
 

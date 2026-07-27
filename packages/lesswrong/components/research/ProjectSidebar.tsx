@@ -638,6 +638,15 @@ const ProjectSidebar = ({
   const handleArchiveDocument = async (id: string, archived: boolean) => {
     await archiveDocument({ variables: { id, archived } });
     await refetch();
+    if (archived && id === activeDocumentId) {
+      const remaining = documents.filter((doc) => doc._id !== id);
+      const archivedIndex = documents.findIndex((doc) => doc._id === id);
+      const next = remaining[
+        Math.min(Math.max(archivedIndex, 0), remaining.length - 1)
+      ];
+      if (next) onSelectDocument(next._id);
+      else navigate('/research');
+    }
   };
   const handleArchiveConversation = async (id: string, archived: boolean) => {
     await archiveConversation({ variables: { id, archived } });

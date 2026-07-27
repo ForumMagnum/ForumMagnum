@@ -8,6 +8,7 @@
 
 import React, {useContext, type JSX} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { COLLAPSIBLE_MARKER_GUTTER } from '@/themes/stylePiping';
 import classNames from 'classnames';
 
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
@@ -266,50 +267,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         width: 'calc(100% - 20px)',
       },
     },
-    '& .detailsBlock': {
-      margin: '1em 0',
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 4,
-      overflow: 'hidden',
-    },
-    '& .detailsBlockEdit': {
-      // In editing mode, we use a div instead of details for better cursor control
-    },
-    '& .detailsBlockTitle': {
-      backgroundColor: theme.palette.grey[100],
-      fontWeight: 600,
-      cursor: 'default',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5em',
-      position: 'relative',
-      '&::before': {
-        content: '"▼"',
-        fontSize: '0.75em',
-        transition: 'transform 0.2s ease',
-        cursor: 'pointer',
-      },
-      '& p': {
-        margin: 0,
-        flex: 1,
-        cursor: 'text',
-      },
-    },
-    '& .detailsBlockClosed .detailsBlockContent': {
-      display: 'none',
-    },
-    '& .detailsBlockClosed .detailsBlockTitle::before': {
-      transform: 'rotate(-90deg)',
-    },
-    '& .detailsBlockContent': {
-      padding: '0.75em 1em',
-      '& > p:first-child': {
-        marginTop: 0,
-      },
-      '& > p:last-child': {
-        marginBottom: 0,
-      },
-    },
+    // Collapsible sections are styled by `collapsibleSectionStyles` in
+    // stylePiping, which reaches the editor via its ContentStyles wrapper.
+    // Only Lexical-specific affordances belong here.
     '& .detailsBlock.detailsBlockSelected': {
       outline: `2px solid ${theme.palette.primary.main}`,
       outlineOffset: 2,
@@ -318,8 +278,8 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       content: '"Collapsible Section Title"',
       color: theme.palette.grey[500],
       position: 'absolute',
-      top: 8,
-      left: 24,
+      top: 2,
+      left: COLLAPSIBLE_MARKER_GUTTER,
     },
     '& .footnote-content': {
       flex: 1,

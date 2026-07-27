@@ -364,12 +364,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
             expiresAt: now + UNDO_QUEUE_DURATION,
             timeoutId,
             executeAction,
+            sourceTab: state.activeTab,
+            wasDetailView: !!state.openedUserId,
           },
         });
         dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
       }
     }
-  }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
+  }, [state.openedUserId, state.focusedUserId, state.activeTab, allOrderedUsers]);
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
