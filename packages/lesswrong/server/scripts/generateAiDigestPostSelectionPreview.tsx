@@ -121,7 +121,10 @@ export async function generateAiDigestPostSelectionPreview(
     + `${result.metadata.evidenceCount} evidence signals, `
     + `${result.metadata.reusedSummaryCount} cached summaries, ${result.metadata.generatedSummaryCount} generated summaries, `
     + `${result.metadata.skippedPostCount} skipped posts, `
-    + `${result.metadata.historyIssueCount} prior issues`,
+    + `${result.metadata.historyIssueCount} prior issues`
+    + (result.metadata.relaxedPreviousInclusions
+      ? " (repeat exclusions relaxed for a thin pool)"
+      : ""),
   );
   console.log(
     `Tools: ${result.metadata.toolCallCount} calls, ${result.metadata.searchCount} searches, `

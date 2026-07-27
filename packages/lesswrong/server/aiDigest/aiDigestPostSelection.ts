@@ -10,6 +10,8 @@ import {
   loadAiDigestQuickTakeCandidates,
   loadAiDigestReaderContext,
   loadAiDigestRecentlyCuratedPosts,
+  relaxPreviousInclusionExclusions,
+  type AiDigestPostCandidateCard,
   type AiDigestUserDossier,
   type LoadAiDigestPostCandidatesOptions,
 } from "./aiDigestPostCandidates";
@@ -58,6 +60,9 @@ import {
 export const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-opus-5";
 export const AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE = 2;
 export const AI_DIGEST_CURATED_ITEM_LIMIT = 3;
+/** Headline slots 1 and 2 are always posts, so a slate needs at least this many. */
+export const AI_DIGEST_MIN_SELECTABLE_POST_CANDIDATES = 2;
+export const AI_DIGEST_MIN_SELECTABLE_CANDIDATES = 5;
 
 export const AI_DIGEST_SELECTION_LENGTH_LIMITS = {
   subject: 120,
@@ -115,6 +120,8 @@ export interface AiDigestPostSelectionResult {
     summaryModelId: string;
     candidateCount: number;
     quickTakeCandidateCount: number;
+    /** True when a thin candidate pool forced repeat exclusions to be dropped. */
+    relaxedPreviousInclusions: boolean;
     evidenceCount: number;
     reusedSummaryCount: number;
     generatedSummaryCount: number;
@@ -599,6 +606,76 @@ function countAiDigestThreadCandidates(threadCandidates: AiDigestThreadCandidate
   return threadCandidates.siteWideThreads.length + threadCandidates.readerThreads.length;
 }
 
+export interface AiDigestSelectionPools {
+  candidateCards: AiDigestPostCandidateCard[];
+  quickTakeCandidates: AiDigestQuickTakeCandidate[];
+  selectableCandidateCards: AiDigestPostCandidateCard[];
+  selectableQuickTakes: AiDigestQuickTakeCandidate[];
+  relaxedPreviousInclusions: boolean;
+}
+
+function selectablePools(
+  candidateCards: AiDigestPostCandidateCard[],
+  quickTakeCandidates: AiDigestQuickTakeCandidate[],
+  relaxedPreviousInclusions: boolean,
+): AiDigestSelectionPools {
+  return {
+    candidateCards,
+    quickTakeCandidates,
+    selectableCandidateCards: candidateCards.filter(isSelectableAiDigestCandidate),
+    selectableQuickTakes: quickTakeCandidates.filter(isSelectableAiDigestCandidate),
+    relaxedPreviousInclusions,
+  };
+}
+
+function poolIsTooThin(pools: AiDigestSelectionPools): boolean {
+  return pools.selectableCandidateCards.length < AI_DIGEST_MIN_SELECTABLE_POST_CANDIDATES
+    || pools.selectableCandidateCards.length + pools.selectableQuickTakes.length
+      < AI_DIGEST_MIN_SELECTABLE_CANDIDATES;
+}
+
+/**
+ * Previously recommended items are hard-excluded, which at a fast cadence can
+ * leave too few candidates to fill a slate. When that happens, and only then,
+ * the repeat exclusions are dropped so the issue can still be assembled.
+ */
+export function resolveAiDigestSelectionPools(
+  candidateCards: AiDigestPostCandidateCard[],
+  quickTakeCandidates: AiDigestQuickTakeCandidate[],
+): AiDigestSelectionPools {
+  const pools = selectablePools(candidateCards, quickTakeCandidates, false);
+  const hasRepeatExclusions = [...candidateCards, ...quickTakeCandidates].some(
+    (candidate) => candidate.exclusionReason === "previouslyIncluded",
+  );
+  if (!poolIsTooThin(pools) || !hasRepeatExclusions) {
+    return pools;
+  }
+  return selectablePools(
+    relaxPreviousInclusionExclusions(candidateCards),
+    relaxPreviousInclusionExclusions(quickTakeCandidates),
+    true,
+  );
+}
+
+function assertAiDigestPoolIsSelectable(pools: AiDigestSelectionPools): void {
+  const { selectableCandidateCards, selectableQuickTakes, candidateCards } = pools;
+  if (selectableCandidateCards.length < AI_DIGEST_MIN_SELECTABLE_POST_CANDIDATES) {
+    throw new Error(
+      "AI digest needs at least two summarized, selectable post candidates for headline slots; "
+      + `found ${selectableCandidateCards.length} of ${candidateCards.length}`,
+    );
+  }
+  if (
+    selectableCandidateCards.length + selectableQuickTakes.length
+    < AI_DIGEST_MIN_SELECTABLE_CANDIDATES
+  ) {
+    throw new Error(
+      "AI digest needs at least five summarized, selectable candidates; "
+      + `found ${selectableCandidateCards.length} posts and ${selectableQuickTakes.length} quick takes`,
+    );
+  }
+}
+
 export async function generateAiDigestPostSelection({
   user,
   context,
@@ -643,28 +720,19 @@ export async function generateAiDigestPostSelection({
     context,
     modelId: summaryModelId,
   });
-  const candidateCards = buildAiDigestPostCandidateCards(summaryResult.candidates);
-  const selectableCandidateCards = candidateCards.filter(isSelectableAiDigestCandidate);
-  const selectableQuickTakes = quickTakeCandidates.filter(isSelectableAiDigestCandidate);
-  if (selectableCandidateCards.length < 2) {
-    throw new Error(
-      "AI digest needs at least two summarized, selectable post candidates for headline slots; "
-      + `found ${selectableCandidateCards.length} of ${candidateCards.length}`,
-    );
-  }
-  if (selectableCandidateCards.length + selectableQuickTakes.length < 5) {
-    throw new Error(
-      "AI digest needs at least five summarized, selectable candidates; "
-      + `found ${selectableCandidateCards.length} posts and ${selectableQuickTakes.length} quick takes`,
-    );
-  }
+  const pools = resolveAiDigestSelectionPools(
+    buildAiDigestPostCandidateCards(summaryResult.candidates),
+    quickTakeCandidates,
+  );
+  assertAiDigestPoolIsSelectable(pools);
+  const { candidateCards, selectableCandidateCards, selectableQuickTakes } = pools;
   const prompt = buildAiDigestPostSelectionPrompt(
     readerContext.dossier,
     candidateCards,
     history.pastRecommendations,
     personalInstructions,
     asOf,
-    quickTakeCandidates,
+    pools.quickTakeCandidates,
   );
   const discoveredRegistry = createAiDigestDiscoveredCandidateRegistry();
   const { tools, getUsageCounts } = createAiDigestSelectionTools({
@@ -775,7 +843,8 @@ export async function generateAiDigestPostSelection({
       selectionPromptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
       summaryModelId,
       candidateCount: candidateCards.length,
-      quickTakeCandidateCount: quickTakeCandidates.length,
+      quickTakeCandidateCount: pools.quickTakeCandidates.length,
+      relaxedPreviousInclusions: pools.relaxedPreviousInclusions,
       evidenceCount: readerContext.evidenceCount,
       reusedSummaryCount: summaryResult.reusedSummaryCount,
       generatedSummaryCount: summaryResult.generatedSummaryCount,
