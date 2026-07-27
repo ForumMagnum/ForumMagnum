@@ -99,7 +99,8 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     width: 300,
     flexShrink: 0,
     borderRight: theme.palette.border.normal,
-    height: '100%',
+    alignSelf: 'flex-start',
+    maxHeight: '100%',
     overflow: 'auto',
   },
   inboxListContainer: {
