@@ -11,7 +11,7 @@ import type {
   AiDigestThreadCommentReaderFlags,
 } from "./aiDigestThreadCandidates";
 
-export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v2";
+export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v3";
 
 export const AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT = `# Task
 
@@ -35,6 +35,8 @@ The value of this section is surfacing genuinely new discussion:
 - Treat comments marked \`seenInFeed\` as already seen by this reader.
 - On posts the reader has read, treat comments without \`newSinceLastVisit\` as already seen.
 - Do not select a thread whose interesting comments the reader has plainly already seen.
+
+A thread carrying a \`previousDigest\` signal already ran in an earlier issue for this reader. It is selectable again only if the card contains at least one comment published since \`lastIncludedDaysAgo\`; otherwise the reader would see the same exchange twice and the selection will be discarded. Even when it does qualify, prefer a thread they have not seen.
 
 Threads and comments marked \`excluded\` or \`anchorIneligible\` follow these rules:
 - Never select a thread marked \`excluded\`.

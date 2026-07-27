@@ -6,7 +6,11 @@ import {
   decodeStrayUnicodeEscapes,
   sumAiDigestSelectionCostUsd,
 } from "./aiDigestSelectionShared";
-import type { AiDigestThreadCandidates } from "./aiDigestThreadCandidates";
+import type {
+  AiDigestThreadAnnotation,
+  AiDigestThreadCandidates,
+  AiDigestThreadCard,
+} from "./aiDigestThreadCandidates";
 import {
   AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION,
   buildAiDigestThreadSelectionPrompt,
@@ -56,16 +60,42 @@ interface ThreadCommentLookupEntry {
   parentCommentId: string | null;
 }
 
+function allThreadCards(candidates: AiDigestThreadCandidates): AiDigestThreadCard[] {
+  return [...candidates.siteWideThreads, ...candidates.readerThreads];
+}
+
 function buildCommentLookup(
   candidates: AiDigestThreadCandidates,
 ): Map<string, ThreadCommentLookupEntry> {
   return new Map(
-    [...candidates.siteWideThreads, ...candidates.readerThreads].flatMap((card) =>
+    allThreadCards(candidates).flatMap((card) =>
       card.comments.map((comment): [string, ThreadCommentLookupEntry] => [
         comment.commentId,
         { threadId: card.threadId, parentCommentId: comment.parentCommentId },
       ]),
     ),
+  );
+}
+
+/**
+ * Site-wide thread cards are a byte-stable shared prompt prefix, so previously
+ * recommended threads cannot be dropped from the corpus per-reader. Instead, a
+ * repeated thread earns a second showing only when the discussion actually
+ * moved: at least one card comment published after the last time it ran.
+ */
+export function threadRepeatHasNewActivity(
+  card: AiDigestThreadCard | undefined,
+  annotation: AiDigestThreadAnnotation | undefined,
+): boolean {
+  if (!annotation || annotation.previousDigestInclusionCount === 0) {
+    return true;
+  }
+  const { lastIncludedAt } = annotation;
+  if (!lastIncludedAt) {
+    return true;
+  }
+  return !!card?.comments.some(
+    (comment) => comment.publicationDate > lastIncludedAt,
   );
 }
 
@@ -115,15 +145,18 @@ function connectedDisplayComments(
 
 /**
  * Deterministic clamping of the thread-selection model output: unknown IDs,
- * ineligible anchors, excluded threads, disconnected display comments,
- * duplicate threads, overlong reasons, and the thread/comment count limits are
- * all resolved by dropping or trimming — never by failing the issue.
+ * ineligible anchors, excluded threads, stale repeats, disconnected display
+ * comments, duplicate threads, overlong reasons, and the thread/comment count
+ * limits are all resolved by dropping or trimming — never by failing the issue.
  */
 export function clampAiDigestThreadSelectionOutput(
   output: AiDigestThreadSelectionModelOutput,
   candidates: AiDigestThreadCandidates,
 ): AiDigestClampedThreadSelection {
   const commentsById = buildCommentLookup(candidates);
+  const cardsByThreadId = new Map(
+    allThreadCards(candidates).map((card) => [card.threadId, card]),
+  );
   const usedThreadIds = new Set<string>();
   let totalDisplayedComments = 0;
 
@@ -141,6 +174,12 @@ export function clampAiDigestThreadSelectionOutput(
     }
     const threadAnnotation = candidates.threadAnnotationsById.get(anchor.threadId);
     if (threadAnnotation?.hasActiveSeeLess) {
+      return [];
+    }
+    if (!threadRepeatHasNewActivity(
+      cardsByThreadId.get(anchor.threadId),
+      threadAnnotation,
+    )) {
       return [];
     }
     const remainingBudget = AI_DIGEST_MAX_THREAD_COMMENTS_TOTAL - totalDisplayedComments;

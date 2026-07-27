@@ -7,6 +7,7 @@ import {
   buildAiDigestThreadAnnotation,
   buildAiDigestThreadCard,
   toThreadCommentReaderFlags,
+  type AiDigestThreadAnnotation,
   type AiDigestThreadCandidates,
   type AiDigestThreadCard,
   type AiDigestThreadCommentReaderFlags,
@@ -415,6 +416,9 @@ describe("AI digest thread selection prompt", () => {
     expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
       "too thin to ground any connection",
     );
+    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
+      "at least one comment published since `lastIncludedDaysAgo`",
+    );
   });
 });
 
@@ -539,6 +543,50 @@ describe("AI digest thread selection clamping", () => {
     );
     expect(totalDisplayed).toBeLessThanOrEqual(AI_DIGEST_MAX_THREAD_COMMENTS_TOTAL);
     expect(clamped.selectedThreads).toHaveLength(2);
+  });
+
+  function withThreadOneAnnotation(
+    annotation: Partial<AiDigestThreadAnnotation>,
+  ): AiDigestThreadCandidates {
+    const candidates = makeClampCandidates();
+    candidates.threadAnnotationsById.set("thread-1", {
+      threadId: "thread-1",
+      participated: false,
+      hasActiveSeeLess: false,
+      previousDigestInclusionCount: 1,
+      lastIncludedAt: null,
+      ...annotation,
+    });
+    return candidates;
+  }
+
+  function clampThreadOne(candidates: AiDigestThreadCandidates): AiDigestSelectedThread[] {
+    return clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({ anchorCommentId: "thread-1" })],
+    }, candidates).selectedThreads;
+  }
+
+  // The thread-1 card holds replies dated 2026-07-10 through 07-13 and a root
+  // dated 2026-07-15, so a last inclusion on 07-16 means nothing has moved.
+  it("drops a repeated thread whose card has no comments since it last ran", () => {
+    expect(clampThreadOne(withThreadOneAnnotation({
+      lastIncludedAt: "2026-07-16T00:00:00.000Z",
+    }))).toEqual([]);
+  });
+
+  it("keeps a repeated thread once a newer comment lands in the card", () => {
+    expect(clampThreadOne(withThreadOneAnnotation({
+      lastIncludedAt: "2026-07-14T00:00:00.000Z",
+    }))).toHaveLength(1);
+  });
+
+  it("keeps threads with no recorded inclusion date or no prior inclusion", () => {
+    expect(clampThreadOne(withThreadOneAnnotation({ lastIncludedAt: null }))).toHaveLength(1);
+    expect(clampThreadOne(withThreadOneAnnotation({
+      previousDigestInclusionCount: 0,
+      lastIncludedAt: "2026-07-16T00:00:00.000Z",
+    }))).toHaveLength(1);
+    expect(clampThreadOne(makeClampCandidates())).toHaveLength(1);
   });
 
   it("decodes stray escapes in reasons and nulls empty or overlong ones", () => {
