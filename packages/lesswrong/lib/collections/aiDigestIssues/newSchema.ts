@@ -21,7 +21,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -45,7 +45,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]!",
+      outputType: "[String!]",
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -54,7 +54,7 @@ const schema = {
   },
   posts: {
     graphql: {
-      outputType: "[Post!]!",
+      outputType: "[Post!]",
       canRead: [userIsIssueRecipient, "admins"],
       resolver: generateIdResolverMulti({
         foreignCollectionName: "Posts",
@@ -70,7 +70,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]!",
+      outputType: "[String!]",
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -79,7 +79,7 @@ const schema = {
   },
   quickTakes: {
     graphql: {
-      outputType: "[Comment!]!",
+      outputType: "[Comment!]",
       canRead: [userIsIssueRecipient, "admins"],
       resolver: generateIdResolverMulti({
         foreignCollectionName: "Comments",
@@ -96,7 +96,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]!",
+      outputType: "[String!]",
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -105,7 +105,7 @@ const schema = {
   },
   discussionComments: {
     graphql: {
-      outputType: "[Comment!]!",
+      outputType: "[Comment!]",
       canRead: [userIsIssueRecipient, "admins"],
       resolver: generateIdResolverMulti({
         foreignCollectionName: "Comments",
@@ -119,7 +119,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       inputType: "Date!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -144,7 +144,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -162,7 +162,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       inputType: "Boolean",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
@@ -192,7 +192,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -204,7 +204,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -388,7 +388,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       canRead: ["admins"],
     },
   },

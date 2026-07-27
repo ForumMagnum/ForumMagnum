@@ -18,7 +18,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -41,7 +41,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -53,7 +53,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -66,7 +66,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       inputType: "Int!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -78,7 +78,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],
@@ -90,7 +90,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["admins"],

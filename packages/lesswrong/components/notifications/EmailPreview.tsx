@@ -22,7 +22,8 @@ const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto",
     border: theme.palette.border.normal,
-    background: "white",
+    // Email HTML is always rendered against a light background, even in dark mode
+    background: theme.palette.text.alwaysWhite,
   },
   mobileBodyFrame: {
     maxWidth: MOBILE_EMAIL_PREVIEW_WIDTH,
