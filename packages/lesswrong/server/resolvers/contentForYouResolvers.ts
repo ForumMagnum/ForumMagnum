@@ -114,7 +114,7 @@ function percentile(sortedValues: number[], fraction: number): number {
   const index = (sortedValues.length - 1) * fraction;
   const lowerValue = sortedValues[Math.floor(index)];
   const upperValue = sortedValues[Math.ceil(index)];
-  return lowerValue + (upperValue - lowerValue) * (index - Math.floor(index));
+  return lowerValue + ((upperValue - lowerValue) * (index - Math.floor(index)));
 }
 
 /**
