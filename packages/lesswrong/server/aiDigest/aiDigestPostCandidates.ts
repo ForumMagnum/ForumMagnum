@@ -481,6 +481,7 @@ export function getAiDigestPostIneligibilityReason(
 function candidateExclusionReason(
   annotation: AiDigestCandidateAnnotationRow | undefined,
   hiddenByRecipient: boolean,
+  documentHistory: AiDigestPostHistory | undefined,
 ): AiDigestCandidateExclusionReason | null {
   if (annotation?.recipientAuthored) {
     return "recipientAuthored";
@@ -490,6 +491,9 @@ function candidateExclusionReason(
   }
   if (annotation?.hasActiveSeeLess) {
     return "activeSeeLess";
+  }
+  if (documentHistory && documentHistory.previousDigestInclusionCount > 0) {
+    return "previouslyIncluded";
   }
   return null;
 }
@@ -519,7 +523,7 @@ function toAiDigestPostCandidate(
     upvoteStrength: annotation?.positivePreferenceStrength ?? null,
     previousDigestInclusionCount: postHistory?.previousDigestInclusionCount ?? 0,
     lastIncludedAt: postHistory?.lastIncludedAt ?? null,
-    exclusionReason: candidateExclusionReason(annotation, hiddenByRecipient),
+    exclusionReason: candidateExclusionReason(annotation, hiddenByRecipient, postHistory),
     retrievalProvenance: {
       source: retrievalSource,
       maxAgeDays,
@@ -601,14 +605,33 @@ export function isSelectableAiDigestCandidate(
   return !candidate.exclusionReason;
 }
 
+/**
+ * Thin-pool fallback: drop the repeat-suppression exclusion so previously
+ * recommended items become selectable again. The `previousDigestInclusionCount`
+ * and `lastIncludedAt` annotations survive, so the prompt's soft repeat
+ * avoidance still steers toward the least-recently-repeated items.
+ */
+export function relaxPreviousInclusionExclusions<
+  T extends { exclusionReason: AiDigestCandidateExclusionReason | null },
+>(candidates: T[]): T[] {
+  return candidates.map((candidate) =>
+    candidate.exclusionReason === "previouslyIncluded"
+      ? { ...candidate, exclusionReason: null }
+      : candidate);
+}
+
 function quickTakeExclusionReason(
   annotation: AiDigestQuickTakeAnnotationRow | undefined,
+  documentHistory: AiDigestPostHistory | undefined,
 ): AiDigestCandidateExclusionReason | null {
   if (annotation?.recipientAuthored) {
     return "recipientAuthored";
   }
   if (annotation?.hasActiveSeeLess) {
     return "activeSeeLess";
+  }
+  if (documentHistory && documentHistory.previousDigestInclusionCount > 0) {
+    return "previouslyIncluded";
   }
   return null;
 }
@@ -636,7 +659,7 @@ function toAiDigestQuickTakeCandidate(
     isSubscribedToAuthor: annotation?.isSubscribedToAuthor ?? false,
     previousDigestInclusionCount: documentHistory?.previousDigestInclusionCount ?? 0,
     lastIncludedAt: documentHistory?.lastIncludedAt ?? null,
-    exclusionReason: quickTakeExclusionReason(annotation),
+    exclusionReason: quickTakeExclusionReason(annotation, documentHistory),
   };
 }
 
