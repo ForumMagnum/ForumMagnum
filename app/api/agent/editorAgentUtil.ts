@@ -12,6 +12,8 @@ import {
   type ParagraphNode,
   SKIP_COLLAB_TAG,
 } from "lexical";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { JSDOM } from "jsdom";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import allLexicalNodes from "@/components/lexical/nodes/allLexicalNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
@@ -381,11 +383,53 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   });
 }
 
+/**
+ * Restore an empty collaborative editor from revision HTML. Must be called
+ * inside an editor update. Returns false if another client populated the
+ * editor before this update ran.
+ */
+export function $initializeEmptyMainDocRoot(editor: LexicalEditor, html: string): boolean {
+  const root = $getRoot();
+  if (root.getChildrenSize() > 0) {
+    return false;
+  }
+
+  const dom = new JSDOM(html);
+  const nodes = $generateNodesFromDOM(editor, dom.window.document);
+  if (nodes.length > 0) {
+    root.append(...nodes);
+  } else {
+    root.append($createParagraphNode());
+  }
+  return true;
+}
+
+async function getMainDocBootstrapHtml({
+  collectionName,
+  documentId,
+  context,
+}: {
+  collectionName: string
+  documentId: string
+  context?: ResolverContext
+}): Promise<string | null> {
+  if (collectionName !== "Posts" || !context) {
+    return null;
+  }
+
+  const revision = await getLatestRev(documentId, "contents", context);
+  if (revision?.originalContents?.type !== "lexical") {
+    return null;
+  }
+  return revision.html ?? revision.originalContents.data ?? "";
+}
+
 export async function withMainDocEditorSession<T>({
   collectionName,
   documentId,
   postId,
   token,
+  context,
   operationLabel,
   callback,
 }: {
@@ -394,6 +438,7 @@ export async function withMainDocEditorSession<T>({
   documentId?: string
   postId?: string
   token: string
+  context?: ResolverContext
   operationLabel: string
   callback: (args: {
     editor: LexicalEditor
@@ -487,22 +532,35 @@ export async function withMainDocEditorSession<T>({
     await waitForProviderSync(provider);
     await sleep(INITIAL_SYNC_SETTLE_MS);
 
-    // After sync, verify that the Lexical editor actually has content.
-    // A Lexical post should always have a non-empty Yjs document in
-    // Hocuspocus. If the root is empty after sync, something critical
-    // has gone wrong (e.g. missing YjsDocuments row, Hocuspocus data
-    // loss, or a race condition in the sync protocol).
+    // A post can have a valid Lexical revision but no YjsDocuments row if its
+    // collaborative editor has never been opened. Restore that revision into
+    // the live document so agent-only workflows can perform the first read or
+    // edit without requiring the user to open the browser editor first.
     let rootChildCount = 0;
     editor.getEditorState().read(() => {
       rootChildCount = $getRoot().getChildrenSize();
     });
     if (rootChildCount === 0) {
-      const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
-        `This likely means the Yjs document state is missing or corrupt.`
-      );
-      captureException(err);
-      throw err;
+      const bootstrapHtml = await getMainDocBootstrapHtml({
+        collectionName: effectiveCollectionName,
+        documentId: effectiveDocumentId,
+        context,
+      });
+      if (bootstrapHtml !== null) {
+        await new Promise<void>((resolve) => {
+          editor.update(() => {
+            $initializeEmptyMainDocRoot(editor, bootstrapHtml);
+          }, { onUpdate: resolve });
+        });
+        await waitForProviderFlush(provider);
+      } else {
+        const err = new Error(
+          `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
+          `This likely means the Yjs document state is missing or corrupt.`
+        );
+        captureException(err);
+        throw err;
+      }
     }
 
     return await callback({ editor, provider });

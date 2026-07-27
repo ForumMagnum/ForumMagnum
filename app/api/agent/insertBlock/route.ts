@@ -216,6 +216,7 @@ export function $insertMarkdownBlockInEditor({
 export async function insertMarkdownBlock({
   postId,
   token,
+  context,
   mode,
   location,
   markdown,
@@ -224,6 +225,7 @@ export async function insertMarkdownBlock({
 }: {
   postId: string
   token: string
+  context: ResolverContext
   mode: ReplaceMode
   location: InsertLocation
   markdown: string
@@ -233,6 +235,7 @@ export async function insertMarkdownBlock({
   const result: InsertBlockResult = await withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "InsertBlock",
     callback: async ({ editor, provider }) => {
       let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
@@ -298,6 +301,7 @@ export async function POST(req: NextRequest) {
     const insertResult = await insertMarkdownBlock({
       postId,
       token,
+      context,
       mode,
       location,
       markdown,

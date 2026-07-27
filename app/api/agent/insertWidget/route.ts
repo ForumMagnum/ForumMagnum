@@ -54,17 +54,20 @@ export function $insertWidgetInEditor({
 async function insertWidget({
   postId,
   token,
+  context,
   content,
   location,
 }: {
   postId: string
   token: string
+  context: ResolverContext
   content: string
   location: InsertLocation
 }): Promise<InsertWidgetResult> {
   return withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "InsertWidget",
     callback: async ({ editor, provider }) => {
       let result: InsertWidgetResult = { inserted: false, note: "No insertion performed." };
@@ -105,6 +108,7 @@ export async function POST(req: NextRequest) {
     const result = await insertWidget({
       postId,
       token,
+      context,
       content,
       location,
     });

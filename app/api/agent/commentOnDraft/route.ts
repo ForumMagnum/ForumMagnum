@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
       collectionName: "Posts",
       documentId: postId,
       token,
+      context,
       comment,
       quote: threadQuote,
       author: authorName,

@@ -89,12 +89,14 @@ export function $insertLLMBlockInEditor({
 async function insertLLMBlock({
   postId,
   token,
+  context,
   modelName,
   location,
   markdown,
 }: {
   postId: string
   token: string
+  context: ResolverContext
   modelName: string
   location: InsertLocation
   markdown: string
@@ -102,6 +104,7 @@ async function insertLLMBlock({
   return withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "InsertLLMBlock",
     callback: async ({ editor, provider }) => {
       let result: InsertLLMBlockResult = { inserted: false, note: "No insertion performed." };
@@ -145,6 +148,7 @@ export async function POST(req: NextRequest) {
     const result = await insertLLMBlock({
       postId,
       token,
+      context,
       modelName,
       location,
       markdown,

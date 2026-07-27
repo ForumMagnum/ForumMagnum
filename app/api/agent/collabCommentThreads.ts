@@ -84,12 +84,14 @@ async function getMainDocQuoteMatchResult({
   collectionName,
   documentId,
   token,
+  context,
   quote,
   markId,
 }: {
   collectionName: string
   documentId: string
   token: string
+  context?: ResolverContext
   quote: string
   markId: string
 }): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null, locateFailureReason?: string }> {
@@ -97,6 +99,7 @@ async function getMainDocQuoteMatchResult({
     collectionName,
     documentId,
     token,
+    context,
     operationLabel: "CommentOnDraftQuoteMatch",
     callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
@@ -129,6 +132,7 @@ export async function insertCollabCommentThread({
   collectionName,
   documentId,
   token,
+  context,
   comment,
   quote,
   author,
@@ -137,6 +141,7 @@ export async function insertCollabCommentThread({
   collectionName: string
   documentId: string
   token: string
+  context?: ResolverContext
   comment: string
   quote: string
   author: string
@@ -171,6 +176,7 @@ export async function insertCollabCommentThread({
           collectionName,
           documentId,
           token,
+          context,
           quote,
           markId: threadId,
         });

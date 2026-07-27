@@ -157,6 +157,7 @@ export function $replaceWidgetInEditor({
 export async function replaceWidgetInMainDoc({
   postId,
   token,
+  context,
   widgetId,
   replacement,
   unifiedDiff,
@@ -166,6 +167,7 @@ export async function replaceWidgetInMainDoc({
 }: {
   postId: string
   token: string
+  context: ResolverContext
   widgetId: string
   replacement?: string
   unifiedDiff?: string
@@ -176,6 +178,7 @@ export async function replaceWidgetInMainDoc({
   const result = await withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "ReplaceWidget",
     callback: async ({ editor, provider }) => {
       let result: ReplaceWidgetResult = {
@@ -243,6 +246,7 @@ export async function POST(req: NextRequest) {
     const result = await replaceWidgetInMainDoc({
       postId,
       token,
+      context,
       widgetId,
       replacement,
       unifiedDiff,

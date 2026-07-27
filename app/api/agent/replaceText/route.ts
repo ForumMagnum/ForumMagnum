@@ -305,6 +305,7 @@ export function $applySuggestionWithNarrowing({
 export async function replaceTextInMainDoc({
   postId,
   token,
+  context,
   quote,
   replacement,
   mode,
@@ -313,6 +314,7 @@ export async function replaceTextInMainDoc({
 }: {
   postId: string
   token: string
+  context: ResolverContext
   quote: string
   replacement: string
   mode: ReplaceMode
@@ -322,6 +324,7 @@ export async function replaceTextInMainDoc({
   const result: ReplaceResult = await withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "ReplaceText",
     callback: async ({ editor, provider }) => {
       let replaced = false;
@@ -461,6 +464,7 @@ export async function POST(req: NextRequest) {
     const result = await replaceTextInMainDoc({
       postId,
       token,
+      context,
       quote,
       replacement,
       mode,

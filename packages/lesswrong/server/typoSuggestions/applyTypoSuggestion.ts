@@ -164,6 +164,7 @@ async function applyToPost(
   const result = await replaceTextInMainDoc({
     postId: suggestion.documentId,
     token: auth.token,
+    context,
     quote,
     replacement,
     mode: replaceMode,

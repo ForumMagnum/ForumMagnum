@@ -163,15 +163,18 @@ export async function getOpenCommentThreadsMarkdown({
 export async function getLiveDraftMarkdown({
   postId,
   token,
+  context,
   operationLabel,
 }: {
   postId: string
   token: string
+  context?: ResolverContext
   operationLabel?: string
 }): Promise<string> {
   return getLiveLexicalMarkdown({
     postId,
     token,
+    context,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
   });
 }
@@ -198,6 +201,7 @@ export async function getLiveLexicalMarkdown({
   documentId,
   postId,
   token,
+  context,
   operationLabel,
   transformHtml,
 }: {
@@ -206,6 +210,7 @@ export async function getLiveLexicalMarkdown({
   documentId?: string
   postId?: string
   token: string
+  context?: ResolverContext
   operationLabel?: string
   transformHtml?: (args: { html: string, editor: LexicalEditor }) => Promise<string> | string
 }): Promise<string> {
@@ -214,6 +219,7 @@ export async function getLiveLexicalMarkdown({
     documentId,
     postId,
     token,
+    context,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
     callback: async ({ editor }) => {
       const html = withDomGlobals(() => {
@@ -291,7 +297,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
       ).data?.post?.result;
 
     const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
-      getLiveDraftMarkdown({ postId, token }),
+      getLiveDraftMarkdown({ postId, token, context: resolverContext }),
       getOpenCommentThreadsMarkdown({ collectionName: "Posts", documentId: postId, token }),
     ]);
     const resolvedPostId = post?._id ?? postId;

@@ -46,6 +46,7 @@ export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestio
 export async function deleteMarkdownBlock({
   postId,
   token,
+  context,
   mode,
   prefix,
   authorName,
@@ -53,6 +54,7 @@ export async function deleteMarkdownBlock({
 }: {
   postId: string
   token: string
+  context: ResolverContext
   mode: ReplaceMode
   prefix: string
   authorName: string
@@ -61,6 +63,7 @@ export async function deleteMarkdownBlock({
   const result: DeleteBlockResult = await withMainDocEditorSession({
     postId,
     token,
+    context,
     operationLabel: "DeleteBlock",
     callback: async ({ editor, provider }) => {
       let result: DeleteBlockResult = { deleted: false, note: "No deletion performed." };
@@ -174,6 +177,7 @@ export async function POST(req: NextRequest) {
     const deleteResult = await deleteMarkdownBlock({
       postId,
       token,
+      context,
       mode,
       prefix,
       authorName,

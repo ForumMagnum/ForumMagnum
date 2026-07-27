@@ -137,7 +137,12 @@ function createMcpServer(): McpServer {
         return { content: [{ type: "text" as const, text: "Post not found or access denied" }], isError: true };
       }
 
-      const markdown = await getLiveDraftMarkdown({ postId: args.postId, token, operationLabel: "McpReadPostDraft" });
+      const markdown = await getLiveDraftMarkdown({
+        postId: args.postId,
+        token,
+        context,
+        operationLabel: "McpReadPostDraft",
+      });
       return {
         content: [{
           type: "text" as const,
@@ -172,6 +177,7 @@ function createMcpServer(): McpServer {
         collectionName: "Posts",
         documentId: args.postId,
         token,
+        context,
         comment: args.comment,
         quote: threadQuote,
         author: authorName,
@@ -204,6 +210,7 @@ function createMcpServer(): McpServer {
       const result = await replaceTextInMainDoc({
         postId: args.postId,
         token,
+        context,
         quote: args.quote,
         replacement: args.replacement,
         mode: args.mode ?? "suggest",
@@ -242,6 +249,7 @@ function createMcpServer(): McpServer {
       const result = await replaceWidgetInMainDoc({
         postId: args.postId,
         token,
+        context,
         widgetId: args.widgetId,
         replacement: args.replacement,
         unifiedDiff: args.unifiedDiff,
@@ -276,6 +284,7 @@ function createMcpServer(): McpServer {
       const result = await deleteMarkdownBlock({
         ...args,
         token,
+        context,
         authorName,
         authorId,
       });
@@ -306,6 +315,7 @@ function createMcpServer(): McpServer {
       const result = await insertMarkdownBlock({
         postId: args.postId,
         token,
+        context,
         mode: args.mode ?? "suggest",
         location: args.location,
         markdown: args.markdown,
