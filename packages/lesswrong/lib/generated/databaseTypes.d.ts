@@ -15,6 +15,7 @@ interface DbAiDigestIssue extends DbObject {
   cacheWriteInputTokenCount: number | null
   countsTowardHistory: boolean
   createdAt: Date
+  discussionCommentIds: Array<string>
   generatedAt: Date
   generationDurationMs: number
   inputTokenCount: number | null
@@ -23,12 +24,22 @@ interface DbAiDigestIssue extends DbObject {
   personalInstructions: string | null
   postIds: Array<string>
   promptVersion: string
+  quickTakeIds: Array<string>
+  readPostCount: number | null
   recipientId: string
+  searchCount: number | null
   selectionCostUsd: number | null
   selectionModelId: string
   selectionSystemPrompt: string | null
   selectionUserPrompt: string | null
   spec: import("@/server/emailComponents/AiDigestSpec").AiDigestSpec | null
+  threadCacheReadInputTokenCount: number | null
+  threadInputTokenCount: number | null
+  threadOutputTokenCount: number | null
+  threadPromptVersion: string | null
+  threadSelectionCostUsd: number | null
+  threadSelectionUserPrompt: string | null
+  toolCallCount: number | null
   trigger: "adminSample" | "userPreview" | "scheduled"
   uncachedInputTokenCount: number | null
 }

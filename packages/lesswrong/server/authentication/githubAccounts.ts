@@ -80,7 +80,6 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
       username,
       displayName: displayName,
       emailSubscribedToCurated: true,
-      emailSubscribedToAiDigest: true,
       ...{ services, emails },
     }
   }, createAnonymousContext());

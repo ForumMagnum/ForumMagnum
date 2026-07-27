@@ -11,6 +11,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   countAiDigestWords as countWords,
   formatAiDigestDate as formatDate,
+  formatAiDigestPostAuthors as formatPostAuthors,
   selectAiDigestExcerpt as selectExcerpt,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
@@ -36,6 +37,11 @@ const emailAiBlockFont =
   '"cronos-pro", "Trebuchet MS", Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Arial, sans-serif';
 const mastheadHomeUrl = "https://www.lesswrong.com";
 const mastheadUnsubscribeUrl = "/account?tab=settings-notifications";
+
+// Tighter spacing for narrow screens, in email clients that support media
+// queries. Juice inlines the base styles onto each element, so every override
+// here must carry !important to beat the inlined value.
+const emailMobileBreakpoint = "@media screen and (max-width: 600px)";
 
 function CompassRoseIcon({ className }: {
   className?: string;
@@ -155,6 +161,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   shellCell: {
     padding: "28px 28px 40px",
+    [emailMobileBreakpoint]: {
+      padding: "18px 6px 30px !important",
+    },
   },
   masthead: {
     width: "100%",
@@ -188,6 +197,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     letterSpacing: "-0.2px",
     lineHeight: 1.1,
     textDecoration: "none",
+    [emailMobileBreakpoint]: {
+      fontSize: "21px !important",
+    },
   },
   mastheadProductName: {
     marginTop: 3,
@@ -219,6 +231,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   aiNoteCell: {
     padding: aiDigestPresentation.aiNote.padding,
+    [emailMobileBreakpoint]: {
+      padding: "15px 7px 16px !important",
+    },
   },
   aiNoteLabel: {
     marginBottom: aiDigestPresentation.aiNote.labelMarginBottom,
@@ -236,6 +251,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailAiBlockFont,
     fontSize: aiDigestPresentation.aiNote.paragraphFontSize,
     lineHeight: aiDigestPresentation.aiNote.paragraphLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "14px !important",
+    },
   },
   aiNoteFirstParagraph: {
     marginTop: 0,
@@ -281,6 +299,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   customPromptCell: {
     padding: "15px 20px 16px",
+    [emailMobileBreakpoint]: {
+      padding: "13px 7px 14px !important",
+    },
   },
   customPromptLabel: {
     marginBottom: 6,
@@ -306,6 +327,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
   section: {
     width: "100%",
     marginTop: aiDigestPresentation.section.marginTop,
+    [emailMobileBreakpoint]: {
+      marginTop: "28px !important",
+    },
   },
   sectionHeadingCell: {
     paddingBottom: 0,
@@ -317,9 +341,15 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.section.titleFontSize,
     fontWeight: aiDigestPresentation.section.titleFontWeight,
     lineHeight: aiDigestPresentation.section.titleLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "19px !important",
+    },
   },
   itemCell: {
     paddingTop: aiDigestPresentation.section.itemSpacing,
+    [emailMobileBreakpoint]: {
+      paddingTop: "18px !important",
+    },
   },
   headlineCard: {
     width: "100%",
@@ -332,9 +362,15 @@ const styles = defineStyles("AiDigestEmail", () => ({
     height: aiDigestPresentation.headline.imageHeight,
     objectFit: "cover",
     borderRadius: `${aiDigestPresentation.card.borderRadius}px ${aiDigestPresentation.card.borderRadius}px 0 0`,
+    [emailMobileBreakpoint]: {
+      height: "180px !important",
+    },
   },
   headlineBody: {
     padding: aiDigestPresentation.headline.bodyPadding,
+    [emailMobileBreakpoint]: {
+      padding: "16px 7px 12px !important",
+    },
   },
   headlineTitle: {
     margin: aiDigestPresentation.headline.titleMargin,
@@ -344,6 +380,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontWeight: aiDigestPresentation.headline.titleFontWeight,
     letterSpacing: aiDigestPresentation.headline.titleLetterSpacing,
     lineHeight: aiDigestPresentation.headline.titleLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "19px !important",
+    },
   },
   titleLink: {
     color: "#1a1a1a",
@@ -355,6 +394,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.headline.metadataFontSize,
     lineHeight: aiDigestPresentation.headline.metadataLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "12px !important",
+    },
   },
   metadataLink: {
     color: "#8a8a8a",
@@ -370,6 +412,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSerifFont,
     fontSize: aiDigestPresentation.headline.excerptFontSize,
     lineHeight: aiDigestPresentation.headline.excerptLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "15px !important",
+    },
   },
   readLink: {
     color: "#5f9b65",
@@ -378,6 +423,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.footer.readLinkFontSize,
     textDecoration: "none",
     whiteSpace: "nowrap",
+    [emailMobileBreakpoint]: {
+      fontSize: "13px !important",
+    },
   },
   compactCard: {
     width: "100%",
@@ -387,11 +435,18 @@ const styles = defineStyles("AiDigestEmail", () => ({
   compactTextCell: {
     padding: aiDigestPresentation.compact.textPadding,
     verticalAlign: "top",
+    [emailMobileBreakpoint]: {
+      padding: "13px 6px 6px 7px !important",
+    },
   },
   compactImageCell: {
     width: aiDigestPresentation.compact.imageWidth,
     padding: aiDigestPresentation.compact.imagePadding,
     verticalAlign: "top",
+    [emailMobileBreakpoint]: {
+      width: "96px !important",
+      padding: "13px 7px 6px 0 !important",
+    },
   },
   compactImage: {
     display: "block",
@@ -399,6 +454,10 @@ const styles = defineStyles("AiDigestEmail", () => ({
     height: aiDigestPresentation.compact.imageHeight,
     objectFit: "cover",
     borderRadius: aiDigestPresentation.compact.imageBorderRadius,
+    [emailMobileBreakpoint]: {
+      width: "96px !important",
+      height: "65px !important",
+    },
   },
   compactTitle: {
     margin: aiDigestPresentation.compact.titleMargin,
@@ -407,6 +466,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.compact.titleFontSize,
     fontWeight: aiDigestPresentation.compact.titleFontWeight,
     lineHeight: aiDigestPresentation.compact.titleLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "16px !important",
+    },
   },
   compactByline: {
     display: "block",
@@ -416,6 +478,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.compact.metadataFontSize,
     fontWeight: 400,
     textDecoration: "none",
+    [emailMobileBreakpoint]: {
+      fontSize: "12px !important",
+    },
   },
   compactExcerpt: {
     margin: aiDigestPresentation.compact.excerptMargin,
@@ -423,6 +488,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSerifFont,
     fontSize: aiDigestPresentation.compact.excerptFontSize,
     lineHeight: aiDigestPresentation.compact.excerptLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "13px !important",
+    },
   },
   quickTakeCard: {
     width: "100%",
@@ -431,6 +499,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   quickTakeBody: {
     padding: aiDigestPresentation.quickTake.bodyPadding,
+    [emailMobileBreakpoint]: {
+      padding: "12px 6px 10px !important",
+    },
   },
   quickTakeLabel: {
     display: "inline-block",
@@ -482,13 +553,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.quickTake.textFontSize,
     lineHeight: aiDigestPresentation.quickTake.textLineHeight,
   },
-  compactMetadata: {
-    marginBottom: 6,
-    color: "#8a8a8a",
-    fontFamily: emailSansFont,
-    fontSize: 12,
-    lineHeight: 1.35,
-  },
   discussionCard: {
     width: "100%",
     backgroundColor: "#fffdf9",
@@ -496,29 +560,25 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   discussionBody: {
     padding: aiDigestPresentation.discussion.bodyPadding,
-  },
-  discussionTitle: {
-    margin: aiDigestPresentation.discussion.titleMargin,
-    color: "#1a1a1a",
-    fontFamily: emailSansFont,
-    fontSize: aiDigestPresentation.discussion.titleFontSize,
-    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
-    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
+    [emailMobileBreakpoint]: {
+      padding: "14px 6px 16px !important",
+    },
   },
   discussionThreadTitle: {
     margin: aiDigestPresentation.discussion.threadTitleMargin,
-    color: "#1a1a1a",
-    fontFamily: emailSansFont,
+    color: "#4d4a43",
+    fontFamily: emailSerifFont,
     fontSize: aiDigestPresentation.discussion.threadTitleFontSize,
-    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    fontStyle: "italic",
+    fontWeight: aiDigestPresentation.discussion.threadTitleFontWeight,
     lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
-  discussionExcerpt: {
-    margin: aiDigestPresentation.discussion.excerptMargin,
-    color: "#333333",
-    fontFamily: emailSansFont,
-    fontSize: aiDigestPresentation.discussion.excerptFontSize,
-    lineHeight: aiDigestPresentation.discussion.excerptLineHeight,
+  discussionThreadTitleLink: {
+    color: "#4d4a43",
+    textDecoration: "none",
+  },
+  discussionThreadTitleSubject: {
+    fontWeight: aiDigestPresentation.discussion.threadTitleSubjectFontWeight,
   },
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
@@ -526,12 +586,21 @@ const styles = defineStyles("AiDigestEmail", () => ({
     backgroundColor: "#ffffff",
     border: "1px solid #e6dfd2",
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
+    [emailMobileBreakpoint]: {
+      padding: "9px 5px 10px !important",
+    },
   },
   commentBoxReply: {
     marginLeft: aiDigestPresentation.discussion.replyMarginLeft,
+    [emailMobileBreakpoint]: {
+      marginLeft: "10px !important",
+    },
   },
   commentBoxNestedReply: {
     marginLeft: aiDigestPresentation.discussion.nestedReplyMarginLeft,
+    [emailMobileBreakpoint]: {
+      marginLeft: "18px !important",
+    },
   },
   commentByline: {
     marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
@@ -572,6 +641,8 @@ const styles = defineStyles("AiDigestEmail", () => ({
     flexWrap: "wrap",
     rowGap: aiDigestPresentation.footer.rowGap,
   },
+  // Right of the read-more link on wide layouts; on narrow screens it takes
+  // its own flex line (full basis), left-aligned, with the footer rowGap above.
   footerReason: {
     color: "#9a958a",
     flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
@@ -582,9 +653,16 @@ const styles = defineStyles("AiDigestEmail", () => ({
     minWidth: 0,
     textAlign: "right",
     textWrap: "balance",
+    [emailMobileBreakpoint]: {
+      flexBasis: "100% !important",
+      textAlign: "left !important",
+    },
   },
   compactFooterCell: {
     padding: aiDigestPresentation.compact.footerPadding,
+    [emailMobileBreakpoint]: {
+      padding: "0 7px 12px !important",
+    },
   },
   curatedHeading: {
     width: "100%",
@@ -628,6 +706,14 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.curated.titleFontSize,
     fontWeight: aiDigestPresentation.curated.titleFontWeight,
     textDecoration: "none",
+    [emailMobileBreakpoint]: {
+      fontSize: "15px !important",
+    },
+  },
+  // Greyed-out title for curated posts the recipient has already read,
+  // matching the read-state dimming of post items onsite.
+  quietTitleLinkRead: {
+    color: "#8a8a8a",
   },
   quietByline: {
     color: "#8a8a8a",
@@ -635,6 +721,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.curated.bylineFontSize,
     marginLeft: aiDigestPresentation.curated.bylineMarginLeft,
     textDecoration: "none",
+    [emailMobileBreakpoint]: {
+      fontSize: "12px !important",
+    },
   },
   missingItem: {
     padding: aiDigestPresentation.missingItem.padding,
@@ -648,14 +737,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
 interface DigestContentLookup {
   postsById: Map<string, AiDigestEmailPost>;
   commentsById: Map<string, AiDigestEmailComment>;
-}
-
-function formatPostAuthors(post: AiDigestEmailPost): string {
-  const primaryAuthor = post.user?.displayName;
-  const coauthors = post.coauthors?.flatMap((author) =>
-    author.displayName ? [author.displayName] : [],
-  ) ?? [];
-  return [primaryAuthor, ...coauthors].flatMap((author) => author ? [author] : []).join(", ");
 }
 
 function itemKey(item: AiDigestItem): string {
@@ -758,7 +839,7 @@ function CustomPrompt({ personalInstructions, classes }: {
       <tbody>
         <tr>
           <td className={classes.customPromptCell}>
-            <div className={classes.customPromptLabel}>Custom prompt</div>
+            <div className={classes.customPromptLabel}>Your custom prompt</div>
             <div className={classes.customPromptText}>{personalInstructions}</div>
           </td>
         </tr>
@@ -934,15 +1015,22 @@ function CompactPost({ post, item, slot, classes }: {
 }
 
 /** Low-emphasis text row for the curated module: title and author, no card, no reason. */
-function QuietPost({ post, slot, classes }: {
+function QuietPost({ post, isRead, slot, classes }: {
   post: AiDigestEmailPost;
+  isRead: boolean;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
   const postUrl = postGetPageUrl(post, true);
   return (
     <div className={classes.quietItem}>
-      <a href={aiDigestLinkUrl(postUrl, "title", slot)} className={classes.quietTitleLink}>
+      <a
+        href={aiDigestLinkUrl(postUrl, "title", slot)}
+        className={classNames(
+          classes.quietTitleLink,
+          isRead && classes.quietTitleLinkRead,
+        )}
+      >
         {post.title}
       </a>
       <a href={aiDigestLinkUrl(postUrl, "byline", slot)} className={classes.quietByline}>
@@ -963,10 +1051,9 @@ function getCommentUrl(comment: AiDigestEmailComment): string {
   });
 }
 
-function QuickTakeItem({ comment, item, compact, slot, classes }: {
+function QuickTakeItem({ comment, item, slot, classes }: {
   comment: AiDigestEmailComment;
   item: AiDigestItem;
-  compact: boolean;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
@@ -974,9 +1061,7 @@ function QuickTakeItem({ comment, item, compact, slot, classes }: {
   const text = selectExcerpt(
     item.excerpt,
     comment.contents?.plaintextMainText ?? "",
-    compact
-      ? aiDigestPresentation.excerptCharacters.compactQuickTake
-      : aiDigestPresentation.excerptCharacters.fullQuickTake,
+    aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
 
   return (
@@ -1037,33 +1122,25 @@ function QuickTakeItem({ comment, item, compact, slot, classes }: {
   );
 }
 
-function commentTitle(comment: AiDigestEmailComment): string {
-  const author = comment.user?.displayName ?? "A LessWrong reader";
-  if (comment.shortform) {
-    return `${author}’s quick take`;
-  }
-  if (comment.post) {
-    return `${author} on “${comment.post.title}”`;
-  }
-  if (comment.tag) {
-    return `${author} in ${comment.tag.name}`;
-  }
-  return `Comment by ${author}`;
+/** Thread heading: the comment boxes carry author bylines, so drop the author here. */
+interface ThreadTitle {
+  // Rendered lighter than the subject it introduces, when there is one.
+  prefix: string | null;
+  subject: string;
 }
 
-/** Thread heading: the comment boxes carry author bylines, so drop the author here. */
-function threadTitle(comment: AiDigestEmailComment): string {
+function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
   if (comment.shortform) {
     const author = comment.user?.displayName ?? "A LessWrong reader";
-    return `${author}’s quick take`;
+    return { prefix: null, subject: `${author}’s quick take` };
   }
   if (comment.post) {
-    return `Comments on “${comment.post.title}”`;
+    return { prefix: "Comments on", subject: `“${comment.post.title}”` };
   }
   if (comment.tag) {
-    return `Comments on ${comment.tag.name}`;
+    return { prefix: "Comments on", subject: comment.tag.name };
   }
-  return "Comments";
+  return { prefix: null, subject: "Comments" };
 }
 
 interface DigestThreadComment {
@@ -1143,6 +1220,7 @@ function DiscussionItem({ comment, item, threadComments, slot, classes }: {
   classes: JssStyles;
 }) {
   const commentUrl = getCommentUrl(comment);
+  const { prefix, subject } = threadTitle(comment);
 
   return (
     <table
@@ -1156,8 +1234,12 @@ function DiscussionItem({ comment, item, threadComments, slot, classes }: {
         <tr>
           <td className={classes.discussionBody}>
             <h3 className={classes.discussionThreadTitle}>
-              <a href={aiDigestLinkUrl(commentUrl, "title", slot)} className={classes.titleLink}>
-                {threadTitle(comment)}
+              <a
+                href={aiDigestLinkUrl(commentUrl, "title", slot)}
+                className={classes.discussionThreadTitleLink}
+              >
+                {prefix ? `${prefix} ` : ""}
+                <span className={classes.discussionThreadTitleSubject}>{subject}</span>
               </a>
             </h3>
             <CommentBox
@@ -1191,59 +1273,6 @@ function DiscussionItem({ comment, item, threadComments, slot, classes }: {
   );
 }
 
-function CompactComment({ comment, item, slot, classes }: {
-  comment: AiDigestEmailComment;
-  item: AiDigestItem;
-  slot: AiDigestLinkSlot;
-  classes: JssStyles;
-}) {
-  const commentUrl = getCommentUrl(comment);
-  const excerpt = selectExcerpt(
-    item.excerpt,
-    comment.contents?.plaintextMainText ?? "",
-    aiDigestPresentation.excerptCharacters.compactComment,
-  );
-  return (
-    <table
-      role="presentation"
-      width="100%"
-      cellPadding={0}
-      cellSpacing={0}
-      className={classes.compactCard}
-    >
-      <tbody>
-        <tr>
-          <td className={classes.compactTextCell}>
-            <h3 className={classes.discussionTitle}>
-              <a href={aiDigestLinkUrl(commentUrl, "title", slot)} className={classes.titleLink}>
-                {commentTitle(comment)}
-              </a>
-              <a href={aiDigestLinkUrl(commentUrl, "byline", slot)} className={classes.compactByline}>
-                {formatDate(comment.postedAt)}
-              </a>
-            </h3>
-            {excerpt && (
-              <a href={aiDigestLinkUrl(commentUrl, "excerpt", slot)} className={classes.textLink}>
-                <p className={classes.discussionExcerpt}>{excerpt}</p>
-              </a>
-            )}
-          </td>
-        </tr>
-        <tr>
-          <td className={classes.compactFooterCell}>
-            <ItemFooter
-              readMoreUrl={aiDigestLinkUrl(commentUrl, "readMore", slot)}
-              readMoreLabel="Open comment"
-              reason={item.reason}
-              classes={classes}
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  );
-}
-
 function DigestItem({ item, content, slot, classes }: {
   item: AiDigestItem;
   content: DigestContentLookup;
@@ -1256,7 +1285,14 @@ function DigestItem({ item, content, slot, classes }: {
       return <div className={classes.missingItem}>This post is no longer available.</div>;
     }
     if (item.placement === "quiet") {
-      return <QuietPost post={post} slot={slot} classes={classes} />;
+      return (
+        <QuietPost
+          post={post}
+          isRead={item.isRead ?? false}
+          slot={slot}
+          classes={classes}
+        />
+      );
     }
     if (item.placement === "compact") {
       return <CompactPost post={post} item={item} slot={slot} classes={classes} />;
@@ -1273,14 +1309,10 @@ function DigestItem({ item, content, slot, classes }: {
       <QuickTakeItem
         comment={comment}
         item={item}
-        compact={item.placement === "compact"}
         slot={slot}
         classes={classes}
       />
     );
-  }
-  if (item.placement === "compact") {
-    return <CompactComment comment={comment} item={item} slot={slot} classes={classes} />;
   }
   const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId, excerpt }) => {
     const threadComment = content.commentsById.get(commentId);

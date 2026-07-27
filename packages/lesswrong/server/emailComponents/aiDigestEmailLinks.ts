@@ -5,7 +5,6 @@ import type { AiDigestSectionKind } from "./AiDigestSpec";
 /** Short codes so `emailSrc` stays legible in a hovered or shared URL. */
 const sectionCodes: Record<AiDigestSectionKind, string> = {
   recommendations: "rec",
-  followUps: "follow",
   discussion: "disc",
   curated: "curated",
 };

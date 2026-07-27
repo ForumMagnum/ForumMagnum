@@ -32,30 +32,17 @@ const styles = defineStyles('SignupSubscribeToCurated', (theme: ThemeType) => ({
   },
 }));
 
-interface SignupSubscribeToCuratedProps {
-  defaultValue: boolean
-  onChange: (checked: boolean) => void
-  includeAiDigest?: boolean
-}
-
-const SignupSubscribeToCurated = ({
-  defaultValue,
-  onChange,
-  includeAiDigest = false,
-}: SignupSubscribeToCuratedProps) => {
+const SignupSubscribeToCurated = ({defaultValue, onChange}: {
+  defaultValue: boolean,
+  onChange: (checked: boolean) => void,
+}) => {
   const classes = useStyles(styles);
   const [checked, setChecked] = useState(defaultValue);
 
   // this component is not used in the EA Forum signup flow,
   // but it does appear on the EA Forum via RecentDiscussionSubscribeReminder.tsx
-  const emailType = includeAiDigest
-    ? 'Curated and Content for You emails'
-    : isLWorAF()
-      ? 'Curated posts'
-      : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
-  const tooltip = includeAiDigest
-    ? "Curated emails feature posts chosen by the LessWrong moderation team. Content for You is a weekly AI-personalized digest."
-    : "Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.";
+  const emailType = isLWorAF() ? 
+    'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
 
   return <div>
     <InputLabel className={classes.checkboxLabel}>
@@ -69,7 +56,7 @@ const SignupSubscribeToCurated = ({
       />
       Subscribe to {emailType}
       {isLWorAF() && (
-        <TooltipSpan title={tooltip}>
+        <TooltipSpan title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
           <Info className={classes.infoIcon}/>
         </TooltipSpan>
       )}

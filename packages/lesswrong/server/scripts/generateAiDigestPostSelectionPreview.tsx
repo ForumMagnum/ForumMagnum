@@ -95,9 +95,15 @@ export async function generateAiDigestPostSelectionPreview(
       `${JSON.stringify({
         issueId: result.issueId,
         metadata: result.metadata,
-        selectedTitles: result.selectedCandidates.map((candidate) => candidate.title),
-        selectedRetrievalSources: result.selectedCandidates.map(
-          (candidate) => candidate.retrievalProvenance.source,
+        selectedTitles: result.selectedCandidates.map((item) =>
+          item.documentType === "post"
+            ? item.candidate.title
+            : `Quick take by ${item.candidate.author}`
+        ),
+        selectedRetrievalSources: result.selectedCandidates.map((item) =>
+          item.documentType === "post"
+            ? item.candidate.retrievalProvenance.source
+            : "quickTakeCorpus"
         ),
         personalInstructionsOverride: personalInstructionsOverride ?? null,
         spec: result.spec,
@@ -110,7 +116,9 @@ export async function generateAiDigestPostSelectionPreview(
   console.log(`HTML: ${htmlPath}`);
   console.log(`JSON: ${jsonPath}`);
   console.log(
-    `Sources: ${result.metadata.candidateCount} candidates, ${result.metadata.evidenceCount} evidence signals, `
+    `Sources: ${result.metadata.candidateCount} post candidates, `
+    + `${result.metadata.quickTakeCandidateCount} quick-take candidates, `
+    + `${result.metadata.evidenceCount} evidence signals, `
     + `${result.metadata.reusedSummaryCount} cached summaries, ${result.metadata.generatedSummaryCount} generated summaries, `
     + `${result.metadata.skippedPostCount} skipped posts, `
     + `${result.metadata.historyIssueCount} prior issues`,
@@ -119,10 +127,23 @@ export async function generateAiDigestPostSelectionPreview(
     `Tools: ${result.metadata.toolCallCount} calls, ${result.metadata.searchCount} searches, `
     + `${result.metadata.readPostCount} reads, ${result.metadata.discoveredCandidateCount} discovered`,
   );
+  console.log(
+    `Threads: ${result.metadata.threadCandidateCount} candidates, `
+    + `${result.metadata.selectedThreadCount} selected, `
+    + `${result.metadata.threadInputTokenCount ?? "?"} input tokens `
+    + `(${result.metadata.threadCacheReadInputTokenCount ?? "?"} cached), `
+    + `cost ${result.metadata.threadSelectionCostUsd ?? "unknown"}`,
+  );
   console.log(`Persisted issue: ${result.issueId}`);
-  result.selectedCandidates.forEach((candidate, index) => {
+  result.selectedCandidates.forEach((item, index) => {
+    if (item.documentType === "post") {
+      console.log(
+        `${index + 1}. [post/${item.candidate.retrievalProvenance.source}] ${item.candidate.title}`,
+      );
+      return;
+    }
     console.log(
-      `${index + 1}. [${candidate.retrievalProvenance.source}] ${candidate.title}`,
+      `${index + 1}. [quickTake] ${item.candidate.author}: ${item.candidate.body.slice(0, 80)}`,
     );
   });
 

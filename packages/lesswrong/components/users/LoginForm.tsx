@@ -237,11 +237,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
       {currentAction === "signup" && hasSubscribeToCuratedCheckbox &&
-        <SignupSubscribeToCurated
-          defaultValue={subscribeToCurated}
-          onChange={(checked: boolean) => setSubscribeToCurated(checked)}
-          includeAiDigest
-        />
+        <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(checked: boolean) => setSubscribeToCurated(checked)} />
       }
       <div className={classes.options}>
         {currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span>}

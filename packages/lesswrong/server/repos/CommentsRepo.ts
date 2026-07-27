@@ -8,6 +8,12 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import {
+  aiDigestActiveAuthorSubscriptionConditions,
+  aiDigestActiveSeeLessExistsSubquery,
+  aiDigestPositiveVoteLateralSubquery,
+  aiDigestPositiveVoteStrengthSubquery,
+} from "./aiDigestSqlFragments";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
@@ -16,6 +22,89 @@ type ExtendedCommentWithReactions = DbComment & {
   theirVote?: string,
   userVote?: string,
 }
+
+export interface AiDigestQuickTakeCandidateRow {
+  commentId: string;
+  author: string;
+  authorId: string | null;
+  publicationDate: Date;
+  baseScore: number;
+  revisionHtml: string;
+}
+
+export interface AiDigestQuickTakeAnnotationRow {
+  commentId: string;
+  isSubscribedToAuthor: boolean;
+  positivePreferenceStrength: "regular" | "strong" | null;
+  hasActiveSeeLess: boolean;
+  recipientAuthored: boolean;
+}
+
+export interface AiDigestQuickTakeInteractionRow {
+  commentId: string;
+  author: string;
+  publicationDate: Date;
+  revisionHtml: string;
+  positivePreferenceStrength: "regular" | "strong" | null;
+  positivePreferenceAt: Date | null;
+  repliedAt: Date | null;
+}
+
+export interface AiDigestSiteWideThreadRow {
+  threadId: string;
+  topCommentKarma: number;
+}
+
+export interface AiDigestReaderThreadRow {
+  threadId: string;
+  participated: boolean;
+  newCommentCount: number;
+  topCommentKarma: number;
+}
+
+export interface AiDigestThreadCommentRow {
+  commentId: string;
+  threadId: string;
+  parentCommentId: string | null;
+  postId: string | null;
+  postTitle: string | null;
+  postBaseScore: number | null;
+  author: string;
+  authorId: string | null;
+  publicationDate: Date;
+  baseScore: number;
+  revisionHtml: string;
+}
+
+export interface AiDigestThreadCommentAnnotationRow {
+  commentId: string;
+  authoredByReader: boolean;
+  positivePreferenceStrength: "regular" | "strong" | null;
+  newSinceLastVisit: boolean;
+  seenInFeed: boolean;
+  hasActiveSeeLess: boolean;
+  onReaderAuthoredPost: boolean;
+  replyToReaderComment: boolean;
+}
+
+/**
+ * Shared visibility filter for AI digest thread candidates, mirroring the
+ * quick-take candidate policy: no deleted/rejected/retracted/draft/needs-review/
+ * unreviewed comments, and no moderator-hat comments.
+ */
+const aiDigestThreadCommentFilters = (alias: string) => `
+  ${alias}.deleted IS FALSE
+  AND ${alias}.rejected IS FALSE
+  AND ${alias}.retracted IS FALSE
+  AND ${alias}.draft IS NOT TRUE
+  AND COALESCE(${alias}."needsReview", FALSE) IS FALSE
+  AND ${alias}."moderatorHat" IS FALSE
+  AND ${alias}."authorIsUnreviewed" IS FALSE
+  AND ${alias}."debateResponse" IS NOT TRUE
+  AND ${alias}."postId" IS NOT NULL
+  AND ${alias}."postedAt" IS NOT NULL
+  AND ${alias}."postedAt" <= NOW()
+`;
 
 class CommentsRepo extends AbstractRepo<"Comments"> {
   constructor() {
@@ -823,6 +912,368 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     });
 
     return engagementStats;
+  }
+
+  async getAiDigestQuickTakeCandidateRows({
+    minPostedAt,
+    minKarma,
+    limit,
+  }: {
+    minPostedAt: Date;
+    minKarma: number;
+    limit: number;
+  }): Promise<AiDigestQuickTakeCandidateRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestQuickTakeCandidateRow>(`
+      -- CommentsRepo.getAiDigestQuickTakeCandidateRows
+      SELECT
+        c."_id" AS "commentId",
+        COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
+        c."userId" AS "authorId",
+        c."postedAt" AS "publicationDate",
+        c."baseScore",
+        r.html AS "revisionHtml"
+      FROM "Comments" c
+      INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = c."userId"
+      WHERE c.shortform IS TRUE
+        AND c."topLevelCommentId" IS NULL
+        AND c.deleted IS FALSE
+        AND c.rejected IS FALSE
+        AND c.retracted IS FALSE
+        AND c.draft IS NOT TRUE
+        AND COALESCE(c."needsReview", FALSE) IS FALSE
+        AND c."moderatorHat" IS FALSE
+        AND c."authorIsUnreviewed" IS FALSE
+        AND c."postedAt" IS NOT NULL
+        AND c."postedAt" <= NOW()
+        AND c."postedAt" >= $(minPostedAt)
+        AND c."baseScore" >= $(minKarma)
+        AND c."contents_latest" IS NOT NULL
+        AND length(trim(r.html)) > 0
+      ORDER BY c."baseScore" DESC, c."postedAt" DESC, c."_id"
+      LIMIT $(limit)
+    `, {
+      minPostedAt,
+      minKarma,
+      limit,
+    });
+  }
+
+  async getAiDigestQuickTakeAnnotationRows({
+    userId,
+    commentIds,
+  }: {
+    userId: string;
+    commentIds: string[];
+  }): Promise<AiDigestQuickTakeAnnotationRow[]> {
+    if (commentIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestQuickTakeAnnotationRow>(`
+      -- CommentsRepo.getAiDigestQuickTakeAnnotationRows
+      SELECT
+        c."_id" AS "commentId",
+        EXISTS (
+          SELECT 1
+          FROM "Subscriptions" s
+          WHERE ${aiDigestActiveAuthorSubscriptionConditions("s")}
+            AND s."documentId" = c."userId"
+        ) AS "isSubscribedToAuthor",
+        ${aiDigestPositiveVoteStrengthSubquery({ collectionName: "Comments", documentIdExpression: `c."_id"` })} AS "positivePreferenceStrength",
+        ${aiDigestActiveSeeLessExistsSubquery({ collectionName: "Comments", documentIdExpression: `c."_id"` })} AS "hasActiveSeeLess",
+        (c."userId" = $(userId)) AS "recipientAuthored"
+      FROM "Comments" c
+      WHERE c."_id" = ANY($(commentIds)::text[])
+    `, {
+      userId,
+      commentIds,
+    });
+  }
+
+  async getAiDigestQuickTakeInteractionRows({
+    userId,
+    commentIds,
+  }: {
+    userId: string;
+    commentIds: string[];
+  }): Promise<AiDigestQuickTakeInteractionRow[]> {
+    if (commentIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestQuickTakeInteractionRow>(`
+      -- CommentsRepo.getAiDigestQuickTakeInteractionRows
+      SELECT
+        c."_id" AS "commentId",
+        COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
+        c."postedAt" AS "publicationDate",
+        r.html AS "revisionHtml",
+        positive_vote."positivePreferenceStrength",
+        positive_vote."positivePreferenceAt",
+        reply."repliedAt"
+      FROM "Comments" c
+      INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = c."userId"
+      LEFT JOIN LATERAL ${aiDigestPositiveVoteLateralSubquery({ collectionName: "Comments", documentIdExpression: `c."_id"` })} positive_vote ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT MIN(reply."postedAt") AS "repliedAt"
+        FROM "Comments" reply
+        WHERE reply."userId" = $(userId)
+          AND reply.deleted IS FALSE
+          AND reply.rejected IS FALSE
+          AND reply.draft IS NOT TRUE
+          AND (
+            reply."topLevelCommentId" = c."_id"
+            OR reply."parentCommentId" = c."_id"
+          )
+      ) reply ON TRUE
+      WHERE c."_id" = ANY($(commentIds)::text[])
+        AND c."postedAt" IS NOT NULL
+        AND c."contents_latest" IS NOT NULL
+    `, { userId, commentIds });
+  }
+
+  /**
+   * Top recent comment threads site-wide, grouped by top-level comment and
+   * ranked by the highest comment karma within the candidate window. This pool
+   * is shared across all AI digest readers.
+   */
+  async getAiDigestSiteWideThreadRows({
+    minPostedAt,
+    limit,
+  }: {
+    minPostedAt: Date;
+    limit: number;
+  }): Promise<AiDigestSiteWideThreadRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestSiteWideThreadRow>(`
+      -- CommentsRepo.getAiDigestSiteWideThreadRows
+      SELECT
+        COALESCE(c."topLevelCommentId", c."_id") AS "threadId",
+        MAX(c."baseScore") AS "topCommentKarma"
+      FROM "Comments" c
+      JOIN "Posts" p ON p."_id" = c."postId"
+      WHERE ${aiDigestThreadCommentFilters("c")}
+        AND c."postedAt" >= $(minPostedAt)
+        AND ${getViewablePostsSelector("p")}
+      GROUP BY COALESCE(c."topLevelCommentId", c."_id")
+      ORDER BY MAX(c."baseScore") DESC, COALESCE(c."topLevelCommentId", c."_id")
+      LIMIT $(limit)
+    `, {
+      minPostedAt,
+      limit,
+    });
+  }
+
+  /**
+   * Recent comment threads relevant to one reader: threads they participated in
+   * (authored or upvoted a comment), plus threads on posts they read or upvoted
+   * that have comments the reader has not seen (posted after the post's
+   * ReadStatuses.lastUpdated). Participated threads rank first; the rest rank by
+   * new-comment count times top-comment karma so heavy readers' pools are not
+   * dominated by whichever big posts they happened to open.
+   */
+  async getAiDigestReaderThreadRows({
+    userId,
+    minPostedAt,
+    limit,
+  }: {
+    userId: string;
+    minPostedAt: Date;
+    limit: number;
+  }): Promise<AiDigestReaderThreadRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestReaderThreadRow>(`
+      -- CommentsRepo.getAiDigestReaderThreadRows
+      WITH reader_read_posts AS (
+        SELECT rs."postId", MAX(rs."lastUpdated") AS "lastUpdated"
+        FROM "ReadStatuses" rs
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" IS TRUE
+          AND rs."postId" IS NOT NULL
+        GROUP BY rs."postId"
+      ),
+      reader_upvoted_posts AS (
+        SELECT DISTINCT v."documentId" AS "postId"
+        FROM "Votes" v
+        WHERE v."userId" = $(userId)
+          AND v."collectionName" = 'Posts'
+          AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+          AND v.cancelled IS FALSE
+          AND v."isUnvote" IS FALSE
+      ),
+      participated_threads AS (
+        SELECT DISTINCT COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
+        FROM "Comments" c
+        WHERE c."userId" = $(userId)
+          AND c.deleted IS FALSE
+          AND c.draft IS NOT TRUE
+        UNION
+        SELECT DISTINCT COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
+        FROM "Votes" v
+        JOIN "Comments" c ON c."_id" = v."documentId"
+        WHERE v."userId" = $(userId)
+          AND v."collectionName" = 'Comments'
+          AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+          AND v.cancelled IS FALSE
+          AND v."isUnvote" IS FALSE
+      ),
+      thread_stats AS (
+        SELECT
+          COALESCE(c."topLevelCommentId", c."_id") AS "threadId",
+          MAX(c."baseScore") AS "topCommentKarma",
+          COUNT(*) FILTER (
+            WHERE rrp."lastUpdated" IS NULL OR c."postedAt" > rrp."lastUpdated"
+          )::integer AS "newCommentCount",
+          BOOL_OR(pt."threadId" IS NOT NULL) AS "participated",
+          BOOL_OR(rrp."postId" IS NOT NULL OR rup."postId" IS NOT NULL) AS "onEngagedPost"
+        FROM "Comments" c
+        JOIN "Posts" p ON p."_id" = c."postId"
+        LEFT JOIN reader_read_posts rrp ON rrp."postId" = c."postId"
+        LEFT JOIN reader_upvoted_posts rup ON rup."postId" = c."postId"
+        LEFT JOIN participated_threads pt
+          ON pt."threadId" = COALESCE(c."topLevelCommentId", c."_id")
+        WHERE ${aiDigestThreadCommentFilters("c")}
+          AND c."postedAt" >= $(minPostedAt)
+          AND ${getViewablePostsSelector("p")}
+        GROUP BY COALESCE(c."topLevelCommentId", c."_id")
+      )
+      SELECT
+        ts."threadId",
+        ts."participated",
+        ts."newCommentCount",
+        ts."topCommentKarma"
+      FROM thread_stats ts
+      WHERE ts."participated"
+        OR (ts."onEngagedPost" AND ts."newCommentCount" > 0)
+      ORDER BY
+        ts."participated" DESC,
+        ts."newCommentCount" * GREATEST(ts."topCommentKarma", 0) DESC,
+        ts."threadId"
+      LIMIT $(limit)
+    `, {
+      userId,
+      minPostedAt,
+      limit,
+    });
+  }
+
+  /**
+   * All visible comments (bounded per thread, root first then karma) for the
+   * supplied AI digest candidate threads, with post context for card headers.
+   */
+  async getAiDigestThreadCommentRows({
+    threadIds,
+    perThreadLimit,
+  }: {
+    threadIds: string[];
+    perThreadLimit: number;
+  }): Promise<AiDigestThreadCommentRow[]> {
+    if (threadIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestThreadCommentRow>(`
+      -- CommentsRepo.getAiDigestThreadCommentRows
+      SELECT
+        "commentId",
+        "threadId",
+        "parentCommentId",
+        "postId",
+        "postTitle",
+        "postBaseScore",
+        author,
+        "authorId",
+        "publicationDate",
+        "baseScore",
+        "revisionHtml"
+      FROM (
+        SELECT
+          c."_id" AS "commentId",
+          COALESCE(c."topLevelCommentId", c."_id") AS "threadId",
+          c."parentCommentId",
+          c."postId",
+          p."title" AS "postTitle",
+          p."baseScore" AS "postBaseScore",
+          COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
+          c."userId" AS "authorId",
+          c."postedAt" AS "publicationDate",
+          c."baseScore",
+          r.html AS "revisionHtml",
+          ROW_NUMBER() OVER (
+            PARTITION BY COALESCE(c."topLevelCommentId", c."_id")
+            ORDER BY
+              (c."_id" = COALESCE(c."topLevelCommentId", c."_id")) DESC,
+              c."baseScore" DESC,
+              c."postedAt",
+              c."_id"
+          ) AS row_number
+        FROM "Comments" c
+        INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
+        LEFT JOIN "Users" u ON u."_id" = c."userId"
+        LEFT JOIN "Posts" p ON p."_id" = c."postId"
+        WHERE COALESCE(c."topLevelCommentId", c."_id") = ANY($(threadIds)::text[])
+          AND ${aiDigestThreadCommentFilters("c")}
+          AND c."contents_latest" IS NOT NULL
+          AND length(trim(r.html)) > 0
+      ) bounded_thread_comments
+      WHERE row_number <= $(perThreadLimit)
+    `, {
+      threadIds,
+      perThreadLimit,
+    });
+  }
+
+  /**
+   * Per-reader annotations for AI digest thread comments: authorship, upvotes,
+   * unseen-ness relative to the post's read status, UltraFeed viewed/expanded
+   * suppression, see-less feedback, and the notification-covered relationships
+   * that make a comment ineligible as a thread anchor.
+   */
+  async getAiDigestThreadCommentAnnotationRows({
+    userId,
+    commentIds,
+  }: {
+    userId: string;
+    commentIds: string[];
+  }): Promise<AiDigestThreadCommentAnnotationRow[]> {
+    if (commentIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestThreadCommentAnnotationRow>(`
+      -- CommentsRepo.getAiDigestThreadCommentAnnotationRows
+      SELECT
+        c."_id" AS "commentId",
+        (c."userId" = $(userId)) AS "authoredByReader",
+        ${aiDigestPositiveVoteStrengthSubquery({ collectionName: "Comments", documentIdExpression: `c."_id"` })} AS "positivePreferenceStrength",
+        COALESCE(rs."isRead" IS TRUE AND c."postedAt" > rs."lastUpdated", FALSE)
+          AS "newSinceLastVisit",
+        EXISTS (
+          SELECT 1
+          FROM "UltraFeedEvents" ufe
+          WHERE ufe."userId" = $(userId)
+            AND ufe."collectionName" = 'Comments'
+            AND ufe."documentId" = c."_id"
+            AND ufe."eventType" IN ('viewed', 'expanded')
+        ) AS "seenInFeed",
+        ${aiDigestActiveSeeLessExistsSubquery({ collectionName: "Comments", documentIdExpression: `c."_id"` })} AS "hasActiveSeeLess",
+        COALESCE(
+          p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"),
+          FALSE
+        ) AS "onReaderAuthoredPost",
+        COALESCE(parent."userId" = $(userId), FALSE) AS "replyToReaderComment"
+      FROM "Comments" c
+      LEFT JOIN "Posts" p ON p."_id" = c."postId"
+      LEFT JOIN "Comments" parent ON parent."_id" = c."parentCommentId"
+      LEFT JOIN LATERAL (
+        SELECT rs."isRead", rs."lastUpdated"
+        FROM "ReadStatuses" rs
+        WHERE rs."userId" = $(userId)
+          AND rs."postId" = c."postId"
+        ORDER BY rs."lastUpdated" DESC
+        LIMIT 1
+      ) rs ON TRUE
+      WHERE c."_id" = ANY($(commentIds)::text[])
+    `, {
+      userId,
+      commentIds,
+    });
   }
 }
 

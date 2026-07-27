@@ -1,6 +1,12 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import {
+  aiDigestActiveAuthorSubscriptionConditions,
+  aiDigestActiveSeeLessExistsSubquery,
+  aiDigestPositiveVoteLateralSubquery,
+  aiDigestPositiveVoteStrengthSubquery,
+} from "./aiDigestSqlFragments";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
@@ -9,6 +15,7 @@ import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFe
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { getPgPromiseLib } from "@/server/sqlConnection";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
+import { postStatuses } from "../../lib/collections/posts/constants";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -145,6 +152,11 @@ export interface AiDigestCandidateAnnotationRow {
   recipientAuthored: boolean;
 }
 
+export interface AiDigestCuratedPostRow {
+  postId: string;
+  isRead: boolean;
+}
+
 export interface AiDigestPostSummaryTargetRow {
   postId: string;
   revisionId: string;
@@ -163,6 +175,83 @@ export interface AiDigestPostInteractionRow {
   positivePreferenceStrength: "regular" | "strong" | null;
   positivePreferenceAt: Date | null;
 }
+
+/**
+ * Plain-text author byline for AI digest prompts: 'Anonymous' when the post
+ * hides its author, otherwise the primary author's display name followed by
+ * any coauthors in order. Expects the post's author row joined as `userAlias`.
+ */
+const aiDigestPostAuthorExpression = (postAlias: string, userAlias: string) => `CASE
+  WHEN ${postAlias}."hideAuthor" THEN 'Anonymous'
+  ELSE concat_ws(
+    ', ',
+    COALESCE(${userAlias}."displayName", ${postAlias}.author, 'LessWrong contributor'),
+    NULLIF((
+      SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
+      FROM unnest(${postAlias}."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
+      INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
+    ), '')
+  )
+END`;
+
+/** Names of the post's positively-scored tags, strongest relevance first. */
+const aiDigestPostTagNamesSubquery = (postIdExpression: string, limit?: number) => `ARRAY(
+  SELECT COALESCE(t."shortName", t.name)
+  FROM "TagRels" tr
+  INNER JOIN "Tags" t ON t."_id" = tr."tagId"
+  WHERE tr."postId" = ${postIdExpression}
+    AND tr.deleted IS FALSE
+    AND tr."baseScore" > 0
+    AND t.deleted IS FALSE
+  ORDER BY tr."baseScore" DESC, t."_id"${limit === undefined ? "" : `
+  LIMIT ${limit}`}
+)`;
+
+/**
+ * Posts eligible for AI digest recommendation. Deliberately stricter than
+ * getViewablePostsSelector: beyond viewability, the digest skips deleted
+ * drafts, rejected posts, posts restricted to established accounts, posts that
+ * opted out of recommendations, shortform containers, events, group posts,
+ * hidden related questions, and anything not yet published.
+ */
+const aiDigestEligiblePostConditions = (postAlias: string) => `
+    ${postAlias}."status" = ${postStatuses.STATUS_APPROVED}
+    AND ${postAlias}."draft" IS FALSE
+    AND ${postAlias}."deletedDraft" IS FALSE
+    AND ${postAlias}.rejected IS FALSE
+    AND ${postAlias}."isFuture" IS FALSE
+    AND ${postAlias}."unlisted" IS FALSE
+    AND ${postAlias}."authorIsUnreviewed" IS FALSE
+    AND ${postAlias}."onlyVisibleToEstablishedAccounts" IS FALSE
+    AND ${postAlias}."disableRecommendation" IS FALSE
+    AND ${postAlias}.shortform IS FALSE
+    AND ${postAlias}."isEvent" IS FALSE
+    AND ${postAlias}."hiddenRelatedQuestion" IS FALSE
+    AND ${postAlias}."groupId" IS NULL
+    AND ${postAlias}."postedAt" IS NOT NULL
+    AND ${postAlias}."postedAt" <= NOW()
+`;
+
+/** EXISTS subquery: the reader ($(userId)) has read the post. */
+const aiDigestPostIsReadExistsSubquery = (postIdExpression: string) => `EXISTS (
+  SELECT 1
+  FROM "ReadStatuses" rs
+  WHERE rs."postId" = ${postIdExpression}
+    AND rs."userId" = $(userId)
+    AND rs."isRead" IS TRUE
+)`;
+
+/**
+ * Author columns for the reader-dossier post lists in getAiDigestReaderData,
+ * anonymized when the post hides its author. Expects aliases `p` and `u`.
+ */
+const aiDigestReaderPostAuthorColumns = `
+  CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
+  CASE
+    WHEN p."hideAuthor" THEN 'Anonymous'
+    ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
+  END AS "authorName"
+`;
 
 const constructFilters = (
   {
@@ -1271,11 +1360,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             SELECT
               p."_id" AS "postId",
               p.title,
-              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
-              CASE
-                WHEN p."hideAuthor" THEN 'Anonymous'
-                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
-              END AS "authorName",
+              ${aiDigestReaderPostAuthorColumns},
               p."postedAt" AS "postedAt",
               rr."lastUpdated" AS "occurredAt"
             FROM read_rows rr
@@ -1294,11 +1379,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
               SELECT DISTINCT ON (p."_id")
                 p."_id" AS "postId",
                 p.title,
-                CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
-                CASE
-                  WHEN p."hideAuthor" THEN 'Anonymous'
-                  ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
-                END AS "authorName",
+                ${aiDigestReaderPostAuthorColumns},
                 p."postedAt" AS "postedAt",
                 v."votedAt" AS "occurredAt",
                 CASE WHEN v."voteType" = 'bigUpvote' THEN 'strong' ELSE 'regular' END AS "voteStrength"
@@ -1323,11 +1404,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             SELECT
               p."_id" AS "postId",
               p.title,
-              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
-              CASE
-                WHEN p."hideAuthor" THEN 'Anonymous'
-                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
-              END AS "authorName",
+              ${aiDigestReaderPostAuthorColumns},
               p."postedAt" AS "postedAt",
               p."postedAt" AS "occurredAt"
             FROM published_posts p
@@ -1347,11 +1424,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             SELECT
               p."_id" AS "postId",
               p.title,
-              CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
-              CASE
-                WHEN p."hideAuthor" THEN 'Anonymous'
-                ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
-              END AS "authorName",
+              ${aiDigestReaderPostAuthorColumns},
               p."postedAt" AS "postedAt",
               MAX(c."postedAt") AS "occurredAt"
             FROM "Comments" c
@@ -1405,16 +1478,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
                   THEN COALESCE(target_post_author."displayName", target_post.author, 'LessWrong contributor')
                 ELSE NULL
               END AS "targetAuthor",
-              COALESCE(ARRAY(
-                SELECT COALESCE(target_tag."shortName", target_tag.name)
-                FROM "TagRels" target_tag_rel
-                INNER JOIN "Tags" target_tag ON target_tag."_id" = target_tag_rel."tagId"
-                WHERE target_tag_rel."postId" = target_post."_id"
-                  AND target_tag_rel.deleted IS FALSE
-                  AND target_tag_rel."baseScore" > 0
-                  AND target_tag.deleted IS FALSE
-                ORDER BY target_tag_rel."baseScore" DESC, target_tag."_id"
-              ), ARRAY[]::text[]) AS "targetTagNames",
+              ${aiDigestPostTagNamesSubquery(`target_post."_id"`)} AS "targetTagNames",
               ufe.event -> 'feedbackReasons' AS "feedbackReasons"
             FROM "UltraFeedEvents" ufe
             LEFT JOIN "Comments" target_comment
@@ -1447,10 +1511,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
               u."displayName" AS "authorName"
             FROM "Subscriptions" s
             INNER JOIN "Users" u ON u."_id" = s."documentId"
-            WHERE s."userId" = $(userId)
-              AND s."collectionName" = 'Users'
-              AND s.state = 'subscribed'
-              AND s.deleted IS FALSE
+            WHERE ${aiDigestActiveAuthorSubscriptionConditions("s")}
             GROUP BY s."documentId", u."displayName"
             ORDER BY u."displayName", s."documentId"
             LIMIT 100
@@ -1481,36 +1542,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."_id" AS "postId",
         p."contents_latest" AS "revisionId",
         p.title,
-        CASE
-          WHEN p."hideAuthor" THEN 'Anonymous'
-          ELSE concat_ws(
-            ', ',
-            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
-            NULLIF((
-              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
-              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
-              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
-            ), '')
-          )
-        END AS author,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
         r.html AS "revisionHtml"
       FROM "Posts" p
       INNER JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."status" = 2
-        AND p."draft" IS FALSE
-        AND p."deletedDraft" IS FALSE
-        AND p.rejected IS FALSE
-        AND p."isFuture" IS FALSE
-        AND p."unlisted" IS FALSE
-        AND p."authorIsUnreviewed" IS FALSE
-        AND p."onlyVisibleToEstablishedAccounts" IS FALSE
-        AND p."disableRecommendation" IS FALSE
-        AND p.shortform IS FALSE
-        AND p."isEvent" IS FALSE
-        AND p."hiddenRelatedQuestion" IS FALSE
-        AND p."postedAt" IS NOT NULL
-        AND p."postedAt" <= NOW()
+      WHERE ${aiDigestEligiblePostConditions("p")}
         AND p."postedAt" >= $(minPostedAt)
         AND p."baseScore" >= $(minKarma)
         AND p."_id" <> $(aboutPostId)
@@ -1541,18 +1578,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."_id" AS "postId",
         p."contents_latest" AS "revisionId",
         p.title,
-        CASE
-          WHEN p."hideAuthor" THEN 'Anonymous'
-          ELSE concat_ws(
-            ', ',
-            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
-            NULLIF((
-              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
-              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
-              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
-            ), '')
-          )
-        END AS author,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
         CASE
           WHEN p."hideAuthor" THEN ARRAY[]::text[]
           ELSE array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL)
@@ -1560,35 +1586,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."postedAt" AS "publicationDate",
         p."baseScore",
         p.score,
-        ARRAY(
-          SELECT COALESCE(t."shortName", t.name)
-          FROM "TagRels" tr
-          INNER JOIN "Tags" t ON t."_id" = tr."tagId"
-          WHERE tr."postId" = p."_id"
-            AND tr.deleted IS FALSE
-            AND tr."baseScore" > 0
-            AND t.deleted IS FALSE
-          ORDER BY tr."baseScore" DESC, t."_id"
-          LIMIT 8
-        ) AS "tagNames",
+        ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS "tagNames",
         (p."curatedDate" IS NOT NULL) AS "isCurated"
       FROM "Posts" p
       LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."status" = 2
-        AND p."draft" IS FALSE
-        AND p."deletedDraft" IS FALSE
-        AND p.rejected IS FALSE
-        AND p."isFuture" IS FALSE
-        AND p."unlisted" IS FALSE
-        AND p."authorIsUnreviewed" IS FALSE
-        AND p."onlyVisibleToEstablishedAccounts" IS FALSE
-        AND p."disableRecommendation" IS FALSE
-        AND p.shortform IS FALSE
-        AND p."isEvent" IS FALSE
-        AND p."hiddenRelatedQuestion" IS FALSE
-        AND p."groupId" IS NULL
-        AND p."postedAt" IS NOT NULL
-        AND p."postedAt" <= NOW()
+      WHERE ${aiDigestEligiblePostConditions("p")}
         AND p."postedAt" >= $(minPostedAt)
         AND p."baseScore" >= $(minKarma)
         AND p."_id" <> $(aboutPostId)
@@ -1617,18 +1619,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."_id" AS "postId",
         p."contents_latest" AS "revisionId",
         p.title,
-        CASE
-          WHEN p."hideAuthor" THEN 'Anonymous'
-          ELSE concat_ws(
-            ', ',
-            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
-            NULLIF((
-              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
-              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
-              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
-            ), '')
-          )
-        END AS author,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
         CASE
           WHEN p."hideAuthor" THEN ARRAY[]::text[]
           ELSE array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL)
@@ -1636,17 +1627,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."postedAt" AS "publicationDate",
         p."baseScore",
         p.score,
-        ARRAY(
-          SELECT COALESCE(t."shortName", t.name)
-          FROM "TagRels" tr
-          INNER JOIN "Tags" t ON t."_id" = tr."tagId"
-          WHERE tr."postId" = p."_id"
-            AND tr.deleted IS FALSE
-            AND tr."baseScore" > 0
-            AND t.deleted IS FALSE
-          ORDER BY tr."baseScore" DESC, t."_id"
-          LIMIT 8
-        ) AS "tagNames",
+        ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS "tagNames",
         (p."curatedDate" IS NOT NULL) AS "isCurated",
         p.status,
         p.draft,
@@ -1676,7 +1657,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."coauthorUserIds", ARRAY[]::text[]) AS "coauthorUserIds"
       FROM "Posts" p
       LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."_id" IN ($(postIds:csv))
+      WHERE p."_id" = ANY($(postIds)::text[])
     `, {
       postIds,
     });
@@ -1695,27 +1676,52 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT
         p."_id" AS "postId",
         p.title,
-        CASE
-          WHEN p."hideAuthor" THEN 'Anonymous'
-          ELSE concat_ws(
-            ', ',
-            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
-            NULLIF((
-              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
-              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
-              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
-            ), '')
-          )
-        END AS author,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
         r.html AS "revisionHtml"
       FROM "Posts" p
       INNER JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."_id" IN ($(postIds:csv))
+      WHERE p."_id" = ANY($(postIds)::text[])
         AND p."contents_latest" IS NOT NULL
         AND length(trim(r.html)) > 0
     `, {
       postIds,
+    });
+  }
+
+  /**
+   * The most recently curated posts for the AI digest's curated module (up to
+   * `limit`), newest curation first, each flagged with whether the recipient
+   * has read it.
+   */
+  async getAiDigestRecentlyCuratedPostRows({
+    userId,
+    limit,
+    now,
+  }: {
+    userId: string;
+    limit: number;
+    now: Date;
+  }): Promise<AiDigestCuratedPostRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestCuratedPostRow>(`
+      -- PostsRepo.getAiDigestRecentlyCuratedPostRows
+      SELECT
+        p."_id" AS "postId",
+        ${aiDigestPostIsReadExistsSubquery(`p."_id"`)} AS "isRead"
+      FROM "Posts" p
+      WHERE p."status" = 2
+        AND p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+        AND p."rejected" IS NOT TRUE
+        AND p."unlisted" IS NOT TRUE
+        AND p."curatedDate" IS NOT NULL
+        AND p."curatedDate" <= $(now)
+      ORDER BY p."curatedDate" DESC
+      LIMIT $(limit)
+    `, {
+      userId,
+      limit,
+      now,
     });
   }
 
@@ -1738,53 +1744,22 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND EXISTS (
             SELECT 1
             FROM "Subscriptions" s
-            WHERE s."userId" = $(userId)
-              AND s."collectionName" = 'Users'
-              AND s.state = 'subscribed'
-              AND s.deleted IS FALSE
+            WHERE ${aiDigestActiveAuthorSubscriptionConditions("s")}
               AND (
                 s."documentId" = p."userId"
                 OR s."documentId" = ANY(p."coauthorUserIds")
               )
           )
         ) AS "isSubscribedToAuthor",
-        EXISTS (
-          SELECT 1
-          FROM "ReadStatuses" rs
-          WHERE rs."postId" = p."_id"
-            AND rs."userId" = $(userId)
-            AND rs."isRead" IS TRUE
-        ) AS "isRead",
-        (
-          SELECT CASE
-            WHEN v."voteType" = 'bigUpvote' THEN 'strong'
-            ELSE 'regular'
-          END
-          FROM "Votes" v
-          WHERE v."userId" = $(userId)
-            AND v."collectionName" = 'Posts'
-            AND v."documentId" = p."_id"
-            AND v."voteType" IN ('smallUpvote', 'bigUpvote')
-            AND v.cancelled IS FALSE
-            AND v."isUnvote" IS FALSE
-          ORDER BY v."votedAt" DESC
-          LIMIT 1
-        ) AS "positivePreferenceStrength",
-        EXISTS (
-          SELECT 1
-          FROM "UltraFeedEvents" ufe
-          WHERE ufe."userId" = $(userId)
-            AND ufe."collectionName" = 'Posts'
-            AND ufe."documentId" = p."_id"
-            AND ufe."eventType" = 'seeLess'
-            AND COALESCE((ufe.event ->> 'cancelled')::boolean, FALSE) IS FALSE
-        ) AS "hasActiveSeeLess",
+        ${aiDigestPostIsReadExistsSubquery(`p."_id"`)} AS "isRead",
+        ${aiDigestPositiveVoteStrengthSubquery({ collectionName: "Posts", documentIdExpression: `p."_id"` })} AS "positivePreferenceStrength",
+        ${aiDigestActiveSeeLessExistsSubquery({ collectionName: "Posts", documentIdExpression: `p."_id"` })} AS "hasActiveSeeLess",
         (
           p."userId" = $(userId)
           OR $(userId) = ANY(p."coauthorUserIds")
         ) AS "recipientAuthored"
       FROM "Posts" p
-      WHERE p."_id" IN ($(postIds:csv))
+      WHERE p."_id" = ANY($(postIds)::text[])
     `, {
       userId,
       postIds,
@@ -1806,18 +1781,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT
         p."_id" AS "postId",
         p.title,
-        CASE
-          WHEN p."hideAuthor" THEN 'Anonymous'
-          ELSE concat_ws(
-            ', ',
-            COALESCE(u."displayName", p.author, 'LessWrong contributor'),
-            NULLIF((
-              SELECT string_agg(coauthor."displayName", ', ' ORDER BY coauthor_ids.position)
-              FROM unnest(p."coauthorUserIds") WITH ORDINALITY AS coauthor_ids("userId", position)
-              INNER JOIN "Users" coauthor ON coauthor."_id" = coauthor_ids."userId"
-            ), '')
-          )
-        END AS author,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
         p."postedAt" AS "publicationDate",
         COALESCE(rs."isRead", FALSE) AS "isRead",
         CASE WHEN rs."isRead" IS TRUE THEN rs."lastUpdated" ELSE NULL END AS "readAt",
@@ -1828,23 +1792,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LEFT JOIN "ReadStatuses" rs
         ON rs."postId" = p."_id"
         AND rs."userId" = $(userId)
-      LEFT JOIN LATERAL (
-        SELECT
-          CASE
-            WHEN v."voteType" = 'bigUpvote' THEN 'strong'
-            ELSE 'regular'
-          END AS "positivePreferenceStrength",
-          v."votedAt" AS "positivePreferenceAt"
-        FROM "Votes" v
-        WHERE v."userId" = $(userId)
-          AND v."collectionName" = 'Posts'
-          AND v."documentId" = p."_id"
-          AND v."voteType" IN ('smallUpvote', 'bigUpvote')
-          AND v.cancelled IS FALSE
-          AND v."isUnvote" IS FALSE
-        ORDER BY v."votedAt" DESC
-        LIMIT 1
-      ) positive_vote ON TRUE
+      LEFT JOIN LATERAL ${aiDigestPositiveVoteLateralSubquery({ collectionName: "Posts", documentIdExpression: `p."_id"` })} positive_vote ON TRUE
       WHERE p."_id" = ANY($(postIds)::text[])
         AND p."postedAt" IS NOT NULL
     `, { userId, postIds });

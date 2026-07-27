@@ -1,14 +1,19 @@
 import { generateText, Output, stepCountIs } from "ai";
-import type { ModelMessage, ProviderMetadata, TextPart } from "ai";
 import { z } from "zod";
+import { captureException } from "@/lib/sentryWrapper";
 import {
+  type AiDigestQuickTakeCandidate,
   type AiDigestSelectedPostCandidate,
   buildAiDigestPostCandidateCards,
   isSelectableAiDigestCandidate,
   loadAiDigestPostCandidates,
+  loadAiDigestQuickTakeCandidates,
   loadAiDigestReaderContext,
+  loadAiDigestRecentlyCuratedPosts,
+  type AiDigestUserDossier,
   type LoadAiDigestPostCandidatesOptions,
 } from "./aiDigestPostCandidates";
+import type { AiDigestCuratedPostRow } from "@/server/repos/PostsRepo";
 import {
   AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
   ensureAiDigestPostSummaries,
@@ -25,17 +30,34 @@ import {
   buildAiDigestPostSelectionPrompt,
 } from "./aiDigestPostSelectionPrompt";
 import {
+  buildAiDigestSelectionMessages,
+  decodeStrayUnicodeEscapes,
+  sumAiDigestSelectionCostUsd,
+} from "./aiDigestSelectionShared";
+import {
   AI_DIGEST_SELECTION_STEP_LIMIT,
   createAiDigestDiscoveredCandidateRegistry,
   createAiDigestSelectionTools,
+  type AiDigestSelectionToolUsageCounts,
 } from "./aiDigestSelectionTools";
 import {
+  loadAiDigestThreadCandidates,
+  type AiDigestThreadCandidates,
+} from "./aiDigestThreadCandidates";
+import {
+  runAiDigestThreadSelection,
+  type AiDigestSelectedThread,
+  type AiDigestThreadSelectionResult,
+} from "./aiDigestThreadSelection";
+import {
   type AiDigestItem,
+  type AiDigestSection,
   type AiDigestSpec,
-  rubyAiDigestSpec,
 } from "@/server/emailComponents/AiDigestSpec";
 
-export const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-fable-5";
+export const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-opus-5";
+export const AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE = 2;
+export const AI_DIGEST_CURATED_ITEM_LIMIT = 3;
 
 export const AI_DIGEST_SELECTION_LENGTH_LIMITS = {
   subject: 120,
@@ -44,61 +66,15 @@ export const AI_DIGEST_SELECTION_LENGTH_LIMITS = {
   reason: 180,
 };
 
-function selectionPromptTextPart(text: string, cacheAfter: boolean): TextPart {
-  return cacheAfter
-    ? {
-      type: "text",
-      text,
-      providerOptions: {
-        anthropic: {
-          cacheControl: { type: "ephemeral" },
-        },
-      },
-    }
-    : { type: "text", text };
-}
-
-export function buildAiDigestSelectionMessages({
-  sharedPrefix,
-  personalizedSuffix,
-  enableAnthropicCaching,
-}: {
-  sharedPrefix: string;
-  personalizedSuffix: string;
-  enableAnthropicCaching: boolean;
-}): ModelMessage[] {
-  return [{
-    role: "user",
-    content: [
-      selectionPromptTextPart(sharedPrefix, enableAnthropicCaching),
-      selectionPromptTextPart(`\n\n${personalizedSuffix}`, false),
-    ],
-  }];
-}
-
-export function sumAiDigestSelectionCostUsd(
-  providerMetadataByStep: ReadonlyArray<ProviderMetadata | undefined>,
-): number | null {
-  const costs = providerMetadataByStep.flatMap((providerMetadata) => {
-    const cost = providerMetadata?.gateway?.cost;
-    if (typeof cost !== "string") {
-      return [];
-    }
-    const parsedCost = Number(cost);
-    return Number.isFinite(parsedCost) && parsedCost >= 0 ? [parsedCost] : [];
-  });
-  return costs.length > 0
-    ? costs.reduce((total, cost) => total + cost, 0)
-    : null;
-}
-
 const selectionOutputSchema = z.object({
-  selectedPosts: z.array(z.object({
-    postId: z.string(),
-    reason: z.string().nullable().describe(
-      "Why this post connects to this reader, e.g. \"Because you follow author X\". "
-      + "Never describe what the post is about or how popular it is, including in a "
-      + "clause appended after a dash or colon. Null if there is no connection to state.",
+  selectedItems: z.array(z.object({
+    itemId: z.string(),
+    reason: z.string().describe(
+      "The true reason this item was chosen for this reader, e.g. \"Because you "
+      + "follow author X\" or an honest inferred-interest match. Fall back to the "
+      + "site-wide rationale (e.g. one of the most appreciated posts this week) only "
+      + "when reader signals are too thin to ground any connection. Never describe "
+      + "what the item is about, including in a clause appended after a dash or colon.",
     ),
   })).length(5),
   subject: z.string(),
@@ -107,6 +83,10 @@ const selectionOutputSchema = z.object({
 });
 
 export type AiDigestPostSelectionModelOutput = z.infer<typeof selectionOutputSchema>;
+
+export type AiDigestSelectedItemCandidate =
+  | { documentType: "post"; candidate: AiDigestSelectedPostCandidate }
+  | { documentType: "quickTake"; candidate: AiDigestQuickTakeCandidate };
 
 export interface AiDigestPostSelectionOptions {
   selectionModelId?: string;
@@ -125,7 +105,7 @@ export interface AiDigestPostSelectionOptions {
 
 export interface AiDigestPostSelectionResult {
   spec: AiDigestSpec;
-  selectedCandidates: AiDigestSelectedPostCandidate[];
+  selectedCandidates: AiDigestSelectedItemCandidate[];
   issueId: string | null;
   generatedAt: Date;
   metadata: {
@@ -134,6 +114,7 @@ export interface AiDigestPostSelectionResult {
     selectionPromptVersion: string;
     summaryModelId: string;
     candidateCount: number;
+    quickTakeCandidateCount: number;
     evidenceCount: number;
     reusedSummaryCount: number;
     generatedSummaryCount: number;
@@ -150,6 +131,12 @@ export interface AiDigestPostSelectionResult {
     cacheReadInputTokenCount: number | null;
     cacheWriteInputTokenCount: number | null;
     selectionCostUsd: number | null;
+    threadCandidateCount: number;
+    selectedThreadCount: number;
+    threadInputTokenCount: number | null;
+    threadOutputTokenCount: number | null;
+    threadCacheReadInputTokenCount: number | null;
+    threadSelectionCostUsd: number | null;
     generationDurationMs: number;
   };
 }
@@ -161,7 +148,7 @@ export interface AiDigestPostSelectionFinalizationDependencies {
 export interface AiDigestPostSelectionFinalizationResult {
   output: AiDigestPostSelectionModelOutput;
   spec: AiDigestSpec;
-  selectedCandidates: AiDigestSelectedPostCandidate[];
+  selectedCandidates: AiDigestSelectedItemCandidate[];
   issueId: string | null;
 }
 
@@ -171,23 +158,13 @@ function assertLength(name: string, text: string, maximum: number): void {
   }
 }
 
-// Models occasionally double-escape unicode in structured output, leaving
-// literal sequences like "\u2014" in the parsed strings.
-function decodeStrayUnicodeEscapes(text: string): string {
-  return text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) =>
-    String.fromCharCode(parseInt(hex, 16)),
-  );
-}
-
 export function sanitizeAiDigestPostSelectionOutput(
   output: AiDigestPostSelectionModelOutput,
 ): AiDigestPostSelectionModelOutput {
   return {
-    selectedPosts: output.selectedPosts.map((selection) => ({
-      postId: selection.postId,
-      reason: selection.reason === null
-        ? null
-        : decodeStrayUnicodeEscapes(selection.reason),
+    selectedItems: output.selectedItems.map((selection) => ({
+      itemId: selection.itemId,
+      reason: decodeStrayUnicodeEscapes(selection.reason),
     })),
     subject: decodeStrayUnicodeEscapes(output.subject),
     preheader: decodeStrayUnicodeEscapes(output.preheader),
@@ -195,44 +172,74 @@ export function sanitizeAiDigestPostSelectionOutput(
   };
 }
 
+function resolveSelectedItem(
+  itemId: string,
+  postsById: Map<string, AiDigestSelectedPostCandidate>,
+  quickTakesById: Map<string, AiDigestQuickTakeCandidate>,
+): AiDigestSelectedItemCandidate | null {
+  const post = postsById.get(itemId);
+  if (post) {
+    return { documentType: "post", candidate: post };
+  }
+  const quickTake = quickTakesById.get(itemId);
+  if (quickTake) {
+    return { documentType: "quickTake", candidate: quickTake };
+  }
+  return null;
+}
+
 export function validateAiDigestPostSelectionOutput(
   output: AiDigestPostSelectionModelOutput,
-  candidates: AiDigestSelectedPostCandidate[],
+  postCandidates: AiDigestSelectedPostCandidate[],
+  quickTakeCandidates: AiDigestQuickTakeCandidate[] = [],
 ): AiDigestPostSelectionModelOutput {
-  if (output.selectedPosts.length !== 5) {
-    throw new Error("Selection must contain exactly five posts");
+  if (output.selectedItems.length !== 5) {
+    throw new Error("Selection must contain exactly five items");
   }
-  const candidatePostIds = new Set(candidates.map((candidate) => candidate.postId));
-  const selectedPostIds = output.selectedPosts.map((selection) => selection.postId);
-  if (new Set(selectedPostIds).size !== 5) {
-    throw new Error("Selection must contain five distinct posts");
-  }
-  const unknownPostId = selectedPostIds.find((postId) => !candidatePostIds.has(postId));
-  if (unknownPostId) {
-    throw new Error(`Selection referenced unknown post ID: ${unknownPostId}`);
-  }
-  const candidatesByPostId = new Map(
-    candidates.map((candidate) => [candidate.postId, candidate]),
+  const postsById = new Map(
+    postCandidates.map((candidate) => [candidate.postId, candidate]),
   );
-  const ineligiblePostId = selectedPostIds.find((postId) => {
-    const candidate = candidatesByPostId.get(postId);
-    return candidate && !isSelectableAiDigestCandidate(candidate);
-  });
-  if (ineligiblePostId) {
-    throw new Error(`Selection referenced an ineligible post ID: ${ineligiblePostId}`);
+  const quickTakesById = new Map(
+    quickTakeCandidates.map((candidate) => [candidate.commentId, candidate]),
+  );
+  const selectedItemIds = output.selectedItems.map((selection) => selection.itemId);
+  if (new Set(selectedItemIds).size !== 5) {
+    throw new Error("Selection must contain five distinct items");
   }
+
+  const resolved = selectedItemIds.map((itemId) => {
+    const item = resolveSelectedItem(itemId, postsById, quickTakesById);
+    if (!item) {
+      throw new Error(`Selection referenced unknown item ID: ${itemId}`);
+    }
+    if (!isSelectableAiDigestCandidate(item.candidate)) {
+      throw new Error(`Selection referenced an ineligible item ID: ${itemId}`);
+    }
+    return item;
+  });
+
+  if (resolved[0].documentType !== "post" || resolved[1].documentType !== "post") {
+    throw new Error("Selection slots 1 and 2 must be posts");
+  }
+  const quickTakeCount = resolved.filter(
+    (item) => item.documentType === "quickTake",
+  ).length;
+  if (quickTakeCount > AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE) {
+    throw new Error(
+      `Selection may include at most ${AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE} quick takes`,
+    );
+  }
+
   if (output.aiNote.length < 1 || output.aiNote.length > 3) {
     throw new Error("AI note must contain one to three paragraphs");
   }
 
-  output.selectedPosts.forEach((selection) => {
-    if (selection.reason !== null) {
-      assertLength(
-        `Reason for ${selection.postId}`,
-        selection.reason,
-        AI_DIGEST_SELECTION_LENGTH_LIMITS.reason,
-      );
-    }
+  output.selectedItems.forEach((selection) => {
+    assertLength(
+      `Reason for ${selection.itemId}`,
+      selection.reason,
+      AI_DIGEST_SELECTION_LENGTH_LIMITS.reason,
+    );
   });
 
   assertLength("Subject", output.subject, AI_DIGEST_SELECTION_LENGTH_LIMITS.subject);
@@ -247,19 +254,91 @@ export function validateAiDigestPostSelectionOutput(
   return output;
 }
 
-function selectedPostItem(
-  selection: AiDigestPostSelectionModelOutput["selectedPosts"][number],
-  candidate: AiDigestSelectedPostCandidate,
+function selectedItem(
+  selection: AiDigestPostSelectionModelOutput["selectedItems"][number],
+  resolved: AiDigestSelectedItemCandidate,
   index: number,
 ): AiDigestItem {
+  if (resolved.documentType === "quickTake") {
+    return {
+      documentRef: {
+        documentType: "quickTake",
+        documentId: resolved.candidate.commentId,
+      },
+      placement: "full",
+      reason: selection.reason,
+    };
+  }
   return {
     documentRef: {
       documentType: "post",
-      documentId: candidate.postId,
+      documentId: resolved.candidate.postId,
     },
     placement: index < 2 ? "headline" : "compact",
-    ...(selection.reason !== null ? { reason: selection.reason } : {}),
+    reason: selection.reason,
   };
+}
+
+/**
+ * Quiet curated-module rows, drawn from the recent-curation lookback window
+ * (excluding posts already selected as recommendations): always the module
+ * limit's worth of posts when the window can supply them, unread ones first,
+ * each group newest curation first. Read posts fill the remaining slots and
+ * are greyed out in rendering.
+ */
+export function buildAiDigestCuratedItems(
+  curatedPosts: AiDigestCuratedPostRow[],
+  selectedItems: AiDigestItem[],
+): AiDigestItem[] {
+  const selectedPostIds = new Set(selectedItems.flatMap((item) =>
+    item.documentRef.documentType === "post" ? [item.documentRef.documentId] : [],
+  ));
+  const eligiblePosts = curatedPosts.filter(
+    (curatedPost) => !selectedPostIds.has(curatedPost.postId),
+  );
+  const shownPosts = [
+    ...eligiblePosts.filter((curatedPost) => !curatedPost.isRead),
+    ...eligiblePosts.filter((curatedPost) => curatedPost.isRead),
+  ];
+  return shownPosts
+    .slice(0, AI_DIGEST_CURATED_ITEM_LIMIT)
+    .map((curatedPost) => ({
+      documentRef: {
+        documentType: "post",
+        documentId: curatedPost.postId,
+      },
+      placement: "quiet",
+      isRead: curatedPost.isRead,
+    }));
+}
+
+/**
+ * Discussion-section items from the thread selection. Overlap with recommended
+ * posts is allowed (a thread on a recommended post is complementary), but a
+ * thread that contains a quick take already selected in the main five would be
+ * literal duplication, so those threads are dropped here.
+ */
+export function buildAiDigestDiscussionItems(
+  selectedThreads: AiDigestSelectedThread[],
+  selectedItems: AiDigestItem[],
+): AiDigestItem[] {
+  const selectedQuickTakeIds = new Set(selectedItems.flatMap((item) =>
+    item.documentRef.documentType === "quickTake" ? [item.documentRef.documentId] : [],
+  ));
+  return selectedThreads
+    .filter((thread) =>
+      !selectedQuickTakeIds.has(thread.anchorCommentId)
+      && !thread.displayCommentIds.some((commentId) =>
+        selectedQuickTakeIds.has(commentId)))
+    .map((thread) => ({
+      documentRef: {
+        documentType: "comment",
+        documentId: thread.anchorCommentId,
+      },
+      placement: "full",
+      ...(thread.reason !== null ? { reason: thread.reason } : {}),
+      threadComments: thread.displayCommentIds.map((commentId) => ({ commentId })),
+    }));
 }
 
 export function buildAiDigestSpecFromPostSelection({
@@ -267,39 +346,56 @@ export function buildAiDigestSpecFromPostSelection({
   modelLabel,
   personalInstructions,
   output,
-  candidates,
+  postCandidates,
+  quickTakeCandidates = [],
+  curatedPosts = [],
+  selectedThreads = [],
 }: {
   recipientName: string;
   modelLabel: string;
   personalInstructions: string | null;
   output: AiDigestPostSelectionModelOutput;
-  candidates: AiDigestSelectedPostCandidate[];
+  postCandidates: AiDigestSelectedPostCandidate[];
+  quickTakeCandidates?: AiDigestQuickTakeCandidate[];
+  curatedPosts?: AiDigestCuratedPostRow[];
+  selectedThreads?: AiDigestSelectedThread[];
 }): AiDigestSpec {
-  const candidatesByPostId = new Map(
-    candidates.map((candidate) => [candidate.postId, candidate]),
+  const postsById = new Map(
+    postCandidates.map((candidate) => [candidate.postId, candidate]),
   );
-  const selectedPostItems = output.selectedPosts.map((selection, index) => {
-    const candidate = candidatesByPostId.get(selection.postId);
-    if (!candidate) {
-      throw new Error(`Cannot assemble unknown post ${selection.postId}`);
+  const quickTakesById = new Map(
+    quickTakeCandidates.map((candidate) => [candidate.commentId, candidate]),
+  );
+  const selectedItems = output.selectedItems.map((selection, index) => {
+    const resolved = resolveSelectedItem(
+      selection.itemId,
+      postsById,
+      quickTakesById,
+    );
+    if (!resolved) {
+      throw new Error(`Cannot assemble unknown item ${selection.itemId}`);
     }
-    return selectedPostItem(selection, candidate, index);
+    return selectedItem(selection, resolved, index);
   });
-  const sections = rubyAiDigestSpec.sections.map((section) => {
-    if (section.kind !== "recommendations") {
-      return {
-        ...section,
-        items: section.items.map((item) => ({ ...item })),
-      };
-    }
-    const fixedNonPostItems = section.items
-      .filter((item) => item.documentRef.documentType !== "post")
-      .map((item) => ({ ...item }));
-    return {
-      ...section,
-      items: [...selectedPostItems, ...fixedNonPostItems],
-    };
-  });
+  const discussionItems = buildAiDigestDiscussionItems(selectedThreads, selectedItems);
+  const curatedItems = buildAiDigestCuratedItems(curatedPosts, selectedItems);
+  const sections: AiDigestSection[] = [
+    { kind: "recommendations", items: selectedItems },
+    ...(discussionItems.length > 0
+      ? [{
+        kind: "discussion" as const,
+        title: "From the discussion",
+        items: discussionItems,
+      }]
+      : []),
+    ...(curatedItems.length > 0
+      ? [{
+        kind: "curated" as const,
+        title: "Recently curated",
+        items: curatedItems,
+      }]
+      : []),
+  ];
 
   return {
     recipientName,
@@ -312,6 +408,48 @@ export function buildAiDigestSpecFromPostSelection({
     ...(personalInstructions !== null ? { personalInstructions } : {}),
     sections,
   };
+}
+
+function resolveSelectedCandidates(
+  output: AiDigestPostSelectionModelOutput,
+  postCandidates: AiDigestSelectedPostCandidate[],
+  quickTakeCandidates: AiDigestQuickTakeCandidate[],
+): AiDigestSelectedItemCandidate[] {
+  const postsById = new Map(
+    postCandidates.map((candidate) => [candidate.postId, candidate]),
+  );
+  const quickTakesById = new Map(
+    quickTakeCandidates.map((candidate) => [candidate.commentId, candidate]),
+  );
+  return output.selectedItems.map((selection) => {
+    const resolved = resolveSelectedItem(
+      selection.itemId,
+      postsById,
+      quickTakesById,
+    );
+    if (!resolved) {
+      throw new Error(`Cannot resolve selected item ${selection.itemId}`);
+    }
+    return resolved;
+  });
+}
+
+/** The persisted slice of a completed thread-selection call. */
+export interface AiDigestThreadSelectionFinalizationInput {
+  selectedThreads: AiDigestSelectedThread[];
+  threadPromptVersion: string;
+  threadSelectionUserPrompt: string;
+  threadInputTokenCount: number | null;
+  threadOutputTokenCount: number | null;
+  threadCacheReadInputTokenCount: number | null;
+  threadSelectionCostUsd: number | null;
+}
+
+function aiDigestDiscussionCommentIdsFromSpec(spec: AiDigestSpec): string[] {
+  return spec.sections
+    .filter((section) => section.kind === "discussion")
+    .flatMap((section) =>
+      section.items.map((item) => item.documentRef.documentId));
 }
 
 export async function finalizeAiDigestPostSelection({
@@ -330,7 +468,11 @@ export async function finalizeAiDigestPostSelection({
   countsTowardHistory,
   personalInstructions,
   output,
-  candidates,
+  postCandidates,
+  quickTakeCandidates = [],
+  curatedPosts = [],
+  threadSelection = null,
+  toolUsage = null,
   dependencies,
 }: {
   recipientId: string;
@@ -348,31 +490,49 @@ export async function finalizeAiDigestPostSelection({
   countsTowardHistory: boolean;
   personalInstructions: string | null;
   output: AiDigestPostSelectionModelOutput;
-  candidates: AiDigestSelectedPostCandidate[];
+  postCandidates: AiDigestSelectedPostCandidate[];
+  quickTakeCandidates?: AiDigestQuickTakeCandidate[];
+  curatedPosts?: AiDigestCuratedPostRow[];
+  threadSelection?: AiDigestThreadSelectionFinalizationInput | null;
+  toolUsage?: Pick<
+    AiDigestSelectionToolUsageCounts,
+    "toolCallCount" | "searchCount" | "readPostCount"
+  > | null;
   dependencies: AiDigestPostSelectionFinalizationDependencies;
 }): Promise<AiDigestPostSelectionFinalizationResult> {
   const validatedOutput = validateAiDigestPostSelectionOutput(
     sanitizeAiDigestPostSelectionOutput(output),
-    candidates,
+    postCandidates,
+    quickTakeCandidates,
   );
   const spec = buildAiDigestSpecFromPostSelection({
     recipientName,
     modelLabel,
     personalInstructions,
     output: validatedOutput,
-    candidates,
+    postCandidates,
+    quickTakeCandidates,
+    curatedPosts,
+    selectedThreads: threadSelection?.selectedThreads ?? [],
   });
-  const selectedCandidatesByPostId = new Map(
-    candidates.map((candidate) => [candidate.postId, candidate]),
+  const selectedCandidates = resolveSelectedCandidates(
+    validatedOutput,
+    postCandidates,
+    quickTakeCandidates,
   );
-  const selectedCandidates = validatedOutput.selectedPosts.flatMap((selection) => {
-    const candidate = selectedCandidatesByPostId.get(selection.postId);
-    return candidate ? [candidate] : [];
-  });
+  const postIds = selectedCandidates.flatMap((item) =>
+    item.documentType === "post" ? [item.candidate.postId] : [],
+  );
+  const quickTakeIds = selectedCandidates.flatMap((item) =>
+    item.documentType === "quickTake" ? [item.candidate.commentId] : [],
+  );
+  const discussionCommentIds = aiDigestDiscussionCommentIdsFromSpec(spec);
   const issueId = dependencies.persistIssue
     ? await dependencies.persistIssue({
       recipientId,
-      postIds: selectedCandidates.map((candidate) => candidate.postId),
+      postIds,
+      quickTakeIds,
+      discussionCommentIds,
       generatedAt,
       generationDurationMs,
       trigger,
@@ -384,6 +544,16 @@ export async function finalizeAiDigestPostSelection({
       selectionUserPrompt,
       ...tokenUsage,
       selectionCostUsd,
+      toolCallCount: toolUsage?.toolCallCount ?? null,
+      searchCount: toolUsage?.searchCount ?? null,
+      readPostCount: toolUsage?.readPostCount ?? null,
+      threadPromptVersion: threadSelection?.threadPromptVersion ?? null,
+      threadSelectionUserPrompt: threadSelection?.threadSelectionUserPrompt ?? null,
+      threadInputTokenCount: threadSelection?.threadInputTokenCount ?? null,
+      threadOutputTokenCount: threadSelection?.threadOutputTokenCount ?? null,
+      threadCacheReadInputTokenCount:
+        threadSelection?.threadCacheReadInputTokenCount ?? null,
+      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
       spec,
     })
     : null;
@@ -401,6 +571,32 @@ export function humanizeAiDigestModelId(modelId: string): string {
     .split("-")
     .map((part) => part ? `${part[0].toUpperCase()}${part.slice(1)}` : part)
     .join(" ");
+}
+
+/**
+ * The thread call is best-effort: when it fails, the issue is emitted without
+ * a discussion section rather than failing outright (post selection remains
+ * fail-fast).
+ */
+async function runAiDigestThreadSelectionSafely(options: {
+  dossier: AiDigestUserDossier;
+  threadCandidates: AiDigestThreadCandidates;
+  personalInstructions: string | null;
+  asOf: Date;
+  modelId: string;
+}): Promise<AiDigestThreadSelectionResult | null> {
+  try {
+    return await runAiDigestThreadSelection(options);
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error("AI digest thread selection failed; emitting issue without a discussion section", error);
+    return null;
+  }
+}
+
+function countAiDigestThreadCandidates(threadCandidates: AiDigestThreadCandidates): number {
+  return threadCandidates.siteWideThreads.length + threadCandidates.readerThreads.length;
 }
 
 export async function generateAiDigestPostSelection({
@@ -427,11 +623,21 @@ export async function generateAiDigestPostSelection({
       issueLimit: options.historyIssueLimit,
     }),
   ]);
-  const candidates = await loadAiDigestPostCandidates(user, context, {
+  const candidateOptions: LoadAiDigestPostCandidatesOptions = {
     ...options.candidateOptions,
     now: asOf,
     postHistoryById: history.postHistoryById,
-  });
+  };
+  const [candidates, quickTakeCandidates, curatedPosts, threadCandidates] = await Promise.all([
+    loadAiDigestPostCandidates(user, context, candidateOptions),
+    loadAiDigestQuickTakeCandidates(user, context, candidateOptions),
+    loadAiDigestRecentlyCuratedPosts(user, context, asOf),
+    loadAiDigestThreadCandidates(user, context, {
+      maxAgeDays: options.candidateOptions?.maxAgeDays,
+      now: asOf,
+      postHistoryById: history.postHistoryById,
+    }),
+  ]);
   const summaryResult = await ensureAiDigestPostSummaries({
     candidates,
     context,
@@ -439,10 +645,17 @@ export async function generateAiDigestPostSelection({
   });
   const candidateCards = buildAiDigestPostCandidateCards(summaryResult.candidates);
   const selectableCandidateCards = candidateCards.filter(isSelectableAiDigestCandidate);
-  if (selectableCandidateCards.length < 5) {
+  const selectableQuickTakes = quickTakeCandidates.filter(isSelectableAiDigestCandidate);
+  if (selectableCandidateCards.length < 2) {
+    throw new Error(
+      "AI digest needs at least two summarized, selectable post candidates for headline slots; "
+      + `found ${selectableCandidateCards.length} of ${candidateCards.length}`,
+    );
+  }
+  if (selectableCandidateCards.length + selectableQuickTakes.length < 5) {
     throw new Error(
       "AI digest needs at least five summarized, selectable candidates; "
-      + `found ${selectableCandidateCards.length} of ${candidateCards.length}`,
+      + `found ${selectableCandidateCards.length} posts and ${selectableQuickTakes.length} quick takes`,
     );
   }
   const prompt = buildAiDigestPostSelectionPrompt(
@@ -451,6 +664,7 @@ export async function generateAiDigestPostSelection({
     history.pastRecommendations,
     personalInstructions,
     asOf,
+    quickTakeCandidates,
   );
   const discoveredRegistry = createAiDigestDiscoveredCandidateRegistry();
   const { tools, getUsageCounts } = createAiDigestSelectionTools({
@@ -464,23 +678,32 @@ export async function generateAiDigestPostSelection({
     },
     registry: discoveredRegistry,
   });
-  const result = await generateText({
-    model: selectionModelId,
-    system: prompt.system,
-    messages: buildAiDigestSelectionMessages({
-      sharedPrefix: prompt.sharedPrefix,
-      personalizedSuffix: prompt.personalizedSuffix,
-      enableAnthropicCaching: selectionModelId.startsWith("anthropic/"),
+  const [result, threadSelection] = await Promise.all([
+    generateText({
+      model: selectionModelId,
+      system: prompt.system,
+      messages: buildAiDigestSelectionMessages({
+        sharedPrefix: prompt.sharedPrefix,
+        personalizedSuffix: prompt.personalizedSuffix,
+        enableAnthropicCaching: selectionModelId.startsWith("anthropic/"),
+      }),
+      tools,
+      stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
+      output: Output.object({
+        schema: selectionOutputSchema,
+        name: "aiDigestPostSelection",
+        description: "A ranked five-item LessWrong digest selection of posts and optional quick takes.",
+      }),
+      maxOutputTokens: 12_000,
     }),
-    tools,
-    stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
-    output: Output.object({
-      schema: selectionOutputSchema,
-      name: "aiDigestPostSelection",
-      description: "A ranked five-post LessWrong digest selection.",
+    runAiDigestThreadSelectionSafely({
+      dossier: readerContext.dossier,
+      threadCandidates,
+      personalInstructions,
+      asOf,
+      modelId: selectionModelId,
     }),
-    maxOutputTokens: 12_000,
-  });
+  ]);
   if (result.finishReason !== "stop") {
     throw new Error(
       `AI digest selection stopped with finish reason ${result.finishReason} after `
@@ -501,10 +724,20 @@ export async function generateAiDigestPostSelection({
   const generationDurationMs = Date.now() - generationStartedAt;
   const generatedAt = new Date();
   const shouldPersistIssue = options.persistIssue !== false;
-  const validationCandidates: AiDigestSelectedPostCandidate[] = [
+  const validationPostCandidates: AiDigestSelectedPostCandidate[] = [
     ...selectableCandidateCards,
     ...Array.from(discoveredRegistry.byPostId.values()),
   ];
+  const threadSelectionInput: AiDigestThreadSelectionFinalizationInput | null =
+    threadSelection
+      ? {
+        selectedThreads: threadSelection.output.selectedThreads,
+        threadPromptVersion: threadSelection.promptVersion,
+        threadSelectionUserPrompt: threadSelection.prompt.prompt,
+        ...threadSelection.tokenUsage,
+        threadSelectionCostUsd: threadSelection.threadSelectionCostUsd,
+      }
+      : null;
   const finalized = await finalizeAiDigestPostSelection({
     recipientId: user._id,
     recipientName: user.displayName,
@@ -521,7 +754,11 @@ export async function generateAiDigestPostSelection({
     countsTowardHistory: options.countsTowardHistory ?? true,
     personalInstructions,
     output: result.output,
-    candidates: validationCandidates,
+    postCandidates: validationPostCandidates,
+    quickTakeCandidates: selectableQuickTakes,
+    curatedPosts,
+    threadSelection: threadSelectionInput,
+    toolUsage,
     dependencies: shouldPersistIssue
       ? { persistIssue: persistAiDigestIssue }
       : {},
@@ -538,6 +775,7 @@ export async function generateAiDigestPostSelection({
       selectionPromptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
       summaryModelId,
       candidateCount: candidateCards.length,
+      quickTakeCandidateCount: quickTakeCandidates.length,
       evidenceCount: readerContext.evidenceCount,
       reusedSummaryCount: summaryResult.reusedSummaryCount,
       generatedSummaryCount: summaryResult.generatedSummaryCount,
@@ -547,6 +785,13 @@ export async function generateAiDigestPostSelection({
       ...toolUsage,
       ...tokenUsage,
       selectionCostUsd,
+      threadCandidateCount: countAiDigestThreadCandidates(threadCandidates),
+      selectedThreadCount: aiDigestDiscussionCommentIdsFromSpec(finalized.spec).length,
+      threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
+      threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
+      threadCacheReadInputTokenCount:
+        threadSelection?.tokenUsage.threadCacheReadInputTokenCount ?? null,
+      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
       generationDurationMs,
     },
   };

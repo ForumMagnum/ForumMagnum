@@ -1,4 +1,4 @@
-export type AiDigestSectionKind = "recommendations" | "followUps" | "discussion" | "curated";
+export type AiDigestSectionKind = "recommendations" | "discussion" | "curated";
 
 export type AiDigestDocumentRef =
   | { documentType: "post"; documentId: string }
@@ -18,6 +18,11 @@ export interface AiDigestItem {
   /** Omitted for quiet items (e.g. the curated module), which carry no personalized reason. */
   reason?: string;
   placement: AiDigestPlacement;
+  /**
+   * Whether the recipient had already read this post when the digest was
+   * generated. Quiet curated items render with a greyed-out title when true.
+   */
+  isRead?: boolean;
   /** A literal author-written passage selected for this email. */
   excerpt?: string;
   /** For discussion items: selected replies and their literal excerpts. */
@@ -112,30 +117,6 @@ export const rubyAiDigestSpec: AiDigestSpec = {
           reason:
             "You followed the Buck–Neel disagreement over mech interp; here Buck says it has mostly dissolved.",
           placement: "full",
-        },
-      ],
-    },
-    {
-      kind: "followUps",
-      title: "Picking up threads",
-      items: [
-        {
-          documentRef: {
-            documentType: "quickTake",
-            documentId: "jm8x2qWFZ3vrraCFN",
-          },
-          reason:
-            "Follows up the Plan A threads you’ve been in—why research transparency is carrying so much of the plan.",
-          placement: "compact",
-        },
-        {
-          documentRef: {
-            documentType: "quickTake",
-            documentId: "u7L6T6uGEkzw9Fzku",
-          },
-          reason:
-            "You’ve been following the AI-safety politics discussions; this bears on how they shift the usual integrity tradeoffs.",
-          placement: "compact",
         },
       ],
     },

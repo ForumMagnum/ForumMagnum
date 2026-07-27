@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+
+// Approximates a phone in portrait, which is narrow enough to trigger both of
+// the email stylesheet's breakpoints (600px and 480px).
+export const MOBILE_EMAIL_PREVIEW_WIDTH = 390;
 
 const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
   emailPreview: {
@@ -19,6 +23,9 @@ const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
     marginRight: "auto",
     border: theme.palette.border.normal,
     background: "white",
+  },
+  mobileBodyFrame: {
+    maxWidth: MOBILE_EMAIL_PREVIEW_WIDTH,
   },
   tallBodyFrame: {
     height: "calc(100vh - 200px)",
@@ -38,6 +45,22 @@ const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
 }));
 
 export type EmailPreviewBodyView = "both" | "html" | "text";
+export type EmailPreviewViewport = "desktop" | "mobile";
+
+// The frame is collapsed before measuring so that it can shrink as well as
+// grow, eg when switching from the mobile viewport back to the desktop one.
+function fitFrameToContent(frame: HTMLIFrameElement | null) {
+  const frameDocument = frame?.contentDocument;
+  if (!frame || !frameDocument) {
+    return;
+  }
+  frame.style.height = "0px";
+  const contentHeight = Math.max(
+    frameDocument.body.scrollHeight,
+    frameDocument.documentElement.scrollHeight,
+  );
+  frame.style.height = `${contentHeight + 2}px`;
+}
 
 export const EmailPreview = ({
   email,
@@ -45,29 +68,31 @@ export const EmailPreview = ({
   tall,
   fullHeight,
   bodyView = "both",
+  viewport = "desktop",
 }: {
   email: EmailPreview,
   sentDate?: Date,
   tall?: boolean,
   fullHeight?: boolean,
   bodyView?: EmailPreviewBodyView,
+  viewport?: EmailPreviewViewport,
 }) => {
   const classes = useStyles(styles);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const showHtml = bodyView === "both" || bodyView === "html";
   const showText = bodyView === "both" || bodyView === "text";
+  // Changing the viewport reflows the email without reloading the frame, so
+  // the height has to be remeasured outside of the load handler.
+  useEffect(() => {
+    if (fullHeight) {
+      fitFrameToContent(frameRef.current);
+    }
+  }, [fullHeight, viewport, email.html]);
+
   const handleFrameLoad = (event: React.SyntheticEvent<HTMLIFrameElement>) => {
-    if (!fullHeight) {
-      return;
+    if (fullHeight) {
+      fitFrameToContent(event.currentTarget);
     }
-    const frameDocument = event.currentTarget.contentDocument;
-    if (!frameDocument) {
-      return;
-    }
-    const contentHeight = Math.max(
-      frameDocument.body.scrollHeight,
-      frameDocument.documentElement.scrollHeight,
-    );
-    event.currentTarget.style.height = `${contentHeight + 2}px`;
   };
 
   return <div className={classes.emailPreview}>
@@ -82,7 +107,12 @@ export const EmailPreview = ({
     </div>
     {showHtml && email.html && (
       <iframe
-        className={classNames(classes.emailBodyFrame, tall && classes.tallBodyFrame)}
+        ref={frameRef}
+        className={classNames(
+          classes.emailBodyFrame,
+          tall && classes.tallBodyFrame,
+          viewport === "mobile" && classes.mobileBodyFrame,
+        )}
         srcDoc={email.html}
         title={`Email preview: ${email.subject ?? "untitled"}`}
         onLoad={handleFrameLoad}

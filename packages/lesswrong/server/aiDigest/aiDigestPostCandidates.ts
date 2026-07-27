@@ -3,6 +3,7 @@ import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import type {
   AiDigestCandidateAnnotationRow,
   AiDigestCanonicalPostCandidateRow,
+  AiDigestCuratedPostRow,
   AiDigestPostCandidateByIdRow,
   AiDigestPostReferenceRow,
   AiDigestPositiveVoteRow,
@@ -10,6 +11,11 @@ import type {
   AiDigestSeeLessRow,
   AiDigestSubscribedAuthorRow,
 } from "@/server/repos/PostsRepo";
+import type {
+  AiDigestQuickTakeAnnotationRow,
+  AiDigestQuickTakeCandidateRow,
+} from "@/server/repos/CommentsRepo";
+import { htmlToTextDefault } from "@/lib/htmlToText";
 import type { AiDigestPostHistory } from "./aiDigestHistory";
 
 export type AiDigestCandidateRetrievalSource =
@@ -22,6 +28,10 @@ export const AI_DIGEST_PRODUCTION_MAX_AGE_DAYS = 28;
 export const AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS = AI_DIGEST_PROTOTYPE_MAX_AGE_DAYS;
 export const AI_DIGEST_DEFAULT_MIN_KARMA = 20;
 export const AI_DIGEST_DEFAULT_CANDIDATE_LIMIT = 60;
+export const AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA = 20;
+export const AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT = 30;
+export const AI_DIGEST_QUICK_TAKE_BODY_MAX_CHARS = 800;
+export const AI_DIGEST_CURATED_LOOKBACK_COUNT = 10;
 export const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
 export const AI_DIGEST_READER_LIST_LIMIT = 20;
 export const AI_DIGEST_AFFINITY_LIMIT = 15;
@@ -176,7 +186,8 @@ export interface AiDigestPostSummaryProvenance {
 export type AiDigestCandidateExclusionReason =
   | "recipientAuthored"
   | "hiddenByRecipient"
-  | "activeSeeLess";
+  | "activeSeeLess"
+  | "previouslyIncluded";
 
 export interface AiDigestPostCandidate {
   postId: string;
@@ -212,10 +223,26 @@ export interface AiDigestSelectedPostCandidate extends AiDigestPostCandidate {
   summaryProvenance?: AiDigestPostSummaryProvenance;
 }
 
+export interface AiDigestQuickTakeCandidate {
+  commentId: string;
+  author: string;
+  authorId: string | null;
+  publicationDate: string;
+  baseScore: number;
+  body: string;
+  upvoteStrength: "regular" | "strong" | null;
+  isSubscribedToAuthor: boolean;
+  previousDigestInclusionCount: number;
+  lastIncludedAt: string | null;
+  exclusionReason: AiDigestCandidateExclusionReason | null;
+}
+
 export interface LoadAiDigestPostCandidatesOptions {
   maxAgeDays?: number;
   minKarma?: number;
   limit?: number;
+  quickTakeMinKarma?: number;
+  quickTakeLimit?: number;
   now?: Date;
   postHistoryById?: Map<string, AiDigestPostHistory>;
 }
@@ -569,9 +596,48 @@ export function toAiDigestToolSearchCandidate(
 }
 
 export function isSelectableAiDigestCandidate(
-  candidate: AiDigestPostCandidate,
+  candidate: { exclusionReason: AiDigestCandidateExclusionReason | null },
 ): boolean {
   return !candidate.exclusionReason;
+}
+
+function quickTakeExclusionReason(
+  annotation: AiDigestQuickTakeAnnotationRow | undefined,
+): AiDigestCandidateExclusionReason | null {
+  if (annotation?.recipientAuthored) {
+    return "recipientAuthored";
+  }
+  if (annotation?.hasActiveSeeLess) {
+    return "activeSeeLess";
+  }
+  return null;
+}
+
+function boundedQuickTakeBody(revisionHtml: string): string {
+  return htmlToTextDefault(revisionHtml)
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, AI_DIGEST_QUICK_TAKE_BODY_MAX_CHARS);
+}
+
+function toAiDigestQuickTakeCandidate(
+  row: AiDigestQuickTakeCandidateRow,
+  annotation: AiDigestQuickTakeAnnotationRow | undefined,
+  documentHistory: AiDigestPostHistory | undefined,
+): AiDigestQuickTakeCandidate {
+  return {
+    commentId: row.commentId,
+    author: row.author,
+    authorId: row.authorId,
+    publicationDate: row.publicationDate.toISOString(),
+    baseScore: row.baseScore,
+    body: boundedQuickTakeBody(row.revisionHtml),
+    upvoteStrength: annotation?.positivePreferenceStrength ?? null,
+    isSubscribedToAuthor: annotation?.isSubscribedToAuthor ?? false,
+    previousDigestInclusionCount: documentHistory?.previousDigestInclusionCount ?? 0,
+    lastIncludedAt: documentHistory?.lastIncludedAt ?? null,
+    exclusionReason: quickTakeExclusionReason(annotation),
+  };
 }
 
 export async function loadAiDigestReaderContext(
@@ -630,6 +696,57 @@ export async function loadAiDigestPostCandidates(
       postHistoryById.get(row.postId),
     ),
   );
+}
+
+/**
+ * The most recently curated posts (up to the curated-module lookback count),
+ * newest curation first, each flagged with whether the recipient has already
+ * read it.
+ */
+export async function loadAiDigestRecentlyCuratedPosts(
+  user: DbUser,
+  context: ResolverContext,
+  now = new Date(),
+): Promise<AiDigestCuratedPostRow[]> {
+  return context.repos.posts.getAiDigestRecentlyCuratedPostRows({
+    userId: user._id,
+    limit: AI_DIGEST_CURATED_LOOKBACK_COUNT,
+    now,
+  });
+}
+
+export async function loadAiDigestQuickTakeCandidates(
+  user: DbUser,
+  context: ResolverContext,
+  options: LoadAiDigestPostCandidatesOptions = {},
+): Promise<AiDigestQuickTakeCandidate[]> {
+  const now = options.now ?? new Date();
+  const maxAgeDays = options.maxAgeDays ?? AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
+  const minKarma = options.quickTakeMinKarma ?? AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA;
+  const limit = options.quickTakeLimit ?? AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT;
+  const postHistoryById = options.postHistoryById ?? new Map<string, AiDigestPostHistory>();
+  const minPostedAt = new Date(now.getTime() - (maxAgeDays * DAY_MS));
+  const rows = await context.repos.comments.getAiDigestQuickTakeCandidateRows({
+    minPostedAt,
+    minKarma,
+    limit,
+  });
+  const annotations = await context.repos.comments.getAiDigestQuickTakeAnnotationRows({
+    userId: user._id,
+    commentIds: rows.map((row) => row.commentId),
+  });
+  const annotationsByCommentId = new Map(
+    annotations.map((annotation) => [annotation.commentId, annotation]),
+  );
+  return rows
+    .map((row) =>
+      toAiDigestQuickTakeCandidate(
+        row,
+        annotationsByCommentId.get(row.commentId),
+        postHistoryById.get(row.commentId),
+      ),
+    )
+    .filter((candidate) => candidate.body.length > 0);
 }
 
 export function buildAiDigestPostCandidateCards(

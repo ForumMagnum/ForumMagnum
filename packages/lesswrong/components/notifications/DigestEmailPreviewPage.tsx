@@ -10,10 +10,16 @@ import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { useCurrentUser } from "@/components/common/withUser";
+import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
 import Loading from "@/components/vulcan-core/Loading";
-import EmailPreview, { type EmailPreviewBodyView } from "./EmailPreview";
+import EmailPreview, {
+  MOBILE_EMAIL_PREVIEW_WIDTH,
+  type EmailPreviewBodyView,
+  type EmailPreviewViewport,
+} from "./EmailPreview";
 
 const DigestEmailPreviewQuery = gql(`
   query DigestEmailPreviewQuery {
@@ -101,6 +107,10 @@ const SAMPLE_LIST_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
 type PageView = "samples" | "fixture";
 type SamplePreviewView = "html" | "text" | "metadata";
 const SAMPLE_PREVIEW_VIEWS: SamplePreviewView[] = ["html", "text", "metadata"];
+const VIEWPORT_OPTIONS: { viewport: EmailPreviewViewport; label: string }[] = [
+  { viewport: "desktop", label: "Desktop" },
+  { viewport: "mobile", label: `Mobile ${MOBILE_EMAIL_PREVIEW_WIDTH}px` },
+];
 
 interface DigestPreviewLocation {
   pageView: PageView;
@@ -176,7 +186,7 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
   },
   toolbar: {
     display: "grid",
-    gridTemplateColumns: "minmax(180px, 1fr) 120px auto auto",
+    gridTemplateColumns: "minmax(220px, 1fr) 120px auto",
     gap: 12,
     alignItems: "flex-end",
     marginBottom: 18,
@@ -190,7 +200,7 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
       gridTemplateColumns: "1fr",
     },
   },
-  historyOption: {
+  toolbarOption: {
     display: "flex",
     alignItems: "center",
     gridColumn: "1 / -1",
@@ -200,6 +210,23 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     fontSize: 12,
     "& input": {
       margin: 0,
+    },
+  },
+  userSearch: {
+    minHeight: 36,
+    boxSizing: "border-box",
+    padding: "1px 10px 0",
+    border: theme.palette.border.normal,
+    borderRadius: 3,
+    background: theme.palette.panelBackground.default,
+    "& .react-autosuggest__container": {
+      width: "100%",
+    },
+    "& .react-autosuggest__container > *": {
+      width: "100%",
+    },
+    "& input": {
+      width: "100%",
     },
   },
   historyAdminBar: {
@@ -236,15 +263,6 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     letterSpacing: "0.06em",
     textTransform: "uppercase",
     color: theme.palette.grey[600],
-  },
-  input: {
-    height: 36,
-    boxSizing: "border-box",
-    padding: "7px 10px",
-    border: theme.palette.border.normal,
-    borderRadius: 3,
-    background: theme.palette.panelBackground.default,
-    fontSize: 14,
   },
   select: {
     height: 36,
@@ -406,6 +424,17 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     flexShrink: 0,
     gap: 4,
   },
+  viewportToggle: {
+    display: "flex",
+    flexShrink: 0,
+    gap: 4,
+    paddingLeft: 10,
+    borderLeft: theme.palette.border.normal,
+    [theme.breakpoints.down("xs")]: {
+      paddingLeft: 0,
+      borderLeft: "none",
+    },
+  },
   previewTab: {
     padding: "5px 9px",
     border: "none",
@@ -542,6 +571,31 @@ function formatSelectionCost(costUsd: number | null | undefined): string {
     : `$${costUsd.toFixed(4)}`;
 }
 
+function ViewportToggle({ viewport, setViewport }: {
+  viewport: EmailPreviewViewport;
+  setViewport: (viewport: EmailPreviewViewport) => void;
+}) {
+  const classes = useStyles(styles);
+  return (
+    <div className={classes.viewportToggle} role="group" aria-label="Preview viewport">
+      {VIEWPORT_OPTIONS.map((option) => (
+        <button
+          key={option.viewport}
+          type="button"
+          aria-pressed={viewport === option.viewport}
+          className={classNames(
+            classes.previewTab,
+            viewport === option.viewport && classes.previewTabSelected,
+          )}
+          onClick={() => setViewport(option.viewport)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function DigestEmailPreviewPage() {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -552,8 +606,9 @@ export default function DigestEmailPreviewPage() {
   const [samplePreviewView, setSamplePreviewView] = useState<SamplePreviewView>("html");
   const [promptsExpanded, setPromptsExpanded] = useState(false);
   const [fixturePreviewView, setFixturePreviewView] = useState<EmailPreviewBodyView>("html");
-  const [sampleSlug, setSampleSlug] = useState(initialUserSlug);
+  const [previewViewport, setPreviewViewport] = useState<EmailPreviewViewport>("desktop");
   const [activeSlug, setActiveSlug] = useState(initialUserSlug);
+  const [includeNonAdmins, setIncludeNonAdmins] = useState(false);
   const [sampleCount, setSampleCount] = useState(DEFAULT_SAMPLE_COUNT);
   const [countsTowardHistory, setCountsTowardHistory] = useState(true);
   const [historyClearDays, setHistoryClearDays] = useState(DEFAULT_HISTORY_CLEAR_DAYS);
@@ -632,18 +687,10 @@ export default function DigestEmailPreviewPage() {
   };
 
   const handleGenerateSamples = () => {
-    const trimmedSlug = sampleSlug.trim();
-    if (!trimmedSlug) {
-      return;
-    }
     setHistoryMessage(null);
-    if (trimmedSlug !== activeSlug) {
-      setActiveSlug(trimmedSlug);
-      setSelectedIssueId(null);
-    }
     void generateSamples({
       variables: {
-        userSlug: trimmedSlug,
+        userSlug: activeSlug,
         count: sampleCount,
         countsTowardHistory,
       },
@@ -655,12 +702,12 @@ export default function DigestEmailPreviewPage() {
         pathname,
         search: buildDigestPreviewSearch({
           pageView: "samples",
-          userSlug: trimmedSlug,
+          userSlug: activeSlug,
           issueId: newestIssueId,
         }),
       }, { replace: true, scroll: false });
       void refetchStoredSamples({
-        userSlug: trimmedSlug,
+        userSlug: activeSlug,
         limit: STORED_SAMPLE_LIMIT,
       });
     }, () => undefined);
@@ -694,27 +741,30 @@ export default function DigestEmailPreviewPage() {
     }, () => undefined);
   };
 
-  const handleLoadStoredSamples = (event: React.FormEvent) => {
-    event.preventDefault();
-    const trimmedSlug = sampleSlug.trim();
-    if (!trimmedSlug) {
+  // When search infrastructure is disabled (bare local installs), the
+  // autocomplete falls back to a plain input that passes the typed text
+  // through with a null result; treat that text as a slug.
+  const handleSelectReader = (userId: string, result: SearchUser | null) => {
+    const slug = result?.slug ?? userId.trim();
+    if (!slug) {
       return;
     }
+    setHistoryMessage(null);
     setSelectedIssueId(null);
     setPromptsExpanded(false);
-    if (trimmedSlug === activeSlug) {
+    if (slug === activeSlug) {
       void refetchStoredSamples({
-        userSlug: trimmedSlug,
+        userSlug: slug,
         limit: STORED_SAMPLE_LIMIT,
       });
     } else {
-      setActiveSlug(trimmedSlug);
+      setActiveSlug(slug);
     }
     navigate({
       pathname,
       search: buildDigestPreviewSearch({
         pageView: "samples",
-        userSlug: trimmedSlug,
+        userSlug: slug,
         issueId: null,
       }),
     }, { replace: true, scroll: false });
@@ -782,16 +832,19 @@ export default function DigestEmailPreviewPage() {
 
       {pageView === "samples" && isDevelopment && (
         <>
-          <form className={classes.toolbar} onSubmit={handleLoadStoredSamples}>
-            <label className={classes.field}>
-              <span className={classes.label}>Reader slug</span>
-              <input
-                className={classes.input}
-                value={sampleSlug}
-                onChange={(event) => setSampleSlug(event.target.value)}
-                disabled={samplesLoading}
-              />
-            </label>
+          <div className={classes.toolbar}>
+            <div className={classes.field}>
+              <span className={classes.label}>Reader</span>
+              <div className={classes.userSearch}>
+                <ErrorBoundary>
+                  <UsersSearchAutoComplete
+                    clickAction={handleSelectReader}
+                    label={`Search for a reader (current: ${activeSlug})`}
+                    facetFilters={includeNonAdmins ? undefined : { isAdmin: true }}
+                  />
+                </ErrorBoundary>
+              </div>
+            </div>
             <label className={classes.field}>
               <span className={classes.label}>New samples</span>
               <select
@@ -805,9 +858,6 @@ export default function DigestEmailPreviewPage() {
                 <option value={3}>3 samples</option>
               </select>
             </label>
-            <button className={classes.button} type="submit" disabled={samplesLoading}>
-              View samples
-            </button>
             <button
               className={classNames(classes.button, classes.primaryButton)}
               type="button"
@@ -816,7 +866,15 @@ export default function DigestEmailPreviewPage() {
             >
               {samplesLoading ? "Generating…" : `Generate ${sampleCount}`}
             </button>
-            <label className={classes.historyOption}>
+            <label className={classes.toolbarOption}>
+              <input
+                type="checkbox"
+                checked={includeNonAdmins}
+                onChange={(event) => setIncludeNonAdmins(event.target.checked)}
+              />
+              <span>Include non-admins in reader search</span>
+            </label>
+            <label className={classes.toolbarOption}>
               <input
                 type="checkbox"
                 checked={countsTowardHistory}
@@ -825,7 +883,7 @@ export default function DigestEmailPreviewPage() {
               />
               <span>Count generated samples toward recommendation history</span>
             </label>
-          </form>
+          </div>
 
           <div className={classes.historyAdminBar}>
             <span>Clear counted history for {activeSlug} from the last</span>
@@ -943,6 +1001,12 @@ export default function DigestEmailPreviewPage() {
                       </button>
                     ))}
                   </div>
+                  {samplePreviewView === "html" && (
+                    <ViewportToggle
+                      viewport={previewViewport}
+                      setViewport={setPreviewViewport}
+                    />
+                  )}
                   {selectedSampleSummary && (
                     <button
                       type="button"
@@ -997,6 +1061,7 @@ export default function DigestEmailPreviewPage() {
                   <EmailPreview
                     email={selectedSample}
                     bodyView={samplePreviewView}
+                    viewport={previewViewport}
                     fullHeight
                   />
                 )}
@@ -1072,34 +1137,42 @@ export default function DigestEmailPreviewPage() {
             <p className={classes.fixtureDescription}>
               Fixed mixed-content baseline for iterating on email design.
             </p>
-            <div className={classes.previewTabs} role="tablist" aria-label="Fixture format">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={fixturePreviewView === "html"}
-                className={classNames(
-                  classes.previewTab,
-                  fixturePreviewView === "html" && classes.previewTabSelected,
-                )}
-                onClick={() => setFixturePreviewView("html")}
-              >
-                Email
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={fixturePreviewView === "text"}
-                className={classNames(
-                  classes.previewTab,
-                  fixturePreviewView === "text" && classes.previewTabSelected,
-                )}
-                onClick={() => setFixturePreviewView("text")}
-              >
-                Plain text
-              </button>
-              <button className={classes.button} type="button" onClick={handleRerenderClick}>
-                Re-render
-              </button>
+            <div className={classes.previewControls}>
+              <div className={classes.previewTabs} role="tablist" aria-label="Fixture format">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={fixturePreviewView === "html"}
+                  className={classNames(
+                    classes.previewTab,
+                    fixturePreviewView === "html" && classes.previewTabSelected,
+                  )}
+                  onClick={() => setFixturePreviewView("html")}
+                >
+                  Email
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={fixturePreviewView === "text"}
+                  className={classNames(
+                    classes.previewTab,
+                    fixturePreviewView === "text" && classes.previewTabSelected,
+                  )}
+                  onClick={() => setFixturePreviewView("text")}
+                >
+                  Plain text
+                </button>
+                <button className={classes.button} type="button" onClick={handleRerenderClick}>
+                  Re-render
+                </button>
+              </div>
+              {fixturePreviewView === "html" && (
+                <ViewportToggle
+                  viewport={previewViewport}
+                  setViewport={setPreviewViewport}
+                />
+              )}
             </div>
           </div>
           {loading && <Loading />}
@@ -1107,7 +1180,12 @@ export default function DigestEmailPreviewPage() {
             <p className={classes.error}>Could not render fixture: {error.message}</p>
           )}
           {!loading && email && (
-            <EmailPreview email={email} bodyView={fixturePreviewView} fullHeight />
+            <EmailPreview
+              email={email}
+              bodyView={fixturePreviewView}
+              viewport={previewViewport}
+              fullHeight
+            />
           )}
         </div>
       )}

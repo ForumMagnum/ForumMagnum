@@ -6,6 +6,7 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   countAiDigestWords,
+  formatAiDigestPostAuthors as formatPostAuthors,
   selectAiDigestExcerpt,
   truncateAiDigestText,
 } from "@/lib/aiDigest/aiDigestDisplay";
@@ -288,6 +289,8 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
+  // Right of the read-more link on wide layouts; on narrow layouts it takes
+  // its own flex line (full basis), left-aligned, with the footer rowGap above.
   reason: {
     minWidth: 0,
     flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
@@ -298,6 +301,7 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     textAlign: "right",
     textWrap: "balance",
     [theme.breakpoints.down("xs")]: {
+      flexBasis: "100%",
       textAlign: "left",
     },
   },
@@ -335,22 +339,23 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   discussionBody: {
     padding: aiDigestPresentation.discussion.bodyPadding,
   },
-  discussionTitle: {
-    margin: aiDigestPresentation.discussion.titleMargin,
-    fontSize: aiDigestPresentation.discussion.titleFontSize,
-    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
-    lineHeight: aiDigestPresentation.discussion.titleLineHeight,
-  },
   discussionThreadTitle: {
     margin: aiDigestPresentation.discussion.threadTitleMargin,
+    ...theme.typography.postStyle,
     fontSize: aiDigestPresentation.discussion.threadTitleFontSize,
-    fontWeight: aiDigestPresentation.discussion.titleFontWeight,
+    fontStyle: "italic",
+    fontWeight: aiDigestPresentation.discussion.threadTitleFontWeight,
     lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
-  discussionExcerpt: {
-    margin: aiDigestPresentation.discussion.excerptMargin,
-    fontSize: aiDigestPresentation.discussion.excerptFontSize,
-    lineHeight: aiDigestPresentation.discussion.excerptLineHeight,
+  discussionThreadTitleLink: {
+    color: "light-dark(#4d4a43, #b3aea3)",
+    textDecoration: "none",
+    "&:hover": {
+      color: theme.palette.primary.main,
+    },
+  },
+  discussionThreadTitleSubject: {
+    fontWeight: aiDigestPresentation.discussion.threadTitleSubjectFontWeight,
   },
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
@@ -386,6 +391,11 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     "&:hover": {
       color: theme.palette.primary.main,
     },
+  },
+  // Greyed-out title for curated posts the reader has already read, matching
+  // the read-state dimming of post items elsewhere onsite.
+  quietTitleRead: {
+    color: theme.palette.text.dim55,
   },
   quietAuthor: {
     marginLeft: aiDigestPresentation.curated.bylineMarginLeft,
@@ -423,14 +433,6 @@ function itemKey(item: AiDigestItem): string {
   return `${item.documentRef.documentType}:${item.documentRef.documentId}`;
 }
 
-function formatPostAuthors(post: AiDigestEmailPost): string {
-  const primaryAuthor = post.user?.displayName;
-  const coauthors = post.coauthors?.flatMap((author) =>
-    author.displayName ? [author.displayName] : [],
-  ) ?? [];
-  return [primaryAuthor, ...coauthors].flatMap((author) => author ? [author] : []).join(", ");
-}
-
 function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): string {
   const wordCount = post.contents?.wordCount;
   if (!wordCount) {
@@ -465,31 +467,24 @@ function getCommentPermalinkUrl(comment: AiDigestEmailComment): string {
   });
 }
 
-function commentTitle(comment: AiDigestEmailComment): string {
-  const author = comment.user?.displayName ?? "A LessWrong reader";
-  if (comment.shortform) {
-    return `${author}’s quick take`;
-  }
-  if (comment.post) {
-    return `${author} on “${comment.post.title}”`;
-  }
-  if (comment.tag) {
-    return `${author} in ${comment.tag.name}`;
-  }
-  return `Comment by ${author}`;
+interface ThreadTitle {
+  // Rendered lighter than the subject it introduces, when there is one.
+  prefix: string | null;
+  subject: string;
 }
 
-function threadTitle(comment: AiDigestEmailComment): string {
+function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
   if (comment.shortform) {
-    return `${comment.user?.displayName ?? "A LessWrong reader"}’s quick take`;
+    const author = comment.user?.displayName ?? "A LessWrong reader";
+    return { prefix: null, subject: `${author}’s quick take` };
   }
   if (comment.post) {
-    return `Comments on “${comment.post.title}”`;
+    return { prefix: "Comments on", subject: `“${comment.post.title}”` };
   }
   if (comment.tag) {
-    return `Comments on ${comment.tag.name}`;
+    return { prefix: "Comments on", subject: comment.tag.name };
   }
-  return "Comments";
+  return { prefix: null, subject: "Comments" };
 }
 
 function compareCommentsByDate(
@@ -576,7 +571,12 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
   if (item.placement === "quiet") {
     return (
       <div className={classes.quietItem}>
-        <a href={postUrl} className={classes.quietTitle}>{post.title}</a>
+        <a
+          href={postUrl}
+          className={classNames(classes.quietTitle, item.isRead && classes.quietTitleRead)}
+        >
+          {post.title}
+        </a>
         <span className={classes.quietAuthor}>{formatPostAuthors(post)}</span>
       </div>
     );
@@ -680,9 +680,7 @@ function QuickTakeItem({
   const text = selectAiDigestExcerpt(
     item.excerpt,
     comment.contents?.plaintextMainText ?? "",
-    item.placement === "compact"
-      ? aiDigestPresentation.excerptCharacters.compactQuickTake
-      : aiDigestPresentation.excerptCharacters.fullQuickTake,
+    aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
   return (
     <article className={classes.card}>
@@ -750,46 +748,6 @@ function CommentBox({
   );
 }
 
-function CompactComment({
-  comment,
-  item,
-}: {
-  comment: AiDigestEmailComment;
-  item: AiDigestItem;
-}) {
-  const classes = useStyles(styles);
-  const commentUrl = getCommentUrl(comment);
-  const excerpt = selectAiDigestExcerpt(
-    item.excerpt,
-    comment.contents?.plaintextMainText ?? "",
-    aiDigestPresentation.excerptCharacters.compactComment,
-  );
-  return (
-    <article className={classNames(classes.card, classes.compactCard, classes.compactWithoutImage)}>
-      <div className={classes.compactBody}>
-        <h3 className={classes.discussionTitle}>
-          <a href={commentUrl} className={classes.titleLink}>{commentTitle(comment)}</a>
-        </h3>
-        <ItemMetadata
-          author={comment.user?.displayName ?? "A LessWrong reader"}
-          postedAt={comment.postedAt}
-          permalinkUrl={getCommentPermalinkUrl(comment)}
-          permalinkLabel="Permalink to this comment"
-          className={classes.compactMetadata}
-        />
-        {excerpt && (
-          <a href={commentUrl} className={classes.textLink}>
-            <p className={classes.discussionExcerpt}>{excerpt}</p>
-          </a>
-        )}
-      </div>
-      <div className={classes.compactFooter}>
-        <ItemFooter url={commentUrl} label="Open comment" reason={item.reason} />
-      </div>
-    </article>
-  );
-}
-
 function DiscussionItem({
   comment,
   item,
@@ -806,11 +764,15 @@ function DiscussionItem({
     return threadComment ? [{ comment: threadComment, excerpt }] : [];
   });
   const threadComments = flattenThreadComments(comment._id, candidateThreadComments);
+  const { prefix, subject } = threadTitle(comment);
   return (
     <article className={classes.card}>
       <div className={classes.discussionBody}>
         <h3 className={classes.discussionThreadTitle}>
-          <a href={commentUrl} className={classes.titleLink}>{threadTitle(comment)}</a>
+          <a href={commentUrl} className={classes.discussionThreadTitleLink}>
+            {prefix ? `${prefix} ` : ""}
+            <span className={classes.discussionThreadTitleSubject}>{subject}</span>
+          </a>
         </h3>
         <CommentBox
           comment={comment}
@@ -854,9 +816,7 @@ function DigestItem({
   if (item.documentRef.documentType === "quickTake") {
     return <QuickTakeItem comment={comment} item={item} />;
   }
-  return item.placement === "compact"
-    ? <CompactComment comment={comment} item={item} />
-    : <DiscussionItem comment={comment} item={item} content={content} />;
+  return <DiscussionItem comment={comment} item={item} content={content} />;
 }
 
 function DigestSection({
@@ -901,7 +861,7 @@ function CustomPromptCard({ personalInstructions }: { personalInstructions: stri
   const isTruncated = preview.length < personalInstructions.replace(/\s+/g, " ").trim().length;
   return (
     <div className={classes.customPrompt}>
-      <div className={classes.customPromptLabel}>Custom prompt</div>
+      <div className={classes.customPromptLabel}>Your custom prompt</div>
       <span className={classes.customPromptText}>
         {expanded ? personalInstructions : preview}
       </span>

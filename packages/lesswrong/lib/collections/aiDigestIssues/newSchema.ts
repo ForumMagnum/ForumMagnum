@@ -62,6 +62,57 @@ const schema = {
       }),
     },
   },
+  quickTakeIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      onCreate: arrayOfForeignKeysOnCreate,
+    },
+  },
+  quickTakes: {
+    graphql: {
+      outputType: "[Comment!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Comments",
+        fieldName: "quickTakeIds",
+      }),
+    },
+  },
+  /** Anchor comment IDs of the issue's discussion-section threads. */
+  discussionCommentIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      canCreate: ["admins"],
+      onCreate: arrayOfForeignKeysOnCreate,
+    },
+  },
+  discussionComments: {
+    graphql: {
+      outputType: "[Comment!]!",
+      canRead: [userIsIssueRecipient, "admins"],
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Comments",
+        fieldName: "discussionCommentIds",
+      }),
+    },
+  },
   generatedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -219,6 +270,96 @@ const schema = {
     },
   },
   selectionCostUsd: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["admins"],
+    },
+  },
+  toolCallCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  searchCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  readPostCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  threadPromptVersion: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+  threadSelectionUserPrompt: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+  threadInputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  threadOutputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  threadCacheReadInputTokenCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
+  },
+  threadSelectionCostUsd: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: true,
