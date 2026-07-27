@@ -26,22 +26,23 @@ cards (numbered), a dark-mode toggle, and an icon-strength slider.
   `changed-mind-on-point` — the iconic delta needs a variable-width (thick-bottom) edge.
   Everything else is stroked.
 
-## Status (revisions 1–3 done)
-61 of 63 read well at 24/40px and small sizes, in light + dark. **Two are still not
-landing** — the owner flagged both, don't consider them done:
-- **`thinking`** — must read as genuine pondering *and* be congruent with the other
-  emotion faces. Tried: hand-on-chin (reads as a beard ~18px), floating thought-bubble
-  (owner: incongruent with the face set), self-contained eyes-up + pursed-mouth
-  (current — still not right).
-- **`oops`** — facepalm. Tried: fanned-fingers-over-face (read as jail bars),
-  hand-over-eyes band (current — still not right).
-
-Realistic options for these two: swap the metaphor for a cleaner silhouette, or leave
-them on their current production art and ship the rest.
+## Status (revisions 1–4 done)
+All 63 read well at 24/40px and small sizes, in light + dark. The two long-time
+holdouts were resolved in revision 4 (awaiting owner sign-off):
+- **`thinking`** — pondering face + rising thought-dot trail (3 filled dots, growing,
+  up-right; same accent-dot vocabulary as excitement/important). Face shrunk to r7.9
+  and shifted down-left to make room. Dead ends, don't retry: hand-on-chin (beard at
+  ~18px), full bubble outline (incongruent), face-only (read skeptical/odd).
+- **`oops`** — facepalm rebuilt from the original PNG's *full* metaphor: tilted hand
+  with scalloped fingertips over the eyes + thumb curl + grimace below + impact lines
+  off the head (the shock is half the joke; earlier attempts dropped it). Dead ends:
+  separate finger strokes (jail bars/visor), side-hand with occluded face arc (mush).
 
 ## How to visually verify — DO THIS, don't author SVG blind
-Tooling is already installed in this sandbox: `sharp` (in node_modules) + Playwright
-chromium + its system libs.
+Tooling: `sharp` (in node_modules) + Playwright chromium. NOTE: a sandbox recycle
+wipes the chromium binary and its system libs — restore with
+`npx playwright install chromium` then
+`sudo dnf install -y nss nspr atk at-spi2-atk at-spi2-core cups-libs libdrm libxkbcommon libXcomposite libXdamage libXfixes libXrandr mesa-libgbm alsa-lib pango cairo fontconfig`.
 - **Contact sheets:** parse the two JSON blocks out of the HTML, wrap each `new-icons`
   body in an `<svg>`, composite with `sharp`, write a PNG, and look at it. Render **both**
   large (~110px) and small (~15–20px, upscaled nearest-neighbor) — the small size is
