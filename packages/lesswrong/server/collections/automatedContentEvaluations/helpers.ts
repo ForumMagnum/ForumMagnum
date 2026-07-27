@@ -10,6 +10,7 @@ import { updateComment } from "@/server/collections/comments/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
+import { PANGRAM_AUTOREJECT_THRESHOLD } from "@/lib/collections/automatedContentEvaluations/constants";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -37,7 +38,6 @@ const pangramResponseSchema = z.object({
   })).optional(),
 });
 
-const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
 
 export interface PangramEvaluationResult {
   pangramApiVersion: string | null;
