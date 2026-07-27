@@ -7,6 +7,7 @@ import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNod
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $isListItemNode, $isListNode } from "@lexical/list";
+import { $isTableNode } from "@lexical/table";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -134,6 +135,25 @@ describe("replaceText across block boundaries", () => {
     );
     expect(inserts.length).toBe(1);
     expect(inserts[0].textContent).toBe("ends differently. A new start,");
+  });
+
+  it("creates a table from a cross-paragraph replacement", async () => {
+    const editor = await setupEditorWithContent(
+      "First prompt paragraph.\n\nSecond prompt paragraph.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "First prompt paragraph.\n\nSecond prompt paragraph.",
+      "| Prompt | Response |\n| --- | --- |\n| First | Alpha |\n| Second | Beta |",
+    );
+
+    expect(replaced).toBe(true);
+    editor.getEditorState().read(() => {
+      expect($getRoot().getChildren().some($isTableNode)).toBe(true);
+    });
+    expect(getMarkdownContent(editor)).toContain("| First | Alpha |");
+    expect(getMarkdownContent(editor)).toContain("| Second | Beta |");
   });
 });
 
