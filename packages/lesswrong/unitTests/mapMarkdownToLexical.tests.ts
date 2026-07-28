@@ -18,7 +18,7 @@ import {
   type MarkdownQuoteSelectionResult,
 } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
-import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
+import { resolveInsertionTarget } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
@@ -252,7 +252,7 @@ describe("quote selection round-trips", () => {
 });
 
 describe("$locateBlockByPrefix", () => {
-  interface MatchInfo { type: string; text: string; isListItem: boolean }
+  interface MatchInfo { type: string; text: string; isListItem: boolean; parentType: string | null }
   function findFor(editor: LexicalEditor, prefix: string): MatchInfo | null {
     let result: MatchInfo | null = null;
     editor.getEditorState().read(() => {
@@ -262,6 +262,7 @@ describe("$locateBlockByPrefix", () => {
           type: node.getType(),
           text: node.getTextContent(),
           isListItem: $isListItemNode(node),
+          parentType: node.getParent()?.getType() ?? null,
         };
       }
     });
@@ -395,21 +396,50 @@ describe("$locateBlockByPrefix", () => {
     expect(matched?.isListItem).toBe(true);
     expect(matched?.text).toBe("nested needle item");
   });
+
+  it("matches a paragraph inside a collapsible section", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n+++ Hidden section\nHidden body paragraph.\n\nAnother hidden paragraph.\n+++\n\nClosing paragraph."
+    );
+    const matched = findFor(editor, "Hidden body");
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.text).toBe("Hidden body paragraph.");
+    expect(matched?.parentType).toBe("collapsible-section-content");
+  });
 });
 
-describe("resolveInsertionIndex with nested structures", () => {
+describe("resolveInsertionTarget with nested structures", () => {
   it("translates a nested list-item match to its top-level list index", async () => {
     const editor = await setupEditorWithContent(
       "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
     );
-    let result: { index: number | null } = { index: null };
+    let insertionIndex: number | null = null;
+    let parentType: string | null = null;
     editor.getEditorState().read(() => {
-      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+      const result = resolveInsertionTarget({ after: "nested needle" }, $getRoot());
+      insertionIndex = result.index;
+      parentType = result.parent?.getType() ?? null;
     });
     // Document top level: [paragraph, list, paragraph] — "after" the matched
     // nested item must insert after the whole list (index 2), not at a
     // root position derived from inner-list indices.
-    expect(result.index).toBe(2);
+    expect(insertionIndex).toBe(2);
+    expect(parentType).toBe("root");
+  });
+
+  it("keeps a collapsible-body match in its shadow-root container", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n+++ Hidden section\nFirst hidden paragraph.\n\nSecond hidden paragraph.\n+++\n\nClosing paragraph."
+    );
+    let insertionIndex: number | null = null;
+    let parentType: string | null = null;
+    editor.getEditorState().read(() => {
+      const result = resolveInsertionTarget({ after: "First hidden" }, $getRoot());
+      insertionIndex = result.index;
+      parentType = result.parent?.getType() ?? null;
+    });
+    expect(insertionIndex).toBe(1);
+    expect(parentType).toBe("collapsible-section-content");
   });
 });
 

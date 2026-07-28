@@ -2,8 +2,9 @@ import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
-import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, walkLexicalNodes } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
+import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
 
 async function insertBlock(
   editor: LexicalEditor,
@@ -40,6 +41,18 @@ function countInsertedNodesWithSuggestions(editor: LexicalEditor): { total: numb
     }
   });
   return { total, withSuggestions };
+}
+
+function getCollapsibleBodyChildTypes(editor: LexicalEditor): string[] {
+  let childTypes: string[] = [];
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node) => {
+      if ($isCollapsibleSectionContentNode(node)) {
+        childTypes = node.getChildren().map((child) => child.getType());
+      }
+    });
+  });
+  return childTypes;
 }
 
 describe("insertBlock suggest mode", () => {
@@ -154,6 +167,23 @@ describe("insertBlock suggest mode", () => {
     expect(suggestionTexts.length).toBe(2);
     expect(suggestionTexts[0]).toBe("First inserted.");
     expect(suggestionTexts[1]).toBe("Second inserted.");
+  });
+});
+
+describe("insertBlock in nested containers", () => {
+  it("inserts a table next to a paragraph inside a collapsible section", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n+++ Hidden section\nFirst hidden paragraph.\n\nSecond hidden paragraph.\n+++\n\nClosing paragraph."
+    );
+
+    await insertBlock(
+      editor,
+      "| Heading | Value |\n| --- | --- |\n| Example | 42 |",
+      { after: "First hidden paragraph" },
+      "edit",
+    );
+
+    expect(getCollapsibleBodyChildTypes(editor)).toEqual(["paragraph", "table", "paragraph"]);
   });
 });
 

@@ -8,7 +8,7 @@ import {
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { resolveInsertionIndex } from "../insertBlock/route";
+import { resolveInsertionTarget } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -33,8 +33,8 @@ export function $insertWidgetInEditor({
   location: InsertLocation
 }): InsertWidgetResult {
   const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
-  if (insertionIndex === null) {
+  const { parent: insertionParent, index: insertionIndex, reason } = resolveInsertionTarget(location, root);
+  if (!insertionParent || insertionIndex === null) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
@@ -42,7 +42,7 @@ export function $insertWidgetInEditor({
   const widgetNode = $createIframeWidgetNode(widgetId);
   widgetNode.append($createTextNode(content));
 
-  root.splice(insertionIndex, 0, [widgetNode]);
+  insertionParent.splice(insertionIndex, 0, [widgetNode]);
   return {
     inserted: true,
     note: `Inserted widget (id: ${widgetId}) at index ${insertionIndex}.`,

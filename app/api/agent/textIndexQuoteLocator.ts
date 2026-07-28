@@ -1,4 +1,4 @@
-import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
+import { $getRoot, $isElementNode, $isRootOrShadowRoot, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
@@ -497,13 +497,13 @@ interface BlockCandidate {
 }
 
 /**
- * Enumerate the prefix-addressable blocks — top-level children plus list
- * items at any nesting depth — keyed by the raw projection offset of each
- * block's first content character (its span start plus any leading
- * whitespace, which normalization skips). When an outer block's first
- * content coincides with a nested item's (an item that opens with a
- * sub-list), the innermost block wins, matching deleteBlock's most-specific
- * targeting.
+ * Enumerate the prefix-addressable blocks — children of the document root or
+ * a shadow root (such as a collapsible body), plus list items at any nesting
+ * depth — keyed by the raw projection offset of each block's first content
+ * character (its span start plus any leading whitespace, which normalization
+ * skips). When an outer block's first content coincides with a nested item's
+ * (an item that opens with a sub-list), the innermost block wins, matching
+ * deleteBlock's most-specific targeting.
  */
 function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<number, BlockCandidate> {
   const blocks = new Map<number, BlockCandidate>();
@@ -517,7 +517,7 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
     if (isBlock) addBlock(node);
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
-        visit(child, $isListItemNode(child) || $isRootNode(node));
+        visit(child, $isListItemNode(child) || $isRootOrShadowRoot(node));
       }
     }
   };
@@ -526,12 +526,12 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
 }
 
 /**
- * Locate the block (top-level node or list item) whose rendered text starts
- * with the given markdown prefix, via the text index. Replaces the legacy
- * markdown-serialization prefix matcher for deleteBlock/insertBlock: the
- * prefix is treated as a quote that must match at a block start, with the
- * same normalization as quote location. A prefix matching more than one
- * block is an error, never a guess.
+ * Locate the block (root/shadow-root child or list item) whose rendered text
+ * starts with the given markdown prefix, via the text index. Replaces the
+ * legacy markdown-serialization prefix matcher for deleteBlock/insertBlock:
+ * the prefix is treated as a quote that must match at a block start, with the
+ * same normalization as quote location. A prefix matching more than one block
+ * is an error, never a guess.
  *
  * Must be called inside a Lexical read/update context.
  */

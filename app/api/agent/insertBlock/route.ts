@@ -12,6 +12,7 @@ import {
   $createTextNode,
   $isElementNode,
   $isTextNode,
+  type ElementNode,
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
@@ -78,11 +79,16 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
 }
 
 /**
- * Wraps already-inserted top-level nodes in suggestion markup. Must be called
+ * Wraps already-inserted block nodes in suggestion markup. Must be called
  * inside a Lexical editor.update() callback, after the nodes have been spliced
- * into the root at insertionIndex.
+ * into their root or shadow-root container at insertionIndex.
  */
-function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionIndex: number, suggestionId: string): void {
+function $wrapInsertedNodesAsSuggestion(
+  nodesToInsert: LexicalNode[],
+  insertionParent: ElementNode,
+  insertionIndex: number,
+  suggestionId: string,
+): void {
   if (nodesToInsert.length === 0) return;
 
   const firstInserted = nodesToInsert[0];
@@ -96,20 +102,19 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
     : null;
 
   // Use text-level selection on the first/last text descendants when possible,
-  // which avoids a bug where root-level element selection clips the first
+  // which avoids a bug where block-level element selection clips the first
   // character. For non-element, non-text nodes (e.g. decorator nodes like
-  // horizontal rules), fall back to root-level element selection.
-  const root = $getRoot();
+  // horizontal rules), fall back to an element selection in the container.
   const selection = $createRangeSelection();
   if (firstDescendant && $isTextNode(firstDescendant)) {
     selection.anchor.set(firstDescendant.getKey(), 0, "text");
   } else {
-    selection.anchor.set(root.getKey(), insertionIndex, "element");
+    selection.anchor.set(insertionParent.getKey(), insertionIndex, "element");
   }
   if (lastDescendant && $isTextNode(lastDescendant)) {
     selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
   } else {
-    selection.focus.set(root.getKey(), insertionIndex + nodesToInsert.length, "element");
+    selection.focus.set(insertionParent.getKey(), insertionIndex + nodesToInsert.length, "element");
   }
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
@@ -138,34 +143,45 @@ export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): L
   return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
 }
 
-export interface InsertionIndexResult {
+export interface InsertionTargetResult {
+  parent: ElementNode | null
   index: number | null
   /** Why no index could be resolved (e.g. an ambiguous prefix). */
   reason?: string
 }
 
-function findInsertionIndexByPrefix(
+function findInsertionTargetByPrefix(
   prefix: string,
   relation: "before" | "after",
-): InsertionIndexResult {
+): InsertionTargetResult {
   const blockResult = $locateBlockByPrefix(prefix);
   const matched = blockResult.node;
-  if (!matched) return { index: null, reason: blockResult.reason };
-  // The locator may descend into list items (at any nesting depth), but
-  // insertion always happens at the top level — translate the match back to
-  // its top-level ancestor's index, so the caller inserts before/after the
-  // whole list rather than splitting the list open.
+  if (!matched) return { parent: null, index: null, reason: blockResult.reason };
+  // The locator may descend into list items (at any nesting depth). Translate
+  // those matches to their top-level list within the nearest root or shadow
+  // root, so insertion does not split the list open. Other blocks remain in
+  // their current root/shadow-root container (for example a collapsible body).
   const topLevel = matched.getTopLevelElement() ?? matched;
+  const parent = topLevel.getParent();
+  if (!$isElementNode(parent)) {
+    return { parent: null, index: null, reason: "Matched block has no insertion container." };
+  }
   const topLevelIndex = topLevel.getIndexWithinParent();
-  return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
+  return {
+    parent,
+    index: relation === "before" ? topLevelIndex : topLevelIndex + 1,
+  };
 }
 
-export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): InsertionIndexResult {
+export function resolveInsertionTarget(location: InsertLocation, root: ElementNode): InsertionTargetResult {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
-    return { index: target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index };
+    return {
+      parent: root,
+      index: target.index === Number.MAX_SAFE_INTEGER ? root.getChildrenSize() : target.index,
+    };
   }
-  return findInsertionIndexByPrefix(target.prefix, target.relation);
+  return findInsertionTargetByPrefix(target.prefix, target.relation);
 }
 
 /**
@@ -192,16 +208,16 @@ export function $insertMarkdownBlockInEditor({
   }
 
   const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
-  if (insertionIndex === null) {
+  const { parent: insertionParent, index: insertionIndex, reason } = resolveInsertionTarget(location, root);
+  if (!insertionParent || insertionIndex === null) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
-  root.splice(insertionIndex, 0, nodesToInsert);
+  insertionParent.splice(insertionIndex, 0, nodesToInsert);
   let suggestionId: string | undefined = undefined;
   if (mode === "suggest") {
     suggestionId = randomId();
-    $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionIndex, suggestionId);
+    $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionParent, insertionIndex, suggestionId);
   }
   return {
     inserted: true,
