@@ -3989,7 +3989,7 @@ const schema = {
         const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 
         // Users who would otherwise be in `newContent` get pulled into the
-        // `offboard` group if their content matches the offboarding criteria.
+        // `offboard` group if they match the offboarding criteria.
         if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc._id)) {
           return 'offboard';
         }

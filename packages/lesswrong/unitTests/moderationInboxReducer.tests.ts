@@ -10,7 +10,7 @@ import {
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   newContent: UNREVIEWED_FIRST_POST,
-  // `offboard` is derived from content (not a moderator action); this mapping is
+  // `offboard` is derived from content and karma (not a moderator action); this mapping is
   // only used to attach a plausible action to mock users in these reducer tests.
   offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,

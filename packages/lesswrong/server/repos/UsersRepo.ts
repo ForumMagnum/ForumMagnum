@@ -412,12 +412,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
    * "offboard" review group, because they either:
    *   (1) have a rejected post/comment with a high Pangram score, or
    *   (2) have at least two rejected posts and/or comments, or
-   *   (3) have all of their content rejected.
-   * Rejected content counts for all criteria even if the user has since
+   *   (3) have all of their content rejected, or
+   *   (4) have negative karma.
+   * Rejected content counts for criteria (1)-(3) even if the user has since
    * re-drafted/deleted the post or deleted the comment; never-rejected drafts
    * and deleted items are ignored. Criterion (1) considers evaluations of any
    * revision, not just the latest.
-   * All criteria are evaluated over all-time content state (deliberately not
+   * Criteria (1)-(3) are evaluated over all-time content state (deliberately not
    * bounded by `lastRemovedFromReviewQueueAt`), so the offboard question keeps
    * getting re-asked until the user is offboarded or their record improves.
    */
@@ -451,6 +452,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       GROUP BY c."userId"
       HAVING COUNT(*) FILTER (WHERE c."rejected" IS TRUE) >= 2
         OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
+      UNION
+      -- (4) negative karma
+      SELECT u."_id" AS "userId"
+      FROM "Users" u
+      WHERE u."_id" = ANY($(userIds)::text[]) AND u."karma" < 0
     `, { userIds, highPangramScoreThreshold: OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD });
     return rows.map((row) => row.userId);
   }
