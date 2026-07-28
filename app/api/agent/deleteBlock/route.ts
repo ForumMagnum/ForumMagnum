@@ -1,7 +1,7 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
+import { $createRangeSelection, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
 import { $isListNode } from "@lexical/list";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
@@ -68,7 +68,6 @@ export async function deleteMarkdownBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const root = $getRoot();
           const blockResult = $locateBlockByPrefix(prefix);
           const nodeToDelete = blockResult.node;
 
