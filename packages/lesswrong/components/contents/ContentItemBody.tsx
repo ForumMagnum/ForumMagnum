@@ -329,10 +329,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           {result}
         </MaybeScrollableBlock>
       } else if (TagName === 'span' && attribs['data-hover-preview']) {
-        // The preview wraps the link, so its href lives in the subtree.
         return <CustomHoverPreview
           previewHtml={attribs['data-hover-preview']}
-          href={findDescendantHref(parsedHtml)}
+          href={findWrappedLinkHref(parsedHtml)}
           contentStyleType={passedThroughProps.contentStyleType}
         >
           {result}
@@ -362,16 +361,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   }
 }
 
-function findDescendantHref(node: DomHandlerChildNode): string | undefined {
-  if (node.type === htmlparser2.ElementType.Tag && node.name === 'a' && node.attribs.href) {
-    return node.attribs.href;
-  }
-  if ('childNodes' in node) {
-    for (const child of node.childNodes) {
-      const href = findDescendantHref(child);
-      if (href) {
-        return href;
-      }
+/** Direct children only: a nested preview's link is not this one's. */
+function findWrappedLinkHref(node: DomHandlerElement): string | undefined {
+  for (const child of node.childNodes) {
+    if (child.type === htmlparser2.ElementType.Tag && child.name === 'a' && child.attribs.href) {
+      return child.attribs.href;
     }
   }
   return undefined;
