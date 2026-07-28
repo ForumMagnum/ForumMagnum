@@ -281,6 +281,18 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       top: 2,
       left: COLLAPSIBLE_MARKER_GUTTER,
     },
+    // Sentinel paragraphs around collapsible sections contain a <br>, whose
+    // line box stops vertical margins from collapsing through them. Without
+    // these rules every gap next to a collapsible section is the sum of both
+    // neighbours' margins, roughly double the rendered page's spacing. Only
+    // neighbours with their own bottom margin are listed, so elements like
+    // figures (zero-margin in the editor) keep the section's full margin.
+    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, blockquote, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
+      marginTop: 0,
+    },
+    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6, + .sentinel-paragraph + blockquote)': {
+      marginBottom: 0,
+    },
     '& .footnote-content': {
       flex: 1,
     },
