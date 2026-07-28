@@ -281,12 +281,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       top: 2,
       left: COLLAPSIBLE_MARKER_GUTTER,
     },
-    // Sentinel paragraphs around collapsible sections contain a <br>, whose
-    // line box stops vertical margins from collapsing through them. Without
-    // these rules every gap next to a collapsible section is the sum of both
-    // neighbours' margins, roughly double the rendered page's spacing. Only
-    // neighbours with their own bottom margin are listed, so elements like
-    // figures (zero-margin in the editor) keep the section's full margin.
+    // Sentinels' <br> line box blocks margin collapsing, doubling the
+    // gaps around collapsible sections vs the rendered page. Only zero
+    // margins next to neighbours that have their own margin.
     '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, blockquote, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
       marginTop: 0,
     },
