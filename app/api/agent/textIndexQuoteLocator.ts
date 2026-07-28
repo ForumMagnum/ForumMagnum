@@ -1,5 +1,6 @@
 import { $getRoot, $isElementNode, $isRootOrShadowRoot, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { $isTableNode } from "@lexical/table";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
 import {
@@ -515,6 +516,10 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
   };
   const visit = (node: LexicalNode, isBlock: boolean): void => {
     if (isBlock) addBlock(node);
+    // Tables are addressed as one structural block by their first-cell text.
+    // Table cells are also Lexical shadow roots, but exposing their paragraphs
+    // would overwrite the table candidate at the same projected-text offset.
+    if ($isTableNode(node)) return;
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
         visit(child, $isListItemNode(child) || $isRootOrShadowRoot(node));
