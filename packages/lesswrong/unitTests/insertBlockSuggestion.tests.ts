@@ -1,9 +1,12 @@
 import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
+import { agentMarkdownFromEditorHtml } from "../../../app/api/agent/agentMarkdownView";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 
 async function insertBlock(
   editor: LexicalEditor,
@@ -185,6 +188,27 @@ describe("insertBlock with LaTeX", () => {
     );
 
     expect(findMathEquations(editor)).toEqual(["a^2 + b^2 = c^2"]);
+  });
+});
+
+describe("insertBlock with footnotes", () => {
+  it("preserves footnote definition content in the agent markdown round trip", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    await insertBlock(
+      editor,
+      "A supported claim.[^source]\n\n[^source]: **Detailed** source with a [link](https://example.com).",
+      "end",
+      "edit",
+    );
+
+    let markdown = "";
+    editor.getEditorState().read(() => {
+      const html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+      markdown = agentMarkdownFromEditorHtml(html);
+    });
+
+    expect(markdown).toContain("A supported claim.[^");
+    expect(markdown).toMatch(/\[\^[^\]]+\]: Detailed source with a link\./);
   });
 });
 

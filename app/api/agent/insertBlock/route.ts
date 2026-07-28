@@ -25,6 +25,7 @@ import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 
 interface InsertBlockResult {
   inserted: boolean
@@ -77,6 +78,37 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
   return { widgetId, widgetMarkup };
 }
 
+function normalizeFootnotesForLexicalImport(document: Document): void {
+  const footnoteItems = document.querySelectorAll<HTMLElement>(
+    `[${FOOTNOTE_ATTRIBUTES.footnoteItem}]`
+  );
+  for (const item of footnoteItems) {
+    const footnoteId = item.getAttribute(FOOTNOTE_ATTRIBUTES.footnoteId);
+    const hasContentWrapper = Array.from(item.children).some((child) =>
+      child.hasAttribute(FOOTNOTE_ATTRIBUTES.footnoteContent)
+    );
+    if (!footnoteId || hasContentWrapper) {
+      continue;
+    }
+
+    for (const anchor of item.querySelectorAll(`a.${FOOTNOTE_CLASSES.footnoteBackLink}`)) {
+      anchor.remove();
+    }
+
+    const content = document.createElement("div");
+    content.className = FOOTNOTE_CLASSES.footnoteContent;
+    content.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteContent, "");
+    content.append(...Array.from(item.childNodes));
+
+    const backLink = document.createElement("span");
+    backLink.className = FOOTNOTE_CLASSES.footnoteBackLink;
+    backLink.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteBackLink, "");
+    backLink.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteId, footnoteId);
+
+    item.append(backLink, content);
+  }
+}
+
 /**
  * Wraps already-inserted top-level nodes in suggestion markup. Must be called
  * inside a Lexical editor.update() callback, after the nodes have been spliced
@@ -122,6 +154,7 @@ export function $markdownToNodes(
   const id = randomId();
   const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
   const dom = new JSDOM(html);
+  normalizeFootnotesForLexicalImport(dom.window.document);
   const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
   return normalizeImportedTopLevelNodes(importedNodes);
 }
