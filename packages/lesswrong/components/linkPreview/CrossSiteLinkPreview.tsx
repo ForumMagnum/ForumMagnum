@@ -20,6 +20,7 @@ import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPre
 import { useDialog } from "../common/withDialog";
 import { DefaultPreview } from "./PostLinkPreview";
 import { Link } from "@/lib/reactRouterWrapper";
+import { getNormalizedHost } from "@/lib/utils/urlHosts";
 
 const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   noImageCard: {
@@ -175,12 +176,8 @@ function getPreviewImageLayout(imageWidth: number | null | undefined, imageHeigh
 }
 
 function shouldUseTopRightFloatImageLayout(href: string): boolean {
-  try {
-    const host = new URL(href).hostname.toLowerCase().replace(/^www\./, "");
-    return TOP_RIGHT_FLOAT_IMAGE_DOMAINS.has(host);
-  } catch {
-    return false;
-  }
+  const host = getNormalizedHost(href);
+  return !!host && TOP_RIGHT_FLOAT_IMAGE_DOMAINS.has(host);
 }
 
 const CrossSiteLinkPreviewQuery = gql(`

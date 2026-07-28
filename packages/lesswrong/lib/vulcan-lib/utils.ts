@@ -1,7 +1,6 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { siteUrlSetting, logoUrlSetting } from '../instanceSettings';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 
 // @summary Convert a camelCase string to a space-separated capitalized string
 // See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
@@ -94,17 +93,6 @@ export const validateUrl = (url: string) => {
 
   return url;
 }
-
-export const getDomain = function(url: string | null): string|null {
-  if (!url) return null;
-  try {
-    const URLClass = getUrlClass()
-    const hostname = new URLClass(url).hostname
-    return hostname!.replace('www.', '');
-  } catch (error) {
-    return null;
-  }
-};
 
 // add http: if missing
 export const addHttp = function (url: string): string|null {

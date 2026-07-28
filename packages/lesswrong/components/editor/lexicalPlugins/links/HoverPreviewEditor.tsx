@@ -22,7 +22,8 @@ import { validateUrl } from '@/components/lexical/utils/url';
 import { isInsertLink } from '@/components/lexical/plugins/ShortcutsPlugin/shortcuts';
 import { buildTextNodeExportMap } from '@/components/editor/lexicalDomExport';
 import FloatingLinkEditorPlugin from '@/components/lexical/plugins/FloatingLinkEditorPlugin';
-import { hoverPreviewEditorNodes, MAX_HOVER_PREVIEW_DEPTH } from './HoverPreviewNode';
+import { hoverPreviewEditorNodes } from './HoverPreviewNode';
+import { MAX_HOVER_PREVIEW_DEPTH } from '@/lib/utils/hoverPreviewConstants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('HoverPreviewEditor', (theme: ThemeType) => ({

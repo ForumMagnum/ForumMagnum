@@ -18,6 +18,7 @@ import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
 import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import { linkStyles } from './linkStyles';
+import ContentLink from './ContentLink';
 import LWTooltip from '../common/LWTooltip';
 import ConversationPreview from '../messaging/ConversationPreview';
 import type { LinkPreviewComponent, RoutePreviewParams } from '@/lib/routeChecks/hoverPreviewRoutes';
@@ -474,13 +475,9 @@ export const DefaultPreview = ({href, onsite=false, id, rel, className, children
         </Card>
       </LWPopper>
 
-      {onsite
-        ? <Link to={href} id={id} rel={rel} className={className}>{children}</Link>
-        : <AnalyticsTracker eventType="link" eventProps={{to: href}}>
-            <a href={href} id={id} rel={rel} className={className}>
-              {children}
-            </a>
-          </AnalyticsTracker>}
+      <ContentLink href={href} onsite={onsite} id={id} rel={rel} className={className}>
+        {children}
+      </ContentLink>
     </span>
   );
 }

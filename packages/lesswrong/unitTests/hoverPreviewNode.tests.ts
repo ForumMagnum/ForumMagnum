@@ -18,10 +18,10 @@ import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import {
   $isHoverPreviewNode,
   $setHoverPreviewOnSelection,
-  HOVER_PREVIEW_ATTRIBUTE,
   hoverPreviewEditorNodes,
   type HoverPreviewNode,
 } from "@/components/editor/lexicalPlugins/links/HoverPreviewNode";
+import { HOVER_PREVIEW_ATTRIBUTE } from "@/lib/utils/hoverPreviewConstants";
 
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { runEditorUpdate, setupEditorWithHtml, walkLexicalNodes } from "./lexicalTestHelpers";

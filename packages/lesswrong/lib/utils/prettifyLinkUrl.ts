@@ -1,10 +1,6 @@
 import { getUrlClass } from '@/server/utils/getUrlClass';
-
-/** Kept short deliberately: `blog.`, `docs.` etc carry meaning. */
-const noiseSubdomains = ['www.', 'www2.', 'm.', 'mobile.'];
-
-/** eg `en.m.wikipedia.org`, `de.m.wikipedia.org` */
-const localeMobileSubdomainRegex = /^[a-z]{2}\.m\./i;
+import { looksLikeDbIdString } from '@/lib/routeUtil';
+import { normalizeDisplayHost } from './urlHosts';
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const hexRegex = /^[0-9a-f]+$/i;
@@ -13,28 +9,12 @@ const hasDigitRegex = /[0-9]/;
 
 const minIdishLength = 12;
 
-/** Guards hosts that just start with the prefix, eg `mobile.com`. */
-function stripPrefixIfDomainRemains(host: string, prefixLength: number): string|null {
-  const remainder = host.slice(prefixLength);
-  return remainder.includes('.') ? remainder : null;
-}
-
-function stripNoiseSubdomains(host: string): string {
-  const lowercased = host.toLowerCase();
-  for (const prefix of noiseSubdomains) {
-    if (lowercased.startsWith(prefix)) {
-      return stripPrefixIfDomainRemains(host, prefix.length) ?? host;
-    }
-  }
-  if (localeMobileSubdomainRegex.test(lowercased)) {
-    // 5 = two-letter language code plus the `m.`
-    return stripPrefixIfDomainRemains(host, 5) ?? host;
-  }
-  return host;
-}
-
 /** Must never match a readable slug, only opaque ids. */
 function isIdishSegment(segment: string): boolean {
+  // The ids in our own URLs, which are the common case here.
+  if (looksLikeDbIdString(segment)) {
+    return true;
+  }
   if (segment.length < minIdishLength) {
     return false;
   }
@@ -89,7 +69,7 @@ export function prettifyLinkUrl(url: string): string {
     return trimmed;
   }
 
-  const host = stripNoiseSubdomains(parsed.host);
+  const host = normalizeDisplayHost(parsed.host);
   const path = collapseIdishSegments(parsed.pathname).replace(/\/$/, '');
 
   return `${host}${path}`;

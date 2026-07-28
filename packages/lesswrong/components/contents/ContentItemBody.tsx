@@ -6,6 +6,7 @@ import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 import CustomHoverPreview from '../linkPreview/CustomHoverPreview';
+import { HOVER_PREVIEW_ATTRIBUTE } from '@/lib/utils/hoverPreviewConstants';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -328,13 +329,25 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
-      } else if (TagName === 'span' && attribs['data-hover-preview']) {
+      } else if (TagName === 'span' && attribs[HOVER_PREVIEW_ATTRIBUTE]) {
+        // CustomHoverPreview renders the span itself, so its class (which
+        // carries the underline) has to go there. Anything else the author's
+        // span carried (id, style) goes on an inner span rather than being
+        // dropped.
+        const {
+          className: previewClassName,
+          [HOVER_PREVIEW_ATTRIBUTE]: previewHtml,
+          ...innerAttribs
+        } = attribs;
         return <CustomHoverPreview
-          previewHtml={attribs['data-hover-preview']}
+          previewHtml={previewHtml}
           href={findWrappedLinkHref(parsedHtml)}
           contentStyleType={passedThroughProps.contentStyleType}
+          className={previewClassName}
         >
-          {result}
+          {Object.keys(innerAttribs).length > 0
+            ? <span {...innerAttribs}>{result}</span>
+            : result}
         </CustomHoverPreview>
       } else if (TagName === 'a') {
         return <HoverPreviewLink

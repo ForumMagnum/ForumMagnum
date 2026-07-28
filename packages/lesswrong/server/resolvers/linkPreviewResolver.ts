@@ -8,6 +8,7 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { randomId } from "@/lib/random";
+import { getNormalizedHost } from "@/lib/utils/urlHosts";
 
 const LINK_PREVIEW_CACHE_VERSION = 2;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -368,17 +369,6 @@ function containsTwitterOrX(text: string): boolean {
   return normalized.includes("twitter") || /\bon x\b/.test(normalized) || normalized === "x";
 }
 
-function getNormalizedHostname(url: string | null | undefined): string | null {
-  if (!url) {
-    return null;
-  }
-  try {
-    return new URL(url).hostname.toLowerCase().replace(/^www\./, "");
-  } catch {
-    return null;
-  }
-}
-
 function shouldIncludeSiteName({
   title,
   description,
@@ -413,7 +403,7 @@ function shouldIncludeSiteName({
     return false;
   }
 
-  const hostname = getNormalizedHostname(pageUrl);
+  const hostname = getNormalizedHost(pageUrl);
   if (hostname && HIDE_SITE_NAME_IN_PREVIEW_DOMAINS.has(hostname)) {
     return false;
   }

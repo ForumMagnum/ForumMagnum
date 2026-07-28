@@ -1,4 +1,5 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+import { HOVER_PREVIEW_CLASS } from '@/lib/utils/hoverPreviewConstants';
 
 const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -386,7 +387,7 @@ const collapsibleMarkerStyles = (theme: ThemeType) => ({
  * colour on top and a linked phrase with a preview shows both.
  */
 const hoverPreviewStyles = (theme: ThemeType) => ({
-  '& .hoverPreview': {
+  [`& .${HOVER_PREVIEW_CLASS}`]: {
     textDecoration: `underline dotted ${theme.palette.greyAlpha(0.5)}`,
     textDecorationThickness: 1,
     textUnderlineOffset: 3,

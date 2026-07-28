@@ -1,4 +1,5 @@
 import sanitizeHtml from 'sanitize-html';
+import { HOVER_PREVIEW_ATTRIBUTE, HOVER_PREVIEW_CLASS, MAX_HOVER_PREVIEW_DEPTH } from './hoverPreviewConstants';
 
 /**
  * Sanitizing html
@@ -48,11 +49,6 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
-// Kept in step with HoverPreviewNode; sanitize.ts duplicates node attribute
-// names rather than importing them, as footnoteAttributes above does.
-const hoverPreviewAttribute = 'data-hover-preview';
-const maxHoverPreviewDepth = 3;
-
 let hoverPreviewDepth = 0;
 
 /**
@@ -61,18 +57,18 @@ let hoverPreviewDepth = 0;
  * renders it. Keeps the invariant that stored html is already safe.
  */
 function sanitizeHoverPreviewSpan(tagName: string, attribs: Record<string, string>) {
-  const previewHtml = attribs[hoverPreviewAttribute];
+  const previewHtml = attribs[HOVER_PREVIEW_ATTRIBUTE];
   if (previewHtml === undefined) {
     return { tagName, attribs };
   }
   // Deeper than the renderer will ever draw, so drop it rather than recurse.
-  if (hoverPreviewDepth >= maxHoverPreviewDepth) {
-    const { [hoverPreviewAttribute]: _tooDeep, ...rest } = attribs;
+  if (hoverPreviewDepth >= MAX_HOVER_PREVIEW_DEPTH) {
+    const { [HOVER_PREVIEW_ATTRIBUTE]: _tooDeep, ...rest } = attribs;
     return { tagName, attribs: rest };
   }
   hoverPreviewDepth++;
   try {
-    return { tagName, attribs: { ...attribs, [hoverPreviewAttribute]: sanitize(previewHtml) } };
+    return { tagName, attribs: { ...attribs, [HOVER_PREVIEW_ATTRIBUTE]: sanitize(previewHtml) } };
   } finally {
     hoverPreviewDepth--;
   }
@@ -126,7 +122,7 @@ export const sanitize = function(s: string): string {
       ol: ['start', 'reversed', 'type', 'role'],
       // The escaped html inside data-hover-preview is sanitized by
       // sanitizeHoverPreviewSpan below, not by this allowlist.
-      span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title', 'data-hover-preview'],
+      span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title', HOVER_PREVIEW_ATTRIBUTE],
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
@@ -210,7 +206,7 @@ export const sanitize = function(s: string): string {
         'footnote-back-link',
         'math-tex',
         'research-mention',
-        'hoverPreview',
+        HOVER_PREVIEW_CLASS,
         'code-token-comment',
         'code-token-deleted',
         'code-token-inserted',

@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDomain } from "../../vulcan-lib/utils";
+import { getNormalizedHost } from "@/lib/utils/urlHosts";
 import moment from "moment";
 import {
   googleLocationToMongoLocation, accessFilterMultiple,
@@ -702,7 +702,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => getDomain(post.url),
+      resolver: (post, args, context) => getNormalizedHost(post.url),
     },
   },
   pageUrl: {

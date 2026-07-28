@@ -1,6 +1,7 @@
 import { $findMatchingParent } from '@lexical/utils';
 import { LinkNode, $isLinkNode } from '@lexical/link';
 import { getSelectedNode } from '@/components/lexical/utils/getSelectedNode';
+import { HOVER_PREVIEW_ATTRIBUTE, HOVER_PREVIEW_CLASS } from '@/lib/utils/hoverPreviewConstants';
 import {
   $getSelection,
   $isRangeSelection,
@@ -15,15 +16,6 @@ import {
   type SerializedElementNode,
   type Spread,
 } from 'lexical';
-
-/** Holds the preview body as escaped HTML. */
-export const HOVER_PREVIEW_ATTRIBUTE = 'data-hover-preview';
-
-/** Styling hook for the dashed underline; see stylePiping. */
-const HOVER_PREVIEW_CLASS = 'hoverPreview';
-
-/** Shared by editor and renderer, so writable previews all display. */
-export const MAX_HOVER_PREVIEW_DEPTH = 3;
 
 export type SerializedHoverPreviewNode = Spread<
   { previewHtml: string },

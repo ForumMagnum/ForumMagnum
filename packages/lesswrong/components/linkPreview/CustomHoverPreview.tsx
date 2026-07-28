@@ -1,36 +1,18 @@
 import React, { useContext, useMemo } from 'react';
+import classNames from 'classnames';
 import { Card } from '@/components/widgets/Paper';
 import { sanitize } from '@/lib/utils/sanitize';
 import { prettifyLinkUrl } from '@/lib/utils/prettifyLinkUrl';
-import { MAX_HOVER_PREVIEW_DEPTH } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
-import { useHover } from '../common/withHover';
+import { HOVER_PREVIEW_CLASS, MAX_HOVER_PREVIEW_DEPTH } from '@/lib/utils/hoverPreviewConstants';
 import ContentStyles from '../common/ContentStyles';
-import LWPopper from '../common/LWPopper';
+import LWTooltip from '../common/LWTooltip';
 import { ContentItemBody } from '../contents/ContentItemBody';
-import { InteractionWrapper } from '../common/useClickableCell';
+import { footnotePreviewStyles } from './FootnotePreview';
+import { CustomPreviewDepthContext, SuppressDefaultLinkPreviewContext } from './hoverPreviewContexts';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const CustomPreviewDepthContext = React.createContext<number>(0);
-
-/**
- * Tells an enclosed HoverPreviewLink to render a plain link, so a
- * linked phrase with a custom preview doesn't pop up two cards.
- */
-export const SuppressDefaultLinkPreviewContext = React.createContext<boolean>(false);
-
 const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
-  hovercard: {
-    padding: 16,
-    ...theme.typography.body2,
-    fontSize: '1.1rem',
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[800],
-    maxWidth: 500,
-    '& a': {
-      color: theme.palette.primary.main,
-    },
-  },
   url: {
     marginTop: 9,
     ...theme.typography.commentStyle,
@@ -46,21 +28,31 @@ const styles = defineStyles('CustomHoverPreview', (theme: ThemeType) => ({
 }));
 
 /**
+ * The class carries the dashed underline (see stylePiping), and the stored
+ * span it came from usually has it already, so don't repeat it.
+ */
+function previewAnchorClassName(className: string|undefined): string {
+  return classNames(HOVER_PREVIEW_CLASS, className?.split(' ').filter(c => c !== HOVER_PREVIEW_CLASS));
+}
+
+/**
  * Text carrying an author-written hover preview, wrapping a link or
  * plain text. See HoverPreviewNode for the editor side.
+ *
+ * The card shell -- hover handling, popper, lazy mount, touch-screen
+ * suppression -- is LWTooltip's.
  */
-const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', children }: {
+const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', className, children }: {
   previewHtml: string,
   href?: string,
   contentStyleType?: ContentStyleType,
+  className?: string,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  // The card itself looks exactly like a footnote preview; share the rule.
+  const cardClasses = useStyles(footnotePreviewStyles);
   const depth = useContext(CustomPreviewDepthContext);
-
-  const { eventHandlers, hover, everHovered, anchorEl } = useHover({
-    eventProps: { pageElementContext: 'linkPreview', hoverPreviewType: 'CustomHoverPreview', href },
-  });
 
   // sanitize() does not recurse into attributes, so the body that
   // arrived inside one is still unsanitized here.
@@ -71,25 +63,30 @@ const CustomHoverPreview = ({ previewHtml, href, contentStyleType = 'comment', c
     return <>{children}</>;
   }
 
-  return (
-    <span {...eventHandlers} className="hoverPreview">
-      {everHovered && <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable flip>
-        <InteractionWrapper>
-          <Card>
-            <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
-              <CustomPreviewDepthContext.Provider value={depth + 1}>
-                <ContentItemBody dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-              </CustomPreviewDepthContext.Provider>
-              {prettyUrl && <div className={classes.url}>{prettyUrl}</div>}
-            </ContentStyles>
-          </Card>
-        </InteractionWrapper>
-      </LWPopper>}
-      <SuppressDefaultLinkPreviewContext.Provider value={true}>
-        {children}
-      </SuppressDefaultLinkPreviewContext.Provider>
-    </span>
-  );
+  const card = <Card>
+    <ContentStyles contentType={contentStyleType} className={cardClasses.hovercard}>
+      <CustomPreviewDepthContext.Provider value={depth + 1}>
+        <ContentItemBody dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+      </CustomPreviewDepthContext.Provider>
+      {prettyUrl && <div className={classes.url}>{prettyUrl}</div>}
+    </ContentStyles>
+  </Card>;
+
+  return <LWTooltip
+    title={card}
+    tooltip={false}
+    clickable
+    // Text in the post must not reflow because a phrase carries a preview.
+    inlineBlock={false}
+    hideOnTouchScreens
+    className={previewAnchorClassName(className)}
+    analyticsProps={{ pageElementContext: 'linkPreview', hoverPreviewType: 'CustomHoverPreview' }}
+    otherEventProps={{ href }}
+  >
+    <SuppressDefaultLinkPreviewContext.Provider value={true}>
+      {children}
+    </SuppressDefaultLinkPreviewContext.Provider>
+  </LWTooltip>;
 };
 
 export default CustomHoverPreview;
