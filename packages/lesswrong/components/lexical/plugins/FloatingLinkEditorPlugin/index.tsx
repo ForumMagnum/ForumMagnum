@@ -45,6 +45,8 @@ import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
 import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import { $getSelectedHoverPreviewNode, $setHoverPreviewOnSelection } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
+import { HoverPreviewEditor } from '@/components/editor/lexicalPlugins/links/HoverPreviewEditor';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -141,6 +143,43 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     display: 'flex',
     alignItems: 'center',
   },
+  previewHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    margin: '0 12px',
+    minHeight: 20,
+  },
+  previewLabel: {
+    ...theme.typography.commentStyle,
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: theme.palette.grey[600],
+  },
+  previewAction: {
+    width: 22,
+    height: 22,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 2,
+    borderRadius: 4,
+    cursor: 'pointer',
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.grey[600],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+      color: theme.palette.error.main,
+    },
+  },
+  previewIcon: {
+    width: 13,
+    height: 13,
+    display: 'block',
+  },
   linkUrlInput: {
     flex: 1,
     minWidth: 0,
@@ -163,6 +202,11 @@ function preventDefault(
   event.preventDefault();
 }
 
+/** An empty paragraph or stray whitespace counts as blank. */
+function isBlankHtml(html: string): boolean {
+  return !html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+}
+
 function FloatingLinkEditor({
   editor,
   isLink,
@@ -171,6 +215,7 @@ function FloatingLinkEditor({
   isLinkEditMode,
   setIsLinkEditMode,
   isSuggestionMode,
+  depth,
 }: {
   editor: LexicalEditor;
   isLink: boolean;
@@ -179,6 +224,7 @@ function FloatingLinkEditor({
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   isSuggestionMode: boolean;
+  depth: number;
 }): JSX.Element {
   const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -193,12 +239,19 @@ function FloatingLinkEditor({
   const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
   const [editedLinkText, setEditedLinkText] = useState('');
+  const [linkPreviewHtml, setLinkPreviewHtml] = useState('');
+  // Kept out of state so typing in the nested editor can't remount it.
+  const editedPreviewHtmlRef = useRef('');
+  const [editedPreviewKey, setEditedPreviewKey] = useState(0);
+  const [hasEditedPreview, setHasEditedPreview] = useState(false);
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
 
   const $updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
+    // Independent of the link: may wrap one, or sit on plain text.
+    setLinkPreviewHtml($getSelectedHoverPreviewNode()?.getPreviewHtml() ?? '');
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
       const linkParent = $findMatchingParent(node, $isLinkNode);
@@ -353,6 +406,29 @@ function FloatingLinkEditor({
     }
   }, [isLinkEditMode, isLink]);
 
+  // Keyed off isLinkEditMode alone: the nested editor reads content
+  // once on mount, so re-seeding mid-edit would discard the typing.
+  useEffect(() => {
+    if (!isLinkEditMode) {
+      return;
+    }
+    editedPreviewHtmlRef.current = linkPreviewHtml;
+    setHasEditedPreview(!isBlankHtml(linkPreviewHtml));
+    setEditedPreviewKey((key) => key + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLinkEditMode]);
+
+  const handlePreviewChange = useCallback((html: string) => {
+    editedPreviewHtmlRef.current = html;
+    setHasEditedPreview(!isBlankHtml(html));
+  }, []);
+
+  const clearPreview = () => {
+    editedPreviewHtmlRef.current = '';
+    setHasEditedPreview(false);
+    setEditedPreviewKey((key) => key + 1);
+  };
+
   // Toggling into edit mode adds the URL input row, which makes the floating
   // editor taller. Re-run positioning against the last target rect so the
   // flip-above logic in setFloatingElemPositionForLinkEditor has a chance to
@@ -431,7 +507,10 @@ function FloatingLinkEditor({
   ) => {
     event.preventDefault();
     if (lastSelection !== null) {
-      if (editedLinkUrl.trim() !== '') {
+      // An empty URL is not a no-op: it can mean "annotate without
+      // linking", or "drop the link, keep the preview".
+      const hasPreview = !isSuggestionMode && !isBlankHtml(editedPreviewHtmlRef.current);
+      if (editedLinkUrl.trim() !== '' || hasPreview) {
         const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
         if (isSuggestionMode) {
           const { linkNode, linkTextNode } = getCurrentLinkChangePayload();
@@ -443,9 +522,10 @@ function FloatingLinkEditor({
           });
         } else {
           editor.update(() => {
+            // A blank URL drops the link but keeps the preview.
             editor.dispatchCommand(
               TOGGLE_LINK_COMMAND,
-              sanitizeUrl(normalizeUrl(editedLinkUrl)),
+              editedLinkUrl.trim() ? sanitizeUrl(normalizeUrl(editedLinkUrl)) : null,
             );
             const selection = $getSelection();
             if ($isRangeSelection(selection)) {
@@ -482,6 +562,9 @@ function FloatingLinkEditor({
                 }
               }
             }
+
+            // Last, so the preview wraps the finished link.
+            $setHoverPreviewOnSelection(hasPreview ? editedPreviewHtmlRef.current : '');
           });
         }
       }
@@ -539,6 +622,33 @@ function FloatingLinkEditor({
               <SuccessAltIcon className={classes.linkIcon} />
             </button>
           </div>
+          {/* Suggestion mode can't represent a preview change, so hide it
+              rather than silently dropping it on accept. */}
+          {!isSuggestionMode && (
+            <>
+              <div className={classes.previewHeader}>
+                <span className={classes.previewLabel}>Hover preview</span>
+                {hasEditedPreview && (
+                  <button
+                    className={classes.previewAction}
+                    type="button"
+                    tabIndex={0}
+                    onMouseDown={preventDefault}
+                    onClick={clearPreview}
+                    aria-label="Clear hover preview">
+                    <Trash3Icon className={classes.previewIcon} />
+                  </button>
+                )}
+              </div>
+              <HoverPreviewEditor
+                key={editedPreviewKey}
+                initialHtml={editedPreviewHtmlRef.current}
+                onChangeHtml={handlePreviewChange}
+                depth={depth + 1}
+                anchorElem={anchorElem}
+              />
+            </>
+          )}
         </div>
       ) : (
         <div className={classes.linkView}>
@@ -595,6 +705,7 @@ function useFloatingLinkEditorToolbar(
   isLinkEditMode: boolean,
   setIsLinkEditMode: Dispatch<boolean>,
   isSuggestionMode: boolean,
+  depth: number,
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
@@ -691,6 +802,7 @@ function useFloatingLinkEditorToolbar(
       isLinkEditMode={isLinkEditMode}
       setIsLinkEditMode={setIsLinkEditMode}
       isSuggestionMode={isSuggestionMode}
+      depth={depth}
     />,
     anchorElem,
   );
@@ -701,11 +813,14 @@ export default function FloatingLinkEditorPlugin({
   isLinkEditMode,
   setIsLinkEditMode,
   isSuggestionMode = false,
+  depth = 0,
 }: {
   anchorElem?: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   isSuggestionMode?: boolean;
+  /** Which preview body this editor sits in; 0 is the document itself. */
+  depth?: number;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   return useFloatingLinkEditorToolbar(
@@ -714,5 +829,6 @@ export default function FloatingLinkEditorPlugin({
     isLinkEditMode,
     setIsLinkEditMode,
     isSuggestionMode,
+    depth,
   );
 }

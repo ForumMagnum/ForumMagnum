@@ -5,6 +5,7 @@ import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Ele
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
+import CustomHoverPreview from '../linkPreview/CustomHoverPreview';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -327,6 +328,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
+      } else if (TagName === 'span' && attribs['data-hover-preview']) {
+        return <CustomHoverPreview
+          previewHtml={attribs['data-hover-preview']}
+          href={findWrappedLinkHref(parsedHtml)}
+          contentStyleType={passedThroughProps.contentStyleType}
+        >
+          {result}
+        </CustomHoverPreview>
       } else if (TagName === 'a') {
         return <HoverPreviewLink
           href={attribs.href}
@@ -350,6 +359,16 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     case htmlparser2.ElementType.Comment:
       return null;
   }
+}
+
+/** Direct children only: a nested preview's link is not this one's. */
+function findWrappedLinkHref(node: DomHandlerElement): string | undefined {
+  for (const child of node.childNodes) {
+    if (child.type === htmlparser2.ElementType.Tag && child.name === 'a' && child.attribs.href) {
+      return child.attribs.href;
+    }
+  }
+  return undefined;
 }
 
 /**

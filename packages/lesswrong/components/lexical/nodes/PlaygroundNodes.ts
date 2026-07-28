@@ -19,6 +19,7 @@ import {HeadingNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
 import { ContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
+import { HoverPreviewNode } from '@/components/editor/lexicalPlugins/links/HoverPreviewNode';
 
 import { CollapsibleSectionContainerNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { CollapsibleSectionContentNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
@@ -91,6 +92,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   CodeHighlightNode,
   AutoLinkNode,
   LinkNode,
+  HoverPreviewNode,
   OverflowNode,
   PollNode,
   // StickyNode,

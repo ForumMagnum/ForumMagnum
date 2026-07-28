@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { classifyLink, useLocation } from '../../lib/routeUtil';
+import { Link } from '@/lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
@@ -10,6 +11,7 @@ import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
 import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview';
 import FootnotePreview from "./FootnotePreview";
+import { SuppressDefaultLinkPreviewContext } from "./CustomHoverPreview";
 import { NoSideItems } from '../contents/SideItems';
 
 import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
@@ -41,6 +43,8 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
+  // An enclosing custom preview already claimed this phrase.
+  const suppressPreview = useContext(SuppressDefaultLinkPreviewContext);
   href = href ? href.trim() : href;
 
   // Invalid link with no href? Don't transform it.
@@ -48,6 +52,12 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
     return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
+  }
+
+  if (suppressPreview) {
+    return classifyLink(href) === 'onsite'
+      ? <Link to={href} id={id} rel={rel} className={className}>{children}</Link>
+      : <a href={href} id={id} rel={rel} className={className}>{children}</a>
   }
 
   // Within-page relative link?

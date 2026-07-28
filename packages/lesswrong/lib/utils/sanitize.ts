@@ -48,6 +48,36 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
+// Kept in step with HoverPreviewNode; sanitize.ts duplicates node attribute
+// names rather than importing them, as footnoteAttributes above does.
+const hoverPreviewAttribute = 'data-hover-preview';
+const maxHoverPreviewDepth = 3;
+
+let hoverPreviewDepth = 0;
+
+/**
+ * The preview body is escaped HTML inside an attribute, which sanitize-html
+ * passes through untouched, so sanitize it here rather than trusting whoever
+ * renders it. Keeps the invariant that stored html is already safe.
+ */
+function sanitizeHoverPreviewSpan(tagName: string, attribs: Record<string, string>) {
+  const previewHtml = attribs[hoverPreviewAttribute];
+  if (previewHtml === undefined) {
+    return { tagName, attribs };
+  }
+  // Deeper than the renderer will ever draw, so drop it rather than recurse.
+  if (hoverPreviewDepth >= maxHoverPreviewDepth) {
+    const { [hoverPreviewAttribute]: _tooDeep, ...rest } = attribs;
+    return { tagName, attribs: rest };
+  }
+  hoverPreviewDepth++;
+  try {
+    return { tagName, attribs: { ...attribs, [hoverPreviewAttribute]: sanitize(previewHtml) } };
+  } finally {
+    hoverPreviewDepth--;
+  }
+}
+
 function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
   const srcdoc = attribs.srcdoc;
   if (srcdoc !== undefined) {
@@ -94,7 +124,9 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
-      span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title'],
+      // The escaped html inside data-hover-preview is sanitized by
+      // sanitizeHoverPreviewSpan below, not by this allowlist.
+      span: ['style', 'id', 'role', 'class', 'data-mention-kind', 'data-mention-id', 'data-mention-title', 'data-hover-preview'],
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
@@ -154,6 +186,7 @@ export const sanitize = function(s: string): string {
     ],
     transformTags: {
       iframe: sanitizeIframeTag,
+      span: sanitizeHoverPreviewSpan,
     },
     // `transformTags.iframe` may strip invalid iframe src values to empty attrs, and we want those empty wrappers removed.
     exclusiveFilter: (frame) => {
@@ -177,6 +210,7 @@ export const sanitize = function(s: string): string {
         'footnote-back-link',
         'math-tex',
         'research-mention',
+        'hoverPreview',
         'code-token-comment',
         'code-token-deleted',
         'code-token-inserted',

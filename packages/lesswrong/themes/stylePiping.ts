@@ -382,6 +382,19 @@ const collapsibleMarkerStyles = (theme: ThemeType) => ({
 });
 
 /**
+ * A preview adds only the dashed underline, so a link keeps its
+ * colour on top and a linked phrase with a preview shows both.
+ */
+const hoverPreviewStyles = (theme: ThemeType) => ({
+  '& .hoverPreview': {
+    textDecoration: `underline dotted ${theme.palette.greyAlpha(0.5)}`,
+    textDecorationThickness: 1,
+    textUnderlineOffset: 3,
+    cursor: 'help',
+  },
+});
+
+/**
  */
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
@@ -717,6 +730,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...hoverPreviewStyles(theme),
     ...llmContentBlockStyles(theme),
     ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
