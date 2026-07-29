@@ -381,14 +381,12 @@ const collapsibleMarkerStyles = (theme: ThemeType) => ({
   cursor: "pointer",
 });
 
-/**
- */
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
     // !important: CkEditor toggles a border here to show selection.
     border: 'none !important',
-    marginTop: '1em',
-    marginBottom: '1em',
+    marginTop: '.75em',
+    marginBottom: '.75em',
   },
   '& .detailsBlockTitle': {
     position: "relative",
