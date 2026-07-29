@@ -413,6 +413,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
    *   (1) have a rejected post/comment with a high Pangram score, or
    *   (2) have at least two rejected posts and/or comments, or
    *   (3) have all of their content rejected.
+   * Negative karma is a further criterion, in `getIsOffboardCandidate`.
    * Rejected content counts for all criteria even if the user has since
    * re-drafted/deleted the post or deleted the comment; never-rejected drafts
    * and deleted items are ignored. Criterion (1) considers evaluations of any
