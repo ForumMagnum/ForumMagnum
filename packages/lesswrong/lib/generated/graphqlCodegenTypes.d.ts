@@ -2449,6 +2449,12 @@ type HomepageCommunityEventPostsResult = {
   posts: Array<Post>;
 };
 
+type HoverPreviewSuggestion = {
+  __typename?: 'HoverPreviewSuggestion';
+  href: Scalars['String']['output'];
+  html: Scalars['String']['output'];
+};
+
 type IframeWidgetSrcdoc = {
   __typename?: 'IframeWidgetSrcdoc';
   _id: Scalars['String']['output'];
@@ -3919,6 +3925,7 @@ type Mutation = {
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
   generateCoverImagesForPost?: Maybe<Array<Maybe<ReviewWinnerArt>>>;
+  generateHoverPreview: HoverPreviewSuggestion;
   getClaudeAccessLink?: Maybe<Scalars['String']['output']>;
   getNewJargonTerms?: Maybe<Array<Maybe<JargonTerm>>>;
   importUrlAsDraftPost: ExternalPostImportData;
@@ -4371,6 +4378,14 @@ type MutationflipSplashArtImageArgs = {
 type MutationgenerateCoverImagesForPostArgs = {
   postId: Scalars['String']['input'];
   prompt?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationgenerateHoverPreviewArgs = {
+  documentHtml: Scalars['String']['input'];
+  href?: InputMaybe<Scalars['String']['input']>;
+  phrase: Scalars['String']['input'];
+  surroundingText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -15042,6 +15057,21 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
+
+type generateHoverPreviewMutation_generateHoverPreview_HoverPreviewSuggestion = { __typename?: 'HoverPreviewSuggestion', html: string, href: string };
+
+type generateHoverPreviewMutation_Mutation = { __typename?: 'Mutation', generateHoverPreview: generateHoverPreviewMutation_generateHoverPreview_HoverPreviewSuggestion };
+
+
+type generateHoverPreviewMutationVariables = Exact<{
+  documentHtml: Scalars['String']['input'];
+  phrase: Scalars['String']['input'];
+  surroundingText: InputMaybe<Scalars['String']['input']>;
+  href: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type generateHoverPreviewMutation = generateHoverPreviewMutation_Mutation;
 
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 

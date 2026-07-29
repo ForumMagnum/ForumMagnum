@@ -62,3 +62,6 @@ export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|UpdateUserDataI
 export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW()
 /* if this is reduced to 0, we need to make sure to handle spam somehow */
 export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW() && !!user && user.karma >= 100
+
+/* Each use spends an Opus call with web search, so keep a karma floor. */
+export const userCanAutogenerateHoverPreviews = (user: UsersCurrent|DbUser|null) => !!user && user.karma >= 100

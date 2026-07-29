@@ -1317,6 +1317,15 @@ extend type Mutation {
   getNewJargonTerms(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String): [JargonTerm]
 }
 
+type HoverPreviewSuggestion {
+  html: String!
+  href: String!
+}
+
+extend type Mutation {
+  generateHoverPreview(documentHtml: String!, phrase: String!, surroundingText: String, href: String): HoverPreviewSuggestion!
+}
+
 extend type Mutation {
   RSVPToEvent(postId: String, name: String, email: String, private: Boolean, response: String): Post
   CancelRSVPToEvent(postId: String, name: String, userId: String): Post
