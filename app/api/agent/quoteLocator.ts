@@ -9,14 +9,16 @@ import {
 } from "lexical";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $isMentionNode } from "@/components/research/lexical/MentionNode";
+import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 import { formatMathToken } from "@/lib/utils/mathTokens";
 import {
+  imageToRenderedPlainText,
   isHiddenFromAgentEdits,
   type MarkdownSelectionPoint,
 } from "./mapMarkdownToLexical";
 
-export type ProjectionSegmentKind = "text" | "linebreak" | "math" | "mention" | "separator";
+export type ProjectionSegmentKind = "text" | "linebreak" | "math" | "mention" | "image" | "separator";
 
 export interface ProjectionSegment {
   kind: ProjectionSegmentKind
@@ -151,6 +153,23 @@ function projectNode(projection: DocumentProjection, node: LexicalNode): void {
           childIndex: node.getIndexWithinParent(),
         },
         node.getTextContent(),
+      );
+    }
+  } else if ($isImageNode(node)) {
+    // Images are atomic but addressable: the markdown read path emits
+    // `![alt](src)`, whose rendered-text projection is the alt text (or src
+    // when the alt is empty). This lets deleteBlock target image-only blocks.
+    const parent = node.getParent();
+    if (parent) {
+      pushSegment(
+        projection,
+        {
+          kind: "image",
+          key: node.getKey(),
+          parentKey: parent.getKey(),
+          childIndex: node.getIndexWithinParent(),
+        },
+        imageToRenderedPlainText(node.getAltText(), node.getSrc()),
       );
     }
   } else if ($isElementNode(node)) {

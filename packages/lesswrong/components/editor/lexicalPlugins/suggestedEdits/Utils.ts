@@ -28,6 +28,13 @@ export function $getDeleteSuggestionType(selectedNodes: LexicalNode[]): Suggesti
 export function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {
   return thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)
 }
+
+function getImageSuggestionType(type: SuggestionType): SuggestionType {
+  if (type === 'insert') return 'insert-image'
+  if (type === 'delete') return 'delete-image'
+  return type
+}
+
 /**
  * Wraps a given selection with suggestion node(s), splitting
  * text nodes where required and making sure not to wrap whole
@@ -132,13 +139,13 @@ export function $wrapSelectionInSuggestionNode(
     } else if ($isImageNode(node)) {
       logger?.info('Node is image node')
       targetNode = node
-      suggestionType = 'insert-image'
+      suggestionType = getImageSuggestionType(type)
     } else if ($isImageRenderNode(node) || $isImageCaptionNode(node)) {
       const imageParent = $findMatchingParent(node, $isImageNode)
       if (imageParent) {
         logger?.info('Node is image child, targeting image node')
         targetNode = imageParent
-        suggestionType = 'insert-image'
+        suggestionType = getImageSuggestionType(type)
       }
     }
     if (!targetNode) {
@@ -146,7 +153,7 @@ export function $wrapSelectionInSuggestionNode(
       if (imageParent) {
         logger?.info('Node is inside image, targeting image node')
         targetNode = imageParent
-        suggestionType = 'insert-image'
+        suggestionType = getImageSuggestionType(type)
       }
     }
     if (!targetNode && $isTableNode(node)) {

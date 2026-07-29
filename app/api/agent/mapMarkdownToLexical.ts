@@ -106,6 +106,10 @@ const MATH_PLACEHOLDER_REGEXP = new RegExp(
   "g",
 );
 
+export function imageToRenderedPlainText(altText: string, src: string): string {
+  return altText || src;
+}
+
 // Project an agent-supplied markdown quote to the rendered plaintext it
 // represents, via markdown-it's CommonMark implementation. Preserves literal
 // punctuation in content (e.g. `snake_case`, `2*3`, `` `code` ``) while
@@ -140,6 +144,16 @@ export function markdownQuoteToRenderedPlainText(
   const dom = new JSDOM(html);
   let rendered: string;
   try {
+    // `textContent` omits images entirely. Use their alt text (or URL for an
+    // empty alt) so image-only blocks can be addressed by either the markdown
+    // token agents read (`![alt](url)`) or its visible/accessibility label.
+    for (const image of dom.window.document.querySelectorAll("img")) {
+      const replacement = imageToRenderedPlainText(
+        image.getAttribute("alt") ?? "",
+        image.getAttribute("src") ?? "",
+      );
+      image.replaceWith(dom.window.document.createTextNode(replacement));
+    }
     rendered = dom.window.document.body.textContent ?? "";
   } finally {
     dom.window.close();

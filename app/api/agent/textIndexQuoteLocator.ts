@@ -278,7 +278,10 @@ export function resolveRawIndexToPoint(
   }
   for (const segment of projection.segments) {
     if (segment.start > rawIndex) break;
-    if ((segment.kind === "math" || segment.kind === "mention") && segmentTouches(segment, rawIndex)) {
+    if (
+      (segment.kind === "math" || segment.kind === "mention" || segment.kind === "image")
+      && segmentTouches(segment, rawIndex)
+    ) {
       return elementPointAroundSegment(segment, rawIndex, isFocus);
     }
   }

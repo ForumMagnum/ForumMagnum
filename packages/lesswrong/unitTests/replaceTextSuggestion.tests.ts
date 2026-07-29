@@ -226,6 +226,17 @@ describe("deleteBlock suggest-mode wrapping", () => {
     expect(getAllSuggestions(editor).filter((s) => s.type === "delete").length).toBeGreaterThan(0);
   });
 
+  it("wraps an image block as an image deletion suggestion", async () => {
+    const editor = await setupEditorWithContent(
+      "![Architecture diagram](https://example.com/architecture.png)\n\nFollowing paragraph."
+    );
+    expect(await wrapBlockByPrefix(
+      editor,
+      "![Architecture diagram](https://example.com/architecture.png)",
+    )).toBe(true);
+    expect(getAllSuggestions(editor).map((suggestion) => suggestion.type)).toContain("delete-image");
+  });
+
   it("wraps a table block via per-cell suggestion nodes", async () => {
     const editor = await setupEditorWithContent(
       "| h1 | h2 |\n| --- | --- |\n| a | b |",

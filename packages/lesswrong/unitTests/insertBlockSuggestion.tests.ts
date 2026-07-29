@@ -1,6 +1,10 @@
-import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
+import { $getRoot, $isElementNode, $nodesOfType, type LexicalEditor } from "lexical";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { ImageNode } from "@/components/lexical/nodes/ImageNode";
+import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
@@ -154,6 +158,36 @@ describe("insertBlock suggest mode", () => {
     expect(suggestionTexts.length).toBe(2);
     expect(suggestionTexts[0]).toBe("First inserted.");
     expect(suggestionTexts[1]).toBe("Second inserted.");
+  });
+
+  it.each(["edit", "suggest"] as const)("inserts each markdown image once in %s mode", async (mode) => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(
+      editor,
+      "First image:\n\n![Alpha](https://example.com/alpha.png)\n\nSecond image:\n\n![Beta](https://example.com/beta.png)",
+      "end",
+      mode,
+    );
+
+    let images: Array<{ altText: string, src: string }> = [];
+    editor.getEditorState().read(() => {
+      images = $nodesOfType(ImageNode).map((node) => ({
+        altText: node.getAltText(),
+        src: node.getSrc(),
+      }));
+    });
+    expect(images).toEqual([
+      { altText: "Alpha", src: "https://example.com/alpha.png" },
+      { altText: "Beta", src: "https://example.com/beta.png" },
+    ]);
+
+    let markdown = "";
+    editor.getEditorState().read(() => {
+      markdown = htmlToMarkdown(withDomGlobals(() => $generateHtmlFromNodes(editor, null)));
+    });
+    expect(markdown.match(/!\[Alpha\]\(https:\/\/example\.com\/alpha\.png\)/g)).toHaveLength(1);
+    expect(markdown.match(/!\[Beta\]\(https:\/\/example\.com\/beta\.png\)/g)).toHaveLength(1);
   });
 });
 

@@ -306,6 +306,27 @@ describe("$locateBlockByPrefix", () => {
     expect(matched?.type).toBe("table");
   });
 
+  it.each([
+    "![Architecture diagram](https://example.com/architecture.png)",
+    "Architecture diagram",
+  ])("matches an image-only block by %s", async (prefix) => {
+    const editor = await setupEditorWithContent(
+      "![Architecture diagram](https://example.com/architecture.png)\n\nFollowing paragraph."
+    );
+    const matched = findFor(editor, prefix);
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+  });
+
+  it("matches an image with empty alt text by its markdown token", async () => {
+    const editor = await setupEditorWithContent(
+      "![](https://example.com/unlabelled.png)\n\nFollowing paragraph."
+    );
+    const matched = findFor(editor, "![](https://example.com/unlabelled.png)");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+  });
+
   it("returns null when no block starts with the prefix", async () => {
     const editor = await setupEditorWithContent(
       "Alpha paragraph.\n\nBravo paragraph."
