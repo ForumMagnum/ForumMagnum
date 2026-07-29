@@ -892,7 +892,7 @@ describe("replaceText with LaTeX — correctness regressions", () => {
       { text: " done" },
     ]);
 
-    const replaced = await replaceTextInEditMode(editor, "Eq \\[x^2\\] done", "Eq \\[y^2\\] done");
+    const replaced = await replaceTextInEditMode(editor, "Eq \\[x^2\\] done", "Eq $$y^2$$ done");
     expect(replaced).toBe(true);
     const markdown = getMarkdownContent(editor);
     expect(markdown).toContain("y^2");
