@@ -68,10 +68,12 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
-// Batched per-request check of whether a `newContent` user should instead be
-// surfaced in the supermod "offboard" review group.
-const getIsOffboardCandidate = (context: ResolverContext, userId: string): Promise<boolean> => {
-  return getWithCustomLoader(context, "offboardCandidates", userId, async (userIds) => {
+// Karma is checked first, to skip the batched content query when it can.
+const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
+  if (user.karma < 0) {
+    return true;
+  }
+  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
     const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
     return userIds.map((id) => candidateIds.has(id));
   });
@@ -3988,9 +3990,7 @@ const schema = {
         }));
         const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 
-        // Users who would otherwise be in `newContent` get pulled into the
-        // `offboard` group if they match the offboarding criteria.
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc._id)) {
+        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
           return 'offboard';
         }
 
