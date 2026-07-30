@@ -496,6 +496,18 @@ export function renderMathInHtml(html: string): string {
 
     doc.render();
 
+    // Attach the TeX source to each rendered equation. CHTML output has no
+    // text content (glyphs are drawn via CSS), so without this the equation is
+    // invisible to screen readers; MathNode.importDOM also relies on
+    // aria-label to recover the equation when converting rendered HTML back
+    // into the editor.
+    for (const item of doc.math) {
+      if (item.typesetRoot) {
+        adaptor.setAttribute(item.typesetRoot, 'aria-label', item.math);
+        adaptor.setAttribute(item.typesetRoot, 'role', 'math');
+      }
+    }
+
     const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
     const css: string = adaptor.textContent(chtml.styleSheet(doc));
 
