@@ -64,6 +64,7 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
+  AiDigestIssues: new CollectionViewSet('AiDigestIssues', {}),
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
@@ -87,6 +88,7 @@ export const allViews = {
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
+  EmailEvents: new CollectionViewSet('EmailEvents', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FieldChanges: FieldChangesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
@@ -118,8 +120,10 @@ export const allViews = {
   Podcasts: new CollectionViewSet('Podcasts', {}),
   Posts: PostsViews,
   PostEmbeddings: new CollectionViewSet('PostEmbeddings', {}),
+  PostPreviews: new CollectionViewSet('PostPreviews', {}),
   PostRecommendations: new CollectionViewSet('PostRecommendations', {}),
   PostRelations: PostRelationsViews,
+  PostSummaries: new CollectionViewSet('PostSummaries', {}),
   PostViewTimes: new CollectionViewSet('PostViewTimes', {}),
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),

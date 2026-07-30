@@ -139,3 +139,4 @@ acxMeetupImports/
 
 # Claude Code
 .claude
+.env*

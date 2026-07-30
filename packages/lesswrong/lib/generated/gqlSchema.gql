@@ -1579,6 +1579,81 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
+type AiDigestEmailSampleSummary {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  selectionModelId: String!
+  countsTowardHistory: Boolean!
+}
+
+type AiDigestEmailSamplePreview {
+  email: EmailPreview!
+  selectionSystemPrompt: String
+  selectionUserPrompt: String
+  inputTokenCount: Int
+  outputTokenCount: Int
+  uncachedInputTokenCount: Int
+  cacheReadInputTokenCount: Int
+  cacheWriteInputTokenCount: Int
+  selectionCostUsd: Float
+  generationDurationMs: Int!
+}
+
+extend type Query {
+  DigestEmailPreview: EmailPreview!
+  AiDigestEmailSamples(userSlug: String!, limit: Int): [AiDigestEmailSampleSummary!]!
+  AiDigestEmailSamplePreview(issueId: String!): AiDigestEmailSamplePreview!
+}
+
+extend type Mutation {
+  GenerateAiDigestEmailSamples(userSlug: String!, count: Int, countsTowardHistory: Boolean): [AiDigestEmailSampleSummary!]!
+  ClearAiDigestEmailSampleHistory(userSlug: String!, days: Int!): Int!
+}
+
+type ContentForYouIssueSummary {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  trigger: String!
+  countsTowardHistory: Boolean!
+  personalInstructions: String
+}
+
+type ContentForYouIssue {
+  issueId: String!
+  subject: String!
+  generatedAt: Date!
+  trigger: String!
+  countsTowardHistory: Boolean!
+  personalInstructions: String
+  spec: JSON!
+}
+
+type ContentForYouGenerationStatus {
+  nextAllowedAt: Date
+  remainingThisHour: Int!
+  hourlyLimit: Int!
+  typicalDurationMsLow: Int
+  typicalDurationMsHigh: Int
+}
+
+type GenerateContentForYouIssueResult {
+  issue: ContentForYouIssueSummary!
+  nextAllowedAt: Date
+}
+
+extend type Query {
+  ContentForYouIssues(limit: Int): [ContentForYouIssueSummary!]!
+  ContentForYouIssue(issueId: String!): ContentForYouIssue!
+  ContentForYouGenerationStatus: ContentForYouGenerationStatus!
+}
+
+extend type Mutation {
+  GenerateContentForYouIssue(countsTowardHistory: Boolean): GenerateContentForYouIssueResult!
+  ClearContentForYouRecommendationHistory(days: Int!): Int!
+}
+
 type ArbitalCaches {
   _id: String!
   schemaVersion: Float!
@@ -7723,6 +7798,7 @@ type User {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -7850,6 +7926,7 @@ type User {
   hideSunshineSidebar: Boolean
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  aiDigestPersonalInstructions: String
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
@@ -9822,6 +9899,7 @@ input CreateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -9993,6 +10071,7 @@ input UpdateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
+  emailSubscribedToAiDigest: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10068,6 +10147,7 @@ input UpdateUserDataInput {
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
   recommendationSettings: RecommendationSettingsInput
+  aiDigestPersonalInstructions: String
 }
 
 input UpdateUserInput {

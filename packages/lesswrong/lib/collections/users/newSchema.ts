@@ -2265,6 +2265,20 @@ const schema = {
       },
     },
   },
+  emailSubscribedToAiDigest: {
+    database: {
+      type: "BOOL",
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   unsubscribeFromAll: {
     database: {
       type: "BOOL",
@@ -4380,6 +4394,22 @@ const schema = {
       inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
+    },
+  },
+  aiDigestPersonalInstructions: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        regEx: /^[\s\S]{0,2000}$/,
+      },
     },
   },
   lastRemovedFromReviewQueueAt: {

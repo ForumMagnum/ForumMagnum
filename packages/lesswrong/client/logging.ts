@@ -3,6 +3,7 @@ import { browserProperties } from '../lib/utils/browserProperties';
 import { devicePrefersDarkMode } from '@/components/themes/ThemeContextProvider';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import type { UtmParam } from '@/server/analytics/utm-tracking';
+import { EMAIL_SRC_QUERY_PARAM } from '@/lib/emails/emailTracking';
 import { CamelCaseify } from '@/lib/vulcan-lib/utils';
 import { getSentry } from '@/lib/sentryWrapper';
 
@@ -48,6 +49,8 @@ if (typeof window !== 'undefined') {
       utmContent: urlParams.get('utm_content'),
       utmTerm: urlParams.get('utm_term'),
       utmUserId: urlParams.get('utm_user_id'),
+      // First-party landing signal for email links, independent of Mailgun's webhook.
+      emailSrc: urlParams.get(EMAIL_SRC_QUERY_PARAM),
       browserProps: browserProperties(),
       prefersDarkMode: devicePrefersDarkMode(),
       performance: {

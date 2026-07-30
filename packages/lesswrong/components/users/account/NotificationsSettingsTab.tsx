@@ -248,12 +248,21 @@ const NotificationsSettingsTab = ({
           <UsersEmailVerification />
         </div>}
 
-        {isLW() && <div className={fieldWrapperClass}>
-          <EmailConfirmationRequiredCheckbox
-            field={bind('emailSubscribedToCurated')}
-            label="Email me new posts in Curated"
-          />
-        </div>}
+        {isLW() && <>
+          <div className={fieldWrapperClass}>
+            <EmailConfirmationRequiredCheckbox
+              field={bind('emailSubscribedToCurated')}
+              label="Email me new posts in Curated"
+            />
+          </div>
+
+          <div className={fieldWrapperClass}>
+            <EmailConfirmationRequiredCheckbox
+              field={bind('emailSubscribedToAiDigest')}
+              label="Email me Content for You, an AI-personalized digest"
+            />
+          </div>
+        </>}
 
         <SettingsToggleRow
           value={settings.unsubscribeFromAll}

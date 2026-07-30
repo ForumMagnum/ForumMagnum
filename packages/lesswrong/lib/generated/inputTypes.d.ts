@@ -85,6 +85,12 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  DigestEmailPreview: EmailPreview;
+  AiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  ContentForYouIssues: Array<ContentForYouIssueSummary>;
+  ContentForYouIssue: ContentForYouIssue;
+  ContentForYouGenerationStatus: ContentForYouGenerationStatus;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -304,6 +310,10 @@ interface Mutation {
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
+  GenerateAiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
+  ClearAiDigestEmailSampleHistory: number;
+  GenerateContentForYouIssue: GenerateContentForYouIssueResult;
+  ClearContentForYouRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -1388,6 +1398,59 @@ interface AdminSendBulkEmailResult {
   batches: number;
   errors: Array<AdminSendBulkEmailError>;
   lastAfterUserId: string | null;
+}
+
+interface AiDigestEmailSampleSummary {
+  issueId: string;
+  subject: string;
+  generatedAt: Date;
+  selectionModelId: string;
+  countsTowardHistory: boolean;
+}
+
+interface AiDigestEmailSamplePreview {
+  email: EmailPreview;
+  selectionSystemPrompt: string | null;
+  selectionUserPrompt: string | null;
+  inputTokenCount: number | null;
+  outputTokenCount: number | null;
+  uncachedInputTokenCount: number | null;
+  cacheReadInputTokenCount: number | null;
+  cacheWriteInputTokenCount: number | null;
+  selectionCostUsd: number | null;
+  generationDurationMs: number;
+}
+
+interface ContentForYouIssueSummary {
+  issueId: string;
+  subject: string;
+  generatedAt: Date;
+  trigger: string;
+  countsTowardHistory: boolean;
+  personalInstructions: string | null;
+}
+
+interface ContentForYouIssue {
+  issueId: string;
+  subject: string;
+  generatedAt: Date;
+  trigger: string;
+  countsTowardHistory: boolean;
+  personalInstructions: string | null;
+  spec: any;
+}
+
+interface ContentForYouGenerationStatus {
+  nextAllowedAt: Date | null;
+  remainingThisHour: number;
+  hourlyLimit: number;
+  typicalDurationMsLow: number | null;
+  typicalDurationMsHigh: number | null;
+}
+
+interface GenerateContentForYouIssueResult {
+  issue: ContentForYouIssueSummary;
+  nextAllowedAt: Date | null;
 }
 
 interface ArbitalCaches {
@@ -7147,6 +7210,7 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
+  emailSubscribedToAiDigest: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -7274,6 +7338,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  aiDigestPersonalInstructions: string | null;
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
@@ -8964,6 +9029,7 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9135,6 +9201,7 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9210,6 +9277,7 @@ interface UpdateUserDataInput {
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  aiDigestPersonalInstructions?: string | null;
 }
 
 interface UpdateUserInput {
@@ -9380,6 +9448,12 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestEmailSampleSummary: AiDigestEmailSampleSummary;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  ContentForYouIssueSummary: ContentForYouIssueSummary;
+  ContentForYouIssue: ContentForYouIssue;
+  ContentForYouGenerationStatus: ContentForYouGenerationStatus;
+  GenerateContentForYouIssueResult: GenerateContentForYouIssueResult;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -10189,6 +10263,7 @@ interface CreateInputsByCollectionName {
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  AiDigestIssues: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10204,6 +10279,7 @@ interface CreateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
+  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
@@ -10225,8 +10301,10 @@ interface CreateInputsByCollectionName {
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;
@@ -10284,6 +10362,7 @@ interface UpdateInputsByCollectionName {
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
+  AiDigestIssues: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10299,6 +10378,7 @@ interface UpdateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
+  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
@@ -10321,8 +10401,10 @@ interface UpdateInputsByCollectionName {
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;

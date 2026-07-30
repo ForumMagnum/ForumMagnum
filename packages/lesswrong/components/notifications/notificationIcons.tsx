@@ -69,6 +69,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;
     case 'newMention': return <CommentsIcon style={iconStyles}/>;
     case 'typoSuggestion': return <EditIcon style={iconStyles}/>;
+    case 'aiDigestReady': return <ForumIcon icon="Sparkles" style={iconStyles} />;
 
     default: return null;
   }

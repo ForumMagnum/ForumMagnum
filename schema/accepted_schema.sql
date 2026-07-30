@@ -17,6 +17,47 @@ CREATE EXTENSION IF NOT EXISTS "vector" CASCADE;
 -- Extension "pg_trgm"
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
+-- Table "AiDigestIssues"
+CREATE TABLE "AiDigestIssues" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "recipientId" VARCHAR(27) NOT NULL,
+  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "quickTakeIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "discussionCommentIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "generatedAt" TIMESTAMPTZ NOT NULL,
+  "emailedAt" TIMESTAMPTZ,
+  "trigger" TEXT NOT NULL DEFAULT 'adminSample',
+  "countsTowardHistory" BOOL NOT NULL DEFAULT TRUE,
+  "personalInstructions" TEXT,
+  "selectionModelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL,
+  "selectionSystemPrompt" TEXT,
+  "selectionUserPrompt" TEXT,
+  "inputTokenCount" INTEGER,
+  "outputTokenCount" INTEGER,
+  "uncachedInputTokenCount" INTEGER,
+  "cacheReadInputTokenCount" INTEGER,
+  "cacheWriteInputTokenCount" INTEGER,
+  "selectionCostUsd" DOUBLE PRECISION,
+  "toolCallCount" INTEGER,
+  "searchCount" INTEGER,
+  "readPostCount" INTEGER,
+  "threadPromptVersion" TEXT,
+  "threadSelectionUserPrompt" TEXT,
+  "threadInputTokenCount" INTEGER,
+  "threadOutputTokenCount" INTEGER,
+  "threadCacheReadInputTokenCount" INTEGER,
+  "threadSelectionCostUsd" DOUBLE PRECISION,
+  "generationDurationMs" INTEGER NOT NULL DEFAULT 0,
+  "spec" JSONB
+);
+
+-- Index "idx_AiDigestIssues_recipientId_generatedAt"
+CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_generatedAt" ON "AiDigestIssues" USING btree ("recipientId", "generatedAt");
+
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -732,6 +773,31 @@ CREATE TABLE "ElicitQuestions" (
   "resolvesBy" TIMESTAMPTZ
 );
 
+-- Table "EmailEvents"
+CREATE TABLE "EmailEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "eventType" TEXT NOT NULL,
+  "mailgunEventId" TEXT NOT NULL,
+  "emailType" TEXT,
+  "campaignId" VARCHAR(27),
+  "userId" VARCHAR(27),
+  "url" TEXT,
+  "documentType" TEXT,
+  "documentId" VARCHAR(27),
+  "isBot" BOOL,
+  "occurredAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_EmailEvents_mailgunEventId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_EmailEvents_mailgunEventId" ON "EmailEvents" USING btree ("mailgunEventId");
+
+-- Index "idx_EmailEvents_userId_occurredAt"
+CREATE INDEX IF NOT EXISTS "idx_EmailEvents_userId_occurredAt" ON "EmailEvents" USING btree ("userId", "occurredAt");
+
+-- Index "idx_EmailEvents_emailType_campaignId"
+CREATE INDEX IF NOT EXISTS "idx_EmailEvents_emailType_campaignId" ON "EmailEvents" USING btree ("emailType", "campaignId");
+
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1343,6 +1409,28 @@ CREATE TABLE "PostEmbeddings" (
 -- Index "idx_PostEmbeddings_postId_model"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbeddings" USING btree ("postId", "model");
 
+-- Table "PostPreviews"
+CREATE TABLE "PostPreviews" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "previewHtml" TEXT NOT NULL,
+  "startBlockIndex" INTEGER NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostPreviews_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostPreviews_postId_revisionId_modelId_promptVersion" ON "PostPreviews" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
+
 -- Table "PostRecommendations"
 CREATE TABLE "PostRecommendations" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1380,6 +1468,27 @@ CREATE TABLE "PostRelations" (
 
 -- Index "idx_PostRelations_sourcePostId_order_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations" USING btree ("sourcePostId", "order", "createdAt");
+
+-- Table "PostSummaries"
+CREATE TABLE "PostSummaries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "summary" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostSummaries_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostSummaries_postId_revisionId_modelId_promptVersion" ON "PostSummaries" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
 
 -- Table "PostViewTimes"
 CREATE TABLE "PostViewTimes" (
@@ -3194,6 +3303,7 @@ CREATE TABLE "Users" (
   "karmaChangeLastOpened" TIMESTAMPTZ,
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
+  "emailSubscribedToAiDigest" BOOL,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,
@@ -3299,6 +3409,7 @@ CREATE TABLE "Users" (
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "recommendationSettings" JSONB,
+  "aiDigestPersonalInstructions" TEXT,
   "claudeLinkedAt" TIMESTAMPTZ,
   "claudeCodeOAuthTokenEncrypted" TEXT
 );

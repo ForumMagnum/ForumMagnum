@@ -83,6 +83,7 @@ const ForumDropdownMultiselect = ({
   useIconLabel,
   disabled,
   className,
+  menuPlacement,
 }: {
   values: string[],
   options: Record<string, SettingsOption>,
@@ -92,6 +93,7 @@ const ForumDropdownMultiselect = ({
   useIconLabel?: boolean,
   disabled?: boolean,
   className?: string,
+  menuPlacement?: "bottom-start" | "bottom-end",
 }) => {
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -116,7 +118,7 @@ const ForumDropdownMultiselect = ({
       >
         {label} {dropdownIcon}
       </Button>
-      <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
+      <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} placement={menuPlacement} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
           const {icon, label} = options[option];
           const menuItem = <MenuItem

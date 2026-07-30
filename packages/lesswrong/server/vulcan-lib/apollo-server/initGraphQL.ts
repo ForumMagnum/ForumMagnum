@@ -71,6 +71,8 @@ import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolver
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
+import { digestEmailPreviewGraphQLMutations, digestEmailPreviewGraphQLQueries, digestEmailPreviewGraphQLTypeDefs } from "@/server/resolvers/digestEmailPreviewResolver";
+import { contentForYouGraphQLMutations, contentForYouGraphQLQueries, contentForYouGraphQLTypeDefs } from "@/server/resolvers/contentForYouResolvers";
 
 // Collection imports
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
@@ -317,6 +319,8 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
+  ${digestEmailPreviewGraphQLTypeDefs}
+  ${contentForYouGraphQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
@@ -494,6 +498,8 @@ const getResolvers = () => ({
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
+    ...digestEmailPreviewGraphQLQueries,
+    ...contentForYouGraphQLQueries,
 
     // CRUD Query Handlers
     ...arbitalTagContentRelGqlQueryHandlers,
@@ -602,6 +608,8 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
+    ...digestEmailPreviewGraphQLMutations,
+    ...contentForYouGraphQLMutations,
 
     // CRUD Mutation Handlers
     createBook: createBookGqlMutation,

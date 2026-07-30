@@ -1,0 +1,1805 @@
+import type {
+  AiDigestPostCandidate,
+  AiDigestPostCandidateCard,
+  AiDigestPostEligibilityInput,
+  AiDigestQuickTakeCandidate,
+  AiDigestSelectedPostCandidate,
+} from "@/server/aiDigest/aiDigestPostCandidates";
+import {
+  AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS,
+  AI_DIGEST_DEFAULT_MIN_KARMA,
+  aiDigestCandidateExclusionReason,
+  aiDigestQuickTakeExclusionReason,
+  buildAiDigestPostCandidateCards,
+  buildAiDigestReaderContext,
+  buildReadShareCalibration,
+  deduplicateAuthorSubscriptions,
+  getAiDigestPostIneligibilityReason,
+  isSelectableAiDigestCandidate,
+  relaxPreviousInclusionExclusions,
+} from "@/server/aiDigest/aiDigestPostCandidates";
+import {
+  createAiDigestDiscoveredCandidateRegistry,
+  registerDiscoveredCandidates,
+} from "@/server/aiDigest/aiDigestSelectionTools";
+import {
+  AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
+  AI_DIGEST_POST_SUMMARY_MAX_LENGTH,
+  attachCachedAiDigestPostSummaries,
+  findCachedAiDigestPostSummaries,
+  populateMissingAiDigestPostSummaries,
+  validateGeneratedPostSummary,
+} from "@/server/aiDigest/aiDigestPostSummaries";
+import type {
+  CachedAiDigestPostSummary,
+  GeneratedAiDigestPostSummary,
+  AiDigestSummaryGenerationInput,
+} from "@/server/aiDigest/aiDigestPostSummaries";
+import {
+  AI_DIGEST_HISTORY_ISSUE_LIMIT,
+  buildAiDigestHistory,
+  selectRecentAiDigestIssues,
+} from "@/server/aiDigest/aiDigestHistory";
+import type {
+  AiDigestClickRecord,
+  AiDigestIssueRecord,
+  AiDigestPastRecommendation,
+} from "@/server/aiDigest/aiDigestHistory";
+import type {
+  AiDigestQuickTakeAnnotationRow,
+  AiDigestQuickTakeInteractionRow,
+} from "@/server/repos/CommentsRepo";
+import {
+  AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
+  AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT,
+  buildAiDigestPostSelectionPrompt,
+} from "@/server/aiDigest/aiDigestPostSelectionPrompt";
+import type { AiDigestPostSelectionModelOutput } from "@/server/aiDigest/aiDigestPostSelection";
+import {
+  AI_DIGEST_SELECTION_LENGTH_LIMITS,
+  buildAiDigestSpecFromPostSelection,
+  finalizeAiDigestPostSelection,
+  resolveAiDigestSelectionPools,
+  sanitizeAiDigestPostSelectionOutput,
+  validateAiDigestPostSelectionOutput,
+} from "@/server/aiDigest/aiDigestPostSelection";
+import {
+  buildAiDigestSelectionMessages,
+  sumAiDigestSelectionCostUsd,
+} from "@/server/aiDigest/aiDigestSelectionShared";
+import type {
+  AiDigestCandidateAnnotationRow,
+  AiDigestReaderDataRow,
+  AiDigestPostInteractionRow,
+  AiDigestPostReferenceRow,
+  AiDigestSubscribedAuthorRow,
+} from "@/server/repos/PostsRepo";
+import { postStatuses } from "@/lib/collections/posts/constants";
+
+const NOW = new Date("2026-07-17T12:00:00.000Z");
+const MIN_POSTED_AT = new Date("2026-07-03T12:00:00.000Z");
+
+function makeEligibilityInput(
+  overrides: Partial<AiDigestPostEligibilityInput> = {},
+): AiDigestPostEligibilityInput {
+  return {
+    postId: "post-1",
+    status: postStatuses.STATUS_APPROVED,
+    draft: false,
+    deletedDraft: false,
+    rejected: false,
+    isFuture: false,
+    unlisted: false,
+    authorIsUnreviewed: false,
+    onlyVisibleToLoggedIn: false,
+    onlyVisibleToEstablishedAccounts: false,
+    disableRecommendation: false,
+    shortform: false,
+    isEvent: false,
+    hiddenRelatedQuestion: false,
+    groupId: null,
+    postCategory: "post",
+    question: false,
+    debate: false,
+    meta: false,
+    podcastEpisodeId: null,
+    hideAuthor: false,
+    frontpageDate: null,
+    noIndex: false,
+    sticky: false,
+    defaultRecommendation: false,
+    postedAt: new Date("2026-07-10T12:00:00.000Z"),
+    baseScore: 20,
+    contentsLatest: "revision-1",
+    userId: "author-1",
+    coauthorUserIds: [],
+    isRead: false,
+    isHidden: false,
+    hasActiveSeeLess: false,
+    ...overrides,
+  };
+}
+
+function makeCandidate(index: number): AiDigestPostCandidate {
+  return {
+    postId: `post-${index}`,
+    revisionId: `revision-${index}`,
+    title: `Candidate ${index}`,
+    author: `Author ${index}`,
+    authorIds: [`author-${index}`],
+    publicationDate: `2026-07-${String(index).padStart(2, "0")}T12:00:00.000Z`,
+    baseScore: 20 + index,
+    score: 1.5 + index,
+    tags: [`Topic ${index}`],
+    isCurated: index === 1,
+    isSubscribedToAuthor: false,
+    isRead: index === 2,
+    upvoteStrength: index === 3 ? "strong" : null,
+    previousDigestInclusionCount: index === 4 ? 2 : 0,
+    lastIncludedAt: index === 4 ? "2026-07-15T12:00:00.000Z" : null,
+    exclusionReason: null,
+    retrievalProvenance: {
+      source: "newsletterRecentPostsSql",
+      maxAgeDays: 14,
+      minKarma: 20,
+    },
+  };
+}
+
+function makeCandidateCard(index: number): AiDigestPostCandidateCard {
+  return {
+    ...makeCandidate(index),
+    summary: `Summary for candidate ${index}. This is long enough to be a valid reusable summary.`,
+    summaryProvenance: {
+      revisionId: `revision-${index}`,
+      modelId: "summary-model",
+      promptVersion: "summary-v1",
+    },
+  };
+}
+
+function makePostReference(index: number): AiDigestPostReferenceRow {
+  const day = String((index % 17) + 1).padStart(2, "0");
+  return {
+    postId: `history-post-${index}`,
+    title: `History post ${index}`,
+    authorId: `history-author-${index}`,
+    authorName: `History author ${index}`,
+    postedAt: `2026-07-${day}T10:00:00.000Z`,
+    occurredAt: `2026-07-${day}T12:00:00.000Z`,
+  };
+}
+
+function legacyCandidatePayload(cards: AiDigestPostCandidateCard[]): string {
+  return JSON.stringify(cards.map((candidate) => ({
+    postId: candidate.postId,
+    title: candidate.title,
+    author: candidate.author,
+    publicationDate: candidate.publicationDate,
+    baseScore: candidate.baseScore,
+    score: candidate.score,
+    tags: candidate.tags,
+    summary: candidate.summary,
+    isCurated: candidate.isCurated,
+    isSubscribedToAuthor: candidate.isSubscribedToAuthor,
+    isRead: candidate.isRead,
+    upvoteStrength: candidate.upvoteStrength,
+    previousDigestInclusionCount: candidate.previousDigestInclusionCount,
+    lastIncludedAt: candidate.lastIncludedAt,
+    retrievalProvenance: candidate.retrievalProvenance,
+    summaryProvenance: {
+      modelId: candidate.summaryProvenance.modelId,
+      promptVersion: candidate.summaryProvenance.promptVersion,
+    },
+  })), null, 2);
+}
+
+function promptSection(prompt: string, openingTag: string, closingTag: string): string {
+  return prompt.split(`${openingTag}\n`)[1]?.split(`\n${closingTag}`)[0] ?? "";
+}
+
+function makeReaderData(
+  overrides: Partial<AiDigestReaderDataRow> = {},
+): AiDigestReaderDataRow {
+  return {
+    totalReadCount: 3,
+    recentReadCount30Days: 2,
+    recentReadCount180Days: 3,
+    topAuthors: [],
+    topTopics: [],
+    recentReads: [],
+    recentPositiveVotes: [],
+    recentAuthoredPosts: [],
+    recentCommentedPosts: [],
+    readAgeBuckets: {
+      under7Days: 1,
+      from7To30Days: 1,
+      from31To180Days: 1,
+      over180Days: 0,
+    },
+    seeLessFeedback: [],
+    subscribedAuthors: [],
+    ...overrides,
+  };
+}
+
+function makeIssue(
+  index: number,
+  generatedAt: Date,
+  postIds: string[] = [`post-${index}`],
+  countsTowardHistory = true,
+  quickTakeIds: string[] = [],
+  discussionCommentIds: string[] = [],
+): AiDigestIssueRecord {
+  return {
+    _id: `issue-${index}`,
+    recipientId: "reader-1",
+    postIds,
+    quickTakeIds,
+    discussionCommentIds,
+    generatedAt,
+    countsTowardHistory,
+    selectionModelId: "selection-model",
+    promptVersion: "selection-v2",
+  };
+}
+
+function makeQuickTakeCandidate(index: number): AiDigestQuickTakeCandidate {
+  return {
+    commentId: `quick-take-${index}`,
+    author: `Quick author ${index}`,
+    authorId: `quick-author-${index}`,
+    publicationDate: `2026-07-${String(index).padStart(2, "0")}T12:00:00.000Z`,
+    baseScore: 25 + index,
+    body: `A competitive quick take body ${index} that is long enough to read in the corpus.`,
+    upvoteStrength: null,
+    isSubscribedToAuthor: false,
+    previousDigestInclusionCount: 0,
+    lastIncludedAt: null,
+    exclusionReason: null,
+  };
+}
+
+function makeValidOutput(): AiDigestPostSelectionModelOutput {
+  return {
+    selectedItems: [1, 2, 3, 4, 5].map((index) => ({
+      itemId: `post-${index}`,
+      reason: `Grounded reason ${index}`,
+    })),
+    subject: "Candidate 1 — plus four more",
+    preheader: "Also Candidate 2 and Candidate 3",
+    aiNote: [
+      "Your recent reading suggests a current interest in this topic.",
+      "This issue includes five distinct treatments.",
+    ],
+  };
+}
+
+const TEST_TOKEN_USAGE = {
+  inputTokenCount: 2_000,
+  outputTokenCount: 800,
+  uncachedInputTokenCount: 500,
+  cacheReadInputTokenCount: 1_500,
+  cacheWriteInputTokenCount: 0,
+};
+const TEST_SELECTION_COST_USD = 0.00849;
+const TEST_GENERATION_DURATION_MS = 75_000;
+
+describe("AI digest newsletter eligibility policy", () => {
+  const options = {
+    recipientId: "reader-1",
+    aboutPostId: "about-post",
+    minPostedAt: MIN_POSTED_AT,
+    minKarma: 20,
+    now: NOW,
+  };
+
+  it("accepts an eligible published post", () => {
+    expect(getAiDigestPostIneligibilityReason(makeEligibilityInput(), options)).toBeNull();
+  });
+
+  it.each([
+    ["notApproved", { status: 1 }],
+    ["draft", { draft: true }],
+    ["future", { isFuture: true }],
+    ["unlisted", { unlisted: true }],
+    ["unreviewedAuthor", { authorIsUnreviewed: true }],
+    ["establishedAccountsOnly", { onlyVisibleToEstablishedAccounts: true }],
+    ["recommendationsDisabled", { disableRecommendation: true }],
+    ["aboutPost", { postId: "about-post" }],
+    ["shortformContainer", { shortform: true }],
+    ["event", { isEvent: true }],
+    ["hiddenRelatedQuestion", { hiddenRelatedQuestion: true }],
+    ["invalidPublicationDate", { postedAt: null }],
+    ["invalidPublicationDate", { postedAt: new Date("2026-07-18T12:00:00.000Z") }],
+    ["tooOld", { postedAt: new Date("2026-07-02T12:00:00.000Z") }],
+    ["belowKarmaFloor", { baseScore: 19 }],
+    ["missingContentsRevision", { contentsLatest: null }],
+    ["recipientAuthored", { userId: "reader-1" }],
+    ["recipientAuthored", { coauthorUserIds: ["reader-1"] }],
+    ["hiddenByRecipient", { isHidden: true }],
+    ["activeSeeLess", { hasActiveSeeLess: true }],
+  ])("rejects %s posts", (reason, overrides) => {
+    expect(
+      getAiDigestPostIneligibilityReason(makeEligibilityInput(overrides), options),
+    ).toBe(reason);
+  });
+
+  it("uses the two-week, 20-karma prototype scope and keeps read posts eligible", () => {
+    expect(AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS).toBe(14);
+    expect(AI_DIGEST_DEFAULT_MIN_KARMA).toBe(20);
+    expect(
+      getAiDigestPostIneligibilityReason(
+        makeEligibilityInput({ isRead: true }),
+        options,
+      ),
+    ).toBeNull();
+  });
+
+  it("does not inherit unrelated default-view or Recombee filters", () => {
+    const allowed = makeEligibilityInput({
+      deletedDraft: true,
+      rejected: true,
+      onlyVisibleToLoggedIn: true,
+      groupId: "group-1",
+      postCategory: "linkpost",
+      question: true,
+      debate: true,
+      meta: true,
+      podcastEpisodeId: "podcast-1",
+      hideAuthor: true,
+      frontpageDate: null,
+      noIndex: true,
+      sticky: true,
+      defaultRecommendation: true,
+    });
+    expect(getAiDigestPostIneligibilityReason(allowed, options)).toBeNull();
+  });
+});
+
+describe("AI digest reader dossier", () => {
+  it("handles zero and sparse read histories without dividing by zero", () => {
+    expect(buildReadShareCalibration(0)).toEqual({
+      oneReadPercent: null,
+      tenReadsPercent: null,
+    });
+    expect(buildReadShareCalibration(4)).toEqual({
+      oneReadPercent: 25,
+      tenReadsPercent: 250,
+    });
+    expect(buildReadShareCalibration(50_000)).toEqual({
+      oneReadPercent: 0.002,
+      tenReadsPercent: 0.02,
+    });
+  });
+
+  it("retains overlapping topic counts without normalizing them to a partition", () => {
+    const context = buildAiDigestReaderContext(
+      { createdAt: new Date("2026-01-01T00:00:00.000Z") },
+      makeReaderData({
+        totalReadCount: 3,
+        topTopics: [
+          { tagId: "tag-1", tagName: "AI safety", readCount: 3 },
+          { tagId: "tag-2", tagName: "Governance", readCount: 3 },
+        ],
+      }),
+      NOW,
+    );
+    expect(context.dossier.affinities.topics.map((topic) => topic.readCount)).toEqual([3, 3]);
+  });
+
+  it("merges interactions for one post and uses reader-facing like terminology", () => {
+    const postReference = {
+      postId: "post-1",
+      title: "A liked post",
+      authorId: "author-1",
+      authorName: "Ada",
+      postedAt: "2026-07-10T12:00:00.000Z",
+      occurredAt: "2026-07-15T12:00:00.000Z",
+    };
+    const context = buildAiDigestReaderContext(
+      { createdAt: new Date("2026-01-01T00:00:00.000Z") },
+      makeReaderData({
+        recentReads: [postReference],
+        recentPositiveVotes: [{
+          ...postReference,
+          occurredAt: "2026-07-16T12:00:00.000Z",
+          voteStrength: "strong",
+        }],
+      }),
+      NOW,
+    );
+    expect(context.dossier.recentInteractions.posts).toEqual([{
+      postId: "post-1",
+      title: "A liked post",
+      author: "Ada",
+      publicationDate: "2026-07-10",
+      lastEngagedAt: "2026-07-16",
+      readAt: "2026-07-15",
+      likeStrength: "strong",
+      likedAt: "2026-07-16",
+    }]);
+  });
+
+  it("includes the target and reasons for negative preferences", () => {
+    const context = buildAiDigestReaderContext(
+      { createdAt: new Date("2026-01-01T00:00:00.000Z") },
+      makeReaderData({
+        seeLessFeedback: [{
+          eventId: "event-1",
+          collectionName: "Posts",
+          documentId: "post-1",
+          createdAt: "2026-07-16T12:00:00.000Z",
+          targetPostId: "post-1",
+          targetTitle: "An unwanted post",
+          targetAuthor: "Ada",
+          targetTagNames: ["AI safety"],
+          feedbackReasons: {
+            author: true,
+            topic: true,
+            text: "Too repetitive",
+          },
+        }],
+      }),
+      NOW,
+    );
+    expect(context.dossier.negativePreferences.items).toEqual([{
+      collectionName: "Posts",
+      documentId: "post-1",
+      feedbackAt: "2026-07-16",
+      reasons: ["author", "topic"],
+      postId: "post-1",
+      title: "An unwanted post",
+      author: "Ada",
+      topics: ["AI safety"],
+      feedbackText: "Too repetitive",
+    }]);
+  });
+
+  it("collapses positive author subscriptions to one row per author", () => {
+    const subscriptions: AiDigestSubscribedAuthorRow[] = [
+      { authorId: "author-1", authorName: "Ada" },
+      { authorId: "author-1", authorName: "Ada" },
+      { authorId: "author-2", authorName: "Ben" },
+    ];
+    expect(deduplicateAuthorSubscriptions(subscriptions)).toEqual([
+      { authorId: "author-1", authorName: "Ada" },
+      { authorId: "author-2", authorName: "Ben" },
+    ]);
+  });
+});
+
+describe("AI digest recommendation history", () => {
+  it("ignores scratch issues that do not count toward history", () => {
+    const countedIssue = makeIssue(
+      1,
+      new Date("2026-07-10T12:00:00.000Z"),
+      ["post-counted"],
+    );
+    const scratchIssue = makeIssue(
+      2,
+      new Date("2026-07-11T12:00:00.000Z"),
+      ["post-scratch"],
+      false,
+    );
+    const selected = selectRecentAiDigestIssues([countedIssue, scratchIssue]);
+    expect(selected.map((issue) => issue._id)).toEqual([countedIssue._id]);
+
+    const history = buildAiDigestHistory([countedIssue, scratchIssue], []);
+    expect(history.issues.map((issue) => issue._id)).toEqual([countedIssue._id]);
+    expect(history.postHistoryById.has("post-counted")).toBe(true);
+    expect(history.postHistoryById.has("post-scratch")).toBe(false);
+  });
+
+  it("bounds recent issues and aggregates repeated inclusions", () => {
+    const issues = Array.from({ length: AI_DIGEST_HISTORY_ISSUE_LIMIT + 2 }, (_, index) =>
+      makeIssue(
+        index,
+        new Date(`2026-07-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`),
+        ["post-repeated"],
+      ),
+    );
+    const bounded = selectRecentAiDigestIssues(issues);
+    expect(bounded).toHaveLength(AI_DIGEST_HISTORY_ISSUE_LIMIT);
+    expect(bounded[0]._id).toBe(`issue-${AI_DIGEST_HISTORY_ISSUE_LIMIT + 1}`);
+
+    const history = buildAiDigestHistory(bounded, []);
+    expect(history.postHistoryById.get("post-repeated")).toEqual({
+      previousDigestInclusionCount: AI_DIGEST_HISTORY_ISSUE_LIMIT,
+      lastIncludedAt: `2026-07-${String(AI_DIGEST_HISTORY_ISSUE_LIMIT + 2).padStart(2, "0")}T12:00:00.000Z`,
+    });
+  });
+
+  it("counts only interactions after each recommendation as outcomes", () => {
+    const firstRecommendationAt = new Date("2026-07-10T12:00:00.000Z");
+    const secondRecommendationAt = new Date("2026-07-12T12:00:00.000Z");
+    const issues = [
+      makeIssue(2, secondRecommendationAt, ["post-1"]),
+      makeIssue(1, firstRecommendationAt, ["post-1"]),
+    ];
+    const interactions: AiDigestPostInteractionRow[] = [{
+      postId: "post-1",
+      title: "A prior recommendation",
+      author: "Ada",
+      publicationDate: new Date("2026-07-01T12:00:00.000Z"),
+      isRead: true,
+      readAt: new Date("2026-07-11T12:00:00.000Z"),
+      positivePreferenceStrength: "strong",
+      positivePreferenceAt: new Date("2026-07-13T12:00:00.000Z"),
+    }];
+    const recommendations = buildAiDigestHistory(issues, interactions).pastRecommendations;
+    expect(recommendations).toHaveLength(2);
+    expect(recommendations[0]).toMatchObject({
+      documentType: "post",
+      documentId: "post-1",
+      subsequentlyRead: false,
+      upvoteStrength: "strong",
+      upvotedAt: "2026-07-13T12:00:00.000Z",
+      clickedAt: null,
+    });
+    expect(recommendations[1]).toMatchObject({
+      documentType: "post",
+      documentId: "post-1",
+      subsequentlyRead: true,
+      upvoteStrength: "strong",
+      upvotedAt: "2026-07-13T12:00:00.000Z",
+      clickedAt: null,
+    });
+  });
+
+  it("attributes clicks to the issue that produced them, keeping the earliest", () => {
+    const firstRecommendationAt = new Date("2026-07-10T12:00:00.000Z");
+    const secondRecommendationAt = new Date("2026-07-12T12:00:00.000Z");
+    const issues = [
+      makeIssue(2, secondRecommendationAt, ["post-1"]),
+      makeIssue(1, firstRecommendationAt, ["post-1"]),
+    ];
+    const interactions: AiDigestPostInteractionRow[] = [{
+      postId: "post-1",
+      title: "A prior recommendation",
+      author: "Ada",
+      publicationDate: new Date("2026-07-01T12:00:00.000Z"),
+      isRead: false,
+      readAt: null,
+      positivePreferenceStrength: null,
+      positivePreferenceAt: null,
+    }];
+    const clicks: AiDigestClickRecord[] = [
+      {
+        campaignId: "issue-1",
+        documentId: "post-1",
+        occurredAt: new Date("2026-07-10T18:00:00.000Z"),
+      },
+      {
+        campaignId: "issue-1",
+        documentId: "post-1",
+        occurredAt: new Date("2026-07-10T13:00:00.000Z"),
+      },
+    ];
+    const recommendations = buildAiDigestHistory(
+      issues,
+      interactions,
+      clicks,
+    ).pastRecommendations;
+    expect(recommendations).toHaveLength(2);
+    expect(recommendations[0]).toMatchObject({
+      recommendedAt: secondRecommendationAt.toISOString(),
+      clickedAt: null,
+    });
+    expect(recommendations[1]).toMatchObject({
+      recommendedAt: firstRecommendationAt.toISOString(),
+      clickedAt: "2026-07-10T13:00:00.000Z",
+    });
+  });
+});
+
+describe("AI digest repeat exclusion", () => {
+  const previouslyIncluded = {
+    previousDigestInclusionCount: 1,
+    lastIncludedAt: "2026-07-15T12:00:00.000Z",
+  };
+  const neverIncluded = {
+    previousDigestInclusionCount: 0,
+    lastIncludedAt: null,
+  };
+
+  function makeCandidateAnnotation(
+    overrides: Partial<AiDigestCandidateAnnotationRow> = {},
+  ): AiDigestCandidateAnnotationRow {
+    return {
+      postId: "post-1",
+      isSubscribedToAuthor: false,
+      isRead: false,
+      positivePreferenceStrength: null,
+      hasActiveSeeLess: false,
+      recipientAuthored: false,
+      ...overrides,
+    };
+  }
+
+  function makeQuickTakeAnnotation(
+    overrides: Partial<AiDigestQuickTakeAnnotationRow> = {},
+  ): AiDigestQuickTakeAnnotationRow {
+    return {
+      commentId: "quick-take-1",
+      isSubscribedToAuthor: false,
+      positivePreferenceStrength: null,
+      hasActiveSeeLess: false,
+      recipientAuthored: false,
+      ...overrides,
+    };
+  }
+
+  it("excludes posts and quick takes that ran in an earlier issue", () => {
+    expect(
+      aiDigestCandidateExclusionReason(makeCandidateAnnotation(), false, undefined),
+    ).toBeNull();
+    expect(
+      aiDigestCandidateExclusionReason(makeCandidateAnnotation(), false, neverIncluded),
+    ).toBeNull();
+    expect(
+      aiDigestCandidateExclusionReason(makeCandidateAnnotation(), false, previouslyIncluded),
+    ).toBe("previouslyIncluded");
+    expect(
+      aiDigestQuickTakeExclusionReason(makeQuickTakeAnnotation(), neverIncluded),
+    ).toBeNull();
+    expect(
+      aiDigestQuickTakeExclusionReason(makeQuickTakeAnnotation(), previouslyIncluded),
+    ).toBe("previouslyIncluded");
+  });
+
+  it("reports the more specific exclusion reason ahead of the repeat rule", () => {
+    expect(aiDigestCandidateExclusionReason(
+      makeCandidateAnnotation({ recipientAuthored: true }),
+      false,
+      previouslyIncluded,
+    )).toBe("recipientAuthored");
+    expect(aiDigestCandidateExclusionReason(
+      makeCandidateAnnotation(),
+      true,
+      previouslyIncluded,
+    )).toBe("hiddenByRecipient");
+    expect(aiDigestQuickTakeExclusionReason(
+      makeQuickTakeAnnotation({ hasActiveSeeLess: true }),
+      previouslyIncluded,
+    )).toBe("activeSeeLess");
+  });
+
+  it("relaxes only the repeat exclusion, keeping the history annotations", () => {
+    const [repeated, seeLess] = relaxPreviousInclusionExclusions([
+      { ...makeCandidateCard(1), ...previouslyIncluded, exclusionReason: "previouslyIncluded" },
+      { ...makeCandidateCard(2), ...previouslyIncluded, exclusionReason: "activeSeeLess" },
+    ]);
+    expect(repeated.exclusionReason).toBeNull();
+    expect(repeated.previousDigestInclusionCount).toBe(1);
+    expect(repeated.lastIncludedAt).toBe("2026-07-15T12:00:00.000Z");
+    expect(seeLess.exclusionReason).toBe("activeSeeLess");
+  });
+});
+
+describe("AI digest thin-pool fallback", () => {
+  function makeRepeatCard(index: number): AiDigestPostCandidateCard {
+    return {
+      ...makeCandidateCard(index),
+      previousDigestInclusionCount: 1,
+      lastIncludedAt: "2026-07-15T12:00:00.000Z",
+      exclusionReason: "previouslyIncluded",
+    };
+  }
+
+  function makeFreshCard(index: number): AiDigestPostCandidateCard {
+    return {
+      ...makeCandidateCard(index),
+      previousDigestInclusionCount: 0,
+      lastIncludedAt: null,
+      exclusionReason: null,
+    };
+  }
+
+  it("keeps repeats excluded while the pool can still fill a slate", () => {
+    const pools = resolveAiDigestSelectionPools(
+      [...[1, 2, 3, 4, 5].map(makeFreshCard), makeRepeatCard(6)],
+      [makeQuickTakeCandidate(1)],
+    );
+    expect(pools.relaxedPreviousInclusions).toBe(false);
+    expect(pools.selectableCandidateCards.map((card) => card.postId)).toEqual([
+      "post-1",
+      "post-2",
+      "post-3",
+      "post-4",
+      "post-5",
+    ]);
+  });
+
+  it("drops repeat exclusions when too few candidates remain", () => {
+    const quickTakes = [1, 2].map((index) => ({
+      ...makeQuickTakeCandidate(index),
+      previousDigestInclusionCount: 1,
+      lastIncludedAt: "2026-07-15T12:00:00.000Z",
+      exclusionReason: "previouslyIncluded" as const,
+    }));
+    const pools = resolveAiDigestSelectionPools(
+      [makeFreshCard(1), ...[2, 3, 4].map(makeRepeatCard)],
+      quickTakes,
+    );
+    expect(pools.relaxedPreviousInclusions).toBe(true);
+    expect(pools.selectableCandidateCards).toHaveLength(4);
+    expect(pools.selectableQuickTakes).toHaveLength(2);
+    expect(pools.candidateCards.every((card) => !card.exclusionReason)).toBe(true);
+  });
+
+  it("leaves other exclusion reasons in place even when the pool is thin", () => {
+    const pools = resolveAiDigestSelectionPools(
+      [
+        makeFreshCard(1),
+        { ...makeFreshCard(2), exclusionReason: "activeSeeLess" },
+        makeRepeatCard(3),
+      ],
+      [],
+    );
+    expect(pools.relaxedPreviousInclusions).toBe(true);
+    expect(pools.selectableCandidateCards.map((card) => card.postId)).toEqual([
+      "post-1",
+      "post-3",
+    ]);
+  });
+
+  it("does not claim a relaxation when the pool is thin for other reasons", () => {
+    const pools = resolveAiDigestSelectionPools([makeFreshCard(1)], []);
+    expect(pools.relaxedPreviousInclusions).toBe(false);
+    expect(pools.selectableCandidateCards).toHaveLength(1);
+  });
+});
+
+describe("AI digest summary cache", () => {
+  const candidate = makeCandidate(1);
+  const cachedSummary: CachedAiDigestPostSummary = {
+    postId: candidate.postId,
+    revisionId: candidate.revisionId,
+    summary: "A cached summary that is long enough to satisfy the configured summary limits.",
+    modelId: "summary-model",
+    promptVersion: "summary-v1",
+  };
+
+  it("reuses only the exact revision/model/prompt cache key", () => {
+    expect(findCachedAiDigestPostSummaries(
+      [candidate],
+      [cachedSummary],
+      "summary-model",
+      "summary-v1",
+    ).missingTargets).toEqual([]);
+    expect(findCachedAiDigestPostSummaries(
+      [candidate],
+      [{ ...cachedSummary, revisionId: "old-revision" }],
+      "summary-model",
+      "summary-v1",
+    ).missingTargets).toEqual([candidate]);
+    expect(findCachedAiDigestPostSummaries(
+      [candidate],
+      [cachedSummary],
+      "other-model",
+      "summary-v1",
+    ).missingTargets).toEqual([candidate]);
+    expect(findCachedAiDigestPostSummaries(
+      [candidate],
+      [cachedSummary],
+      "summary-model",
+      "summary-v2",
+    ).missingTargets).toEqual([candidate]);
+  });
+
+  it("generates and saves a missing summary", async () => {
+    const generated: GeneratedAiDigestPostSummary = {
+      ...cachedSummary,
+      summary: "A newly generated summary that is sufficiently detailed for the recommendation card.",
+    };
+    const generateSummary = jest.fn(async () => generated);
+    const saveSummary = jest.fn(async () => undefined);
+    const result = await populateMissingAiDigestPostSummaries({
+      targets: [candidate],
+      cachedSummaries: [],
+      bodiesByRevisionId: new Map([[candidate.revisionId, "A sufficiently long post body."]]),
+      modelId: "summary-model",
+      promptVersion: "summary-v1",
+      dependencies: { generateSummary, saveSummary },
+    });
+    expect(generateSummary).toHaveBeenCalledTimes(1);
+    expect(saveSummary).toHaveBeenCalledWith(generated);
+    expect(result.generatedSummaryCount).toBe(1);
+    expect(result.summaries[0].summary).toBe(generated.summary);
+  });
+
+  it("generates a small batch with bounded concurrency", async () => {
+    const targets = [1, 2, 3].map(makeCandidate);
+    let activeGenerationCount = 0;
+    let maximumActiveGenerationCount = 0;
+    const generateSummary = jest.fn(async ({
+      target,
+      modelId,
+      promptVersion,
+    }: AiDigestSummaryGenerationInput): Promise<GeneratedAiDigestPostSummary> => {
+      activeGenerationCount += 1;
+      maximumActiveGenerationCount = Math.max(
+        maximumActiveGenerationCount,
+        activeGenerationCount,
+      );
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 5);
+      });
+      activeGenerationCount -= 1;
+      return {
+        postId: target.postId,
+        revisionId: target.revisionId,
+        summary: `A generated summary for ${target.title} that is long enough to pass validation.`,
+        modelId,
+        promptVersion,
+      };
+    });
+    const saveSummary = jest.fn(async () => undefined);
+    const result = await populateMissingAiDigestPostSummaries({
+      targets,
+      cachedSummaries: [],
+      bodiesByRevisionId: new Map(
+        targets.map((target) => [target.revisionId, "A sufficiently long post body."]),
+      ),
+      modelId: "summary-model",
+      promptVersion: "summary-v1",
+      concurrency: 2,
+      dependencies: { generateSummary, saveSummary },
+    });
+    expect(result.generatedSummaryCount).toBe(3);
+    expect(maximumActiveGenerationCount).toBe(2);
+  });
+
+  it("uses only exact cached Fable summaries during selection", () => {
+    expect(AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID).toBe("anthropic/claude-fable-5");
+    const result = attachCachedAiDigestPostSummaries({
+      candidates: [candidate],
+      cachedSummaries: [
+        cachedSummary,
+        {
+          ...cachedSummary,
+          modelId: AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
+          revisionId: "old-revision",
+        },
+      ],
+      modelId: AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
+      promptVersion: "summary-v1",
+    });
+    expect(result.candidates).toEqual([]);
+    expect(result.reusedSummaryCount).toBe(0);
+    expect(result.skippedPostCount).toBe(1);
+  });
+
+  it("rejects wrong IDs and overlong summaries", () => {
+    expect(() => validateGeneratedPostSummary(
+      { ...cachedSummary, postId: "invented-post" },
+      {
+        postId: candidate.postId,
+        revisionId: candidate.revisionId,
+        modelId: "summary-model",
+        promptVersion: "summary-v1",
+      },
+    )).toThrow("unknown post ID");
+    expect(() => validateGeneratedPostSummary(
+      { ...cachedSummary, summary: "x".repeat(AI_DIGEST_POST_SUMMARY_MAX_LENGTH + 1) },
+      {
+        postId: candidate.postId,
+        revisionId: candidate.revisionId,
+        modelId: "summary-model",
+        promptVersion: "summary-v1",
+      },
+    )).toThrow("Summary length was invalid");
+  });
+});
+
+describe("AI digest selection prompt", () => {
+  const readerContext = buildAiDigestReaderContext(
+    { createdAt: new Date("2026-01-01T00:00:00.000Z") },
+    makeReaderData({
+      topTopics: [{ tagId: "tag-1", tagName: "AI safety", readCount: 3 }],
+    }),
+    NOW,
+  );
+  const cards = buildAiDigestPostCandidateCards(
+    [1, 2, 3, 4].map(makeCandidateCard),
+  );
+  const prompt = buildAiDigestPostSelectionPrompt(readerContext.dossier, cards, [{
+    documentType: "post",
+    documentId: "earlier-post",
+    title: "Earlier recommendation",
+    author: "Earlier author",
+    publicationDate: "2026-07-01T12:00:00.000Z",
+    recommendedAt: "2026-07-10T12:00:00.000Z",
+    subsequentlyRead: true,
+    upvoteStrength: "regular",
+    upvotedAt: "2026-07-11T12:00:00.000Z",
+    clickedAt: "2026-07-10T12:00:00.000Z",
+  }], "Prioritize decision theory and avoid introductory AI safety posts.", NOW);
+
+  it("uses the committed prompt version and expected section ordering", () => {
+    expect(prompt.promptVersion).toBe(AI_DIGEST_POST_SELECTION_PROMPT_VERSION);
+    expect(AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Task")).toBeLessThan(
+      AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Inference policy"),
+    );
+    expect(AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Inference policy")).toBeLessThan(
+      AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Search tools"),
+    );
+    expect(AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Search tools")).toBeLessThan(
+      AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT.indexOf("# Output and copy"),
+    );
+    expect(prompt.prompt.indexOf("# Shared candidate corpus")).toBeLessThan(
+      prompt.prompt.indexOf("# Reader profile"),
+    );
+    expect(prompt.prompt).toBe(`${prompt.sharedPrefix}\n\n${prompt.personalizedSuffix}`);
+  });
+
+  it("serializes compact tuples inside explicit untrusted delimiters", () => {
+    expect(prompt.sharedPrefix).toContain("<UNTRUSTED_CANDIDATE_CORPUS>");
+    expect(prompt.sharedPrefix).toContain('"asOf":"2026-07-17"');
+    expect(prompt.sharedPrefix).toContain(
+      '["post-1","Candidate 1","Author 1",16,21,2.5,["Topic 1"],',
+    );
+    expect(prompt.prompt).toContain("<UNTRUSTED_READER_PROFILE>");
+    expect(prompt.prompt).toContain("</UNTRUSTED_READER_PROFILE>");
+    expect(prompt.prompt).toContain("<UNTRUSTED_READER_INSTRUCTIONS>");
+    expect(prompt.prompt).toContain("Prioritize decision theory");
+    expect(prompt.prompt).toContain("</UNTRUSTED_READER_INSTRUCTIONS>");
+    expect(prompt.prompt).toContain("<UNTRUSTED_PAST_RECOMMENDATIONS>");
+    expect(prompt.prompt).toContain("Earlier recommendation");
+    expect(prompt.prompt).toContain('[[7,true,"regular",6,7,1]]');
+    expect(prompt.prompt).not.toContain("earlier-post");
+    expect(prompt.prompt).toContain("<UNTRUSTED_CANDIDATE_ANNOTATIONS>");
+    expect(prompt.prompt).toContain("Candidate 1");
+    expect(prompt.prompt).toContain('["post-2",[["alreadyRead"]]]');
+    expect(prompt.prompt).toContain('["post-3",[["liked","strong"]]]');
+    expect(prompt.prompt).toContain('["post-4",[["previousDigest",2,2]]]');
+    expect(prompt.prompt).not.toContain('"summaryModelId"');
+    expect(prompt.prompt).not.toContain('"summaryPromptVersion"');
+    expect(prompt.prompt).not.toContain('"revisionId"');
+    expect(prompt.prompt).not.toContain("sourceMetadata");
+    expect(prompt.prompt).not.toContain("retrievalProvenance");
+    expect(prompt.prompt).not.toContain('"postId":"post-1"');
+    expect(prompt.prompt).not.toContain('"previousDigestInclusionCount"');
+  });
+
+  it("keeps the shared prefix identical across readers and annotations", () => {
+    const otherReaderContext = buildAiDigestReaderContext(
+      { createdAt: new Date("2025-01-01T00:00:00.000Z") },
+      makeReaderData({
+        totalReadCount: 100,
+        topAuthors: [{
+          authorId: "author-2",
+          authorName: "Author 2",
+          readCount: 8,
+        }],
+      }),
+      NOW,
+    );
+    const otherCards: AiDigestPostCandidateCard[] = cards.map((card) => ({
+      ...card,
+      isSubscribedToAuthor: card.postId === "post-1",
+      isRead: false,
+      upvoteStrength: null,
+      previousDigestInclusionCount: 0,
+      lastIncludedAt: null,
+      exclusionReason: card.postId === "post-4" ? "hiddenByRecipient" : null,
+    }));
+    const otherPrompt = buildAiDigestPostSelectionPrompt(
+      otherReaderContext.dossier,
+      otherCards,
+      [],
+      null,
+      NOW,
+    );
+
+    expect(otherPrompt.sharedPrefix).toBe(prompt.sharedPrefix);
+    expect(otherPrompt.personalizedSuffix).not.toBe(prompt.personalizedSuffix);
+    expect(otherPrompt.personalizedSuffix).toContain(
+      '["post-4",[["excluded","hiddenByRecipient"]]]',
+    );
+  });
+
+  it("places an Anthropic cache breakpoint after the shared prefix", () => {
+    expect(buildAiDigestSelectionMessages({
+      sharedPrefix: "shared",
+      personalizedSuffix: "personal",
+      enableAnthropicCaching: true,
+    })).toEqual([{
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: "shared",
+          providerOptions: {
+            anthropic: {
+              cacheControl: { type: "ephemeral" },
+            },
+          },
+        },
+        { type: "text", text: "\n\npersonal" },
+      ],
+    }]);
+    expect(buildAiDigestSelectionMessages({
+      sharedPrefix: "shared",
+      personalizedSuffix: "personal",
+      enableAnthropicCaching: false,
+    })).toEqual([{
+      role: "user",
+      content: [
+        { type: "text", text: "shared" },
+        { type: "text", text: "\n\npersonal" },
+      ],
+    }]);
+  });
+
+  it("deduplicates repeated recommendation metadata without losing frequency", () => {
+    const repeatedRecommendation: AiDigestPastRecommendation = {
+      documentType: "post",
+      documentId: "earlier-post",
+      title: "Earlier recommendation",
+      author: "Earlier author",
+      publicationDate: "2026-07-01T12:00:00.000Z",
+      recommendedAt: "2026-07-10T12:00:00.000Z",
+      subsequentlyRead: true,
+      upvoteStrength: "regular",
+      upvotedAt: "2026-07-11T12:00:00.000Z",
+      clickedAt: null,
+    };
+    const repeatedPrompt = buildAiDigestPostSelectionPrompt(
+      readerContext.dossier,
+      cards,
+      [repeatedRecommendation, repeatedRecommendation],
+      null,
+      NOW,
+    );
+    const historyPayload = promptSection(
+      repeatedPrompt.prompt,
+      "<UNTRUSTED_PAST_RECOMMENDATIONS>",
+      "</UNTRUSTED_PAST_RECOMMENDATIONS>",
+    );
+
+    expect(historyPayload).toContain('[[7,true,"regular",6,null,2]]');
+    expect(historyPayload.split("Earlier recommendation")).toHaveLength(2);
+  });
+
+  it("states sparse-user behavior and the simplified output contract", () => {
+    expect(prompt.system).toContain("For sparse or new readers");
+    expect(prompt.system).toContain("five ranked `selectedItems`");
+    expect(prompt.system).toContain("`aiNote` containing one to three");
+    expect(prompt.system).toContain("using supplied `itemId` values exactly");
+    expect(prompt.system).toContain("Never mention voting mechanics");
+    expect(prompt.system).not.toContain("TODO");
+    expect(prompt.system).not.toContain("opaque");
+    expect(prompt.system).not.toContain("evidence IDs");
+    expect(prompt.system.length).toBeLessThan(9_500);
+    expect(prompt.prompt.length).toBeLessThan(5_500);
+  });
+
+  it("keeps a representative active-reader prompt within its size budget", () => {
+    const historyPosts = Array.from({ length: 20 }, (_, index) =>
+      makePostReference(index + 1),
+    );
+    const activeReaderContext = buildAiDigestReaderContext(
+      { createdAt: new Date("2015-01-01T00:00:00.000Z") },
+      makeReaderData({
+        totalReadCount: 50_000,
+        recentReadCount30Days: 100,
+        recentReadCount180Days: 500,
+        topAuthors: Array.from({ length: 15 }, (_, index) => ({
+          authorId: `affinity-author-${index}`,
+          authorName: `Affinity author ${index}`,
+          readCount: 30 - index,
+        })),
+        topTopics: Array.from({ length: 15 }, (_, index) => ({
+          tagId: `topic-${index}`,
+          tagName: `Topic ${index}`,
+          readCount: 40 - index,
+        })),
+        recentReads: historyPosts,
+        recentPositiveVotes: historyPosts.slice(0, 10).map((post, index) => ({
+          ...post,
+          voteStrength: index % 2 === 0 ? "strong" : "regular",
+        })),
+        recentCommentedPosts: historyPosts.slice(0, 5),
+        seeLessFeedback: Array.from({ length: 10 }, (_, index) => ({
+          eventId: `event-${index}`,
+          collectionName: "Posts",
+          documentId: `negative-post-${index}`,
+          createdAt: `2026-07-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`,
+          targetPostId: `negative-post-${index}`,
+          targetTitle: `Negative preference post ${index}`,
+          targetAuthor: `Negative author ${index}`,
+          targetTagNames: [`Negative topic ${index}`],
+          feedbackReasons: { topic: true },
+        })),
+        subscribedAuthors: Array.from({ length: 15 }, (_, index) => ({
+          authorId: `followed-author-${index}`,
+          authorName: `Followed author ${index}`,
+        })),
+      }),
+      NOW,
+    );
+    const activeCards = buildAiDigestPostCandidateCards(
+      Array.from({ length: 60 }, (_, index) => {
+        const candidate = makeCandidateCard(index + 1);
+        return {
+          ...candidate,
+          publicationDate: makePostReference(index + 1).postedAt,
+        };
+      }),
+    );
+    const activePrompt = buildAiDigestPostSelectionPrompt(
+      activeReaderContext.dossier,
+      activeCards,
+      [],
+      null,
+      NOW,
+    );
+    const compactCandidatePayload = promptSection(
+      activePrompt.prompt,
+      "<UNTRUSTED_CANDIDATE_CORPUS>",
+      "</UNTRUSTED_CANDIDATE_CORPUS>",
+    );
+    const legacyPayload = legacyCandidatePayload(activeCards);
+    const totalCharacterCount = activePrompt.system.length + activePrompt.prompt.length;
+    const conservativeTokenEstimate = Math.ceil(totalCharacterCount / 3);
+
+    expect(activeReaderContext.dossier.recentInteractions.posts).toHaveLength(20);
+    expect(compactCandidatePayload.length).toBeLessThan(legacyPayload.length * 0.6);
+    expect(totalCharacterCount).toBeLessThan(24_000);
+    expect(conservativeTokenEstimate).toBeLessThan(8_000);
+  });
+});
+
+describe("AI digest selection cost tracking", () => {
+  it("sums gateway costs across tool-loop steps", () => {
+    expect(sumAiDigestSelectionCostUsd([
+      { gateway: { cost: "0.00849" } },
+      { gateway: { cost: "0.00151" } },
+    ])).toBeCloseTo(0.01);
+  });
+
+  it("ignores missing or malformed step costs", () => {
+    expect(sumAiDigestSelectionCostUsd([
+      undefined,
+      { gateway: { generationId: "generation-1" } },
+      { gateway: { cost: "not-a-number" } },
+      { gateway: { cost: "0.0025" } },
+    ])).toBe(0.0025);
+    expect(sumAiDigestSelectionCostUsd([
+      undefined,
+      { gateway: { generationId: "generation-2" } },
+    ])).toBeNull();
+  });
+});
+
+describe("AI digest model-output validation and spec mapping", () => {
+  const candidates = [1, 2, 3, 4, 5, 6].map((index) => ({
+    ...makeCandidateCard(index),
+    isRead: false,
+    upvoteStrength: null,
+    previousDigestInclusionCount: 0,
+    lastIncludedAt: null,
+    exclusionReason: null,
+  }));
+
+  it("decodes stray unicode escape sequences left in model copy", () => {
+    const output = makeValidOutput();
+    output.subject = "The Halo Defense \\u2014 and more";
+    output.preheader = "Community dynamics \\u2019 explored";
+    output.aiNote = ["First \\u2014 paragraph", "No escapes here"];
+    output.selectedItems[0].reason = "Because you liked \\u201CPrediction\\u201D.";
+    const sanitized = sanitizeAiDigestPostSelectionOutput(output);
+    expect(sanitized.subject).toBe("The Halo Defense — and more");
+    expect(sanitized.preheader).toBe("Community dynamics ’ explored");
+    expect(sanitized.aiNote).toEqual(["First — paragraph", "No escapes here"]);
+    expect(sanitized.selectedItems[0].reason).toBe("Because you liked “Prediction”.");
+    expect(sanitized.selectedItems[1]).toEqual(output.selectedItems[1]);
+  });
+
+  it("rejects duplicate and unknown post IDs", () => {
+    const duplicateOutput = makeValidOutput();
+    duplicateOutput.selectedItems[4] = duplicateOutput.selectedItems[0];
+    expect(() => validateAiDigestPostSelectionOutput(
+      duplicateOutput,
+      candidates,
+    )).toThrow("distinct");
+
+    const unknownOutput = makeValidOutput();
+    unknownOutput.selectedItems[4] = {
+      itemId: "post-999",
+      reason: "Grounded reason 5",
+    };
+    expect(() => validateAiDigestPostSelectionOutput(
+      unknownOutput,
+      candidates,
+    )).toThrow("unknown item ID");
+  });
+
+  it("accepts registry-discovered post IDs without summaries", () => {
+    const discovered: AiDigestSelectedPostCandidate = {
+      ...makeCandidate(99),
+      retrievalProvenance: {
+        source: "selectionToolSearch",
+        maxAgeDays: null,
+        minKarma: 20,
+      },
+      isRead: false,
+      upvoteStrength: null,
+      previousDigestInclusionCount: 0,
+      lastIncludedAt: null,
+      exclusionReason: null,
+    };
+    const output = makeValidOutput();
+    output.selectedItems[4] = {
+      itemId: discovered.postId,
+      reason: "An older related post from search.",
+    };
+    expect(validateAiDigestPostSelectionOutput(
+      output,
+      [...candidates, discovered],
+    )).toBe(output);
+  });
+
+  it("still rejects unknown IDs when a registry is present", () => {
+    const discovered: AiDigestSelectedPostCandidate = {
+      ...makeCandidate(99),
+      retrievalProvenance: {
+        source: "selectionToolSearch",
+        maxAgeDays: null,
+        minKarma: 20,
+      },
+      exclusionReason: null,
+    };
+    const output = makeValidOutput();
+    output.selectedItems[4] = {
+      itemId: "post-missing",
+      reason: "Grounded reason 5",
+    };
+    expect(() => validateAiDigestPostSelectionOutput(
+      output,
+      [...candidates, discovered],
+    )).toThrow("unknown item ID");
+  });
+
+  it("dedupes discovered candidates against the main corpus", () => {
+    const registry = createAiDigestDiscoveredCandidateRegistry();
+    const corpusPostIds = new Set(candidates.map((candidate) => candidate.postId));
+    const corpusDuplicate = {
+      ...makeCandidate(1),
+      retrievalProvenance: {
+        source: "selectionToolSearch" as const,
+        maxAgeDays: null,
+        minKarma: 20,
+      },
+      exclusionReason: null,
+    };
+    const novel = {
+      ...makeCandidate(99),
+      retrievalProvenance: {
+        source: "selectionToolSearch" as const,
+        maxAgeDays: null,
+        minKarma: 20,
+      },
+      exclusionReason: null,
+    };
+    const registered = registerDiscoveredCandidates(
+      registry,
+      [corpusDuplicate, novel, novel],
+      corpusPostIds,
+    );
+    expect(registered.map((candidate) => candidate.postId)).toEqual(["post-99"]);
+    expect(Array.from(registry.byPostId.keys())).toEqual(["post-99"]);
+  });
+
+  it("rejects recipient-excluded candidates", () => {
+    const excludedCandidates: AiDigestPostCandidateCard[] = candidates.map((candidate) =>
+      candidate.postId === "post-5"
+        ? { ...candidate, exclusionReason: "activeSeeLess" }
+        : candidate);
+    expect(isSelectableAiDigestCandidate(excludedCandidates[4])).toBe(false);
+    expect(() => validateAiDigestPostSelectionOutput(
+      makeValidOutput(),
+      excludedCandidates,
+    )).toThrow("ineligible item ID: post-5");
+  });
+
+  it("rejects a pick that was already recommended in an earlier issue", () => {
+    const repeatedCandidates: AiDigestPostCandidateCard[] = candidates.map((candidate) =>
+      candidate.postId === "post-3"
+        ? {
+          ...candidate,
+          previousDigestInclusionCount: 1,
+          lastIncludedAt: "2026-07-15T12:00:00.000Z",
+          exclusionReason: "previouslyIncluded" as const,
+        }
+        : candidate);
+    expect(() => validateAiDigestPostSelectionOutput(
+      makeValidOutput(),
+      repeatedCandidates,
+    )).toThrow("ineligible item ID: post-3");
+  });
+
+  it("rejects length overruns without constraining recommendation wording", () => {
+    const longOutput = makeValidOutput();
+    longOutput.subject = "x".repeat(AI_DIGEST_SELECTION_LENGTH_LIMITS.subject + 1);
+    expect(() => validateAiDigestPostSelectionOutput(
+      longOutput,
+      candidates,
+    )).toThrow("Subject");
+
+    const longAiNoteOutput = makeValidOutput();
+    longAiNoteOutput.aiNote[0] = "x".repeat(
+      AI_DIGEST_SELECTION_LENGTH_LIMITS.aiNoteParagraph + 1,
+    );
+    expect(() => validateAiDigestPostSelectionOutput(
+      longAiNoteOutput,
+      candidates,
+    )).toThrow("AI note paragraph 1");
+
+    const tooManyParagraphsOutput = makeValidOutput();
+    tooManyParagraphsOutput.aiNote = ["One", "Two", "Three", "Four"];
+    expect(() => validateAiDigestPostSelectionOutput(
+      tooManyParagraphsOutput,
+      candidates,
+    )).toThrow("one to three paragraphs");
+
+    const unconstrainedOutput = makeValidOutput();
+    unconstrainedOutput.selectedItems[0].reason = "You upvoted a related post.";
+    expect(validateAiDigestPostSelectionOutput(
+      unconstrainedOutput,
+      candidates,
+    )).toBe(unconstrainedOutput);
+  });
+
+  it("persists an ordered issue only after deterministic validation", async () => {
+    const generatedAt = new Date("2026-07-17T13:00:00.000Z");
+    const persistIssue = jest.fn(async () => "issue-new");
+    const finalized = await finalizeAiDigestPostSelection({
+      recipientId: "reader-1",
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      selectionModelId: "selection-model",
+      promptVersion: "selection-v2",
+      selectionSystemPrompt: "System prompt",
+      selectionUserPrompt: "User prompt",
+      tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
+      generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
+      trigger: "userPreview",
+      countsTowardHistory: false,
+      personalInstructions: "More decision theory, please.",
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      dependencies: { persistIssue },
+    });
+    expect(finalized.issueId).toBe("issue-new");
+    expect(finalized.spec.personalInstructions).toBe("More decision theory, please.");
+    expect(persistIssue).toHaveBeenCalledWith({
+      recipientId: "reader-1",
+      postIds: ["post-1", "post-2", "post-3", "post-4", "post-5"],
+      quickTakeIds: [],
+      discussionCommentIds: [],
+      generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
+      trigger: "userPreview",
+      countsTowardHistory: false,
+      personalInstructions: "More decision theory, please.",
+      selectionModelId: "selection-model",
+      promptVersion: "selection-v2",
+      selectionSystemPrompt: "System prompt",
+      selectionUserPrompt: "User prompt",
+      ...TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
+      toolCallCount: null,
+      searchCount: null,
+      readPostCount: null,
+      threadPromptVersion: null,
+      threadSelectionUserPrompt: null,
+      threadInputTokenCount: null,
+      threadOutputTokenCount: null,
+      threadCacheReadInputTokenCount: null,
+      threadSelectionCostUsd: null,
+      spec: finalized.spec,
+    });
+
+    persistIssue.mockClear();
+    const invalidOutput = makeValidOutput();
+    invalidOutput.selectedItems[4] = invalidOutput.selectedItems[0];
+    await expect(finalizeAiDigestPostSelection({
+      recipientId: "reader-1",
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      selectionModelId: "selection-model",
+      promptVersion: "selection-v2",
+      selectionSystemPrompt: "System prompt",
+      selectionUserPrompt: "User prompt",
+      tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
+      generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
+      trigger: "userPreview",
+      countsTowardHistory: false,
+      personalInstructions: "More decision theory, please.",
+      output: invalidOutput,
+      postCandidates: candidates,
+      dependencies: { persistIssue },
+    })).rejects.toThrow("distinct");
+    expect(persistIssue).not.toHaveBeenCalled();
+  });
+
+  it("skips persistence in preview mode and returns a null issueId", async () => {
+    const generatedAt = new Date("2026-07-17T13:00:00.000Z");
+    const finalized = await finalizeAiDigestPostSelection({
+      recipientId: "reader-1",
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      selectionModelId: "selection-model",
+      promptVersion: "selection-v2",
+      selectionSystemPrompt: "System prompt",
+      selectionUserPrompt: "User prompt",
+      tokenUsage: TEST_TOKEN_USAGE,
+      selectionCostUsd: TEST_SELECTION_COST_USD,
+      generatedAt,
+      generationDurationMs: TEST_GENERATION_DURATION_MS,
+      trigger: "adminSample",
+      countsTowardHistory: true,
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      dependencies: {},
+    });
+    expect(finalized.issueId).toBeNull();
+    expect(finalized.selectedCandidates.map((item) =>
+      item.documentType === "post" ? item.candidate.postId : item.candidate.commentId
+    )).toEqual([
+      "post-1",
+      "post-2",
+      "post-3",
+      "post-4",
+      "post-5",
+    ]);
+    expect(finalized.spec.subject).toBe("Candidate 1 — plus four more");
+  });
+
+  it("maps positions to placements without appending fixture sections", () => {
+    const output = makeValidOutput();
+    validateAiDigestPostSelectionOutput(output, candidates);
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output,
+      postCandidates: candidates,
+    });
+    expect(spec.aiNote).toEqual({
+      modelName: "Test Model",
+      paragraphs: output.aiNote,
+    });
+    expect(spec.personalInstructions).toBeUndefined();
+    const recommendations = spec.sections.find(
+      (section) => section.kind === "recommendations",
+    );
+    expect(recommendations?.items).toHaveLength(5);
+    expect(recommendations?.items.map((item) => item.placement)).toEqual([
+      "headline",
+      "headline",
+      "compact",
+      "compact",
+      "compact",
+    ]);
+    expect(spec.sections.map((section) => section.kind)).toEqual(["recommendations"]);
+  });
+
+  it("attaches cleaned previews to the posts that have one", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      previewHtmlByPostId: new Map([["post-1", "<p>The opening of the post.</p>"]]),
+    });
+    const recommendations = spec.sections.find(
+      (section) => section.kind === "recommendations",
+    );
+    expect(recommendations?.items.map((item) => item.previewHtml)).toEqual([
+      "<p>The opening of the post.</p>",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]);
+  });
+
+  it("lists recently curated posts as quiet items, deduped against selections", () => {
+    const output = makeValidOutput();
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output,
+      postCandidates: candidates,
+      curatedPosts: [
+        { postId: "curated-1", isRead: true },
+        { postId: "post-1", isRead: false },
+        { postId: "curated-2", isRead: false },
+      ],
+    });
+    const curated = spec.sections.find((section) => section.kind === "curated");
+    expect(curated?.title).toBe("Recently curated");
+    expect(curated?.items).toEqual([
+      {
+        documentRef: { documentType: "post", documentId: "curated-2" },
+        placement: "quiet",
+        isRead: false,
+      },
+      {
+        documentRef: { documentType: "post", documentId: "curated-1" },
+        placement: "quiet",
+        isRead: true,
+      },
+    ]);
+  });
+
+  it("fills the curated module with read posts when there are too few unread ones", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      curatedPosts: [
+        { postId: "curated-1", isRead: true },
+        { postId: "curated-2", isRead: true },
+        { postId: "curated-3", isRead: false },
+        { postId: "curated-4", isRead: true },
+      ],
+    });
+    const curated = spec.sections.find((section) => section.kind === "curated");
+    expect(curated?.items).toEqual([
+      {
+        documentRef: { documentType: "post", documentId: "curated-3" },
+        placement: "quiet",
+        isRead: false,
+      },
+      {
+        documentRef: { documentType: "post", documentId: "curated-1" },
+        placement: "quiet",
+        isRead: true,
+      },
+      {
+        documentRef: { documentType: "post", documentId: "curated-2" },
+        placement: "quiet",
+        isRead: true,
+      },
+    ]);
+  });
+
+  it("caps the curated module at the three most recent unread curated posts", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      curatedPosts: [
+        { postId: "curated-1", isRead: false },
+        { postId: "curated-2", isRead: true },
+        { postId: "curated-3", isRead: false },
+        { postId: "curated-4", isRead: false },
+        { postId: "curated-5", isRead: false },
+      ],
+    });
+    const curated = spec.sections.find((section) => section.kind === "curated");
+    expect(curated?.items.map((item) => item.documentRef.documentId)).toEqual([
+      "curated-1",
+      "curated-3",
+      "curated-4",
+    ]);
+    expect(curated?.items.every((item) => !item.isRead)).toBe(true);
+  });
+
+  it("falls back to the three most recently curated posts when all are read", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      curatedPosts: [
+        { postId: "curated-1", isRead: true },
+        { postId: "curated-2", isRead: true },
+        { postId: "curated-3", isRead: true },
+        { postId: "curated-4", isRead: true },
+      ],
+    });
+    const curated = spec.sections.find((section) => section.kind === "curated");
+    expect(curated?.items).toEqual([
+      {
+        documentRef: { documentType: "post", documentId: "curated-1" },
+        placement: "quiet",
+        isRead: true,
+      },
+      {
+        documentRef: { documentType: "post", documentId: "curated-2" },
+        placement: "quiet",
+        isRead: true,
+      },
+      {
+        documentRef: { documentType: "post", documentId: "curated-3" },
+        placement: "quiet",
+        isRead: true,
+      },
+    ]);
+  });
+
+  it("omits the curated section when nothing was recently curated", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: makeValidOutput(),
+      postCandidates: candidates,
+      curatedPosts: [],
+    });
+    expect(spec.sections.some((section) => section.kind === "curated")).toBe(false);
+  });
+
+  it("accepts a mixed slate with quick takes only in slots 3-5", () => {
+    const quickTakes = [1, 2].map(makeQuickTakeCandidate);
+    const mixedOutput = makeValidOutput();
+    mixedOutput.selectedItems[2] = {
+      itemId: "quick-take-1",
+      reason: "Because you follow Quick author 1",
+    };
+    mixedOutput.selectedItems[4] = {
+      itemId: "quick-take-2",
+      reason: "One of the most appreciated quick takes this week",
+    };
+    expect(validateAiDigestPostSelectionOutput(
+      mixedOutput,
+      candidates,
+      quickTakes,
+    )).toBe(mixedOutput);
+    const spec = buildAiDigestSpecFromPostSelection({
+      recipientName: "Developer",
+      modelLabel: "Test Model",
+      personalInstructions: null,
+      output: mixedOutput,
+      postCandidates: candidates,
+      quickTakeCandidates: quickTakes,
+    });
+    const recommendations = spec.sections.find(
+      (section) => section.kind === "recommendations",
+    );
+    expect(recommendations?.items.map((item) => item.documentRef.documentType)).toEqual([
+      "post",
+      "post",
+      "quickTake",
+      "post",
+      "quickTake",
+    ]);
+    expect(recommendations?.items[2]).toMatchObject({
+      documentRef: { documentType: "quickTake", documentId: "quick-take-1" },
+      placement: "full",
+    });
+  });
+
+  it("rejects quick takes in headline slots, too many quick takes, and unknown comment ids", () => {
+    const quickTakes = [1, 2, 3].map(makeQuickTakeCandidate);
+    const headlineQuickTake = makeValidOutput();
+    headlineQuickTake.selectedItems[0] = {
+      itemId: "quick-take-1",
+      reason: "Because you follow Quick author 1",
+    };
+    expect(() => validateAiDigestPostSelectionOutput(
+      headlineQuickTake,
+      candidates,
+      quickTakes,
+    )).toThrow("slots 1 and 2 must be posts");
+
+    const tooManyQuickTakes = makeValidOutput();
+    tooManyQuickTakes.selectedItems[2] = { itemId: "quick-take-1", reason: "Reason 3" };
+    tooManyQuickTakes.selectedItems[3] = { itemId: "quick-take-2", reason: "Reason 4" };
+    tooManyQuickTakes.selectedItems[4] = { itemId: "quick-take-3", reason: "Reason 5" };
+    expect(() => validateAiDigestPostSelectionOutput(
+      tooManyQuickTakes,
+      candidates,
+      quickTakes,
+    )).toThrow("at most 2 quick takes");
+
+    const unknownQuickTake = makeValidOutput();
+    unknownQuickTake.selectedItems[4] = {
+      itemId: "quick-take-missing",
+      reason: "Grounded reason 5",
+    };
+    expect(() => validateAiDigestPostSelectionOutput(
+      unknownQuickTake,
+      candidates,
+      quickTakes,
+    )).toThrow("unknown item ID");
+  });
+
+  it("counts quickTakeIds for repeat-avoidance and reply outcomes after recommendation", () => {
+    const recommendedAt = new Date("2026-07-10T12:00:00.000Z");
+    const issues = [
+      makeIssue(1, recommendedAt, ["post-1"], true, ["quick-take-1"]),
+    ];
+    const history = buildAiDigestHistory(issues, [], [], [{
+      commentId: "quick-take-1",
+      author: "Quick author 1",
+      publicationDate: new Date("2026-07-01T12:00:00.000Z"),
+      revisionHtml: "<p>A short quick take about decision theory.</p>",
+      positivePreferenceStrength: "regular",
+      positivePreferenceAt: new Date("2026-07-11T12:00:00.000Z"),
+      repliedAt: new Date("2026-07-12T12:00:00.000Z"),
+    } satisfies AiDigestQuickTakeInteractionRow]);
+    expect(history.postHistoryById.get("quick-take-1")).toEqual({
+      previousDigestInclusionCount: 1,
+      lastIncludedAt: recommendedAt.toISOString(),
+    });
+    expect(history.pastRecommendations).toEqual([
+      expect.objectContaining({
+        documentType: "quickTake",
+        documentId: "quick-take-1",
+        subsequentlyReplied: true,
+        upvoteStrength: "regular",
+        upvotedAt: "2026-07-11T12:00:00.000Z",
+      }),
+    ]);
+
+    const tooEarly = buildAiDigestHistory(issues, [], [], [{
+      commentId: "quick-take-1",
+      author: "Quick author 1",
+      publicationDate: new Date("2026-07-01T12:00:00.000Z"),
+      revisionHtml: "<p>A short quick take about decision theory.</p>",
+      positivePreferenceStrength: "regular",
+      positivePreferenceAt: new Date("2026-07-09T12:00:00.000Z"),
+      repliedAt: new Date("2026-07-09T12:00:00.000Z"),
+    }]);
+    expect(tooEarly.pastRecommendations[0]).toMatchObject({
+      subsequentlyReplied: false,
+      upvoteStrength: null,
+      upvotedAt: null,
+    });
+  });
+
+  it("serializes quick takes in the shared corpus and past-recommendation rows", () => {
+    const readerContext = buildAiDigestReaderContext(
+      { createdAt: new Date("2026-01-01T00:00:00.000Z") },
+      makeReaderData(),
+      NOW,
+    );
+    const cards = buildAiDigestPostCandidateCards([makeCandidateCard(1)]);
+    const quickTakes = [makeQuickTakeCandidate(1)];
+    const prompt = buildAiDigestPostSelectionPrompt(
+      readerContext.dossier,
+      cards,
+      [{
+        documentType: "quickTake",
+        documentId: "quick-take-1",
+        bodySnippet: "A short quick take about decision theory.",
+        author: "Quick author 1",
+        publicationDate: "2026-07-01T12:00:00.000Z",
+        recommendedAt: "2026-07-10T12:00:00.000Z",
+        subsequentlyReplied: true,
+        upvoteStrength: null,
+        upvotedAt: null,
+        clickedAt: null,
+      }],
+      null,
+      NOW,
+      quickTakes,
+    );
+    expect(prompt.promptVersion).toBe("ai-digest-post-selection-v15");
+    expect(prompt.sharedPrefix).toContain("<UNTRUSTED_QUICK_TAKE_CORPUS>");
+    expect(prompt.sharedPrefix).toContain('"commentId"');
+    expect(prompt.sharedPrefix).toContain("quick-take-1");
+    expect(prompt.prompt).toContain('"quickTake"');
+    expect(prompt.prompt).toContain("repliedAfterRecommendation");
+    expect(prompt.system).toContain("At most two of the five items may be quick takes");
+  });
+});
