@@ -1,7 +1,16 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
+import {
+  $createRangeSelection,
+  $getRoot,
+  $isElementNode,
+  $isTextNode,
+  $nodesOfType,
+  $setSelection,
+  type LexicalNode,
+} from "lexical";
+import { $isTableNode } from "@lexical/table";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
@@ -36,8 +45,21 @@ export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestio
   if (!parent) return false;
   const indexInParent = blockNode.getIndexWithinParent();
   const selection = $createRangeSelection();
-  selection.anchor.set(parent.getKey(), indexInParent, "element");
-  selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+  const firstDescendant = $isElementNode(blockNode) ? blockNode.getFirstDescendant() : null;
+  const lastDescendant = $isElementNode(blockNode) ? blockNode.getLastDescendant() : null;
+  if (
+    !$isTableNode(blockNode)
+    && firstDescendant
+    && lastDescendant
+    && $isTextNode(firstDescendant)
+    && $isTextNode(lastDescendant)
+  ) {
+    selection.anchor.set(firstDescendant.getKey(), 0, "text");
+    selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
+  } else {
+    selection.anchor.set(parent.getKey(), indexInParent, "element");
+    selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+  }
   $setSelection(selection);
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
   return $nodesOfType(ProtonNode).some((node) => node.getSuggestionIdOrThrow() === suggestionId);
