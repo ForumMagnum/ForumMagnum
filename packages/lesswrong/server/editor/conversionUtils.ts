@@ -18,6 +18,12 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+// Preload all HTML entity tables. Without this, parsing content that contains
+// a less-common entity makes MathJax try to lazy-load the entity table via
+// mathjax.asyncLoad, which isn't configured here; the parse fails ("Can't find
+// handler for document", leaving math unrendered) and the load rejection is
+// unhandled.
+import 'mathjax-full/js/util/entities/all.js';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
 import {
