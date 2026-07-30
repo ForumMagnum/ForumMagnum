@@ -5,7 +5,7 @@ import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from 
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isE2E, isServer } from '../lib/executionEnvironment';
 
-const hasDatadog = isEAForum && !isE2E;
+const hasDatadog = false;
 
 let datadogInitialized = false;
 
