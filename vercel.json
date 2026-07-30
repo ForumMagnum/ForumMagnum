@@ -39,6 +39,12 @@
     "path": "/api/cron/update-review-vote-totals",
     "schedule": "0 2 * * *"
   }, {
+    "path": "/api/cron/update-score-inactive-documents",
+    "schedule": "0 3 * * *"
+  }, {
+    "path": "/api/cron/prune-perf-metrics",
+    "schedule": "0 4 * * *"
+  }, {
     "path": "/api/cron/curation-status-to-slack",
     "schedule": "0 19 * * *"
   }]

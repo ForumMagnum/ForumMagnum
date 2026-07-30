@@ -347,6 +347,9 @@ export const routeTrie = {
             "every-ten-minutes": {
               "hasRoute": true
             },
+            "prune-perf-metrics": {
+              "hasRoute": true
+            },
             "run-twitter-bot": {
               "hasRoute": true
             },
@@ -362,6 +365,9 @@ export const routeTrie = {
             "update-review-vote-totals": {
               "hasRoute": true
             },
+            "update-score-inactive-documents": {
+              "hasRoute": true
+            },
             "update-user-activities": {
               "hasRoute": true
             }
@@ -373,11 +379,13 @@ export const routeTrie = {
             "every-midnight": "every-midnight",
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
+            "prune-perf-metrics": "prune-perf-metrics",
             "run-twitter-bot": "run-twitter-bot",
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
             "update-review-vote-totals": "update-review-vote-totals",
+            "update-score-inactive-documents": "update-score-inactive-documents",
             "update-user-activities": "update-user-activities"
           }
         },

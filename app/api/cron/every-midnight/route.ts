@@ -1,11 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
-import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
 import PostRecommendationsRepo from '@/server/repos/PostRecommendationsRepo';
 import { expiredRateLimitsReturnToReviewQueue } from '@/server/users/cron';
-import { updateScoreInactiveDocuments } from '@/server/votingCron';
-import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { isEAForum } from '@/lib/instanceSettings';
 import { maybeCreateSeasonalOpenThread } from '@/server/posts/seasonalOpenThreadCron';
 
 export async function GET(request: NextRequest) {
@@ -21,17 +19,10 @@ export async function GET(request: NextRequest) {
 
   await expiredRateLimitsReturnToReviewQueue();
 
-  await updateScoreInactiveDocuments();
-
   const openThreadResult = await maybeCreateSeasonalOpenThread();
   if (openThreadResult.status !== "not_due" && openThreadResult.status !== "not_lesswrong") {
     // eslint-disable-next-line no-console
     console.log("// Seasonal open thread:", openThreadResult);
-  }
-
-  // This one's probably the longest-running, so do it last
-  if (performanceMetricLoggingEnabled.get()) {
-    await pruneOldPerfMetrics();
   }
 
   // Maintain analytics views (EA Forum only)
