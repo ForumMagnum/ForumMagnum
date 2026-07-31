@@ -215,13 +215,6 @@ export interface TranscriptTurn {
   seq: number;
   role: 'user' | 'assistant' | 'thinking' | 'tool_use' | 'tool_result' | 'error';
   text: string;
-  /**
-   * ISO-8601, present only with `withTimestamps`. This is the event's
-   * persistence time (`createdAt`), not utterance time: it lags by the
-   * supervisor's persistence-queue latency (normally seconds, but unbounded
-   * across a backend outage), and a branched conversation's backfilled prefix
-   * is stamped at branch time.
-   */
   createdAt?: string;
 }
 

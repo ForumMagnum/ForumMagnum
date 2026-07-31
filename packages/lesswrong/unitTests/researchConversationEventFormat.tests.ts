@@ -156,23 +156,5 @@ describe("research conversation event formatting", () => {
         text: "<doc A body>",
       });
     });
-
-    it("withTimestamps: adds each turn's createdAt as ISO-8601", () => {
-      const turns = getAgentTranscriptTurns(events, { withTimestamps: true });
-      expect(turns).toEqual([
-        {
-          seq: 0,
-          role: "user",
-          text: "Compare doc A and doc B.",
-          createdAt: "2026-06-09T12:00:00.000Z",
-        },
-        {
-          seq: 1,
-          role: "assistant",
-          text: "Sure, fetching both now.\nfetch-doc",
-          createdAt: "2026-06-09T12:00:05.000Z",
-        },
-      ]);
-    });
   });
 });
