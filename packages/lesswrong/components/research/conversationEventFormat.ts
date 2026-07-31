@@ -215,17 +215,27 @@ export interface TranscriptTurn {
   seq: number;
   role: 'user' | 'assistant' | 'thinking' | 'tool_use' | 'tool_result' | 'error';
   text: string;
+  /**
+   * ISO-8601, present only with `withTimestamps`. This is the event's
+   * persistence time (`createdAt`), not utterance time: it lags by the
+   * supervisor's persistence-queue latency (normally seconds, but unbounded
+   * across a backend outage), and a branched conversation's backfilled prefix
+   * is stamped at branch time.
+   */
+  createdAt?: string;
 }
 
 export interface TranscriptOptions {
   withThinking?: boolean;
   withToolPayloads?: boolean;
+  withTimestamps?: boolean;
 }
 
 interface TranscriptInputEvent {
   seq: number;
   kind: string;
   payload: unknown;
+  createdAt: Date;
 }
 
 export function getAgentTranscriptTurns(
@@ -250,11 +260,15 @@ export function getAgentTranscriptTurns(
     }
     if (filtered.length === 0) continue;
 
-    turns.push({
+    const turn: TranscriptTurn = {
       seq: event.seq,
       role: normalizeTranscriptRole(event.kind),
       text: filtered.map((c) => c.text).join('\n'),
-    });
+    };
+    if (options.withTimestamps) {
+      turn.createdAt = event.createdAt.toISOString();
+    }
+    turns.push(turn);
   }
   return turns;
 }

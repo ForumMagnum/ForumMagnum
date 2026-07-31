@@ -73,7 +73,7 @@ user has left comments addressing you (or your earlier suggestions),
 read them here and respond with `reply-comment` and/or follow-up edits.
 
 ```
-research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]
 ```
 Returns a clean turn-by-turn transcript of a sibling conversation in the
 same project (bearer authorizes within-project access only):
@@ -87,7 +87,12 @@ same project (bearer authorizes within-project access only):
 ```
 `role` is one of `user | assistant | thinking | tool_use | tool_result | error`.
 Pass `--with-thinking` to include the assistant's internal reasoning, and
-`--with-tool-payloads` to include full tool args / results.
+`--with-tool-payloads` to include full tool args / results. Pass
+`--with-timestamps` to add a `createdAt` ISO-8601 field to each turn — this
+is when the turn was persisted server-side (usually within seconds of when
+it was said), so treat it as approximate; in a conversation branched from
+another, the inherited prefix is stamped at branch time rather than when
+originally said.
 
 ### Creating documents
 
