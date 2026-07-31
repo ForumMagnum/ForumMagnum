@@ -31,6 +31,7 @@ export async function GET(
   const options: TranscriptOptions = {
     withThinking: parseBoolFlag(url.searchParams.get("withThinking")),
     withToolPayloads: parseBoolFlag(url.searchParams.get("withToolPayloads")),
+    withTimestamps: parseBoolFlag(url.searchParams.get("withTimestamps")),
   };
 
   try {

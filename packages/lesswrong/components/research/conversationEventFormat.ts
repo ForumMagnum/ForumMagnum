@@ -215,17 +215,20 @@ export interface TranscriptTurn {
   seq: number;
   role: 'user' | 'assistant' | 'thinking' | 'tool_use' | 'tool_result' | 'error';
   text: string;
+  createdAt?: string;
 }
 
 export interface TranscriptOptions {
   withThinking?: boolean;
   withToolPayloads?: boolean;
+  withTimestamps?: boolean;
 }
 
 interface TranscriptInputEvent {
   seq: number;
   kind: string;
   payload: unknown;
+  createdAt: Date;
 }
 
 export function getAgentTranscriptTurns(
@@ -250,11 +253,15 @@ export function getAgentTranscriptTurns(
     }
     if (filtered.length === 0) continue;
 
-    turns.push({
+    const turn: TranscriptTurn = {
       seq: event.seq,
       role: normalizeTranscriptRole(event.kind),
       text: filtered.map((c) => c.text).join('\n'),
-    });
+    };
+    if (options.withTimestamps) {
+      turn.createdAt = event.createdAt.toISOString();
+    }
+    turns.push(turn);
   }
   return turns;
 }
