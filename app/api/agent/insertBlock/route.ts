@@ -156,6 +156,13 @@ function findInsertionIndexByPrefix(
   // its top-level ancestor's index, so the caller inserts before/after the
   // whole list rather than splitting the list open.
   const topLevel = matched.getTopLevelElement() ?? matched;
+  if (topLevel.getParent() !== $getRoot()) {
+    return {
+      index: null,
+      reason: "The location matched content nested inside another block. "
+        + "Insertion locations only support top-level blocks.",
+    };
+  }
   const topLevelIndex = topLevel.getIndexWithinParent();
   return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
 }
