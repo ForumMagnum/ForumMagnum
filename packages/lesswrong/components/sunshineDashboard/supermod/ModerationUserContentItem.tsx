@@ -330,7 +330,7 @@ const ModerationUserContentItem = ({
         </div>
       )}
 
-      {!item.rejected && showRerunButton && (
+      {showRerunButton && (
         <button
           className={classes.rerunButton}
           onClick={onRerunClick}
