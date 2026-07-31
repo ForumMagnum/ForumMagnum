@@ -529,7 +529,7 @@ function $enumerateBlocksByContentStart(
   const visit = (node: LexicalNode, isBlock: boolean): void => {
     if (isBlock) addBlock(node);
     if ($isElementNode(node)) {
-      const childrenAreAddressableBlocks = options.includeCollapsibleSectionBodyBlocks
+      const childrenAreAddressableBlocks = options.includeCollapsibleSectionBodyBlocks === true
         && $isCollapsibleSectionContentNode(node);
       for (const child of node.getChildren()) {
         visit(child, $isListItemNode(child) || $isRootNode(node) || childrenAreAddressableBlocks);
