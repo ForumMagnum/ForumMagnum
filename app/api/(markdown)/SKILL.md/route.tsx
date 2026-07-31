@@ -224,8 +224,10 @@ the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
     with JSON body: { postId, key, agentName?, location: "start"|"end"|{ before: string }|{ after: string }, markdown, mode?: "edit"|"suggest" }
-The location should be a markdown string that matches the start of a paragraph
-that already exists in the draft. The location can be one of the following:
+The location should be a string matching the visible rendered text at the start
+of a top-level block that already exists in the draft. Blocks nested inside a
+collapsible section or another container cannot be used as insertion locations.
+The location can be one of the following:
     "start": insert at the beginning of the post
     "end": insert at the end of the post
     "before": insert before the paragraph with the given markdown prefix
@@ -255,17 +257,17 @@ by the section title (required, non-empty), and the closing line is a bare
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
-The prefix should be a markdown string that matches the start of a top-level
+The prefix should match the visible rendered text at the start of a top-level
 block in the draft (paragraph, heading, blockquote, table, spoiler block,
-LLM content block, display equation, …) or any individual list item. The
-prefix must match exactly one block — if several blocks start with it, the
-call fails and asks for a longer prefix — and must end within that block (a
-prefix spanning two blocks never matches). Match a list item by its own
-leading text — the matcher descends into lists at any nesting depth, so
-deleting "second item" removes just that item and leaves the surrounding
-list intact. Match a table by the leading text of its first cell; tables are
-always deleted as a whole (there is no per-cell deletion). Match a display
-equation by its whole \`$$...$$\` token.
+LLM content block, display equation, …), a block directly inside a collapsible
+section body, or any individual list item. The prefix must match exactly one
+block — if several blocks start with it, the call fails and asks for a longer
+prefix — and must end within that block (a prefix spanning two blocks never
+matches). Match a list item by its own leading text — the matcher descends into
+lists at any nesting depth, so deleting "second item" removes just that item and
+leaves the surrounding list intact. Match a table by the leading text of its
+first cell; tables are always deleted as a whole (there is no per-cell
+deletion). Match a display equation by its whole \`$$...$$\` token.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
@@ -298,9 +300,9 @@ post author. You can modify text inside these blocks with replaceText, delete th
 with deleteBlock, or insert new ones with the insertLLMBlock endpoint below.
 
 When using insertBlock, deleteBlock, or the location parameter of insertLLMBlock,
-prefix and location strings are matched against each block's markdown representation
-as it appears in the editPost output. For plain paragraphs, use the paragraph text;
-for structured blocks like LLM content blocks, use the %%% delimiter line. Examples:
+prefix and location strings are matched against each block's visible rendered text.
+For plain paragraphs, use the paragraph text; for structured blocks like LLM content
+blocks, use the %%% delimiter line from the editPost output. Examples:
 
 Deleting a plain paragraph:
     { "postId": "...", "key": "...", "prefix": "After this paragraph", "mode": "edit" }

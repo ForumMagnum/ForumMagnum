@@ -2,6 +2,7 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
+import { $isListNode } from "@lexical/list";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
@@ -68,7 +69,9 @@ export async function deleteMarkdownBlock({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const blockResult = $locateBlockByPrefix(prefix);
+          const blockResult = $locateBlockByPrefix(prefix, {
+            includeCollapsibleSectionBodyBlocks: true,
+          });
           const nodeToDelete = blockResult.node;
 
           if (!nodeToDelete) {
@@ -94,7 +97,7 @@ export async function deleteMarkdownBlock({
             // If we just removed the last list item from a list, drop the
             // (now-empty) list too — leaving an empty list behind looks like
             // a rendering glitch in the editor.
-            if (parent !== root && parent.getChildrenSize() === 0) {
+            if (parent !== root && $isListNode(parent) && parent.getChildrenSize() === 0) {
               parent.remove();
             }
             result = {

@@ -1,5 +1,6 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
 import {
@@ -496,16 +497,28 @@ interface BlockCandidate {
   spanEnd: number
 }
 
+export interface LocateBlockByPrefixOptions {
+  /**
+   * Include direct children of collapsible-section bodies. This is safe for
+   * deletion, which operates within the matched node's own parent, but not for
+   * insertion, which currently only inserts at the document root.
+   */
+  includeCollapsibleSectionBodyBlocks?: boolean
+}
+
 /**
  * Enumerate the prefix-addressable blocks — top-level children plus list
- * items at any nesting depth — keyed by the raw projection offset of each
- * block's first content character (its span start plus any leading
- * whitespace, which normalization skips). When an outer block's first
- * content coincides with a nested item's (an item that opens with a
- * sub-list), the innermost block wins, matching deleteBlock's most-specific
- * targeting.
+ * items at any nesting depth, and optionally blocks directly inside
+ * collapsible-section bodies — keyed by the raw projection offset of each
+ * block's first content character (its span start plus any leading whitespace,
+ * which normalization skips). When an outer block's first content coincides
+ * with a nested item's (an item that opens with a sub-list), the innermost
+ * block wins, matching deleteBlock's most-specific targeting.
  */
-function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<number, BlockCandidate> {
+function $enumerateBlocksByContentStart(
+  projection: DocumentProjection,
+  options: LocateBlockByPrefixOptions,
+): Map<number, BlockCandidate> {
   const blocks = new Map<number, BlockCandidate>();
   const addBlock = (node: LexicalNode): void => {
     const span = projection.spans.get(node.getKey());
@@ -516,8 +529,10 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
   const visit = (node: LexicalNode, isBlock: boolean): void => {
     if (isBlock) addBlock(node);
     if ($isElementNode(node)) {
+      const childrenAreAddressableBlocks = options.includeCollapsibleSectionBodyBlocks
+        && $isCollapsibleSectionContentNode(node);
       for (const child of node.getChildren()) {
-        visit(child, $isListItemNode(child) || $isRootNode(node));
+        visit(child, $isListItemNode(child) || $isRootNode(node) || childrenAreAddressableBlocks);
       }
     }
   };
@@ -535,7 +550,10 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  *
  * Must be called inside a Lexical read/update context.
  */
-export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
+export function $locateBlockByPrefix(
+  prefix: string,
+  options: LocateBlockByPrefixOptions = {},
+): BlockPrefixResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {
@@ -547,7 +565,7 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   // next block would otherwise silently operate on just this one. Keying by
   // content start makes each occurrence a single Map probe instead of a
   // point-resolution walk.
-  const blocksByContentStart = $enumerateBlocksByContentStart(projection);
+  const blocksByContentStart = $enumerateBlocksByContentStart(projection, options);
   const matchedKeys = new Set<string>();
   const matchedBlocks: LexicalNode[] = [];
   let matchIndex = normalizedDocument.text.indexOf(normalizedPrefix);

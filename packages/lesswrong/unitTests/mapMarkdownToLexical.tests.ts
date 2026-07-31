@@ -1,7 +1,9 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
+  $createParagraphNode,
   $createRangeSelection,
+  $createTextNode,
   $getRoot,
   $getSelection,
   $isRangeSelection,
@@ -22,6 +24,9 @@ import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route"
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $createCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
+import { $createCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
+import { $createCollapsibleSectionTitleNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -253,10 +258,14 @@ describe("quote selection round-trips", () => {
 
 describe("$locateBlockByPrefix", () => {
   interface MatchInfo { type: string; text: string; isListItem: boolean }
-  function findFor(editor: LexicalEditor, prefix: string): MatchInfo | null {
+  function findFor(
+    editor: LexicalEditor,
+    prefix: string,
+    includeCollapsibleSectionBodyBlocks = false,
+  ): MatchInfo | null {
     let result: MatchInfo | null = null;
     editor.getEditorState().read(() => {
-      const node = $locateBlockByPrefix(prefix).node;
+      const node = $locateBlockByPrefix(prefix, { includeCollapsibleSectionBodyBlocks }).node;
       if (node) {
         result = {
           type: node.getType(),
@@ -394,6 +403,27 @@ describe("$locateBlockByPrefix", () => {
     const matched = findFor(editor, "nested needle");
     expect(matched?.isListItem).toBe(true);
     expect(matched?.text).toBe("nested needle item");
+  });
+
+  it("optionally matches a paragraph inside a collapsible-section body", async () => {
+    const editor = createHeadlessEditor("CollapsibleBlockPrefixTest");
+    await runEditorUpdate(editor, () => {
+      const container = $createCollapsibleSectionContainerNode();
+      const title = $createCollapsibleSectionTitleNode();
+      title.append($createParagraphNode().append($createTextNode("Section title")));
+      const content = $createCollapsibleSectionContentNode();
+      content.append(
+        $createParagraphNode().append($createTextNode("Hidden paragraph to delete.")),
+      );
+      container.append(title, content);
+      $getRoot().append(container);
+    });
+
+    // Insertion remains root-only, so nested body blocks are opt-in.
+    expect(findFor(editor, "Hidden paragraph")).toBeNull();
+    const matched = findFor(editor, "Hidden paragraph", true);
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.text).toBe("Hidden paragraph to delete.");
   });
 });
 
