@@ -90,9 +90,10 @@ Pass `--with-thinking` to include the assistant's internal reasoning, and
 `--with-tool-payloads` to include full tool args / results. Pass
 `--with-timestamps` to add a `createdAt` ISO-8601 field to each turn — this
 is when the turn was persisted server-side (usually within seconds of when
-it was said), so treat it as approximate; in a conversation branched from
-another, the inherited prefix is stamped at branch time rather than when
-originally said.
+it was said), so treat it as approximate. If many consecutive turns at the
+start of a transcript share one timestamp, that conversation was copied
+from an earlier one at that moment — those turns really happened earlier,
+over a longer span.
 
 ### Creating documents
 
