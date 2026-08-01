@@ -163,14 +163,13 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
-      <div
-        className={classes.toolbar}
-        // Firefox collapses the text selection on mousedown, which removes this
-        // toolbar before the subsequent click event can fire.
-        onMouseDown={(ev) => ev.preventDefault()}
-      >
+      <div className={classes.toolbar}>
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={(ev: React.MouseEvent) => {
+          {/* Firefox collapses the text selection on mousedown, which removes
+              the toolbar before a click event can fire. */}
+          <CommentIcon onMouseDown={(ev: React.MouseEvent) => {
+            ev.preventDefault();
+            ev.stopPropagation();
             captureEvent("commentOnSelectionClicked");
             onClickComment(ev);
           }}/>
