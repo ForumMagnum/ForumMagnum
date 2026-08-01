@@ -1173,6 +1173,9 @@ export const routeTrie = {
     "quicktakes": {
       "hasPage": true
     },
+    "random": {
+      "hasPage": true
+    },
     "rationality": {
       "dynamicChild": {
         "paramName": "slug",
@@ -1488,6 +1491,7 @@ export const routeTrie = {
     "questions": "questions",
     "quickreview": "quickReview",
     "quicktakes": "quicktakes",
+    "random": "random",
     "rationality": "rationality",
     "recommendations": "recommendations",
     "research": "research",
