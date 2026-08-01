@@ -5,6 +5,7 @@ import React, { createContext, useContext, type ReactNode } from 'react';
 export interface ResearchCommentsMarginHost {
   portalContainer: HTMLElement | null;
   setOpenThreadCount: (count: number) => void;
+  compact: boolean;
 }
 
 const ResearchCommentsMarginContext = createContext<ResearchCommentsMarginHost | null>(null);

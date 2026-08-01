@@ -53,6 +53,15 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     borderColor: theme.palette.primary.main,
     boxShadow: `0 2px 10px ${researchWarmAlpha(0.08)}`,
   },
+  cardCompact: {
+    position: 'relative',
+    left: 'auto',
+    right: 'auto',
+    maxHeight: 320,
+    overflowY: 'auto',
+    paddingRight: 64,
+    boxShadow: `0 4px 18px ${researchWarmAlpha(0.16)}`,
+  },
   quote: {
     fontFamily: theme.palette.fonts.serifStack,
     fontStyle: 'italic',
@@ -109,6 +118,9 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     '$card:hover &': {
       opacity: 1,
     },
+  },
+  actionsCompact: {
+    opacity: 1,
   },
   actionButton: {
     width: 20,
@@ -319,6 +331,12 @@ export default function ResearchCommentsMargin() {
     }
     return null;
   }, [orderedThreads, activeIDs]);
+  const visibleThreads = useMemo(
+    () => host?.compact
+      ? orderedThreads.filter((thread) => thread.id === activeThreadId)
+      : orderedThreads,
+    [host?.compact, orderedThreads, activeThreadId],
+  );
 
   const cardTops = useMemo(
     () => computeCardTops(orderedThreads, anchorState.anchors, cardHeights, activeThreadId),
@@ -375,16 +393,17 @@ export default function ResearchCommentsMargin() {
     [commentStore],
   );
 
-  if (!portalContainer || orderedThreads.length === 0) return null;
+  if (!portalContainer || visibleThreads.length === 0) return null;
 
   return createPortal(
     <>
-      {orderedThreads.map((thread) => (
+      {visibleThreads.map((thread) => (
         <ThreadCard
           key={thread.id}
           thread={thread}
           top={cardTops.get(thread.id) ?? 0}
           active={thread.id === activeThreadId}
+          compact={host?.compact ?? false}
           registerCardEl={registerCardEl}
           onJumpToMark={scrollToMark}
           onResolve={resolveThread}
@@ -403,6 +422,7 @@ function ThreadCard({
   thread,
   top,
   active,
+  compact,
   registerCardEl,
   onJumpToMark,
   onResolve,
@@ -414,6 +434,7 @@ function ThreadCard({
   thread: Thread;
   top: number;
   active: boolean;
+  compact: boolean;
   registerCardEl: (threadId: string, el: HTMLElement | null) => void;
   onJumpToMark: (thread: Thread) => void;
   onResolve: (thread: Thread) => void;
@@ -448,11 +469,11 @@ function ThreadCard({
   return (
     <div
       ref={refCallback}
-      className={classNames(classes.card, active && classes.cardActive)}
-      style={{ top }}
+      className={classNames(classes.card, active && classes.cardActive, compact && classes.cardCompact)}
+      style={compact ? undefined : { top }}
       onClick={() => onJumpToMark(thread)}
     >
-      <div className={classes.actions}>
+      <div className={classNames(classes.actions, compact && classes.actionsCompact)}>
         {isSuggestion ? (
           <div onClick={(e) => e.stopPropagation()}>
             <SuggestionStatusOrActions

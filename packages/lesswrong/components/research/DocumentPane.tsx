@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation, useApolloClient } from '@apollo/client/react';
@@ -80,12 +80,14 @@ const FireDocumentConversationMutation = gql(`
 
 const COMMENTS_MARGIN_WIDTH = 300;
 const COMMENTS_MARGIN_RIGHT = 16;
+const MIN_WIDTH_FOR_COMMENTS_MARGIN = 860;
 
 const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   root: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    position: 'relative',
   },
   empty: {
     flex: 1,
@@ -119,6 +121,15 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     pointerEvents: 'none',
     zIndex: 2,
   },
+  compactCommentsMargin: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+    maxHeight: 'min(320px, calc(100% - 32px))',
+    pointerEvents: 'none',
+    zIndex: 5,
+  },
   loadingWrap: {
     flex: 1,
     display: 'flex',
@@ -130,15 +141,30 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
 const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
+  const [paneEl, setPaneEl] = useState<HTMLDivElement | null>(null);
+  const [compactCommentsMargin, setCompactCommentsMargin] = useState(false);
   const [commentsMarginEl, setCommentsMarginEl] = useState<HTMLDivElement | null>(null);
   const [openThreadCount, setOpenThreadCount] = useState(0);
   const commentsMarginHost = useMemo<ResearchCommentsMarginHost>(() => ({
     portalContainer: commentsMarginEl,
     setOpenThreadCount,
-  }), [commentsMarginEl]);
+    compact: compactCommentsMargin,
+  }), [commentsMarginEl, compactCommentsMargin]);
   const [fireConversation] = useMutation(FireDocumentConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
+
+  useEffect(() => {
+    if (!paneEl) return;
+    const updateLayout = () => {
+      const compact = paneEl.getBoundingClientRect().width < MIN_WIDTH_FOR_COMMENTS_MARGIN;
+      setCompactCommentsMargin((current) => current === compact ? current : compact);
+    };
+    updateLayout();
+    const observer = new ResizeObserver(updateLayout);
+    observer.observe(paneEl);
+    return () => observer.disconnect();
+  }, [paneEl]);
 
   const { data, loading } = useQuery(ResearchDocumentQuery, {
     variables: { documentId: documentId ?? '' },
@@ -224,10 +250,13 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
   }
 
   return (
-    <div className={classes.root}>
+    <div ref={setPaneEl} className={classes.root}>
       <ContentStyles
         contentType="researchDocument"
-        className={classNames(classes.editorWrap, openThreadCount > 0 && classes.editorWrapWithComments)}
+        className={classNames(
+          classes.editorWrap,
+          openThreadCount > 0 && !compactCommentsMargin && classes.editorWrapWithComments,
+        )}
       >
         <ResearchNavigationProvider value={researchNavigationContext}>
           <ResearchEditorProvider environment={researchEditorEnvironment}>
@@ -249,8 +278,9 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
             </PendingConversationsProvider>
           </ResearchEditorProvider>
         </ResearchNavigationProvider>
-        <div ref={setCommentsMarginEl} className={classes.commentsMargin} />
+        {!compactCommentsMargin && <div ref={setCommentsMarginEl} className={classes.commentsMargin} />}
       </ContentStyles>
+      {compactCommentsMargin && <div ref={setCommentsMarginEl} className={classes.compactCommentsMargin} />}
     </div>
   );
 };
