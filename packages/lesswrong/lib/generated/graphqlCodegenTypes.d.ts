@@ -20339,6 +20339,24 @@ type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
 
 type multiModerationTemplateGroupedTemplateListQueryQuery = multiModerationTemplateGroupedTemplateListQueryQuery_Query;
 
+type updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput = { __typename?: 'ModerationTemplateOutput', data: updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate | null };
+
+type updateModerationTemplateGroupedTemplateListMutation_Mutation = { __typename?: 'Mutation', updateModerationTemplate: updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput | null };
+
+
+type updateModerationTemplateGroupedTemplateListMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModerationTemplateDataInput;
+}>;
+
+
+type updateModerationTemplateGroupedTemplateListMutation = updateModerationTemplateGroupedTemplateListMutation_Mutation;
+
 type RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment

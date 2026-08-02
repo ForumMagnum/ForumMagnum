@@ -10,22 +10,44 @@ import DeferRender from '../common/DeferRender';
 import Row from '../common/Row';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';
+import type { DragHandleProps } from '../form-components/sortableList';
 
 const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType) => ({
   templateItem: {
     cursor: "pointer",
     padding: 2,
-    paddingLeft: 8,
+    paddingLeft: 24,
     display: "flex",
     alignItems: "center",
     gap: 2,
     justifyContent: "space-between",
+    position: "relative",
     "&:hover": {
       backgroundColor: theme.palette.greyAlpha(0.1),
     },
     '&:hover .ModerationTemplateSunshineItem-editIcon': {
       opacity: .5,
     },
+    '&:hover .ModerationTemplateSunshineItem-dragHandle': {
+      opacity: .5,
+    },
+  },
+  dragHandle: {
+    position: "absolute",
+    left: 5,
+    top: "50%",
+    transform: "translateY(-50%)",
+    display: "flex",
+    alignItems: "center",
+    opacity: 0,
+    cursor: "grab",
+    color: "inherit",
+    '&:hover': {
+      opacity: '1 !important',
+    },
+  },
+  dragHandleIcon: {
+    fontSize: 16,
   },
   templateName: {
     flex: 1,
@@ -81,10 +103,11 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, dragHandleProps}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
+  dragHandleProps?: DragHandleProps,
 }) => {
   const classes = useStyles(styles);
   const [edit, setEdit] = useState<boolean>(false);
@@ -123,6 +146,17 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
         className={classNames(classes.templateItem, { [classes.suggested]: highlighted })}
         onClick={() => onTemplateClick(template)}
       >
+        {dragHandleProps && (
+          <span
+            className={classes.dragHandle}
+            ref={dragHandleProps.ref}
+            {...dragHandleProps.attributes}
+            {...dragHandleProps.listeners}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ForumIcon icon="DragIndicator" className={classes.dragHandleIcon} />
+          </span>
+        )}
         <span className={classes.templateName}>{template.name}</span>
         <a
           className={classes.editButton}
