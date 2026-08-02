@@ -16,7 +16,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   templateItem: {
     cursor: "pointer",
     padding: 2,
-    paddingLeft: 8,
+    paddingLeft: 24,
     display: "flex",
     alignItems: "center",
     gap: 2,
@@ -34,14 +34,14 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
   dragHandle: {
     position: "absolute",
-    left: -8,
+    left: 5,
     top: "50%",
     transform: "translateY(-50%)",
     display: "flex",
     alignItems: "center",
     opacity: 0,
     cursor: "grab",
-    color: theme.palette.grey[600],
+    color: "inherit",
     '&:hover': {
       opacity: '1 !important',
     },

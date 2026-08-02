@@ -148,9 +148,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     fontSize: 12,
   },
   templateGroupExpandIcon: {
-    height: 16,
-    width: 16,
-    marginLeft: 'auto',
+    height: 14,
+    width: 14,
+    flexShrink: 0,
+    color: theme.palette.grey[600],
   },
   draggedTemplate: {
     position: 'relative',
@@ -223,9 +224,9 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   return (
     <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
       <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
+        <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
         <h3>{group}</h3>
         <span className={classes.templateGroupCount}>{templatesInGroup.length}</span>
-        <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
       </div>
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
