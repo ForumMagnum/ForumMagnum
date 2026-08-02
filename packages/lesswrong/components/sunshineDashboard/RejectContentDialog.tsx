@@ -305,8 +305,6 @@ const SortableTemplateRow = ({ contents: templateId }: { contents: string }) => 
 
 const SortableTemplateList = makeSortableListComponent({ RenderItem: SortableTemplateRow });
 
-const noop = () => {};
-
 const STORAGE_KEY_PREFIX = 'rejectionTemplateConfig_';
 
 const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displayName}: {
@@ -476,7 +474,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
 
   const handleEditorChange = useCallback((html: string) => {
     rejectedReasonRef.current = html;
-    // Same-value setState bails out, so typing costs no re-render.
+    // Same-value setState bails out, so typing doesn't re-render the list.
     setHasRejectedReason(!!html);
   }, []);
 
@@ -637,7 +635,6 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
           data={editorHtml}
           placeholder="Enter rejection reason..."
           onChange={handleEditorChange}
-          onReady={noop}
           commentEditor
         />
       </ContentStyles>
