@@ -183,10 +183,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       opacity: 0.7,
     },
   },
-  templateGroupCount: {
-    color: theme.palette.grey[600],
-    fontSize: 12,
-  },
   templateGroupExpandIcon: {
     height: 14,
     width: 14,
@@ -322,7 +318,6 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
       <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
         <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
         <h3>{group}</h3>
-        <span className={classes.templateGroupCount}>{templatesInGroup.length}</span>
       </div>
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
@@ -556,8 +551,11 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         Click to start a new message...
       </div>
     )}
+    {/* DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
+        otherwise come from a module-level counter, which drifts between the server and
+        the client and trips a hydration mismatch */}
     {templates && templates.length > 0 && (
-      <DndContext sensors={dndSensors} collisionDetection={pointerWithin} onDragEnd={handleTemplateDragEnd}>
+      <DndContext id="supermod-template-groups" sensors={dndSensors} collisionDetection={pointerWithin} onDragEnd={handleTemplateDragEnd}>
         <div className={classes.templateList}>
           <TemplateSearchBar
             searchOpen={searchOpen}
