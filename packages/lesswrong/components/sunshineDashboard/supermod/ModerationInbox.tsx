@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -19,6 +19,7 @@ import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
+import type { SidebarTab } from './sidebarTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
@@ -254,6 +255,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   );
 
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>('reject');
+
+  // The reject tab always acts on the currently-selected content, so selecting
+  // different content (or a different user) puts you back on it.
+  useEffect(() => {
+    setSidebarTab('reject');
+  }, [state.openedUserId, state.focusedContentIndex]);
+
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
     const currentUrlUser = query.user;
@@ -419,6 +428,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
+          onFocusRejectTab={() => setSidebarTab('reject')}
           dispatch={dispatch}
         />
       )}
@@ -440,6 +450,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
+              sidebarTab={sidebarTab}
+              setSidebarTab={setSidebarTab}
               dispatch={dispatch}
               state={state}
             />

@@ -19015,6 +19015,18 @@ export type multiLWEventEmailHistoryQueryQuery = { __typename?: 'Query', lWEvent
       & emailHistoryFragment
     )> } | null };
 
+export type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
+  selector?: InputMaybe<ModerationTemplateSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type multiModerationTemplateGroupedTemplateListQueryQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'ModerationTemplate' }
+      & ModerationTemplateFragment
+    )> } | null };
+
 export type RunLlmCheckForDocumentMutationVariables = Exact<{
   documentId: Scalars['String']['input'];
   collectionName: ContentCollectionName;
@@ -19398,18 +19410,6 @@ export type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
 export type multiConversationSunshineUserMessagesQueryQuery = { __typename?: 'Query', conversations: { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<(
       { __typename?: 'Conversation' }
       & ConversationsList
-    )> } | null };
-
-export type multiModerationTemplateSunshineUserMessagesQueryQueryVariables = Exact<{
-  selector?: InputMaybe<ModerationTemplateSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type multiModerationTemplateSunshineUserMessagesQueryQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'ModerationTemplate' }
-      & ModerationTemplateFragment
     )> } | null };
 
 export type multiUserRateLimitUserRateLimitItemQueryQueryVariables = Exact<{
@@ -23270,6 +23270,7 @@ export const updateUserAFSuggestUsersItemDocument = _o1(_1,[_o11(_981,_982,_o3(_
 export const multiUserAFSuggestUsersListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserAFSuggestUsersListQuery"),_1110,_o5(_7,[_o7(_8,_288,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_944)])),_792]))])),_61,_945]) as unknown as DocumentNode<multiUserAFSuggestUsersListQueryQuery, multiUserAFSuggestUsersListQueryQueryVariables>;
 export const AllReactedCommentsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"AllReactedComments"),_1229,_o5(_7,[_o7(_8,_o3(_3,"CommentsWithReacts"),_1230,_1231)])),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<AllReactedCommentsQuery, AllReactedCommentsQueryVariables>;
 export const multiLWEventEmailHistoryQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiLWEventEmailHistoryQuery"),_1209,_o5(_7,[_o7(_8,_1210,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_430)])),_792]))])),_431]) as unknown as DocumentNode<multiLWEventEmailHistoryQueryQuery, multiLWEventEmailHistoryQueryQueryVariables>;
+export const multiModerationTemplateGroupedTemplateListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateGroupedTemplateListQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateGroupedTemplateListQueryQuery, multiModerationTemplateGroupedTemplateListQueryQueryVariables>;
 export const RunLlmCheckForDocumentDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"RunLlmCheckForDocument"),_1735,_o5(_7,[_o7(_8,_o3(_3,"runLlmCheckForDocument"),_1736,_337)])),_334]) as unknown as DocumentNode<RunLlmCheckForDocumentMutation, RunLlmCheckForDocumentMutationVariables>;
 export const multiClientIdModerationAltAccountsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiClientIdModerationAltAccountsQuery"),[_o12(_983,_1049,_o4(_5,_o3(_3,"ClientIdSelector"))),_1044,_1109],_o5(_7,[_o7(_8,_o3(_3,"clientIds"),_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_284)])),_792]))])),_61,_290]) as unknown as DocumentNode<multiClientIdModerationAltAccountsQueryQuery, multiClientIdModerationAltAccountsQueryQueryVariables>;
 export const multiUserModerationAltAccountsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserModerationAltAccountsQuery"),_1110,_o5(_7,[_o7(_8,_288,_1111,_o5(_7,[_o6(_8,_1018,_1737),_792]))])),_61,_620,_661,_677,_878]) as unknown as DocumentNode<multiUserModerationAltAccountsQueryQuery, multiUserModerationAltAccountsQueryQueryVariables>;
@@ -23305,7 +23306,6 @@ export const updateCommentSunshineReportedItemDocument = _o1(_1,[_o11(_981,_982,
 export const updateReportSunshineReportedContentListDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateReportSunshineReportedContentList"),[_1131,_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"UpdateReportDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"updateReport"),_1135,_1750)])),_61,_146,_158,_184,_23,_127,_136,_192,_198,_620,_661,_677,_684]) as unknown as DocumentNode<updateReportSunshineReportedContentListMutation, updateReportSunshineReportedContentListMutationVariables>;
 export const multiModerationTemplateSunshineSendMessageWithDefaultsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateSunshineSendMessageWithDefaultsQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery, multiModerationTemplateSunshineSendMessageWithDefaultsQueryQueryVariables>;
 export const multiConversationSunshineUserMessagesQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiConversationSunshineUserMessagesQuery"),_1489,_o5(_7,[_o7(_8,_1490,_1111,_o5(_7,[_o6(_8,_1018,_1486),_792]))])),_365,_61,_370,_374]) as unknown as DocumentNode<multiConversationSunshineUserMessagesQueryQuery, multiConversationSunshineUserMessagesQueryQueryVariables>;
-export const multiModerationTemplateSunshineUserMessagesQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateSunshineUserMessagesQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateSunshineUserMessagesQueryQuery, multiModerationTemplateSunshineUserMessagesQueryQueryVariables>;
 export const multiUserRateLimitUserRateLimitItemQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserRateLimitUserRateLimitItemQuery"),[_o12(_983,_1049,_o4(_5,_o3(_3,"UserRateLimitSelector"))),_1044,_1109],_o5(_7,[_o7(_8,_675,_1111,_o5(_7,[_o6(_8,_1018,_676),_792]))])),_61,_661]) as unknown as DocumentNode<multiUserRateLimitUserRateLimitItemQueryQuery, multiUserRateLimitUserRateLimitItemQueryQueryVariables>;
 export const updateUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserRateLimitUserRateLimitItem1"),_1760,_o5(_7,[_o7(_8,_1761,_1135,_1762)])),_846]) as unknown as DocumentNode<updateUserRateLimitUserRateLimitItem1Mutation, updateUserRateLimitUserRateLimitItem1MutationVariables>;
 export const updateUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserRateLimitUserRateLimitItem"),_1760,_o5(_7,[_o7(_8,_1761,_1135,_1763)])),_61,_661]) as unknown as DocumentNode<updateUserRateLimitUserRateLimitItemMutation, updateUserRateLimitUserRateLimitItemMutationVariables>;

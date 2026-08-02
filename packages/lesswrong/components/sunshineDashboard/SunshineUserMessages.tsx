@@ -4,6 +4,7 @@ import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import classNames from 'classnames';
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 import UsersName from "../users/UsersName";
@@ -14,28 +15,21 @@ import ConversationPreview from '../messaging/ConversationPreview';
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
-import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
+import GroupedModerationTemplateList from './GroupedModerationTemplateList';
+import ModerationSectionTitle from './supermod/ModerationSectionTitle';
+import RejectContentPanel from './supermod/RejectContentPanel';
+import { canRejectContent, getContentTitle, type ContentItem } from './supermod/helpers';
+import type { SidebarTab } from './supermod/sidebarTabs';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
     conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...ConversationsList
-      }
-      totalCount
-    }
-  }
-`);
-
-export const ModerationTemplatesListQuery = gql(`
-  query multiModerationTemplateSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
-    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...ModerationTemplateFragment
       }
       totalCount
     }
@@ -80,28 +74,14 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginBottom: -1,
     marginLeft: 4,
   },
-  conversationForm: {
-    marginTop: 16,
+  pastMessages: {
     marginBottom: 16,
     paddingBottom: 8,
     borderBottom: theme.palette.border.extraFaint,
   },
-  templateList: {
-    marginTop: 32,
-    opacity: 0.5,
-    display: 'flex',
-    flexDirection: 'column',
-    "&:hover": {
-      opacity: 1,
-    },
-  },
-  templateGroup: {
+  conversationForm: {
     marginBottom: 16,
-    display: 'flex',
-    flexDirection: 'column',
-    '& h3': {
-      marginBottom: 8,
-    },
+    paddingBottom: 8,
   },
   messagePrompt: {
     padding: 8,
@@ -118,7 +98,46 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   conversationPreviewTooltip: {
     maxHeight: "100vh",
     overflow: "hidden",
-  }
+  },
+  tabs: {
+    display: 'flex',
+    alignItems: 'stretch',
+    borderBottom: theme.palette.border.normal,
+    marginBottom: 8,
+  },
+  tab: {
+    ...theme.typography.commentStyle,
+    minWidth: 0,
+    padding: '6px 8px',
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    borderBottom: '2px solid transparent',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    '&:hover': {
+      color: theme.palette.grey[900],
+    },
+  },
+  dmTab: {
+    flexShrink: 0,
+  },
+  rejectTab: {
+    flexShrink: 1,
+  },
+  activeTab: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
+    borderBottomColor: theme.palette.primary.main,
+  },
+  disabledTab: {
+    opacity: 0.4,
+    cursor: 'default',
+    '&:hover': {
+      color: theme.palette.grey[600],
+    },
+  },
 }));
 
 interface SunshineUserMessagesProps {
@@ -126,12 +145,14 @@ interface SunshineUserMessagesProps {
   currentUser: UsersCurrent;
   posts?: SunshinePostsList[];
   comments?: SunshineCommentsList[];
-  showExpandablePreview?: boolean;
+  focusedContent?: ContentItem | null;
+  sidebarTab: SidebarTab;
+  setSidebarTab: (tab: SidebarTab) => void;
 }
 
-const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpandablePreview}: SunshineUserMessagesProps) => {
+const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
-  
+
   const highlightedTemplateNames = useMemo(() => {
     if (!posts || !comments) return new Set<string>();
     return getHighlightedTemplateNames(
@@ -159,14 +180,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     }
   }, [conversation, embeddedConversationId]);
 
-  const embedConversation = (conversationId: string, newTemplateQueries: TemplateQueryStrings) => {
-    setEmbeddedConversationId(conversationId);
-    // Downstream components rely on referential equality of the templateQueries object in a useEffect; we get an infinite loop here if we don't check for value equality
-    if (!isEqual(newTemplateQueries, templateQueries)) {
-      setTemplateQueries(newTemplateQueries);
-    }
-  }
-
   const toggleConversationPreview = (conversationId: string) => {
     setExpandedConversationId(prev => prev === conversationId ? undefined : conversationId);
   }
@@ -181,26 +194,25 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     notifyOnNetworkStatusChange: true,
   });
 
-  const { data: templatesData } = useQuery(ModerationTemplatesListQuery, {
-    variables: {
-      selector: { moderationTemplatesList: { collectionName: "Messages" } },
-      limit: 50,
-      enableTotal: false,
-    },
-  });
-
   const results = data?.conversations?.results;
-  const templates = templatesData?.moderationTemplates?.results;
 
-  const handleTemplateClick = (template: NonNullable<typeof templates>[0]) => {
+  const canReject = canRejectContent(focusedContent);
+  const showRejectTab = !!focusedContent;
+  const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
+
+  const handleMessageTemplateClick = (template: ModerationTemplateFragment) => {
     // Initiate conversation if we don't have one yet
     if (!embeddedConversationId) {
       initiateConversation([user._id]);
       // For new conversations, use templateQueries to prefill
-      setTemplateQueries({
+      // Downstream components rely on referential equality of the templateQueries object in a useEffect; we get an infinite loop here if we don't check for value equality
+      const newTemplateQueries = {
         templateId: template._id,
         displayName: user.displayName,
-      });
+      };
+      if (!isEqual(newTemplateQueries, templateQueries)) {
+        setTemplateQueries(newTemplateQueries);
+      }
     } else if (template.contents?.html) {
       // Append to editor via context
       const processedHtml = getDraftMessageHtml({
@@ -217,62 +229,11 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     }
   };
 
-  const allTemplatesGrouped: Record<string, NonNullable<typeof templates>[0][]> = templates ? (() => {
-    const grouped: Record<string, NonNullable<typeof templates>[0][]> = {};
-    const templatesWithoutGroup: NonNullable<typeof templates>[0][] = [];
-    
-    templates.forEach(template => {
-      const groupLabel = template.groupLabel;
-      if (groupLabel) {
-        if (!grouped[groupLabel]) {
-          grouped[groupLabel] = [];
-        }
-        grouped[groupLabel].push(template);
-      } else {
-        templatesWithoutGroup.push(template);
-      }
-    });
-    
-    if (templatesWithoutGroup.length > 0) {
-      grouped["Other"] = templatesWithoutGroup;
-    }
-    
-    return grouped;
-  })() : {};
-
-  return <div>
-    {results?.map(conversation => {
-      const isExpanded = expandedConversationId === conversation._id;
-      return (
-        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} titleClassName={classes.conversationPreviewTooltip} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
-          <div  className={classes.conversationItem}>
-            <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-              <span>
-                Conversation with{" "} 
-                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                    <UsersName simple user={participant}/>
-                  </MetaInfo>
-                })}
-              </span>
-              {conversation.latestActivity && <span className={classes.date}><FormatDate date={conversation.latestActivity} /></span>}
-              <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-                <ForumIcon icon="Link" className={classes.linkIcon} />
-              </Link> 
-              <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-            </div>
-            {isExpanded && (
-              <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
-            )}
-          </div>
-        </LWTooltip>
-      );
-    })}
+  const dmTabContents = <>
     {embeddedConversationId ? (
       <div className={classes.conversationForm}>
-        <MessagesNewForm 
-          conversationId={embeddedConversationId} 
+        <MessagesNewForm
+          conversationId={embeddedConversationId}
           templateQueries={templateQueries}
           successEvent={async (newMessage) => {
             await refetch();
@@ -289,19 +250,68 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         Click to start a new message...
       </div>
     )}
-    {templates && templates.length > 0 && (
-      <div className={classes.templateList}>
-        {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => (
-          <div key={group} className={classes.templateGroup}>
-            <h3>{group}</h3>
-            {templatesInGroup.map(template => (
-              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} highlighted={highlightedTemplateNames.has(template.name)} />
-            ))}
-          </div>
-        ))}
+    <GroupedModerationTemplateList
+      collectionName="Messages"
+      onTemplateClick={handleMessageTemplateClick}
+      highlightedTemplateNames={highlightedTemplateNames}
+    />
+  </>;
+
+  return <div>
+    {!!results?.length && <div className={classes.pastMessages}>
+      <ModerationSectionTitle>User Messages</ModerationSectionTitle>
+      {results.map(conversation => {
+        const isExpanded = expandedConversationId === conversation._id;
+        return (
+          <LWTooltip key={conversation._id} placement="left-start" tooltip={false} titleClassName={classes.conversationPreviewTooltip} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
+            <div className={classes.conversationItem}>
+              <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
+                <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+                <span>
+                  Conversation with{" "}
+                  {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                    return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                      <UsersName simple user={participant}/>
+                    </MetaInfo>
+                  })}
+                </span>
+                {conversation.latestActivity && <span className={classes.date}><FormatDate date={conversation.latestActivity} /></span>}
+                <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+                  <ForumIcon icon="Link" className={classes.linkIcon} />
+                </Link>
+                <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+              </div>
+              {isExpanded && (
+                <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
+              )}
+            </div>
+          </LWTooltip>
+        );
+      })}
+    </div>}
+
+    <div className={classes.tabs}>
+      <div
+        className={classNames(classes.tab, classes.dmTab, { [classes.activeTab]: !rejectTabActive })}
+        onClick={() => setSidebarTab('dm')}
+      >
+        Send DM
       </div>
-    )}
-    
+      {showRejectTab && <div
+        className={classNames(classes.tab, classes.rejectTab, {
+          [classes.activeTab]: rejectTabActive,
+          [classes.disabledTab]: !canReject,
+        })}
+        onClick={() => canReject && setSidebarTab('reject')}
+        title={canReject ? undefined : "This content can't be rejected"}
+      >
+        Reject {getContentTitle(focusedContent)}
+      </div>}
+    </div>
+
+    {rejectTabActive && focusedContent
+      ? <RejectContentPanel user={user} focusedContent={focusedContent} />
+      : dmTabContents}
   </div>;
 }
 

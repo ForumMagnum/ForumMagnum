@@ -46,11 +46,14 @@ const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) =>
 
 export const ModerationTemplatesForm = ({
   initialData,
+  initialCollectionName,
   onSuccess,
   onCancel,
   refetchQueries,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
+  /** Which collection a newly-created template should default to; ignored when editing. */
+  initialCollectionName?: TemplateType;
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
   refetchQueries?: MutationHookOptions['refetchQueries'];
@@ -87,7 +90,7 @@ export const ModerationTemplatesForm = ({
 
   const defaultValuesWithRequiredFields = {
     ...defaultValues,
-    collectionName: defaultValues.collectionName ?? 'Rejections',
+    collectionName: defaultValues.collectionName ?? initialCollectionName ?? 'Rejections',
     name: defaultValues.name ?? '',
     groupLabel: defaultValues.groupLabel ?? undefined,
   };

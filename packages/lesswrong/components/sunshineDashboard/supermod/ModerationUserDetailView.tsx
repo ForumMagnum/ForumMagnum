@@ -7,6 +7,7 @@ import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
+import type { SidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -50,6 +51,8 @@ const ModerationUserDetailView = ({
   comments,
   focusedContentIndex,
   runningLlmCheckId,
+  sidebarTab,
+  setSidebarTab,
   dispatch,
   state,
   currentUser,
@@ -59,6 +62,8 @@ const ModerationUserDetailView = ({
   comments: SunshineCommentsList[];
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
+  sidebarTab: SidebarTab;
+  setSidebarTab: (tab: SidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
   currentUser: UsersCurrent;
@@ -110,6 +115,9 @@ const ModerationUserDetailView = ({
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
             dispatch={dispatch}
           />
         </div>
