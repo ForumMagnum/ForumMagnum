@@ -270,13 +270,8 @@ interface SortableTemplateRowContextValue {
 
 const SortableTemplateRowContext = createContext<SortableTemplateRowContextValue | null>(null);
 
-/**
- * Rendered inside the sortable list, which is constructed once at module scope
- * (see `SortableTemplateList` below).  It reads everything it needs from
- * context rather than from a closure, because a `makeSortableListComponent`
- * call inside the dialog's render would produce a new component type on every
- * render, unmounting and remounting the whole drag-and-drop tree each time.
- */
+// Reads from context, not a closure, so SortableTemplateList can be built
+// once at module scope; rebuilding it per render remounts the dnd tree.
 const SortableTemplateRow = ({ contents: templateId }: { contents: string }) => {
   const classes = useStyles(styles);
   const context = useContext(SortableTemplateRowContext);
@@ -324,11 +319,8 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   const currentUser = useCurrentUser();
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
-  // The editor's live contents are kept in a ref rather than in state, so that
-  // typing in the editor doesn't re-render the (fairly expensive) template
-  // list on every keystroke.  `editorHtml` is only the value the editor is
-  // (re)mounted with, and `hasRejectedReason` only flips between empty and
-  // non-empty, so neither changes while typing.
+  // Live editor contents go in a ref so typing doesn't re-render the template
+  // list; editorHtml is only the value the editor is (re)mounted with.
   const rejectedReasonRef = useRef('');
   const [editorHtml, setEditorHtml] = useState('');
   const [hasRejectedReason, setHasRejectedReason] = useState(false);
@@ -484,9 +476,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
 
   const handleEditorChange = useCallback((html: string) => {
     rejectedReasonRef.current = html;
-    // Setting this to the value it already has is a no-op for React, so this
-    // only causes a re-render when the editor goes from empty to non-empty (or
-    // vice versa), which is the only thing the rest of the dialog cares about.
+    // Same-value setState bails out, so typing costs no re-render.
     setHasRejectedReason(!!html);
   }, []);
 
