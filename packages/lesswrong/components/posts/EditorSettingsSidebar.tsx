@@ -45,6 +45,7 @@ import { PostVersionHistoryDialog } from "../editor/PostVersionHistory";
 import { ToggleSwitch } from "../common/ToggleSwitch";
 import { ClaudeSparkIcon } from "../icons/claudeSparkIcon";
 import ClaudeOnboardingModal from "./ClaudeOnboardingModal";
+import { isRichTextEditorType } from "@/lib/editor/defaultRichTextEditor";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
@@ -959,17 +960,19 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser, editorType }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
   canEditCoauthors: boolean;
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
+  editorType: string | null | undefined;
 }) {
   const classes = useStyles(styles);
 
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
+  const supportsCollaborativeSharing = isRichTextEditorType(editorType);
 
   return (
     <div className={classes.sharingPanel}>
@@ -978,100 +981,108 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
       </div>
 
       {canShare ? <>
-        {/* Share link section */}
-        <div className={classes.sharingSection}>
-          <form.Field name="sharingSettings">
-            {(field) => {
-              const settings = field.state.value ?? defaultSharingSettings;
-              const linkEnabled = settings.anyoneWithLinkCan !== "none";
+        {supportsCollaborativeSharing ? <>
+          {/* Share link section */}
+          <div className={classes.sharingSection}>
+            <form.Field name="sharingSettings">
+              {(field) => {
+                const settings = field.state.value ?? defaultSharingSettings;
+                const linkEnabled = settings.anyoneWithLinkCan !== "none";
 
-              if (!postId) {
-                return <div className={classes.disabledMessage}>
-                  Save this post first to share a link
-                </div>;
-              }
+                if (!postId) {
+                  return <div className={classes.disabledMessage}>
+                    Save this post first to share a link
+                  </div>;
+                }
 
-              const shareWithClaudeButton = (
-                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
-              );
+                const shareWithClaudeButton = (
+                  <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
+                );
 
-              const shareLinkButton = (
-                <button
-                  type="button"
-                  className={classes.shareLinkButton}
-                  onClick={() => {
-                    field.handleChange({
-                      ...settings,
-                      anyoneWithLinkCan: "edit",
-                    });
-                    // Copy link after enabling
-                    const url = postGetEditUrl(postId, true, linkSharingKey);
-                    void navigator.clipboard.writeText(url)
-                      .then(() => flash("Link sharing enabled & link copied"))
-                      .catch(() => flash("Failed to copy link"));
-                  }}
-                >
-                  <ForumIcon icon="Link" className={classes.shareLinkIcon} />
-                  Share link
-                </button>
-              );
+                const shareLinkButton = (
+                  <button
+                    type="button"
+                    className={classes.shareLinkButton}
+                    onClick={() => {
+                      field.handleChange({
+                        ...settings,
+                        anyoneWithLinkCan: "edit",
+                      });
+                      // Copy link after enabling
+                      const url = postGetEditUrl(postId, true, linkSharingKey);
+                      void navigator.clipboard.writeText(url)
+                        .then(() => flash("Link sharing enabled & link copied"))
+                        .catch(() => flash("Failed to copy link"));
+                    }}
+                  >
+                    <ForumIcon icon="Link" className={classes.shareLinkIcon} />
+                    Share link
+                  </button>
+                );
 
-              if (!linkEnabled) {
+                if (!linkEnabled) {
+                  return <>
+                    <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>
+                    <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
+                  </>;
+                }
+
+                const copyLinkButton = (
+                  <CopyToClipboard
+                    text={postGetEditUrl(postId, true, linkSharingKey)}
+                    onCopy={() => flash("Link copied")}
+                  >
+                    <button type="button" className={classes.shareLinkButton}>
+                      <ForumIcon icon="Link" className={classes.copyLinkIcon} />
+                      Copy link
+                    </button>
+                  </CopyToClipboard>
+                );
+
                 return <>
-                  <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>
+                  <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>
                   <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
                 </>;
-              }
+              }}
+            </form.Field>
 
-              const copyLinkButton = (
-                <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
-                  onCopy={() => flash("Link copied")}
-                >
-                  <button type="button" className={classes.shareLinkButton}>
-                    <ForumIcon icon="Link" className={classes.copyLinkIcon} />
-                    Copy link
-                  </button>
-                </CopyToClipboard>
-              );
+            <form.Field name="sharingSettings">
+              {(field) => (
+                <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
+              )}
+            </form.Field>
+          </div>
 
-              return <>
-                <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>
-                <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
-              </>;
-            }}
-          </form.Field>
+          {/* Shared users section */}
+          <div className={classes.sharingSectionFlex}>
+            <form.Field name="shareWithUsers">
+              {(field) => (
+                <EditableUsersList
+                  value={field.state.value ?? []}
+                  setValue={(newUsers) => {
+                    field.handleChange(newUsers);
+                    if (form.state.values.sharingSettings == null) {
+                      form.setFieldValue('sharingSettings', defaultSharingSettings);
+                    }
+                  }}
+                  label="Add people by name"
+                />
+              )}
+            </form.Field>
 
-          <form.Field name="sharingSettings">
-            {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
-            )}
-          </form.Field>
-        </div>
-
-        {/* Shared users section */}
-        <div className={classes.sharingSectionFlex}>
-          <form.Field name="shareWithUsers">
-            {(field) => (
-              <EditableUsersList
-                value={field.state.value ?? []}
-                setValue={(newUsers) => {
-                  field.handleChange(newUsers);
-                  if (form.state.values.sharingSettings == null) {
-                    form.setFieldValue('sharingSettings', defaultSharingSettings);
-                  }
-                }}
-                label="Add people by name"
-              />
-            )}
-          </form.Field>
-
-          <form.Field name="sharingSettings">
-            {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
-            )}
-          </form.Field>
-        </div>
+            <form.Field name="sharingSettings">
+              {(field) => (
+                <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
+              )}
+            </form.Field>
+          </div>
+        </> : (
+          <div className={classes.disabledMessage}>
+            {editorType === "markdown"
+              ? "Turn off the Markdown editor in Settings to use link sharing or share with users"
+              : "Change the editor type to LessWrong Docs to use link sharing or share with users"}
+          </div>
+        )}
 
         {/* Co-Authors */}
         {canEditCoauthors && <>
@@ -1341,7 +1352,7 @@ const EditorSettingsSidebar = ({
     });
   }, [captureEvent, initialData, openDialog, postId]);
 
-  const publishClaudeButton = postId ? (
+  const publishClaudeButton = postId && isRichTextEditorType(contentType) ? (
     <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="publish" className={classes.publishClaudeButton} />
   ) : undefined;
 
@@ -1407,6 +1418,7 @@ const EditorSettingsSidebar = ({
           canEditCoauthors={canEditCoauthors}
           flash={flash}
           currentUser={currentUser}
+          editorType={contentType}
         />
       )}
 
