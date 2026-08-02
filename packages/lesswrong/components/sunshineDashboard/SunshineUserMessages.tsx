@@ -4,6 +4,19 @@ import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import classNames from 'classnames';
+import {
+  DndContext,
+  PointerSensor,
+  pointerWithin,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { useMutation } from '@apollo/client/react';
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 import UsersName from "../users/UsersName";
@@ -41,6 +54,18 @@ export const ModerationTemplatesListQuery = gql(`
     }
   }
 `);
+
+const UpdateModerationTemplateGroupMutation = gql(`
+  mutation updateModerationTemplateSunshineUserMessages($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {
+    updateModerationTemplate(selector: $selector, data: $data) {
+      data {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
+
+const UNGROUPED_TEMPLATES_LABEL = "Other";
 
 const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   icon: {
@@ -99,9 +124,38 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
+  },
+  templateGroupDropTarget: {
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    outline: `1px dashed ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 4,
+  },
+  templateGroupHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    cursor: 'pointer',
+    marginBottom: 8,
     '& h3': {
-      marginBottom: 8,
+      margin: 0,
     },
+    '&:hover': {
+      opacity: 0.7,
+    },
+  },
+  templateGroupCount: {
+    color: theme.palette.grey[600],
+    fontSize: 12,
+  },
+  templateGroupExpandIcon: {
+    height: 16,
+    width: 16,
+    marginLeft: 'auto',
+  },
+  draggedTemplate: {
+    position: 'relative',
+    zIndex: 2,
+    opacity: 0.7,
   },
   messagePrompt: {
     padding: 8,
@@ -129,6 +183,62 @@ interface SunshineUserMessagesProps {
   showExpandablePreview?: boolean;
 }
 
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
+  template: ModerationTemplateFragment,
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  highlighted: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging} = useDraggable({
+    id: template._id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={classNames({[classes.draggedTemplate]: isDragging})}
+      style={{transform: CSS.Translate.toString(transform)}}
+    >
+      <ModerationTemplateSunshineItem
+        template={template}
+        onTemplateClick={onTemplateClick}
+        highlighted={highlighted}
+        dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
+      />
+    </div>
+  );
+};
+
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, highlightedTemplateNames}: {
+  group: string,
+  templatesInGroup: ModerationTemplateFragment[],
+  expanded: boolean,
+  onToggleExpanded: (group: string, expanded: boolean) => void,
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  highlightedTemplateNames: Set<string>,
+}) => {
+  const classes = useStyles(styles);
+  const {setNodeRef, isOver} = useDroppable({id: group});
+
+  return (
+    <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
+      <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
+        <h3>{group}</h3>
+        <span className={classes.templateGroupCount}>{templatesInGroup.length}</span>
+        <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
+      </div>
+      {expanded && templatesInGroup.map(template => (
+        <DraggableTemplateItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted={highlightedTemplateNames.has(template.name)}
+        />
+      ))}
+    </div>
+  );
+};
+
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpandablePreview}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
   
@@ -147,6 +257,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
@@ -192,6 +303,43 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const results = data?.conversations?.results;
   const templates = templatesData?.moderationTemplates?.results;
 
+  const [updateTemplateGroup] = useMutation(UpdateModerationTemplateGroupMutation);
+
+  const dndSensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
+
+  const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
+    setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
+  };
+
+  const handleTemplateDragEnd = (event: DragEndEvent) => {
+    const {active, over} = event;
+    if (!over || !templates) return;
+    const template = templates.find(t => t._id === active.id);
+    if (!template) return;
+    const targetGroup = String(over.id);
+    const currentGroup = template.groupLabel ?? UNGROUPED_TEMPLATES_LABEL;
+    if (currentGroup === targetGroup) return;
+    const newGroupLabel = targetGroup === UNGROUPED_TEMPLATES_LABEL ? null : targetGroup;
+    // Keep the target group open so the dropped template stays visible
+    setGroupExpandedOverrides(prev => ({...prev, [targetGroup]: true}));
+    void updateTemplateGroup({
+      variables: {
+        selector: {_id: template._id},
+        data: {groupLabel: newGroupLabel},
+      },
+      optimisticResponse: {
+        updateModerationTemplate: {
+          __typename: "ModerationTemplateOutput",
+          data: {
+            __typename: "ModerationTemplate",
+            ...template,
+            groupLabel: newGroupLabel,
+          },
+        },
+      },
+    });
+  };
+
   const handleTemplateClick = (template: NonNullable<typeof templates>[0]) => {
     // Initiate conversation if we don't have one yet
     if (!embeddedConversationId) {
@@ -234,7 +382,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     });
     
     if (templatesWithoutGroup.length > 0) {
-      grouped["Other"] = templatesWithoutGroup;
+      grouped[UNGROUPED_TEMPLATES_LABEL] = templatesWithoutGroup;
     }
     
     return grouped;
@@ -290,16 +438,24 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
       </div>
     )}
     {templates && templates.length > 0 && (
-      <div className={classes.templateList}>
-        {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => (
-          <div key={group} className={classes.templateGroup}>
-            <h3>{group}</h3>
-            {templatesInGroup.map(template => (
-              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} highlighted={highlightedTemplateNames.has(template.name)} />
-            ))}
-          </div>
-        ))}
-      </div>
+      <DndContext sensors={dndSensors} collisionDetection={pointerWithin} onDragEnd={handleTemplateDragEnd}>
+        <div className={classes.templateList}>
+          {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => {
+            const defaultExpanded = templatesInGroup.some(template => highlightedTemplateNames.has(template.name));
+            return (
+              <TemplateGroup
+                key={group}
+                group={group}
+                templatesInGroup={templatesInGroup}
+                expanded={groupExpandedOverrides[group] ?? defaultExpanded}
+                onToggleExpanded={handleToggleGroupExpanded}
+                onTemplateClick={handleTemplateClick}
+                highlightedTemplateNames={highlightedTemplateNames}
+              />
+            );
+          })}
+        </div>
+      </DndContext>
     )}
     
   </div>;

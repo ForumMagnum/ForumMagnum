@@ -20965,6 +20965,24 @@ type multiModerationTemplateSunshineUserMessagesQueryQueryVariables = Exact<{
 
 type multiModerationTemplateSunshineUserMessagesQueryQuery = multiModerationTemplateSunshineUserMessagesQueryQuery_Query;
 
+type updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput = { __typename?: 'ModerationTemplateOutput', data: updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate | null };
+
+type updateModerationTemplateSunshineUserMessagesMutation_Mutation = { __typename?: 'Mutation', updateModerationTemplate: updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput | null };
+
+
+type updateModerationTemplateSunshineUserMessagesMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModerationTemplateDataInput;
+}>;
+
+
+type updateModerationTemplateSunshineUserMessagesMutation = updateModerationTemplateSunshineUserMessagesMutation_Mutation;
+
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
   & UserRateLimitDisplay
