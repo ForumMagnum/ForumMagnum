@@ -80,6 +80,7 @@ describe("resolveThreadInCommentsDoc", () => {
       doc,
       ...sessionArgs,
       actorAuthorId: "different-agent",
+      actorAuthorName: "Test Agent",
     }, removeThreadMark);
 
     expect(result).toEqual({ kind: "forbidden", reason: "not_thread_author" });
@@ -95,6 +96,7 @@ describe("resolveThreadInCommentsDoc", () => {
       doc,
       ...sessionArgs,
       actorAuthorName: "Test Agent",
+      allowAuthorNameFallback: true,
     }, removeThreadMark);
 
     expect(result).toEqual({ kind: "success", removedMarkCount: 0 });

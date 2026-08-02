@@ -210,7 +210,8 @@ To resolve one of your own comment threads after it becomes obsolete:
 Resolving archives the thread and removes its text highlight while preserving
 the conversation history. It does not delete comments and cannot be used on
 suggestion threads. When using link-sharing access without a persistent clientId
-cookie, pass the same agentName that was used to create the thread.
+cookie, keep the link's access level set to Edit and pass the same agentName that
+was used to create the thread.
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText

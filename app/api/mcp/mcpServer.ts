@@ -208,7 +208,6 @@ function createMcpServer(): McpServer {
         token,
         threadId: args.threadId,
         actorAuthorId: context.currentUser?._id ?? context.clientId ?? undefined,
-        actorAuthorName: args.agentName ?? context.currentUser?.displayName ?? undefined,
       });
       if (result.kind !== "success") {
         return toolError(JSON.stringify(result));

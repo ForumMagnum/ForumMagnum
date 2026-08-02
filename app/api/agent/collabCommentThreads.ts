@@ -337,6 +337,7 @@ export async function resolveThreadInCommentsDoc({
   threadId,
   actorAuthorId,
   actorAuthorName,
+  allowAuthorNameFallback,
 }: {
   doc: Doc
   collectionName: string
@@ -345,6 +346,7 @@ export async function resolveThreadInCommentsDoc({
   threadId: string
   actorAuthorId?: string
   actorAuthorName?: string
+  allowAuthorNameFallback?: boolean
 }, removeThreadMark: RemoveThreadMark = removeCommentThreadMarkFromMainDoc): Promise<ResolveThreadResult> {
   const commentsArray = doc.get("comments", YArray<unknown>);
   const threadMap = findThreadMap(commentsArray, threadId);
@@ -371,17 +373,15 @@ export async function resolveThreadInCommentsDoc({
   const firstCommentAuthorNameValue = firstComment?.get("author");
   const firstCommentAuthorId = typeof firstCommentAuthorIdValue === "string" ? firstCommentAuthorIdValue : undefined;
   const firstCommentAuthorName = typeof firstCommentAuthorNameValue === "string" ? firstCommentAuthorNameValue : undefined;
-  if (actorAuthorId) {
-    if (firstCommentAuthorId !== actorAuthorId) {
-      return { kind: "forbidden", reason: "not_thread_author" };
-    }
-  } else {
-    if (!actorAuthorName) {
-      return { kind: "forbidden", reason: "agent_name_required" };
-    }
-    if (firstCommentAuthorName !== actorAuthorName) {
-      return { kind: "forbidden", reason: "not_thread_author" };
-    }
+  const authorIdMatches = !!actorAuthorId && firstCommentAuthorId === actorAuthorId;
+  const authorNameMatches = !!allowAuthorNameFallback
+    && !!actorAuthorName
+    && firstCommentAuthorName === actorAuthorName;
+  if (!authorIdMatches && !authorNameMatches) {
+    const reason = !actorAuthorId && !actorAuthorName
+      ? "agent_name_required"
+      : "not_thread_author";
+    return { kind: "forbidden", reason };
   }
 
   const removedMarkCount = await removeThreadMark({
@@ -404,6 +404,7 @@ export async function resolveCollabCommentThread({
   threadId,
   actorAuthorId,
   actorAuthorName,
+  allowAuthorNameFallback,
 }: {
   collectionName: string
   documentId: string
@@ -411,6 +412,7 @@ export async function resolveCollabCommentThread({
   threadId: string
   actorAuthorId?: string
   actorAuthorName?: string
+  allowAuthorNameFallback?: boolean
 }): Promise<ResolveThreadResult> {
   return withCommentsDocSession({
     collectionName,
@@ -425,6 +427,7 @@ export async function resolveCollabCommentThread({
         threadId,
         actorAuthorId,
         actorAuthorName,
+        allowAuthorNameFallback,
       });
     },
   });

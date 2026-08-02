@@ -1,5 +1,5 @@
 import { captureException } from "@/lib/sentryWrapper";
-import { CLIENT_ID_NEW_COOKIE } from "@/lib/cookies/cookies";
+import { accessLevelCan, getCollaborativeEditorAccessWithKey } from "@/lib/collections/posts/collabEditingPermissions";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -28,17 +28,23 @@ export async function POST(req: NextRequest) {
     const auth = await authorizeAgentDraftAccess({ route: "resolveThread", postId, context, linkSharingKey: key, agentName });
     if ("errorResponse" in auth) return auth.errorResponse;
 
-    const hasNewlyAssignedClientId = !!req.cookies.get(CLIENT_ID_NEW_COOKIE);
-    const actorAuthorId = context.currentUser?._id
-      ?? (hasNewlyAssignedClientId ? undefined : context.clientId ?? undefined);
-    const actorAuthorName = agentName ?? context.currentUser?.displayName ?? undefined;
+    const post = await context.loaders.Posts.load(postId);
+    const accessLevel = await getCollaborativeEditorAccessWithKey({
+      formType: "edit",
+      post,
+      user: context.currentUser,
+      context,
+      useAdminPowers: true,
+      linkSharingKey: key ?? null,
+    });
     const result = await resolveCollabCommentThread({
       collectionName: "Posts",
       documentId: postId,
       token: auth.token,
       threadId,
-      actorAuthorId,
-      actorAuthorName,
+      actorAuthorId: context.currentUser?._id ?? context.clientId ?? undefined,
+      actorAuthorName: agentName,
+      allowAuthorNameFallback: !!accessLevelCan(accessLevel, "edit"),
     });
 
     if (result.kind === "thread_not_found") {
