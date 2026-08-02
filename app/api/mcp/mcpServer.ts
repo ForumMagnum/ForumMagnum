@@ -5,7 +5,7 @@ import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { insertCollabCommentThread } from "../agent/collabCommentThreads";
+import { insertCollabCommentThread, resolveCollabCommentThread } from "../agent/collabCommentThreads";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
@@ -20,6 +20,7 @@ import {
   insertBlockToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
+  resolveThreadToolSchema,
   validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
 
@@ -40,6 +41,7 @@ const REQUIRED_SCOPE = "lesswrong:access";
 const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   read_post: [REQUIRED_SCOPE],
   comment_on_draft: [REQUIRED_SCOPE],
+  resolve_comment_thread: [REQUIRED_SCOPE],
   replace_text: [REQUIRED_SCOPE],
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
@@ -178,6 +180,39 @@ function createMcpServer(): McpServer {
         authorId,
       });
 
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "resolve_comment_thread",
+    {
+      description: "Resolve one of your own obsolete comment threads on a post draft. This archives the thread and removes its highlight without deleting its conversation history.",
+      inputSchema: resolveThreadToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async (args, extra) => {
+      assertToolScopes("resolve_comment_thread", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const result = await resolveCollabCommentThread({
+        collectionName: "Posts",
+        documentId: args.postId,
+        token,
+        threadId: args.threadId,
+        actorAuthorId: context.currentUser?._id ?? context.clientId ?? undefined,
+        actorAuthorName: args.agentName ?? context.currentUser?.displayName ?? undefined,
+      });
+      if (result.kind !== "success") {
+        return toolError(JSON.stringify(result));
+      }
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );

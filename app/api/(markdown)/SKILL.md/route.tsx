@@ -159,7 +159,8 @@ the post. Once you have the post URL, read the post at:
 The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread
 shows its ID, type (comment or suggestion), the quoted anchor text (if any),
-and the conversation. You can use the thread ID to reply to existing threads.
+and the conversation. You can use the thread ID to reply to or resolve existing
+comment threads.
 
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
@@ -202,6 +203,14 @@ To reply to an existing comment thread on the draft:
     with JSON body: { postId, key, agentName?, threadId, comment }
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
+
+To resolve one of your own comment threads after it becomes obsolete:
+    POST /api/agent/resolveThread
+    with JSON body: { postId, key, agentName?, threadId }
+Resolving archives the thread and removes its text highlight while preserving
+the conversation history. It does not delete comments and cannot be used on
+suggestion threads. When using link-sharing access without a persistent clientId
+cookie, pass the same agentName that was used to create the thread.
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
