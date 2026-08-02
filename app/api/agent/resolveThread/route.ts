@@ -1,4 +1,5 @@
 import { captureException } from "@/lib/sentryWrapper";
+import { CLIENT_ID_NEW_COOKIE } from "@/lib/cookies/cookies";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -27,7 +28,9 @@ export async function POST(req: NextRequest) {
     const auth = await authorizeAgentDraftAccess({ route: "resolveThread", postId, context, linkSharingKey: key, agentName });
     if ("errorResponse" in auth) return auth.errorResponse;
 
-    const actorAuthorId = context.currentUser?._id ?? context.clientId ?? undefined;
+    const hasNewlyAssignedClientId = !!req.cookies.get(CLIENT_ID_NEW_COOKIE);
+    const actorAuthorId = context.currentUser?._id
+      ?? (hasNewlyAssignedClientId ? undefined : context.clientId ?? undefined);
     const actorAuthorName = agentName ?? context.currentUser?.displayName ?? undefined;
     const result = await resolveCollabCommentThread({
       collectionName: "Posts",

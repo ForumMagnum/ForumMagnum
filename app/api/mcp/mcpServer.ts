@@ -191,7 +191,7 @@ function createMcpServer(): McpServer {
       inputSchema: resolveThreadToolSchema.shape,
       annotations: {
         openWorldHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
       },
     },
     async (args, extra) => {
