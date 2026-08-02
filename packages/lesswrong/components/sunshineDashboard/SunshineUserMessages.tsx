@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -119,6 +119,46 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
     },
+    // Typing in the search box doesn't count as hovering, so keep the list lit while it has focus
+    "&:focus-within": {
+      opacity: 1,
+    },
+  },
+  templateListHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    marginBottom: 8,
+  },
+  searchIcon: {
+    height: 16,
+    width: 16,
+    cursor: 'pointer',
+    color: theme.palette.grey[600],
+    '&:hover': {
+      color: theme.palette.grey[900],
+    },
+  },
+  searchInput: {
+    flex: 1,
+    padding: '4px 8px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    fontSize: 13,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.normal,
+    outline: 'none',
+    // Necessary to override the default input styling which removes the border if the input is focused
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+  },
+  noSearchResults: {
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    fontStyle: 'italic',
   },
   templateGroup: {
     marginBottom: 16,
@@ -183,6 +223,62 @@ interface SunshineUserMessagesProps {
   comments?: SunshineCommentsList[];
   showExpandablePreview?: boolean;
 }
+
+// Same matching as the rejection dialog's template search: case-insensitive substring of the name
+function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQuery: string) {
+  return template.name.toLowerCase().includes(lowercaseQuery);
+}
+
+const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryChange}: {
+  searchOpen: boolean,
+  searchQuery: string,
+  onOpen: () => void,
+  onClose: () => void,
+  onQueryChange: (query: string) => void,
+}) => {
+  const classes = useStyles(styles);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) {
+      inputRef.current?.focus();
+    }
+  }, [searchOpen]);
+
+  if (!searchOpen) {
+    return (
+      <div className={classes.templateListHeader}>
+        <LWTooltip title="Search templates" placement="left">
+          <ForumIcon icon="Search" className={classes.searchIcon} onClick={onOpen} />
+        </LWTooltip>
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.templateListHeader}>
+      <input
+        ref={inputRef}
+        className={classes.searchInput}
+        type="text"
+        placeholder="Search templates..."
+        value={searchQuery}
+        onChange={(e) => onQueryChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            // The supermod shortcut handler listens on document and acts on Escape even
+            // from inside text inputs, so it would deselect the user out from under the
+            // search. React's own listener is on document too, so only
+            // stopImmediatePropagation keeps the event from reaching it.
+            e.nativeEvent.stopImmediatePropagation();
+            onClose();
+          }
+        }}
+      />
+      <ForumIcon icon="Close" className={classes.searchIcon} onClick={onClose} />
+    </div>
+  );
+};
 
 const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
   template: ModerationTemplateFragment,
@@ -259,6 +355,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
   const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
@@ -310,6 +408,18 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
 
   const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
+  };
+
+  // A changed query re-derives which groups should be open, so manual toggles are dropped
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+    setGroupExpandedOverrides({});
+  };
+
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setGroupExpandedOverrides({});
   };
 
   const handleTemplateDragEnd = (event: DragEndEvent) => {
@@ -389,6 +499,14 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     return grouped;
   })() : {};
 
+  const lowercaseQuery = searchQuery.trim().toLowerCase();
+  const visibleGroups = Object.entries(allTemplatesGrouped)
+    .map(([group, templatesInGroup]): [string, NonNullable<typeof templates>] => [
+      group,
+      lowercaseQuery ? templatesInGroup.filter(template => templateMatchesQuery(template, lowercaseQuery)) : templatesInGroup,
+    ])
+    .filter(([, templatesInGroup]) => templatesInGroup.length > 0);
+
   return <div>
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
@@ -441,20 +559,30 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     {templates && templates.length > 0 && (
       <DndContext sensors={dndSensors} collisionDetection={pointerWithin} onDragEnd={handleTemplateDragEnd}>
         <div className={classes.templateList}>
-          {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => {
+          <TemplateSearchBar
+            searchOpen={searchOpen}
+            searchQuery={searchQuery}
+            onOpen={() => setSearchOpen(true)}
+            onClose={handleCloseSearch}
+            onQueryChange={handleSearchQueryChange}
+          />
+          {visibleGroups.map(([group, templatesInGroup]) => {
             const defaultExpanded = templatesInGroup.some(template => highlightedTemplateNames.has(template.name));
             return (
               <TemplateGroup
                 key={group}
                 group={group}
                 templatesInGroup={templatesInGroup}
-                expanded={groupExpandedOverrides[group] ?? defaultExpanded}
+                expanded={groupExpandedOverrides[group] ?? (lowercaseQuery ? true : defaultExpanded)}
                 onToggleExpanded={handleToggleGroupExpanded}
                 onTemplateClick={handleTemplateClick}
                 highlightedTemplateNames={highlightedTemplateNames}
               />
             );
           })}
+          {lowercaseQuery && visibleGroups.length === 0 && (
+            <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
+          )}
         </div>
       </DndContext>
     )}
