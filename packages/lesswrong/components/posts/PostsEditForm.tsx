@@ -57,9 +57,14 @@ const LinkSharingEditQuery = gql(`
   }
 `);
 
-// Overlaps the post page's query with the router's RSC round-trip.
-const prefetchPostPage = (apolloClient: ApolloClient, postId: string) => {
-  void apolloClient.query({
+// Publishing finishes server-side after the mutation returns: the frontpage
+// classifier sets frontpageDate and the social preview image gets uploaded.
+// Until then the post page shows the post as a personal blogpost, so revalidate
+// once those have had time to land.
+const PUBLISH_SIDE_EFFECTS_SETTLE_MS = 15000;
+
+const fetchPostPage = (apolloClient: ApolloClient, postId: string) =>
+  apolloClient.query({
     query: PostsWithNavigationQuery,
     variables: { documentId: postId, sequenceId: null },
     fetchPolicy: 'network-only',
@@ -67,6 +72,14 @@ const prefetchPostPage = (apolloClient: ApolloClient, postId: string) => {
   }).catch(() => {
     // The post page refetches and reports errors itself.
   });
+
+// The first fetch overlaps the post page's query with the router's RSC
+// round-trip; the second picks up the backgrounded publish side effects.
+const prefetchPostPage = (apolloClient: ApolloClient, postId: string, isPublished: boolean) => {
+  void fetchPostPage(apolloClient, postId);
+  if (isPublished) {
+    setTimeout(() => void fetchPostPage(apolloClient, postId), PUBLISH_SIDE_EFFECTS_SETTLE_MS);
+  }
 };
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
@@ -298,7 +311,7 @@ const PostsEditFormInner = ({ documentId, version }: {
                   const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
-                  prefetchPostPage(apolloClient, post._id);
+                  prefetchPostPage(apolloClient, post._id, !post.draft);
 
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
