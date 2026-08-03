@@ -147,10 +147,11 @@ interface SunshineUserMessagesProps {
   comments?: SunshineCommentsList[];
   focusedContent?: ContentItem | null;
   sidebarTab: SidebarTab;
+  focusRejectEditor: boolean;
   setSidebarTab: (tab: SidebarTab) => void;
 }
 
-const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
+const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, focusRejectEditor, setSidebarTab}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
   const highlightedTemplateNames = useMemo(() => {
@@ -310,7 +311,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </div>
 
     {rejectTabActive && focusedContent
-      ? <RejectContentPanel user={user} focusedContent={focusedContent} />
+      ? <RejectContentPanel user={user} focusedContent={focusedContent} autoFocus={focusRejectEditor} />
       : dmTabContents}
   </div>;
 }

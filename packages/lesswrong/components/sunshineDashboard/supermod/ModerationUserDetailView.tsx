@@ -52,6 +52,7 @@ const ModerationUserDetailView = ({
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
+  focusRejectEditor,
   setSidebarTab,
   dispatch,
   state,
@@ -63,6 +64,7 @@ const ModerationUserDetailView = ({
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SidebarTab;
+  focusRejectEditor: boolean;
   setSidebarTab: (tab: SidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
@@ -117,6 +119,7 @@ const ModerationUserDetailView = ({
             comments={comments}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
+            focusRejectEditor={focusRejectEditor}
             setSidebarTab={setSidebarTab}
             dispatch={dispatch}
           />

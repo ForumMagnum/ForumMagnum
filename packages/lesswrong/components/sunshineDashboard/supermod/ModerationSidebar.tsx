@@ -41,6 +41,7 @@ const ModerationSidebar = ({
   comments,
   focusedContent,
   sidebarTab,
+  focusRejectEditor,
   setSidebarTab,
   dispatch,
 }: {
@@ -50,6 +51,7 @@ const ModerationSidebar = ({
   comments: SunshineCommentsList[];
   focusedContent: ContentItem | null;
   sidebarTab: SidebarTab;
+  focusRejectEditor: boolean;
   setSidebarTab: (tab: SidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
@@ -82,6 +84,7 @@ const ModerationSidebar = ({
             comments={comments}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
+            focusRejectEditor={focusRejectEditor}
             setSidebarTab={setSidebarTab}
           />
         </div>

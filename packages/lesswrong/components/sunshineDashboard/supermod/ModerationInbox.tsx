@@ -255,13 +255,20 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   );
 
-  const [sidebarTab, setSidebarTab] = useState<SidebarTab>('reject');
+  // `focusEditor` distinguishes a tab the moderator picked from the one they
+  // landed on: only the former moves focus into the reject editor, since focus
+  // there swallows the supermod keyboard shortcuts.
+  const [sidebarTab, setSidebarTab] = useState<{ tab: SidebarTab, focusEditor: boolean }>({ tab: 'reject', focusEditor: false });
 
   // The reject tab always acts on the currently-selected content, so selecting
   // different content (or a different user) puts you back on it.
   useEffect(() => {
-    setSidebarTab('reject');
+    setSidebarTab({ tab: 'reject', focusEditor: false });
   }, [state.openedUserId, state.focusedContentIndex]);
+
+  const selectSidebarTab = useCallback((tab: SidebarTab) => {
+    setSidebarTab({ tab, focusEditor: tab === 'reject' });
+  }, []);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -428,7 +435,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
-          onFocusRejectTab={() => setSidebarTab('reject')}
+          onFocusRejectTab={() => selectSidebarTab('reject')}
           dispatch={dispatch}
         />
       )}
@@ -450,8 +457,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
-              sidebarTab={sidebarTab}
-              setSidebarTab={setSidebarTab}
+              sidebarTab={sidebarTab.tab}
+              focusRejectEditor={sidebarTab.focusEditor}
+              setSidebarTab={selectSidebarTab}
               dispatch={dispatch}
               state={state}
             />

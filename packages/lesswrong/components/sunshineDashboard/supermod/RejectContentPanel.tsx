@@ -54,9 +54,10 @@ function appendHtml(existingHtml: string, newHtml: string) {
   return `${existingHtml}${separator}${newHtml}`;
 }
 
-const RejectContentEditor = ({ user, focusedContent }: {
+const RejectContentEditor = ({ user, focusedContent, autoFocus }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  autoFocus: boolean,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
@@ -92,9 +93,14 @@ const RejectContentEditor = ({ user, focusedContent }: {
     return () => registerAppendToEditor(() => {});
   }, [registerAppendToEditor, setEditorContents]);
 
+  // Only focus when the moderator deliberately picked this tab. The tab is also
+  // selected by default on opening a user, and focus inside the editor makes the
+  // supermod keyboard shortcuts stop firing.
   useEffect(() => {
-    focusLexicalEditor(editorContainerRef.current);
-  }, []);
+    if (autoFocus) {
+      focusLexicalEditor(editorContainerRef.current);
+    }
+  }, [autoFocus]);
 
   const handleReject = useCallback(() => {
     const reason = rejectedReasonRef.current;
@@ -157,12 +163,14 @@ const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
  * reasons are appended into the editor by clicking the templates below it, rather than
  * composed from checkboxes in a modal.
  */
-const RejectContentPanel = ({ user, focusedContent }: {
+const RejectContentPanel = ({ user, focusedContent, autoFocus }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  /** Whether the moderator picked this tab on purpose, as opposed to it being the default. */
+  autoFocus: boolean,
 }) => {
   return <AppendToEditorProvider>
-    <RejectContentEditor user={user} focusedContent={focusedContent} />
+    <RejectContentEditor user={user} focusedContent={focusedContent} autoFocus={autoFocus} />
     <RejectionTemplateList displayName={user.displayName} />
   </AppendToEditorProvider>;
 };
