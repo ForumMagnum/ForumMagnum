@@ -859,21 +859,16 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 //   await updateEmbeddings(document, oldDocument);
 // }
 
-// Whether this update is the one that publishes the post: either the author was
-// already approved and the post is getting undrafted, or the author is getting
-// approved.
+// Either an approved author undrafts, or the author gets approved.
 function isPostPublishingUpdate({newDocument, oldDocument}: UpdateCallbackProperties<'Posts'>) {
   if (newDocument.draft || newDocument.rejected) return false;
   return (oldDocument.draft && !newDocument.authorIsUnreviewed)
     || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed);
 }
 
-/**
- * The one part of publishing that has to finish before we respond to the client:
- * until the contents revision loses its draft/0.x version number, non-authors
- * aren't allowed to read it. It's a single UPDATE, and it's idempotent, so
- * `onPostPublished` also does it in the background.
- */
+// Until the revision loses its draft/0.x version number, non-authors can't
+// read it, so this can't be deferred past the response. Idempotent, and
+// onPostPublished runs it again in the background.
 export async function ensurePublishedPostContentsAreReadable(props: UpdateCallbackProperties<'Posts'>) {
   if (!isPostPublishingUpdate(props)) return;
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(props.newDocument, props.context);
@@ -890,11 +885,8 @@ export async function updatedPostMaybeTriggerReview(props: UpdateCallbackPropert
   }
 }
 
-/**
- * Embeddings have to be written before the frontpage classifier runs, since the
- * classifier reads them, so these two run as one chain rather than as separate
- * background tasks.
- */
+// One chain, not two background tasks: the frontpage classifier
+// reached from here reads the embeddings written here.
 export async function updatePostEmbeddingsThenMaybeTriggerReview(props: UpdateCallbackProperties<'Posts'>) {
   await updatePostEmbeddingsOnChange(props.newDocument, props.oldDocument);
   await updatedPostMaybeTriggerReview(props);

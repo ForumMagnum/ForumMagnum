@@ -57,12 +57,7 @@ const LinkSharingEditQuery = gql(`
   }
 `);
 
-/**
- * Start loading the post page's data as soon as the save mutation resolves,
- * rather than waiting for the router to finish navigating and the post page to
- * mount. This overlaps the query with the nextjs RSC round-trip, so by the time
- * the post page renders the data is usually already in the apollo cache.
- */
+// Overlaps the post page's query with the router's RSC round-trip.
 const prefetchPostPage = (apolloClient: ApolloClient, postId: string) => {
   void apolloClient.query({
     query: PostsWithNavigationQuery,
@@ -70,8 +65,7 @@ const prefetchPostPage = (apolloClient: ApolloClient, postId: string) => {
     fetchPolicy: 'network-only',
     context: { batchKey: POST_PAGE_BATCH_KEY },
   }).catch(() => {
-    // If this fails, the post page will just do its own fetch and show the
-    // error itself.
+    // The post page refetches and reports errors itself.
   });
 };
 

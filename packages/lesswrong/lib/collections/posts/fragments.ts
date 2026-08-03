@@ -658,10 +658,8 @@ export const PostsEditMutationFragment = gql(`
       ...RevisionEdit
     }
 
-    # Not used by the editor. This is the one field PostsListWithVotes needs that
-    # PostsEdit doesn't have, and including it means that after saving a post,
-    # the post page can read a complete PostsListWithVotes out of the apollo
-    # cache and render immediately instead of showing a spinner.
+    # Unused by the editor. It's the one PostsListWithVotes field
+    # PostsEdit lacks, so the post page can render from cache after a save.
     ...PostPodcastEpisode
   }
 `)

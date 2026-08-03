@@ -274,16 +274,10 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
   await updateCoauthoredPostCountsAfterPostUpdate(context, updatedDocument, oldDocument);
 
-  // Publishing a post is the slowest thing this mutation does: notification
-  // fanouts, a full-collection score update, an OpenAI embeddings call, the
-  // frontpage classifier, a Cloudinary upload for the social preview image, and
-  // a pile of emails. None of it changes the document we're about to return, and
-  // the author is waiting on this response before their post page can render, so
-  // it all runs after the response instead of before it. `createPost` already
-  // treats the publish callbacks this way.
-  //
-  // The one exception is the contents revision's version number, which gates who
-  // can read the post we just published, so that stays in the foreground.
+  // The author is blocked on this response before their post page can
+  // render, so the publish side effects below (notification fanouts,
+  // a full-collection score update, embeddings, the frontpage classifier,
+  // a Cloudinary upload, emails) run after it rather than before.
   await ensurePublishedPostContentsAreReadable(updateCallbackProperties);
 
   // former updateAsync callbacks
