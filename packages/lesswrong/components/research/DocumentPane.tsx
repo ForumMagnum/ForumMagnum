@@ -105,7 +105,10 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
   editorWrapWithComments: {
-    '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
+    // The rootComment guard keeps this off the margin-card reply composers,
+    // which portal inside this wrap and render exactly when threads are open;
+    // :where() for the same specificity-tie reason as in ContentStylesValues.
+    '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
       marginRight: COMMENTS_MARGIN_WIDTH + COMMENTS_MARGIN_RIGHT + 24,
     },
   },
