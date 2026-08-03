@@ -131,14 +131,22 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     '--icon-size': '13px',
   },
   composerWrap: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: 4,
+    // Positioning context for the composer's absolutely-positioned send
+    // button — without it the button anchors to the card and lands on top
+    // of the resolve/delete actions.
+    position: 'relative',
     marginTop: 6,
     borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 6,
     '& [contenteditable="true"]': {
       fontSize: 12.5,
+    },
+    '& > div': {
+      margin: '6px 0 0',
+    },
+    '& > button': {
+      right: 6,
+      top: 19,
     },
   },
 }));

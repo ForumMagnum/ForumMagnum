@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 import type { EditorState, LexicalCommand, LexicalEditor } from 'lexical';
-import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
+import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ENTER_COMMAND, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
@@ -124,6 +124,36 @@ function EscapeHandlerPlugin({
   return null;
 }
 
+function EnterSubmitPlugin({
+  onEnterSubmit,
+}: {
+  onEnterSubmit: () => void;
+}): null {
+  const [editor] = useLexicalComposerContext();
+  const onEnterSubmitRef = useRef(onEnterSubmit);
+
+  useEffect(() => {
+    onEnterSubmitRef.current = onEnterSubmit;
+  }, [onEnterSubmit]);
+
+  useEffect(() => {
+    return editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      (event: KeyboardEvent | null) => {
+        if (event === null || !(event.metaKey || event.ctrlKey)) {
+          return false;
+        }
+        event.preventDefault();
+        onEnterSubmitRef.current();
+        return true;
+      },
+      COMMAND_PRIORITY_NORMAL,
+    );
+  }, [editor]);
+
+  return null;
+}
+
 const commentEditorInitialConfig = {
   namespace: 'Commenting',
   nodes: [] as const,
@@ -138,6 +168,7 @@ export function PlainTextEditor({
   autoFocus,
   onEscape,
   onChange,
+  onEnterSubmit,
   editorRef,
   placeholder = 'Type a comment...',
 }: {
@@ -145,6 +176,7 @@ export function PlainTextEditor({
   className?: string;
   editorRef?: { current: null | LexicalEditor };
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
+  onEnterSubmit?: () => void;
   onEscape: (e: KeyboardEvent) => boolean;
   placeholder?: string;
 }) {
@@ -162,6 +194,7 @@ export function PlainTextEditor({
         <HistoryPlugin />
         {autoFocus !== false && <AutoFocusPlugin />}
         <EscapeHandlerPlugin onEscape={onEscape} />
+        {onEnterSubmit !== undefined && <EnterSubmitPlugin onEnterSubmit={onEnterSubmit} />}
         <ClearEditorPlugin />
         {editorRef !== undefined && <EditorRefPlugin editorRef={editorRef} />}
       </div>
@@ -225,6 +258,7 @@ export function CommentsComposer({
           return true;
         }}
         onChange={onChange}
+        onEnterSubmit={submitComment}
         editorRef={editorRef}
         placeholder={placeholder}
       />
