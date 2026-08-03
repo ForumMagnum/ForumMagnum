@@ -137,38 +137,48 @@ export async function sendNewPostNotifications(post: DbPost) {
   }
 }
 
-const onPublishUtils = {
-  updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
-    if (!isRecombeeRecommendablePost(post)) return;
-  
-    if (recombeeEnabledSetting.get()) {
-      backgroundTask(recombeeApi.upsertPost(post, context)
-        // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending published post to recombee', { e }))
-      );
-    }
-  },
+function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
+  if (!isRecombeeRecommendablePost(post)) return;
 
-  ensureNonzeroRevisionVersionsAfterUndraft: async (post: { _id: string }, context: ResolverContext) => {
-    // When a post is published, ensure that the version number of its contents
-    // revision does not have `draft` set or an 0.x version number (which would
-    // affect permissions).
-    await context.repos.posts.ensurePostHasNonDraftContents(post._id);
-  },
-};
+  if (recombeeEnabledSetting.get()) {
+    backgroundTask(recombeeApi.upsertPost(post, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to recombee', { e }))
+    );
+  }
+}
 
-// Callback for a post being published. This is distinct from being created in
-// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
-// moderator approval because they're a user's first post (but does fire when
-// they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
-  onPublishUtils.updateRecombeeWithPublishedPost(post, context);
+/**
+ * A published post's contents revision must not have `draft` set or an 0.x
+ * version number, both of which stop non-authors from reading it. Callers run
+ * this before anything that exposes the post, and before returning from the
+ * request that published it. It's a single idempotent UPDATE.
+ */
+export async function makePublishedPostContentsReadable(post: { _id: string }, context: ResolverContext) {
+  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+}
+
+/**
+ * Notifications, scoring and classification for a newly published post. Slow
+ * (a subscriber fanout, a whole-collection score update, an OpenAI-backed
+ * frontpage classifier) and irrelevant to what the publishing request returns,
+ * so every caller runs this in a `backgroundTask`.
+ */
+export async function fanOutPostPublishedEffects(post: DbPost, context: ResolverContext) {
+  updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
-  await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
   await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
   await maybeAutoFrontpagePost(post._id, context);
+}
+
+// A post becoming published. Distinct from being created: this doesn't fire on
+// draft posts, or on posts awaiting moderator approval because they're a user's
+// first post (but does fire when they're approved).
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
+  await makePublishedPostContentsReadable(post, context);
+  await fanOutPostPublishedEffects(post, context);
 }
 
 const utils = {
@@ -859,17 +869,37 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 //   await updateEmbeddings(document, oldDocument);
 // }
 
-export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
+// Either an approved author undrafts, or the author gets approved.
+function isPostPublishingUpdate({newDocument, oldDocument}: UpdateCallbackProperties<'Posts'>) {
+  if (newDocument.draft || newDocument.rejected) return false;
+  return (oldDocument.draft && !newDocument.authorIsUnreviewed)
+    || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed);
+}
+
+// Paired with `updatedPostMaybeTriggerReview`, which handles everything else a
+// publishing update needs; run this in the foreground and that in the background.
+export async function ensurePublishedPostContentsAreReadable(props: UpdateCallbackProperties<'Posts'>) {
+  if (!isPostPublishingUpdate(props)) return;
+  await makePublishedPostContentsReadable(props.newDocument, props.context);
+}
+
+export async function updatedPostMaybeTriggerReview(props: UpdateCallbackProperties<'Posts'>) {
+  const {newDocument, oldDocument, context} = props;
   if (newDocument.draft || newDocument.rejected) return
-  
-  // if the post author is already approved and the post is getting undrafted,
-  // or the post author is getting approved,
-  // then we consider this "publishing" the post
-  if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
-    await onPostPublished(newDocument, context);
+
+  if (isPostPublishingUpdate(props)) {
+    // The contents fixup half of publishing already ran, in the foreground.
+    await fanOutPostPublishedEffects(newDocument, context);
   } else if (oldDocument.draft && !newDocument.draft) {
     await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
+}
+
+// One chain, not two background tasks: the frontpage classifier
+// reached from here reads the embeddings written here.
+export async function updatePostEmbeddingsThenMaybeTriggerReview(props: UpdateCallbackProperties<'Posts'>) {
+  await updatePostEmbeddingsOnChange(props.newDocument, props.oldDocument);
+  await updatedPostMaybeTriggerReview(props);
 }
 
 export async function sendRejectionPM({ post, currentUser, context }: {post: DbPost, currentUser?: DbUser|null, context: ResolverContext}) {

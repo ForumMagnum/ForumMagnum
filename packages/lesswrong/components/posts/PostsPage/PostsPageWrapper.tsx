@@ -10,22 +10,13 @@ import Loading from "../../vulcan-core/Loading";
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
+import { POST_PAGE_BATCH_KEY, PostsWithNavigationQuery } from '../queries';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
     post(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...PostsWithNavigationAndRevision
-      }
-    }
-  }
-`);
-
-const PostsWithNavigationQuery = gql(`
-  query PostsPageWrapper($documentId: String, $sequenceId: String) {
-    post(input: { selector: { documentId: $documentId } }, allowNull: true) {
-      result {
-        ...PostsWithNavigation
       }
     }
   }
@@ -61,14 +52,14 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
   const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
     variables: { documentId: documentId, sequenceId },
     skip: !!version,
-    context: { batchKey: "singlePost" },
+    context: { batchKey: POST_PAGE_BATCH_KEY },
   });
   const postWithoutRevision = postWithoutRevisionData?.post?.result ?? undefined;
 
   const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
     variables: { documentId: documentId, sequenceId, version },
     skip: !version,
-    context: { batchKey: "singlePost" },
+    context: { batchKey: POST_PAGE_BATCH_KEY },
   });
   const postWithRevision = postWithRevisionData?.post?.result ?? undefined;
 

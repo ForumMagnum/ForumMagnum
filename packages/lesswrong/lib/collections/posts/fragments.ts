@@ -657,6 +657,10 @@ export const PostsEditMutationFragment = gql(`
     contents {
       ...RevisionEdit
     }
+
+    # Unused by the editor. It's the one PostsListWithVotes field
+    # PostsEdit lacks, so the post page can render from cache after a save.
+    ...PostPodcastEpisode
   }
 `)
 

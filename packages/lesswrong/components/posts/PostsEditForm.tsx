@@ -24,7 +24,9 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { PostsEditFormQuery } from './queries';
+import { POST_PAGE_BATCH_KEY, PostsEditFormQuery, PostsWithNavigationQuery } from './queries';
+import { useApolloClient } from '@apollo/client/react';
+import type { ApolloClient } from '@apollo/client';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
@@ -54,6 +56,31 @@ const LinkSharingEditQuery = gql(`
     }
   }
 `);
+
+// Publishing finishes server-side after the mutation returns: the frontpage
+// classifier sets frontpageDate and the social preview image gets uploaded.
+// Until then the post page shows the post as a personal blogpost, so revalidate
+// once those have had time to land.
+const PUBLISH_SIDE_EFFECTS_SETTLE_MS = 15000;
+
+const fetchPostPage = (apolloClient: ApolloClient, postId: string) =>
+  apolloClient.query({
+    query: PostsWithNavigationQuery,
+    variables: { documentId: postId, sequenceId: null },
+    fetchPolicy: 'network-only',
+    context: { batchKey: POST_PAGE_BATCH_KEY },
+  }).catch(() => {
+    // The post page refetches and reports errors itself.
+  });
+
+// The first fetch overlaps the post page's query with the router's RSC
+// round-trip; the second picks up the backgrounded publish side effects.
+const prefetchPostPage = (apolloClient: ApolloClient, postId: string, isPublished: boolean) => {
+  void fetchPostPage(apolloClient, postId);
+  if (isPublished) {
+    setTimeout(() => void fetchPostPage(apolloClient, postId), PUBLISH_SIDE_EFFECTS_SETTLE_MS);
+  }
+};
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -164,6 +191,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   const navigate = useNavigate();
   const { flash } = useMessages();
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
   const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
@@ -283,6 +311,8 @@ const PostsEditFormInner = ({ documentId, version }: {
                   const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
+                  prefetchPostPage(apolloClient, post._id, !post.draft);
+
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
                   const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
