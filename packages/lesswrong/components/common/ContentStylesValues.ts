@@ -27,6 +27,8 @@ import { researchAccentTint } from '../research/researchStyleUtils';
  * bare `:not(.x)` raises specificity and silently re-centers the column
  * while comment threads are open.
  */
+export const RESEARCH_DOC_EDITOR_MAX_WIDTH = 760 + (2 * 32);
+
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
   '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
@@ -36,7 +38,7 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     lineHeight: 1.65,
     fontFamily: theme.palette.fonts.serifStack,
     color: theme.palette.text.primary,
-    maxWidth: 760 + (2 * 32),
+    maxWidth: RESEARCH_DOC_EDITOR_MAX_WIDTH,
     margin: '0 auto',
     padding: '44px 32px 160px',
   },
