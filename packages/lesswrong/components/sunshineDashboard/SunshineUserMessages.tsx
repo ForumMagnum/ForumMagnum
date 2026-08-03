@@ -1,9 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import classNames from 'classnames';
+import {
+  DndContext,
+  PointerSensor,
+  pointerWithin,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { useMutation } from '@apollo/client/react';
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 import UsersName from "../users/UsersName";
@@ -41,6 +54,18 @@ export const ModerationTemplatesListQuery = gql(`
     }
   }
 `);
+
+const UpdateModerationTemplateGroupMutation = gql(`
+  mutation updateModerationTemplateSunshineUserMessages($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {
+    updateModerationTemplate(selector: $selector, data: $data) {
+      data {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
+
+const UNGROUPED_TEMPLATES_LABEL = "Other";
 
 const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   icon: {
@@ -94,14 +119,80 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
     },
+    // Typing in the search box doesn't count as hovering, so keep the list lit while it has focus
+    "&:focus-within": {
+      opacity: 1,
+    },
+  },
+  templateListHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    marginBottom: 8,
+  },
+  searchIcon: {
+    height: 16,
+    width: 16,
+    cursor: 'pointer',
+    color: theme.palette.grey[600],
+    '&:hover': {
+      color: theme.palette.grey[900],
+    },
+  },
+  searchInput: {
+    flex: 1,
+    padding: '4px 8px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    fontSize: 13,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.normal,
+    outline: 'none',
+    // Necessary to override the default input styling which removes the border if the input is focused
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+  },
+  noSearchResults: {
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    fontStyle: 'italic',
   },
   templateGroup: {
     marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
+  },
+  templateGroupDropTarget: {
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    outline: `1px dashed ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 4,
+  },
+  templateGroupHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    cursor: 'pointer',
+    marginBottom: 8,
     '& h3': {
-      marginBottom: 8,
+      margin: 0,
     },
+    '&:hover': {
+      opacity: 0.7,
+    },
+  },
+  templateGroupExpandIcon: {
+    height: 14,
+    width: 14,
+    flexShrink: 0,
+    color: theme.palette.grey[600],
+  },
+  draggedTemplate: {
+    position: 'relative',
+    zIndex: 2,
+    opacity: 0.7,
   },
   messagePrompt: {
     padding: 8,
@@ -129,6 +220,117 @@ interface SunshineUserMessagesProps {
   showExpandablePreview?: boolean;
 }
 
+// Same matching as the rejection dialog's template search: case-insensitive substring of the name
+function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQuery: string) {
+  return template.name.toLowerCase().includes(lowercaseQuery);
+}
+
+const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryChange}: {
+  searchOpen: boolean,
+  searchQuery: string,
+  onOpen: () => void,
+  onClose: () => void,
+  onQueryChange: (query: string) => void,
+}) => {
+  const classes = useStyles(styles);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) {
+      inputRef.current?.focus();
+    }
+  }, [searchOpen]);
+
+  if (!searchOpen) {
+    return (
+      <div className={classes.templateListHeader}>
+        <LWTooltip title="Search templates" placement="left">
+          <ForumIcon icon="Search" className={classes.searchIcon} onClick={onOpen} />
+        </LWTooltip>
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.templateListHeader}>
+      <input
+        ref={inputRef}
+        className={classes.searchInput}
+        type="text"
+        placeholder="Search templates..."
+        value={searchQuery}
+        onChange={(e) => onQueryChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            // The supermod shortcut handler listens on document and acts on Escape even
+            // from inside text inputs, so it would deselect the user out from under the
+            // search. React's own listener is on document too, so only
+            // stopImmediatePropagation keeps the event from reaching it.
+            e.nativeEvent.stopImmediatePropagation();
+            onClose();
+          }
+        }}
+      />
+      <ForumIcon icon="Close" className={classes.searchIcon} onClick={onClose} />
+    </div>
+  );
+};
+
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
+  template: ModerationTemplateFragment,
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  highlighted: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging} = useDraggable({
+    id: template._id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={classNames({[classes.draggedTemplate]: isDragging})}
+      style={{transform: CSS.Translate.toString(transform)}}
+    >
+      <ModerationTemplateSunshineItem
+        template={template}
+        onTemplateClick={onTemplateClick}
+        highlighted={highlighted}
+        dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
+      />
+    </div>
+  );
+};
+
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, highlightedTemplateNames}: {
+  group: string,
+  templatesInGroup: ModerationTemplateFragment[],
+  expanded: boolean,
+  onToggleExpanded: (group: string, expanded: boolean) => void,
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  highlightedTemplateNames: Set<string>,
+}) => {
+  const classes = useStyles(styles);
+  const {setNodeRef, isOver} = useDroppable({id: group});
+
+  return (
+    <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
+      <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
+        <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
+        <h3>{group}</h3>
+      </div>
+      {expanded && templatesInGroup.map(template => (
+        <DraggableTemplateItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted={highlightedTemplateNames.has(template.name)}
+        />
+      ))}
+    </div>
+  );
+};
+
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpandablePreview}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
   
@@ -147,6 +349,9 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
@@ -192,6 +397,55 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const results = data?.conversations?.results;
   const templates = templatesData?.moderationTemplates?.results;
 
+  const [updateTemplateGroup] = useMutation(UpdateModerationTemplateGroupMutation);
+
+  const dndSensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
+
+  const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
+    setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
+  };
+
+  // A changed query re-derives which groups should be open, so manual toggles are dropped
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+    setGroupExpandedOverrides({});
+  };
+
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setGroupExpandedOverrides({});
+  };
+
+  const handleTemplateDragEnd = (event: DragEndEvent) => {
+    const {active, over} = event;
+    if (!over || !templates) return;
+    const template = templates.find(t => t._id === active.id);
+    if (!template) return;
+    const targetGroup = String(over.id);
+    const currentGroup = template.groupLabel ?? UNGROUPED_TEMPLATES_LABEL;
+    if (currentGroup === targetGroup) return;
+    const newGroupLabel = targetGroup === UNGROUPED_TEMPLATES_LABEL ? null : targetGroup;
+    // Keep the target group open so the dropped template stays visible
+    setGroupExpandedOverrides(prev => ({...prev, [targetGroup]: true}));
+    void updateTemplateGroup({
+      variables: {
+        selector: {_id: template._id},
+        data: {groupLabel: newGroupLabel},
+      },
+      optimisticResponse: {
+        updateModerationTemplate: {
+          __typename: "ModerationTemplateOutput",
+          data: {
+            __typename: "ModerationTemplate",
+            ...template,
+            groupLabel: newGroupLabel,
+          },
+        },
+      },
+    });
+  };
+
   const handleTemplateClick = (template: NonNullable<typeof templates>[0]) => {
     // Initiate conversation if we don't have one yet
     if (!embeddedConversationId) {
@@ -234,11 +488,19 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     });
     
     if (templatesWithoutGroup.length > 0) {
-      grouped["Other"] = templatesWithoutGroup;
+      grouped[UNGROUPED_TEMPLATES_LABEL] = templatesWithoutGroup;
     }
     
     return grouped;
   })() : {};
+
+  const lowercaseQuery = searchQuery.trim().toLowerCase();
+  const visibleGroups = Object.entries(allTemplatesGrouped)
+    .map(([group, templatesInGroup]): [string, NonNullable<typeof templates>] => [
+      group,
+      lowercaseQuery ? templatesInGroup.filter(template => templateMatchesQuery(template, lowercaseQuery)) : templatesInGroup,
+    ])
+    .filter(([, templatesInGroup]) => templatesInGroup.length > 0);
 
   return <div>
     {results?.map(conversation => {
@@ -289,17 +551,38 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         Click to start a new message...
       </div>
     )}
+    {/* DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
+        otherwise come from a module-level counter, which drifts between the server and
+        the client and trips a hydration mismatch */}
     {templates && templates.length > 0 && (
-      <div className={classes.templateList}>
-        {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => (
-          <div key={group} className={classes.templateGroup}>
-            <h3>{group}</h3>
-            {templatesInGroup.map(template => (
-              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} highlighted={highlightedTemplateNames.has(template.name)} />
-            ))}
-          </div>
-        ))}
-      </div>
+      <DndContext id="supermod-template-groups" sensors={dndSensors} collisionDetection={pointerWithin} onDragEnd={handleTemplateDragEnd}>
+        <div className={classes.templateList}>
+          <TemplateSearchBar
+            searchOpen={searchOpen}
+            searchQuery={searchQuery}
+            onOpen={() => setSearchOpen(true)}
+            onClose={handleCloseSearch}
+            onQueryChange={handleSearchQueryChange}
+          />
+          {visibleGroups.map(([group, templatesInGroup]) => {
+            const defaultExpanded = templatesInGroup.some(template => highlightedTemplateNames.has(template.name));
+            return (
+              <TemplateGroup
+                key={group}
+                group={group}
+                templatesInGroup={templatesInGroup}
+                expanded={groupExpandedOverrides[group] ?? (lowercaseQuery ? true : defaultExpanded)}
+                onToggleExpanded={handleToggleGroupExpanded}
+                onTemplateClick={handleTemplateClick}
+                highlightedTemplateNames={highlightedTemplateNames}
+              />
+            );
+          })}
+          {lowercaseQuery && visibleGroups.length === 0 && (
+            <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
+          )}
+        </div>
+      </DndContext>
     )}
     
   </div>;
