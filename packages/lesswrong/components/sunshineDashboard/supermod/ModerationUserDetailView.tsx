@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
@@ -52,7 +52,6 @@ const ModerationUserDetailView = ({
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
-  setSidebarTab,
   dispatch,
   state,
   currentUser,
@@ -63,14 +62,18 @@ const ModerationUserDetailView = ({
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SelectedSidebarTab;
-  setSidebarTab: (tab: SidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
 
-  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
+  const setSidebarTab = useCallback(
+    (tab: SidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
+    [dispatch]
+  );
+
+  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) =>
     new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [posts, comments]);
 

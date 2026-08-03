@@ -80,6 +80,7 @@ const ModerationContentList = ({
               isFocused={item._id === focusedItemId}
               isRunningLlmCheck={item._id === runningLlmCheckId}
               onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
+              onReject={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx, sidebarTab: 'reject' })}
               dispatch={dispatch}
             />
           ))}

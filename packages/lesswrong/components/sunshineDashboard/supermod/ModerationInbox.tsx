@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -19,7 +19,6 @@ import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
-import type { SelectedSidebarTab } from './sidebarTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
@@ -136,7 +135,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0,
+          sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -150,6 +150,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -167,6 +168,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -195,6 +197,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: curationPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -212,6 +215,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: posts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -229,6 +233,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: classifiedPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -248,22 +253,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         openedUserId: initialOpenedUserId,
         focusedPostId: null,
         focusedContentIndex: 0,
+          sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
       };
     }
   );
-
-  // No composer is open until the moderator picks one; an open editor holds focus,
-  // and focus inside a contenteditable swallows the supermod keyboard shortcuts.
-  const [sidebarTab, setSidebarTab] = useState<SelectedSidebarTab>(null);
-
-  // Each tab acts on the currently-selected content, so moving to different
-  // content (or a different user) closes whichever composer was open.
-  useEffect(() => {
-    setSidebarTab(null);
-  }, [state.openedUserId, state.focusedContentIndex]);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -430,7 +426,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
-          onFocusRejectTab={() => setSidebarTab('reject')}
+          onFocusRejectTab={() => dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'reject' })}
           dispatch={dispatch}
         />
       )}
@@ -452,8 +448,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
-              sidebarTab={sidebarTab}
-              setSidebarTab={setSidebarTab}
+              sidebarTab={state.sidebarTab}
               dispatch={dispatch}
               state={state}
             />
