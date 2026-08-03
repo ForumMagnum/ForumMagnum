@@ -126,6 +126,9 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
   rejectTab: {
     flexShrink: 1,
+    // Sits against the right edge, so the two tabs read as separate choices rather
+    // than a pair. The title is already capped, so this only shrinks in a narrow column.
+    marginLeft: 'auto',
   },
   activeTab: {
     color: theme.palette.grey[900],
@@ -323,7 +326,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         onClick={() => canReject && setSidebarTab('reject')}
         title={canReject ? undefined : "This content can't be rejected"}
       >
-        Reject {getContentTitle(focusedContent)}
+        Reject “{getContentTitle(focusedContent)}”
       </div>}
     </div>
 
