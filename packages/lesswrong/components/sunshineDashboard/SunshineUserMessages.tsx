@@ -161,7 +161,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   templateGroup: {
-    marginBottom: 16,
+    marginBottom: 8,
     display: 'flex',
     flexDirection: 'column',
   },
@@ -173,19 +173,25 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   templateGroupHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
+    gap: 2,
     cursor: 'pointer',
-    marginBottom: 8,
-    '& h3': {
-      margin: 0,
-    },
+    marginBottom: 2,
+    marginLeft: -4,
     '&:hover': {
       opacity: 0.7,
     },
   },
+  templateGroupLabel: {
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: '16px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    color: theme.palette.grey[600],
+  },
   templateGroupExpandIcon: {
-    height: 14,
-    width: 14,
+    height: 12,
+    width: 12,
     flexShrink: 0,
     color: theme.palette.grey[600],
   },
@@ -317,7 +323,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
     <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
       <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
         <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
-        <h3>{group}</h3>
+        <span className={classes.templateGroupLabel}>{group}</span>
       </div>
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
@@ -405,7 +411,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
   };
 
-  // A changed query re-derives which groups should be open, so manual toggles are dropped
+  // Dropping manual toggles on a query change reopens anything the moderator collapsed, so matches stay visible
   const handleSearchQueryChange = (query: string) => {
     setSearchQuery(query);
     setGroupExpandedOverrides({});
@@ -564,20 +570,17 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
             onClose={handleCloseSearch}
             onQueryChange={handleSearchQueryChange}
           />
-          {visibleGroups.map(([group, templatesInGroup]) => {
-            const defaultExpanded = templatesInGroup.some(template => highlightedTemplateNames.has(template.name));
-            return (
-              <TemplateGroup
-                key={group}
-                group={group}
-                templatesInGroup={templatesInGroup}
-                expanded={groupExpandedOverrides[group] ?? (lowercaseQuery ? true : defaultExpanded)}
-                onToggleExpanded={handleToggleGroupExpanded}
-                onTemplateClick={handleTemplateClick}
-                highlightedTemplateNames={highlightedTemplateNames}
-              />
-            );
-          })}
+          {visibleGroups.map(([group, templatesInGroup]) => (
+            <TemplateGroup
+              key={group}
+              group={group}
+              templatesInGroup={templatesInGroup}
+              expanded={groupExpandedOverrides[group] ?? true}
+              onToggleExpanded={handleToggleGroupExpanded}
+              onTemplateClick={handleTemplateClick}
+              highlightedTemplateNames={highlightedTemplateNames}
+            />
+          ))}
           {lowercaseQuery && visibleGroups.length === 0 && (
             <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
           )}
