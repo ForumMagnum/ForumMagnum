@@ -110,6 +110,12 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     // :where() for the same specificity-tie reason as in ContentStylesValues.
     '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
       marginRight: COMMENTS_MARGIN_WIDTH + COMMENTS_MARGIN_RIGHT + 24,
+      // Pin the left edge at the centered no-comments offset (824px is the
+      // contenteditable's maxWidth from researchDocumentBodyStyles) so the
+      // first open thread never slides the column sideways: the comments
+      // margin comes out of free right-hand space first, and the column
+      // narrows from its right edge only under genuine space contention.
+      marginLeft: 'max(0px, calc((100% - 824px) / 2))',
     },
   },
   commentsMargin: {
