@@ -176,7 +176,7 @@ export function PlainTextEditor({
   className?: string;
   editorRef?: { current: null | LexicalEditor };
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
-  onEnterSubmit?: () => void;
+  onEnterSubmit: () => void;
   onEscape: (e: KeyboardEvent) => boolean;
   placeholder?: string;
 }) {
@@ -194,7 +194,7 @@ export function PlainTextEditor({
         <HistoryPlugin />
         {autoFocus !== false && <AutoFocusPlugin />}
         <EscapeHandlerPlugin onEscape={onEscape} />
-        {onEnterSubmit !== undefined && <EnterSubmitPlugin onEnterSubmit={onEnterSubmit} />}
+        <EnterSubmitPlugin onEnterSubmit={onEnterSubmit} />
         <ClearEditorPlugin />
         {editorRef !== undefined && <EditorRefPlugin editorRef={editorRef} />}
       </div>
