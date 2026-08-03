@@ -859,17 +859,45 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 //   await updateEmbeddings(document, oldDocument);
 // }
 
-export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
+// Whether this update is the one that publishes the post: either the author was
+// already approved and the post is getting undrafted, or the author is getting
+// approved.
+function isPostPublishingUpdate({newDocument, oldDocument}: UpdateCallbackProperties<'Posts'>) {
+  if (newDocument.draft || newDocument.rejected) return false;
+  return (oldDocument.draft && !newDocument.authorIsUnreviewed)
+    || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed);
+}
+
+/**
+ * The one part of publishing that has to finish before we respond to the client:
+ * until the contents revision loses its draft/0.x version number, non-authors
+ * aren't allowed to read it. It's a single UPDATE, and it's idempotent, so
+ * `onPostPublished` also does it in the background.
+ */
+export async function ensurePublishedPostContentsAreReadable(props: UpdateCallbackProperties<'Posts'>) {
+  if (!isPostPublishingUpdate(props)) return;
+  await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(props.newDocument, props.context);
+}
+
+export async function updatedPostMaybeTriggerReview(props: UpdateCallbackProperties<'Posts'>) {
+  const {newDocument, oldDocument, context} = props;
   if (newDocument.draft || newDocument.rejected) return
-  
-  // if the post author is already approved and the post is getting undrafted,
-  // or the post author is getting approved,
-  // then we consider this "publishing" the post
-  if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
+
+  if (isPostPublishingUpdate(props)) {
     await onPostPublished(newDocument, context);
   } else if (oldDocument.draft && !newDocument.draft) {
     await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
+}
+
+/**
+ * Embeddings have to be written before the frontpage classifier runs, since the
+ * classifier reads them, so these two run as one chain rather than as separate
+ * background tasks.
+ */
+export async function updatePostEmbeddingsThenMaybeTriggerReview(props: UpdateCallbackProperties<'Posts'>) {
+  await updatePostEmbeddingsOnChange(props.newDocument, props.oldDocument);
+  await updatedPostMaybeTriggerReview(props);
 }
 
 export async function sendRejectionPM({ post, currentUser, context }: {post: DbPost, currentUser?: DbUser|null, context: ResolverContext}) {

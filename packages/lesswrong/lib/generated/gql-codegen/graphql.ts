@@ -614,7 +614,7 @@ const _595=_o4(_25,_590)
 const _596=_o7(_8,_36,_552,_273)
 const _597=_o2(_2,_594,_6,_o5(_7,[_595,_596]))
 const _598=_o3(_3,"PostsEditMutationFragment")
-const _599=_o2(_2,_598,_6,_o5(_7,[_595,_274]))
+const _599=_o2(_2,_598,_6,_o5(_7,[_595,_274,_206]))
 const _600=_o3(_3,"PostsRevisionsList")
 const _601=_o2(_2,_600,_6,_o5(_7,[_10,_555]))
 const _602=_o3(_3,"PostsRecentDiscussion")
@@ -17349,17 +17349,6 @@ export type PostsPageWrapper1Query = { __typename?: 'Query', post: { __typename?
       & PostsWithNavigationAndRevision
     ) | null } | null };
 
-export type PostsPageWrapperQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-  sequenceId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type PostsPageWrapperQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
-      { __typename?: 'Post' }
-      & PostsWithNavigation
-    ) | null } | null };
-
 export type PostsRevisionsListQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -17491,6 +17480,17 @@ export type PostsEditFormPostQueryVariables = Exact<{
 export type PostsEditFormPostQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsEditQueryFragment
+    ) | null } | null };
+
+export type PostsPageWrapperQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  sequenceId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PostsPageWrapperQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsWithNavigation
     ) | null } | null };
 
 export type multiCommentPostsPageQueryQueryVariables = Exact<{
@@ -21657,6 +21657,7 @@ export type PostsEditMutationFragment = (
     & RevisionEdit
   ) | null }
   & PostsEdit
+  & PostPodcastEpisode
 );
 
 export type PostsRevisionsList = { __typename?: 'Post', _id: string, revisions: Array<(
@@ -23103,7 +23104,6 @@ export const multiCommentReviewPillContainerQueryDocument = _o1(_1,[_o11(_981,_9
 export const flipSplashArtImageDocument = _o1(_1,[_o11(_981,_982,_1540,_1537,_o5(_7,[_o10(_8,_1540,_1538)]))]) as unknown as DocumentNode<flipSplashArtImageMutation, flipSplashArtImageMutationVariables>;
 export const multiReviewWinnerArtSplashImageEditingOptionsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiReviewWinnerArtSplashImageEditingOptionsQuery"),_1541,_1542),_469,_472,_568]) as unknown as DocumentNode<multiReviewWinnerArtSplashImageEditingOptionsQueryQuery, multiReviewWinnerArtSplashImageEditingOptionsQueryQueryVariables>;
 export const PostsPageWrapper1Document = _o1(_1,[_o11(_981,_988,_o3(_3,"PostsPageWrapper1"),[_1081,_1525,_1221],_o5(_7,[_o7(_8,_210,_1479,_o5(_7,[_o6(_8,_1001,_o5(_7,[_o4(_25,_575)]))]))])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556,_230,_239,_566,_469,_472,_568,_572,_574,_580]) as unknown as DocumentNode<PostsPageWrapper1Query, PostsPageWrapper1QueryVariables>;
-export const PostsPageWrapperDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostsPageWrapper"),_1526,_o5(_7,[_o7(_8,_210,_1479,_1527)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584,_230,_239,_566,_469,_472,_568,_572,_574,_589]) as unknown as DocumentNode<PostsPageWrapperQuery, PostsPageWrapperQueryVariables>;
 export const PostsRevisionsListDocument = _o1(_1,[_o11(_981,_988,_600,_1173,_o5(_7,[_o7(_8,_210,_1000,_o5(_7,[_o6(_8,_1001,_o5(_7,[_o4(_25,_600)]))]))])),_548,_601]) as unknown as DocumentNode<PostsRevisionsListQuery, PostsRevisionsListQueryVariables>;
 export const RegisterRSVPDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"RegisterRSVP"),[_1169,_1544,_1546,_o12(_983,_1548,_1011),_o12(_983,_1550,_986)],_o5(_7,[_o7(_8,_o3(_3,"RSVPToEvent"),[_849,_1551,_1552,_o8(_534,_1547,_1548),_o8(_534,_1549,_1550)],_1314)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504]) as unknown as DocumentNode<RegisterRSVPMutation, RegisterRSVPMutationVariables>;
 export const CancelRSVPToEventDocument = _o1(_1,[_o11(_981,_982,_1553,[_1169,_1544,_1371],_o5(_7,[_o7(_8,_1553,[_849,_1551,_1103],_1314)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504]) as unknown as DocumentNode<CancelRSVPToEventMutation, CancelRSVPToEventMutationVariables>;
@@ -23116,6 +23116,7 @@ export const getRecombeeLatestPostsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"get
 export const getRecombeeHybridPostsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getRecombeeHybridPosts"),_1554,_o5(_7,[_o7(_8,_o3(_3,"RecombeeHybridPosts"),_1555,_1556)])),_23,_127,_61,_136,_146,_158,_184,_192,_198,_203,_207]) as unknown as DocumentNode<getRecombeeHybridPostsQuery, getRecombeeHybridPostsQueryVariables>;
 export const createCommentDialogueSubmitDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createCommentDialogueSubmit"),_1142,_o5(_7,[_o7(_8,_1143,_1138,_o5(_7,[_o6(_8,_266,_1208)]))])),_146,_158,_61,_184,_226,_270,_318]) as unknown as DocumentNode<createCommentDialogueSubmitMutation, createCommentDialogueSubmitMutationVariables>;
 export const PostsEditFormPostDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostsEditFormPost"),_1531,_1532),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_270,_593,_597]) as unknown as DocumentNode<PostsEditFormPostQuery, PostsEditFormPostQueryVariables>;
+export const PostsPageWrapperDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostsPageWrapper"),_1526,_o5(_7,[_o7(_8,_210,_1479,_1527)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584,_230,_239,_566,_469,_472,_568,_572,_574,_589]) as unknown as DocumentNode<PostsPageWrapperQuery, PostsPageWrapperQueryVariables>;
 export const multiCommentPostsPageQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentPostsPageQuery"),_1116,_1232),_146,_158,_61,_184]) as unknown as DocumentNode<multiCommentPostsPageQueryQuery, multiCommentPostsPageQueryQueryVariables>;
 export const postCommentsThreadQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"postCommentsThreadQuery"),_1116,_1232),_146,_158,_61,_184]) as unknown as DocumentNode<postCommentsThreadQueryQuery, postCommentsThreadQueryQueryVariables>;
 export const multiPostusePostQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostusePostQuery"),_1114,_1477),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<multiPostusePostQueryQuery, multiPostusePostQueryQueryVariables>;

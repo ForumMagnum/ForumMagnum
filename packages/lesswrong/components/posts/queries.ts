@@ -10,6 +10,18 @@ export const PostsEditFormQuery = gql(`
   }
 `);
 
+export const POST_PAGE_BATCH_KEY = "singlePost";
+
+export const PostsWithNavigationQuery = gql(`
+  query PostsPageWrapper($documentId: String, $sequenceId: String) {
+    post(input: { selector: { documentId: $documentId } }, allowNull: true) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
+
 export const CommentsListMultiQuery = gql(`
   query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {

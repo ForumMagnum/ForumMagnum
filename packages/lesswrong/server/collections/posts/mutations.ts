@@ -9,7 +9,7 @@ import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulc
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatePostEmbeddingsOnChange, updatePostEmbeddingsThenMaybeTriggerReview, ensurePublishedPostContentsAreReadable, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
@@ -261,7 +261,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
 
   // former updateAfter callbacks
-  await swrInvalidatePostRoute(updatedDocument._id, context);
+  backgroundTask(swrInvalidatePostRoute(updatedDocument._id, context));
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
   // updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
@@ -274,38 +274,49 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
   await updateCoauthoredPostCountsAfterPostUpdate(context, updatedDocument, oldDocument);
 
+  // Publishing a post is the slowest thing this mutation does: notification
+  // fanouts, a full-collection score update, an OpenAI embeddings call, the
+  // frontpage classifier, a Cloudinary upload for the social preview image, and
+  // a pile of emails. None of it changes the document we're about to return, and
+  // the author is waiting on this response before their post page can render, so
+  // it all runs after the response instead of before it. `createPost` already
+  // treats the publish callbacks this way.
+  //
+  // The one exception is the contents revision's version number, which gates who
+  // can read the post we just published, so that stays in the foreground.
+  await ensurePublishedPostContentsAreReadable(updateCallbackProperties);
+
   // former updateAsync callbacks
-  await eventUpdatedNotifications(updateCallbackProperties);
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
-  await updatePostEmbeddingsOnChange(updatedDocument, updateCallbackProperties.oldDocument);
-  await updatedPostMaybeTriggerReview(updateCallbackProperties);
-  await maybeSendRejectionPM(updateCallbackProperties);
-  await updateUserNotesOnPostDraft(updateCallbackProperties);
-  await updateUserNotesOnPostRejection(updateCallbackProperties);
-  await updateRecombeePost(updateCallbackProperties);
-  await autoTagUndraftedPost(updateCallbackProperties);
+  backgroundTask(eventUpdatedNotifications(updateCallbackProperties));
+  backgroundTask(updatePostEmbeddingsThenMaybeTriggerReview(updateCallbackProperties));
+  backgroundTask(maybeSendRejectionPM(updateCallbackProperties));
+  backgroundTask(updateUserNotesOnPostDraft(updateCallbackProperties));
+  backgroundTask(updateUserNotesOnPostRejection(updateCallbackProperties));
+  backgroundTask(updateRecombeePost(updateCallbackProperties));
+  backgroundTask(autoTagUndraftedPost(updateCallbackProperties));
 
   // former editAsync callbacks
   await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
   sendPostApprovalNotifications(updatedDocument, oldDocument);
-  await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
-  await removeRedraftNotifications(updatedDocument, oldDocument, context);
+  backgroundTask(sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context));
+  backgroundTask(removeRedraftNotifications(updatedDocument, oldDocument, context));
 
   if (isEAForum()) { // TODO UNGATE - LW should probably adopt this
-    await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
+    backgroundTask(sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context));
   }
 
   if (isLWorAF()) {
-    await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
+    backgroundTask(sendLWAFPostCurationEmails(updatedDocument, oldDocument));
     await purgeCurationEmailQueueWhenUncurating(updatedDocument, oldDocument);
   }
 
-  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
+  backgroundTask(sendPostSharedWithUserNotifications(updatedDocument, oldDocument));
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
   await updatePostShortform(updatedDocument, oldDocument, context);
   await updateCommentHideKarma(updatedDocument, oldDocument, context);
-  await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
-  await oldPostsLastCommentedAt(updatedDocument, context);  
+  backgroundTask(extractSocialPreviewImage(updatedDocument, updateCallbackProperties));
+  backgroundTask(oldPostsLastCommentedAt(updatedDocument, context));
 
   reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,

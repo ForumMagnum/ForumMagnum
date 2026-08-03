@@ -24,7 +24,9 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { PostsEditFormQuery } from './queries';
+import { POST_PAGE_BATCH_KEY, PostsEditFormQuery, PostsWithNavigationQuery } from './queries';
+import { useApolloClient } from '@apollo/client/react';
+import type { ApolloClient } from '@apollo/client';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
@@ -54,6 +56,24 @@ const LinkSharingEditQuery = gql(`
     }
   }
 `);
+
+/**
+ * Start loading the post page's data as soon as the save mutation resolves,
+ * rather than waiting for the router to finish navigating and the post page to
+ * mount. This overlaps the query with the nextjs RSC round-trip, so by the time
+ * the post page renders the data is usually already in the apollo cache.
+ */
+const prefetchPostPage = (apolloClient: ApolloClient, postId: string) => {
+  void apolloClient.query({
+    query: PostsWithNavigationQuery,
+    variables: { documentId: postId, sequenceId: null },
+    fetchPolicy: 'network-only',
+    context: { batchKey: POST_PAGE_BATCH_KEY },
+  }).catch(() => {
+    // If this fails, the post page will just do its own fetch and show the
+    // error itself.
+  });
+};
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -164,6 +184,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   const navigate = useNavigate();
   const { flash } = useMessages();
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
   const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
@@ -283,6 +304,8 @@ const PostsEditFormInner = ({ documentId, version }: {
                   const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
+                  prefetchPostPage(apolloClient, post._id);
+
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
                   const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft

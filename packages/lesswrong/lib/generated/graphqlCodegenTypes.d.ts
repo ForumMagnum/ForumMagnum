@@ -17535,24 +17535,6 @@ type PostsPageWrapper1QueryVariables = Exact<{
 
 type PostsPageWrapper1Query = PostsPageWrapper1Query_Query;
 
-type PostsPageWrapperQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsWithNavigation
-);
-
-type PostsPageWrapperQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPageWrapperQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPageWrapperQuery_Query = { __typename?: 'Query', post: PostsPageWrapperQuery_post_SinglePostOutput | null };
-
-
-type PostsPageWrapperQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-  sequenceId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPageWrapperQuery = PostsPageWrapperQuery_Query;
-
 type PostsRevisionsListQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsRevisionsList
@@ -17769,6 +17751,24 @@ type PostsEditFormPostQueryVariables = Exact<{
 
 
 type PostsEditFormPostQuery = PostsEditFormPostQuery_Query;
+
+type PostsPageWrapperQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsWithNavigation
+);
+
+type PostsPageWrapperQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPageWrapperQuery_post_SinglePostOutput_result_Post | null };
+
+type PostsPageWrapperQuery_Query = { __typename?: 'Query', post: PostsPageWrapperQuery_post_SinglePostOutput | null };
+
+
+type PostsPageWrapperQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostsPageWrapperQuery = PostsPageWrapperQuery_Query;
 
 type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -24503,6 +24503,7 @@ type PostsEditMutationFragment_Post_contents_Revision = (
 type PostsEditMutationFragment = (
   { __typename?: 'Post', contents: PostsEditMutationFragment_Post_contents_Revision | null }
   & PostsEdit
+  & PostPodcastEpisode
 );
 
 type PostsRevisionsList_Post_revisions_Revision = (
