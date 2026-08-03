@@ -15,15 +15,21 @@ import { researchAccentTint } from '../research/researchStyleUtils';
  * Keep editor-specific rules scoped to the contenteditable so they don't leak
  * onto floating menus, toolbars, or popovers that share the wrapper. The
  * `:not(.research-query-input-content)`, `:not(.research-chat-composer *)`,
- * `:not(.research-agent-block *)`, and `:not(.LexicalContentEditable-rootComment)`
+ * `:not(.research-agent-block *)`, and `:not(:where(.LexicalContentEditable-rootComment))`
  * guards exclude the query input, the nested conversation-block composer,
  * agent transcript/presentation content, and the comment composers (margin
  * cards portal inside this wrapper), which carry their own compact styling
  * rather than the document's reading column.
+ *
+ * The comment-composer guards are wrapped in `:where()` because these
+ * selectors tie with DocumentPane's `editorWrapWithComments` margin override
+ * at equal specificity and must keep losing that tie by source order — a
+ * bare `:not(.x)` raises specificity and silently re-centers the column
+ * while comment threads are open.
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(.LexicalContentEditable-rootComment)': {
+  '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
     minHeight: 'calc(100vh - var(--header-height, 0px))',
     boxSizing: 'border-box',
     fontSize: 18,
@@ -35,7 +41,7 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     padding: '44px 32px 160px',
   },
   // Collapsible sections share the paragraph rule so they can't drift from it.
-  '& [contenteditable="true"] p:not(.research-agent-block *):not(.LexicalContentEditable-rootComment *), & [contenteditable="true"] .detailsBlock:not(.research-agent-block *)': {
+  '& [contenteditable="true"] p:not(.research-agent-block *):not(:where(.LexicalContentEditable-rootComment *)), & [contenteditable="true"] .detailsBlock:not(.research-agent-block *)': {
     margin: '0 0 0.7em',
   },
   '& [contenteditable="true"] h1:not(.research-agent-block *)': {
@@ -95,7 +101,7 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
   },
   // Placeholder is a sibling of the contenteditable, absolutely positioned
   // at the top-left of the editor shell, so it doesn't pick up the
-  '& .LexicalContentEditable-placeholder:not(.research-chat-composer *):not(.LexicalContentEditable-placeholderComment)': {
+  '& .LexicalContentEditable-placeholder:not(.research-chat-composer *):not(:where(.LexicalContentEditable-placeholderComment))': {
     top: 44,
     left: 0,
     right: 0,
