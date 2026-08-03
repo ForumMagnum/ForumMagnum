@@ -18,7 +18,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
 import ForumIcon from '../common/ForumIcon';
-import LWTooltip from '../common/LWTooltip';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
 
 export const ModerationTemplatesListQuery = gql(`
@@ -75,6 +74,25 @@ function groupTemplatesByLabel(templates: ModerationTemplateFragment[]): [string
   return Object.entries(grouped);
 }
 
+function getGroupLabelUpdateOptions(template: ModerationTemplateFragment, newGroupLabel: string | null) {
+  return {
+    variables: {
+      selector: {_id: template._id},
+      data: {groupLabel: newGroupLabel},
+    },
+    optimisticResponse: {
+      updateModerationTemplate: {
+        __typename: "ModerationTemplateOutput" as const,
+        data: {
+          __typename: "ModerationTemplate" as const,
+          ...template,
+          groupLabel: newGroupLabel,
+        },
+      },
+    },
+  };
+}
+
 // Same matching as the rejection dialog's template search: case-insensitive substring of the name
 function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQuery: string) {
   return template.name.toLowerCase().includes(lowercaseQuery);
@@ -82,7 +100,6 @@ function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQue
 
 const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) => ({
   root: {
-    marginTop: 32,
     opacity: 0.5,
     display: 'flex',
     flexDirection: 'column',
@@ -94,24 +111,17 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
       opacity: 1,
     },
   },
+  rootTopMargin: {
+    marginTop: 32,
+  },
   listHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 4,
     marginBottom: 8,
-  },
-  searchIcon: {
-    height: 16,
-    width: 16,
-    cursor: 'pointer',
-    color: theme.palette.grey[600],
-    '&:hover': {
-      color: theme.palette.grey[900],
-    },
   },
   searchInput: {
     flex: 1,
+    width: '100%',
     padding: '4px 8px',
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
@@ -159,6 +169,22 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     flexShrink: 0,
     color: theme.palette.grey[600],
   },
+  groupNameInput: {
+    ...theme.typography.commentStyle,
+    flex: 1,
+    minWidth: 0,
+    padding: '2px 4px',
+    fontSize: '1.17em',
+    fontWeight: 700,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.normal,
+    outline: 'none',
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+  },
   draggedTemplate: {
     position: 'relative',
     zIndex: 2,
@@ -188,31 +214,20 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
   },
 }));
 
-const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryChange}: {
-  searchOpen: boolean,
+const TemplateSearchBar = ({searchQuery, autoFocus, onClear, onQueryChange}: {
   searchQuery: string,
-  onOpen: () => void,
-  onClose: () => void,
+  autoFocus: boolean,
+  onClear: () => void,
   onQueryChange: (query: string) => void,
 }) => {
   const classes = useStyles(styles);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (searchOpen) {
+    if (autoFocus) {
       inputRef.current?.focus();
     }
-  }, [searchOpen]);
-
-  if (!searchOpen) {
-    return (
-      <div className={classes.listHeader}>
-        <LWTooltip title="Search templates" placement="left">
-          <ForumIcon icon="Search" className={classes.searchIcon} onClick={onOpen} />
-        </LWTooltip>
-      </div>
-    );
-  }
+  }, [autoFocus]);
 
   return (
     <div className={classes.listHeader}>
@@ -224,17 +239,17 @@ const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryCha
         value={searchQuery}
         onChange={(e) => onQueryChange(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            // The supermod shortcut handler listens on document and acts on Escape even
-            // from inside text inputs, so it would deselect the user out from under the
-            // search. React's own listener is on document too, so only
+          // Escape clears a query in progress; with nothing to clear it falls through to
+          // the supermod shortcut handler, which closes the detail view.
+          if (e.key === 'Escape' && searchQuery) {
+            // That handler listens on document and acts on Escape even from inside text
+            // inputs. React's own listener is on document too, so only
             // stopImmediatePropagation keeps the event from reaching it.
             e.nativeEvent.stopImmediatePropagation();
-            onClose();
+            onClear();
           }
         }}
       />
-      <ForumIcon icon="Close" className={classes.searchIcon} onClick={onClose} />
     </div>
   );
 };
@@ -265,22 +280,59 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, highlightedTemplateNames}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, highlightedTemplateNames}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
   onToggleExpanded: (group: string, expanded: boolean) => void,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
+  onRenameGroup: (group: string, newGroup: string) => void,
   highlightedTemplateNames?: Set<string>,
 }) => {
   const classes = useStyles(styles);
   const {setNodeRef, isOver} = useDroppable({id: group});
+  const [draftName, setDraftName] = useState<string | null>(null);
+  const isRenaming = draftName !== null;
+
+  const commitRename = () => {
+    if (draftName === null) return;
+    const trimmed = draftName.trim();
+    setDraftName(null);
+    if (trimmed && trimmed !== group) {
+      onRenameGroup(group, trimmed);
+    }
+  };
 
   return (
     <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
-      <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
+      <div
+        className={classes.templateGroupHeader}
+        onClick={() => !isRenaming && onToggleExpanded(group, !expanded)}
+      >
         <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
-        <h3>{group}</h3>
+        {isRenaming
+          // Renaming relabels every template in the group, so it's edited in place rather
+          // than one template at a time through the template form.
+          ? <input
+              className={classes.groupNameInput}
+              type="text"
+              autoFocus
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  commitRename();
+                } else if (e.key === 'Escape') {
+                  // Keep Escape from reaching the supermod shortcut handler on document,
+                  // which would otherwise close the detail view out from under the edit.
+                  e.nativeEvent.stopImmediatePropagation();
+                  setDraftName(null);
+                }
+              }}
+            />
+          : <h3 onDoubleClick={() => setDraftName(group)}>{group}</h3>}
       </div>
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
@@ -300,15 +352,18 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
  * templates; clicking a template appends it to whichever editor is open, and
  * dragging one onto another group's header re-labels it.
  */
-export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames }: {
+export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, autoFocusSearch, noTopMargin }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
+  /** Puts the cursor in the template search as soon as the list mounts. */
+  autoFocusSearch?: boolean,
+  /** For callers that put the list at the top of a panel rather than under a composer. */
+  noTopMargin?: boolean,
 }) => {
   const classes = useStyles(styles);
   const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
   const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const queryVariables = getModerationTemplatesQueryVariables(collectionName);
@@ -329,8 +384,7 @@ export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick,
     setGroupExpandedOverrides({});
   };
 
-  const handleCloseSearch = () => {
-    setSearchOpen(false);
+  const handleClearSearch = () => {
     setSearchQuery('');
     setGroupExpandedOverrides({});
   };
@@ -346,22 +400,19 @@ export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick,
     const newGroupLabel = targetGroup === UNGROUPED_TEMPLATES_LABEL ? null : targetGroup;
     // Keep the target group open so the dropped template stays visible
     setGroupExpandedOverrides(prev => ({...prev, [targetGroup]: true}));
-    void updateTemplateGroup({
-      variables: {
-        selector: {_id: template._id},
-        data: {groupLabel: newGroupLabel},
-      },
-      optimisticResponse: {
-        updateModerationTemplate: {
-          __typename: "ModerationTemplateOutput",
-          data: {
-            __typename: "ModerationTemplate",
-            ...template,
-            groupLabel: newGroupLabel,
-          },
-        },
-      },
-    });
+    void updateTemplateGroup(getGroupLabelUpdateOptions(template, newGroupLabel));
+  };
+
+  // Renaming a group relabels every template in it — within this collection only, since
+  // the list is already scoped to one collectionName.
+  const handleRenameGroup = (group: string, newGroup: string) => {
+    const newGroupLabel = newGroup === UNGROUPED_TEMPLATES_LABEL ? null : newGroup;
+    setGroupExpandedOverrides(prev => ({...prev, [newGroup]: prev[group] ?? true}));
+    templates
+      .filter(template => (template.groupLabel ?? UNGROUPED_TEMPLATES_LABEL) === group)
+      .forEach(template => {
+        void updateTemplateGroup(getGroupLabelUpdateOptions(template, newGroupLabel));
+      });
   };
 
   const lowercaseQuery = searchQuery.trim().toLowerCase();
@@ -381,12 +432,11 @@ export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick,
     collisionDetection={pointerWithin}
     onDragEnd={handleTemplateDragEnd}
   >
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.rootTopMargin]: !noTopMargin})}>
       <TemplateSearchBar
-        searchOpen={searchOpen}
         searchQuery={searchQuery}
-        onOpen={() => setSearchOpen(true)}
-        onClose={handleCloseSearch}
+        autoFocus={!!autoFocusSearch}
+        onClear={handleClearSearch}
         onQueryChange={handleSearchQueryChange}
       />
       {visibleGroups.map(([group, templatesInGroup]) => {
@@ -402,6 +452,7 @@ export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick,
             expanded={groupExpandedOverrides[group] ?? (lowercaseQuery ? true : defaultExpanded)}
             onToggleExpanded={handleToggleGroupExpanded}
             onTemplateClick={onTemplateClick}
+            onRenameGroup={handleRenameGroup}
             highlightedTemplateNames={highlightedTemplateNames}
           />
         );

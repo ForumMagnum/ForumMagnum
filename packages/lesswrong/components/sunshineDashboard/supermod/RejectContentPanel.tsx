@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { AppendToEditorProvider, useAppendToEditor } from '@/components/editor/AppendToEditorContext';
-import { focusLexicalEditor, focusLexicalEditorWhenReady } from '@/components/editor/focusLexicalEditor';
+import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
@@ -17,8 +17,12 @@ import { isPost, type ContentItem } from './helpers';
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
+  // The editor sits below the template list, so the rule separates it from the
+  // "New Rejection Reason" button above it.
   root: {
-    marginTop: 8,
+    marginTop: 16,
+    paddingTop: 16,
+    borderTop: theme.palette.border.normal,
   },
   introMessage: {
     marginBottom: 10,
@@ -92,10 +96,6 @@ const RejectContentEditor = ({ user, focusedContent }: {
     return () => registerAppendToEditor(() => {});
   }, [registerAppendToEditor, setEditorContents]);
 
-  // This panel only mounts once the moderator has picked the reject tab, so taking
-  // focus here is always deliberate — no tab is selected until they choose one.
-  useEffect(() => focusLexicalEditorWhenReady(editorContainerRef.current), []);
-
   const handleReject = useCallback(() => {
     const reason = rejectedReasonRef.current;
     if (!reason) return;
@@ -149,12 +149,19 @@ const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
     appendToEditor(getDraftMessageHtml({ html: template.contents.html, displayName }));
   };
 
-  return <GroupedModerationTemplateList collectionName="Rejections" onTemplateClick={handleTemplateClick} />;
+  // The panel only mounts once the moderator has picked the reject tab, so landing the
+  // cursor in the template search is always deliberate.
+  return <GroupedModerationTemplateList
+    collectionName="Rejections"
+    onTemplateClick={handleTemplateClick}
+    autoFocusSearch
+    noTopMargin
+  />;
 };
 
 /**
  * Inline replacement for RejectContentDialog inside the moderation sidebar. Rejection
- * reasons are appended into the editor by clicking the templates below it, rather than
+ * reasons are appended into the editor by clicking the templates above it, rather than
  * composed from checkboxes in a modal.
  */
 const RejectContentPanel = ({ user, focusedContent }: {
@@ -162,8 +169,8 @@ const RejectContentPanel = ({ user, focusedContent }: {
   focusedContent: ContentItem,
 }) => {
   return <AppendToEditorProvider>
-    <RejectContentEditor user={user} focusedContent={focusedContent} />
     <RejectionTemplateList displayName={user.displayName} />
+    <RejectContentEditor user={user} focusedContent={focusedContent} />
   </AppendToEditorProvider>;
 };
 
