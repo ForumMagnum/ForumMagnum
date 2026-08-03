@@ -140,13 +140,22 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     paddingTop: 6,
     '& [contenteditable="true"]': {
       fontSize: 12.5,
+      background: researchWarmAlpha(0.04),
     },
     '& > div': {
       margin: '6px 0 0',
     },
+    // Neutralizes the Lexical Button padding locally (changing the shared
+    // Button or sendButton styles would move the panel/side-comment icons).
     '& > button': {
       right: 6,
       top: 19,
+      padding: 0,
+      width: 24,
+      height: 24,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   },
 }));

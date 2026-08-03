@@ -28,8 +28,8 @@ const styles = defineStyles('CommentPluginComponents', (theme: ThemeType) => ({
     position: 'relative',
     margin: 10,
     borderRadius: 5,
-    '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '10px',
+    '--lexical-comment-placeholder-top': '9px',
+    '--lexical-comment-placeholder-left': '9px',
     '--lexical-comment-min-height': '30px',
   },
   editor: {
