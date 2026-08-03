@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { AppendToEditorProvider, useAppendToEditor } from '@/components/editor/AppendToEditorContext';
-import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
+import { focusLexicalEditor, focusLexicalEditorWhenReady } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
@@ -54,10 +54,9 @@ function appendHtml(existingHtml: string, newHtml: string) {
   return `${existingHtml}${separator}${newHtml}`;
 }
 
-const RejectContentEditor = ({ user, focusedContent, autoFocus }: {
+const RejectContentEditor = ({ user, focusedContent }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
-  autoFocus: boolean,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
@@ -93,14 +92,9 @@ const RejectContentEditor = ({ user, focusedContent, autoFocus }: {
     return () => registerAppendToEditor(() => {});
   }, [registerAppendToEditor, setEditorContents]);
 
-  // Only focus when the moderator deliberately picked this tab. The tab is also
-  // selected by default on opening a user, and focus inside the editor makes the
-  // supermod keyboard shortcuts stop firing.
-  useEffect(() => {
-    if (autoFocus) {
-      focusLexicalEditor(editorContainerRef.current);
-    }
-  }, [autoFocus]);
+  // This panel only mounts once the moderator has picked the reject tab, so taking
+  // focus here is always deliberate — no tab is selected until they choose one.
+  useEffect(() => focusLexicalEditorWhenReady(editorContainerRef.current), []);
 
   const handleReject = useCallback(() => {
     const reason = rejectedReasonRef.current;
@@ -163,14 +157,12 @@ const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
  * reasons are appended into the editor by clicking the templates below it, rather than
  * composed from checkboxes in a modal.
  */
-const RejectContentPanel = ({ user, focusedContent, autoFocus }: {
+const RejectContentPanel = ({ user, focusedContent }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
-  /** Whether the moderator picked this tab on purpose, as opposed to it being the default. */
-  autoFocus: boolean,
 }) => {
   return <AppendToEditorProvider>
-    <RejectContentEditor user={user} focusedContent={focusedContent} autoFocus={autoFocus} />
+    <RejectContentEditor user={user} focusedContent={focusedContent} />
     <RejectionTemplateList displayName={user.displayName} />
   </AppendToEditorProvider>;
 };

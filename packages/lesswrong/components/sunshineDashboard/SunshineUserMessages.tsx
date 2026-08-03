@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -23,7 +23,8 @@ import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
 import { canRejectContent, getContentTitle, type ContentItem } from './supermod/helpers';
-import type { SidebarTab } from './supermod/sidebarTabs';
+import type { SidebarTab, SelectedSidebarTab } from './supermod/sidebarTabs';
+import { focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -146,12 +147,11 @@ interface SunshineUserMessagesProps {
   posts?: SunshinePostsList[];
   comments?: SunshineCommentsList[];
   focusedContent?: ContentItem | null;
-  sidebarTab: SidebarTab;
-  focusRejectEditor: boolean;
+  sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SidebarTab) => void;
 }
 
-const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, focusRejectEditor, setSidebarTab}: SunshineUserMessagesProps) => {
+const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
   const highlightedTemplateNames = useMemo(() => {
@@ -169,6 +169,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const dmEditorContainerRef = useRef<HTMLDivElement>(null);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
@@ -200,6 +201,22 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const canReject = canRejectContent(focusedContent);
   const showRejectTab = !!focusedContent;
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
+  const dmTabActive = sidebarTab === 'dm';
+
+  // Opening the DM tab should land the moderator in a ready-to-type message, so it
+  // starts the conversation rather than waiting for a second click on the prompt.
+  const handleSelectDmTab = () => {
+    setSidebarTab('dm');
+    if (!embeddedConversationId) {
+      initiateConversation([user._id]);
+    }
+  };
+
+  useEffect(() => {
+    if (dmTabActive) {
+      return focusLexicalEditorWhenReady(dmEditorContainerRef.current);
+    }
+  }, [dmTabActive, embeddedConversationId]);
 
   const handleMessageTemplateClick = (template: ModerationTemplateFragment) => {
     // Initiate conversation if we don't have one yet
@@ -232,7 +249,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const dmTabContents = <>
     {embeddedConversationId ? (
-      <div className={classes.conversationForm}>
+      <div className={classes.conversationForm} ref={dmEditorContainerRef}>
         <MessagesNewForm
           conversationId={embeddedConversationId}
           templateQueries={templateQueries}
@@ -293,8 +310,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
     <div className={classes.tabs}>
       <div
-        className={classNames(classes.tab, classes.dmTab, { [classes.activeTab]: !rejectTabActive })}
-        onClick={() => setSidebarTab('dm')}
+        className={classNames(classes.tab, classes.dmTab, { [classes.activeTab]: dmTabActive })}
+        onClick={handleSelectDmTab}
       >
         Send DM
       </div>
@@ -310,9 +327,10 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       </div>}
     </div>
 
-    {rejectTabActive && focusedContent
-      ? <RejectContentPanel user={user} focusedContent={focusedContent} autoFocus={focusRejectEditor} />
-      : dmTabContents}
+    {dmTabActive && dmTabContents}
+    {rejectTabActive && focusedContent && (
+      <RejectContentPanel user={user} focusedContent={focusedContent} />
+    )}
   </div>;
 }
 

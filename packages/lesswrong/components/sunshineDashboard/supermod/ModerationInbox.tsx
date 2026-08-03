@@ -19,7 +19,7 @@ import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
-import type { SidebarTab } from './sidebarTabs';
+import type { SelectedSidebarTab } from './sidebarTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
@@ -255,20 +255,15 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   );
 
-  // `focusEditor` distinguishes a tab the moderator picked from the one they
-  // landed on: only the former moves focus into the reject editor, since focus
-  // there swallows the supermod keyboard shortcuts.
-  const [sidebarTab, setSidebarTab] = useState<{ tab: SidebarTab, focusEditor: boolean }>({ tab: 'reject', focusEditor: false });
+  // No composer is open until the moderator picks one; an open editor holds focus,
+  // and focus inside a contenteditable swallows the supermod keyboard shortcuts.
+  const [sidebarTab, setSidebarTab] = useState<SelectedSidebarTab>(null);
 
-  // The reject tab always acts on the currently-selected content, so selecting
-  // different content (or a different user) puts you back on it.
+  // Each tab acts on the currently-selected content, so moving to different
+  // content (or a different user) closes whichever composer was open.
   useEffect(() => {
-    setSidebarTab({ tab: 'reject', focusEditor: false });
+    setSidebarTab(null);
   }, [state.openedUserId, state.focusedContentIndex]);
-
-  const selectSidebarTab = useCallback((tab: SidebarTab) => {
-    setSidebarTab({ tab, focusEditor: tab === 'reject' });
-  }, []);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -435,7 +430,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
-          onFocusRejectTab={() => selectSidebarTab('reject')}
+          onFocusRejectTab={() => setSidebarTab('reject')}
           dispatch={dispatch}
         />
       )}
@@ -457,9 +452,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
-              sidebarTab={sidebarTab.tab}
-              focusRejectEditor={sidebarTab.focusEditor}
-              setSidebarTab={selectSidebarTab}
+              sidebarTab={sidebarTab}
+              setSidebarTab={setSidebarTab}
               dispatch={dispatch}
               state={state}
             />
