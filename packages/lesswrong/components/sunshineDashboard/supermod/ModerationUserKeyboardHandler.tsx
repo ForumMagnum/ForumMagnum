@@ -14,7 +14,7 @@ import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
-import { ContentItem, isPost } from './helpers';
+import { canRejectContent, ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
 
@@ -39,10 +39,6 @@ const ApproveCurrentContentOnlyMutation = gql(`
     approveUserCurrentContentOnly(userId: $userId)
   }
 `);
-
-function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
-  return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
-}
 
 function canRerunLlmCheck(selectedContent?: ContentItem) {
   if (!selectedContent) return false;
@@ -81,6 +77,7 @@ const ModerationUserKeyboardHandler = ({
   addToUndoQueue,
   undoQueue,
   isDetailView,
+  onFocusRejectTab,
   dispatch,
 }: {
   onNextUser: () => void;
@@ -95,6 +92,8 @@ const ModerationUserKeyboardHandler = ({
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   undoQueue: UndoHistoryItem[];
+  /** Moves the moderation sidebar to its "reject the selected content" tab. */
+  onFocusRejectTab: () => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const { openDialog } = useDialog();
@@ -106,7 +105,6 @@ const ModerationUserKeyboardHandler = ({
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
   const {
-    rejectContent,
     unrejectContent,
     rejectionTemplates,
   } = useRejectContent();
@@ -266,33 +264,6 @@ const ModerationUserKeyboardHandler = ({
       sunshineNotes: newNotes,
     });
   }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
-
-  const handleRejectCurrentContent = useCallback(() => {
-    if (!selectedUser) return;
-    if (!selectedContent || !canRejectCurrentlySelectedContent(selectedContent)) return;
-
-    const contentWrapper = isPost(selectedContent) ? {
-      collectionName: 'Posts' as const,
-      document: selectedContent,
-    } : {
-      collectionName: 'Comments' as const,
-      document: selectedContent,
-    };
-
-    const handleRejectContent = (reason: string) => { void rejectContent({ ...contentWrapper, reason }); };
-
-    openDialog({
-      name: 'RejectContentDialog',
-      contents: ({ onClose }) => (
-        <RejectContentDialog
-          rejectionTemplates={rejectionTemplates}
-          rejectContent={handleRejectContent}
-          displayName={selectedUser.displayName}
-          onClose={onClose}
-        />
-      ),
-    });
-  }, [openDialog, rejectContent, rejectionTemplates, selectedContent, selectedUser]);
 
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
@@ -488,12 +459,12 @@ const ModerationUserKeyboardHandler = ({
       || !selectedUser
       || (selectedContent?.rejected
           ? !selectedContent.rejected
-          : !canRejectCurrentlySelectedContent(selectedContent))
+          : !canRejectContent(selectedContent))
     ),
     execute: selectedContent?.rejected
       ? handleUnrejectCurrentContent
-      : handleRejectCurrentContent,
-  }), [isDetailView, selectedUser, selectedContent, handleRejectCurrentContent, handleUnrejectCurrentContent]);
+      : onFocusRejectTab,
+  }), [isDetailView, selectedUser, selectedContent, onFocusRejectTab, handleUnrejectCurrentContent]);
 
   const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest & Remove',
