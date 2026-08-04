@@ -21,7 +21,7 @@ import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
 
-export const ModerationTemplatesListQuery = gql(`
+const ModerationTemplatesListQuery = gql(`
   query multiModerationTemplateGroupedTemplateListQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
     moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -44,7 +44,7 @@ const UpdateModerationTemplateGroupMutation = gql(`
 
 const UNGROUPED_TEMPLATES_LABEL = "Other";
 
-export function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
+function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
   return {
     selector: { moderationTemplatesList: { collectionName } },
     limit: 50,
@@ -306,7 +306,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
  * both message templates and rejection reasons; dragging a template onto another
  * group's header re-labels it.
  */
-export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
@@ -388,27 +388,29 @@ export const GroupedModerationTemplateList = ({ collectionName, onTemplateClick,
     onDragEnd={handleTemplateDragEnd}
   >
     <div className={classes.root}>
-      <TemplateSearchBar
-        searchOpen={searchOpen}
-        searchQuery={searchQuery}
-        onOpen={() => setSearchOpen(true)}
-        onClose={handleCloseSearch}
-        onQueryChange={handleSearchQueryChange}
-      />
-      {visibleGroups.map(([group, templatesInGroup]) => (
-        <TemplateGroup
-          key={group}
-          group={group}
-          templatesInGroup={templatesInGroup}
-          expanded={groupExpandedOverrides[group] ?? true}
-          onToggleExpanded={handleToggleGroupExpanded}
-          onTemplateClick={onTemplateClick}
-          highlightedTemplateNames={highlightedTemplateNames}
+      {templates.length > 0 && <>
+        <TemplateSearchBar
+          searchOpen={searchOpen}
+          searchQuery={searchQuery}
+          onOpen={() => setSearchOpen(true)}
+          onClose={handleCloseSearch}
+          onQueryChange={handleSearchQueryChange}
         />
-      ))}
-      {lowercaseQuery && visibleGroups.length === 0 && (
-        <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
-      )}
+        {visibleGroups.map(([group, templatesInGroup]) => (
+          <TemplateGroup
+            key={group}
+            group={group}
+            templatesInGroup={templatesInGroup}
+            expanded={groupExpandedOverrides[group] ?? true}
+            onToggleExpanded={handleToggleGroupExpanded}
+            onTemplateClick={onTemplateClick}
+            highlightedTemplateNames={highlightedTemplateNames}
+          />
+        ))}
+        {lowercaseQuery && visibleGroups.length === 0 && (
+          <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
+        )}
+      </>}
       <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
         New {collectionName === "Rejections" ? "Rejection Reason" : "Mod Template"}
       </div>

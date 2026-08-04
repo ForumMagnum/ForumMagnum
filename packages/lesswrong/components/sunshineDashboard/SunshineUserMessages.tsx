@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
-import classNames from 'classnames';
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 import UsersName from "../users/UsersName";
@@ -230,9 +229,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         Click to start a new message...
       </div>
     )}
-    {/* DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
-        otherwise come from a module-level counter, which drifts between the server and
-        the client and trips a hydration mismatch */}
     <GroupedModerationTemplateList
       collectionName="Messages"
       onTemplateClick={handleTemplateClick}
