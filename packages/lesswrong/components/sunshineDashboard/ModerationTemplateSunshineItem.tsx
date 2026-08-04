@@ -17,6 +17,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     cursor: "pointer",
     padding: 2,
     paddingLeft: 24,
+    width: "100%",
     display: "flex",
     alignItems: "center",
     gap: 2,
@@ -25,7 +26,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     "&:hover": {
       backgroundColor: theme.palette.greyAlpha(0.1),
     },
-    '&:hover .ModerationTemplateSunshineItem-editIcon': {
+    '&:hover .ModerationTemplateSunshineItem-actionIcon': {
       opacity: .5,
     },
     '&:hover .ModerationTemplateSunshineItem-dragHandle': {
@@ -51,9 +52,17 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
   templateName: {
     flex: 1,
+    minWidth: 0,
   },
-  editButton: {
+  actions: {
+    display: "flex",
+    alignItems: "center",
+    flexShrink: 0,
     marginLeft: 8,
+  },
+  actionButton: {
+    display: "flex",
+    alignItems: "center",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.7,
@@ -93,7 +102,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
-  editIcon: {
+  actionIcon: {
     fontSize: 22,
     opacity: 0,
     padding: 4,
@@ -103,11 +112,13 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, dragHandleProps}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, dragHandleProps, onHide, onUnhide}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
   dragHandleProps?: DragHandleProps,
+  onHide?: (template: ModerationTemplateFragment) => void,
+  onUnhide?: (template: ModerationTemplateFragment) => void,
 }) => {
   const classes = useStyles(styles);
   const [edit, setEdit] = useState<boolean>(false);
@@ -134,6 +145,9 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
     <LWTooltip
       tooltip={false}
       placement="left-start"
+      // Not inline-block, so the row fills the sidebar width
+      As="div"
+      inlineBlock={false}
       title={
         <ContentStyles contentType="comment" className={classes.hovercard}>
           <ContentItemBody
@@ -158,15 +172,45 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
           </span>
         )}
         <span className={classes.templateName}>{template.name}</span>
-        <a
-          className={classes.editButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            setEdit(true);
-          }}
-        >
-          <ForumIcon icon="Edit" className={classes.editIcon} />
-        </a>
+        <span className={classes.actions}>
+          {onHide && (
+            <LWTooltip title="Hide this template for you. Other admins will still see it" placement="top">
+              <a
+                className={classes.actionButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHide(template);
+                }}
+              >
+                <ForumIcon icon="NarrowArrowDown" className={classes.actionIcon} />
+              </a>
+            </LWTooltip>
+          )}
+          {onUnhide && (
+            <LWTooltip title="Unhide this template" placement="top">
+              <a
+                className={classes.actionButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUnhide(template);
+                }}
+              >
+                <ForumIcon icon="NarrowArrowUp" className={classes.actionIcon} />
+              </a>
+            </LWTooltip>
+          )}
+          <LWTooltip title="Edit this template" placement="top">
+            <a
+              className={classes.actionButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEdit(true);
+              }}
+            >
+              <ForumIcon icon="Edit" className={classes.actionIcon} />
+            </a>
+          </LWTooltip>
+        </span>
       </div>
     </LWTooltip>
   );
