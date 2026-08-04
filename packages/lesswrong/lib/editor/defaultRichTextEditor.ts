@@ -1,5 +1,11 @@
 export type RichTextEditorType = "lexical" | "ckEditorMarkup";
 
+export const isRichTextEditorType = (
+  editorType: string | null | undefined
+): editorType is RichTextEditorType => {
+  return editorType === "lexical" || editorType === "ckEditorMarkup";
+};
+
 /**
  * Returns the default rich-text editor for a user.
  *

@@ -17,6 +17,7 @@ import EAButton from "../ea-forum/EAButton";
 import { EditableUsersList } from "./EditableUsersList";
 import LWDialog from "../common/LWDialog";
 import { MenuItem } from "../common/Menus";
+import { isRichTextEditorType } from "@/lib/editor/defaultRichTextEditor";
 
 const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -125,7 +126,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
     if (!derivedEditorType) {
       flash("Edit the document first to enable sharing");
       return;
-    } else if (derivedEditorType !== "ckEditorMarkup" && derivedEditorType !== "lexical") {
+    } else if (!isRichTextEditorType(derivedEditorType)) {
       flash(`Change the editor type to LessWrong Docs to enable sharing`);
       return;
     }
