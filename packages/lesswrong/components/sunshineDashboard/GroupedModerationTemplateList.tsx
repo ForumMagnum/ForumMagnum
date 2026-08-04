@@ -80,6 +80,25 @@ function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQue
   return template.name.toLowerCase().includes(lowercaseQuery);
 }
 
+function getGroupLabelUpdateOptions(template: ModerationTemplateFragment, newGroupLabel: string | null) {
+  return {
+    variables: {
+      selector: {_id: template._id},
+      data: {groupLabel: newGroupLabel},
+    },
+    optimisticResponse: {
+      updateModerationTemplate: {
+        __typename: "ModerationTemplateOutput" as const,
+        data: {
+          __typename: "ModerationTemplate" as const,
+          ...template,
+          groupLabel: newGroupLabel,
+        },
+      },
+    },
+  };
+}
+
 const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) => ({
   root: {
     marginTop: 32,
@@ -164,6 +183,25 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     width: 12,
     flexShrink: 0,
     color: theme.palette.grey[600],
+  },
+  // Sized to take the label's place in the header without reflowing the row
+  groupNameInput: {
+    flex: 1,
+    minWidth: 0,
+    padding: '1px 4px',
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: '16px',
+    letterSpacing: '0.5px',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.normal,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    outline: 'none',
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
   },
   draggedTemplate: {
     position: 'relative',
@@ -271,22 +309,59 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, highlightedTemplateNames}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, highlightedTemplateNames}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
   onToggleExpanded: (group: string, expanded: boolean) => void,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
+  onRenameGroup: (group: string, newGroup: string) => void,
   highlightedTemplateNames?: Set<string>,
 }) => {
   const classes = useStyles(styles);
   const {setNodeRef, isOver} = useDroppable({id: group});
+  const [draftName, setDraftName] = useState<string | null>(null);
+  const isRenaming = draftName !== null;
+
+  const commitRename = () => {
+    if (draftName === null) return;
+    const trimmed = draftName.trim();
+    setDraftName(null);
+    if (trimmed && trimmed !== group) {
+      onRenameGroup(group, trimmed);
+    }
+  };
 
   return (
     <div ref={setNodeRef} className={classNames(classes.templateGroup, {[classes.templateGroupDropTarget]: isOver})}>
-      <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(group, !expanded)}>
+      <div
+        className={classes.templateGroupHeader}
+        onClick={() => !isRenaming && onToggleExpanded(group, !expanded)}
+      >
         <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
-        <span className={classes.templateGroupLabel}>{group}</span>
+        {isRenaming
+          // Renaming relabels every template in the group, so it's edited in place rather
+          // than one template at a time through the template form.
+          ? <input
+              className={classes.groupNameInput}
+              type="text"
+              autoFocus
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  commitRename();
+                } else if (e.key === 'Escape') {
+                  // Keep Escape from reaching the supermod shortcut handler on document,
+                  // which would otherwise close the detail view out from under the edit.
+                  e.nativeEvent.stopImmediatePropagation();
+                  setDraftName(null);
+                }
+              }}
+            />
+          : <span className={classes.templateGroupLabel} onDoubleClick={() => setDraftName(group)}>{group}</span>}
       </div>
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
@@ -304,7 +379,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
  * The list of moderation templates shown underneath a moderator-facing composer,
  * grouped by `groupLabel`. Parameterized by collection so the same list can back
  * both message templates and rejection reasons; dragging a template onto another
- * group's header re-labels it.
+ * group's header re-labels it, and double-clicking a group name renames the group.
  */
 const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames }: {
   collectionName: TemplateType,
@@ -352,22 +427,19 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
     const newGroupLabel = targetGroup === UNGROUPED_TEMPLATES_LABEL ? null : targetGroup;
     // Keep the target group open so the dropped template stays visible
     setGroupExpandedOverrides(prev => ({...prev, [targetGroup]: true}));
-    void updateTemplateGroup({
-      variables: {
-        selector: {_id: template._id},
-        data: {groupLabel: newGroupLabel},
-      },
-      optimisticResponse: {
-        updateModerationTemplate: {
-          __typename: "ModerationTemplateOutput",
-          data: {
-            __typename: "ModerationTemplate",
-            ...template,
-            groupLabel: newGroupLabel,
-          },
-        },
-      },
-    });
+    void updateTemplateGroup(getGroupLabelUpdateOptions(template, newGroupLabel));
+  };
+
+  // Renaming a group relabels every template in it. Renaming to "Other" clears the
+  // label back to null, matching what dragging a template into Other does.
+  const handleRenameGroup = (group: string, newGroup: string) => {
+    const newGroupLabel = newGroup === UNGROUPED_TEMPLATES_LABEL ? null : newGroup;
+    setGroupExpandedOverrides(prev => ({...prev, [newGroup]: prev[group] ?? true}));
+    templates
+      .filter(template => (template.groupLabel ?? UNGROUPED_TEMPLATES_LABEL) === group)
+      .forEach(template => {
+        void updateTemplateGroup(getGroupLabelUpdateOptions(template, newGroupLabel));
+      });
   };
 
   const lowercaseQuery = searchQuery.trim().toLowerCase();
@@ -404,6 +476,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
             expanded={groupExpandedOverrides[group] ?? true}
             onToggleExpanded={handleToggleGroupExpanded}
             onTemplateClick={onTemplateClick}
+            onRenameGroup={handleRenameGroup}
             highlightedTemplateNames={highlightedTemplateNames}
           />
         ))}
