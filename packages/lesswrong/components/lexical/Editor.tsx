@@ -128,6 +128,7 @@ import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNav
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
+import InlineCodeEscapePlugin from '../editor/lexicalPlugins/inlineCodeEscape';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
@@ -985,6 +986,7 @@ export default function Editor({
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <HorizontalRuleEnterPlugin />
+            <InlineCodeEscapePlugin disabled={isSuggestionMode} />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
