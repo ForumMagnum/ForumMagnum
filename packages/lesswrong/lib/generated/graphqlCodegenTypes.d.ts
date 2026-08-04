@@ -20320,6 +20320,43 @@ type multiLWEventEmailHistoryQueryQueryVariables = Exact<{
 
 type multiLWEventEmailHistoryQueryQuery = multiLWEventEmailHistoryQueryQuery_Query;
 
+type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateGroupedTemplateListQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateGroupedTemplateListQueryQuery = multiModerationTemplateGroupedTemplateListQueryQuery_Query;
+
+type updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput = { __typename?: 'ModerationTemplateOutput', data: updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate | null };
+
+type updateModerationTemplateGroupedTemplateListMutation_Mutation = { __typename?: 'Mutation', updateModerationTemplate: updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput | null };
+
+
+type updateModerationTemplateGroupedTemplateListMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModerationTemplateDataInput;
+}>;
+
+
+type updateModerationTemplateGroupedTemplateListMutation = updateModerationTemplateGroupedTemplateListMutation_Mutation;
+
 type RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment
@@ -20945,43 +20982,6 @@ type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
 
 
 type multiConversationSunshineUserMessagesQueryQuery = multiConversationSunshineUserMessagesQueryQuery_Query;
-
-type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type multiModerationTemplateSunshineUserMessagesQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type multiModerationTemplateSunshineUserMessagesQueryQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiModerationTemplateSunshineUserMessagesQueryQuery = multiModerationTemplateSunshineUserMessagesQueryQuery_Query;
-
-type updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput = { __typename?: 'ModerationTemplateOutput', data: updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate | null };
-
-type updateModerationTemplateSunshineUserMessagesMutation_Mutation = { __typename?: 'Mutation', updateModerationTemplate: updateModerationTemplateSunshineUserMessagesMutation_updateModerationTemplate_ModerationTemplateOutput | null };
-
-
-type updateModerationTemplateSunshineUserMessagesMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateModerationTemplateDataInput;
-}>;
-
-
-type updateModerationTemplateSunshineUserMessagesMutation = updateModerationTemplateSunshineUserMessagesMutation_Mutation;
 
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }

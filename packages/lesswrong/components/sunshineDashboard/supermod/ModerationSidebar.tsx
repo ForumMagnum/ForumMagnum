@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
-import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import SunshineUserMessages from '../SunshineUserMessages';
 import SupermodModeratorActions from './SupermodModeratorActions';
 import type { InboxAction } from './inboxReducer';
 
@@ -38,23 +37,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
-  newTemplateButton: {
-    flexShrink: 0,
-    cursor: 'pointer',
-  },
-  modTemplateForm: {
-    marginTop: 16,
-    paddingLeft: 12,
-    paddingRight: 0,
-    marginLeft: -6,
-    marginRight: -6,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    '& .vulcan-form': {
-      marginTop: -16
-    },
-  },
 }));
 
 const ModerationSidebar = ({
@@ -71,7 +53,6 @@ const ModerationSidebar = ({
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
 
   if (!user) {
     return (
@@ -96,27 +77,6 @@ const ModerationSidebar = ({
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
           <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
         </div>
-        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
-          NEW MOD TEMPLATE
-        </div>
-        {showNewTemplateForm && (
-          <div className={classes.modTemplateForm}>
-            <ModerationTemplatesForm
-              onSuccess={() => {
-                setShowNewTemplateForm(false);
-              }}
-              onCancel={() => setShowNewTemplateForm(false)}
-              refetchQueries={[{
-                query: ModerationTemplatesListQuery,
-                variables: {
-                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
-                  limit: 50,
-                  enableTotal: false,
-                },
-              }]}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
