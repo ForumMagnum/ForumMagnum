@@ -2,7 +2,10 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
 import SupermodModeratorActions from './SupermodModeratorActions';
+import ModerationSectionTitle from './ModerationSectionTitle';
 import type { InboxAction } from './inboxReducer';
+import type { ContentItem } from './helpers';
+import type { SidebarTab, SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -26,14 +29,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
       borderBottom: theme.palette.border.normal,
     },
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    color: theme.palette.grey[600],
-    letterSpacing: '0.5px',
-    flexShrink: 0,
-  },
   userMessages: {
     overflow: 'auto',
   },
@@ -44,12 +39,18 @@ const ModerationSidebar = ({
   currentUser,
   posts,
   comments,
+  focusedContent,
+  sidebarTab,
+  setSidebarTab,
   dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  focusedContent: ContentItem | null;
+  sidebarTab: SelectedSidebarTab;
+  setSidebarTab: (tab: SidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -67,15 +68,22 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Moderator Actions</div>
+        <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
         <SupermodModeratorActions user={user} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>User Messages</div>
-
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
+          <SunshineUserMessages
+            key={user._id}
+            user={user}
+            currentUser={currentUser}
+            posts={posts}
+            comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
+          />
         </div>
       </div>
     </div>

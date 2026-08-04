@@ -135,7 +135,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0,
+          sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -149,6 +150,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -166,6 +168,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -194,6 +197,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: curationPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -211,6 +215,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: posts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -228,6 +233,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: classifiedPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -247,6 +253,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         openedUserId: initialOpenedUserId,
         focusedPostId: null,
         focusedContentIndex: 0,
+          sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -419,6 +426,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
+          onFocusRejectTab={() => dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'reject' })}
           dispatch={dispatch}
         />
       )}
@@ -440,6 +448,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
+              sidebarTab={state.sidebarTab}
               dispatch={dispatch}
               state={state}
             />
