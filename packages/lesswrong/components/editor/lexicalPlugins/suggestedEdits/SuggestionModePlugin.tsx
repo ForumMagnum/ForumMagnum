@@ -16,6 +16,7 @@ import {
   FORMAT_TEXT_COMMAND,
   INDENT_CONTENT_COMMAND,
   INSERT_TAB_COMMAND,
+  KEY_ARROW_RIGHT_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
   KEY_DOWN_COMMAND,
@@ -46,7 +47,7 @@ import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions
 import { randomId } from '@/lib/random'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
-import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraph, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
+import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInlineCodeEscapeArrowRight, $handleInsertParagraph, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
 import { $formatTextAsSuggestion } from './formatTextAsSuggestion'
 import { ConsoleLogger } from '@/lib/vendor/proton/logger'
 import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
@@ -690,6 +691,20 @@ export function SuggestionModePlugin({
         BEFOREINPUT_EVENT_COMMAND,
         (event) => {
           return $handleBeforeInputEvent(editor, event, addCreatedIDtoSet, suggestionModeLogger, createNotification)
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => {
+          if (event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) {
+            return false
+          }
+          const handled = $handleInlineCodeEscapeArrowRight(addCreatedIDtoSet)
+          if (handled) {
+            event.preventDefault()
+          }
+          return handled
         },
         COMMAND_PRIORITY_CRITICAL,
       ),

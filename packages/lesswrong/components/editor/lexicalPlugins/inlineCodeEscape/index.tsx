@@ -37,7 +37,7 @@ export default function InlineCodeEscapePlugin({
         const node = anchor.getNode();
         if (!$isTextNode(node) || !node.hasFormat('code')) return false;
         if (anchor.offset !== node.getTextContentSize()) return false;
-        if (node.getNextSibling() !== null) return false;
+        if (node.getTopLevelElementOrThrow().getLastDescendant()?.getKey() !== node.getKey()) return false;
         event.preventDefault();
         const spacer = $createTextNode(' ');
         node.insertAfter(spacer);
