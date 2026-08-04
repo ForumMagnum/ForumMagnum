@@ -304,3 +304,73 @@ export const CommentsMarkdownFragment = gql(`
     contents { agentMarkdown plaintextMainText }
   }
 `)
+
+/**
+ * A comment plus everything needed to render it as a self-contained markdown
+ * document, for pasting into an LLM. See `@/lib/copyAsMarkdown`.
+ */
+export const CommentsMarkdownCopy = gql(`
+  fragment CommentsMarkdownCopy on Comment {
+    _id
+    postId
+    parentCommentId
+    postedAt
+    user {
+      _id
+      slug
+      displayName
+    }
+    contents {
+      _id
+      markdown
+    }
+  }
+`)
+
+/**
+ * As `CommentsMarkdownCopy`, but also fetching the post and the chain of
+ * ancestor comments. The ancestor chain is unrolled to a fixed depth of 11,
+ * the same way `CommentsForAutocompleteWithParents` is, because codegen can't
+ * handle a dynamically-constructed recursive fragment.
+ */
+export const CommentsMarkdownCopyWithParents = gql(`
+  fragment CommentsMarkdownCopyWithParents on Comment {
+    ...CommentsMarkdownCopy
+    post {
+      ...PostsMarkdownCopy
+    }
+    parentComment {
+      ...CommentsMarkdownCopy
+      parentComment {
+        ...CommentsMarkdownCopy
+        parentComment {
+          ...CommentsMarkdownCopy
+          parentComment {
+            ...CommentsMarkdownCopy
+            parentComment {
+              ...CommentsMarkdownCopy
+              parentComment {
+                ...CommentsMarkdownCopy
+                parentComment {
+                  ...CommentsMarkdownCopy
+                  parentComment {
+                    ...CommentsMarkdownCopy
+                    parentComment {
+                      ...CommentsMarkdownCopy
+                      parentComment {
+                        ...CommentsMarkdownCopy
+                        parentComment {
+                          ...CommentsMarkdownCopy
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`)

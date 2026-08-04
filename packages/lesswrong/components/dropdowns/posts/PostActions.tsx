@@ -17,6 +17,7 @@ import ShortformDropdownItem from "./ShortformDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import EditTagsDropdownItem from "./EditTagsDropdownItem";
 import EditPostDropdownItem from "./EditPostDropdownItem";
+import CopyPostAsMarkdownDropdownItem from "./CopyPostAsMarkdownDropdownItem";
 import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
 import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
 import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
@@ -66,6 +67,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
+      <CopyPostAsMarkdownDropdownItem post={post} closeMenu={closeMenu} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />

@@ -3,6 +3,7 @@ import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import SuggestCuratedDropdownItem from "../dropdowns/posts/SuggestCuratedDropdownItem";
+import CopyPostAsMarkdownDropdownItem from "../dropdowns/posts/CopyPostAsMarkdownDropdownItem";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -73,6 +74,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
         icon="ArrowRight"
         onClick={handleOpenNewTab}
       />
+      <CopyPostAsMarkdownDropdownItem post={post} closeMenu={closeMenu} />
       <SuggestCuratedDropdownItem post={post} />
     </DropdownMenu>
   );

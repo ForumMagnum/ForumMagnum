@@ -6,6 +6,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import EditCommentDropdownItem from "../dropdowns/comments/EditCommentDropdownItem";
+import CopyCommentAsMarkdownDropdownItem from "../dropdowns/comments/CopyCommentAsMarkdownDropdownItem";
 import { useCurrentUserId } from "../common/withUser";
 import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
 import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
@@ -75,6 +76,7 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
         onClick={handleCopyLink}
       />
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
+      <CopyCommentAsMarkdownDropdownItem comment={comment} closeMenu={closeMenu} />
     </DropdownMenu>
   );
 };
