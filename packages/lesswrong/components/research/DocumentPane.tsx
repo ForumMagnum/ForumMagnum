@@ -22,6 +22,7 @@ import {
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
 import ContentStyles from '../common/ContentStyles';
+import { RESEARCH_DOC_EDITOR_MAX_WIDTH } from '../common/ContentStylesValues';
 import classNames from 'classnames';
 import {
   ResearchCommentsMarginHostProvider,
@@ -105,8 +106,13 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
   editorWrapWithComments: {
-    '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
+    // The rootComment guard keeps this off the margin-card reply composers,
+    // which portal inside this wrap and render exactly when threads are open;
+    // :where() for the same specificity-tie reason as in ContentStylesValues.
+    '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
       marginRight: COMMENTS_MARGIN_WIDTH + COMMENTS_MARGIN_RIGHT + 24,
+      // Pin the left edge at the centered no-comments offset.
+      marginLeft: `max(0px, calc((100% - ${RESEARCH_DOC_EDITOR_MAX_WIDTH}px) / 2))`,
     },
   },
   commentsMargin: {

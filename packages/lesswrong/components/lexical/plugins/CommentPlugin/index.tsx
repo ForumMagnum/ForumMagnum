@@ -709,6 +709,7 @@ function CommentInputBox({
         className={classes.commentInputBoxEditor}
         onEscape={onEscape}
         onChange={onChange}
+        onEnterSubmit={submitComment}
       />
       <div className={classes.commentInputBoxButtons}>
         <Button
