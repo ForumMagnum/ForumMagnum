@@ -52,7 +52,6 @@ export const ModerationTemplatesForm = ({
   refetchQueries,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
-  /** Which collection a newly-created template should default to; ignored when editing. */
   initialCollectionName?: TemplateType;
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
