@@ -535,43 +535,6 @@ function $canTextDataBeInsertedDirectlyIntoSuggestion(suggestion: ProtonNode | n
   return false
 }
 
-/**
- * ArrowRight twin of the `shouldExitInlineCode` branch below: with the caret
- * at the right edge of an inline-code text node and nothing after it in the
- * block, insert an unformatted space after the code as a tracked insert
- * suggestion (or as plain text when already inside one).
- */
-export function $handleInlineCodeEscapeArrowRight(onSuggestionCreation: (id: string) => void): boolean {
-  const selection = $getSelection()
-  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-    return false
-  }
-  const focusNode = selection.focus.getNode()
-  if (!$isTextNode(focusNode) || !focusNode.hasFormat('code')) {
-    return false
-  }
-  if (selection.focus.offset !== focusNode.getTextContentSize()) {
-    return false
-  }
-  if (focusNode.getTopLevelElementOrThrow().getLastDescendant()?.getKey() !== focusNode.getKey()) {
-    return false
-  }
-  const existingParentSuggestion = $findMatchingParent(focusNode, $isSuggestionNode)
-  const isInsideExistingInsertSuggestion =
-    existingParentSuggestion && existingParentSuggestion.getSuggestionTypeOrThrow() === 'insert'
-  const textNode = $createTextNode(' ')
-  const suggestionID = randomId()
-  const node = isInsideExistingInsertSuggestion
-    ? textNode
-    : $createSuggestionNode(suggestionID, 'insert').append(textNode)
-  focusNode.insertAfter(node)
-  node.selectEnd()
-  if (!isInsideExistingInsertSuggestion) {
-    onSuggestionCreation(suggestionID)
-  }
-  return true
-}
-
 function $handleInsertTextData(
   data: string,
   selection: RangeSelection,
@@ -684,11 +647,19 @@ function $handleInsertTextData(
   const shouldExitInlineCode = isAtEndOfInlineCode && data === ' '
   if (shouldExitInlineCode) {
     const textNode = $createTextNode(data)
-    const node = isInsideExistingInsertSuggestion
-      ? textNode
-      : $createSuggestionNode(suggestionID, 'insert').append(textNode)
-    focusNode.insertAfter(node)
-    node.selectEnd()
+    if (isInsideExistingInsertSuggestion) {
+      focusNode.insertAfter(textNode)
+      textNode.selectEnd()
+      return true
+    }
+    const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
+    suggestionNode.append(textNode)
+    // After the enclosing suggestion wrapper, if any — nesting the insert
+    // inside e.g. a delete suggestion puts the new content inside the deleted
+    // region, where accepting the delete destroys it.
+    ;(existingParentSuggestion ?? focusNode).insertAfter(suggestionNode)
+    suggestionNode.selectEnd()
+    onSuggestionCreation(suggestionID)
     return true
   }
 

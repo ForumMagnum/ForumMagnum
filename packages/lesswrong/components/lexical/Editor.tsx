@@ -986,7 +986,7 @@ export default function Editor({
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <HorizontalRuleEnterPlugin />
-            <InlineCodeEscapePlugin disabled={isSuggestionMode} />
+            <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
