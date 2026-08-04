@@ -4,7 +4,7 @@ import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUse
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
+import { hasEventsSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
@@ -28,7 +28,7 @@ import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
-import { allowSubscribeToSequencePosts, canBlockUserMessages, hasAccountDeletionFlow, hasAuthorModeration, hasInactiveSummaryEmail, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { allowSubscribeToSequencePosts, canBlockUserMessages, hasAccountDeletionFlow, hasAuthorModeration, hasInactiveSummaryEmail, hasKeywordAlerts, hasPostRecommendations } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
@@ -310,6 +310,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        {/*
         <div className={classes.fieldWrapper}>
           <form.Field name="sortDraftsBy">
             {(field) => (
@@ -380,6 +381,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>
+          */}
 
         <div className={classes.fieldWrapper}>
           <form.Field name="hideIntercom">
@@ -403,6 +405,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        {/*
         <div className={classes.fieldWrapper}>
           <form.Field name="hideElicitPredictions">
             {(field) => (
@@ -435,28 +438,31 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="noCollapseCommentsPosts">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Do not truncate comments (in large threads on Post Pages)"
-              />
-            )}
-          </form.Field>
-        </div>
+          */}
 
         <div className={classes.fieldWrapper}>
           <form.Field name="noCollapseCommentsFrontpage">
             {(field) => (
               <FormComponentCheckbox
                 field={field}
-                label="Do not truncate comments (on home page)"
+                label="Do not truncate comments on the frontpage"
               />
             )}
           </form.Field>
         </div>
+
+        {/*
+        <div className={classes.fieldWrapper}>
+          <form.Field name="noCollapseCommentsPosts">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="Do not truncate comments in large threads on post pages"
+              />
+            )}
+          </form.Field>
+        </div>
+          */}
 
         {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommunitySection">
@@ -491,6 +497,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
+        {/*
         {hasSurveys && <div className={classes.fieldWrapper}>
           <form.Field name="optedOutOfSurveys">
             {(field) => (
@@ -512,6 +519,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
+          */}
 
         {hasEventsSetting.get() && <HighlightableField name="googleLocation">
           <div className={classes.fieldWrapper}>
@@ -998,6 +1006,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        {/*
         <div className={classes.fieldWrapper}>
           <form.Field name="allowDatadogSessionReplay">
             {(field) => (
@@ -1010,6 +1019,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>
+          */}
       </LegacyFormGroupLayout>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Admin Options")} startCollapsed={true}>
@@ -1152,6 +1162,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        {/*
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="defaultToCKEditor">
             {(field) => (
@@ -1162,6 +1173,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
+          */}
 
         <div className={classes.fieldWrapper}>
           <form.Field name="signUpReCaptchaRating">
