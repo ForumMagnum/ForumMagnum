@@ -10,7 +10,7 @@ export function canRejectContent(item: ContentItem | null | undefined) {
 
 const CONTENT_TITLE_MAX_LENGTH = 25;
 
-/** A short label for a post or comment, for use where there's only room for one line. */
+/** One-line label for a post or comment */
 export function getContentTitle(item: ContentItem) {
   const title = (isPost(item) ? item.title : item.contents?.plaintextMainText) ?? "comment";
   return title.length > CONTENT_TITLE_MAX_LENGTH

@@ -1,7 +1,6 @@
 /**
- * Standard rejection intro, shown above (and prepended to) the moderator-written
- * rejection reason. Rendered read-only in the UI; the server adds it to the
- * message the user actually receives.
+ * Standard intro shown read-only above the moderator-written rejection
+ * reason, and prepended to the message the rejected user receives.
  */
 export const standardRejectionIntroHtml = `
   <p>Unfortunately, I rejected your [content].</p>
@@ -9,7 +8,7 @@ export const standardRejectionIntroHtml = `
   <p>Your content didn't meet the bar for at least the following reason(s):</p>
 `;
 
-/** Single-line version of the intro, for the collapsed state of the rejection composer. */
+/** One-line version, for the composer's collapsed intro */
 export const standardRejectionIntroPlaintext = standardRejectionIntroHtml
   .replace(/<[^>]+>/g, ' ')
   .replace(/\s+/g, ' ')

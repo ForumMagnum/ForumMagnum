@@ -119,8 +119,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       color: theme.palette.grey[900],
     },
   },
-  // The underline marks the selected tab, so it tracks the label rather than running
-  // the width of the tab's click target.
+  // Underlines the label only, not the tab's full-width click target
   tabLabel: {
     borderBottom: '2px solid transparent',
     paddingBottom: 2,
@@ -130,8 +129,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
   rejectTab: {
     flexShrink: 1,
-    // Sits against the right edge, so the two tabs read as separate choices rather
-    // than a pair. The title is already capped, so this only shrinks in a narrow column.
+    // Pushed to the right edge so the tabs read as separate choices
     marginLeft: 'auto',
   },
   activeTab: {
@@ -210,8 +208,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
   const dmTabActive = sidebarTab === 'dm';
 
-  // Opening the DM tab should land the moderator in a ready-to-type message, so it
-  // starts the conversation rather than waiting for a second click on the prompt.
+  // Start the conversation on tab click, not on a second click on the prompt
   const handleSelectDmTab = () => {
     setSidebarTab('dm');
     if (!embeddedConversationId) {
@@ -226,20 +223,18 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   }, [dmTabActive, embeddedConversationId]);
 
   const handleMessageTemplateClick = (template: ModerationTemplateFragment) => {
-    // Initiate conversation if we don't have one yet
     if (!embeddedConversationId) {
       initiateConversation([user._id]);
-      // For new conversations, use templateQueries to prefill
-      // Downstream components rely on referential equality of the templateQueries object in a useEffect; we get an infinite loop here if we don't check for value equality
       const newTemplateQueries = {
         templateId: template._id,
         displayName: user.displayName,
       };
+      // A downstream useEffect keys on this object's identity; a fresh but
+      // equal object loops forever
       if (!isEqual(newTemplateQueries, templateQueries)) {
         setTemplateQueries(newTemplateQueries);
       }
     } else if (template.contents?.html) {
-      // Append to editor via context
       const processedHtml = getDraftMessageHtml({
         html: template.contents.html,
         displayName: user.displayName,

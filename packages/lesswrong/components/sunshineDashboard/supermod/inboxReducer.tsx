@@ -118,11 +118,10 @@ export function getVisibleTabsInOrder(
 }
 
 /**
- * Moving to a different user or content item closes whichever composer was open, so
- * an editor never silently holds focus and swallows the moderation shortcuts. Listed
- * here rather than in each branch, and deliberately excluding actions that fire while
- * a moderator is mid-draft (permission toggles, LLM checks, undo bookkeeping).
- * OPEN_CONTENT is absent because it sets `sidebarTab` itself.
+ * Actions that close the open composer, so an editor never silently holds
+ * focus and swallows the moderation shortcuts. Mid-draft actions (permission
+ * toggles, LLM checks, undo bookkeeping) are deliberately absent, as is
+ * OPEN_CONTENT, which sets `sidebarTab` itself.
  */
 const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
   'OPEN_USER', 'CLOSE_DETAIL', 'NEXT_CONTENT', 'PREV_CONTENT',
@@ -221,8 +220,8 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         focusedContentIndex: action.contentIndex,
-        // Selecting a row closes the composers, unless the caller is opening one
-        // (the row's Reject button selects the row and opens the reject tab).
+        // Closes the composer, unless the caller is opening one — the row's
+        // Reject button selects the row and opens the reject tab in one action
         sidebarTab: action.sidebarTab ?? null,
       };
     }

@@ -12,9 +12,8 @@ const FOCUS_RETRY_INTERVAL_MS = 50;
 const FOCUS_RETRY_ATTEMPTS = 20;
 
 /**
- * Focus an editor that may not have mounted yet — a dynamically imported editor,
- * or a form that first has to load a template — by retrying briefly.
- * Returns a cancel function, for callers that unmount before it lands.
+ * Focus an editor that may not have mounted yet (dynamic import, template
+ * fetch) by retrying briefly. Returns a cancel function.
  */
 export const focusLexicalEditorWhenReady = (container: HTMLDivElement | null) => {
   if (!container) return () => {};

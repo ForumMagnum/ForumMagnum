@@ -17,8 +17,7 @@ import { isPost, type ContentItem } from './helpers';
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
-  // The editor sits below the template list, so the rule separates it from the
-  // "New Rejection Reason" button above it.
+  // Rule separating the editor from the template list above it
   root: {
     marginTop: 16,
     paddingTop: 16,
@@ -41,8 +40,7 @@ const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   },
-  // The intro is boilerplate the moderator has read a thousand times, so it
-  // starts as a single clickable line and only expands on demand.
+  // Boilerplate the moderator has read a thousand times; one line until clicked
   collapsedIntro: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -66,8 +64,8 @@ const RejectContentEditor = ({ user, focusedContent }: {
   const { rejectContent } = useRejectContent();
   const { registerAppendToEditor } = useAppendToEditor();
 
-  // Live editor contents go in a ref so typing doesn't re-render the template
-  // list; editorHtml is only the value the editor is (re)mounted with.
+  // Contents live in a ref so typing doesn't re-render the template list;
+  // editorHtml only seeds (re)mounts
   const rejectedReasonRef = useRef('');
   const [editorHtml, setEditorHtml] = useState('');
   const [hasRejectedReason, setHasRejectedReason] = useState(false);
@@ -96,8 +94,7 @@ const RejectContentEditor = ({ user, focusedContent }: {
     return () => registerAppendToEditor(() => {});
   }, [registerAppendToEditor, setEditorContents]);
 
-  // This panel only mounts once the moderator has picked the reject tab, so taking
-  // focus here is always deliberate — no tab is selected until they choose one.
+  // The panel only mounts on a deliberate tab pick, so taking focus is safe
   useEffect(() => focusLexicalEditorWhenReady(editorContainerRef.current), []);
 
   const handleReject = useCallback(() => {
@@ -160,9 +157,8 @@ const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
 };
 
 /**
- * Inline replacement for RejectContentDialog inside the moderation sidebar. Rejection
- * reasons are appended into the editor by clicking the templates above it, rather than
- * composed from checkboxes in a modal.
+ * Inline replacement for RejectContentDialog in the moderation sidebar:
+ * clicking a template above the editor appends its text as a reason.
  */
 const RejectContentPanel = ({ user, focusedContent }: {
   user: SunshineUsersList,
