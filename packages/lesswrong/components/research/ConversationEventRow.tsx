@@ -215,7 +215,7 @@ function getMetaLineMeta(eventKind: string, chunk: ConversationEventChunk): Meta
   }
 }
 
-function MetaLine({
+export function MetaLine({
   eventKind,
   chunk,
 }: {
