@@ -19,6 +19,8 @@ import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
+import { useCurrentUser } from '../common/withUser';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
 
 const ModerationTemplatesListQuery = gql(`
@@ -43,6 +45,32 @@ const UpdateModerationTemplateGroupMutation = gql(`
 `);
 
 const UNGROUPED_TEMPLATES_LABEL = "Other";
+const HIDDEN_TEMPLATES_LABEL = "Hidden";
+
+// Hiding is per-moderator, so it lives in localStorage
+const HIDDEN_TEMPLATES_STORAGE_PREFIX = 'hiddenModerationTemplates_';
+
+function getHiddenTemplatesStorageKey(userId: string, collectionName: TemplateType) {
+  return `${HIDDEN_TEMPLATES_STORAGE_PREFIX}${collectionName}_${userId}`;
+}
+
+function loadHiddenTemplateIds(userId: string, collectionName: TemplateType): string[] {
+  const ls = getBrowserLocalStorage();
+  const stored = ls?.getItem(getHiddenTemplatesStorageKey(userId, collectionName));
+  if (!stored) return [];
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((id): id is string => typeof id === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function saveHiddenTemplateIds(userId: string, collectionName: TemplateType, hiddenTemplateIds: Set<string>) {
+  const ls = getBrowserLocalStorage();
+  ls?.setItem(getHiddenTemplatesStorageKey(userId, collectionName), JSON.stringify([...hiddenTemplateIds]));
+}
 
 function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
   return {
@@ -283,10 +311,11 @@ const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryCha
   );
 };
 
-const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted, onHideTemplate}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted: boolean,
+  onHideTemplate: (template: ModerationTemplateFragment) => void,
 }) => {
   const classes = useStyles(styles);
   const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging} = useDraggable({
@@ -304,18 +333,20 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted}: {
         onTemplateClick={onTemplateClick}
         highlighted={highlighted}
         dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
+        onHide={onHideTemplate}
       />
     </div>
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, highlightedTemplateNames}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, highlightedTemplateNames}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
   onToggleExpanded: (group: string, expanded: boolean) => void,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   onRenameGroup: (group: string, newGroup: string) => void,
+  onHideTemplate: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
 }) => {
   const classes = useStyles(styles);
@@ -369,6 +400,34 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           template={template}
           onTemplateClick={onTemplateClick}
           highlighted={!!highlightedTemplateNames?.has(template.name)}
+          onHideTemplate={onHideTemplate}
+        />
+      ))}
+    </div>
+  );
+};
+
+const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, onTemplateClick, onUnhideTemplate}: {
+  hiddenTemplates: ModerationTemplateFragment[],
+  expanded: boolean,
+  onToggleExpanded: (expanded: boolean) => void,
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  onUnhideTemplate: (template: ModerationTemplateFragment) => void,
+}) => {
+  const classes = useStyles(styles);
+
+  return (
+    <div className={classes.templateGroup}>
+      <div className={classes.templateGroupHeader} onClick={() => onToggleExpanded(!expanded)}>
+        <ForumIcon icon={expanded ? "ExpandLess" : "ExpandMore"} className={classes.templateGroupExpandIcon} />
+        <span className={classes.templateGroupLabel}>{HIDDEN_TEMPLATES_LABEL} ({hiddenTemplates.length})</span>
+      </div>
+      {expanded && hiddenTemplates.map(template => (
+        <ModerationTemplateSunshineItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          onUnhide={onUnhideTemplate}
         />
       ))}
     </div>
@@ -387,10 +446,19 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   highlightedTemplateNames?: Set<string>,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
   const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
+  const [hiddenSectionExpanded, setHiddenSectionExpanded] = useState(false);
+
+  // In an effect, not render: localStorage would break hydration
+  useEffect(() => {
+    if (!currentUser) return;
+    setHiddenTemplateIds(new Set(loadHiddenTemplateIds(currentUser._id, collectionName)));
+  }, [currentUser, collectionName]);
 
   const queryVariables = getModerationTemplatesQueryVariables(collectionName);
   const { data } = useQuery(ModerationTemplatesListQuery, { variables: queryVariables });
@@ -403,6 +471,21 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
   };
+
+  const setTemplateHidden = (template: ModerationTemplateFragment, hidden: boolean) => {
+    if (!currentUser) return;
+    const newHiddenIds = new Set(hiddenTemplateIds);
+    if (hidden) {
+      newHiddenIds.add(template._id);
+    } else {
+      newHiddenIds.delete(template._id);
+    }
+    setHiddenTemplateIds(newHiddenIds);
+    saveHiddenTemplateIds(currentUser._id, collectionName, newHiddenIds);
+  };
+
+  const handleHideTemplate = (template: ModerationTemplateFragment) => setTemplateHidden(template, true);
+  const handleUnhideTemplate = (template: ModerationTemplateFragment) => setTemplateHidden(template, false);
 
   // Dropping manual toggles on a query change reopens anything the moderator collapsed, so matches stay visible
   const handleSearchQueryChange = (query: string) => {
@@ -443,12 +526,12 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   };
 
   const lowercaseQuery = searchQuery.trim().toLowerCase();
-  const visibleGroups = groupTemplatesByLabel(templates)
-    .map(([group, templatesInGroup]): [string, ModerationTemplateFragment[]] => [
-      group,
-      lowercaseQuery ? templatesInGroup.filter(template => templateMatchesQuery(template, lowercaseQuery)) : templatesInGroup,
-    ])
-    .filter(([, templatesInGroup]) => templatesInGroup.length > 0);
+  const matchingTemplates = lowercaseQuery
+    ? templates.filter(template => templateMatchesQuery(template, lowercaseQuery))
+    : templates;
+  // Groups are only created when non-empty, so all-hidden ones vanish
+  const visibleGroups = groupTemplatesByLabel(matchingTemplates.filter(template => !hiddenTemplateIds.has(template._id)));
+  const hiddenTemplates = matchingTemplates.filter(template => hiddenTemplateIds.has(template._id));
 
   // DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
   // otherwise come from a module-level counter, which drifts between the server and
@@ -477,10 +560,20 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
             onToggleExpanded={handleToggleGroupExpanded}
             onTemplateClick={onTemplateClick}
             onRenameGroup={handleRenameGroup}
+            onHideTemplate={handleHideTemplate}
             highlightedTemplateNames={highlightedTemplateNames}
           />
         ))}
-        {lowercaseQuery && visibleGroups.length === 0 && (
+        {hiddenTemplates.length > 0 && (
+          <HiddenTemplatesSection
+            hiddenTemplates={hiddenTemplates}
+            expanded={hiddenSectionExpanded}
+            onToggleExpanded={setHiddenSectionExpanded}
+            onTemplateClick={onTemplateClick}
+            onUnhideTemplate={handleUnhideTemplate}
+          />
+        )}
+        {lowercaseQuery && visibleGroups.length === 0 && hiddenTemplates.length === 0 && (
           <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
         )}
       </>}
