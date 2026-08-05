@@ -47,12 +47,21 @@ const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) =>
 export const ModerationTemplatesForm = ({
   initialData,
   initialCollectionName,
+  initialGroupLabel,
+  hideMetadataFields,
   onSuccess,
   onCancel,
   refetchQueries,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   initialCollectionName?: TemplateType;
+  initialGroupLabel?: string;
+  /**
+   * Hide the collectionName/order/groupLabel fields, submitting their initial
+   * values as-is. Used when the surrounding UI already determines them, as in
+   * the grouped supermod template list.
+   */
+  hideMetadataFields?: boolean;
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
   refetchQueries?: MutationHookOptions['refetchQueries'];
@@ -91,7 +100,7 @@ export const ModerationTemplatesForm = ({
     ...defaultValues,
     collectionName: defaultValues.collectionName ?? initialCollectionName ?? 'Rejections',
     name: defaultValues.name ?? '',
-    groupLabel: defaultValues.groupLabel ?? undefined,
+    groupLabel: defaultValues.groupLabel ?? initialGroupLabel ?? undefined,
   };
 
   const form = useForm({
@@ -175,43 +184,45 @@ export const ModerationTemplatesForm = ({
         </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
-        <form.Field name="collectionName">
-          {(field) => (
-            <FormComponentSelect
-              field={field}
-              options={ALLOWABLE_COLLECTIONS.map((collectionName) => ({
-                label: collectionName,
-                value: collectionName,
-              }))}
-              label="Collection name"
-            />
-          )}
-        </form.Field>
-      </div>
+      {!hideMetadataFields && <>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="collectionName">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={ALLOWABLE_COLLECTIONS.map((collectionName) => ({
+                  label: collectionName,
+                  value: collectionName,
+                }))}
+                label="Collection name"
+              />
+            )}
+          </form.Field>
+        </div>
 
-      <div className={classes.fieldWrapper}>
-        <form.Field name="order">
-          {(field) => (
-            <MuiTextField
-              field={field}
-              type="number"
-              label="Order"
-            />
-          )}
-        </form.Field>
-      </div>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="order">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                type="number"
+                label="Order"
+              />
+            )}
+          </form.Field>
+        </div>
 
-      <div className={classes.fieldWrapper}>
-        <form.Field name="groupLabel">
-          {(field) => (
-            <MuiTextField
-              field={field}
-              label="Group label"
-            />
-          )}
-        </form.Field>
-      </div>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="groupLabel">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Group label"
+              />
+            )}
+          </form.Field>
+        </div>
+      </>}
 
       {formType === 'edit' && (
         <div className={classes.fieldWrapper}>
