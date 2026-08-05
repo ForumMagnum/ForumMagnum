@@ -56,11 +56,6 @@ export const ModerationTemplatesForm = ({
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   initialCollectionName?: TemplateType;
   initialGroupLabel?: string;
-  /**
-   * Hide the collectionName/order/groupLabel fields, submitting their initial
-   * values as-is. Used when the surrounding UI already determines them, as in
-   * the grouped supermod template list.
-   */
   hideMetadataFields?: boolean;
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
