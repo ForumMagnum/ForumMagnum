@@ -647,11 +647,19 @@ function $handleInsertTextData(
   const shouldExitInlineCode = isAtEndOfInlineCode && data === ' '
   if (shouldExitInlineCode) {
     const textNode = $createTextNode(data)
-    const node = isInsideExistingInsertSuggestion
-      ? textNode
-      : $createSuggestionNode(suggestionID, 'insert').append(textNode)
-    focusNode.insertAfter(node)
-    node.selectEnd()
+    if (isInsideExistingInsertSuggestion) {
+      focusNode.insertAfter(textNode)
+      textNode.selectEnd()
+      return true
+    }
+    const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
+    suggestionNode.append(textNode)
+    // After the enclosing suggestion wrapper, if any — nesting the insert
+    // inside e.g. a delete suggestion puts the new content inside the deleted
+    // region, where accepting the delete destroys it.
+    ;(existingParentSuggestion ?? focusNode).insertAfter(suggestionNode)
+    suggestionNode.selectEnd()
+    onSuggestionCreation(suggestionID)
     return true
   }
 
