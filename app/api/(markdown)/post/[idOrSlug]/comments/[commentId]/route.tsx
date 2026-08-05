@@ -129,7 +129,9 @@ export async function GET(req: NextRequest, {
       />
       <h2>Comment thread</h2>
       <div>
-        Showing the comment and its {ancestors.length} parent comment{ancestors.length === 1 ? "" : "s"} (oldest first).
+        {ancestors.length === 0
+          ? "This is a top-level comment, so it has no parent comments."
+          : `Showing ${ancestors.length} parent comment${ancestors.length === 1 ? "" : "s"} (oldest first), then the comment itself.`}
       </div>
       <MarkdownCommentsList
         comments={[...ancestors, comment]}
