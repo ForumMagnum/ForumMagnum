@@ -34,11 +34,12 @@ const PostsDetailsQuery = gql(`
   }
 `);
 
-const CommentActions = ({comment, post, tag, showEdit}: {
+const CommentActions = ({comment, post, tag, showEdit, closeMenu}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: () => void,
+  closeMenu?: () => void,
 }) => {
   const currentUser = useCurrentUser();
   const { data } = useQuery(PostsDetailsQuery, {
@@ -61,7 +62,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   return (
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
-      <CopyCommentAsMarkdownDropdownItem comment={comment} />
+      <CopyCommentAsMarkdownDropdownItem comment={comment} closeMenu={closeMenu} />
       <PinToProfileDropdownItem comment={comment} post={post} />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}

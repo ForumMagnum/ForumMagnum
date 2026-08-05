@@ -30,8 +30,6 @@ interface FragmentTypes {
   CommentsList: CommentsList
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
-  CommentsMarkdownCopy: CommentsMarkdownCopy
-  CommentsMarkdownCopyWithParents: CommentsMarkdownCopyWithParents
   CommentsMarkdownFragment: CommentsMarkdownFragment
   ConceptItemFragment: ConceptItemFragment
   ConversationsList: ConversationsList
@@ -94,7 +92,6 @@ interface FragmentTypes {
   PostsListTagWithVotes: PostsListTagWithVotes
   PostsListWithVotes: PostsListWithVotes
   PostsListWithVotesAndSequence: PostsListWithVotesAndSequence
-  PostsMarkdownCopy: PostsMarkdownCopy
   PostsMinimumInfo: PostsMinimumInfo
   PostsModerationGuidelines: PostsModerationGuidelines
   PostsOriginalContents: PostsOriginalContents
@@ -230,7 +227,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownCopy"|"CommentsMarkdownCopyWithParents"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CurationNotices: "CurationNoticesFragment"
   ElicitQuestions: "ElicitQuestionFragment"
@@ -254,7 +251,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMarkdownCopy"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshineCurationPostsListItem"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshineCurationPostsListItem"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -298,8 +295,6 @@ interface CollectionNamesByFragmentName {
   CommentsList: "Comments"
   CommentsListWithParentMetadata: "Comments"
   CommentsListWithTopLevelComment: "Comments"
-  CommentsMarkdownCopy: "Comments"
-  CommentsMarkdownCopyWithParents: "Comments"
   CommentsMarkdownFragment: "Comments"
   ConceptItemFragment: "Tags"
   ConversationsList: "Conversations"
@@ -362,7 +357,6 @@ interface CollectionNamesByFragmentName {
   PostsListTagWithVotes: "Posts"
   PostsListWithVotes: "Posts"
   PostsListWithVotesAndSequence: "Posts"
-  PostsMarkdownCopy: "Posts"
   PostsMinimumInfo: "Posts"
   PostsModerationGuidelines: "Posts"
   PostsOriginalContents: "Posts"
