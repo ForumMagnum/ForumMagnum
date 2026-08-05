@@ -39,6 +39,9 @@ const styles = defineStyles('ConversationTranscriptItems', (theme: ThemeType) =>
     flex: 'none',
     userSelect: 'none',
     color: researchWarmAlpha(0.45),
+    // Optical correction: the triangle's ink sits on the baseline with no
+    // descender, reading visually low next to lowercase text.
+    transform: 'translateY(-1px)',
   },
   glyphTool: {
     color: theme.palette.primary.main,
