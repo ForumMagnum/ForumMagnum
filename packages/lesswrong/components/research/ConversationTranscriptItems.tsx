@@ -6,7 +6,6 @@ import { getConversationEventChunks, isPlainRecord } from './conversationEventFo
 import { ConversationEventRow, MetaLine } from './ConversationEventRow';
 import {
   describeToolGroup,
-  getParentToolUseId,
   groupCalls,
   type TranscriptItem,
   type TranscriptRunEntry,
@@ -39,6 +38,7 @@ const styles = defineStyles('ConversationTranscriptItems', (theme: ThemeType) =>
     flex: 'none',
     userSelect: 'none',
     color: researchWarmAlpha(0.45),
+    transform: 'translateY(-1px)',
   },
   glyphTool: {
     color: theme.palette.primary.main,
