@@ -3,6 +3,7 @@ import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
+import CopyCommentAsMarkdownDropdownItem from "./CopyCommentAsMarkdownDropdownItem";
 import ReportCommentDropdownItem from "./ReportCommentDropdownItem";
 import DeleteCommentDropdownItem from "./DeleteCommentDropdownItem";
 import RetractCommentDropdownItem from "./RetractCommentDropdownItem";
@@ -60,6 +61,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   return (
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
+      <CopyCommentAsMarkdownDropdownItem comment={comment} />
       <PinToProfileDropdownItem comment={comment} post={post} />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}

@@ -14422,6 +14422,23 @@ type CommentActionsQueryVariables = Exact<{
 
 type CommentActionsQuery = CommentActionsQuery_Query;
 
+type CopyCommentAsMarkdownQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownCopyWithParents
+);
+
+type CopyCommentAsMarkdownQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CopyCommentAsMarkdownQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CopyCommentAsMarkdownQuery_Query = { __typename?: 'Query', comment: CopyCommentAsMarkdownQuery_comment_SingleCommentOutput | null };
+
+
+type CopyCommentAsMarkdownQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CopyCommentAsMarkdownQuery = CopyCommentAsMarkdownQuery_Query;
+
 type lockThreadMutation_Mutation = { __typename?: 'Mutation', lockThread: boolean };
 
 
@@ -14604,6 +14621,23 @@ type updateUserApproveNewUserDropdownItemMutationVariables = Exact<{
 
 
 type updateUserApproveNewUserDropdownItemMutation = updateUserApproveNewUserDropdownItemMutation_Mutation;
+
+type CopyPostAsMarkdownQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsMarkdownCopy
+);
+
+type CopyPostAsMarkdownQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: CopyPostAsMarkdownQuery_post_SinglePostOutput_result_Post | null };
+
+type CopyPostAsMarkdownQuery_Query = { __typename?: 'Query', post: CopyPostAsMarkdownQuery_post_SinglePostOutput | null };
+
+
+type CopyPostAsMarkdownQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CopyPostAsMarkdownQuery = CopyPostAsMarkdownQuery_Query;
 
 type updatePostDeleteDraftDropdownItemMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
@@ -23923,6 +23957,77 @@ type CommentsMarkdownFragment_Comment_contents_Revision = { __typename?: 'Revisi
 
 type CommentsMarkdownFragment = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: CommentsMarkdownFragment_Comment_user_User | null, contents: CommentsMarkdownFragment_Comment_contents_Revision | null };
 
+type CommentsMarkdownCopy_Comment_user_User = { __typename?: 'User', _id: string, slug: string, displayName: string };
+
+type CommentsMarkdownCopy_Comment_contents_Revision = { __typename?: 'Revision', _id: string, markdown: string | null };
+
+type CommentsMarkdownCopy = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, user: CommentsMarkdownCopy_Comment_user_User | null, contents: CommentsMarkdownCopy_Comment_contents_Revision | null };
+
+type CommentsMarkdownCopyWithParents_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
+type CommentsMarkdownCopyWithParents = (
+  { __typename?: 'Comment', post: CommentsMarkdownCopyWithParents_Comment_post_Post | null, parentComment: CommentsMarkdownCopyWithParents_Comment_parentComment_Comment | null }
+  & CommentsMarkdownCopy
+);
+
 type ConversationsMinimumInfo = { __typename?: 'Conversation', _id: string, createdAt: string | null, latestActivity: string | null, title: string | null, participantIds: Array<string> | null, archivedByIds: Array<string>, messageCount: number, moderator: boolean | null };
 
 type ConversationsList_Conversation_participants_User = (
@@ -24658,6 +24763,14 @@ type SuggestAlignmentPost = (
 );
 
 type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
+
+type PostsMarkdownCopy_Post_user_User = { __typename?: 'User', _id: string, slug: string, displayName: string };
+
+type PostsMarkdownCopy_Post_coauthors_User = { __typename?: 'User', _id: string, slug: string, displayName: string };
+
+type PostsMarkdownCopy_Post_contents_Revision = { __typename?: 'Revision', _id: string, markdown: string | null };
+
+type PostsMarkdownCopy = { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, url: string | null, postedAt: string, user: PostsMarkdownCopy_Post_user_User | null, coauthors: Array<PostsMarkdownCopy_Post_coauthors_User> | null, contents: PostsMarkdownCopy_Post_contents_Revision | null };
 
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }

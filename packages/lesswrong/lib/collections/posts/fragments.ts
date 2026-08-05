@@ -900,3 +900,33 @@ export const ChapterPostSlim = gql(`
     isRead
   }
 `)
+
+/**
+ * Fields needed to render a post as a self-contained markdown document, for
+ * pasting into an LLM. See `@/lib/copyAsMarkdown`.
+ */
+export const PostsMarkdownCopy = gql(`
+  fragment PostsMarkdownCopy on Post {
+    _id
+    title
+    slug
+    isEvent
+    groupId
+    url
+    postedAt
+    user {
+      _id
+      slug
+      displayName
+    }
+    coauthors {
+      _id
+      slug
+      displayName
+    }
+    contents {
+      _id
+      markdown
+    }
+  }
+`)
