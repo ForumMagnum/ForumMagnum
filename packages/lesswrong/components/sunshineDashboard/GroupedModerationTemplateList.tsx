@@ -236,17 +236,23 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     zIndex: 2,
     opacity: 0.7,
   },
-  newTemplateButton: {
+  addTemplateButton: {
+    marginLeft: 'auto',
     flexShrink: 0,
-    cursor: 'pointer',
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  addTemplateIcon: {
+    height: 14,
+    width: 14,
     color: theme.palette.grey[600],
-    letterSpacing: '0.5px',
+    '&:hover': {
+      color: theme.palette.grey[900],
+    },
   },
   newTemplateForm: {
-    marginTop: 16,
+    marginTop: 4,
+    marginBottom: 8,
     paddingLeft: 12,
     paddingRight: 0,
     marginLeft: -6,
@@ -339,7 +345,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, onHideTe
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, highlightedTemplateNames}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -347,6 +353,8 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   onRenameGroup: (group: string, newGroup: string) => void,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
+  onAddTemplate: (group: string) => void,
+  newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
 }) => {
   const classes = useStyles(styles);
@@ -393,7 +401,18 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
               }}
             />
           : <span className={classes.templateGroupLabel} onDoubleClick={() => setDraftName(group)}>{group}</span>}
+        <LWTooltip title="New template in this group" placement="left" className={classes.addTemplateButton}>
+          <ForumIcon
+            icon="Plus"
+            className={classes.addTemplateIcon}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddTemplate(group);
+            }}
+          />
+        </LWTooltip>
       </div>
+      {newTemplateForm}
       {expanded && templatesInGroup.map(template => (
         <DraggableTemplateItem
           key={template._id}
@@ -447,7 +466,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
+  const [newTemplateGroup, setNewTemplateGroup] = useState<string | null>(null);
   const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -486,6 +505,12 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 
   const handleHideTemplate = (template: ModerationTemplateFragment) => setTemplateHidden(template, true);
   const handleUnhideTemplate = (template: ModerationTemplateFragment) => setTemplateHidden(template, false);
+
+  // Expand the group so the form (and, after submitting, the new template) is visible
+  const handleAddTemplate = (group: string) => {
+    setGroupExpandedOverrides(prev => ({...prev, [group]: true}));
+    setNewTemplateGroup(group);
+  };
 
   // Dropping manual toggles on a query change reopens anything the moderator collapsed, so matches stay visible
   const handleSearchQueryChange = (query: string) => {
@@ -532,6 +557,11 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   // Groups are only created when non-empty, so all-hidden ones vanish
   const visibleGroups = groupTemplatesByLabel(matchingTemplates.filter(template => !hiddenTemplateIds.has(template._id)));
   const hiddenTemplates = matchingTemplates.filter(template => hiddenTemplateIds.has(template._id));
+  // Outside of a search, always show "Other" (even when empty) so its "+" button
+  // is the standing affordance for creating an ungrouped template
+  if (!lowercaseQuery && !visibleGroups.some(([group]) => group === UNGROUPED_TEMPLATES_LABEL)) {
+    visibleGroups.push([UNGROUPED_TEMPLATES_LABEL, []]);
+  }
 
   // DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
   // otherwise come from a module-level counter, which drifts between the server and
@@ -543,7 +573,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
     onDragEnd={handleTemplateDragEnd}
   >
     <div className={classes.root}>
-      {templates.length > 0 && <>
+      {templates.length > 0 && (
         <TemplateSearchBar
           searchOpen={searchOpen}
           searchQuery={searchQuery}
@@ -551,44 +581,44 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onClose={handleCloseSearch}
           onQueryChange={handleSearchQueryChange}
         />
-        {visibleGroups.map(([group, templatesInGroup]) => (
-          <TemplateGroup
-            key={group}
-            group={group}
-            templatesInGroup={templatesInGroup}
-            expanded={groupExpandedOverrides[group] ?? true}
-            onToggleExpanded={handleToggleGroupExpanded}
-            onTemplateClick={onTemplateClick}
-            onRenameGroup={handleRenameGroup}
-            onHideTemplate={handleHideTemplate}
-            highlightedTemplateNames={highlightedTemplateNames}
-          />
-        ))}
-        {hiddenTemplates.length > 0 && (
-          <HiddenTemplatesSection
-            hiddenTemplates={hiddenTemplates}
-            expanded={hiddenSectionExpanded}
-            onToggleExpanded={setHiddenSectionExpanded}
-            onTemplateClick={onTemplateClick}
-            onUnhideTemplate={handleUnhideTemplate}
-          />
-        )}
-        {lowercaseQuery && visibleGroups.length === 0 && hiddenTemplates.length === 0 && (
-          <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
-        )}
-      </>}
-      <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
-        New {collectionName === "Rejections" ? "Rejection Reason" : "Mod Template"}
-      </div>
-      {showNewTemplateForm && (
-        <div className={classes.newTemplateForm}>
-          <ModerationTemplatesForm
-            initialCollectionName={collectionName}
-            onSuccess={() => setShowNewTemplateForm(false)}
-            onCancel={() => setShowNewTemplateForm(false)}
-            refetchQueries={[{ query: ModerationTemplatesListQuery, variables: queryVariables }]}
-          />
-        </div>
+      )}
+      {visibleGroups.map(([group, templatesInGroup]) => (
+        <TemplateGroup
+          key={group}
+          group={group}
+          templatesInGroup={templatesInGroup}
+          expanded={groupExpandedOverrides[group] ?? true}
+          onToggleExpanded={handleToggleGroupExpanded}
+          onTemplateClick={onTemplateClick}
+          onRenameGroup={handleRenameGroup}
+          onHideTemplate={handleHideTemplate}
+          onAddTemplate={handleAddTemplate}
+          newTemplateForm={newTemplateGroup === group && (
+            <div className={classes.newTemplateForm}>
+              <ModerationTemplatesForm
+                initialCollectionName={collectionName}
+                initialGroupLabel={group === UNGROUPED_TEMPLATES_LABEL ? undefined : group}
+                hideMetadataFields
+                onSuccess={() => setNewTemplateGroup(null)}
+                onCancel={() => setNewTemplateGroup(null)}
+                refetchQueries={[{ query: ModerationTemplatesListQuery, variables: queryVariables }]}
+              />
+            </div>
+          )}
+          highlightedTemplateNames={highlightedTemplateNames}
+        />
+      ))}
+      {hiddenTemplates.length > 0 && (
+        <HiddenTemplatesSection
+          hiddenTemplates={hiddenTemplates}
+          expanded={hiddenSectionExpanded}
+          onToggleExpanded={setHiddenSectionExpanded}
+          onTemplateClick={onTemplateClick}
+          onUnhideTemplate={handleUnhideTemplate}
+        />
+      )}
+      {lowercaseQuery && visibleGroups.length === 0 && hiddenTemplates.length === 0 && (
+        <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
       )}
     </div>
   </DndContext>;
