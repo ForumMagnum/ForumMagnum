@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DndContext,
@@ -21,6 +21,7 @@ import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
 
 const ModerationTemplatesListQuery = gql(`
@@ -106,6 +107,11 @@ function groupTemplatesByLabel(templates: ModerationTemplateFragment[]): [string
 // Same matching as the rejection dialog's template search: case-insensitive substring of the name
 function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQuery: string) {
   return template.name.toLowerCase().includes(lowercaseQuery);
+}
+
+function isInTextInput(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 }
 
 function getGroupLabelUpdateOptions(template: ModerationTemplateFragment, newGroupLabel: string | null) {
@@ -266,12 +272,15 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
   },
 }));
 
-const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryChange}: {
+const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose, onQueryChange, onKeyDown}: {
   searchOpen: boolean,
   searchQuery: string,
+  // Bumped whenever the search hotkey is pressed, so it refocuses an already-open search
+  focusToken: number,
   onOpen: () => void,
   onClose: () => void,
   onQueryChange: (query: string) => void,
+  onKeyDown: (event: React.KeyboardEvent) => void,
 }) => {
   const classes = useStyles(styles);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -280,12 +289,12 @@ const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryCha
     if (searchOpen) {
       inputRef.current?.focus();
     }
-  }, [searchOpen]);
+  }, [searchOpen, focusToken]);
 
   if (!searchOpen) {
     return (
       <div className={classes.listHeader}>
-        <LWTooltip title="Search templates" placement="left">
+        <LWTooltip title="Search templates (/)" placement="left">
           <ForumIcon icon="Search" className={classes.searchIcon} onClick={onOpen} />
         </LWTooltip>
       </div>
@@ -301,36 +310,41 @@ const TemplateSearchBar = ({searchOpen, searchQuery, onOpen, onClose, onQueryCha
         placeholder="Search templates..."
         value={searchQuery}
         onChange={(e) => onQueryChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            // The supermod shortcut handler listens on document and acts on Escape even
-            // from inside text inputs, so it would deselect the user out from under the
-            // search. React's own listener is on document too, so only
-            // stopImmediatePropagation keeps the event from reaching it.
-            e.nativeEvent.stopImmediatePropagation();
-            onClose();
-          }
-        }}
+        onKeyDown={onKeyDown}
       />
       <ForumIcon icon="Close" className={classes.searchIcon} onClick={onClose} />
     </div>
   );
 };
 
-const DraggableTemplateItem = ({template, onTemplateClick, highlighted, onHideTemplate}: {
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, onHideTemplate}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted: boolean,
+  selected: boolean,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
 }) => {
   const classes = useStyles(styles);
   const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging} = useDraggable({
     id: template._id,
   });
+  const rowRef = useRef<HTMLDivElement | null>(null);
+
+  // dnd-kit needs the same node, so the two refs are combined here
+  const setRefs = useCallback((node: HTMLDivElement | null) => {
+    rowRef.current = node;
+    setNodeRef(node);
+  }, [setNodeRef]);
+
+  useEffect(() => {
+    if (selected) {
+      rowRef.current?.scrollIntoView({block: 'nearest'});
+    }
+  }, [selected]);
 
   return (
     <div
-      ref={setNodeRef}
+      ref={setRefs}
       className={classNames({[classes.draggedTemplate]: isDragging})}
       style={{transform: CSS.Translate.toString(transform)}}
     >
@@ -338,6 +352,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, onHideTe
         template={template}
         onTemplateClick={onTemplateClick}
         highlighted={highlighted}
+        selected={selected}
         dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
         onHide={onHideTemplate}
       />
@@ -345,7 +360,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, onHideTe
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -356,6 +371,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
+  selectedTemplateId: string | null,
 }) => {
   const classes = useStyles(styles);
   const {setNodeRef, isOver} = useDroppable({id: group});
@@ -419,6 +435,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           template={template}
           onTemplateClick={onTemplateClick}
           highlighted={!!highlightedTemplateNames?.has(template.name)}
+          selected={template._id === selectedTemplateId}
           onHideTemplate={onHideTemplate}
         />
       ))}
@@ -458,11 +475,16 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * grouped by `groupLabel`. Parameterized by collection so the same list can back
  * both message templates and rejection reasons; dragging a template onto another
  * group's header re-labels it, and double-clicking a group name renames the group.
+ *
+ * The search box drives the same keyboard flow as the rejection dialog: "/" opens and
+ * focuses it, up/down move the selection through the visible templates, Enter applies
+ * the selected one, Tab jumps to the composer, and Escape closes the search.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
+  onFocusComposer?: () => void,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -470,8 +492,21 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const [groupExpandedOverrides, setGroupExpandedOverrides] = useState<Record<string, boolean>>({});
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocusToken, setSearchFocusToken] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [hiddenSectionExpanded, setHiddenSectionExpanded] = useState(false);
+
+  // "/" is the way into the template list from the rest of the supermod keyboard flow,
+  // which is why this listens globally rather than on the list itself
+  useGlobalKeydown(useCallback((event: KeyboardEvent) => {
+    if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (isInTextInput(event.target)) return;
+    event.preventDefault();
+    setSearchOpen(true);
+    setSelectedIndex(0);
+    setSearchFocusToken(token => token + 1);
+  }, []));
 
   // In an effect, not render: localStorage would break hydration
   useEffect(() => {
@@ -516,12 +551,14 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const handleSearchQueryChange = (query: string) => {
     setSearchQuery(query);
     setGroupExpandedOverrides({});
+    setSelectedIndex(0);
   };
 
   const handleCloseSearch = () => {
     setSearchOpen(false);
     setSearchQuery('');
     setGroupExpandedOverrides({});
+    setSelectedIndex(0);
   };
 
   const handleTemplateDragEnd = (event: DragEndEvent) => {
@@ -563,6 +600,50 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
     visibleGroups.push([UNGROUPED_TEMPLATES_LABEL, []]);
   }
 
+  const isGroupExpanded = (group: string) => groupExpandedOverrides[group] ?? true;
+
+  // What the arrow keys walk: everything on screen, in display order. Templates in
+  // collapsed groups and hidden templates aren't visible, so they aren't navigable.
+  const navigableTemplates = visibleGroups
+    .filter(([group]) => isGroupExpanded(group))
+    .flatMap(([, templatesInGroup]) => templatesInGroup);
+
+  // Collapsing a group can leave the index past the end of the list
+  const selectedTemplate = navigableTemplates[selectedIndex];
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent) => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (navigableTemplates.length === 0) return;
+        setSelectedIndex(prev => prev >= navigableTemplates.length - 1 ? 0 : prev + 1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        if (navigableTemplates.length === 0) return;
+        setSelectedIndex(prev => prev <= 0 ? navigableTemplates.length - 1 : prev - 1);
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (selectedTemplate) {
+          onTemplateClick(selectedTemplate);
+        }
+        break;
+      case 'Tab':
+        event.preventDefault();
+        onFocusComposer?.();
+        break;
+      case 'Escape':
+        // The supermod shortcut handler listens on document and acts on Escape even
+        // from inside text inputs, so it would deselect the user out from under the
+        // search. React's own listener is on document too, so only
+        // stopImmediatePropagation keeps the event from reaching it.
+        event.nativeEvent.stopImmediatePropagation();
+        handleCloseSearch();
+        break;
+    }
+  };
+
   // DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
   // otherwise come from a module-level counter, which drifts between the server and
   // the client and trips a hydration mismatch
@@ -577,9 +658,11 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
         <TemplateSearchBar
           searchOpen={searchOpen}
           searchQuery={searchQuery}
+          focusToken={searchFocusToken}
           onOpen={() => setSearchOpen(true)}
           onClose={handleCloseSearch}
           onQueryChange={handleSearchQueryChange}
+          onKeyDown={handleSearchKeyDown}
         />
       )}
       {visibleGroups.map(([group, templatesInGroup]) => (
@@ -587,7 +670,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           key={group}
           group={group}
           templatesInGroup={templatesInGroup}
-          expanded={groupExpandedOverrides[group] ?? true}
+          expanded={isGroupExpanded(group)}
           onToggleExpanded={handleToggleGroupExpanded}
           onTemplateClick={onTemplateClick}
           onRenameGroup={handleRenameGroup}
@@ -606,6 +689,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
             </div>
           )}
           highlightedTemplateNames={highlightedTemplateNames}
+          selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
         />
       ))}
       {hiddenTemplates.length > 0 && (
