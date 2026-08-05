@@ -82,6 +82,12 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
+  // Defined before `suggested` so a selected-and-suggested row keeps the suggested
+  // background and only picks up the outline
+  selected: {
+    outline: theme.palette.greyBorder("1px", 0.3),
+    backgroundColor: theme.palette.greyAlpha(0.1),
+  },
   suggested: {
     backgroundColor: theme.palette.grey[900],
     color: theme.palette.grey[100],
@@ -112,10 +118,11 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, dragHandleProps, onHide, onUnhide}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, dragHandleProps, onHide, onUnhide}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
+  selected?: boolean,
   dragHandleProps?: DragHandleProps,
   onHide?: (template: ModerationTemplateFragment) => void,
   onUnhide?: (template: ModerationTemplateFragment) => void,
@@ -157,7 +164,7 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
       }
     >
       <div
-        className={classNames(classes.templateItem, { [classes.suggested]: highlighted })}
+        className={classNames(classes.templateItem, { [classes.suggested]: highlighted, [classes.selected]: selected })}
         onClick={() => onTemplateClick(template)}
       >
         {dragHandleProps && (
