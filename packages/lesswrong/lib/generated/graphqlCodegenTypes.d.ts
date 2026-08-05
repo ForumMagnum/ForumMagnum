@@ -1541,6 +1541,7 @@ type CreatePostInput = {
 type CreateRSSFeedDataInput = {
   displayFullContent?: InputMaybe<Scalars['Boolean']['input']>;
   importAsDraft?: InputMaybe<Scalars['Boolean']['input']>;
+  importAsQuickTake?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   nickname: Scalars['String']['input'];
   ownedByUser?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8729,6 +8730,7 @@ type RSSFeed = {
   createdAt: Scalars['Date']['output'];
   displayFullContent: Scalars['Boolean']['output'];
   importAsDraft: Scalars['Boolean']['output'];
+  importAsQuickTake: Scalars['Boolean']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   nickname: Scalars['String']['output'];
   ownedByUser: Scalars['Boolean']['output'];
@@ -11215,6 +11217,7 @@ type UpdatePostInput = {
 type UpdateRSSFeedDataInput = {
   displayFullContent?: InputMaybe<Scalars['Boolean']['input']>;
   importAsDraft?: InputMaybe<Scalars['Boolean']['input']>;
+  importAsQuickTake?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   nickname?: InputMaybe<Scalars['String']['input']>;
   ownedByUser?: InputMaybe<Scalars['Boolean']['input']>;
@@ -24805,9 +24808,9 @@ type RSSFeedMinimumInfo_RSSFeed_user_User = (
   & UsersMinimumInfo
 );
 
-type RSSFeedMinimumInfo = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean, user: RSSFeedMinimumInfo_RSSFeed_user_User | null };
+type RSSFeedMinimumInfo = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, importAsDraft: boolean, importAsQuickTake: boolean, user: RSSFeedMinimumInfo_RSSFeed_user_User | null };
 
-type newRSSFeedFragment = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, importAsDraft: boolean };
+type newRSSFeedFragment = { __typename?: 'RSSFeed', _id: string, userId: string, createdAt: string, ownedByUser: boolean, displayFullContent: boolean, nickname: string, url: string, status: string | null, importAsDraft: boolean, importAsQuickTake: boolean };
 
 type SequencesPageTitleFragment_Sequence_canonicalCollection_Collection = { __typename?: 'Collection', _id: string, title: string };
 

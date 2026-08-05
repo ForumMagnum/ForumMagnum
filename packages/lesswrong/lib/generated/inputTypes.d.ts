@@ -5585,6 +5585,7 @@ interface RSSFeed {
   rawFeed: any;
   setCanonicalUrl: boolean;
   importAsDraft: boolean;
+  importAsQuickTake: boolean;
 }
 
 interface SingleRSSFeedInput {
@@ -8289,6 +8290,7 @@ interface CreateRSSFeedDataInput {
   rawFeed?: any;
   setCanonicalUrl?: boolean | null;
   importAsDraft?: boolean | null;
+  importAsQuickTake?: boolean | null;
 }
 
 interface CreateRSSFeedInput {
@@ -8306,6 +8308,7 @@ interface UpdateRSSFeedDataInput {
   rawFeed?: any;
   setCanonicalUrl?: boolean | null;
   importAsDraft?: boolean | null;
+  importAsQuickTake?: boolean | null;
 }
 
 interface UpdateRSSFeedInput {

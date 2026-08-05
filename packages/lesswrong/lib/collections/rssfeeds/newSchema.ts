@@ -162,6 +162,24 @@ const schema = {
       },
     },
   },
+  importAsQuickTake: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"RSSFeeds">>;
 
 export default schema;

@@ -1097,6 +1097,7 @@ interface DbRSSFeed extends DbObject {
   createdAt: Date
   displayFullContent: boolean
   importAsDraft: boolean
+  importAsQuickTake: boolean
   legacyData: any | null
   nickname: string
   ownedByUser: boolean

@@ -63,6 +63,7 @@ const RSSFeedsForm = ({
     displayFullContent: null,
     setCanonicalUrl: null,
     importAsDraft: null,
+    importAsQuickTake: null,
     rawFeed: null,
   };
 
@@ -156,6 +157,17 @@ const RSSFeedsForm = ({
             <FormComponentCheckbox
               field={field}
               label="Import posts as draft"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className={classes.fieldWrapper}>
+        <form.Field name="importAsQuickTake">
+          {(field) => (
+            <FormComponentCheckbox
+              field={field}
+              label="Import posts as Quick Takes"
             />
           )}
         </form.Field>

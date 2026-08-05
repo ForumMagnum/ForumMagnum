@@ -6028,6 +6028,7 @@ type RSSFeed {
   rawFeed: JSON
   setCanonicalUrl: Boolean!
   importAsDraft: Boolean!
+  importAsQuickTake: Boolean!
 }
 
 input SingleRSSFeedInput {
@@ -9049,6 +9050,7 @@ input CreateRSSFeedDataInput {
   rawFeed: JSON
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
+  importAsQuickTake: Boolean
 }
 
 input CreateRSSFeedInput {
@@ -9066,6 +9068,7 @@ input UpdateRSSFeedDataInput {
   rawFeed: JSON
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
+  importAsQuickTake: Boolean
 }
 
 input UpdateRSSFeedInput {
