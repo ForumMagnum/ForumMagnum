@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useFilteredCurrentUser } from '../common/withUser';
@@ -110,7 +110,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
 
-  const shouldUncollapseForAutoScroll = useCallback(() => {
+  const shouldUncollapseForAutoScroll = useMemo(() => {
     const commentAndChildren = [
       comment,
       ...(childComments ? childComments.flatMap((c) => flattenCommentBranch(c)) : []),
@@ -121,7 +121,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
 
   const beginCollapsed = useCallback(() => {
-    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
+    return !shouldUncollapseForAutoScroll && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
   }, [comment.baseScore, comment.deleted, forceUnCollapsed, karmaCollapseThreshold, shouldUncollapseForAutoScroll])
 
   const beginSingleLine = useCallback((): boolean => {
@@ -189,11 +189,15 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   }, [linkedCommentId]);
 
   useEffect(() => {
-    // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
-    if (collapsed && shouldUncollapseForAutoScroll()) {
+    // The comment hash isn't sent to the server, and child comments may load after
+    // this node initializes, so auto-uncollapse when a scroll target becomes visible in this branch.
+    if (collapsed && shouldUncollapseForAutoScroll) {
       setCollapsed(false);
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollToCommentId, shouldUncollapseForAutoScroll]);
 
+  useEffect(() => {
     if (shouldExpandAndScrollTo) {
       handleExpand({scroll: true})
     }
