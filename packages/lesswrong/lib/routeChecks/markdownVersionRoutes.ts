@@ -1,6 +1,5 @@
 import type { ParamMap } from "../../../../.next/types/routes";
-import { matchPath } from "../vendor/react-router/matchPath";
-import { routePatternToReactRouterPath } from "./routePatternFormat";
+import { findNextConsistentRoutePatternMatch } from "./nextRouteMatching";
 
 type NextExistingRoute = keyof ParamMap;
 
@@ -45,18 +44,11 @@ export type MarkdownVersionRoutePattern = keyof typeof routeMarkdownMapping;
 type MarkdownRoutePattern = keyof typeof routeMarkdownMapping;
 type MarkdownRouteEntries = [MarkdownRoutePattern, (params: Record<string, string>) => string][];
 
-const routeMarkdownEntries = Object.entries(routeMarkdownMapping) as MarkdownRouteEntries;
+const routeMarkdownHandlers = new Map(Object.entries(routeMarkdownMapping) as MarkdownRouteEntries);
+const markdownRoutePatterns = [...routeMarkdownHandlers.keys()];
 
 export function getMarkdownPathname(pathname: string): string | null {
-  for (const [routePattern, getMarkdownRoutePath] of routeMarkdownEntries) {
-    const match = matchPath<Record<string, string>>(pathname, {
-      path: routePatternToReactRouterPath(routePattern),
-      exact: true,
-      strict: false,
-    });
-    if (match?.params) {
-      return getMarkdownRoutePath(match.params);
-    }
-  }
-  return null;
+  const match = findNextConsistentRoutePatternMatch(pathname, markdownRoutePatterns);
+  const getMarkdownRoutePath = match && routeMarkdownHandlers.get(match.routePattern);
+  return getMarkdownRoutePath ? getMarkdownRoutePath(match.params) : null;
 }

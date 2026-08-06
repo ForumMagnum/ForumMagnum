@@ -1,20 +1,15 @@
-import { matchPath } from '../vendor/react-router/matchPath';
 import { isAF } from "../instanceSettings";
-import { routePatternToReactRouterPath } from './routePatternFormat';
+import { findNextConsistentRoutePatternMatch } from './nextRouteMatching';
 import type { ParamMap } from '../../../../.next/types/routes';
 
 type NextExistingRoute = keyof ParamMap;
 
 function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[]) {
-  return routePaths.some(routePath => pathnameMatchesRoutePath(pathname, routePath));
+  return !!findNextConsistentRoutePatternMatch(pathname, routePaths);
 }
 
 export function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
-  return !!matchPath(pathname, {
-    path: routePatternToReactRouterPath(routePath),
-    exact: true,
-    strict: false,
-  });
+  return pathnameMatchesAnyOf(pathname, [routePath]);
 }
 
 export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF();
@@ -52,12 +47,7 @@ export type LeftNavigationRoutePattern = typeof routesWithLeftNavigationColumn[n
 
 export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [...routesWithLeftNavigationColumn]);
 
-export const isPostsSingleRoute = (pathname: string) => {
-  const match = matchPath<{ _id: string }>(pathname, {
-    path: ['/posts/[_id]', '/posts/[_id]/[slug]'].map(routePatternToReactRouterPath),
-    exact: true,
-    strict: false,
-  });
-
-  return !!match && match.params._id !== 'slug';
-}
+export const isPostsSingleRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  '/posts/[_id]',
+  '/posts/[_id]/[slug]',
+]);

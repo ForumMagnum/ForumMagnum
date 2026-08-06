@@ -1,5 +1,6 @@
 import { cheerioParse } from './utils/htmlUtil';
-import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
+import { parseRoute } from '@/lib/routeChecks/parseRoute';
+import { parsePath } from '@/lib/routeChecks/parsePath';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
 import { getUrlClass } from './utils/getUrlClass';
