@@ -222,6 +222,12 @@ interface DbComment extends DbObject {
       pollQuestionWhenPublished: string | null,
       commentPrompt: string | null,
     } | null,
+    mcPoll: {
+      answerIdsWhenPublished: Array<string>,
+      latestAnswerIds: Array<string> | null,
+      pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
+    } | null,
   } | null
   hideAuthor: boolean
   hideKarma: boolean | null

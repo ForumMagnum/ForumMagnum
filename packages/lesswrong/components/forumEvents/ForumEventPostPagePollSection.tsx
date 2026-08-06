@@ -8,6 +8,8 @@ import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
 import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
+import ForumEventMcPoll from "./ForumEventMcPoll";
+import { forumEventIsMcPoll } from "@/lib/collections/forumEvents/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import ForumIcon from "../common/ForumIcon";
@@ -191,7 +193,11 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
               className={classNames(classes.linkIcon, { [classes.linkIconHighlighted]: isLinkedPoll })}
             />
           </div>
-          <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={event.isGlobal} />
+          {forumEventIsMcPoll(event.publicData) ? (
+            <ForumEventMcPoll forumEventId={forumEventId} hideViewResults={event.isGlobal} />
+          ) : (
+            <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={event.isGlobal} />
+          )}
         </div>
       </div>
     </AnalyticsContext>
