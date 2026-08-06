@@ -17,7 +17,7 @@ import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
-import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
+import { getFilteredGroups, getVisibleTabsInOrder, inboxStateReducer, initializeInboxState } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -131,146 +131,36 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { query, location } = useLocation();
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
-    (): InboxState => {
-      const initialUsers = directUser ? [directUser, ...users] : users;
-      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
-        return {
-          users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (initialOpenedUserId) {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'all',
-          focusedUserId: initialOpenedUserId,
-          openedUserId: initialOpenedUserId,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
-
-      // Default to curation when there are no curation notices (so you can add some)
-      // Otherwise, find the first non-empty non-curation tab
-      const firstNonEmptyTab = curationNoticeCount === 0
-        ? undefined
-        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
-
-      if (firstTab === 'curation') {
-        return { 
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: curationPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-      
-      if (firstTab === 'posts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'posts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: posts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (firstTab === 'classifiedPosts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'classifiedPosts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: classifiedPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        users: initialUsers,
-        posts,
-        classifiedPosts,
-        curationPosts,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: initialOpenedUserId,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-        undoQueue: [],
-        history: [],
-        runningLlmCheckId: null,
-      };
-    }
+    { users, posts, classifiedPosts, curationPosts, initialOpenedUserId, directUser },
+    initializeInboxState,
   );
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
-    const currentUrlUser = query.user;
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentUrlUser = searchParams.get('user');
     const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
+
+    if (stateUser === currentUrlUser) {
+      return;
     }
-  }, [state.openedUserId, query.user, location, navigate]);
+
+    if (stateUser) {
+      searchParams.set('user', stateUser);
+    } else {
+      searchParams.delete('user');
+    }
+
+    const search = searchParams.toString();
+    navigate({
+      pathname: window.location.pathname,
+      search: search ? `?${search}` : '',
+      hash: window.location.hash,
+    }, { replace: true, skipRouter: true });
+  }, [state.openedUserId, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -542,7 +432,10 @@ const ModerationInbox = () => {
   }
 
   const dataNotReady = loading && !data;
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
+  // With cache-and-network, Apollo can return a cached null result while the
+  // network request is still in flight. Mounting the reducer from that result
+  // permanently loses the direct user because its initializer only runs once.
+  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUser;
 
   if (dataNotReady || directUserNotReady) {
     return (
