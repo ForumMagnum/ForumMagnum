@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { inboxStateReducer, initializeInboxState, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -78,6 +78,23 @@ function createUndoItem(
 }
 
 describe('Moderation Inbox Reducer', () => {
+  describe('initialization', () => {
+    test('preserves a deep-linked user while query data is temporarily empty', () => {
+      const state = initializeInboxState({
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        initialOpenedUserId: 'user1',
+        directUser: null,
+      });
+
+      expect(state.activeTab).toBe('all');
+      expect(state.focusedUserId).toBe('user1');
+      expect(state.openedUserId).toBe('user1');
+    });
+  });
+
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [
