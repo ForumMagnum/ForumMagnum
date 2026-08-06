@@ -230,6 +230,11 @@ that already exists in the draft. The location can be one of the following:
     "end": insert at the end of the post
     "before": insert before the paragraph with the given markdown prefix
     "after": insert after the paragraph with the given markdown prefix
+Before/after locations only support top-level blocks. A list-item prefix in a
+top-level list resolves to the whole list, so the new block is inserted before
+or after that list rather than inside it. Content nested inside a collapsible
+section or another block cannot be used as a location. If a location cannot be
+resolved, the call returns inserted:false and leaves the draft unchanged.
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
 bold/italic/strikethrough (no underline), inline and display LaTeX math
