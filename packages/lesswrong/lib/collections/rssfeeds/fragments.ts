@@ -13,6 +13,7 @@ export const RSSFeedMinimumInfo = gql(`
     nickname
     url
     importAsDraft
+    importAsQuickTake
   }
 `)
 
@@ -27,5 +28,6 @@ export const newRSSFeedFragment = gql(`
     url
     status
     importAsDraft
+    importAsQuickTake
   }
 `)

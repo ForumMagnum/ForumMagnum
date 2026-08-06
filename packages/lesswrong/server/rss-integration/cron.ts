@@ -10,10 +10,12 @@ import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
 import gql from 'graphql-tag';
 import { createPost } from '../collections/posts/mutations';
+import { createComment } from '../collections/comments/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateRSSFeed } from '../collections/rssfeeds/mutations';
 import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
+import { getRssPostContents, getRssQuickTakeContents } from './content';
 
 export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -50,44 +52,43 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext())
 
   await asyncForeachSequential(newPosts, async newPost => {
-    const body = getRssPostContents(newPost);
-
-    var post = {
-      title: newPost.title,
-      userId: feed.userId,
-      canonicalSource: feed.setCanonicalUrl ? newPost.link : undefined,
-      contents: {
-        originalContents: {
-          type: "html",
-          data: body
-        }
-      },
-      feedId: feed._id,
-      feedLink: newPost.link,
-      draft: !!feed.importAsDraft,
-    };
-
-    let lwUser = await Users.findOne({_id: feed.userId});
+    const lwUser = await Users.findOne({_id: feed.userId});
     
     // Create context with the lwUser as the currentUser
     const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
 
-    await createPost({
-      data: post
-    }, lwContext);
+    if (feed.importAsQuickTake) {
+      await createComment({
+        data: {
+          contents: {
+            originalContents: {
+              type: "html",
+              data: getRssQuickTakeContents(newPost, feed.displayFullContent),
+            },
+          },
+          shortform: true,
+          draft: feed.importAsDraft,
+        },
+      }, lwContext);
+    } else {
+      await createPost({
+        data: {
+          title: newPost.title,
+          userId: feed.userId,
+          canonicalSource: feed.setCanonicalUrl ? newPost.link : undefined,
+          contents: {
+            originalContents: {
+              type: "html",
+              data: getRssPostContents(newPost, feed.displayFullContent),
+            },
+          },
+          feedId: feed._id,
+          feedLink: newPost.link,
+          draft: feed.importAsDraft,
+        },
+      }, lwContext);
+    }
   })
-}
-
-function getRssPostContents(rssPost: AnyBecauseHard): string {
-  if (rssPost['content:encoded'] && rssPost.displayFullContent) {
-    return rssPost['content:encoded'];
-  } else if (rssPost.description) {
-    return rssPost.description;
-  } else if (rssPost.summary) {
-    return rssPost.summary;
-  } else {
-    return "";
-  }
 }
 
 export const cronGraphQLTypeDefs = gql`
@@ -157,7 +158,7 @@ export const cronGraphQLQueries = {
     }
     
     // Diff the contents between the RSS feed and the LW version
-    const newHtml = sanitize(getRssPostContents(matchingPost));
+    const newHtml = sanitize(getRssPostContents(matchingPost, feed.displayFullContent ?? false));
     const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", context, { sanitize: true }));
     const htmlDiff = diffHtml(oldHtml, newHtml, false);
 

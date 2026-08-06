@@ -2270,7 +2270,8 @@ CREATE TABLE "RSSFeeds" (
   "status" TEXT,
   "rawFeed" JSONB NOT NULL,
   "setCanonicalUrl" BOOL NOT NULL DEFAULT FALSE,
-  "importAsDraft" BOOL NOT NULL DEFAULT FALSE
+  "importAsDraft" BOOL NOT NULL DEFAULT FALSE,
+  "importAsQuickTake" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_RSSFeeds_userId_createdAt"
