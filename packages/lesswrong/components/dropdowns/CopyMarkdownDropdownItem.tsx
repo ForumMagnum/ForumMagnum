@@ -11,16 +11,25 @@ const CopyMarkdownDropdownItem = ({path}: {
 }) => {
   const { flash } = useMessages();
 
-  const copyMarkdown = async () => {
-    // window.open must happen before any await, or popup blockers will eat it
-    window.open(path, '_blank');
-    const response = await fetch(path);
-    if (!response.ok) {
-      flash("Failed to fetch markdown");
-      return;
-    }
-    await navigator.clipboard.writeText(await response.text());
-    flash("Markdown copied to clipboard");
+  const copyMarkdown = () => {
+    // Start the clipboard write synchronously, while this document still has
+    // focus and user activation - opening the new tab takes focus away, which
+    // would make a later writeText call fail. Passing a promise to
+    // ClipboardItem lets the fetch resolve after focus is gone.
+    const markdownBlob = fetch(path).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch markdown: ${response.status}`);
+      }
+      return new Blob([await response.text()], {type: "text/plain"});
+    });
+    const clipboardWrite = navigator.clipboard.write([
+      new ClipboardItem({"text/plain": markdownBlob}),
+    ]);
+    window.open(path, "_blank");
+    clipboardWrite.then(
+      () => flash("Markdown copied to clipboard"),
+      () => flash("Failed to copy markdown"),
+    );
   };
 
   return (
