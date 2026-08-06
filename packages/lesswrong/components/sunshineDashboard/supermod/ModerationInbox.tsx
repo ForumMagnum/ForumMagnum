@@ -435,7 +435,7 @@ const ModerationInbox = () => {
   // With cache-and-network, Apollo can return a cached null result while the
   // network request is still in flight. Mounting the reducer from that result
   // permanently loses the direct user because its initializer only runs once.
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading;
+  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUser;
 
   if (dataNotReady || directUserNotReady) {
     return (
