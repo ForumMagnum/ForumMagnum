@@ -2,10 +2,6 @@ import React from 'react';
 import DropdownItem from './DropdownItem';
 import { useMessages } from '../common/withMessages';
 
-/**
- * Menu item that opens the markdown API page for a post or comment in a new
- * tab, and copies its markdown to the clipboard.
- */
 const CopyMarkdownDropdownItem = ({path}: {
   path: string,
 }) => {
