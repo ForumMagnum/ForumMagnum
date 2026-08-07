@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
-import { notFound } from "next/navigation";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import { runQuery } from "@/server/vulcan-lib/query";
 
@@ -41,7 +40,7 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
 
     const sequence = data?.sequence?.result;
 
-    if (!sequence) return notFound();
+    if (!sequence) return await getDefaultMetadata();
 
     const titleFields = getPageTitleFields(sequence.title);
 

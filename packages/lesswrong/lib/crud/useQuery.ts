@@ -3,8 +3,9 @@
 import React, { createContext, use, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
+import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";
 import { debugSuspenseBoundaries, NamedSuspenseBoundary } from "@/components/common/SuspenseWrapper";
-import type { DocumentNode, OperationDefinitionNode } from 'graphql';
+import type { DocumentNode, GraphQLFormattedError, OperationDefinitionNode } from 'graphql';
 import { print } from "graphql";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import jsonStringifyDeterministic from "json-stringify-deterministic";
@@ -27,7 +28,7 @@ export type UseQueryOptions = {
 
 declare global {
   interface Window {
-    __LW_SSR_GQL__?: Record<string, { data: any }>;
+    __LW_SSR_GQL__?: Record<string, { data: any, errors?: GraphQLFormattedError[] }>;
     __LW_SSR_GQL_STORE_MAP__?: Map<string, JsonObject>;
     __lwSsrGql?: {
       get: (key: string) => unknown;
@@ -156,6 +157,64 @@ function normalizeQueryResult(result: any): any {
 }
 
 /**
+ * Serialize GraphQL errors for inclusion in an injected SSR payload. Only the
+ * message and path are kept: they're all that downstream error classification
+ * (eg isMissingDocumentError) needs, and other fields such as
+ * extensions.stacktrace must not leak into the HTML.
+ */
+function serializeGraphQLErrors(errors: readonly GraphQLFormattedError[]): GraphQLFormattedError[] {
+  return errors.map(({ message, path }) => ({ message, ...(path ? { path } : {}) }));
+}
+
+/**
+ * Get the cached promise for an SSR query, creating and caching it if this is
+ * the first hook to ask for this query+variables combination. The promise
+ * never rejects on GraphQL errors: to match the client-side useQuery contract
+ * (apollo's errorPolicy "none"), it resolves to `{data: undefined, error}` so
+ * that components can render their error states during SSR.
+ */
+function getOrCreateSsrQueryPromise(
+  ssrCache: SsrQueryCache,
+  injectedKey: string,
+  query: any,
+  variables: any,
+  resolverContext: ResolverContext,
+  injectHTML: (html: string) => void,
+): Promise<any> {
+  const existingPromise = ssrCache.queryPromises.get(injectedKey);
+  if (existingPromise) {
+    return existingPromise;
+  }
+  const queryPromise = (async () => {
+    const { runQueryNonThrowing } = await import("@/server/vulcan-lib/query");
+    // Modify selection sets to add __typename. Because apollo-client will
+    // do this transform when the same query is given to useQuery, we need
+    // to do it for the injected version, or else there would be a mismatch in
+    // whether the __typename field is present on some objects, which causes
+    // apollo-client to look for fields in the wrong place and return
+    //  incorrect empty objects.
+    const transformedQuery = addTypenameToDocument(query);
+    const result = await runQueryNonThrowing(transformedQuery, variables, resolverContext);
+
+    if (result.errors?.length) {
+      const serializedErrors = serializeGraphQLErrors(result.errors);
+      injectQueryResult(injectHTML, injectedKey, null, ssrCache, serializedErrors);
+      return {
+        data: undefined,
+        error: new CombinedGraphQLErrors({ errors: serializedErrors }),
+        networkStatus: NetworkStatus.error,
+      };
+    }
+
+    const payloadData = ((result as any)?.data ?? null) as JsonValue;
+    injectQueryResult(injectHTML, injectedKey, payloadData, ssrCache);
+    return normalizeQueryResult(result);
+  })();
+  ssrCache.queryPromises.set(injectedKey, queryPromise);
+  return queryPromise;
+}
+
+/**
  * Wrapper around apollo-client's useQuery, which uses Suspense
  * (useSuspenseQuery) for SSR, then switches to to regular useQuery afterwards.
  * We do this because handling non-first-time loading states (ie Load More
@@ -197,25 +256,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       } as any;
     }
 
-    const existingPromise = ssrCache.queryPromises.get(injectedKey);
-    const queryPromise = existingPromise ?? (async () => {
-      const { runQuery } = await import("@/server/vulcan-lib/query");
-      // Modify selection sets to add __typename. Because apollo-client will
-      // do this transform when the same query is given to useQuery, we need
-      // to do it for the injected version, or else there would be a mismatch in
-      // whether the __typename field is present on some objects, which causes
-      // apollo-client to look for fields in the wrong place and return
-      //  incorrect empty objects.
-      const transformedQuery = addTypenameToDocument(query);
-      const result = await runQuery(transformedQuery, variables, resolverContext);
-
-      const payloadData = ((result as any)?.data ?? null) as JsonValue;
-      injectQueryResult(injectHTML, injectedKey, payloadData, ssrCache);
-      return normalizeQueryResult(result);
-    })();
-    if (!existingPromise) {
-      ssrCache.queryPromises.set(injectedKey, queryPromise);
-    }
+    const queryPromise = getOrCreateSsrQueryPromise(ssrCache, injectedKey, query, variables, resolverContext, injectHTML);
 
     const result = use(queryPromise);
 
@@ -249,7 +290,15 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     const injected = injectedAfterWait ?? injectedBeforeWait;
     const injectedStore = injectedStoreAfterWait ?? injectedStoreBeforeWait;
 
-    const shouldUseInjected = !!injected && firstRender.current;
+    const injectedErrors = injected?.errors;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const injectedErrorRef = useRef<{ key: string, error: CombinedGraphQLErrors } | null>(null);
+    if (firstRender.current && injectedErrors?.length) {
+      injectedErrorRef.current = { key: injectedKey, error: new CombinedGraphQLErrors({ errors: injectedErrors }) };
+    }
+    const injectedError = injectedErrorRef.current?.key === injectedKey ? injectedErrorRef.current.error : undefined;
+
+    const shouldUseInjected = !!injected && !injectedErrors?.length && firstRender.current;
     firstRender.current = false;
 
     const hydratedInjectedData = shouldUseInjected
@@ -281,10 +330,22 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       }
     }
 
+    // While this instance holds an SSR-injected error, skip apollo's own
+    // query: unlike injected data (which primes the apollo cache), an error
+    // can't be written to the cache, so without skip apollo would refetch and
+    // transiently flash a loading state on the way to the same error.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const result = useQueryApollo(query, options);
+    const result = useQueryApollo(query, injectedError ? { ...options, skip: true } : options);
 
-    if (shouldUseInjected) {
+    if (injectedError) {
+      return {
+        ...result,
+        data: undefined,
+        error: injectedError,
+        loading: false,
+        networkStatus: NetworkStatus.error,
+      } as any;
+    } else if (shouldUseInjected) {
       return {
         ...result,
         data: hydratedInjectedData,
@@ -303,9 +364,14 @@ export const useSuspenseQuery: typeof useSuspenseQueryApollo = ((query: any, opt
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer) {
     // On the server, `useQuery` already suspends (via `use(queryPromise)`), so
-    // this is equivalent.
+    // this is equivalent, except that useQuery returns GraphQL errors as
+    // values while apollo's useSuspenseQuery (errorPolicy "none") throws them.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useQuery(query, options) as any;
+    const result = useQuery(query, options) as any;
+    if (result?.error) {
+      throw result.error;
+    }
+    return result;
   }
 
   const apolloClient = useApolloClient();
@@ -326,7 +392,9 @@ export const useSuspenseQuery: typeof useSuspenseQueryApollo = ((query: any, opt
   const injectedAfterWait = injectedStoreAfterWait?.[injectedKey];
   const injected = injectedAfterWait ?? injectedBeforeWait;
   const injectedStore = injectedStoreAfterWait ?? injectedStoreBeforeWait;
-  const shouldUseInjected = !!injected && firstRender.current;
+  // Error payloads can't prime the apollo cache; let apollo run the query
+  // itself, which will throw the error to the nearest boundary as usual.
+  const shouldUseInjected = !!injected && !injected.errors?.length && firstRender.current;
   firstRender.current = false;
 
   const hydratedInjectedData = shouldUseInjected
@@ -366,9 +434,9 @@ type LwClientBackgroundQueryRef = {
   __lwInjectedKey: string;
 };
 
-function injectQueryResult(injectHTML: (html: string) => void, injectedKey: string, payloadData: JsonValue, ssrCache: SsrQueryCache) {
+function injectQueryResult(injectHTML: (html: string) => void, injectedKey: string, payloadData: JsonValue, ssrCache: SsrQueryCache, serializedErrors?: GraphQLFormattedError[]) {
   const { substituted, delta } = extractToObjectStoreAndSubstitute(payloadData, ssrCache.deduplicatedObjectStore);
-  const payload = { data: substituted };
+  const payload = serializedErrors?.length ? { data: substituted, errors: serializedErrors } : { data: substituted };
   const keyJson = escapeInlineScriptJson(JSON.stringify(injectedKey));
   const payloadJson = escapeInlineScriptJson(JSON.stringify(payload));
   const deltaJson = Object.keys(delta).length
@@ -396,19 +464,9 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
     }, [injectedKey, isSkipped]);
 
     if (!isSkipped) {
-      const existingPromise = ssrCache.queryPromises.get(injectedKey);
-      const queryPromise = existingPromise ?? (async () => {
-        const { runQuery } = await import("@/server/vulcan-lib/query");
-        const transformedQuery = addTypenameToDocument(query);
-        const result = await runQuery(transformedQuery, variables, resolverContext);
-
-        const payloadData = ((result as any)?.data ?? null) as JsonValue;
-        injectQueryResult(injectHTML, injectedKey, payloadData, ssrCache);
-        return normalizeQueryResult(result);
-      })();
-      if (!existingPromise) {
-        ssrCache.queryPromises.set(injectedKey, queryPromise);
-      }
+      // The promise is cached in ssrCache and consumed by useReadQuery.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      getOrCreateSsrQueryPromise(ssrCache, injectedKey, query, variables, resolverContext, injectHTML);
     }
 
     return [
@@ -438,7 +496,9 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
     const injectedAfterWait = injectedStoreAfterWait?.[injectedKey];
     const injected = injectedAfterWait ?? injectedBeforeWait;
     const injectedStore = injectedStoreAfterWait ?? injectedStoreBeforeWait;
-    const shouldUseInjected = !!injected && firstRender.current;
+    // Error payloads can't prime the apollo cache; let apollo run the query
+    // itself, which will surface the error through the QueryRef as usual.
+    const shouldUseInjected = !!injected && !injected.errors?.length && firstRender.current;
     firstRender.current = false;
 
     const hydratedInjectedData = shouldUseInjected
@@ -497,6 +557,11 @@ export const useReadQuery: typeof useReadQueryApollo = ((queryRef: any) => {
     }
 
     const result = use(promise);
+    // Apollo's useReadQuery (errorPolicy "none") throws GraphQL errors rather
+    // than returning them.
+    if ((result as any)?.error) {
+      throw (result as any).error;
+    }
     return {
       ...(result as any),
       loading: false,
