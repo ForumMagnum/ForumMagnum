@@ -1,6 +1,22 @@
 import React, { ErrorInfo } from 'react';
 import { getSentry, captureException } from "@/lib/sentryWrapper";
+import { shouldReloadAfterChunkLoadError } from "@/lib/chunkLoadErrorRecovery";
 import ErrorMessage from "./ErrorMessage";
+
+function reloadAfterChunkLoadError(error: Error) {
+  if (bundleIsServer) {
+    return;
+  }
+
+  try {
+    if (shouldReloadAfterChunkLoadError(error, window.sessionStorage)) {
+      window.location.reload();
+    }
+  } catch {
+    // Accessing sessionStorage or reloading can fail in restricted browser
+    // contexts. In that case, fall through to the normal error message.
+  }
+}
 
 interface ErrorBoundaryProps {
   fallback?: React.ReactNode
@@ -49,6 +65,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     });
 
     captureException(error);
+    reloadAfterChunkLoadError(error);
   }
 
   render() {
