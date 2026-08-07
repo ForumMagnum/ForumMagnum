@@ -8,10 +8,7 @@ const CopyMarkdownDropdownItem = ({path}: {
   const { flash } = useMessages();
 
   const copyMarkdown = () => {
-    // Start the clipboard write synchronously, while this document still has
-    // focus and user activation - opening the new tab takes focus away, which
-    // would make a later writeText call fail. Passing a promise to
-    // ClipboardItem lets the fetch resolve after focus is gone.
+    // Start synchronously, while doc still has focus and user activation - opening new tab takes focus away
     const markdownBlob = fetch(path).then(async (response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch markdown: ${response.status}`);
