@@ -291,9 +291,16 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     const injectedStore = injectedStoreAfterWait ?? injectedStoreBeforeWait;
 
     const injectedErrors = injected?.errors;
+    // Injected errors exist to make the hydration render agree with the SSR'd
+    // error UI, so they're only adopted by instances whose first render is a
+    // hydration render. Post-hydration mounts (eg client-side navigation back
+    // to the page) ignore them and get apollo's normal lifecycle, which
+    // re-executes the query rather than reusing a possibly-stale error.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const isHydrationRender = useIsHydrationWithNoRerender();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const injectedErrorRef = useRef<{ key: string, error: CombinedGraphQLErrors } | null>(null);
-    if (firstRender.current && injectedErrors?.length) {
+    if (firstRender.current && isHydrationRender && injectedErrors?.length) {
       injectedErrorRef.current = { key: injectedKey, error: new CombinedGraphQLErrors({ errors: injectedErrors }) };
     }
     const injectedError = injectedErrorRef.current?.key === injectedKey ? injectedErrorRef.current.error : undefined;
