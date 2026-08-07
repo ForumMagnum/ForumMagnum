@@ -106,7 +106,7 @@ export const RouteRootClient = ({fullscreen, children}: {
       <div className={classNames(classes.centralColumn, {
         [classes.fullscreen]: fullscreen,
       })}>
-        <ErrorBoundary>
+        <ErrorBoundary attemptChunkLoadRecovery>
           <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
             {children}
           </SuspenseWrapper>

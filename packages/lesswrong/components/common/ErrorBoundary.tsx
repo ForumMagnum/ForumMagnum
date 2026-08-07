@@ -21,6 +21,7 @@ function reloadAfterChunkLoadError(error: Error) {
 interface ErrorBoundaryProps {
   fallback?: React.ReactNode
   hideMessage?: boolean
+  attemptChunkLoadRecovery?: boolean
   children: React.ReactNode,
 }
 
@@ -65,7 +66,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     });
 
     captureException(error);
-    reloadAfterChunkLoadError(error);
+    if (this.props.attemptChunkLoadRecovery) {
+      reloadAfterChunkLoadError(error);
+    }
   }
 
   render() {
