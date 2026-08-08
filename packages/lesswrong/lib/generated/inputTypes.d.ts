@@ -7126,6 +7126,7 @@ interface User {
   notificationPostsNominatedReview: any;
   notificationSubforumUnread: any;
   notificationNewMention: any;
+  notificationNewPingback: any;
   notificationDialogueMessages: any;
   notificationTypoSuggestions: any;
   notificationPublishedDialogueMessages: any;
@@ -8943,6 +8944,7 @@ interface CreateUserDataInput {
   notificationPostsNominatedReview?: any;
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
+  notificationNewPingback?: any;
   notificationDialogueMessages?: any;
   notificationTypoSuggestions?: any;
   notificationPublishedDialogueMessages?: any;
@@ -9114,6 +9116,7 @@ interface UpdateUserDataInput {
   notificationPostsNominatedReview?: any;
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
+  notificationNewPingback?: any;
   notificationDialogueMessages?: any;
   notificationTypoSuggestions?: any;
   notificationPublishedDialogueMessages?: any;
