@@ -11,6 +11,7 @@ import type { LinkedDocumentRef } from '@/lib/collections/notifications/pingback
 export interface LinkingDocumentPartial {
   _id: string
   postId?: string | null
+  parentCommentId?: string | null
   draft?: boolean | null
   deleted?: boolean | null
   deletedDraft?: boolean | null
@@ -54,14 +55,26 @@ async function isPubliclyVisible(
     return false;
   }
   if (collectionName === 'Comments' && document.postId) {
-    const post = await context.Posts.findOne({ _id: document.postId }, undefined, { _id: 1, draft: 1, deletedDraft: 1 });
-    return !!post && !post.draft && !post.deletedDraft;
+    const post = await context.Posts.findOne({ _id: document.postId }, undefined, { _id: 1, draft: 1, deletedDraft: 1, rejected: 1 });
+    return !!post && !post.draft && !post.deletedDraft && !post.rejected;
   }
   return true;
 }
 
 function getLinkedIds(document: LinkingDocumentPartial | undefined, collectionName: 'Posts' | 'Comments') {
   return document?.pingbacks?.[collectionName] ?? [];
+}
+
+/**
+ * Whether a link is part of the conversation the linking document is already
+ * in: the document itself, the post a comment is on, or the comment it replies
+ * to. Authors are already notified about those through comment/reply
+ * notifications, so links to them don't warrant a pingback notification.
+ */
+function isLinkToOwnThread(document: LinkingDocumentPartial, { documentType, documentId }: LinkedDocumentRef) {
+  if (documentId === document._id) return true;
+  if (documentType === 'post' && documentId === document.postId) return true;
+  return documentType === 'comment' && documentId === document.parentCommentId;
 }
 
 export function getNewlyLinkedDocuments(
@@ -80,7 +93,9 @@ export function getNewlyLinkedDocuments(
   return [
     ...newlyLinked('Posts').map((documentId): LinkedDocumentRef => ({ documentType: 'post', documentId })),
     ...newlyLinked('Comments').map((documentId): LinkedDocumentRef => ({ documentType: 'comment', documentId })),
-  ].slice(0, MAX_LINKED_DOCUMENTS_NOTIFIED);
+  ]
+    .filter(linkedDocument => !isLinkToOwnThread(document, linkedDocument))
+    .slice(0, MAX_LINKED_DOCUMENTS_NOTIFIED);
 }
 
 /**

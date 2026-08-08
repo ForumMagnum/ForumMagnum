@@ -36,6 +36,18 @@ describe("getNewlyLinkedDocuments", () => {
     ]);
   });
 
+  it("skips links to the linking document's own thread", () => {
+    expect(getNewlyLinkedDocuments({
+      _id: "comment2",
+      postId: "post1",
+      parentCommentId: "comment1",
+      pingbacks: { Posts: ["post1", "post2"], Comments: ["comment1", "comment2", "comment3"] },
+    }, undefined)).toEqual([
+      { documentType: "post", documentId: "post2" },
+      { documentType: "comment", documentId: "comment3" },
+    ]);
+  });
+
   it("caps how many linked documents a single edit notifies about", () => {
     const manyPostIds = Array.from({ length: 30 }, (_, i) => `post${i}`);
     expect(getNewlyLinkedDocuments({ _id: "doc", pingbacks: { Posts: manyPostIds } }, undefined)).toHaveLength(20);
