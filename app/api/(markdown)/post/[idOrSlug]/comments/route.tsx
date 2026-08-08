@@ -5,27 +5,13 @@ import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { gql } from "@/lib/generated/gql-codegen";
 import { MarkdownCommentsList } from "@/server/markdownComponents/MarkdownCommentsList";
-
-const DEFAULT_LIMIT = 200;
-const MAX_LIMIT = 2000;
-
-const parseLimit = (limitParam: string | null): number => {
-  if (!limitParam) return DEFAULT_LIMIT;
-  const parsed = Number.parseInt(limitParam, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_LIMIT;
-  return Math.min(parsed, MAX_LIMIT);
-};
-
-const parseSort = (sortParam: string | null): "top" | "new" | "old" => {
-  if (sortParam === "top" || sortParam === "new" || sortParam === "old") {
-    return sortParam;
-  }
-  return "top";
-};
-
-const parseIncludeReactionUsers = (value: string | null): boolean => {
-  return value === "1" || value === "true";
-};
+import {
+  MAX_COMMENTS_LIMIT,
+  fetchPostCommentsForMarkdown,
+  parseIncludeReactionUsers,
+  parseLimit,
+  parseSort,
+} from "../../postCommentsUtils";
 
 const POST_QUERY = gql(`
   query PostMarkdownCommentsPost($_id: String!) {
@@ -35,36 +21,6 @@ const POST_QUERY = gql(`
         slug
         title
         commentCount
-      }
-    }
-  }
-`);
-
-const TOP_COMMENTS_QUERY = gql(`
-  query PostMarkdownCommentsTop($_id: String!, $limit: Int) {
-    comments(selector: { postCommentsTop: { postId: $_id } }, limit: $limit) {
-      results {
-        ...CommentsMarkdownFragment
-      }
-    }
-  }
-`);
-
-const NEW_COMMENTS_QUERY = gql(`
-  query PostMarkdownCommentsNew($_id: String!, $limit: Int) {
-    comments(selector: { postCommentsNew: { postId: $_id } }, limit: $limit) {
-      results {
-        ...CommentsMarkdownFragment
-      }
-    }
-  }
-`);
-
-const OLD_COMMENTS_QUERY = gql(`
-  query PostMarkdownCommentsOld($_id: String!, $limit: Int) {
-    comments(selector: { postCommentsOld: { postId: $_id } }, limit: $limit) {
-      results {
-        ...CommentsMarkdownFragment
       }
     }
   }
@@ -89,16 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }
 
-  const queryBySort = sort === "new"
-    ? NEW_COMMENTS_QUERY
-    : sort === "old"
-      ? OLD_COMMENTS_QUERY
-      : TOP_COMMENTS_QUERY;
-  const { data: commentsData } = await runQuery(queryBySort, {
-    _id: rawPost._id,
-    limit,
-  }, resolverContext);
-  const comments = commentsData?.comments?.results ?? [];
+  const comments = await fetchPostCommentsForMarkdown(rawPost._id, sort, limit, resolverContext);
   const commentCount = post.commentCount ?? comments.length;
   const isTruncated = commentCount > comments.length;
 
@@ -116,7 +63,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
       </div>
       {isTruncated ? (
         <div>
-          To load more comments, increase <code>?limit=...</code> (max {MAX_LIMIT}).
+          To load more comments, increase <code>?limit=...</code> (max {MAX_COMMENTS_LIMIT}).
         </div>
       ) : null}
       <div>

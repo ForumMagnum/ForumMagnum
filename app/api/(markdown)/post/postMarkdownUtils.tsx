@@ -4,10 +4,18 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { MarkdownPostDetail } from "@/server/markdownComponents/MarkdownPostDetail";
+import { MarkdownCommentsList } from "@/server/markdownComponents/MarkdownCommentsList";
+import {
+  MAX_COMMENTS_LIMIT,
+  fetchPostCommentsForMarkdown,
+  parseIncludeReactionUsers,
+  parseLimit,
+  parseSort,
+} from "./postCommentsUtils";
 
 const truthyValues = new Set(["1", "true", "yes", "on"]);
 
-function parseBooleanParam(value: string | null): boolean {
+export function parseBooleanParam(value: string | null): boolean {
   if (!value) return false;
   return truthyValues.has(value.toLowerCase());
 }
@@ -76,6 +84,31 @@ const PostMarkdownQuery = `
   }
 `;
 
+export async function fetchPostMarkdownDetail(
+  postId: string,
+  resolverContext: ResolverContext,
+  options?: { sequenceId?: string, compactMode?: boolean },
+) {
+  const compactMode = options?.compactMode ?? false;
+  const { data } = await runQuery(PostMarkdownQuery, {
+    _id: postId,
+    commentsLimit: 50,
+    sequenceId: options?.sequenceId,
+  }, resolverContext);
+  const post = data?.post?.result;
+  if (!post) return null;
+
+  const topComments = (data?.comments?.results ?? [])
+    .filter((comment: { parentCommentId?: string | null }) => !comment.parentCommentId)
+    .slice(0, compactMode ? 3 : 5);
+
+  const bodyMarkdown = compactMode
+    ? compactifyPostMarkdown(post.contents?.agentMarkdown ?? "")
+    : (post.contents?.agentMarkdown ?? "");
+
+  return { post, topComments, bodyMarkdown };
+}
+
 interface RenderPostMarkdownOptions {
   sequenceId?: string
   htmlPathOverride?: string
@@ -91,35 +124,28 @@ export async function renderPostMarkdownByIdOrSlug(
   if (!idOrSlug) {
     return new Response("No ID or slug provided", { status: 400 });
   }
-  const compactMode = parseBooleanParam(req.nextUrl.searchParams.get("compact"));
+  const searchParams = req.nextUrl.searchParams;
+  const compactMode = parseBooleanParam(searchParams.get("compact"));
+  const includeComments = parseBooleanParam(searchParams.get("includeComments"));
   const resolverContext = await getContextFromReqAndRes({ req });
   const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
   if (!rawPost) {
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }
 
-  const { data } = await runQuery(PostMarkdownQuery, {
-    _id: rawPost._id,
-    commentsLimit: 50,
+  const detail = await fetchPostMarkdownDetail(rawPost._id, resolverContext, {
     sequenceId: options?.sequenceId,
-  }, resolverContext);
-  const post = data?.post?.result;
-  const topComments = (data?.comments?.results ?? [])
-    .filter((comment: { parentCommentId?: string | null }) => !comment.parentCommentId)
-    .slice(0, compactMode ? 3 : 5);
-
-  if (!post) {
+    compactMode,
+  });
+  if (!detail) {
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }
+  const { post, topComments, bodyMarkdown } = detail;
 
-  const bodyMarkdown = compactMode
-    ? compactifyPostMarkdown(post.contents?.agentMarkdown ?? "")
-    : (post.contents?.agentMarkdown ?? "");
-
-  return await markdownResponse(
+  const postDetailElement = (
     <MarkdownPostDetail
       post={post}
-      topComments={topComments}
+      topComments={includeComments ? [] : topComments}
       compactMode={compactMode}
       bodyMarkdown={bodyMarkdown}
       sequence={post.sequence}
@@ -129,5 +155,42 @@ export async function renderPostMarkdownByIdOrSlug(
       markdownPathOverride={options?.markdownPathOverride}
       commentsMarkdownPathOverride={options?.commentsMarkdownPathOverride}
     />
+  );
+
+  if (!includeComments) {
+    return await markdownResponse(postDetailElement);
+  }
+
+  const sort = parseSort(searchParams.get("sort"));
+  const limit = parseLimit(searchParams.get("limit"));
+  const includeReactionUsers = parseIncludeReactionUsers(searchParams.get("includeReactionUsers"));
+  const comments = await fetchPostCommentsForMarkdown(rawPost._id, sort, limit, resolverContext);
+  const commentCount = post.commentCount ?? comments.length;
+  const isTruncated = commentCount > comments.length;
+
+  return await markdownResponse(
+    <div>
+      {postDetailElement}
+      <h2>Comments</h2>
+      <div>
+        Showing {comments.length} of {commentCount} comments (sort={sort}).
+      </div>
+      {isTruncated ? (
+        <div>
+          To load more comments, increase <code>?limit=...</code> (max {MAX_COMMENTS_LIMIT}).
+        </div>
+      ) : null}
+      <div>
+        {includeReactionUsers
+          ? "Reaction user names: included."
+          : <>For reaction user names, use <code>?includeReactionUsers=1</code>.</>}
+      </div>
+      <MarkdownCommentsList
+        comments={comments}
+        includeReactionUsers={includeReactionUsers}
+        markdownRouteBase={`/api/post/${post.slug}/comments`}
+        htmlRouteBase={`/posts/${post._id}/${post.slug}/comment`}
+      />
+    </div>
   );
 }

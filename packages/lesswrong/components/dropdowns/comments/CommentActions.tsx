@@ -3,6 +3,7 @@ import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
+import CopyCommentAsMarkdownDropdownItem from "./CopyCommentAsMarkdownDropdownItem";
 import ReportCommentDropdownItem from "./ReportCommentDropdownItem";
 import DeleteCommentDropdownItem from "./DeleteCommentDropdownItem";
 import RetractCommentDropdownItem from "./RetractCommentDropdownItem";
@@ -34,11 +35,12 @@ const PostsDetailsQuery = gql(`
   }
 `);
 
-const CommentActions = ({comment, post, tag, showEdit}: {
+const CommentActions = ({comment, post, tag, showEdit, closeMenu}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: () => void,
+  closeMenu?: () => void,
 }) => {
   const currentUser = useCurrentUser();
   const { data } = useQuery(PostsDetailsQuery, {
@@ -61,6 +63,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   return (
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
+      <CopyCommentAsMarkdownDropdownItem comment={comment} closeMenu={closeMenu} />
       <PinToProfileDropdownItem comment={comment} post={post} />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}

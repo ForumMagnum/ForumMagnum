@@ -42,10 +42,15 @@ Reading posts:
  * /api/faq
  * /api/contact
  * Add ?compact=1 on post route to omit some heavy media/math/table content
+ * Add ?includeComments=1 on post route to append the full comments after the
+   post body (supports ?sort, ?limit, ?includeReactionUsers like the comments
+   route) instead of the top-comments index
 Post comments:
  * /api/post/[id]/comments
  * /api/post/[id]/comments/[commentId]
  * comments route supports ?sort=top|new|old, ?limit=n, ?includeReactionUsers=1
+ * comment permalink supports ?includeParents=1 to include the parent post and
+   the chain of ancestor comments above the comment
 Reading tags:
  * /api/tag/[slug]
 Reading users:

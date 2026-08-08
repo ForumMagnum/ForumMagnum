@@ -12458,6 +12458,24 @@ type PostMarkdownCommentByIdQueryVariables = Exact<{
 
 type PostMarkdownCommentByIdQuery = PostMarkdownCommentByIdQuery_Query;
 
+type PostMarkdownCommentAncestorsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownCommentAncestorsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentAncestorsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type PostMarkdownCommentAncestorsQuery_Query = { __typename?: 'Query', comments: PostMarkdownCommentAncestorsQuery_comments_MultiCommentOutput | null };
+
+
+type PostMarkdownCommentAncestorsQueryVariables = Exact<{
+  commentIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type PostMarkdownCommentAncestorsQuery = PostMarkdownCommentAncestorsQuery_Query;
+
 type PostMarkdownCommentsPostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, commentCount: number };
 
 type PostMarkdownCommentsPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownCommentsPostQuery_post_SinglePostOutput_result_Post | null };

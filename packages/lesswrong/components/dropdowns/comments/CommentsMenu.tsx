@@ -25,6 +25,7 @@ interface CommentsMenuComponentProps {
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
   commentMetaInfo?: FeedCommentMetaInfo;
+  closeMenu?: () => void;
 }
 
 const CommentsMenu = ({className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent, commentMetaInfo}: {
@@ -82,6 +83,7 @@ const CommentsMenu = ({className, comment, post, tag, showEdit, onSeeLess, isSee
           onSeeLess={onSeeLess}
           isSeeLessMode={isSeeLessMode}
           commentMetaInfo={commentMetaInfo}
+          closeMenu={() => setAnchorEl(null)}
         />}
       </Menu>
     </>
