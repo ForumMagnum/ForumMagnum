@@ -201,12 +201,15 @@ const ModerationUserContentItem = ({
   isFocused,
   isRunningLlmCheck,
   onOpen,
+  onReject,
   dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
   isRunningLlmCheck: boolean;
   onOpen: () => void;
+  /** Selects this item and opens the sidebar's reject composer for it. */
+  onReject: () => void;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
@@ -344,7 +347,7 @@ const ModerationUserContentItem = ({
 
       {!item.rejected && item.authorIsUnreviewed && (
         <div className={classes.rejectButtonContainer} onClick={(e) => e.stopPropagation()}>
-          <RejectContentButton contentWrapper={contentWrapper} />
+          <RejectContentButton contentWrapper={contentWrapper} onReject={onReject} />
           <KeystrokeDisplay keystroke="R" />
         </div>
       )}
