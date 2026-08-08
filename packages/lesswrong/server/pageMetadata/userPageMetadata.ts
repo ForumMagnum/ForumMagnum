@@ -4,8 +4,6 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { captureException } from "@/lib/sentryWrapper";
-import { notFound } from "next/navigation";
 import { runQuery } from "@/server/vulcan-lib/query";
 
 const UserMetadataQuery = gql(`
@@ -42,7 +40,7 @@ export async function generateUserPageMetadata({ params, searchParams }: {
   
     const user = data?.users?.results?.[0];
   
-    if (!user) return notFound();
+    if (!user) return defaultMetadata;
   
     const displayName = userGetDisplayName(user);
     const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`;
