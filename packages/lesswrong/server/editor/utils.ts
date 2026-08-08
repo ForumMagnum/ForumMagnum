@@ -104,5 +104,5 @@ export async function syncDocumentWithLatestRevision<N extends CollectionNameStr
   })
 }
 
-export type MaybeDrafteable = { draft?: boolean } 
+export type MaybeDrafteable = { draft?: boolean | null }
 export const isBeingUndrafted = (oldDocument: MaybeDrafteable, newDocument: MaybeDrafteable) => oldDocument.draft && !newDocument.draft

@@ -13,6 +13,7 @@ import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
 import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
+import { getPingbackNotificationMessage } from '@/lib/collections/notifications/pingbackNotificationContext';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -854,6 +855,34 @@ export const NewMentionNotification = createServerNotificationType({
   },
 });
 
+export const NewPingbackNotification = createServerNotificationType({
+  name: "newPingback",
+  emailSubject: async ({ notifications, context }) => {
+    const notification = notifications[0];
+    return await getPingbackNotificationMessage({
+      documentType: notification.documentType,
+      documentId: notification.documentId,
+      extraData: notification.extraData,
+      context,
+    });
+  },
+  emailBody: async ({ notifications, emailContext }) => {
+    const notification = notifications[0];
+    const message = await getPingbackNotificationMessage({
+      documentType: notification.documentType,
+      documentId: notification.documentId,
+      extraData: notification.extraData,
+      context: emailContext.resolverContext,
+    });
+
+    if (!notification.link) {
+      throw Error(`Can't find link for notification: ${notification._id}`);
+    }
+
+    return <p>{message}. <a href={makeAbsolute(notification.link)}>Read it here</a>.</p>;
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -889,6 +918,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
   NewMentionNotification,
+  NewPingbackNotification,
   TypoSuggestionNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);

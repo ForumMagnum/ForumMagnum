@@ -15,6 +15,7 @@ import keyBy from 'lodash/keyBy';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
 import { getTypoSuggestionNotificationContext } from './collections/typoSuggestions/notificationContext';
+import { getLinkedDocuments, getPingbackNotificationMessage, summarizeLinkedDocuments } from './collections/notifications/pingbackNotificationContext';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -722,6 +723,20 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
+export const NewPingbackNotification = createNotificationType({
+  name: "newPingback",
+  userSettingField: "notificationNewPingback",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    return await getPingbackNotificationMessage({documentType, documentId, extraData, context});
+  },
+  Display: ({User, Comment, Post, notification: {comment, extraData}}) => (
+    <>
+      <User /> linked to {summarizeLinkedDocuments(getLinkedDocuments(extraData))} in{" "}
+      {comment ? <>their <Comment /> on </> : ""}<Post />
+    </>
+  ),
+})
+
 const notificationTypesArray = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -762,6 +777,7 @@ const notificationTypesArray = [
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
+  NewPingbackNotification,
   TypoSuggestionNotification,
 ];
 

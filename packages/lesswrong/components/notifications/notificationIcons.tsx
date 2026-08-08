@@ -68,6 +68,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyles} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;
     case 'newMention': return <CommentsIcon style={iconStyles}/>;
+    case 'newPingback': return <ForumIcon icon="Link" style={iconStyles}/>;
     case 'typoSuggestion': return <EditIcon style={iconStyles}/>;
 
     default: return null;

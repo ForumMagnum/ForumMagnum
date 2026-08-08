@@ -133,6 +133,13 @@ const NotificationsSettingsTab = ({
         />
 
         <NotificationSettingsRow
+          name="notificationNewPingback"
+          value={settings.notificationNewPingback ?? null}
+          onChange={(value) => void updateSettings({ notificationNewPingback: value })}
+          label="Links to my posts and comments"
+        />
+
+        <NotificationSettingsRow
           name="notificationTypoSuggestions"
           value={settings.notificationTypoSuggestions ?? null}
           onChange={(value) => void updateSettings({ notificationTypoSuggestions: value })}

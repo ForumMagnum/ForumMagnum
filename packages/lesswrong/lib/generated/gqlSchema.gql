@@ -7702,6 +7702,7 @@ type User {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
@@ -9801,6 +9802,7 @@ input CreateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
@@ -9972,6 +9974,7 @@ input UpdateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON

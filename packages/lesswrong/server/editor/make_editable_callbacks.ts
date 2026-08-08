@@ -2,6 +2,7 @@ import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from './isEditableField'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
+import {notifyUsersAboutLinksToTheirContent} from './pingback-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
@@ -294,13 +295,14 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
 // createAfter
 async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionNameString>(
   newDocument: ObjectsByCollectionName[N],
-  { currentUser }: AfterCreateCallbackProperties<N>,
+  { currentUser, context }: AfterCreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
   const { pingbacks = false, collectionName } = options;
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
     await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
+    await notifyUsersAboutLinksToTheirContent(currentUser, collectionName, newDocument, undefined, context)
   }
 
   return newDocument
@@ -316,6 +318,7 @@ async function notifyUsersAboutPingbackMentionsInUpdate<N extends CollectionName
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
     await notifyUsersAboutMentions(currentUser, collectionName, newDocument, oldDocument as PingbackDocumentPartial)
+    await notifyUsersAboutLinksToTheirContent(currentUser, collectionName, newDocument, oldDocument, context)
   }
 
   return newDocument
