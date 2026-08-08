@@ -1,4 +1,6 @@
 import { randomSecret } from "@/lib/random";
+import { checkNewUserForObviousSpam } from "@/server/languageModels/obviousSpamCheck";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export function getRejectionMessage(rejectedContentLink: string, rejectedReason: string|null) {
   let messageContents = `
@@ -14,7 +16,16 @@ export function getRejectionMessage(rejectedContentLink: string, rejectedReason:
 export async function triggerReview(userId: string, context: ResolverContext, reason?: string) {
   const { Users } = context;
   // TODO: save the reason
-  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
+  // The needsReview condition makes the update a no-op if the user is already
+  // in the review queue, so the returned count tells us whether they just
+  // entered it.
+  const enteredQueue = await Users.rawUpdateOne(
+    { _id: userId, needsReview: { $ne: true } },
+    { $set: { needsReview: true } }
+  );
+  if (enteredQueue > 0) {
+    backgroundTask(checkNewUserForObviousSpam(userId, context));
+  }
 }
 
 export function generateLinkSharingKey(): string {

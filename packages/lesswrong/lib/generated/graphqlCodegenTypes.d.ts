@@ -2940,6 +2940,7 @@ type ModeratorActionSelector = {
 };
 
 type ModeratorActionType =
+  | 'aiDetectedObviousSpam'
   | 'autoBlockedFromSendingDMs'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
