@@ -1,7 +1,8 @@
-import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { dataToHTML, htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 /**
  * Tests that markdownToHtml does not produce HTML that could execute arbitrary
@@ -143,6 +144,51 @@ describe("markdownToHtml XSS safety", () => {
 
       expect(html).toContain('<img src="https://example.com/image.png"');
     });
+  });
+});
+
+describe("dataToHTML local-network image filtering", () => {
+  it("filters local images from legacy DraftJS content", async () => {
+    const html = await dataToHTML({
+      blocks: [{
+        key: "abcde",
+        text: " ",
+        type: "atomic",
+        depth: 0,
+        inlineStyleRanges: [],
+        entityRanges: [{offset: 0, length: 1, key: 0}],
+        data: {},
+      }],
+      entityMap: {
+        0: {
+          type: "IMAGE",
+          mutability: "IMMUTABLE",
+          data: {
+            src: "http://localhost:3000/image.png",
+          },
+        },
+      },
+    }, "draftJS", createAnonymousContext(), {skipMathjax: true});
+
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain("localhost");
+  });
+
+  it("filters local images from trusted admin HTML without broadly sanitizing it", async () => {
+    const source =
+      '<script>window.example = true;</script>' +
+      '<img src="http://localhost/image.png">' +
+      '<span onclick="example()">Keep trusted markup</span>';
+    const html = await dataToHTML(
+      source,
+      "html",
+      createAnonymousContext(),
+      {sanitize: false, skipMathjax: true},
+    );
+
+    expect(html).toContain("<script>window.example = true;</script>");
+    expect(html).toContain('onclick="example()"');
+    expect(html).not.toContain("<img");
   });
 });
 

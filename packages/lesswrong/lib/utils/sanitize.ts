@@ -114,12 +114,17 @@ export function isLocalNetworkUrl(urlString: string): boolean {
   }
 
   const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
+  const isSingleLabelHostname =
+    hostname !== 'example.com' &&
+    !hostname.includes('.') &&
+    !hostname.includes(':');
   return (
     hostname === 'localhost' ||
     hostname.endsWith('.localhost') ||
     hostname.endsWith('.local') ||
     hostname.endsWith('.internal') ||
     hostname.endsWith('.home.arpa') ||
+    isSingleLabelHostname ||
     isLocalNetworkIpv4(hostname) ||
     isLocalNetworkIpv6(hostname)
   );
@@ -141,6 +146,15 @@ function sanitizeImageTag(tagName: string, attribs: Record<string, string>) {
     tagName,
     attribs: hasLocalNetworkSource ? {} : attribs,
   };
+}
+
+function removeSourcelessImage(element: {tag: string; attribs?: Record<string, string>}): boolean {
+  if (element.tag !== 'img') {
+    return false;
+  }
+
+  const attribs = element.attribs ?? {};
+  return attribs.src === undefined && attribs.srcset === undefined;
 }
 
 function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
@@ -172,6 +186,19 @@ function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
     tagName,
     attribs,
   };
+}
+
+export function sanitizeLocalNetworkImageSources(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: false,
+    allowedAttributes: false,
+    allowedSchemesAppliedToAttributes: [],
+    allowVulnerableTags: true,
+    transformTags: {
+      img: sanitizeImageTag,
+    },
+    exclusiveFilter: removeSourcelessImage,
+  });
 }
 
 export const sanitize = function(s: string): string {
@@ -253,9 +280,8 @@ export const sanitize = function(s: string): string {
     },
     // Tag transformers may strip unsafe source values to empty attrs, and we want those empty wrappers removed.
     exclusiveFilter: (element) => {
-      if (element.tag === 'img') {
-        const attribs = element.attribs ?? {};
-        return attribs.src === undefined && attribs.srcset === undefined;
+      if (removeSourcelessImage(element)) {
+        return true;
       }
       if (element.tag !== 'iframe') {
         return false;

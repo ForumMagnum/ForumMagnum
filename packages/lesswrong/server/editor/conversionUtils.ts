@@ -5,7 +5,7 @@ import { captureException } from '@/lib/sentryWrapper';
 import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
-import { sanitize } from "@/lib/utils/sanitize";
+import { sanitize, sanitizeLocalNetworkImageSources } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import { formatMathToken } from '@/lib/utils/mathTokens';
@@ -843,24 +843,36 @@ interface DataToHTMLOptions {
 }
 
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
+  let html: string;
   switch (type) {
-    case "html":
+    case "html": {
       const maybeSanitized = options?.sanitize ? sanitize(data) : data;
       if (options?.skipMathjax) {
-        return maybeSanitized;
+        html = maybeSanitized;
       } else {
-        return renderMathInHtml(maybeSanitized)
+        html = renderMathInHtml(maybeSanitized);
       }
-    case "lexical":
-      return lexicalMarkupToHtml(data, context, !!options?.skipMathjax)
-    case "ckEditorMarkup":
-      return await ckEditorMarkupToHtml(data, context, !!options?.skipMathjax)
-    case "draftJS":
-      return await draftJSToHtmlWithLatex(data);
-    case "markdown":
-      return markdownToHtml(data, { skipMathjax: options?.skipMathjax })
+      break;
+    }
+    case "lexical": {
+      html = lexicalMarkupToHtml(data, context, !!options?.skipMathjax);
+      break;
+    }
+    case "ckEditorMarkup": {
+      html = await ckEditorMarkupToHtml(data, context, !!options?.skipMathjax);
+      break;
+    }
+    case "draftJS": {
+      html = await draftJSToHtmlWithLatex(data);
+      break;
+    }
+    case "markdown": {
+      html = markdownToHtml(data, { skipMathjax: options?.skipMathjax });
+      break;
+    }
     default: throw new Error(`Unrecognized format: ${type}`);
   }
+  return sanitizeLocalNetworkImageSources(html);
 }
 
 export function dataToMarkdown(data: AnyBecauseTodo, type: string) {

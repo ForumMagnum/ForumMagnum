@@ -1,4 +1,4 @@
-import { sanitize } from '../lib/utils/sanitize';
+import { sanitize, sanitizeLocalNetworkImageSources } from '../lib/utils/sanitize';
 
 describe('sanitize iframe handling', () => {
   // ── srcdoc widget iframes ──────────────────────────────────────────
@@ -175,6 +175,7 @@ describe('sanitize image source handling', () => {
   it.each([
     'http://localhost/image.png',
     'http://localhost:3000/image.png',
+    'http://router/image.png',
     'http://assets.localhost/image.png',
     'http://printer.local/image.png',
     'http://10.0.0.1/image.png',
@@ -197,6 +198,22 @@ describe('sanitize image source handling', () => {
     const result = sanitize(input);
 
     expect(result).toBe('');
+  });
+
+  it('can filter local images without sanitizing unrelated trusted HTML', () => {
+    const input =
+      '<script>window.example = "<unsafe>";</script>' +
+      '<a href="javascript:example()" onclick="example()">Trusted admin link</a>' +
+      '<img src="http://localhost/image.png" alt="Local">' +
+      '<img src="https://example.com/image.png" onerror="example()" alt="Public">';
+    const result = sanitizeLocalNetworkImageSources(input);
+
+    expect(result).toContain('<script>window.example = "<unsafe>";</script>');
+    expect(result).toContain('href="javascript:example()"');
+    expect(result).toContain('onclick="example()"');
+    expect(result).not.toContain('http://localhost/image.png');
+    expect(result).toContain('src="https://example.com/image.png"');
+    expect(result).toContain('onerror="example()"');
   });
 });
 
