@@ -160,6 +160,46 @@ describe('sanitize iframe handling', () => {
   });
 });
 
+describe('sanitize image source handling', () => {
+  it('preserves public and relative image sources', () => {
+    const input = [
+      '<img src="https://example.com/image.png" alt="Public">',
+      '<img src="/images/local-file.png" alt="Relative">',
+    ].join('');
+    const result = sanitize(input);
+
+    expect(result).toContain('https://example.com/image.png');
+    expect(result).toContain('/images/local-file.png');
+  });
+
+  it.each([
+    'http://localhost/image.png',
+    'http://localhost:3000/image.png',
+    'http://assets.localhost/image.png',
+    'http://printer.local/image.png',
+    'http://10.0.0.1/image.png',
+    'http://172.16.0.1/image.png',
+    'http://192.168.1.1/image.png',
+    'http://127.0.0.1/image.png',
+    'http://[::1]/image.png',
+    'http://[fc00::1]/image.png',
+    'http://[::ffff:127.0.0.1]/image.png',
+  ])('strips images sourced from the local network: %s', (src) => {
+    const result = sanitize(`<p>before</p><img src="${src}" alt="Local"><p>after</p>`);
+
+    expect(result).toBe('<p>before</p><p>after</p>');
+  });
+
+  it('strips images when any srcset candidate targets the local network', () => {
+    const input =
+      '<img src="https://example.com/image.png" ' +
+      'srcset="https://example.com/image.png 1x, http://192.168.1.1/image.png 2x">';
+    const result = sanitize(input);
+
+    expect(result).toBe('');
+  });
+});
+
 describe('sanitize ordered list numbering', () => {
   it('preserves value attribute on li elements', () => {
     const input = '<ol><li value="1">Item 1</li><li value="4">Item 4</li></ol>';

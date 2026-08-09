@@ -128,6 +128,21 @@ describe("markdownToHtml XSS safety", () => {
       const html = markdownToHtml('![alt" onerror="alert(1)](https://example.com/img.png)');
       expect(hasRealAttribute(html, "onerror")).toBe(false);
     });
+
+    it("does not produce images that target localhost", () => {
+      const html = markdownToHtml("before\n\n![local](http://localhost:3000/image.png)\n\nafter");
+
+      expect(html).not.toContain("<img");
+      expect(html).not.toContain("localhost");
+      expect(html).toContain("before");
+      expect(html).toContain("after");
+    });
+
+    it("preserves images from public hosts", () => {
+      const html = markdownToHtml("![public](https://example.com/image.png)");
+
+      expect(html).toContain('<img src="https://example.com/image.png"');
+    });
   });
 });
 

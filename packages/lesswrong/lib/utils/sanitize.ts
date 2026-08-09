@@ -48,6 +48,101 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
+function isLocalNetworkIpv4(hostname: string): boolean {
+  if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) {
+    return false;
+  }
+
+  const octets = hostname.split('.').map(Number);
+  const first = octets[0] ?? -1;
+  const second = octets[1] ?? -1;
+  if (octets.some((octet) => octet > 255)) {
+    return false;
+  }
+
+  return (
+    first === 0 ||
+    first === 10 ||
+    first === 127 ||
+    (first === 100 && second >= 64 && second <= 127) ||
+    (first === 169 && second === 254) ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 168) ||
+    (first === 198 && (second === 18 || second === 19)) ||
+    first >= 224
+  );
+}
+
+function mappedIpv4FromIpv6(hostname: string): string | null {
+  const match = hostname.match(/^::(?:ffff:)?([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+  if (!match) {
+    return null;
+  }
+
+  const high = Number.parseInt(match[1], 16);
+  const low = Number.parseInt(match[2], 16);
+  return [
+    high >> 8,
+    high & 0xff,
+    low >> 8,
+    low & 0xff,
+  ].join('.');
+}
+
+function isLocalNetworkIpv6(hostname: string): boolean {
+  const unbracketedHostname = hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  const mappedIpv4 = mappedIpv4FromIpv6(unbracketedHostname);
+  if (mappedIpv4) {
+    return isLocalNetworkIpv4(mappedIpv4);
+  }
+
+  const firstGroup = Number.parseInt(unbracketedHostname.split(':')[0], 16);
+  return (
+    unbracketedHostname === '::' ||
+    unbracketedHostname === '::1' ||
+    (firstGroup >= 0xfc00 && firstGroup <= 0xfdff) ||
+    (firstGroup >= 0xfe80 && firstGroup <= 0xfebf)
+  );
+}
+
+function isLocalNetworkUrl(urlString: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(urlString, 'https://example.com');
+  } catch {
+    return false;
+  }
+
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
+  return (
+    hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.internal') ||
+    hostname.endsWith('.home.arpa') ||
+    isLocalNetworkIpv4(hostname) ||
+    isLocalNetworkIpv6(hostname)
+  );
+}
+
+function srcsetHasLocalNetworkUrl(srcset: string): boolean {
+  return srcset.split(',').some((candidate) => {
+    const [url] = candidate.trim().split(/\s+/);
+    return url ? isLocalNetworkUrl(url) : false;
+  });
+}
+
+function sanitizeImageTag(tagName: string, attribs: Record<string, string>) {
+  const hasLocalNetworkSource =
+    (attribs.src !== undefined && isLocalNetworkUrl(attribs.src)) ||
+    (attribs.srcset !== undefined && srcsetHasLocalNetworkUrl(attribs.srcset));
+
+  return {
+    tagName,
+    attribs: hasLocalNetworkSource ? {} : attribs,
+  };
+}
+
 function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
   const srcdoc = attribs.srcdoc;
   if (srcdoc !== undefined) {
@@ -154,14 +249,19 @@ export const sanitize = function(s: string): string {
     ],
     transformTags: {
       iframe: sanitizeIframeTag,
+      img: sanitizeImageTag,
     },
-    // `transformTags.iframe` may strip invalid iframe src values to empty attrs, and we want those empty wrappers removed.
-    exclusiveFilter: (frame) => {
-      if (frame.tag !== 'iframe') {
+    // Tag transformers may strip unsafe source values to empty attrs, and we want those empty wrappers removed.
+    exclusiveFilter: (element) => {
+      if (element.tag === 'img') {
+        const attribs = element.attribs ?? {};
+        return attribs.src === undefined && attribs.srcset === undefined;
+      }
+      if (element.tag !== 'iframe') {
         return false;
       }
 
-      const attribs = frame.attribs ?? {};
+      const attribs = element.attribs ?? {};
       const hasSrcdoc = attribs.srcdoc !== undefined;
       if (hasSrcdoc) {
         // srcdoc iframes are only allowed for lexical widgets.

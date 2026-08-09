@@ -721,7 +721,7 @@ export function ckEditorMarkupToMarkdown(markup: string): string {
 export function markdownToHtmlNoLaTeX(markdown: string): string {
   const id = randomId()
   const renderedMarkdown = getMarkdownIt().render(markdown, {docId: id})
-  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
+  return trimLeadingAndTrailingWhiteSpace(sanitize(renderedMarkdown))
 }
 
 // Unlike `markdownToHtmlNoLaTeX`, this skips the `markdownItMathjax` markdown-it
@@ -732,7 +732,7 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
 export function markdownToHtmlNoMath(markdown: string): string {
   const id = randomId()
   const renderedMarkdown = getMarkdownItNoMathjax().render(markdown, {docId: id})
-  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
+  return trimLeadingAndTrailingWhiteSpace(sanitize(renderedMarkdown))
 }
 
 export function markdownToHtml(markdown: string, options?: {
