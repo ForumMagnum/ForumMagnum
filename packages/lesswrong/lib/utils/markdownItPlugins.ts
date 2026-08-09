@@ -7,6 +7,7 @@ import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 import markdownItMathjax from './markdownMathjax';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
 import { markdownMentions } from './markdownMentions';
+import { isLocalNetworkUrl } from './sanitize';
 
 const llmOutputOpenRegex = /^%%%[ \t]+llm-output(?:[ \t]+model="([^"]*)")?[ \t]*$/;
 const llmOutputCloseRegex = /^%%%[ \t]+\/llm-output[ \t]*$/;
@@ -161,7 +162,26 @@ function markdownSpoilerBlocks(md: markdownIt) {
   md.renderer.rules.spoiler_block_close = renderToken;
 }
 
+function renderImage(tokens: Token[], idx: number, options: AnyBecauseHard, env: AnyBecauseHard, self: Renderer): string {
+  const token = tokens[idx];
+  if (!token) {
+    return "";
+  }
+  const src = token.attrGet("src");
+  if (src && isLocalNetworkUrl(src)) {
+    return "";
+  }
+
+  token.attrSet("alt", self.renderInlineAsText(token.children ?? [], options, env));
+  return self.renderToken(tokens, idx, options);
+}
+
+function markdownImages(mdi: markdownIt): void {
+  mdi.renderer.rules.image = renderImage;
+}
+
 function applyCommonPlugins(mdi: markdownIt): void {
+  mdi.use(markdownImages);
   mdi.use(markdownLlmContentBlocks);
   mdi.use(markdownSpoilerBlocks);
   mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");

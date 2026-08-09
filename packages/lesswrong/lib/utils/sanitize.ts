@@ -105,7 +105,7 @@ function isLocalNetworkIpv6(hostname: string): boolean {
   );
 }
 
-function isLocalNetworkUrl(urlString: string): boolean {
+export function isLocalNetworkUrl(urlString: string): boolean {
   let url: URL;
   try {
     url = new URL(urlString, 'https://example.com');
