@@ -129,7 +129,7 @@ const ModerationContentDetail = ({
               <Link to={postGetPageUrl(item)} className={classes.postTitle}>
                 {item.title}
               </Link>
-              <PostActionsButton post={item} vertical autoPlace flip className={classes.postActionsButton} />
+              <PostActionsButton post={item} vertical flip className={classes.postActionsButton} />
             </div>
             <PostBodyPrefix post={item} />
             <ContentStyles contentType="postHighlight">
