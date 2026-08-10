@@ -77,8 +77,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
-      <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
+      <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
       {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
