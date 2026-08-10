@@ -139,3 +139,6 @@ acxMeetupImports/
 
 # Claude Code
 .claude
+
+# Runtime artifact from reviewGetResultsPost script
+reviewResultsPost.txt
