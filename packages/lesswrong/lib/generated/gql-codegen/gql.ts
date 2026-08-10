@@ -629,8 +629,6 @@ type Documents = {
     "\n  query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {\n    comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {\n      results {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.UserContentFeedThreadDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.UsersNameWrapperDocument,
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUsersProfileQueryDocument,
-    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
-    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": typeof types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.UsersAccountTargetUserDocument,
@@ -1507,8 +1505,6 @@ const documents: Documents = {
     "\n  query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {\n    comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {\n      results {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.UserContentFeedThreadDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.UsersNameWrapperDocument,
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUsersProfileQueryDocument,
-    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
-    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": types.UsersAccountTargetUserDocument,
@@ -4244,14 +4240,6 @@ export function gql(source: "\n  query UsersNameWrapper($documentId: String) {\n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

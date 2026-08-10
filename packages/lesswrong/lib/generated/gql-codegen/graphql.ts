@@ -20653,28 +20653,6 @@ export type multiUserUsersProfileQueryQuery = { __typename?: 'Query', users: { _
       & UsersProfile
     )> } | null };
 
-export type updateUserDeactivateAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserDeactivateAccountSectionMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersEdit
-    ) | null } | null };
-
-export type updateUserDeleteAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserDeleteAccountSectionMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersEdit
-    ) | null } | null };
-
 export type SoftDeleteUserMutationVariables = Exact<{
   userId: Scalars['String']['input'];
 }>;
@@ -23365,8 +23343,6 @@ export const UserContentFeedWikiEditsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"U
 export const UserContentFeedThreadDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedThread"),[_o12(_983,_1873,_987),_1044],_o5(_7,[_o7(_8,_867,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"repliesToCommentThreadIncludingRoot"),_o14(_994,[_o8(_995,_173,_1873)]))])),_1047],_o5(_7,[_o6(_8,_1018,_222)]))])),_146,_158,_61,_184,_23,_127,_136,_192,_198,_203,_207,_217]) as unknown as DocumentNode<UserContentFeedThreadQuery, UserContentFeedThreadQueryVariables>;
 export const UsersNameWrapperDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersNameWrapper"),_1173,_1354),_61]) as unknown as DocumentNode<UsersNameWrapperQuery, UsersNameWrapperQueryVariables>;
 export const multiUserUsersProfileQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserUsersProfileQuery"),_1110,_1113),_61,_226,_904]) as unknown as DocumentNode<multiUserUsersProfileQueryQuery, multiUserUsersProfileQueryQueryVariables>;
-export const updateUserDeactivateAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeactivateAccountSection"),_1188,_1509),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeactivateAccountSectionMutation, updateUserDeactivateAccountSectionMutationVariables>;
-export const updateUserDeleteAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeleteAccountSection"),_1188,_1509),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeleteAccountSectionMutation, updateUserDeleteAccountSectionMutationVariables>;
 export const SoftDeleteUserDocument = _o1(_1,[_o11(_981,_982,_1874,_1629,_o5(_7,[_o10(_8,_1874,_1779)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
 export const UserTopPostsForManagerDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserTopPostsForManager"),_1052,_o5(_7,[_o7(_8,_250,_1054,_1719)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserTopPostsForManagerQuery, UserTopPostsForManagerQueryVariables>;
 export const UsersAccountTargetUserDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountTargetUser"),_1062,_1494),_61]) as unknown as DocumentNode<UsersAccountTargetUserQuery, UsersAccountTargetUserQueryVariables>;

@@ -22975,42 +22975,6 @@ type multiUserUsersProfileQueryQueryVariables = Exact<{
 
 type multiUserUsersProfileQueryQuery = multiUserUsersProfileQueryQuery_Query;
 
-type updateUserDeactivateAccountSectionMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserDeactivateAccountSectionMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserDeactivateAccountSectionMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserDeactivateAccountSectionMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserDeactivateAccountSectionMutation_updateUser_UserOutput | null };
-
-
-type updateUserDeactivateAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserDeactivateAccountSectionMutation = updateUserDeactivateAccountSectionMutation_Mutation;
-
-type updateUserDeleteAccountSectionMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserDeleteAccountSectionMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserDeleteAccountSectionMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserDeleteAccountSectionMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserDeleteAccountSectionMutation_updateUser_UserOutput | null };
-
-
-type updateUserDeleteAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
-
 type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
 
 
