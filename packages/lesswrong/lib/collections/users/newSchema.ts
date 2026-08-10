@@ -1987,6 +1987,15 @@ const schema = {
       onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
+  notificationNewPingback: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
   notificationDialogueMessages: {
     database: {
       type: "JSONB",

@@ -158,6 +158,7 @@ function getPageNotificationIcon(notificationName: string) {
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyle} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyle} />;
     case 'newMention': return <CommentsIcon style={iconStyle}/>;
+    case 'newPingback': return <ForumIcon icon="Link" style={iconStyle}/>;
     default: return null;
   }
 }

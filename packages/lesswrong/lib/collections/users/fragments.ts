@@ -534,6 +534,7 @@ export const UsersEdit = gql(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationTypoSuggestions
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
