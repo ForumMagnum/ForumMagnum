@@ -3,8 +3,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
-import { useCurrentUser } from '../common/withUser';
-import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -194,7 +192,6 @@ export const ImageUpload = ({
 }: ImageUploadProps) => {
   const classes = useStyles(styles);
   const imageType = field.name as ImageType;
-  const currentUser = useCurrentUser();
   const {uploadImage} = useImageUpload({
     imageType,
     onUploadSuccess: (publicImageId: string) => {
@@ -257,21 +254,6 @@ export const ImageUpload = ({
         >
           Choose from ours
         </Button>}
-        {userHasDefaultProfilePhotos(currentUser) && imageType === 'profileImageId' &&
-          <Button
-            variant="outlined"
-            onClick={() => openDialog({
-              name: "ImageUploadDefaultsDialog",
-              contents: ({onClose}) => <ImageUploadDefaultsDialog
-                onClose={onClose}
-                onSelect={(id: string) => field.handleChange(id)}
-                type={"Profile"}
-              />
-            })}
-          >
-            Choose from ours
-          </Button>
-        }
         <RemoveButton
           imageType={imageType}
           imageId={imageId}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { isEAForum } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { hasAccountDeletionFlow } from '@/lib/betas';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import SettingsSection from './SettingsSection';
 import ExplicitSaveTextSetting from './ExplicitSaveTextSetting';
@@ -60,7 +59,6 @@ const styles = defineStyles('AccountSettingsTab', (theme: ThemeType) => ({
 
 interface AccountSettingsTabProps extends SettingsTabProps {
   requestPasswordReset: () => void;
-  accountManagement: React.ReactNode | null;
 }
 
 const AccountSettingsTab = ({
@@ -68,7 +66,6 @@ const AccountSettingsTab = ({
   updateSettings,
   isCurrentUser,
   requestPasswordReset,
-  accountManagement,
 }: AccountSettingsTabProps) => {
   const classes = useStyles(styles);
 
@@ -119,26 +116,22 @@ const AccountSettingsTab = ({
         </SettingsSection>
       )}
 
-      {!hasAccountDeletionFlow() && (
-        <SettingsSection title="Deactivate Account">
-          <div className={classes.deactivateWrapper}>
-            <div className={classes.deactivateDescription}>
-              {deactivated
-                ? 'This account is deactivated. Its posts and comments are listed as "[Anonymous]", and the user profile isn\'t accessible.'
-                : 'Your posts and comments will be listed as "[Anonymous]", and your user profile won\'t be accessible.'}
-            </div>
-            <button
-              type="button"
-              className={classes.deactivateButton}
-              onClick={onToggleDeactivated}
-            >
-              {deactivated ? 'Reactivate account' : 'Deactivate account'}
-            </button>
+      <SettingsSection title="Deactivate Account">
+        <div className={classes.deactivateWrapper}>
+          <div className={classes.deactivateDescription}>
+            {deactivated
+              ? 'This account is deactivated. Its posts and comments are listed as "[Anonymous]", and the user profile isn\'t accessible.'
+              : 'Your posts and comments will be listed as "[Anonymous]", and your user profile won\'t be accessible.'}
           </div>
-        </SettingsSection>
-      )}
-
-      {accountManagement}
+          <button
+            type="button"
+            className={classes.deactivateButton}
+            onClick={onToggleDeactivated}
+          >
+            {deactivated ? 'Reactivate account' : 'Deactivate account'}
+          </button>
+        </div>
+      </SettingsSection>
     </div>
   );
 };

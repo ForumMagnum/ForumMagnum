@@ -5,8 +5,6 @@ import { useHover } from '../common/withHover';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { useCurrentUser } from '../common/withUser';
 import { defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
@@ -165,7 +163,6 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     eventProps: {tagId, label, mode},
   });
 
-  const currentUser = useCurrentUser()
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
     skip: !tagId,
@@ -182,7 +179,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   
   const reducedName = 'Reduced'
   const reducedVal = 'Reduced'
-  const filterMode = filterModeToStr(mode, currentUser)
+  const filterMode = filterModeToStr(mode)
   const filterModeLabel = filterModeStrToLabel(filterMode);
 
   const tagLabel =
@@ -279,7 +276,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             </div>
             <LWTooltip title={filterModeToTooltip(25)}>
               <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={_ev => setMode(25)}>
-              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
+                Promoted
               </span>
             </LWTooltip>
             <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
@@ -357,14 +354,8 @@ type FilterModeString =
   | "Reduced"
   | "";
 
-function filterModeToStr(mode: FilterModeType, currentUser: UsersCurrent | null): FilterModeString {
+function filterModeToStr(mode: FilterModeType): FilterModeString {
   if (typeof mode === "number") {
-    if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
-    if (
-      // Avoid floating point eqality comparisons
-      Math.abs(0.5 - mode) < .000000001 &&
-      userHasNewTagSubscriptions(currentUser)
-    ) return "Reduced"
     if (mode >= 1) return `+${mode}`
     if (mode > 0) return `-${Math.round((1 - mode) * 100)}%`
     if (mode === 0) return ""

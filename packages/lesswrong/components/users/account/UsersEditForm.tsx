@@ -165,7 +165,6 @@ const UsersSettingsForm = ({
   currentUser,
   isCurrentUser,
   requestPasswordReset,
-  accountManagement,
   activeTab,
   refetchUser,
 }: {
@@ -173,7 +172,6 @@ const UsersSettingsForm = ({
   currentUser: UsersCurrent;
   isCurrentUser: boolean;
   requestPasswordReset: () => void;
-  accountManagement: React.ReactNode | null;
   activeTab: SettingsTabId;
   refetchUser: () => Promise<UsersEdit | null | undefined>;
 }) => {
@@ -201,7 +199,6 @@ const UsersSettingsForm = ({
         <AccountSettingsTab
           {...tabProps}
           requestPasswordReset={requestPasswordReset}
-          accountManagement={accountManagement}
         />
       </div>
 
@@ -230,9 +227,8 @@ const UsersSettingsForm = ({
   );
 };
 
-const UsersEditForm = ({ terms, accountManagement, activeSettingsTab }: {
+const UsersEditForm = ({ terms, activeSettingsTab }: {
   terms: { slug: string },
-  accountManagement?: React.ReactNode | null,
   activeSettingsTab: SettingsTabId,
 }) => {
   const classes = useStyles(styles);
@@ -283,7 +279,6 @@ const UsersEditForm = ({ terms, accountManagement, activeSettingsTab }: {
           currentUser={currentUser}
           isCurrentUser={isCurrentUser}
           requestPasswordReset={requestPasswordReset}
-          accountManagement={accountManagement ?? null}
           activeTab={activeSettingsTab}
           refetchUser={refetchUser}
         />

@@ -71,7 +71,6 @@ type Documents = {
     "\n      query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {\n        UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {\n          posts {\n            ...PostsListWithVotes\n            lastVisitedAt\n          }\n        }\n      }\n    ": typeof types.getReadHistoryDocument,
     "\n  query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {\n    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UserVotesWithDocument\n      }\n      totalCount\n    }\n  }\n": typeof types.multiVoteVoteHistoryTabQueryDocument,
     "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBook2020FrontpageWidgetDocument,
-    "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBookFrontpageWidgetDocument,
     "\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": typeof types.CommentEmbeddingsSearchQueryDocument,
     "\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": typeof types.CommentEmbeddingsSimilaritySearchQueryDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.CommentByIdDocument,
@@ -332,7 +331,6 @@ type Documents = {
     "\n  query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FrontpageShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentQuickTakesSectionQueryDocument,
     "\n  query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsRecentDiscussion\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostRecentDiscussionThreadsListQueryDocument,
     "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": typeof types.CuratedAndPopularThisWeekDocument,
-    "\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostRecommendationsSamplePageQueryDocument,
     "\n  query WelcomePostItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId }, allowNull: true }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.WelcomePostItemDocument,
     "\n      mutation observeRecommendation($postId: String!) {\n        observeRecommendation(postId: $postId)\n      }\n    ": typeof types.observeRecommendationDocument,
     "\n      mutation clickRecommendation($postId: String!) {\n        clickRecommendation(postId: $postId)\n      }\n    ": typeof types.clickRecommendationDocument,
@@ -607,9 +605,6 @@ type Documents = {
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUserPageTitleQueryDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.SingleCommentForFeedbackDocument,
-    "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUltraFeedPostDialogQueryDocument,
-    "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
-    "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": typeof types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
@@ -634,12 +629,9 @@ type Documents = {
     "\n  query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {\n    comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {\n      results {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.UserContentFeedThreadDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.UsersNameWrapperDocument,
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUsersProfileQueryDocument,
-    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
-    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": typeof types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.UsersAccountTargetUserDocument,
-    "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
     "\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserAutoSavedSettingsDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
@@ -955,7 +947,6 @@ const documents: Documents = {
     "\n      query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {\n        UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {\n          posts {\n            ...PostsListWithVotes\n            lastVisitedAt\n          }\n        }\n      }\n    ": types.getReadHistoryDocument,
     "\n  query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {\n    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UserVotesWithDocument\n      }\n      totalCount\n    }\n  }\n": types.multiVoteVoteHistoryTabQueryDocument,
     "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBook2020FrontpageWidgetDocument,
-    "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBookFrontpageWidgetDocument,
     "\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": types.CommentEmbeddingsSearchQueryDocument,
     "\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": types.CommentEmbeddingsSimilaritySearchQueryDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.CommentByIdDocument,
@@ -1216,7 +1207,6 @@ const documents: Documents = {
     "\n  query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FrontpageShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentQuickTakesSectionQueryDocument,
     "\n  query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsRecentDiscussion\n      }\n      totalCount\n    }\n  }\n": types.multiPostRecentDiscussionThreadsListQueryDocument,
     "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": types.CuratedAndPopularThisWeekDocument,
-    "\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.multiPostRecommendationsSamplePageQueryDocument,
     "\n  query WelcomePostItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId }, allowNull: true }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.WelcomePostItemDocument,
     "\n      mutation observeRecommendation($postId: String!) {\n        observeRecommendation(postId: $postId)\n      }\n    ": types.observeRecommendationDocument,
     "\n      mutation clickRecommendation($postId: String!) {\n        clickRecommendation(postId: $postId)\n      }\n    ": types.clickRecommendationDocument,
@@ -1491,9 +1481,6 @@ const documents: Documents = {
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiUserUserPageTitleQueryDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.SingleCommentForFeedbackDocument,
-    "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUltraFeedPostDialogQueryDocument,
-    "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
-    "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
@@ -1518,12 +1505,9 @@ const documents: Documents = {
     "\n  query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {\n    comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {\n      results {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.UserContentFeedThreadDocument,
     "\n  query UsersNameWrapper($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.UsersNameWrapperDocument,
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUsersProfileQueryDocument,
-    "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
-    "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": types.UsersAccountTargetUserDocument,
-    "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
     "\n  mutation updateUserAutoSavedSettings($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserAutoSavedSettingsDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
@@ -2024,10 +2008,6 @@ export function gql(source: "\n  query multiVoteVoteHistoryTabQuery($selector: V
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3068,10 +3048,6 @@ export function gql(source: "\n  query multiPostRecentDiscussionThreadsListQuery
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "): (typeof documents)["\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4171,18 +4147,6 @@ export function gql(source: "\n  query SingleCommentForFeedback($documentId: Str
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4279,14 +4243,6 @@ export function gql(source: "\n  query multiUserUsersProfileQuery($selector: Use
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"): (typeof documents)["\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4296,10 +4252,6 @@ export function gql(source: "\n  query UserTopPostsForManager($selector: PostSel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"): (typeof documents)["\n  query UsersAccountTargetUser($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -13320,24 +13320,6 @@ type updateUserBook2020FrontpageWidgetMutationVariables = Exact<{
 
 type updateUserBook2020FrontpageWidgetMutation = updateUserBook2020FrontpageWidgetMutation_Mutation;
 
-type updateUserBookFrontpageWidgetMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersCurrent
-);
-
-type updateUserBookFrontpageWidgetMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserBookFrontpageWidgetMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserBookFrontpageWidgetMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserBookFrontpageWidgetMutation_updateUser_UserOutput | null };
-
-
-type updateUserBookFrontpageWidgetMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserBookFrontpageWidgetMutation = updateUserBookFrontpageWidgetMutation_Mutation;
-
 type CommentEmbeddingsSearchQueryQuery_CommentEmbeddingSearch_Comment = (
   { __typename?: 'Comment' }
   & CommentsListWithParentMetadata
@@ -17924,25 +17906,6 @@ type CuratedAndPopularThisWeekQueryVariables = Exact<{
 
 
 type CuratedAndPopularThisWeekQuery = CuratedAndPopularThisWeekQuery_Query;
-
-type multiPostRecommendationsSamplePageQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type multiPostRecommendationsSamplePageQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostRecommendationsSamplePageQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type multiPostRecommendationsSamplePageQueryQuery_Query = { __typename?: 'Query', posts: multiPostRecommendationsSamplePageQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostRecommendationsSamplePageQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostRecommendationsSamplePageQueryQuery = multiPostRecommendationsSamplePageQueryQuery_Query;
 
 type WelcomePostItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -22632,59 +22595,6 @@ type SingleCommentForFeedbackQueryVariables = Exact<{
 
 type SingleCommentForFeedbackQuery = SingleCommentForFeedbackQuery_Query;
 
-type multiCommentUltraFeedPostDialogQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type multiCommentUltraFeedPostDialogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentUltraFeedPostDialogQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentUltraFeedPostDialogQueryQuery_Query = { __typename?: 'Query', comments: multiCommentUltraFeedPostDialogQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentUltraFeedPostDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentUltraFeedPostDialogQueryQuery = multiCommentUltraFeedPostDialogQueryQuery_Query;
-
-type UltraFeedPostDialogQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & UltraFeedPostFragment
-);
-
-type UltraFeedPostDialogQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedPostDialogQuery_post_SinglePostOutput_result_Post | null };
-
-type UltraFeedPostDialogQuery_Query = { __typename?: 'Query', post: UltraFeedPostDialogQuery_post_SinglePostOutput | null };
-
-
-type UltraFeedPostDialogQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedPostDialogQuery = UltraFeedPostDialogQuery_Query;
-
-type UltraFeedTargetCommentQuery_comment_SingleCommentOutput_result_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type UltraFeedTargetCommentQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: UltraFeedTargetCommentQuery_comment_SingleCommentOutput_result_Comment | null };
-
-type UltraFeedTargetCommentQuery_Query = { __typename?: 'Query', comment: UltraFeedTargetCommentQuery_comment_SingleCommentOutput | null };
-
-
-type UltraFeedTargetCommentQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedTargetCommentQuery = UltraFeedTargetCommentQuery_Query;
-
 type LocalPostQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & UltraFeedPostFragment
@@ -23065,42 +22975,6 @@ type multiUserUsersProfileQueryQueryVariables = Exact<{
 
 type multiUserUsersProfileQueryQuery = multiUserUsersProfileQueryQuery_Query;
 
-type updateUserDeactivateAccountSectionMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserDeactivateAccountSectionMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserDeactivateAccountSectionMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserDeactivateAccountSectionMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserDeactivateAccountSectionMutation_updateUser_UserOutput | null };
-
-
-type updateUserDeactivateAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserDeactivateAccountSectionMutation = updateUserDeactivateAccountSectionMutation_Mutation;
-
-type updateUserDeleteAccountSectionMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserDeleteAccountSectionMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserDeleteAccountSectionMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserDeleteAccountSectionMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserDeleteAccountSectionMutation_updateUser_UserOutput | null };
-
-
-type updateUserDeleteAccountSectionMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
-
 type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
 
 
@@ -23143,21 +23017,6 @@ type UsersAccountTargetUserQueryVariables = Exact<{
 
 
 type UsersAccountTargetUserQuery = UsersAccountTargetUserQuery_Query;
-
-type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type UsersAccountManagementGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User | null };
-
-
-type UsersAccountManagementGetUserBySlugQueryVariables = Exact<{
-  slug: Scalars['String']['input'];
-}>;
-
-
-type UsersAccountManagementGetUserBySlugQuery = UsersAccountManagementGetUserBySlugQuery_Query;
 
 type UsersEditFormGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
