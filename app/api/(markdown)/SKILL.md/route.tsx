@@ -203,6 +203,15 @@ To reply to an existing comment thread on the draft:
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
 
+To resolve a comment thread that you previously created:
+    POST /api/agent/resolveComment
+    with JSON body: { postId, key, agentName?, threadId }
+This archives the thread and removes its text highlight while preserving the
+conversation history. It cannot resolve suggestion threads or comment threads
+created by another identity. If you are making stateless requests without a
+logged-in session or clientId cookie, pass the same explicit agentName that you
+used when creating the comment.
+
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }

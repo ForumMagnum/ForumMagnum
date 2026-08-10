@@ -5,7 +5,7 @@ import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { insertCollabCommentThread } from "../agent/collabCommentThreads";
+import { insertCollabCommentThread, resolveCollabCommentThread } from "../agent/collabCommentThreads";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
@@ -18,6 +18,7 @@ import {
   commentOnDraftToolSchema,
   deleteBlockToolSchema,
   insertBlockToolSchema,
+  resolveCommentToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
   validateReplaceWidgetExclusivity,
@@ -40,6 +41,7 @@ const REQUIRED_SCOPE = "lesswrong:access";
 const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   read_post: [REQUIRED_SCOPE],
   comment_on_draft: [REQUIRED_SCOPE],
+  resolve_comment: [REQUIRED_SCOPE],
   replace_text: [REQUIRED_SCOPE],
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
@@ -166,7 +168,7 @@ function createMcpServer(): McpServer {
       }
 
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
-      const threadQuote = args.quote ?? "(No quote provided)";
+      const threadQuote = args.quote ?? "";
 
       const result = await insertCollabCommentThread({
         collectionName: "Posts",
@@ -177,6 +179,48 @@ function createMcpServer(): McpServer {
         author: authorName,
         authorId,
       });
+
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "resolve_comment",
+    {
+      description: "Resolve a comment thread previously created by this agent. This archives the thread and removes its text highlight while preserving the conversation history.",
+      inputSchema: resolveCommentToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async (args, extra) => {
+      assertToolScopes("resolve_comment", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
+      const result = await resolveCollabCommentThread({
+        collectionName: "Posts",
+        documentId: args.postId,
+        token,
+        threadId: args.threadId,
+        authorId,
+        authorName,
+        allowAuthorNameFallback: false,
+      });
+      if (result.kind === "thread_not_found") {
+        return toolError(`Thread not found: ${args.threadId}`);
+      }
+      if (result.kind === "not_comment_thread") {
+        return toolError("Only comment threads can be resolved with this tool.");
+      }
+      if (result.kind === "not_author") {
+        return toolError("This tool can only resolve a comment thread created by the same agent identity.");
+      }
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },

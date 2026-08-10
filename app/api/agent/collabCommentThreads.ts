@@ -1,7 +1,8 @@
-import { Map as YMap, Array as YArray } from "yjs";
+import { Doc, Map as YMap, Array as YArray } from "yjs";
 import { randomId } from "@/lib/random";
 import { $createRangeSelection, $setSelection } from "lexical";
-import { $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $unwrapMarkNode, $wrapSelectionInMarkNode, MarkNode } from "@lexical/mark";
+import { $nodesOfType } from "@lexical/utils";
 import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
@@ -199,17 +200,27 @@ export async function insertCollabCommentThread({
   });
 }
 
+function findThreadMap(
+  commentsArray: YArray<unknown>,
+  threadId: string,
+): YMap<unknown> | null {
+  for (let i = 0; i < commentsArray.length; i++) {
+    const entry = commentsArray.get(i);
+    if (!(entry instanceof YMap)) continue;
+    if (entry.get("type") === "thread" && entry.get("id") === threadId) {
+      return entry;
+    }
+  }
+  return null;
+}
+
 function findThreadCommentsArray(
   commentsArray: YArray<unknown>,
   threadId: string,
 ): YArray<unknown> | null {
-  for (let i = 0; i < commentsArray.length; i++) {
-    const entry = commentsArray.get(i) as YMap<unknown>;
-    if (entry.get("type") === "thread" && entry.get("id") === threadId) {
-      return (entry.get("comments") as YArray<unknown> | undefined) ?? null;
-    }
-  }
-  return null;
+  const threadMap = findThreadMap(commentsArray, threadId);
+  const threadComments = threadMap?.get("comments");
+  return threadComments instanceof YArray ? threadComments : null;
 }
 
 export type AppendReplyResult =
@@ -257,6 +268,144 @@ export async function appendReplyToCommentThread({
       }, "agent-reply-to-comment");
 
       return { kind: "success", commentId };
+    },
+  });
+}
+
+export type ResolveCommentThreadResult =
+  | { kind: "thread_not_found" }
+  | { kind: "not_comment_thread" }
+  | { kind: "not_author" }
+  | { kind: "success", alreadyResolved: boolean };
+
+export function resolveOwnCommentThreadInDoc({
+  doc,
+  threadId,
+  authorId,
+  authorName,
+  allowAuthorNameFallback,
+}: {
+  doc: Doc
+  threadId: string
+  authorId: string
+  authorName: string
+  allowAuthorNameFallback: boolean
+}): ResolveCommentThreadResult {
+  const commentsArray = doc.get("comments", YArray<unknown>);
+  const threadMap = findThreadMap(commentsArray, threadId);
+  if (!threadMap) {
+    return { kind: "thread_not_found" };
+  }
+  if (threadMap.get("threadType") !== "comment") {
+    return { kind: "not_comment_thread" };
+  }
+
+  const threadCommentsValue = threadMap.get("comments");
+  const threadComments = threadCommentsValue instanceof YArray ? threadCommentsValue : null;
+  const firstCommentValue = threadComments?.get(0);
+  const firstComment = firstCommentValue instanceof YMap ? firstCommentValue : null;
+  const matchesAuthorId = firstComment?.get("authorId") === authorId;
+  const matchesAuthorName = allowAuthorNameFallback
+    && firstComment?.get("author") === authorName;
+  if (!matchesAuthorId && !matchesAuthorName) {
+    return { kind: "not_author" };
+  }
+
+  const alreadyResolved = threadMap.get("status") === "archived";
+  doc.transact(() => {
+    threadMap.set("status", "archived");
+    threadMap.delete("statusBeforeReopen");
+  }, "agent-resolve-comment");
+  return { kind: "success", alreadyResolved };
+}
+
+/**
+ * Remove a comment thread's ID from every matching MarkNode. Must be called
+ * inside a Lexical update context.
+ */
+export function $removeCommentMark(markId: string): boolean {
+  let removed = false;
+  for (const node of $nodesOfType(MarkNode)) {
+    if (!node.getIDs().includes(markId)) continue;
+    node.deleteID(markId);
+    if (node.getIDs().length === 0) {
+      $unwrapMarkNode(node);
+    }
+    removed = true;
+  }
+  return removed;
+}
+
+export async function resolveCollabCommentThread({
+  collectionName,
+  documentId,
+  token,
+  threadId,
+  authorId,
+  authorName,
+  allowAuthorNameFallback,
+}: {
+  collectionName: string
+  documentId: string
+  token: string
+  threadId: string
+  authorId: string
+  authorName: string
+  allowAuthorNameFallback: boolean
+}): Promise<ResolveCommentThreadResult> {
+  return withCommentsDocSession({
+    collectionName,
+    documentId,
+    token,
+    callback: async ({ doc }) => {
+      const commentsArray = doc.get("comments", YArray<unknown>);
+      const threadMap = findThreadMap(commentsArray, threadId);
+      if (!threadMap) {
+        return { kind: "thread_not_found" };
+      }
+      if (threadMap.get("threadType") !== "comment") {
+        return { kind: "not_comment_thread" };
+      }
+
+      const threadCommentsValue = threadMap.get("comments");
+      const threadComments = threadCommentsValue instanceof YArray ? threadCommentsValue : null;
+      const firstCommentValue = threadComments?.get(0);
+      const firstComment = firstCommentValue instanceof YMap ? firstCommentValue : null;
+      const matchesAuthorId = firstComment?.get("authorId") === authorId;
+      const matchesAuthorName = allowAuthorNameFallback
+        && firstComment?.get("author") === authorName;
+      if (!matchesAuthorId && !matchesAuthorName) {
+        return { kind: "not_author" };
+      }
+
+      const quoteValue = threadMap.get("quote");
+      const quote = typeof quoteValue === "string" ? quoteValue : "";
+      if (normalizeText(quote)) {
+        await withMainDocEditorSession({
+          collectionName,
+          documentId,
+          token,
+          operationLabel: "ResolveCommentThread",
+          callback: async ({ editor, provider }) => {
+            let markRemoved = false;
+            await new Promise<void>((resolve) => {
+              editor.update(() => {
+                markRemoved = $removeCommentMark(threadId);
+              }, { onUpdate: resolve });
+            });
+            if (markRemoved) {
+              await waitForProviderFlush(provider);
+            }
+          },
+        });
+      }
+
+      const alreadyResolved = threadMap.get("status") === "archived";
+      doc.transact(() => {
+        threadMap.set("status", "archived");
+        threadMap.delete("statusBeforeReopen");
+      }, "agent-resolve-comment");
+      return { kind: "success", alreadyResolved };
     },
   });
 }
