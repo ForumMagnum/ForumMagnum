@@ -3,8 +3,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { userHasNewTagSubscriptions } from "../../lib/betas";
-import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -52,7 +50,6 @@ import PermanentRedirect from "../common/PermanentRedirect";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import CommentsListCondensed from "../common/CommentsListCondensed";
-import SubscribeButton from "./SubscribeButton";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import TagIntroSequence from "./TagIntroSequence";
 import MultiToCLayout from "../posts/TableOfContents/MultiToCLayout";
@@ -156,11 +153,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
-    },
-  },
-  notifyMeButton: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 6,
     },
   },
   nonMobileButtonRow: {
@@ -913,15 +905,6 @@ const LWTagPage = ({slug}: {slug: string}) => {
           toggleEmbeddedPlayer={toggleEmbeddedPlayer}
           showEmbeddedPlayer={showEmbeddedPlayer}
         />
-        {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
-          <SubscribeButton
-            tag={tag}
-            className={classes.notifyMeButton}
-            subscribeMessage="Subscribe"
-            unsubscribeMessage="Subscribed"
-            subscriptionType={subscriptionTypes.newTagPosts}
-          />
-        }
       </div>
       {tag && <span className={classNames(classes.mobileAudioPlayer)}>
           <TagAudioPlayerWrapper

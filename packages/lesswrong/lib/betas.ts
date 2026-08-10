@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { testServerSetting, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
@@ -27,8 +27,6 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
-export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
-export const userHasDefaultProfilePhotos = disabled
 
 export const userHasAutosummarize = adminOnly
 
@@ -51,8 +49,6 @@ export const ckEditorUserSessionsEnabled = () => isLWorAF();
 export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 
-export const hasAccountDeletionFlow = () => false;
-export const useElicitApi = false;
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const usesCurationEmailsCron = () => isLW();
 export const hasWikiLenses = () => isLWorAF();

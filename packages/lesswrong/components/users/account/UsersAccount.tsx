@@ -2,13 +2,11 @@
 import React, { useCallback, useState } from 'react';
 import { userCanEditUser, userCanSeeAdminSettingsTab, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
-import { hasAccountDeletionFlow } from '@/lib/betas';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { Link } from '@/lib/reactRouterWrapper';
 import UsersEditForm, { getSettingsTabForField } from './UsersEditForm';
-import UsersAccountManagement from './UsersAccountManagement';
 import ErrorAccessDenied from '../../common/ErrorAccessDenied';
 import Error404 from '../../common/Error404';
 import Loading from '../../vulcan-core/Loading';
@@ -200,10 +198,6 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
     return <Error404 />;
   }
 
-  const accountManagement = hasAccountDeletionFlow()
-    ? <UsersAccountManagement terms={{slug: slugWithFallback}} />
-    : null;
-
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -253,7 +247,6 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
             <div className={classNames(!onSettingsTab && classes.hiddenTab)}>
               <UsersEditForm
                 terms={{slug: slugWithFallback}}
-                accountManagement={accountManagement}
                 activeSettingsTab={activeSettingsTab}
               />
             </div>

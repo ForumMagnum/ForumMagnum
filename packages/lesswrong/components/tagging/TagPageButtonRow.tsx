@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import EditOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/EditOutlined';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
-import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
@@ -269,7 +268,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
           {!hideLabels && "History"}
         </span>
       </Link>}
-      {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+      {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
         <NotifyMeButton
           document={tag}
           className={classes.subscribeTo}
@@ -285,7 +284,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
       {selectedLens && <div className={classes.likeButtonWrapper}>
         <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
       </div>}
-      {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
+      {!hideLabels && <LWTooltip
         className={classes.helpImprove}
         title={editTooltip}
       >

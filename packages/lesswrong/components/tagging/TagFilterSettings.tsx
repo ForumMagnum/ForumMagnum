@@ -1,8 +1,6 @@
 import React from 'react';
 import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag } from '../../lib/filterSettings';
-import { useCurrentUser } from '../common/withUser';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
-import { userHasNewTagSubscriptions } from '../../lib/betas';
 import AddTagButton from "./AddTagButton";
 import LWTooltip from "../common/LWTooltip";
 import FilterMode, { filteringStyles } from './FilterMode';
@@ -63,7 +61,6 @@ const TagFilterSettingsInner = ({
   flexWrapEndGrow?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser()
 
   const {
     name: personalBlogpostName,
@@ -100,8 +97,7 @@ const TagFilterSettingsInner = ({
         {<LWTooltip title={`Add Wikitag Filter`}>
             <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
               if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
-                const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
-                setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
+                setTagFilter({tagId, tagName, filterMode: "Default"})
               }
             }}>
               <span className={classes.addButton}>+</span>
