@@ -1,4 +1,4 @@
-import { $nodesOfType } from "@lexical/utils";
+import { $nodesOfType } from "lexical";
 import { MarkNode } from "@lexical/mark";
 import { Array as YArray, Doc, Map as YMap } from "yjs";
 import {

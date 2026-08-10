@@ -1,8 +1,7 @@
 import { Doc, Map as YMap, Array as YArray } from "yjs";
 import { randomId } from "@/lib/random";
-import { $createRangeSelection, $setSelection } from "lexical";
+import { $createRangeSelection, $nodesOfType, $setSelection } from "lexical";
 import { $unwrapMarkNode, $wrapSelectionInMarkNode, MarkNode } from "@lexical/mark";
-import { $nodesOfType } from "@lexical/utils";
 import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
