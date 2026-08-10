@@ -35,6 +35,12 @@ Claude Code session files survive across stops.
 - `inspectSandbox.ts`, `testBootstrap.ts` — manual debug scripts (see their
   header comments for invocation).
 
+Anything run locally rather than from the deployed server (the debug scripts
+above, `buildResearchSandboxSnapshot`) needs Vercel SDK credentials in the
+environment, which `.env.local` supplies: `VERCEL_OIDC_TOKEN` (refresh it with
+`vercel env pull`), falling back to `VERCEL_TOKEN` + `VERCEL_TEAM_ID` +
+`VERCEL_PROJECT_ID`.
+
 Callers live outside this directory: `@/server/resolvers/researchResolvers.ts`
 (dispatch/cancel/answer, dev-preview URLs, save-environment),
 `app/api/research/agent/**` (the endpoints the sandbox calls back into), and
@@ -109,10 +115,8 @@ A single bundled Node process, launched per session:
   the agent's actual instructions. Per-conversation ids are *not* in this file;
   they arrive via `--append-system-prompt`.
 - `researchTool/researchTool.cjs` — the zero-dependency CLI the agent invokes as
-  `research-tool`. (Its sibling `README.md` documents the auth contract and
-  output format accurately, but its deployment section predates the current
-  overlay: the binary is written to `~/.research/bin/research-tool`, not
-  `/vercel/sandbox`.) Subcommands include `fetch-doc`,
+  `research-tool`; its sibling `README.md` covers deployment, the auth contract
+  and the output format. Subcommands include `fetch-doc`,
   `edit-doc`, `comment-doc`, `reply-comment`, `create-doc`, `list-documents`,
   `list-conversations`, `fetch-conversation`, `set-presentation`, `dev`.
 
@@ -123,9 +127,11 @@ Two directions, two schemes:
 - **Backend → sandbox** uses the per-conversation `supervisorSecret` (and
   `devProxySecret`) stored on the `ResearchSandboxSessions` row, injected at
   launch as `SUPERVISOR_SECRET` / `DEV_PROXY_SECRET`. Tokens are minted with
-  `signSupervisorToken` and validated in-sandbox by `supervisor/auth.ts`;
-  `/dispatch`, `/cancel`, `/answer` additionally require the token's `scope` to
-  equal the conversation id, and the payload's `sandboxId` to match.
+  `signSupervisorToken` and validated in-sandbox by `supervisor/auth.ts`. Every
+  authenticated endpoint — `/status` included — requires the payload's
+  `sandboxId` to match this sandbox (`checkAuth` in `supervisor/server.ts`);
+  `/dispatch`, `/cancel` and `/answer` additionally require the token's `scope`
+  to equal the conversation id.
 - **Sandbox → backend** uses HS256 JWTs minted by
   `app/api/research/agent/researchAgentAuth.ts` over
   `RESEARCH_SANDBOX_CALLBACK_SECRET`, in two scopes: `supervisor` (injected once

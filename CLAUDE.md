@@ -526,7 +526,7 @@ The current default editor provided to users is our implementation of lexical.  
 
 ## Agent-facing surfaces
 
-Several parts of the codebase exist for LLM agents, either as things agents act on or as things agents read.  This is a directory index of them; read the code in each for what it actually does.
+Several parts of the codebase exist for LLM agents — as things agents act on, read, or produce.  This is a directory index of them; read the code in each for what it actually does.
 - Lexical suggestion mode (tracked-change suggestions in the editor): `@/components/editor/lexicalPlugins/suggestedEdits/`
 - Public agent post-editing API: `app/api/agent/`
 - MCP server: `app/api/mcp/`
