@@ -8,6 +8,7 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
+import PostActionsButton from '@/components/dropdowns/posts/PostActionsButton';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
@@ -63,11 +64,23 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     padding: 16,
     borderLeft: `1px solid ${theme.palette.grey[300]}`,
   },
+  postTitleRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 12,
+  },
   postTitle: {
     display: 'block',
     ...theme.typography.headerStyle,
     fontSize: 38,
-    marginBottom: 12
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  postActionsButton: {
+    flexShrink: 0,
+    marginTop: 8,
+    color: theme.palette.grey[600],
   },
   draftNotice: {
     fontSize: 20,
@@ -112,9 +125,12 @@ const ModerationContentDetail = ({
         {post
           ? <div className={classes.postContent}>
             {item.draft && <div className={classes.draftNotice}>[Draft]</div>}
-            <Link to={postGetPageUrl(item)} className={classes.postTitle}>
-              {item.title}
-            </Link>
+            <div className={classes.postTitleRow}>
+              <Link to={postGetPageUrl(item)} className={classes.postTitle}>
+                {item.title}
+              </Link>
+              <PostActionsButton post={item} vertical autoPlace flip className={classes.postActionsButton} />
+            </div>
             <PostBodyPrefix post={item} />
             <ContentStyles contentType="postHighlight">
               <ContentItemBody
