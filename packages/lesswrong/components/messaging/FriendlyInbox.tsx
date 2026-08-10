@@ -14,10 +14,8 @@ import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
 import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
-import EAButton from "../ea-forum/EAButton";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import qs from "qs";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
@@ -62,13 +60,6 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
       minHeight: "100%",
       height: "auto",
     },
-  },
-  modInboxLink: {
-    ...theme.typography.body2,
-    color: theme.palette.lwTertiary.main,
-    width: 'fit-content',
-    padding: "12px 12px 8px 16px",
-    fontWeight: 600,
   },
   backButton: {
     ...theme.typography.body2,
@@ -239,7 +230,7 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
   },
 }));
 
-const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations", isModInbox = false, userCanViewModInbox = false, showArchive = false, isAdmin = false}: InboxComponentProps & { conversationId?: string; }) => {
+const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations", isModInbox = false, showArchive = false, isAdmin = false}: InboxComponentProps & { conversationId?: string; }) => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { query } = useLocation();
@@ -368,13 +359,9 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
     });
   };
 
-  const showModeratorLink = userCanViewModInbox && !isModInbox;
-
   const title = selectedConversation
     ? conversationGetFriendlyTitle(selectedConversation, currentUserId)
     : "No conversation selected";
-
-  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
 
   const modInboxQueryParam = `?${qs.stringify({ ...query, isModInbox: !isModInbox ? "true" : undefined })}`;
   const archiveQueryParam = `?${qs.stringify({ ...query, showArchive: !showArchive ? "true" : undefined })}`;
@@ -382,11 +369,6 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
   return (
     <div className={classes.root}>
       <StatusCodeSetter status={200} />
-      {showModeratorLink && isFriendlyUI() && (
-        <Link to={"/inbox" + modInboxQueryParam} className={classes.modInboxLink}>
-          Mod Inbox
-        </Link>
-      )}
       <div className={classes.table}>
         <div
           className={classNames(classes.column, classes.leftColumn, {
@@ -464,11 +446,11 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
               </div>
               <div>
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
-                <div className={classes.emptyStateSubtitle}>{isFriendlyUI() ? "Connect with other users on the forum" : "Bother bother bother!"}</div>
+                <div className={classes.emptyStateSubtitle}>Bother bother bother!</div>
               </div>
-              <ButtonComponent onClick={openNewConversationDialog} className={classes.emptyStateButton}>
+              <Button onClick={openNewConversationDialog} className={classes.emptyStateButton}>
                 <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
-              </ButtonComponent>
+              </Button>
             </div>
           )}
         </div>

@@ -2,9 +2,7 @@ import React, { useCallback } from "react";
 import { truncate } from "../../lib/editor/ellipsize";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
-import UsersProfileImage from "../users/UsersProfileImage";
 import FormatDate from "../common/FormatDate";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import { useLocation } from "../../lib/routeUtil";
 import qs from "qs";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -26,9 +24,6 @@ const styles = defineStyles("FriendlyConversationItem", (theme: ThemeType) => ({
   rootSelected: {
     // Important to take precendence over unread styles
     background: `${theme.palette.grey[100]} !important`,
-  },
-  profileImage: {
-    marginRight: 12,
   },
   content: {
     width: "100%",
@@ -109,9 +104,6 @@ const FriendlyConversationItem = ({conversation, currentUserId, selectedConversa
 
   if (!conversation) return null;
 
-  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUserId)
-  // Handle case of conversation with yourself
-  const firstParticipant = otherParticipants?.[0] ?? conversation.participants?.[0];
   const title = conversationGetFriendlyTitle(conversation, currentUserId)
 
   const latestMessagePlaintext = conversation.latestMessage?.contents?.plaintextMainText ?? ""
@@ -125,11 +117,6 @@ const FriendlyConversationItem = ({conversation, currentUserId, selectedConversa
       classes.root,
       isSelected && classes.rootSelected,
     )}>
-      {isFriendlyUI() && <UsersProfileImage
-        user={firstParticipant}
-        size={40}
-        className={classes.profileImage}
-      />}
       <div className={classes.content}>
         <div className={classes.titleRow}>
           <div className={classNames(

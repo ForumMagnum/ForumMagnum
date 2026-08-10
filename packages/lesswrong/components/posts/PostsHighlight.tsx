@@ -3,7 +3,6 @@ import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
@@ -64,10 +63,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI()
-        ? "Continue reading"
-        : `(Continue Reading${moreWordsText})`
-      }
+      {`(Continue Reading${moreWordsText})`}
     </Link>
   );
 }

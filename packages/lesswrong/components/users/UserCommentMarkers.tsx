@@ -1,7 +1,6 @@
 import React from "react";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -11,11 +10,6 @@ const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   iconWrapper: {
     margin: "0 3px",
   },
-  postAuthorIcon: {
-    verticalAlign: "text-bottom",
-    color: theme.palette.grey[500],
-    fontSize: 16,
-  },
   sproutIcon: {
     position: "relative",
     bottom: -2,
@@ -24,9 +18,8 @@ const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   },
 }));
 
-const UserCommentMarkers = ({user, isPostAuthor, className}: {
+const UserCommentMarkers = ({user, className}: {
   user?: UsersMinimumInfo|null,
-  isPostAuthor?: boolean,
   className?: string,
 }) => {
   const classes = useStyles(styles);
@@ -35,23 +28,13 @@ const UserCommentMarkers = ({user, isPostAuthor, className}: {
     return null;
   }
 
-  const showAuthorIcon = isFriendlyUI() && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
 
-  if (!showAuthorIcon && !showNewUserIcon) {
+  if (!showNewUserIcon) {
     return null;
   }
   return (
     <span className={className}>
-      {showAuthorIcon &&
-        <LWTooltip
-          placement="bottom-start"
-          title="Post author"
-          className={classes.iconWrapper}
-        >
-          <ForumIcon icon="Author" className={classes.postAuthorIcon} />
-        </LWTooltip>
-      }
       {showNewUserIcon &&
         <LWTooltip
           placement="bottom-start"

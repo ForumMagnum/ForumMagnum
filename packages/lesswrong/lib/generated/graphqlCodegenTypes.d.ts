@@ -15079,23 +15079,6 @@ type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
 
 type unlinkCrossposterMutation = unlinkCrossposterMutation_Mutation;
 
-type ImageUploadQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & UsersMinimumInfo
-);
-
-type ImageUploadQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: ImageUploadQuery_user_SingleUserOutput_result_User | null };
-
-type ImageUploadQuery_Query = { __typename?: 'Query', user: ImageUploadQuery_user_SingleUserOutput | null };
-
-
-type ImageUploadQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ImageUploadQuery = ImageUploadQuery_Query;
-
 type multiPodcastEpisodePodcastEpisodeInputQueryQuery_podcastEpisodes_MultiPodcastEpisodeOutput_results_PodcastEpisode = (
   { __typename?: 'PodcastEpisode' }
   & PodcastEpisodeFull
@@ -23338,23 +23321,6 @@ type SubscribedTagQueryVariables = Exact<{
 
 
 type SubscribedTagQuery = SubscribedTagQuery_Query;
-
-type SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesPageTitleFragment
-);
-
-type SubscribedSequenceQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence | null };
-
-type SubscribedSequenceQuery_Query = { __typename?: 'Query', sequence: SubscribedSequenceQuery_sequence_SingleSequenceOutput | null };
-
-
-type SubscribedSequenceQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
-}>;
-
-
-type SubscribedSequenceQuery = SubscribedSequenceQuery_Query;
 
 type updateUserReactionsPaletteMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

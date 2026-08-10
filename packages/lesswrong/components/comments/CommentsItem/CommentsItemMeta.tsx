@@ -2,7 +2,6 @@ import React, { useState }  from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
-import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useFilteredCurrentUser } from "../../common/withUser";
@@ -174,10 +173,6 @@ export const CommentsItemMeta = ({
     hideActionsMenu, hideParentCommentToggle, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
-  const authorIsPostAuthor = post &&
-    (post.userId === comment.userId || userIsPostCoauthor(comment.user, post));
-  const commentIsTopLevelShortform = post?.shortform && !comment.parentCommentId;
-
   const commentLinkProps = {
     comment,
     post,
@@ -257,7 +252,6 @@ export const CommentsItemMeta = ({
       />
       <UserCommentMarkers
         user={comment.user}
-        isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />

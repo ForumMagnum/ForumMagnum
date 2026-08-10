@@ -12,7 +12,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import PostsGroupDetails from "../posts/PostsGroupDetails";
@@ -222,7 +221,7 @@ const RecentDiscussionThread = ({
             </div>
           </div>
           <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
-            <PostsItemMeta post={post} hideTags={!isFriendlyUI()}/>
+            <PostsItemMeta post={post} hideTags/>
           </div>
         </div>
         <div className={highlightClasses}>

@@ -3,9 +3,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-import { sequenceGetPageUrl } from '@/lib/collections/sequences/helpers';
 import {
-  allowSubscribeToSequencePosts,
   allowSubscribeToUserComments,
   userHasSubscribeTabFeed,
 } from '@/lib/betas';
@@ -18,7 +16,6 @@ import {
   subscribedCommentQuery,
   subscribedLocalgroupQuery,
   subscribedTagQuery,
-  subscribedSequenceQuery,
 } from '../subscriptionQueries';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -206,20 +203,6 @@ const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOw
       extractDocument={(data) => data?.tag?.result}
       renderDocument={(tag) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
     />,
-
-    ...(allowSubscribeToSequencePosts() ? [
-      <SubscriptionsList
-        {...sharedProps}
-        key="newSequencePosts"
-        title="Notifications of new post added to sequences"
-        subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
-        collectionName="Sequences"
-        subscriptionType="newSequencePosts"
-        query={subscribedSequenceQuery}
-        extractDocument={(data) => data?.sequence?.result}
-        renderDocument={(sequence) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
-      />
-    ] : []),
   ];
 
   const allSectionsLoaded = Object.keys(sectionResults).length >= sections.length;

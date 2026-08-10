@@ -1,12 +1,9 @@
 import React from 'react'
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { Typography } from "../../common/Typography";
-import ForumIcon from "../../common/ForumIcon";
-import LWTooltip from "../../common/LWTooltip";
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -48,17 +45,6 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   lastWord: {
     display: "inline-block",
   },
-  linkIcon: {
-    color: theme.palette.grey[500],
-    marginLeft: 14,
-    fontSize: "0.8em",
-  },
-  dialogueIcon: {
-    color: theme.palette.grey[500],
-    marginLeft: 14,
-    fontSize: "1em",
-    transform: "translateY(5px)",
-  },
 }));
 
 const PostsPageTitle = ({post, className}: {
@@ -68,9 +54,6 @@ const PostsPageTitle = ({post, className}: {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const showLinkIcon = post.url && isFriendlyUI();
-  const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI();
-
   const words = post.title.trim().split(/\s+/);
   const mostOfTitle = words.slice(0, -1).join(" ");
   const lastWordOfTitle = words[words.length - 1];
@@ -93,16 +76,6 @@ const PostsPageTitle = ({post, className}: {
           {mostOfTitle}{mostOfTitle && " "}
           <span className={classes.lastWord}>
             {lastWordOfTitle}
-            {showLinkIcon &&
-              <LWTooltip title="Link post">
-                <ForumIcon className={classes.linkIcon} icon="BoldLink" />
-              </LWTooltip>
-            }
-            {showDialogueIcon &&
-              <LWTooltip title="Dialogue">
-                <ForumIcon className={classes.dialogueIcon} icon="ChatBubbleLeftRight" />
-              </LWTooltip>
-            }
           </span>
         </Link>
       </Typography>

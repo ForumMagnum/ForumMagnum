@@ -2,7 +2,6 @@ import React, { FC, ReactNode } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import UsersName from "../users/UsersName";
 import SequencesSmallPostLink from "./SequencesSmallPostLink";
 import ChapterTitle from "./ChapterTitle";
@@ -61,26 +60,14 @@ const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
 
 const SequenceMeta: FC<{
   user?: UsersMinimumInfo,
-  postCount: number,
-  wordCountNode: ReactNode,
-}> = ({user, postCount, wordCountNode}) => {
+}> = ({user}) => {
   const classes = useStyles(styles);
 
-  return isFriendlyUI()
-    ? (
-      <div className={classes.author}>
-        <UsersName user={user} />
-        {" · "}
-        {postCount} post{postCount === 1 ? "" : "s"}
-        {" · "}
-        {wordCountNode}
-      </div>
-    )
-    : (
-      <div className={classes.author}>
-        by <UsersName user={user} />
-      </div>
-    );
+  return (
+    <div className={classes.author}>
+      by <UsersName user={user} />
+    </div>
+  );
 }
 
 const SequencePosts = ({sequence, chapters, maxPosts, totalPosts}: {
@@ -160,25 +147,19 @@ export const SequencesSummary = ({sequence, showAuthor=true, maxPosts}: {
       <div className={classes.title}>{sequence.title}</div>
     </Link>}
     {showAuthor && sequence?.user &&
-      <SequenceMeta
-        user={sequence?.user}
-        postCount={sequence?.postsCount ?? 0}
-        wordCountNode={wordCountNode}
+      <SequenceMeta user={sequence?.user} />
+    }
+    <ContentStyles contentType="postHighlight" className={classes.description}>
+      <ContentItemTruncated
+        maxLengthWords={100}
+        graceWords={20}
+        rawWordCount={sequence?.contents?.wordCount || 0}
+        expanded={false}
+        getTruncatedSuffix={() => null}
+        dangerouslySetInnerHTML={{__html: sequence?.contents?.htmlHighlight || ""}}
+        description={`sequence ${sequence?._id}`}
       />
-    }
-    {!isFriendlyUI() &&
-      <ContentStyles contentType="postHighlight" className={classes.description}>
-        <ContentItemTruncated
-          maxLengthWords={100}
-          graceWords={20}
-          rawWordCount={sequence?.contents?.wordCount || 0}
-          expanded={false}
-          getTruncatedSuffix={() => null}
-          dangerouslySetInnerHTML={{__html: sequence?.contents?.htmlHighlight || ""}}
-          description={`sequence ${sequence?._id}`}
-        />
-      </ContentStyles>
-    }
+    </ContentStyles>
     {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
     {sequence && chapters &&
@@ -189,7 +170,7 @@ export const SequencesSummary = ({sequence, showAuthor=true, maxPosts}: {
         totalPosts={posts.length}
       />
     }
-    {!isFriendlyUI() && wordCountNode}
+    {wordCountNode}
   </Card>;
 }
 

@@ -3,12 +3,10 @@ import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
 import { useNotifyMe } from '../hooks/useNotifyMe';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
-import EAButton from "../ea-forum/EAButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -103,9 +101,7 @@ const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, s
       </a>
     </MenuItem>
   } else if (asButton) {
-    maybeMenuItemButton = isFriendlyUI() ? (
-      <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
-    ) : (
+    maybeMenuItemButton = (
       <button onClick={onSubscribe} className={classNames(className, classes.root)}>
         {button}
       </button>

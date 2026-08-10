@@ -3,9 +3,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import classNames from 'classnames';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import FormatDate from "../common/FormatDate";
-import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -24,9 +22,6 @@ const styles = defineStyles("ExpandedUsersConversationSearchHit", (theme: ThemeT
     '&:hover': {
       opacity: 0.8
     }
-  },
-  profilePhotoCol: {
-    flex: 'none'
   },
   displayNameRow: {
     display: "flex",
@@ -84,11 +79,6 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, onSelect
   return (
     <div className={classNames(className, classes.root)}>
       <div onClick={() => onSelect(user)} className={classes.link}>
-        {isFriendlyUI() && (
-          <div className={classes.profilePhotoCol}>
-            <UsersProfileImage user={user} size={36} />
-          </div>
-        )}
         <div>
           <div className={classes.displayNameRow}>
             <span className={classes.displayName}>{user.displayName}</span>

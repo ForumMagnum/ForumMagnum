@@ -9,7 +9,6 @@ import {
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
 import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
@@ -131,8 +130,6 @@ const QuickTakesSection = () => {
     <Link to={"/quicktakes"}>Quick Takes</Link>
   </LWTooltip>
 
-  const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
-
   const AfterTitleComponent = isEAForum() 
     ? () => (
       <LWTooltip
@@ -153,7 +150,6 @@ const QuickTakesSection = () => {
     expanded={expanded}
     toggleExpanded={toggleExpanded}
     title={title}
-    afterTitleTo={afterTitleTo}
     AfterTitleComponent={AfterTitleComponent}
   >
     <SuspenseWrapper name="QuickTakesSection">

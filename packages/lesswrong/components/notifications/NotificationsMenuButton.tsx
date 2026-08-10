@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Badge } from "@/components/widgets/Badge";

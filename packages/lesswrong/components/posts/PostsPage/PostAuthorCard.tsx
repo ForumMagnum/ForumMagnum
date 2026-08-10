@@ -2,12 +2,10 @@ import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import ContentStyles from "../../common/ContentStyles";
 import NewConversationButton from "../../messaging/NewConversationButton";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
-import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -27,15 +25,6 @@ const styles = defineStyles("PostAuthorCard", (theme: ThemeType) => ({
     rowGap: '10px',
     alignItems: 'center',
     marginTop: 6,
-  },
-  photoLink: {
-    '&:hover': {
-      opacity: 1
-    }
-  },
-  photo: {
-    borderRadius: '50%',
-    margin: '4px 0'
   },
   username: {
     flex: '1 1 0',
@@ -81,18 +70,6 @@ const PostAuthorCard = ({author, currentUser}: {
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
       <div className={classes.usernameRow}>
-        {isFriendlyUI() && author.profileImageId && <Link
-          to={`/users/${author.slug}?from=post_author_card`}
-          className={classes.photoLink}
-        >
-          <CloudinaryImage2
-            height={40}
-            width={40}
-            imgProps={{q: '100'}}
-            publicId={author.profileImageId}
-            className={classes.photo}
-          />
-        </Link>}
         <Typography variant="headline" component="div" className={classes.username}>
           <Link to={`/users/${author.slug}?from=post_author_card`}>
             {author.displayName}

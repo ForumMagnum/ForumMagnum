@@ -4,12 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 import PostsVote from "../../votes/PostsVote";
-import BookmarkButton from "../BookmarkButton";
-import SharePostButton from "../SharePostButton";
-import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
@@ -26,22 +22,6 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
     alignItems: 'center',
     fontSize: '1.4em'
   },
-  bookmarkButton: {
-    marginBottom: -5,
-    height: 22,
-    color: theme.palette.grey[600],
-    "&:hover": {
-      opacity: 0.5,
-    },
-  },
-  actions: {
-    "&:hover": {
-      opacity: 0.5,
-    },
-    '& svg': {
-      color: 'inherit' // this is needed for the EAF version of the icon
-    },
-  },
   voteBottom: {
     position: 'relative',
     fontSize: 42,
@@ -51,12 +31,6 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
     marginRight: 'auto',
     marginBottom: 40,
     "@media print": { display: "none" },
-  },
-  secondaryInfoRight: {
-    flex: 'none',
-    display: 'flex',
-    columnGap: 20,
-    color: theme.palette.text.dim3,
   },
   bottomNavigation: {
     width: 640,
@@ -104,18 +78,9 @@ const PostsPagePostFooter = ({post, sequenceId}: {
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
-              <PostsVote post={post} useHorizontalLayout={isFriendlyUI()} isFooter />
+              <PostsVote post={post} isFooter />
             </AnalyticsContext>
           </div>
-          {isFriendlyUI() && <div className={classes.secondaryInfoRight}>
-            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked} className={classes.bookmarkButton} placement='bottom-start' />
-            <SharePostButton post={post} />
-            <span className={classes.actions}>
-              <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} includeBookmark={!isFriendlyUI()} />
-              </AnalyticsContext>
-            </span>
-          </div>}
         </div>
         {PostBottomSecondaryVotingComponent &&
           <PostBottomSecondaryVotingComponent

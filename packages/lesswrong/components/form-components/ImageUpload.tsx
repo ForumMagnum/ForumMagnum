@@ -6,25 +6,10 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import UsersProfileImage from "../users/UsersProfileImage";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ImageUploadDefaultsDialog from "./ImageUploadDefaultsDialog";
-
-
-const UsersMinimumInfoQuery = gql(`
-  query ImageUpload($documentId: String) {
-    user(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...UsersMinimumInfo
-      }
-    }
-  }
-`);
 
 const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   root: {
@@ -77,21 +62,6 @@ const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   removeButton: {
     color: theme.palette.icon.dim,
   },
-  removeProfileImageButton: {
-    textTransform: "none",
-    fontSize: 14,
-    fontWeight: 500,
-    color: theme.palette.primary.main,
-    justifyContent: "flex-start",
-    padding: 0,
-    "&:hover": {
-      color: theme.palette.primary.dark,
-      background: "transparent",
-    },
-    "& .MuiButton-label": {
-      alignItems: "flex-start",
-    },
-  },
 }));
 
 export const formPreviewSizeByImageType: Record<
@@ -107,24 +77,6 @@ export const formPreviewSizeByImageType: Record<
   spotlightImageId: { width: 345, height: 234 },
   spotlightDarkImageId: { width: 345, height: 234 },
   onsiteDigestImageId: { width: 200, height: 300 },
-}
-
-const FormProfileImage: FC<{
-  document?: Partial<UsersMinimumInfo>,
-  profileImageId: string,
-  size: number,
-}> = ({document, profileImageId, size}) => {
-  const { data } = useQuery(UsersMinimumInfoQuery, {
-    variables: { documentId: document?._id },
-    fetchPolicy: "cache-and-network",
-  });
-  const user = data?.user?.result;
-  return (
-    <UsersProfileImage
-      user={user ? {...user, profileImageId} : undefined}
-      size={size}
-    />
-  );
 }
 
 const TriggerButton: FC<{
@@ -162,14 +114,11 @@ const RemoveButton: FC<{
     return null;
   }
 
-  const mainClass = isFriendlyUI() && imageType === "profileImageId"
-    ? classes.removeProfileImageButton
-    : classes.removeButton;
   return (
     <Button
       title="Remove"
       onClick={removeImage}
-      className={classNames("image-remove-button", mainClass)}
+      className={classNames("image-remove-button", classes.removeButton)}
     >
       Remove
     </Button>
@@ -178,7 +127,6 @@ const RemoveButton: FC<{
 
 interface ImageUploadProps {
   field: TypedFieldApi<string | null | undefined>;
-  document?: Partial<UsersMinimumInfo>;
   label?: string;
   croppingAspectRatio?: number;
   horizontal?: boolean;
@@ -187,7 +135,6 @@ interface ImageUploadProps {
 
 export const ImageUpload = ({
   field,
-  document,
   label,
   croppingAspectRatio,
   horizontal = false,
@@ -217,19 +164,10 @@ export const ImageUpload = ({
   const formPreviewSize = formPreviewSizeByImageType[imageType];
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isFriendlyUI() && imageType === "profileImageId";
-
   return (
     <div className={classes.root}>
       <div className={classNames(!horizontal && classes.imgVertical)}>
-        {showUserProfileImage &&
-          <FormProfileImage
-            document={document}
-            profileImageId={imageId}
-            size={formPreviewSize.height}
-          />
-        }
-        {imageId && !showUserProfileImage &&
+        {imageId &&
           <CloudinaryImage2
             publicId={imageId}
             {...formPreviewSize}

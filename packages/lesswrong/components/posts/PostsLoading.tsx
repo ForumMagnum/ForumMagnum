@@ -1,6 +1,5 @@
 import range from 'lodash/range';
 import React from 'react';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
 import Loading from "../vulcan-core/Loading";
 import LWPlaceholderPostsItem from "./LWPlaceholderPostsItem";

@@ -2,14 +2,13 @@ import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import InlineSelect, { Option } from '../common/InlineSelect';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const getSortingNames = () => ({
-  'top': isFriendlyUI() ? 'Top' : 'top scoring',
-  'magic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
-  'newest': isFriendlyUI() ? 'New' : 'newest',
-  'oldest': isFriendlyUI() ? 'Old' : 'oldest',
+  'top': 'top scoring',
+  'magic': 'magic (new & upvoted)',
+  'newest': 'newest',
+  'oldest': 'oldest',
   'recentComments': 'latest reply',
 })
 

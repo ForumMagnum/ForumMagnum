@@ -167,7 +167,6 @@ type Documents = {
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": typeof types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": typeof types.unlinkCrossposterDocument,
-    "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.ImageUploadDocument,
     "\n  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {\n    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastEpisodeFull\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPodcastEpisodePodcastEpisodeInputQueryDocument,
     "\n  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {\n    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastSelect\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPodcastPodcastEpisodeInputQueryDocument,
     "\n  mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {\n    createPodcastEpisode(data: $data) {\n      data {\n        ...PodcastEpisodeCreateFragment\n      }\n    }\n  }\n": typeof types.createPodcastEpisodePodcastEpisodeInputDocument,
@@ -651,7 +650,6 @@ type Documents = {
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
     "\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": typeof types.SubscribedLocalgroupDocument,
     "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.SubscribedTagDocument,
-    "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SubscribedSequenceDocument,
     "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserReactionsPaletteDocument,
     "\n  mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteComment(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteComment\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVoteCommentDocument,
     "\n  mutation performVotePost($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePost(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePost\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVotePostDocument,
@@ -1051,7 +1049,6 @@ const documents: Documents = {
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": types.unlinkCrossposterDocument,
-    "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.ImageUploadDocument,
     "\n  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {\n    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastEpisodeFull\n      }\n      totalCount\n    }\n  }\n": types.multiPodcastEpisodePodcastEpisodeInputQueryDocument,
     "\n  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {\n    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastSelect\n      }\n      totalCount\n    }\n  }\n": types.multiPodcastPodcastEpisodeInputQueryDocument,
     "\n  mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {\n    createPodcastEpisode(data: $data) {\n      data {\n        ...PodcastEpisodeCreateFragment\n      }\n    }\n  }\n": types.createPodcastEpisodePodcastEpisodeInputDocument,
@@ -1535,7 +1532,6 @@ const documents: Documents = {
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
     "\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": types.SubscribedLocalgroupDocument,
     "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.SubscribedTagDocument,
-    "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SubscribedSequenceDocument,
     "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserReactionsPaletteDocument,
     "\n  mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteComment(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteComment\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVoteCommentDocument,
     "\n  mutation performVotePost($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePost(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePost\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVotePostDocument,
@@ -2408,10 +2404,6 @@ export function gql(source: "\n  query FMCrosspostControl($documentId: String) {
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  "): (typeof documents)["\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4344,10 +4336,6 @@ export function gql(source: "\n  query SubscribedLocalgroup($documentId: String!
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

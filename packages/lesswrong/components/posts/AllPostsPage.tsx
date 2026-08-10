@@ -7,12 +7,10 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef } from '../common/FMTooltip';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import SortButton from "../icons/SortButton";
 import SettingsButton from "../icons/SettingsButton";
 import PostsListSettings from "./PostsListSettings";
 import AllPostsList from "./AllPostsList";
@@ -24,16 +22,7 @@ const styles = defineStyles("AllPostsPage", (theme: ThemeType) => ({
     cursor: "pointer",
     "& .SectionTitle-title": {},
   },
-  divider: {
-    border: "none",
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
-  },
 }));
-
-const formatSort = (sorting: PostSortingMode) => {
-  const sort = getSortOrderOptions()[sorting].label
-  return isFriendlyUI() ? sort : `Sorted by ${sort}`;
-}
 
 const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) => {
   const classes = useStyles(styles);
@@ -75,14 +64,10 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
           >
             {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={"All Posts"}>
-                {isFriendlyUI() ?
-                  <SortButton label={formatSort(currentSorting)} /> :
-                  <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>
-                }
+                <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>
               </SectionTitle>
             </div>}
           </TooltipRef>
-          {isFriendlyUI() && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}

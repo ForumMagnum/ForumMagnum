@@ -4,11 +4,9 @@ import { DialogActions } from '../widgets/DialogActions';
 import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
-import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -113,7 +111,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose}: {
     }
   }
 
-  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
   return <LWDialog
     open={true}
     onClose={onClose}
@@ -145,9 +142,9 @@ const NewDialogueDialog = ({initialParticipantIds, onClose}: {
 
       <DialogActions>
         {loading && <Loading/>}
-        <ButtonComponent onClick={createDialogue} disabled={!!loading}>
+        <Button onClick={createDialogue} disabled={!!loading}>
           Create Dialogue
-        </ButtonComponent>
+        </Button>
       </DialogActions>
     </div>
   </LWDialog>

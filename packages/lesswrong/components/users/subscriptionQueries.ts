@@ -49,13 +49,3 @@ export const subscribedTagQuery = gql(`
     }
   }
 `);
-
-export const subscribedSequenceQuery = gql(`
-  query SubscribedSequence($documentId: String!) {
-    sequence(input: { selector: { _id: $documentId } }) {
-      result {
-        ...SequencesPageTitleFragment
-      }
-    }
-  }
-`);

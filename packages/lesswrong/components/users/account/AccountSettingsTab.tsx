@@ -1,6 +1,5 @@
 import React from 'react';
 import { isEAForum } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import SettingsSection from './SettingsSection';
@@ -85,14 +84,12 @@ const AccountSettingsTab = ({
   return (
     <div>
       <SettingsSection title="Basic Info">
-        {!isFriendlyUI() && (
-          <ExplicitSaveTextSetting
-            label="Display name"
-            description="The name shown on your posts and comments. Can only be changed a limited number of times."
-            value={settings.displayName}
-            onSave={(value) => updateSettings({ displayName: value })}
-          />
-        )}
+        <ExplicitSaveTextSetting
+          label="Display name"
+          description="The name shown on your posts and comments. Can only be changed a limited number of times."
+          value={settings.displayName}
+          onSave={(value) => updateSettings({ displayName: value })}
+        />
 
         <ExplicitSaveTextSetting
           label="Email"

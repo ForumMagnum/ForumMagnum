@@ -14,7 +14,6 @@ import {
   TimeframeType,
 } from "./timeframeUtils";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";
 import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
 import PostsList2 from "./PostsList2";
@@ -62,8 +61,8 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings && !isFriendlyUI()}
-          showLoading={isFriendlyUI()}
+          dimWhenLoading={showSettings}
+          showLoading={false}
         />
       </AnalyticsContext>
     );
@@ -138,7 +137,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings && !isFriendlyUI()}
+            dimWhenLoading={showSettings}
             after={after}
             before={before}
             reverse={query.reverse === "true"}

@@ -1,6 +1,5 @@
 import React from 'react';
 import { hasEventsSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
-import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
 import UsersEmailVerification from '@/components/users/UsersEmailVerification';
@@ -81,15 +80,6 @@ const NotificationsSettingsTab = ({
             label="Posts in subscribed tags"
           />
         </HighlightableField>
-
-        {allowSubscribeToSequencePosts() && (
-          <NotificationSettingsRow
-            name="notificationSubscribedSequencePost"
-            value={settings.notificationSubscribedSequencePost ?? null}
-            onChange={(value) => void updateSettings({ notificationSubscribedSequencePost: value })}
-            label="Posts in subscribed sequences"
-          />
-        )}
 
         {hasEventsSetting.get() && (
           <NotificationSettingsRow
