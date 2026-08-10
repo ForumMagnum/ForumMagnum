@@ -23322,23 +23322,6 @@ type SubscribedTagQueryVariables = Exact<{
 
 type SubscribedTagQuery = SubscribedTagQuery_Query;
 
-type SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesPageTitleFragment
-);
-
-type SubscribedSequenceQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence | null };
-
-type SubscribedSequenceQuery_Query = { __typename?: 'Query', sequence: SubscribedSequenceQuery_sequence_SingleSequenceOutput | null };
-
-
-type SubscribedSequenceQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
-}>;
-
-
-type SubscribedSequenceQuery = SubscribedSequenceQuery_Query;
-
 type updateUserReactionsPaletteMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent

@@ -68,17 +68,17 @@ const SharePostActions = ({post, onClick}: {
       />
       <DropdownDivider/>
       <DropdownItem
-        title={"Twitter"}
+        title="Twitter"
         icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
         onClick={shareToTwitter}
       />
       <DropdownItem
-        title={"Facebook"}
+        title="Facebook"
         icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
         onClick={shareToFacebook}
       />
       <DropdownItem
-        title={"LinkedIn"}
+        title="LinkedIn"
         icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
         onClick={shareToLinkedIn}
       />

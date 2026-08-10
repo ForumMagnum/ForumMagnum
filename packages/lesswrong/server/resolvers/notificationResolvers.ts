@@ -111,8 +111,8 @@ export const notificationResolversGqlQueries = {
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
     // Notifications are considered "read" iif they were created
-    // before the current user's `lastNotificationsCheck`. The value of
-    // `unreadPrivateMessages` is ignored and not used in the UI.
+    // before the current user's `lastNotificationsCheck`. We always return zero
+    // for `unreadPrivateMessages`, so the UI that reads it renders nothing.
     const unreadPrivateMessages = 0;
     const newNotifications = await Notifications.find({
       ...selector,

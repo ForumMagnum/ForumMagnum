@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
@@ -59,7 +58,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
       open={true}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI() ? "md" : "sm"}
+      maxWidth="sm"
       paperClassName={classes.dialogPaper}
     >
       <DialogContent>
@@ -104,5 +103,4 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
 }
 
 export default DeleteAccountConfirmationModal;
-
 

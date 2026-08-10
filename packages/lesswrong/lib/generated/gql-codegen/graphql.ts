@@ -1858,55 +1858,54 @@ const _1839=_o3(_3,"TagPreview")
 const _1840=[_1493,_643]
 const _1841=_o6(_8,_729,_714)
 const _1842=_o5(_7,[_o4(_25,_774)])
-const _1843=_o5(_7,[_o6(_8,_1001,_o5(_7,[_232]))])
-const _1844=[_o8(_534,_993,_o14(_994,[_o8(_995,_996,_1205)]))]
-const _1845=_o5(_7,[_o6(_8,_1001,_o5(_7,[_o4(_25,_505)]))])
-const _1846=_o3(_3,"createUltraFeedEvent")
-const _1847=_o3(_3,"updateUltraFeedEvent")
-const _1848=_o3(_3,"connectCrossposter")
-const _1849=_o12(_983,_1632,_986)
-const _1850=[_1849]
-const _1851=_o3(_3,"useEmailToken")
-const _1852=_o3(_3,"sendEventTriggeredDM")
-const _1853=_o3(_3,"AirtableLeaderboards")
-const _1854=_o3(_3,"days")
-const _1855=_o4(_535,_1854)
-const _1856=_o3(_3,"login")
-const _1857=_o4(_535,_48)
-const _1858=_o12(_983,_1857,_986)
-const _1859=_o3(_3,"password")
-const _1860=_o4(_535,_1859)
-const _1861=_o12(_983,_1860,_986)
-const _1862=_o8(_534,_48,_1857)
-const _1863=_o8(_534,_1859,_1860)
-const _1864=_o3(_3,"signup")
-const _1865=_o3(_3,"subscribeToCurated")
-const _1866=_o4(_535,_1865)
-const _1867=_o3(_3,"reCaptchaToken")
-const _1868=_o4(_535,_1867)
-const _1869=_o4(_535,_928)
-const _1870=_o3(_3,"resetPassword")
-const _1871=_o3(_3,"args")
-const _1872=_o4(_535,_1871)
-const _1873=_o4(_535,_1073)
-const _1874=_o8(_534,_1107,_1074)
-const _1875=_o4(_535,_173)
-const _1876=_o3(_3,"SoftDeleteUser")
-const _1877=_o5(_7,[_o7(_8,_1492,_1494,_1481)])
-const _1878=[_1053,_1047,_o8(_534,_1107,_1015)]
-const _1879=_o3(_3,"performVoteRevision")
-const _1880=_o3(_3,"performVoteTag")
-const _1881=_o3(_3,"performVoteMultiDocument")
-const _1882=_o3(_3,"performVoteMessage")
-const _1883=_o5(_7,[_o7(_8,_210,_1000,_o5(_7,[_o6(_8,_1001,_o5(_7,[_576]))]))])
-const _1884=_o3(_3,"Lightcone2024FundraiserStripeAmounts")
-const _1885=_o3(_3,"Lightcone2025FundraiserAirtableAmounts")
-const _1886=[_o12(_983,_1147,_o4(_5,_o3(_3,"MultiPostInput")))]
-const _1887=[_o12(_983,_1147,_o4(_5,_o3(_3,"MultiCommentInput")))]
-const _1888=_o4(_535,_870)
-const _1889=_o12(_983,_1147,_o4(_5,_o3(_3,"SinglePostInput")))
-const _1890=[_1889]
-const _1891=_o5(_7,[_10,_14,_345])
+const _1843=[_o8(_534,_993,_o14(_994,[_o8(_995,_996,_1205)]))]
+const _1844=_o5(_7,[_o6(_8,_1001,_o5(_7,[_o4(_25,_505)]))])
+const _1845=_o3(_3,"createUltraFeedEvent")
+const _1846=_o3(_3,"updateUltraFeedEvent")
+const _1847=_o3(_3,"connectCrossposter")
+const _1848=_o12(_983,_1632,_986)
+const _1849=[_1848]
+const _1850=_o3(_3,"useEmailToken")
+const _1851=_o3(_3,"sendEventTriggeredDM")
+const _1852=_o3(_3,"AirtableLeaderboards")
+const _1853=_o3(_3,"days")
+const _1854=_o4(_535,_1853)
+const _1855=_o3(_3,"login")
+const _1856=_o4(_535,_48)
+const _1857=_o12(_983,_1856,_986)
+const _1858=_o3(_3,"password")
+const _1859=_o4(_535,_1858)
+const _1860=_o12(_983,_1859,_986)
+const _1861=_o8(_534,_48,_1856)
+const _1862=_o8(_534,_1858,_1859)
+const _1863=_o3(_3,"signup")
+const _1864=_o3(_3,"subscribeToCurated")
+const _1865=_o4(_535,_1864)
+const _1866=_o3(_3,"reCaptchaToken")
+const _1867=_o4(_535,_1866)
+const _1868=_o4(_535,_928)
+const _1869=_o3(_3,"resetPassword")
+const _1870=_o3(_3,"args")
+const _1871=_o4(_535,_1870)
+const _1872=_o4(_535,_1073)
+const _1873=_o8(_534,_1107,_1074)
+const _1874=_o4(_535,_173)
+const _1875=_o3(_3,"SoftDeleteUser")
+const _1876=_o5(_7,[_o7(_8,_1492,_1494,_1481)])
+const _1877=[_1053,_1047,_o8(_534,_1107,_1015)]
+const _1878=_o3(_3,"performVoteRevision")
+const _1879=_o3(_3,"performVoteTag")
+const _1880=_o3(_3,"performVoteMultiDocument")
+const _1881=_o3(_3,"performVoteMessage")
+const _1882=_o5(_7,[_o7(_8,_210,_1000,_o5(_7,[_o6(_8,_1001,_o5(_7,[_576]))]))])
+const _1883=_o3(_3,"Lightcone2024FundraiserStripeAmounts")
+const _1884=_o3(_3,"Lightcone2025FundraiserAirtableAmounts")
+const _1885=[_o12(_983,_1147,_o4(_5,_o3(_3,"MultiPostInput")))]
+const _1886=[_o12(_983,_1147,_o4(_5,_o3(_3,"MultiCommentInput")))]
+const _1887=_o4(_535,_870)
+const _1888=_o12(_983,_1147,_o4(_5,_o3(_3,"SinglePostInput")))
+const _1889=[_1888]
+const _1890=_o5(_7,[_10,_14,_345])
 /* eslint-disable */
 // @ts-nocheck
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
@@ -15837,16 +15836,6 @@ export type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }
 
 export type unlinkCrossposterMutation = { __typename?: 'Mutation', unlinkCrossposter: string | null };
 
-export type ImageUploadQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type ImageUploadQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
-      { __typename?: 'User' }
-      & UsersMinimumInfo
-    ) | null } | null };
-
 export type multiPodcastEpisodePodcastEpisodeInputQueryQueryVariables = Exact<{
   selector?: InputMaybe<PodcastEpisodeSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -20876,16 +20865,6 @@ export type SubscribedTagQuery = { __typename?: 'Query', tag: { __typename?: 'Si
       & TagPreviewFragment
     ) | null } | null };
 
-export type SubscribedSequenceQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
-}>;
-
-
-export type SubscribedSequenceQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: (
-      { __typename?: 'Sequence' }
-      & SequencesPageTitleFragment
-    ) | null } | null };
-
 export type updateUserReactionsPaletteMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateUserDataInput;
@@ -22972,7 +22951,6 @@ export const createElicitQuestionCreateClaimDialogDocument = _o1(_1,[_o11(_981,_
 export const ConvertDocumentDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"ConvertDocument"),[_o12(_983,_1360,_1277),_o12(_983,_1362,_986)],_o5(_7,[_o10(_8,_o3(_3,"convertDocument"),[_1363,_1364])]))]) as unknown as DocumentNode<ConvertDocumentQuery, ConvertDocumentQueryVariables>;
 export const FMCrosspostControlDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"FMCrosspostControl"),_1173,_o5(_7,[_o7(_8,_30,_1000,_o5(_7,[_o6(_8,_1001,_o5(_7,[_o4(_25,_942)]))]))])),_943]) as unknown as DocumentNode<FMCrosspostControlQuery, FMCrosspostControlQueryVariables>;
 export const unlinkCrossposterDocument = _o1(_1,[_o17(_981,_982,_1365,_o5(_7,[_o4(_8,_1365)]))]) as unknown as DocumentNode<unlinkCrossposterMutation, unlinkCrossposterMutationVariables>;
-export const ImageUploadDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"ImageUpload"),_1173,_1355),_61]) as unknown as DocumentNode<ImageUploadQuery, ImageUploadQueryVariables>;
 export const multiPodcastEpisodePodcastEpisodeInputQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPodcastEpisodePodcastEpisodeInputQuery"),[_o12(_983,_1049,_o4(_5,_o3(_3,"PodcastEpisodeSelector"))),_1044,_1109],_o5(_7,[_o7(_8,_o3(_3,"podcastEpisodes"),_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_462)])),_792]))])),_463]) as unknown as DocumentNode<multiPodcastEpisodePodcastEpisodeInputQueryQuery, multiPodcastEpisodePodcastEpisodeInputQueryQueryVariables>;
 export const multiPodcastPodcastEpisodeInputQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPodcastPodcastEpisodeInputQuery"),[_o12(_983,_1049,_o4(_5,_o3(_3,"PodcastSelector"))),_1044,_1109],_o5(_7,[_o7(_8,_o3(_3,"podcasts"),_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_464)])),_792]))])),_465]) as unknown as DocumentNode<multiPodcastPodcastEpisodeInputQueryQuery, multiPodcastPodcastEpisodeInputQueryQueryVariables>;
 export const createPodcastEpisodePodcastEpisodeInputDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createPodcastEpisodePodcastEpisodeInput"),[_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"CreatePodcastEpisodeDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"createPodcastEpisode"),_1138,_o5(_7,[_o6(_8,_266,_o5(_7,[_o4(_25,_457)]))]))])),_461]) as unknown as DocumentNode<createPodcastEpisodePodcastEpisodeInputMutation, createPodcastEpisodePodcastEpisodeInputMutationVariables>;
@@ -23408,72 +23386,71 @@ export const getTagOrLensPreviewDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getTag
 export const getTagOrLensSectionPreviewDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getTagOrLensSectionPreview"),_1838,_o5(_7,[_o7(_8,_1839,_1840,_o5(_7,[_o6(_8,_165,_1842),_1841,_721]))])),_146,_445,_226,_270,_775,_710]) as unknown as DocumentNode<getTagOrLensSectionPreviewQuery, getTagOrLensSectionPreviewQueryVariables>;
 export const getTagPreviewDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getTagPreview"),_1834,_o5(_7,[_o7(_8,_191,_1054,_o5(_7,[_1794]))])),_146,_158]) as unknown as DocumentNode<getTagPreviewQuery, getTagPreviewQueryVariables>;
 export const getTagSectionPreviewDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getTagSectionPreview"),[_1395,_1044,_1256],_o5(_7,[_o7(_8,_191,_1054,_o5(_7,[_o6(_8,_1018,_1842)]))])),_146,_775]) as unknown as DocumentNode<getTagSectionPreviewQuery, getTagSectionPreviewQueryVariables>;
-export const SequencesPageTitleDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SequencesPageTitle"),_1173,_o5(_7,[_o7(_8,_558,_1479,_1843)])),_230]) as unknown as DocumentNode<SequencesPageTitleQuery, SequencesPageTitleQueryVariables>;
+export const SequencesPageTitleDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SequencesPageTitle"),_1173,_o5(_7,[_o7(_8,_558,_1479,_o5(_7,[_o6(_8,_1001,_o5(_7,[_232]))]))])),_230]) as unknown as DocumentNode<SequencesPageTitleQuery, SequencesPageTitleQueryVariables>;
 export const multiUserUserPageTitleQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserUserPageTitleQuery"),_1110,_1172),_61]) as unknown as DocumentNode<multiUserUserPageTitleQueryQuery, multiUserUserPageTitleQueryQueryVariables>;
-export const SingleCommentForFeedbackDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SingleCommentForFeedback"),_991,_o5(_7,[_o7(_8,_221,_1844,_o5(_7,[_o6(_8,_1001,_222)]))])),_146,_158,_61,_184,_23,_127,_136,_192,_198,_203,_207,_217]) as unknown as DocumentNode<SingleCommentForFeedbackQuery, SingleCommentForFeedbackQueryVariables>;
+export const SingleCommentForFeedbackDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SingleCommentForFeedback"),_991,_o5(_7,[_o7(_8,_221,_1843,_o5(_7,[_o6(_8,_1001,_222)]))])),_146,_158,_61,_184,_23,_127,_136,_192,_198,_203,_207,_217]) as unknown as DocumentNode<SingleCommentForFeedbackQuery, SingleCommentForFeedbackQueryVariables>;
 export const multiCommentUltraFeedPostDialogQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentUltraFeedPostDialogQuery"),_1116,_1232),_146,_158,_61,_184]) as unknown as DocumentNode<multiCommentUltraFeedPostDialogQueryQuery, multiCommentUltraFeedPostDialogQueryQueryVariables>;
-export const UltraFeedPostDialogDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UltraFeedPostDialog"),_1173,_o5(_7,[_o7(_8,_210,_1000,_1845)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_508]) as unknown as DocumentNode<UltraFeedPostDialogQuery, UltraFeedPostDialogQueryVariables>;
+export const UltraFeedPostDialogDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UltraFeedPostDialog"),_1173,_o5(_7,[_o7(_8,_210,_1000,_1844)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_508]) as unknown as DocumentNode<UltraFeedPostDialogQuery, UltraFeedPostDialogQueryVariables>;
 export const UltraFeedTargetCommentDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UltraFeedTargetComment"),_1173,_1204),_146,_158,_61,_184,_23,_127,_316]) as unknown as DocumentNode<UltraFeedTargetCommentQuery, UltraFeedTargetCommentQueryVariables>;
-export const LocalPostQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"LocalPostQuery"),_991,_o5(_7,[_o7(_8,_210,_1206,_1845)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_508]) as unknown as DocumentNode<LocalPostQueryQuery, LocalPostQueryQueryVariables>;
+export const LocalPostQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"LocalPostQuery"),_991,_o5(_7,[_o7(_8,_210,_1206,_1844)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_508]) as unknown as DocumentNode<LocalPostQueryQuery, LocalPostQueryQueryVariables>;
 export const UserRecentPostsForCompactCardDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserRecentPostsForCompactCard"),_1114,_o5(_7,[_o7(_8,_250,_1111,_1720)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserRecentPostsForCompactCardQuery, UserRecentPostsForCompactCardQueryVariables>;
 export const UltraFeedThreadItemDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UltraFeedThreadItem"),_1173,_o5(_7,[_o7(_8,_210,_1206,_1312)])),_23,_127,_61,_136,_146,_158,_184,_192,_198,_203,_207]) as unknown as DocumentNode<UltraFeedThreadItemQuery, UltraFeedThreadItemQueryVariables>;
-export const createUltraFeedEventDocument = _o1(_1,[_o11(_981,_982,_1846,[_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"CreateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1846,_1138,_1755)]))]) as unknown as DocumentNode<createUltraFeedEventMutation, createUltraFeedEventMutationVariables>;
-export const updateUltraFeedEventDocument = _o1(_1,[_o11(_981,_982,_1847,[_o12(_983,_1049,_987),_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"UpdateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1847,_1135,_1755)]))]) as unknown as DocumentNode<updateUltraFeedEventMutation, updateUltraFeedEventMutationVariables>;
-export const connectCrossposterDocument = _o1(_1,[_o11(_981,_982,_1848,_1850,_o5(_7,[_o10(_8,_1848,_1634)]))]) as unknown as DocumentNode<connectCrossposterMutation, connectCrossposterMutationVariables>;
-export const useEmailTokenDocument = _o1(_1,[_o11(_981,_982,_1851,_1850,_o5(_7,[_o10(_8,_1851,_1634)]))]) as unknown as DocumentNode<useEmailTokenMutation, useEmailTokenMutationVariables>;
-export const sendEventTriggeredDMDocument = _o1(_1,[_o11(_981,_982,_1852,_1703,_o5(_7,[_o10(_8,_1852,_1704)]))]) as unknown as DocumentNode<sendEventTriggeredDMMutation, sendEventTriggeredDMMutationVariables>;
+export const createUltraFeedEventDocument = _o1(_1,[_o11(_981,_982,_1845,[_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"CreateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1845,_1138,_1755)]))]) as unknown as DocumentNode<createUltraFeedEventMutation, createUltraFeedEventMutationVariables>;
+export const updateUltraFeedEventDocument = _o1(_1,[_o11(_981,_982,_1846,[_o12(_983,_1049,_987),_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"UpdateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1846,_1135,_1755)]))]) as unknown as DocumentNode<updateUltraFeedEventMutation, updateUltraFeedEventMutationVariables>;
+export const connectCrossposterDocument = _o1(_1,[_o11(_981,_982,_1847,_1849,_o5(_7,[_o10(_8,_1847,_1634)]))]) as unknown as DocumentNode<connectCrossposterMutation, connectCrossposterMutationVariables>;
+export const useEmailTokenDocument = _o1(_1,[_o11(_981,_982,_1850,_1849,_o5(_7,[_o10(_8,_1850,_1634)]))]) as unknown as DocumentNode<useEmailTokenMutation, useEmailTokenMutationVariables>;
+export const sendEventTriggeredDMDocument = _o1(_1,[_o11(_981,_982,_1851,_1703,_o5(_7,[_o10(_8,_1851,_1704)]))]) as unknown as DocumentNode<sendEventTriggeredDMMutation, sendEventTriggeredDMMutationVariables>;
 export const multiPostLWUserTooltipContentQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostLWUserTooltipContentQuery"),_1114,_1477),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<multiPostLWUserTooltipContentQueryQuery, multiPostLWUserTooltipContentQueryQueryVariables>;
 export const userTooltipProfileQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"userTooltipProfileQuery"),_1173,_1370),_61,_226,_904]) as unknown as DocumentNode<userTooltipProfileQueryQuery, userTooltipProfileQueryQueryVariables>;
 export const TopKarmaUsersDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"TopKarmaUsers"),_1110,_1172),_61]) as unknown as DocumentNode<TopKarmaUsersQuery, TopKarmaUsersQueryVariables>;
-export const AirtableLeaderboardsDocument = _o1(_1,[_o17(_981,_988,_1853,_o5(_7,[_o6(_8,_1853,_o5(_7,[_123,_o4(_8,_o3(_3,"leaderboardAmount"))]))]))]) as unknown as DocumentNode<AirtableLeaderboardsQuery, AirtableLeaderboardsQueryVariables>;
-export const getNetKarmaChangesForAuthorsOverPeriodDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getNetKarmaChangesForAuthorsOverPeriod"),[_o12(_983,_1855,_1100),_1101],_o5(_7,[_o7(_8,_o3(_3,"NetKarmaChangesForAuthorsOverPeriod"),[_o8(_534,_1854,_1855),_1047],_o5(_7,[_20,_o4(_8,_o3(_3,"netKarma"))]))]))]) as unknown as DocumentNode<getNetKarmaChangesForAuthorsOverPeriodQuery, getNetKarmaChangesForAuthorsOverPeriodQueryVariables>;
-export const loginDocument = _o1(_1,[_o11(_981,_982,_1856,[_1858,_1861],_o5(_7,[_o7(_8,_1856,[_1862,_1863],_1088)]))]) as unknown as DocumentNode<loginMutation, loginMutationVariables>;
-export const signupDocument = _o1(_1,[_o11(_981,_982,_1864,[_1548,_1858,_1861,_o12(_983,_1866,_1011),_o12(_983,_1868,_986),_o12(_983,_1869,_986)],_o5(_7,[_o7(_8,_1864,[_1554,_1862,_1863,_o8(_534,_1865,_1866),_o8(_534,_1867,_1868),_o8(_534,_928,_1869)],_1088)]))]) as unknown as DocumentNode<signupMutation, signupMutationVariables>;
-export const resetPasswordDocument = _o1(_1,[_o11(_981,_982,_1870,[_1548],_o5(_7,[_o10(_8,_1870,[_1554])]))]) as unknown as DocumentNode<resetPasswordMutation, resetPasswordMutationVariables>;
-export const usePasswordResetEmailTokenDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"usePasswordResetEmailToken"),[_1849,_o12(_983,_1872,_1277)],_o5(_7,[_o10(_8,_1851,[_1633,_o8(_534,_1871,_1872)])]))]) as unknown as DocumentNode<usePasswordResetEmailTokenMutation, usePasswordResetEmailTokenMutationVariables>;
+export const AirtableLeaderboardsDocument = _o1(_1,[_o17(_981,_988,_1852,_o5(_7,[_o6(_8,_1852,_o5(_7,[_123,_o4(_8,_o3(_3,"leaderboardAmount"))]))]))]) as unknown as DocumentNode<AirtableLeaderboardsQuery, AirtableLeaderboardsQueryVariables>;
+export const getNetKarmaChangesForAuthorsOverPeriodDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"getNetKarmaChangesForAuthorsOverPeriod"),[_o12(_983,_1854,_1100),_1101],_o5(_7,[_o7(_8,_o3(_3,"NetKarmaChangesForAuthorsOverPeriod"),[_o8(_534,_1853,_1854),_1047],_o5(_7,[_20,_o4(_8,_o3(_3,"netKarma"))]))]))]) as unknown as DocumentNode<getNetKarmaChangesForAuthorsOverPeriodQuery, getNetKarmaChangesForAuthorsOverPeriodQueryVariables>;
+export const loginDocument = _o1(_1,[_o11(_981,_982,_1855,[_1857,_1860],_o5(_7,[_o7(_8,_1855,[_1861,_1862],_1088)]))]) as unknown as DocumentNode<loginMutation, loginMutationVariables>;
+export const signupDocument = _o1(_1,[_o11(_981,_982,_1863,[_1548,_1857,_1860,_o12(_983,_1865,_1011),_o12(_983,_1867,_986),_o12(_983,_1868,_986)],_o5(_7,[_o7(_8,_1863,[_1554,_1861,_1862,_o8(_534,_1864,_1865),_o8(_534,_1866,_1867),_o8(_534,_928,_1868)],_1088)]))]) as unknown as DocumentNode<signupMutation, signupMutationVariables>;
+export const resetPasswordDocument = _o1(_1,[_o11(_981,_982,_1869,[_1548],_o5(_7,[_o10(_8,_1869,[_1554])]))]) as unknown as DocumentNode<resetPasswordMutation, resetPasswordMutationVariables>;
+export const usePasswordResetEmailTokenDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"usePasswordResetEmailToken"),[_1848,_o12(_983,_1871,_1277)],_o5(_7,[_o10(_8,_1850,[_1633,_o8(_534,_1870,_1871)])]))]) as unknown as DocumentNode<usePasswordResetEmailTokenMutation, usePasswordResetEmailTokenMutationVariables>;
 export const multiSubscriptionSubscriptionsListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiSubscriptionSubscriptionsListQuery"),_1409,_1412),_758]) as unknown as DocumentNode<multiSubscriptionSubscriptionsListQueryQuery, multiSubscriptionSubscriptionsListQueryQueryVariables>;
-export const UserContentFeedPostsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedPosts"),[_1069,_1101,_o12(_983,_1873,_987)],_o5(_7,[_o7(_8,_250,[_o8(_534,_996,_o14(_994,[_o8(_995,_1071,_o14(_994,[_1072,_o8(_995,_1073,_1873),_o8(_995,_111,_o18("NullValue"))]))])),_1047,_1874],_1447)])),_23,_127,_61,_136,_146,_158,_184,_192,_198,_203,_207]) as unknown as DocumentNode<UserContentFeedPostsQuery, UserContentFeedPostsQueryVariables>;
-export const UserContentFeedCommentsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedComments"),[_1069,_1101,_o12(_983,_1296,_987)],_o5(_7,[_o7(_8,_867,[_o8(_534,_996,_o14(_994,[_o8(_995,_1078,_o14(_994,[_1072,_o8(_995,_1079,_1296)]))])),_1047,_1874],_o5(_7,[_o6(_8,_1018,_o5(_7,[_189,_213,_o6(_8,_614,_617)])),_792]))])),_146,_158,_61,_23,_127,_136,_184,_192,_198,_203,_207,_615]) as unknown as DocumentNode<UserContentFeedCommentsQuery, UserContentFeedCommentsQueryVariables>;
-export const UserContentFeedWikiEditsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedWikiEdits"),_1102,_o5(_7,[_o7(_8,_553,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"revisionsByUser"),_o14(_994,[_1072]))])),_1047,_1874],_1124)])),_548,_61,_699,_146,_230,_226,_239,_704,_707,_445,_270,_710,_715,_718,_722,_726,_731]) as unknown as DocumentNode<UserContentFeedWikiEditsQuery, UserContentFeedWikiEditsQueryVariables>;
-export const UserContentFeedThreadDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedThread"),[_o12(_983,_1875,_987),_1044],_o5(_7,[_o7(_8,_867,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"repliesToCommentThreadIncludingRoot"),_o14(_994,[_o8(_995,_173,_1875)]))])),_1047],_o5(_7,[_o6(_8,_1018,_222)]))])),_146,_158,_61,_184,_23,_127,_136,_192,_198,_203,_207,_217]) as unknown as DocumentNode<UserContentFeedThreadQuery, UserContentFeedThreadQueryVariables>;
+export const UserContentFeedPostsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedPosts"),[_1069,_1101,_o12(_983,_1872,_987)],_o5(_7,[_o7(_8,_250,[_o8(_534,_996,_o14(_994,[_o8(_995,_1071,_o14(_994,[_1072,_o8(_995,_1073,_1872),_o8(_995,_111,_o18("NullValue"))]))])),_1047,_1873],_1447)])),_23,_127,_61,_136,_146,_158,_184,_192,_198,_203,_207]) as unknown as DocumentNode<UserContentFeedPostsQuery, UserContentFeedPostsQueryVariables>;
+export const UserContentFeedCommentsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedComments"),[_1069,_1101,_o12(_983,_1296,_987)],_o5(_7,[_o7(_8,_867,[_o8(_534,_996,_o14(_994,[_o8(_995,_1078,_o14(_994,[_1072,_o8(_995,_1079,_1296)]))])),_1047,_1873],_o5(_7,[_o6(_8,_1018,_o5(_7,[_189,_213,_o6(_8,_614,_617)])),_792]))])),_146,_158,_61,_23,_127,_136,_184,_192,_198,_203,_207,_615]) as unknown as DocumentNode<UserContentFeedCommentsQuery, UserContentFeedCommentsQueryVariables>;
+export const UserContentFeedWikiEditsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedWikiEdits"),_1102,_o5(_7,[_o7(_8,_553,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"revisionsByUser"),_o14(_994,[_1072]))])),_1047,_1873],_1124)])),_548,_61,_699,_146,_230,_226,_239,_704,_707,_445,_270,_710,_715,_718,_722,_726,_731]) as unknown as DocumentNode<UserContentFeedWikiEditsQuery, UserContentFeedWikiEditsQueryVariables>;
+export const UserContentFeedThreadDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserContentFeedThread"),[_o12(_983,_1874,_987),_1044],_o5(_7,[_o7(_8,_867,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"repliesToCommentThreadIncludingRoot"),_o14(_994,[_o8(_995,_173,_1874)]))])),_1047],_o5(_7,[_o6(_8,_1018,_222)]))])),_146,_158,_61,_184,_23,_127,_136,_192,_198,_203,_207,_217]) as unknown as DocumentNode<UserContentFeedThreadQuery, UserContentFeedThreadQueryVariables>;
 export const UsersNameWrapperDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersNameWrapper"),_1173,_1355),_61]) as unknown as DocumentNode<UsersNameWrapperQuery, UsersNameWrapperQueryVariables>;
 export const multiUserUsersProfileQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserUsersProfileQuery"),_1110,_1113),_61,_226,_904]) as unknown as DocumentNode<multiUserUsersProfileQueryQuery, multiUserUsersProfileQueryQueryVariables>;
 export const updateUserDeactivateAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeactivateAccountSection"),_1188,_1510),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeactivateAccountSectionMutation, updateUserDeactivateAccountSectionMutationVariables>;
 export const updateUserDeleteAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeleteAccountSection"),_1188,_1510),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeleteAccountSectionMutation, updateUserDeleteAccountSectionMutationVariables>;
-export const SoftDeleteUserDocument = _o1(_1,[_o11(_981,_982,_1876,_1630,_o5(_7,[_o10(_8,_1876,_1780)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
+export const SoftDeleteUserDocument = _o1(_1,[_o11(_981,_982,_1875,_1630,_o5(_7,[_o10(_8,_1875,_1780)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
 export const UserTopPostsForManagerDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserTopPostsForManager"),_1052,_o5(_7,[_o7(_8,_250,_1054,_1720)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserTopPostsForManagerQuery, UserTopPostsForManagerQueryVariables>;
 export const UsersAccountTargetUserDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountTargetUser"),_1062,_1495),_61]) as unknown as DocumentNode<UsersAccountTargetUserQuery, UsersAccountTargetUserQueryVariables>;
-export const UsersAccountManagementGetUserBySlugDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountManagementGetUserBySlug"),_1062,_1877),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<UsersAccountManagementGetUserBySlugQuery, UsersAccountManagementGetUserBySlugQueryVariables>;
-export const UsersEditFormGetUserBySlugDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersEditFormGetUserBySlug"),_1062,_1877),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<UsersEditFormGetUserBySlugQuery, UsersEditFormGetUserBySlugQueryVariables>;
+export const UsersAccountManagementGetUserBySlugDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountManagementGetUserBySlug"),_1062,_1876),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<UsersAccountManagementGetUserBySlugQuery, UsersAccountManagementGetUserBySlugQueryVariables>;
+export const UsersEditFormGetUserBySlugDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersEditFormGetUserBySlug"),_1062,_1876),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<UsersEditFormGetUserBySlugQuery, UsersEditFormGetUserBySlugQueryVariables>;
 export const updateUserAutoSavedSettingsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserAutoSavedSettings"),_1188,_1510),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserAutoSavedSettingsMutation, updateUserAutoSavedSettingsMutationVariables>;
 export const KarmaChangeNotifierDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"KarmaChangeNotifier"),_1173,_1501),_874]) as unknown as DocumentNode<KarmaChangeNotifierQuery, KarmaChangeNotifierQueryVariables>;
 export const karmaChangesCheckedKarmaChangeNotifierDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"karmaChangesCheckedKarmaChangeNotifier"),[_1381,_1383],_o5(_7,[_o10(_8,_o3(_3,"karmaChangesChecked"),[_1384,_1385])]))]) as unknown as DocumentNode<karmaChangesCheckedKarmaChangeNotifierMutation, karmaChangesCheckedKarmaChangeNotifierMutationVariables>;
-export const KarmaChangePostBodiesDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"KarmaChangePostBodies"),_1052,_o5(_7,[_o7(_8,_250,_1878,_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_o6(_8,_36,_155)]))]))]))]) as unknown as DocumentNode<KarmaChangePostBodiesQuery, KarmaChangePostBodiesQueryVariables>;
-export const KarmaChangeCommentBodiesDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"KarmaChangeCommentBodies"),_1754,_o5(_7,[_o7(_8,_867,_1878,_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_1329]))]))]))]) as unknown as DocumentNode<KarmaChangeCommentBodiesQuery, KarmaChangeCommentBodiesQueryVariables>;
-export const SubscribedUserDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedUser"),_991,_o5(_7,[_o7(_8,_30,_1844,_1354)])),_61]) as unknown as DocumentNode<SubscribedUserQuery, SubscribedUserQueryVariables>;
-export const SubscribedPostDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedPost"),_991,_o5(_7,[_o7(_8,_210,_1844,_1416)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<SubscribedPostQuery, SubscribedPostQueryVariables>;
-export const SubscribedCommentDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedComment"),_991,_o5(_7,[_o7(_8,_221,_1844,_1226)])),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<SubscribedCommentQuery, SubscribedCommentQueryVariables>;
-export const SubscribedLocalgroupDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedLocalgroup"),_991,_o5(_7,[_o7(_8,_1091,_1844,_o5(_7,[_o6(_8,_1001,_941)]))])),_61,_414]) as unknown as DocumentNode<SubscribedLocalgroupQuery, SubscribedLocalgroupQueryVariables>;
-export const SubscribedTagDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedTag"),_991,_o5(_7,[_o7(_8,_165,_1844,_1798)])),_146,_158]) as unknown as DocumentNode<SubscribedTagQuery, SubscribedTagQueryVariables>;
-export const SubscribedSequenceDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedSequence"),_991,_o5(_7,[_o7(_8,_558,_1844,_1843)])),_230]) as unknown as DocumentNode<SubscribedSequenceQuery, SubscribedSequenceQueryVariables>;
+export const KarmaChangePostBodiesDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"KarmaChangePostBodies"),_1052,_o5(_7,[_o7(_8,_250,_1877,_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_o6(_8,_36,_155)]))]))]))]) as unknown as DocumentNode<KarmaChangePostBodiesQuery, KarmaChangePostBodiesQueryVariables>;
+export const KarmaChangeCommentBodiesDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"KarmaChangeCommentBodies"),_1754,_o5(_7,[_o7(_8,_867,_1877,_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_1329]))]))]))]) as unknown as DocumentNode<KarmaChangeCommentBodiesQuery, KarmaChangeCommentBodiesQueryVariables>;
+export const SubscribedUserDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedUser"),_991,_o5(_7,[_o7(_8,_30,_1843,_1354)])),_61]) as unknown as DocumentNode<SubscribedUserQuery, SubscribedUserQueryVariables>;
+export const SubscribedPostDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedPost"),_991,_o5(_7,[_o7(_8,_210,_1843,_1416)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<SubscribedPostQuery, SubscribedPostQueryVariables>;
+export const SubscribedCommentDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedComment"),_991,_o5(_7,[_o7(_8,_221,_1843,_1226)])),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<SubscribedCommentQuery, SubscribedCommentQueryVariables>;
+export const SubscribedLocalgroupDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedLocalgroup"),_991,_o5(_7,[_o7(_8,_1091,_1843,_o5(_7,[_o6(_8,_1001,_941)]))])),_61,_414]) as unknown as DocumentNode<SubscribedLocalgroupQuery, SubscribedLocalgroupQueryVariables>;
+export const SubscribedTagDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedTag"),_991,_o5(_7,[_o7(_8,_165,_1843,_1798)])),_146,_158]) as unknown as DocumentNode<SubscribedTagQuery, SubscribedTagQueryVariables>;
 export const updateUserReactionsPaletteDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserReactionsPalette"),_1188,_1191),_61,_226,_932]) as unknown as DocumentNode<updateUserReactionsPaletteMutation, updateUserReactionsPaletteMutationVariables>;
 export const performVoteCommentDocument = _o1(_1,[_o11(_981,_982,_1254,_1787,_o5(_7,[_o7(_8,_1254,_1789,_1255)])),_343]) as unknown as DocumentNode<performVoteCommentMutation, performVoteCommentMutationVariables>;
 export const performVotePostDocument = _o1(_1,[_o11(_981,_982,_1247,_1787,_o5(_7,[_o7(_8,_1247,_1789,_1253)])),_639]) as unknown as DocumentNode<performVotePostMutation, performVotePostMutationVariables>;
 export const performVoteTagRelDocument = _o1(_1,[_o11(_981,_982,_1788,_1787,_o5(_7,[_o7(_8,_1788,_1789,_o5(_7,[_1790,_1252]))])),_532]) as unknown as DocumentNode<performVoteTagRelMutation, performVoteTagRelMutationVariables>;
-export const performVoteRevisionDocument = _o1(_1,[_o11(_981,_982,_1879,_1787,_o5(_7,[_o7(_8,_1879,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_739)])),_1252]))])),_740]) as unknown as DocumentNode<performVoteRevisionMutation, performVoteRevisionMutationVariables>;
-export const performVoteTagDocument = _o1(_1,[_o11(_981,_982,_1880,_1787,_o5(_7,[_o7(_8,_1880,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_838)])),_1252]))])),_146,_839]) as unknown as DocumentNode<performVoteTagMutation, performVoteTagMutationVariables>;
-export const performVoteMultiDocumentDocument = _o1(_1,[_o11(_981,_982,_1881,_1787,_o5(_7,[_o7(_8,_1881,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_446)])),_1252]))])),_445,_449]) as unknown as DocumentNode<performVoteMultiDocumentMutation, performVoteMultiDocumentMutationVariables>;
-export const performVoteMessageDocument = _o1(_1,[_o11(_981,_982,_1882,_1787,_o5(_7,[_o7(_8,_1882,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_432)])),_1252]))])),_434]) as unknown as DocumentNode<performVoteMessageMutation, performVoteMessageMutationVariables>;
-export const emailstestsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"emailstests"),_1533,_1883),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<emailstestsQuery, emailstestsQueryVariables>;
+export const performVoteRevisionDocument = _o1(_1,[_o11(_981,_982,_1878,_1787,_o5(_7,[_o7(_8,_1878,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_739)])),_1252]))])),_740]) as unknown as DocumentNode<performVoteRevisionMutation, performVoteRevisionMutationVariables>;
+export const performVoteTagDocument = _o1(_1,[_o11(_981,_982,_1879,_1787,_o5(_7,[_o7(_8,_1879,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_838)])),_1252]))])),_146,_839]) as unknown as DocumentNode<performVoteTagMutation, performVoteTagMutationVariables>;
+export const performVoteMultiDocumentDocument = _o1(_1,[_o11(_981,_982,_1880,_1787,_o5(_7,[_o7(_8,_1880,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_446)])),_1252]))])),_445,_449]) as unknown as DocumentNode<performVoteMultiDocumentMutation, performVoteMultiDocumentMutationVariables>;
+export const performVoteMessageDocument = _o1(_1,[_o11(_981,_982,_1881,_1787,_o5(_7,[_o7(_8,_1881,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_432)])),_1252]))])),_434]) as unknown as DocumentNode<performVoteMessageMutation, performVoteMessageMutationVariables>;
+export const emailstestsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"emailstests"),_1533,_1882),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<emailstestsQuery, emailstestsQueryVariables>;
 export const updateCommentCommentsNewFormDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateCommentCommentsNewForm"),_1164,_1320),_146,_158,_61,_184,_23,_356]) as unknown as DocumentNode<updateCommentCommentsNewFormMutation, updateCommentCommentsNewFormMutationVariables>;
 export const updatePostPostsEditFormDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updatePostPostsEditForm"),_1139,_1734),_23,_127,_61,_136,_146,_158,_184,_192,_198,_655]) as unknown as DocumentNode<updatePostPostsEditFormMutation, updatePostPostsEditFormMutationVariables>;
 export const getCurrentUserDocument = _o1(_1,[_o17(_981,_988,_o3(_3,"getCurrentUser"),_o5(_7,[_o6(_8,_o3(_3,"currentUser"),_1190)])),_61,_226,_932]) as unknown as DocumentNode<getCurrentUserQuery, getCurrentUserQueryVariables>;
 export const createLWEventwithNewEventsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createLWEventwithNewEvents"),[_o12(_983,_1132,_o13(_985,_o4(_5,_o3(_3,"CreateLWEventDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"createLWEvent"),_1138,_o5(_7,[_o6(_8,_266,_o5(_7,[_o4(_25,_422)]))]))])),_427]) as unknown as DocumentNode<createLWEventwithNewEventsMutation, createLWEventwithNewEventsMutationVariables>;
-export const Lightcone2024FundraiserStripeAmountsDocument = _o1(_1,[_o17(_981,_988,_1884,_o5(_7,[_o4(_8,_1884)]))]) as unknown as DocumentNode<Lightcone2024FundraiserStripeAmountsQuery, Lightcone2024FundraiserStripeAmountsQueryVariables>;
-export const Lightcone2025FundraiserAirtableAmountsDocument = _o1(_1,[_o17(_981,_988,_1885,_o5(_7,[_o4(_8,_1885)]))]) as unknown as DocumentNode<Lightcone2025FundraiserAirtableAmountsQuery, Lightcone2025FundraiserAirtableAmountsQueryVariables>;
-export const multiPostsForAutocompleteQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostsForAutocompleteQuery"),_1886,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_348)]))])),_61,_346]) as unknown as DocumentNode<multiPostsForAutocompleteQueryQuery, multiPostsForAutocompleteQueryQueryVariables>;
-export const multiCommentsForAutocompleteQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentsForAutocompleteQuery"),_1887,_o5(_7,[_o7(_8,_867,_1148,_o5(_7,[_o6(_8,_1018,_352)]))])),_61,_346,_349]) as unknown as DocumentNode<multiCommentsForAutocompleteQueryQuery, multiCommentsForAutocompleteQueryQueryVariables>;
-export const multiCommentsForAutocompleteWithParentsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentsForAutocompleteWithParentsQuery"),_1887,_o5(_7,[_o7(_8,_867,_1148,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_350)]))]))])),_61,_346,_349,_353]) as unknown as DocumentNode<multiCommentsForAutocompleteWithParentsQueryQuery, multiCommentsForAutocompleteWithParentsQueryQueryVariables>;
+export const Lightcone2024FundraiserStripeAmountsDocument = _o1(_1,[_o17(_981,_988,_1883,_o5(_7,[_o4(_8,_1883)]))]) as unknown as DocumentNode<Lightcone2024FundraiserStripeAmountsQuery, Lightcone2024FundraiserStripeAmountsQueryVariables>;
+export const Lightcone2025FundraiserAirtableAmountsDocument = _o1(_1,[_o17(_981,_988,_1884,_o5(_7,[_o4(_8,_1884)]))]) as unknown as DocumentNode<Lightcone2025FundraiserAirtableAmountsQuery, Lightcone2025FundraiserAirtableAmountsQueryVariables>;
+export const multiPostsForAutocompleteQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostsForAutocompleteQuery"),_1885,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_348)]))])),_61,_346]) as unknown as DocumentNode<multiPostsForAutocompleteQueryQuery, multiPostsForAutocompleteQueryQueryVariables>;
+export const multiCommentsForAutocompleteQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentsForAutocompleteQuery"),_1886,_o5(_7,[_o7(_8,_867,_1148,_o5(_7,[_o6(_8,_1018,_352)]))])),_61,_346,_349]) as unknown as DocumentNode<multiCommentsForAutocompleteQueryQuery, multiCommentsForAutocompleteQueryQueryVariables>;
+export const multiCommentsForAutocompleteWithParentsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiCommentsForAutocompleteWithParentsQuery"),_1886,_o5(_7,[_o7(_8,_867,_1148,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_350)]))]))])),_61,_346,_349,_353]) as unknown as DocumentNode<multiCommentsForAutocompleteWithParentsQueryQuery, multiCommentsForAutocompleteWithParentsQueryQueryVariables>;
 export const EmailComment2Document = _o1(_1,[_o11(_981,_988,_o3(_3,"EmailComment2"),_1173,_1227),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<EmailComment2Query, EmailComment2QueryVariables>;
 export const EmailComment1Document = _o1(_1,[_o11(_981,_988,_o3(_3,"EmailComment1"),_1173,_1799),_146,_158]) as unknown as DocumentNode<EmailComment1Query, EmailComment1QueryVariables>;
 export const EmailCommentDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"EmailComment"),_1173,_1417),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<EmailCommentQuery, EmailCommentQueryVariables>;
@@ -23481,18 +23458,18 @@ export const EmailFooterRecommendationsQueryDocument = _o1(_1,[_o11(_981,_988,_o
 export const EmailUsernameByIDDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"EmailUsernameByID"),_1173,_1355),_61]) as unknown as DocumentNode<EmailUsernameByIDQuery, EmailUsernameByIDQueryVariables>;
 export const EventUpdatedEmailDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"EventUpdatedEmail"),_1173,_o5(_7,[_o7(_8,_210,_1000,_o5(_7,[_o6(_8,_1001,_315)]))])),_23,_127]) as unknown as DocumentNode<EventUpdatedEmailQuery, EventUpdatedEmailQueryVariables>;
 export const NewDialogueMessagesEmail1Document = _o1(_1,[_o11(_981,_988,_o3(_3,"NewDialogueMessagesEmail1"),_1173,_1355),_61]) as unknown as DocumentNode<NewDialogueMessagesEmail1Query, NewDialogueMessagesEmail1QueryVariables>;
-export const NewDialogueMessagesEmailDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"NewDialogueMessagesEmail"),_1533,_1883),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<NewDialogueMessagesEmailQuery, NewDialogueMessagesEmailQueryVariables>;
-export const PostNominatedEmailDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostNominatedEmail"),_1533,_1883),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<PostNominatedEmailQuery, PostNominatedEmailQueryVariables>;
+export const NewDialogueMessagesEmailDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"NewDialogueMessagesEmail"),_1533,_1882),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<NewDialogueMessagesEmailQuery, NewDialogueMessagesEmailQueryVariables>;
+export const PostNominatedEmailDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostNominatedEmail"),_1533,_1882),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<PostNominatedEmailQuery, PostNominatedEmailQueryVariables>;
 export const multiPostPostsEmailQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostPostsEmailQuery"),_1446,_o5(_7,[_o7(_8,_250,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_576,_206])),_792]))])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<multiPostPostsEmailQueryQuery, multiPostPostsEmailQueryQueryVariables>;
 export const PostMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"PostMetadata"),_1421,_o5(_7,[_o7(_8,_210,_1328,_o5(_7,[_o6(_8,_1001,_o5(_7,[_10,_14,_12,_104,_109,_499,_o6(_8,_42,_o5(_7,[_10,_43,_329])),_o6(_8,_187,_38),_39,_33,_35,_21,_16,_105,_500,_22,_27,_47]))]))]))]) as unknown as DocumentNode<PostMetadataQuery, PostMetadataQueryVariables>;
 export const SequenceMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SequenceMetadata"),[_1527],_o5(_7,[_o7(_8,_558,[_o8(_534,_996,_o14(_994,[_o8(_995,_9,_559)]))],_o5(_7,[_o6(_8,_1001,_o5(_7,[_10,_14,_237,_236,_142,_39]))]))]))]) as unknown as DocumentNode<SequenceMetadataQuery, SequenceMetadataQueryVariables>;
 export const CommentPermalinkMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"CommentPermalinkMetadata"),[_1322],_o5(_7,[_o7(_8,_221,_1037,_o5(_7,[_o6(_8,_1001,_o5(_7,[_10,_o6(_8,_30,_o5(_7,[_31])),_o6(_8,_36,_o5(_7,[_175])),_54]))]))]))]) as unknown as DocumentNode<CommentPermalinkMetadataQuery, CommentPermalinkMetadataQueryVariables>;
-export const TagMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"TagMetadata"),[_o12(_983,_1888,_986)],_o5(_7,[_o7(_8,_191,[_o8(_534,_996,_o14(_994,[_o8(_995,_1063,_o14(_994,[_o8(_995,_11,_1888)]))]))],_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_123,_12,_142,_o6(_8,_154,_545)]))]))]))]) as unknown as DocumentNode<TagMetadataQuery, TagMetadataQueryVariables>;
+export const TagMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"TagMetadata"),[_o12(_983,_1887,_986)],_o5(_7,[_o7(_8,_191,[_o8(_534,_996,_o14(_994,[_o8(_995,_1063,_o14(_994,[_o8(_995,_11,_1887)]))]))],_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_123,_12,_142,_o6(_8,_154,_545)]))]))]))]) as unknown as DocumentNode<TagMetadataQuery, TagMetadataQueryVariables>;
 export const UserMetadataDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserMetadata"),[_o12(_983,_1060,_986)],_o5(_7,[_o7(_8,_288,[_1067],_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_31,_49,_12,_50,_56,_57,_51,_142]))]))]))]) as unknown as DocumentNode<UserMetadataQuery, UserMetadataQueryVariables>;
-export const singleDraftPostForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singleDraftPostForLLMQuery"),[_1889,_1221],_o5(_7,[_o7(_8,_210,_1148,_1223)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_270,_593,_597]) as unknown as DocumentNode<singleDraftPostForLLMQueryQuery, singleDraftPostForLLMQueryQueryVariables>;
-export const singlePublishedPostForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singlePublishedPostForLLMQuery"),_1890,_o5(_7,[_o7(_8,_210,_1148,_1175)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584]) as unknown as DocumentNode<singlePublishedPostForLLMQueryQuery, singlePublishedPostForLLMQueryQueryVariables>;
-export const multiPostsForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostsForLLMQuery"),_1886,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_1174)]))])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584]) as unknown as DocumentNode<multiPostsForLLMQueryQuery, multiPostsForLLMQueryQueryVariables>;
+export const singleDraftPostForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singleDraftPostForLLMQuery"),[_1888,_1221],_o5(_7,[_o7(_8,_210,_1148,_1223)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_270,_593,_597]) as unknown as DocumentNode<singleDraftPostForLLMQueryQuery, singleDraftPostForLLMQueryQueryVariables>;
+export const singlePublishedPostForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singlePublishedPostForLLMQuery"),_1889,_o5(_7,[_o7(_8,_210,_1148,_1175)])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584]) as unknown as DocumentNode<singlePublishedPostForLLMQueryQuery, singlePublishedPostForLLMQueryQueryVariables>;
+export const multiPostsForLLMQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiPostsForLLMQuery"),_1885,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_1174)]))])),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_584]) as unknown as DocumentNode<multiPostsForLLMQueryQuery, multiPostsForLLMQueryQueryVariables>;
 export const GetReviewWinnersDocument = _o1(_1,[_o17(_981,_988,_o3(_3,"GetReviewWinners"),_1655),_23,_469,_472,_482,_486]) as unknown as DocumentNode<GetReviewWinnersQuery, GetReviewWinnersQueryVariables>;
-export const postWithMarkdownForCoverImageDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"postWithMarkdownForCoverImage"),_1890,_o5(_7,[_o7(_8,_210,_1148,_o5(_7,[_o6(_8,_1001,_1891)]))]))]) as unknown as DocumentNode<postWithMarkdownForCoverImageQuery, postWithMarkdownForCoverImageQueryVariables>;
-export const postsWithMarkdownForCoverImageDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"postsWithMarkdownForCoverImage"),_1886,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_1891)]))]))]) as unknown as DocumentNode<postsWithMarkdownForCoverImageQuery, postsWithMarkdownForCoverImageQueryVariables>;
+export const postWithMarkdownForCoverImageDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"postWithMarkdownForCoverImage"),_1889,_o5(_7,[_o7(_8,_210,_1148,_o5(_7,[_o6(_8,_1001,_1890)]))]))]) as unknown as DocumentNode<postWithMarkdownForCoverImageQuery, postWithMarkdownForCoverImageQueryVariables>;
+export const postsWithMarkdownForCoverImageDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"postsWithMarkdownForCoverImage"),_1885,_o5(_7,[_o7(_8,_250,_1148,_o5(_7,[_o6(_8,_1018,_1890)]))]))]) as unknown as DocumentNode<postsWithMarkdownForCoverImageQuery, postsWithMarkdownForCoverImageQueryVariables>;
 export const CommentsForEmbeddingsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"CommentsForEmbeddings"),[_1115],_o5(_7,[_o7(_8,_867,_1331,_o5(_7,[_o6(_8,_1018,_o5(_7,[_10,_28,_1329,_o6(_8,_30,_o5(_7,[_10,_31,_49,_882])),_o6(_8,_210,_228)]))]))]))]) as unknown as DocumentNode<CommentsForEmbeddingsQuery, CommentsForEmbeddingsQueryVariables>;

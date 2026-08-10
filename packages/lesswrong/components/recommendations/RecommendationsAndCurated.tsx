@@ -8,7 +8,6 @@ import { isLW, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
@@ -148,7 +147,7 @@ const RecommendationsAndCurated = ({configName}: {
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've {isFriendlyUI() ? 'saved' : 'bookmarked'}</div>
+      <div>Individual posts that you've bookmarked</div>
       <div><em>(Click to see all)</em></div>
     </div>
 
@@ -274,8 +273,8 @@ const RecommendationsAndCurated = ({configName}: {
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={isFriendlyUI() ? "/saved" : "/bookmarks"}>
-                  <SectionSubtitle>{isFriendlyUI() ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
+                <Link to="/bookmarks">
+                  <SectionSubtitle>Bookmarks</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
@@ -308,5 +307,4 @@ const RecommendationsAndCurated = ({configName}: {
 }
 
 export default RecommendationsAndCurated;
-
 

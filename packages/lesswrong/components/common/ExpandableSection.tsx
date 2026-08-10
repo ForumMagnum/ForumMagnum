@@ -1,7 +1,6 @@
 import React, { ComponentType } from "react";
 import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import SingleColumnSection from "./SingleColumnSection";
 import LWTooltip from "./LWTooltip";
@@ -49,8 +48,6 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   pageSectionContext: string,
   expanded: boolean,
   toggleExpanded: () => void,
-  afterTitleText?: string,
-  afterTitleTo?: string,
   AfterTitleComponent?: ComponentType,
   children: React.ReactNode,
 }
@@ -60,8 +57,6 @@ const ExpandableSection = ({
   expanded,
   toggleExpanded,
   title,
-  afterTitleText = "View more",
-  afterTitleTo,
   AfterTitleComponent,
   children,
   ...sectionTitleProps
@@ -91,16 +86,9 @@ const ExpandableSection = ({
             </div>
           }
         >
-          {expanded && (AfterTitleComponent || afterTitleTo) &&
+          {expanded && AfterTitleComponent &&
             <div className={classes.afterContainer}>
-              {AfterTitleComponent &&
-                <AfterTitleComponent />
-              }
-              {afterTitleTo &&
-                <Link to={afterTitleTo}>
-                  {afterTitleText}
-                </Link>
-              }
+              <AfterTitleComponent />
             </div>
           }
         </SectionTitle>

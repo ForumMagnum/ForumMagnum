@@ -41,16 +41,15 @@ const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
     setIsOpen(open);
   }, [user._id, captureEvent]);
-  const ButtonComponent = <div>
-    <a onClick={() => handleSetOpen(!isOpen)}>
-      Subscribe
-    </a>
-  </div>
 
   return (
     <div className={className}>
       <div ref={anchorEl}>
-        {ButtonComponent}
+        <div>
+          <a onClick={() => handleSetOpen(!isOpen)}>
+            Subscribe
+          </a>
+        </div>
       </div>
       <PopperCard
         open={isOpen}
