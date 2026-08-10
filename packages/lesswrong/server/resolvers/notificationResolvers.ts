@@ -7,7 +7,6 @@ import { cheerioParse } from '../utils/htmlUtil';
 import type { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
 import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
 
@@ -111,35 +110,16 @@ export const notificationResolversGqlQueries = {
     };
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
-    // In bookUI, notifications are considered "read" iif they were created
+    // Notifications are considered "read" iif they were created
     // before the current user's `lastNotificationsCheck`. The value of
     // `unreadPrivateMessages` is ignored and not used in the UI.
-    // In friendlyUI, the same is true for most notifications, but new message
-    // notifications are handled separately - they bypass
-    // `lastNotificationsCheck` and instead use the `viewed` field on the
-    // notification, so `unreadPrivateMessages` can be displayed independently.
-    const [
-      unreadPrivateMessages,
-      newNotifications,
-    ] = await Promise.all([
-      isFriendlyUI()
-        ? Notifications.find({
-          ...selector,
-          type: "newMessage",
-          viewed: {$ne: true},
-        }).count()
-        : Promise.resolve(0),
-      Notifications.find({
-        ...selector,
-        ...(lastNotificationsCheck && {
-          createdAt: {$gt: lastNotificationsCheck},
-        }),
-        ...(isFriendlyUI() && {
-          type: {$ne: "newMessage"},
-          viewed: {$ne: true},
-        }),
-      }).fetch(),
-    ]);
+    const unreadPrivateMessages = 0;
+    const newNotifications = await Notifications.find({
+      ...selector,
+      ...(lastNotificationsCheck && {
+        createdAt: {$gt: lastNotificationsCheck},
+      }),
+    }).fetch();
 
     // const badgeNotifications = newNotifications.filter(notif =>
     //   !!getNotificationTypeByName(notif.type).causesRedBadge

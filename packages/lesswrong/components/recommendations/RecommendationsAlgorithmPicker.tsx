@@ -7,7 +7,6 @@ import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -110,8 +109,8 @@ const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdv
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label={isFriendlyUI() ? "Saved posts" : "Bookmarks"}
-          tooltip={`Posts that you have ${isFriendlyUI() ? "saved" : "bookmarked"} will appear in Recommendations.`}
+          label="Bookmarks"
+          tooltip="Posts that you have bookmarked will appear in Recommendations."
         />
       </span>
     </span>}

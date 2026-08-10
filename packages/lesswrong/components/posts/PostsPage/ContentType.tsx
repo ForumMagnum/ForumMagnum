@@ -11,10 +11,8 @@ import { curatedUrl } from '@/components/recommendations/constants';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '@/lib/pathConstants';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
-import SectionTitle from "../../common/SectionTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -35,9 +33,6 @@ const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   },
   tooltipTitle: {
     marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 14,
   },
 }))
 
@@ -255,15 +250,13 @@ const ContentTypeWrapper: FC<PropsWithChildren<{className?: string}>> = ({
   children,
 }) => {
   const classes = useStyles(styles);
-  return isFriendlyUI()
-    ? <>{children}</>
-    : <Typography
-      variant="body1"
-      component="span"
-      className={classNames(classes.root, className)}
-    >
-        {children}
-    </Typography>;
+  return <Typography
+    variant="body1"
+    component="span"
+    className={classNames(classes.root, className)}
+  >
+      {children}
+  </Typography>;
 };
 
 const ContentType = ({className, type, label}: {
@@ -281,11 +274,9 @@ const ContentType = ({className, type, label}: {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = isFriendlyUI()
-    ? <SectionTitle title={label} titleClassName={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
-    : <span>
-      <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
-    </span>;
+  const innerComponent = <span>
+    <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
+  </span>;
 
   return (
     <ContentTypeWrapper className={className}>

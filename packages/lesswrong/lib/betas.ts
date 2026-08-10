@@ -8,7 +8,6 @@
 
 import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin } from "./vulcan-users/permissions";
-import {isFriendlyUI} from '../themes/forumTheme'
 
 type BetaGate = (user: UsersCurrent | DbUser | null) => boolean;
 
@@ -49,7 +48,6 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
 export const dialoguesEnabled = () => true;
 export const ckEditorUserSessionsEnabled = () => isLWorAF();
 export const allowSubscribeToUserComments = true;
-export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 
 export const hasAccountDeletionFlow = () => false;
 export const useElicitApi = false;

@@ -5,7 +5,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import UsersNameDisplay from "../../users/UsersNameDisplay";
 import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPendingApprovalMessage";
 import LinkPostMessage from "../LinkPostMessage";
@@ -17,9 +16,7 @@ import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPag
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const getShortformDraftMessage = () => isFriendlyUI()
-  ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
-  : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
+const getShortformDraftMessage = () => "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
 const styles = defineStyles('PostBodyPrefix', (theme: ThemeType) => ({
   reviewInfo: {
@@ -88,7 +85,7 @@ const PostBodyPrefix = ({post, query}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    {(isFriendlyUI() || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI()} />}
+    {((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD) && <LinkPostMessage post={post} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

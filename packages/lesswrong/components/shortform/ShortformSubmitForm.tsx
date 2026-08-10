@@ -4,7 +4,6 @@ import type {
   CommentCancelCallback,
   CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -65,9 +64,9 @@ const ShortformSubmitForm = ({successCallback, cancelCallback, className, defaul
         className={classes.quickTakesRoot}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
-        defaultExpanded={isFriendlyUI() || defaultExpanded}
+        defaultExpanded={defaultExpanded}
         defaultFocus
-        submitButtonAtBottom={isFriendlyUI() || submitButtonAtBottom}
+        submitButtonAtBottom={submitButtonAtBottom}
       />
     </div>
   );

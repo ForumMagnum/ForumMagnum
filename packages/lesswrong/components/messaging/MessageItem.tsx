@@ -3,8 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import ProfilePhoto, { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { Typography } from "../common/Typography";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
@@ -31,16 +29,6 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   },
   root: {
     marginBottom:12,
-  },
-  rootWithImages: {
-    maxWidth: '95%',
-    display: 'grid',
-    columnGap: 10,
-    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
-    gridTemplateAreas: '"image message"',
-    [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
-    }
   },
   rootWithoutImages: {
     maxWidth: '60%',
@@ -105,10 +93,6 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
       display: 'inline',
     },
   },
-  profileImg: {
-    gridArea: 'image',
-    alignSelf: 'flex-end'
-  },
   username: {
     marginRight: 6,
     fontWeight: 600
@@ -151,11 +135,6 @@ const MessageItem = ({message, highlight=false, showFullWidth=false}: {
 
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
 
-  let profilePhoto: React.ReactNode|null = null;
-  if (!isCurrentUser && isFriendlyUI()) {
-    profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
-  }
-
   let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
   if (voteProps && votingSystem?.getMessageHighlights) {
     highlights = votingSystem.getMessageHighlights({message, voteProps});
@@ -179,11 +158,10 @@ const MessageItem = ({message, highlight=false, showFullWidth=false}: {
     </span>}
     <div className={classNames(
       classes.root,
-      isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
+      classes.rootWithoutImages,
       isCurrentUser && classes.rootCurrentUser,
       showFullWidth && classes.fullWidth,
     )}>
-      {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
         <div className={classes.messageWrapper}>
           <Typography variant="body2" className={classNames(classes.message, {

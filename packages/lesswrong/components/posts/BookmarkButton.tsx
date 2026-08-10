@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
 import LWTooltip from '../common/LWTooltip';
@@ -28,12 +27,6 @@ const styles = defineStyles('BookmarkButton', (theme: ThemeType) => ({
       marginRight: -3,
     },
   },
-  iconWithTextFriendlyUI: {
-    '& svg': {
-      transform: "translateY(5px)",
-      marginRight: -1,
-    },
-  },
 }))
 
 
@@ -54,7 +47,6 @@ const BookmarkButton = ({documentId, collectionName, initial, withText, placemen
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,
-        [classes.iconWithTextFriendlyUI]: withText && isFriendlyUI(),
       })}>
         <ForumIcon
           icon={icon}

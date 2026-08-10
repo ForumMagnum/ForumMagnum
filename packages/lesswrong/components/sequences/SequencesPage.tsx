@@ -4,9 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
-import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -26,7 +24,6 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
-import NotifyMeButton from "../notifications/NotifyMeButton";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -83,13 +80,6 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   },
   titleCol: {
     flexGrow: 1
-  },
-  notifyCol: {
-    flex: 'none',
-    paddingTop: 3,
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 0
-    },
   },
   titleWrapper: {
     paddingLeft: 4
@@ -149,9 +139,6 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       textAlign: 'left'
     }
-  },
-  edit: {
-    marginTop: 12,
   },
   imageScrim: {
     ...sequencesImageScrim(theme)
@@ -294,31 +281,13 @@ const SequencesPage = ({documentId}: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
-                {!allowSubscribeToSequencePosts() && canEdit && <span className={classes.leftAction}>
+                {canEdit && <span className={classes.leftAction}>
                   <SectionSubtitle>
                     <a onClick={showEdit}>edit</a>
                   </SectionSubtitle>
                 </span>}
               </SectionFooter>
             </div>
-            {allowSubscribeToSequencePosts() && <div className={classes.notifyCol}>
-              <AnalyticsContext pageElementContext="notifyMeButton">
-                <NotifyMeButton
-                  document={document}
-                  tooltip="Get notified when a new post is added to this sequence"
-                  subscribeMessage="Get notified"
-                  unsubscribeMessage="Notifications set"
-                  showIcon
-                  asButton={isFriendlyUI()}
-                  hideFlashes
-                />
-              </AnalyticsContext>
-              {canEdit && <SectionFooter className={classes.edit}>
-                <SectionSubtitle>
-                  <a onClick={showEdit}>Edit sequence</a>
-                </SectionSubtitle>
-              </SectionFooter>}
-            </div>}
           </section>
           
           {html && <ContentStyles contentType="post" className={classes.description}>

@@ -4,7 +4,6 @@ import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
@@ -94,7 +93,7 @@ const PostsVoteDefault = ({
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI() ? "left" : "right";
+  let tooltipPlacement: "left"|"right"|"top" = "right";
   if (useHorizontalLayout) {
     tooltipPlacement = "top";
   }

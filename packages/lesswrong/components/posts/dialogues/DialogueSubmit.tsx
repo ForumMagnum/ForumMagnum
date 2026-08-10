@@ -3,7 +3,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { EditorContext } from '../EditorContext';
 import { useNavigate } from '../../../lib/routeUtil';
 import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
@@ -78,7 +77,7 @@ export const DialogueSubmit = ({
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
   const requireConfirmation = isLW() && !!document.debate;
-  const showShortformButton = !!userShortformId && !isFriendlyUI();
+  const showShortformButton = !!userShortformId;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   return (
@@ -124,10 +123,6 @@ export const DialogueSubmit = ({
         onClick={onSubmitClick}
         disabled={disabled}
         className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-        {...(isFriendlyUI() ? {
-          variant: "contained",
-          color: "primary",
-        } : {})}
       >
         {submitLabel}
       </Button>

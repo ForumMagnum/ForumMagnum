@@ -10,7 +10,6 @@ import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/l
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
@@ -277,7 +276,7 @@ const LocalGroupForm = ({
               {(field) => (
                 <LocationFormComponent
                   field={field}
-                  label={isFriendlyUI() ? "Group location" : "Group Location"}
+                  label="Group Location"
                   stringVersionFieldName="location"
                 />
               )}
@@ -358,7 +357,7 @@ const LocalGroupForm = ({
             <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
               <ImageUpload
                 field={field}
-                label={isFriendlyUI() ? "Banner image" : "Banner Image"}
+                label="Banner Image"
                 croppingAspectRatio={1.91}
               />
             </LWTooltip>

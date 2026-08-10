@@ -4,7 +4,6 @@ import sortBy from 'lodash/sortBy';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -104,9 +103,7 @@ export type PostsListConfig = {
   repeatedPostsPrecedence?: number
 }
 
-const getDefaultTooltipPlacement = () => isFriendlyUI()
-  ? "bottom-start"
-  : "bottom-end";
+const getDefaultTooltipPlacement = (): PopperPlacementType => "bottom-end";
 
 export const usePostsList = <TagId extends string | undefined = undefined>({
   children,

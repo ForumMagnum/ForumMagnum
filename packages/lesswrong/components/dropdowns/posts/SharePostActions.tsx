@@ -5,7 +5,6 @@ import { useMessages } from '../../common/withMessages';
 
 import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownMenu from "../DropdownMenu";
 import DropdownItem from "../DropdownItem";
 import DropdownDivider from "../DropdownDivider";
@@ -69,17 +68,17 @@ const SharePostActions = ({post, onClick}: {
       />
       <DropdownDivider/>
       <DropdownItem
-        title={isFriendlyUI() ? "Share on Twitter" : "Twitter"}
+        title={"Twitter"}
         icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
         onClick={shareToTwitter}
       />
       <DropdownItem
-        title={isFriendlyUI() ? "Share on Facebook" : "Facebook"}
+        title={"Facebook"}
         icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
         onClick={shareToFacebook}
       />
       <DropdownItem
-        title={isFriendlyUI() ? "Share on LinkedIn" : "LinkedIn"}
+        title={"LinkedIn"}
         icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
         onClick={shareToLinkedIn}
       />

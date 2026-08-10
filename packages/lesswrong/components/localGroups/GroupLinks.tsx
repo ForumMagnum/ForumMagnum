@@ -2,7 +2,6 @@ import React from 'react';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
-import {isFriendlyUI} from '../../themes/forumTheme'
 import { TooltipSpan } from '../common/FMTooltip';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '../hooks/defineStyles';
@@ -155,7 +154,7 @@ const GroupLinks = ({ document, noMargin }: {
   } 
   return(
     <div className={classes.root}>
-      {!isFriendlyUI() && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
+      <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <TooltipSpan
@@ -168,7 +167,7 @@ const GroupLinks = ({ document, noMargin }: {
             </TooltipSpan>
           )
         })}
-      </div>}
+      </div>
       <div className={(noMargin && (isEAForum() || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <TooltipSpan

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
 import UsersName from "../users/UsersName";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
@@ -60,20 +59,14 @@ const TagRevisionItemFullMetadata = ({tag, revision}: {
         {" "}
         <ChangeMetricsDisplay
           changeMetrics={revision.changeMetrics}
-          showCharacters={isFriendlyUI()}
           className={classes.changeMetrics}
         />
-        {!isFriendlyUI() &&
-          <>
-            {" "}
-            <FormatDate
-              tooltip={false}
-              format={"MMM Do YYYY z"}
-              date={revision.editedAt}
-            />
-            {" "}
-          </>
-        }
+        {" "}
+        <FormatDate
+          tooltip={false}
+          format={"MMM Do YYYY z"}
+          date={revision.editedAt}
+        />
         {" "}
       </span>
       <SmallSideVote

@@ -3,7 +3,6 @@ import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommen
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import PostsPageTitle from "./PostsPageTitle";
 import PostsAuthors from "./PostsAuthors";
@@ -179,7 +178,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
+  const minimalSecondaryInfo = post.isEvent;
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null

@@ -5,7 +5,6 @@ import { QueryLink } from '../../lib/reactRouterWrapper';
 import ContentType, { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsItem from "./PostsItem";
 import LoadMore from "../common/LoadMore";
 import ShortformTimeBlock from "../shortform/ShortformTimeBlock";
@@ -13,7 +12,6 @@ import TagEditsTimeBlock from "../tagging/TagEditsTimeBlock";
 import Divider from "../common/Divider";
 import { Typography } from "../common/Typography";
 import PostsTagsList from "../tagging/PostsTagsList";
-import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -196,7 +194,7 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
         {postGroups.map(({name, filteredPosts, label}) => {
-          if (filteredPosts?.length > 0 || (loading && isFriendlyUI())) {
+          if (filteredPosts?.length > 0) {
             return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
@@ -204,7 +202,6 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
                 <ContentType type={name} label={label} className={classes.subtitle} />
               </div>
               <div className={classes.posts}>
-                {!filteredPosts?.length && isFriendlyUI() && <PostsLoading placeholderCount={10} />}
                 {filteredPosts.map((post, i) =>
                   <PostsItem
                     key={post._id}

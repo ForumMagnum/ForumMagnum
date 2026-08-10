@@ -5,19 +5,15 @@ import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
-import { CommentLinkWrapper, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import CommentsEditForm from "../comments/CommentsEditForm";
 import SmallSideVote from "../votes/SmallSideVote";
 import AnswerCommentsList from "./AnswerCommentsList";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
-import ForumIcon from "../common/ForumIcon";
 import CommentBody from "../comments/CommentsItem/CommentBody";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 import UsersName from "../users/UsersName";
@@ -82,17 +78,6 @@ const styles = defineStyles('Answer', (theme: ThemeType) => ({
     marginTop: 32,
     marginBottom: 64
   },
-  linkIcon: {
-    fontSize: "1.2rem",
-    color: theme.palette.icon.dim,
-    margin: "0 4px",
-    position: "relative",
-  },
-  linkIconHighlighted: {
-    strokeWidth: "0.7px",
-    stroke: "currentColor",
-    color: theme.palette.primary.main
-  },
   menu: {
     opacity:.5,
     cursor: "pointer",
@@ -152,7 +137,6 @@ const Answer = ({comment, post, childComments}: {
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
-  const { scrollToCommentId } = useCommentLinkState();
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -168,9 +152,7 @@ const Answer = ({comment, post, childComments}: {
     setReplyFormIsOpen(false);
   }, []);
 
-  const menuIcon = isFriendlyUI()
-    ? undefined
-    : <MoreHorizIcon />;
+  const menuIcon = <MoreHorizIcon />;
 
   const treeOptions: CommentTreeOptions = useMemo(() => ({
     postPage: true,
@@ -179,9 +161,6 @@ const Answer = ({comment, post, childComments}: {
     switchAlternatingHighlights: true,
   }), [post]);
 
-  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
-  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
-
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
       { comment.deleted ?
@@ -189,11 +168,6 @@ const Answer = ({comment, post, childComments}: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
-          {isFriendlyUI() &&
-            <CommentLinkWrapper comment={comment} post={post}>
-              <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
-            </CommentLinkWrapper>
-          }
           <CommentsMenu
             className={classes.menu}
             showEdit={setShowEditTrue}
@@ -217,11 +191,6 @@ const Answer = ({comment, post, childComments}: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
-                {isFriendlyUI() &&
-                  <CommentLinkWrapper comment={comment} post={post}>
-                    <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
-                  </CommentLinkWrapper>
-                }
                 <CommentsMenu
                   className={classes.menu}
                   showEdit={setShowEditTrue}

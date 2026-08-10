@@ -11,7 +11,6 @@ import { defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../common/LWTooltip";
@@ -31,7 +30,7 @@ const TagPreviewFragmentQuery = gql(`
   }
 `);
 
-const getLatestPostsName = () => isFriendlyUI() ? 'Frontpage Posts' : 'Recent Posts';
+const getLatestPostsName = () => 'Recent Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({

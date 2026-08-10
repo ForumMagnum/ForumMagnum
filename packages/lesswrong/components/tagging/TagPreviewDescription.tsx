@@ -4,7 +4,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import TagExcerpt from "../common/excerpts/TagExcerpt";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
