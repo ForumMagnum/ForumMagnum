@@ -24,7 +24,6 @@ import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { EditableUsersList } from "../editor/EditableUsersList";
 import { MenuItem } from "../common/Menus";
 import Select from "@/lib/vendor/@material-ui/core/src/Select";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import FooterTagList from "../tagging/FooterTagList";
 import LWTooltip from "../common/LWTooltip";
 import { PostSubmit } from "./PostSubmit";
@@ -913,20 +912,19 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, awaitPendingS
       className={classNames(classes.openInClaudeButton, className)}
       onClick={async (event) => {
         captureEvent("shareWithClaudeClicked", { postId, panel });
-        const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
-        if (settings.anyoneWithLinkCan === "edit") {
-          return;
-        }
-
         event.preventDefault();
         const claudeWindow = window.open("about:blank", "_blank");
         if (claudeWindow) {
           claudeWindow.opener = null;
         }
-        form.setFieldValue('sharingSettings', {
-          ...settings,
-          anyoneWithLinkCan: "edit",
-        });
+
+        const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
+        if (settings.anyoneWithLinkCan !== "edit") {
+          form.setFieldValue('sharingSettings', {
+            ...settings,
+            anyoneWithLinkCan: "edit",
+          });
+        }
         const saved = await awaitPendingSaves();
         if (saved) {
           claudeWindow?.location.assign(claudeUrl);
@@ -1049,15 +1047,23 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser, aw
               }
 
               const copyLinkButton = (
-                <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
-                  onCopy={() => flash("Link copied")}
+                <button
+                  type="button"
+                  className={classes.shareLinkButton}
+                  onClick={async () => {
+                    const saved = await awaitPendingSaves();
+                    if (!saved) {
+                      return;
+                    }
+                    const url = postGetEditUrl(postId, true, linkSharingKey);
+                    void navigator.clipboard.writeText(url)
+                      .then(() => flash("Link copied"))
+                      .catch(() => flash("Failed to copy link"));
+                  }}
                 >
-                  <button type="button" className={classes.shareLinkButton}>
-                    <ForumIcon icon="Link" className={classes.copyLinkIcon} />
-                    Copy link
-                  </button>
-                </CopyToClipboard>
+                  <ForumIcon icon="Link" className={classes.copyLinkIcon} />
+                  Copy link
+                </button>
               );
 
               return <>
