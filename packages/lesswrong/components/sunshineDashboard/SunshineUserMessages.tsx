@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -19,6 +19,7 @@ import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEdi
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
+import { focusLexicalEditor } from '../editor/focusLexicalEditor';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -119,6 +120,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const [pendingComposerFocus, setPendingComposerFocus] = useState(false);
+  const composerRef = useRef<HTMLDivElement>(null);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
@@ -180,6 +183,24 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     }
   };
 
+  // Focusing from the template list's Tab shortcut; if there's no conversation yet the
+  // composer doesn't exist, so start one and focus it once it renders.
+  const handleFocusComposer = () => {
+    if (embeddedConversationId) {
+      focusLexicalEditor(composerRef.current);
+    } else {
+      handleStartConversation();
+      setPendingComposerFocus(true);
+    }
+  };
+
+  useEffect(() => {
+    if (pendingComposerFocus && embeddedConversationId) {
+      setPendingComposerFocus(false);
+      focusLexicalEditor(composerRef.current);
+    }
+  }, [pendingComposerFocus, embeddedConversationId]);
+
   return <div>
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
@@ -210,7 +231,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
       );
     })}
     {embeddedConversationId ? (
-      <div className={classes.conversationForm}>
+      <div className={classes.conversationForm} ref={composerRef}>
         <MessagesNewForm 
           conversationId={embeddedConversationId} 
           templateQueries={templateQueries}
@@ -233,6 +254,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
       collectionName="Messages"
       onTemplateClick={handleTemplateClick}
       highlightedTemplateNames={highlightedTemplateNames}
+      onFocusComposer={handleFocusComposer}
     />
   </div>;
 }
