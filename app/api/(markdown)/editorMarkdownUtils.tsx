@@ -313,7 +313,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
     return new Response(
-      `Access to shared draft ${postId} was authorized, but its contents could not be loaded. Ask the user to open and save the draft in the LessWrong editor, then try again.`,
+      `A server error occurred while loading shared draft ${postId}. Ask the user to open and save the draft in the LessWrong editor, then try again.`,
       { status: 200, headers: NO_CACHE_HEADERS }
     );
   }
