@@ -1165,6 +1165,7 @@ const PostForm = ({
         formType={formType}
         currentUser={currentUser}
         isSaving={isSaving}
+        awaitPendingSaves={awaitPendingSaves}
         editorType={editorType}
         sidebarPanel={sidebarPanel}
         setSidebarPanel={setSidebarPanel}
