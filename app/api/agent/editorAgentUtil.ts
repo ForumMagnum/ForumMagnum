@@ -99,6 +99,8 @@ const INITIAL_SYNC_SETTLE_MS = 25;
 
 const FLUSH_POLL_INTERVAL_MS = 5;
 const FLUSH_TIMEOUT_MS = 2_000;
+const PERSIST_REQUEST_PREFIX = "forum-magnum:persist:";
+const PERSIST_ACK_PREFIX = "forum-magnum:persisted:";
 
 interface FlushableProvider {
   readonly hasUnsyncedChanges: boolean
@@ -109,21 +111,27 @@ interface FlushableProvider {
       } | null
     }
   }
+  on(event: "stateless", callback: (data: { payload: string }) => void): unknown
+  off(event: "stateless", callback: (data: { payload: string }) => void): unknown
+  sendStateless(payload: string): void
 }
 
 /**
  * Wait for Hocuspocus to acknowledge every pending Yjs update and for the
- * WebSocket send buffer to drain before tearing down a short-lived provider.
+ * WebSocket send buffer to drain, then ask Hocuspocus to persist the document
+ * before tearing down a short-lived provider.
  *
  * A drained WebSocket buffer only means the update reached the OS. The
  * provider's `hasUnsyncedChanges` flag is cleared by the server's SyncStatus
- * response after it applies the update. Waiting for both prevents a provider
- * teardown from silently dropping rapid, concurrent agent writes.
+ * response after it applies the update. The explicit persistence round trip
+ * then ensures immediate read-back sees the update and `ok: true` means the
+ * write is durable.
  */
 export async function waitForProviderFlush(
   provider: FlushableProvider,
   timeoutMs = FLUSH_TIMEOUT_MS,
 ): Promise<void> {
+  const hadUnsyncedChanges = provider.hasUnsyncedChanges;
   const deadline = Date.now() + timeoutMs;
   while (provider.hasUnsyncedChanges || (provider.configuration.websocketProvider.webSocket?.bufferedAmount ?? 0) > 0) {
     if (Date.now() >= deadline) {
@@ -131,6 +139,31 @@ export async function waitForProviderFlush(
     }
     await sleep(FLUSH_POLL_INTERVAL_MS);
   }
+
+  if (!hadUnsyncedChanges) return;
+
+  const requestId = randomId();
+  const requestPayload = `${PERSIST_REQUEST_PREFIX}${requestId}`;
+  const expectedAck = `${PERSIST_ACK_PREFIX}${requestId}`;
+  await new Promise<void>((resolve, reject) => {
+    let timeoutHandle: NodeJS.Timeout | undefined;
+    const cleanup = () => {
+      if (timeoutHandle) clearTimeout(timeoutHandle);
+      provider.off("stateless", handleStateless);
+    };
+    const handleStateless = ({ payload }: { payload: string }) => {
+      if (payload !== expectedAck) return;
+      cleanup();
+      resolve();
+    };
+
+    provider.on("stateless", handleStateless);
+    timeoutHandle = setTimeout(() => {
+      cleanup();
+      reject(new Error("Timed out waiting for Hocuspocus to persist pending updates"));
+    }, timeoutMs);
+    provider.sendStateless(requestPayload);
+  });
 }
 
 // 1:1 fold of typographic punctuation onto ASCII equivalents. Restricted to

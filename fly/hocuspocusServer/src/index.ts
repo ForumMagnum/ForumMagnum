@@ -9,6 +9,8 @@ import crypto from 'crypto';
 
 const port = parseInt(process.env.PORT ?? '8080');
 const e2eDebug = process.env.E2E === 'true';
+const PERSIST_REQUEST_PREFIX = 'forum-magnum:persist:';
+const PERSIST_ACK_PREFIX = 'forum-magnum:persisted:';
 
 const postgresExtension = new PostgresExtension({
   connectionString: process.env.DATABASE_URL!,
@@ -126,6 +128,29 @@ const server = new Server({
       // eslint-disable-next-line no-console
       console.error('[e2e:hocuspocus] change', { documentName: context.documentName, userId: context.user?.id });
     }
+  },
+
+  async onStateless({ connection, document, documentName, payload }) {
+    if (!payload.startsWith(PERSIST_REQUEST_PREFIX) || !connection.context.user?.canEdit) {
+      return;
+    }
+
+    const requestId = payload.slice(PERSIST_REQUEST_PREFIX.length);
+    if (!requestId) return;
+
+    // Agent API writes use short-lived providers. Persist the document before
+    // acknowledging them so a successful API response is durable and
+    // immediately visible to a new read session. The same mutex is used by
+    // Hocuspocus' regular debounced store path, preventing stale snapshots
+    // from completing out of order.
+    await document.saveMutex.runExclusive(async () => {
+      await postgresExtension.storeDocumentState(
+        documentName,
+        Y.encodeStateAsUpdate(document),
+        Y.encodeStateVector(document),
+      );
+    });
+    connection.sendStateless(`${PERSIST_ACK_PREFIX}${requestId}`);
   },
   
   async onRequest({ request, response }) {
