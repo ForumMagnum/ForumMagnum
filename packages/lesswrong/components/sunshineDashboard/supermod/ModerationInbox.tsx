@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -27,6 +27,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { getInboxSearchUpdate, getInitialOpenedUserId } from './inboxUrl';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -137,24 +138,19 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     { users, posts, classifiedPosts, curationPosts, initialOpenedUserId, directUser },
     initializeInboxState,
   );
+  const previousOpenedUserIdRef = useRef(state.openedUserId);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentUrlUser = searchParams.get('user');
-    const stateUser = state.openedUserId;
+    const previousOpenedUserId = previousOpenedUserIdRef.current;
+    previousOpenedUserIdRef.current = state.openedUserId;
+    const search = getInboxSearchUpdate({
+      currentSearch: window.location.search,
+      previousOpenedUserId,
+      openedUserId: state.openedUserId,
+    });
+    if (search === null) return;
 
-    if (stateUser === currentUrlUser) {
-      return;
-    }
-
-    if (stateUser) {
-      searchParams.set('user', stateUser);
-    } else {
-      searchParams.delete('user');
-    }
-
-    const search = searchParams.toString();
     navigate({
       pathname: window.location.pathname,
       search: search ? `?${search}` : '',
@@ -400,7 +396,8 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const initialOpenedUserId = query.user || null;
+  const browserSearch = typeof window === 'undefined' ? undefined : window.location.search;
+  const initialOpenedUserId = getInitialOpenedUserId(query.user, browserSearch);
 
   const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
