@@ -100,24 +100,35 @@ const INITIAL_SYNC_SETTLE_MS = 25;
 const FLUSH_POLL_INTERVAL_MS = 5;
 const FLUSH_TIMEOUT_MS = 2_000;
 
-/**
- * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
- * that all pending updates have been handed off to the OS network layer.
- *
- * The provider sends Yjs updates synchronously during `doc.transact()` via
- * `ws.send()`, which buffers data immediately. We just need to wait for
- * `bufferedAmount` to reach 0 before destroying the provider so that the
- * close handshake doesn't race with pending data frames.
- *
- * Returns immediately if the WebSocket isn't accessible or the buffer is
- * already empty.
- */
-export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
-  const ws = provider.configuration.websocketProvider.webSocket;
-  if (!ws || ws.bufferedAmount === 0) return;
+interface FlushableProvider {
+  readonly hasUnsyncedChanges: boolean
+  readonly configuration: {
+    websocketProvider: {
+      webSocket: {
+        readonly bufferedAmount: number
+      } | null
+    }
+  }
+}
 
-  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
-  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
+/**
+ * Wait for Hocuspocus to acknowledge every pending Yjs update and for the
+ * WebSocket send buffer to drain before tearing down a short-lived provider.
+ *
+ * A drained WebSocket buffer only means the update reached the OS. The
+ * provider's `hasUnsyncedChanges` flag is cleared by the server's SyncStatus
+ * response after it applies the update. Waiting for both prevents a provider
+ * teardown from silently dropping rapid, concurrent agent writes.
+ */
+export async function waitForProviderFlush(
+  provider: FlushableProvider,
+  timeoutMs = FLUSH_TIMEOUT_MS,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (provider.hasUnsyncedChanges || (provider.configuration.websocketProvider.webSocket?.bufferedAmount ?? 0) > 0) {
+    if (Date.now() >= deadline) {
+      throw new Error("Timed out waiting for Hocuspocus to acknowledge pending updates");
+    }
     await sleep(FLUSH_POLL_INTERVAL_MS);
   }
 }
