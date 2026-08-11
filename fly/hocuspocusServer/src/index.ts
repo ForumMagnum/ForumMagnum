@@ -143,14 +143,22 @@ const server = new Server({
     // immediately visible to a new read session. The same mutex is used by
     // Hocuspocus' regular debounced store path, preventing stale snapshots
     // from completing out of order.
-    await document.saveMutex.runExclusive(async () => {
-      await postgresExtension.storeDocumentState(
-        documentName,
-        Y.encodeStateAsUpdate(document),
-        Y.encodeStateVector(document),
-      );
-    });
-    connection.sendStateless(`${PERSIST_ACK_PREFIX}${requestId}`);
+    try {
+      await document.saveMutex.runExclusive(async () => {
+        await postgresExtension.storeDocumentState(
+          documentName,
+          Y.encodeStateAsUpdate(document),
+          Y.encodeStateVector(document),
+        );
+      });
+      connection.sendStateless(`${PERSIST_ACK_PREFIX}${requestId}`);
+    } catch (error) {
+      // Hocuspocus does not await its stateless callback promise. Swallow the
+      // storage error after logging so it cannot become an unhandled rejection;
+      // omitting the acknowledgement makes the agent request fail safely.
+      // eslint-disable-next-line no-console
+      console.error(`[PersistAck] Failed to persist ${documentName}`, error);
+    }
   },
   
   async onRequest({ request, response }) {
