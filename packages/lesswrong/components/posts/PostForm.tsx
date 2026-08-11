@@ -1143,6 +1143,7 @@ const PostForm = ({
           mode={sidebarPanel}
           currentUser={currentUser}
           isSaving={isSaving}
+          awaitPendingSaves={awaitPendingSaves}
           onClose={() => setSidebarPanel(null)}
           addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
