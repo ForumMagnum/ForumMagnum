@@ -1,4 +1,4 @@
-import { runQuery } from "@/server/vulcan-lib/query";
+import { runQueryNonThrowing } from "@/server/vulcan-lib/query";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const HocuspocusAuthQuery = gql(`
@@ -8,6 +8,10 @@ const HocuspocusAuthQuery = gql(`
     }
   }
 `);
+
+function isUnauthorizedHocuspocusError(message: string): boolean {
+  return message.startsWith("Unauthorized:");
+}
 
 /**
  * Fetch a Hocuspocus auth token for a given Posts document.
@@ -29,10 +33,17 @@ export async function getHocuspocusTokenForCollection(
   documentId: string,
   linkSharingKey?: string,
 ): Promise<string | null> {
-  const { data } = await runQuery(
+  const { data, errors } = await runQueryNonThrowing(
     HocuspocusAuthQuery,
     { collectionName, documentId, linkSharingKey: linkSharingKey ?? null },
     context,
   );
+  if (errors) {
+    const unexpectedError = errors.find((error) => !isUnauthorizedHocuspocusError(error.message));
+    if (unexpectedError) {
+      throw new Error(unexpectedError.message);
+    }
+    return null;
+  }
   return data?.HocuspocusAuth?.token ?? null;
 }

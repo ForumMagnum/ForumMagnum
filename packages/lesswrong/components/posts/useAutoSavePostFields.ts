@@ -59,7 +59,8 @@ export function useAutoSavePostFields(
   const pendingSaveRef = useRef<Partial<PostFormValues> | null>(null);
   const savingRef = useRef(false);
   // Resolvers waiting for the queue to drain (used by awaitPendingSaves)
-  const drainResolversRef = useRef<Array<() => void>>([]);
+  const drainResolversRef = useRef<Array<(success: boolean) => void>>([]);
+  const queueFailedRef = useRef(false);
 
   const processQueue = useCallback(async () => {
     if (savingRef.current || !pendingSaveRef.current || !postId) return;
@@ -78,6 +79,7 @@ export function useAutoSavePostFields(
         },
       });
     } catch (error) {
+      queueFailedRef.current = true;
       flash({ messageString: "Failed to save changes", type: "error" });
       // Remove from lastEnqueued so a future change can retry
       for (const key of Object.keys(fields) as Array<keyof PostFormValues>) {
@@ -89,7 +91,8 @@ export function useAutoSavePostFields(
         void processQueue();
       } else {
         setIsSaving(false);
-        for (const resolve of drainResolversRef.current) resolve();
+        const succeeded = !queueFailedRef.current;
+        for (const resolve of drainResolversRef.current) resolve(succeeded);
         drainResolversRef.current = [];
       }
     }
@@ -113,6 +116,9 @@ export function useAutoSavePostFields(
         .map(([key]) => key);
 
       if (changedKeys.length > 0) {
+        if (!savingRef.current && !pendingSaveRef.current) {
+          queueFailedRef.current = false;
+        }
         const changedFields = pick(values, changedKeys);
         Object.assign(lastEnqueuedRef.current, changedFields);
         pendingSaveRef.current = { ...(pendingSaveRef.current ?? {}), ...changedFields };
@@ -125,11 +131,12 @@ export function useAutoSavePostFields(
 
   /**
    * Returns a promise that resolves when all in-flight and pending saves have
-   * completed. Call this before a manual form submission to ensure consistency.
+   * completed, with whether every save succeeded. Call this before a manual
+   * form submission to ensure consistency.
    */
   const awaitPendingSaves = useCallback(async () => {
-    if (!savingRef.current && !pendingSaveRef.current) return;
-    return new Promise<void>((resolve) => {
+    if (!savingRef.current && !pendingSaveRef.current) return true;
+    return new Promise<boolean>((resolve) => {
       drainResolversRef.current.push(resolve);
     });
   }, []);

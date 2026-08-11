@@ -28,6 +28,7 @@ import {
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
   getDefaultVotingSystem,
+  userIsPostCoauthor,
   type RSVPType,
 } from "./helpers";
 import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
@@ -3383,7 +3384,7 @@ const schema = {
     graphql: {
       outputType: "JSON",
       canRead: ["guests"],
-      canUpdate: [userOwns, "admins"],
+      canUpdate: [userIsPostCoauthor, userOwns, "admins"],
       canCreate: ["members"],
       validation: {
         optional: true,
