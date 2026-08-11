@@ -211,9 +211,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   // Start the conversation on tab click, not on a second click on the prompt
   const handleSelectDmTab = () => {
     setSidebarTab('dm');
-    if (!embeddedConversationId) {
-      initiateConversation([user._id]);
-    }
+    handleStartConversation();
   };
 
   useEffect(() => {

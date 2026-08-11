@@ -135,8 +135,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0,
-          sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -253,7 +252,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         openedUserId: initialOpenedUserId,
         focusedPostId: null,
         focusedContentIndex: 0,
-          sidebarTab: null,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
