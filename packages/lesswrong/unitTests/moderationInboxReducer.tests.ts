@@ -79,19 +79,36 @@ function createUndoItem(
 
 describe('Moderation Inbox Reducer', () => {
   describe('initialization', () => {
-    test('preserves a deep-linked user while query data is temporarily empty', () => {
+    test('opens a resolved deep-linked user', () => {
+      const directUser = createMockUser('user1', 'newContent');
       const state = initializeInboxState({
         users: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
         initialOpenedUserId: 'user1',
-        directUser: null,
+        directUser,
       });
 
+      expect(state.users).toEqual([directUser]);
       expect(state.activeTab).toBe('all');
       expect(state.focusedUserId).toBe('user1');
       expect(state.openedUserId).toBe('user1');
+    });
+
+    test('does not enter detail state for an unresolved deep-linked user', () => {
+      const state = initializeInboxState({
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        initialOpenedUserId: 'missing-user',
+        directUser: null,
+      });
+
+      expect(state.activeTab).toBe('curation');
+      expect(state.focusedUserId).toBeNull();
+      expect(state.openedUserId).toBeNull();
     });
   });
 

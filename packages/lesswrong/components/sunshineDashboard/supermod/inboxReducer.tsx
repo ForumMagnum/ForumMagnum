@@ -94,20 +94,19 @@ export function initializeInboxState({
   directUser,
 }: InboxInitialData): InboxState {
   const initialUsers = directUser ? [directUser, ...users] : users;
+  const initialOpenedUser = initialOpenedUserId
+    ? initialUsers.find(user => user._id === initialOpenedUserId)
+    : null;
 
-  // A deep link is authoritative even if the inbox/direct-user queries have
-  // temporarily returned no data. In particular, don't initialize a null
-  // openedUserId that the URL-sync effect will interpret as a request to
-  // remove the deep link.
-  if (initialOpenedUserId) {
+  if (initialOpenedUser) {
     return {
       users: initialUsers,
       posts,
       classifiedPosts,
       curationPosts,
       activeTab: 'all',
-      focusedUserId: initialOpenedUserId,
-      openedUserId: initialOpenedUserId,
+      focusedUserId: initialOpenedUser._id,
+      openedUserId: initialOpenedUser._id,
       focusedPostId: null,
       focusedContentIndex: 0,
       undoQueue: [],

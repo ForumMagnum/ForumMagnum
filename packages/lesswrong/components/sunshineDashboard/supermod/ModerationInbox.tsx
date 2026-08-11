@@ -138,7 +138,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     { users, posts, classifiedPosts, curationPosts, initialOpenedUserId, directUser },
     initializeInboxState,
   );
-  const previousOpenedUserIdRef = useRef(state.openedUserId);
+  const previousOpenedUserIdRef = useRef(initialOpenedUserId);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
