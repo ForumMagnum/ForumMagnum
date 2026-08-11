@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { inboxStateReducer, initializeInboxState, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -78,6 +78,40 @@ function createUndoItem(
 }
 
 describe('Moderation Inbox Reducer', () => {
+  describe('initialization', () => {
+    test('opens a resolved deep-linked user', () => {
+      const directUser = createMockUser('user1', 'newContent');
+      const state = initializeInboxState({
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        initialOpenedUserId: 'user1',
+        directUser,
+      });
+
+      expect(state.users).toEqual([directUser]);
+      expect(state.activeTab).toBe('all');
+      expect(state.focusedUserId).toBe('user1');
+      expect(state.openedUserId).toBe('user1');
+    });
+
+    test('does not enter detail state for an unresolved deep-linked user', () => {
+      const state = initializeInboxState({
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        initialOpenedUserId: 'missing-user',
+        directUser: null,
+      });
+
+      expect(state.activeTab).toBe('curation');
+      expect(state.focusedUserId).toBeNull();
+      expect(state.openedUserId).toBeNull();
+    });
+  });
+
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [

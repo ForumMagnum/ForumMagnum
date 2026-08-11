@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -17,7 +17,7 @@ import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
-import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
+import { getFilteredGroups, getVisibleTabsInOrder, inboxStateReducer, initializeInboxState } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -27,6 +27,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { getInboxSearchUpdate, getInitialOpenedUserId } from './inboxUrl';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -131,146 +132,31 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { query, location } = useLocation();
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
-    (): InboxState => {
-      const initialUsers = directUser ? [directUser, ...users] : users;
-      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
-        return {
-          users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (initialOpenedUserId) {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'all',
-          focusedUserId: initialOpenedUserId,
-          openedUserId: initialOpenedUserId,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
-
-      // Default to curation when there are no curation notices (so you can add some)
-      // Otherwise, find the first non-empty non-curation tab
-      const firstNonEmptyTab = curationNoticeCount === 0
-        ? undefined
-        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
-
-      if (firstTab === 'curation') {
-        return { 
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: curationPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-      
-      if (firstTab === 'posts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'posts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: posts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (firstTab === 'classifiedPosts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'classifiedPosts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: classifiedPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        users: initialUsers,
-        posts,
-        classifiedPosts,
-        curationPosts,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: initialOpenedUserId,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-        undoQueue: [],
-        history: [],
-        runningLlmCheckId: null,
-      };
-    }
+    { users, posts, classifiedPosts, curationPosts, initialOpenedUserId, directUser },
+    initializeInboxState,
   );
+  const previousOpenedUserIdRef = useRef(initialOpenedUserId);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
-    const currentUrlUser = query.user;
-    const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
-    }
-  }, [state.openedUserId, query.user, location, navigate]);
+    const previousOpenedUserId = previousOpenedUserIdRef.current;
+    previousOpenedUserIdRef.current = state.openedUserId;
+    const search = getInboxSearchUpdate({
+      currentSearch: window.location.search,
+      previousOpenedUserId,
+      openedUserId: state.openedUserId,
+    });
+    if (search === null) return;
+
+    navigate({
+      pathname: window.location.pathname,
+      search: search ? `?${search}` : '',
+      hash: window.location.hash,
+    }, { replace: true, skipRouter: true });
+  }, [state.openedUserId, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -510,7 +396,8 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const initialOpenedUserId = query.user || null;
+  const browserSearch = typeof window === 'undefined' ? undefined : window.location.search;
+  const initialOpenedUserId = getInitialOpenedUserId(query.user, browserSearch);
 
   const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
@@ -542,7 +429,10 @@ const ModerationInbox = () => {
   }
 
   const dataNotReady = loading && !data;
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
+  // With cache-and-network, Apollo can return a cached null result while the
+  // network request is still in flight. Mounting the reducer from that result
+  // permanently loses the direct user because its initializer only runs once.
+  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUser;
 
   if (dataNotReady || directUserNotReady) {
     return (

@@ -76,7 +76,148 @@ export type InboxAction =
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
   | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
 
+interface InboxInitialData {
+  users: SunshineUsersList[];
+  posts: SunshinePostsList[];
+  classifiedPosts: SunshinePostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
+  initialOpenedUserId: string | null;
+  directUser: SunshineUsersList | null;
+}
 
+export function initializeInboxState({
+  users,
+  posts,
+  classifiedPosts,
+  curationPosts,
+  initialOpenedUserId,
+  directUser,
+}: InboxInitialData): InboxState {
+  const initialUsers = directUser ? [directUser, ...users] : users;
+  const initialOpenedUser = initialOpenedUserId
+    ? initialUsers.find(user => user._id === initialOpenedUserId)
+    : null;
+
+  if (initialOpenedUser) {
+    return {
+      users: initialUsers,
+      posts,
+      classifiedPosts,
+      curationPosts,
+      activeTab: 'all',
+      focusedUserId: initialOpenedUser._id,
+      openedUserId: initialOpenedUser._id,
+      focusedPostId: null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    };
+  }
+
+  if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
+    return {
+      users: [],
+      posts: [],
+      classifiedPosts: [],
+      curationPosts: [],
+      activeTab: 'curation',
+      focusedUserId: null,
+      openedUserId: null,
+      focusedPostId: null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    };
+  }
+
+  const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
+  const curationNoticeCount = sumBy(curationPosts, post => post.curationNotices?.length ?? 0);
+  const visibleTabs = getVisibleTabsInOrder(
+    groupedUsers,
+    initialUsers.length,
+    posts.length,
+    classifiedPosts.length,
+    curationNoticeCount,
+  );
+
+  // Default to curation when there are no curation notices (so you can add some).
+  // Otherwise, find the first non-empty non-curation tab.
+  const firstNonEmptyTab = curationNoticeCount === 0
+    ? undefined
+    : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
+  const firstTab = firstNonEmptyTab?.group ?? 'curation';
+
+  if (firstTab === 'curation') {
+    return {
+      users: initialUsers,
+      posts,
+      classifiedPosts,
+      curationPosts,
+      activeTab: 'curation',
+      focusedUserId: null,
+      openedUserId: null,
+      focusedPostId: curationPosts[0]?._id ?? null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    };
+  }
+
+  if (firstTab === 'posts') {
+    return {
+      users: initialUsers,
+      posts,
+      classifiedPosts,
+      curationPosts,
+      activeTab: 'posts',
+      focusedUserId: null,
+      openedUserId: null,
+      focusedPostId: posts[0]?._id ?? null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    };
+  }
+
+  if (firstTab === 'classifiedPosts') {
+    return {
+      users: initialUsers,
+      posts,
+      classifiedPosts,
+      curationPosts,
+      activeTab: 'classifiedPosts',
+      focusedUserId: null,
+      openedUserId: null,
+      focusedPostId: classifiedPosts[0]?._id ?? null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    };
+  }
+
+  const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+  const orderedUsers = filteredGroups.flatMap(([_, groupedUsers]) => groupedUsers);
+
+  return {
+    users: initialUsers,
+    posts,
+    classifiedPosts,
+    curationPosts,
+    activeTab: firstTab,
+    focusedUserId: orderedUsers[0]?._id ?? null,
+    openedUserId: null,
+    focusedPostId: null,
+    focusedContentIndex: 0,
+    undoQueue: [],
+    history: [],
+    runningLlmCheckId: null,
+  };
+}
 
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
