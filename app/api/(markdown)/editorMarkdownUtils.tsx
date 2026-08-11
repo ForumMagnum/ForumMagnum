@@ -268,8 +268,9 @@ export async function renderLiveEditorDraftMarkdownRoute({
     }
     if (checkResult.kind === "unauthorized") {
       return new Response(
-        `No accessible shared draft found for postId: ${postId}`,
-        { status: 403, headers: NO_CACHE_HEADERS }
+        `Unable to access shared draft for postId: ${postId}. The post ID or link-sharing key may be incorrect, or link sharing may be disabled.`,
+        // Keep this a 200 so Claude's web_fetch surfaces the diagnostic body.
+        { status: 200, headers: NO_CACHE_HEADERS }
       );
     }
     const token = checkResult.token;
@@ -307,10 +308,14 @@ export async function renderLiveEditorDraftMarkdownRoute({
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
   } catch (error) {
+    captureException(error);
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
+    return new Response(
+      `Access to shared draft ${postId} was authorized, but its contents could not be loaded. Ask the user to open and save the draft in the LessWrong editor, then try again.`,
+      { status: 200, headers: NO_CACHE_HEADERS }
+    );
   }
 }
 
