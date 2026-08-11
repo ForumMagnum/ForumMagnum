@@ -5,7 +5,6 @@ import { CombinedGraphQLErrors } from '@apollo/client';
 import { captureException } from '@/lib/sentryWrapper';
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from 'next/navigation';
 import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
 import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
 
@@ -132,17 +131,23 @@ function shouldIgnoreError(error: unknown) {
   return false;
 }
 
-export function handleMetadataError(prefix: string, error: unknown) {
-  // Don't log on noisy permission/not found errors; we have a lot of scrapers which 
+/**
+ * Handle an error thrown while generating page metadata by falling back to the
+ * site-default metadata. Deliberately not `notFound()`: that would put a 404
+ * digest in the RSC payload, which makes the client render the not-found page
+ * regardless of what the page's own SSR decided, while being unable to affect
+ * the HTTP status (metadata streams in after the status is committed). The
+ * page component owns the error UI and status code (via StatusCodeSetter).
+ */
+export function handleMetadataError(prefix: string, error: unknown): Promise<Metadata> {
+  // Don't log on noisy permission/not found errors; we have a lot of scrapers which
   // end up hitting posts that are now drafts, don't exist, etc.
-  if (shouldIgnoreError(error)) {
-    return notFound();
+  if (!shouldIgnoreError(error)) {
+    //eslint-disable-next-line no-console
+    console.error(`${prefix}:`, error);
+    captureException(error);
   }
-
-  //eslint-disable-next-line no-console
-  console.error(`${prefix}:`, error);
-  captureException(error);
-  return notFound();
+  return getDefaultMetadata();
 }
 
 /**

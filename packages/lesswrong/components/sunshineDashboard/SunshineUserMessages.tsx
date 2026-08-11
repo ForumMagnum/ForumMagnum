@@ -24,7 +24,7 @@ import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
 import { canRejectContent, getContentTitle, type ContentItem } from './supermod/helpers';
 import type { SidebarTab, SelectedSidebarTab } from './supermod/sidebarTabs';
-import { focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
+import { focusLexicalEditor, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -249,6 +249,16 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     }
   };
 
+  // Focusing from the template list's Tab shortcut; if there's no conversation yet the
+  // composer doesn't exist, so start one — the effect above focuses it once it renders.
+  const handleFocusComposer = () => {
+    if (embeddedConversationId) {
+      focusLexicalEditor(dmEditorContainerRef.current);
+    } else {
+      handleStartConversation();
+    }
+  };
+
   const dmTabContents = <>
     {embeddedConversationId ? (
       <div className={classes.conversationForm} ref={dmEditorContainerRef}>
@@ -274,6 +284,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       collectionName="Messages"
       onTemplateClick={handleMessageTemplateClick}
       highlightedTemplateNames={highlightedTemplateNames}
+      onFocusComposer={handleFocusComposer}
     />
   </>;
 
