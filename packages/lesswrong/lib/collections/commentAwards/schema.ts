@@ -79,6 +79,6 @@ const schema = {
       },
     },
   },
-}
+} satisfies Record<string, CollectionFieldSpecification<"CommentAwards">>;
 
 export default schema
