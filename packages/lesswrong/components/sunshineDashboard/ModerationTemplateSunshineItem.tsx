@@ -155,6 +155,7 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
           <BasicFormStyles>
             <ModerationTemplatesForm
               initialData={template}
+              hideMetadataFields
               onSuccess={() => setEdit(false)}
               onCancel={() => setEdit(false)}
             />
