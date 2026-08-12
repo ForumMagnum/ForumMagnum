@@ -1,5 +1,8 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
+const FOCUS_RETRY_INTERVAL_MS = 50;
+const FOCUS_RETRY_ATTEMPTS = 20;
+
 export const focusLexicalEditor = (container: HTMLDivElement | null) => {
   if (!container) return;
   setTimeout(() => {
@@ -14,14 +17,23 @@ export const focusLexicalEditor = (container: HTMLDivElement | null) => {
  * Focus an editor with the caret at the end of its contents. A plain
  * `.focus()` leaves the caret wherever the browser puts it (usually the
  * start), which is the wrong place when arriving from below the editor.
+ * Retries briefly in case the editor is still mounting (dynamic import).
  */
 export const focusLexicalEditorAtEnd = (container: HTMLDivElement | null) => {
   if (!container) return;
-  setTimeout(() => {
+
+  let attemptsRemaining = FOCUS_RETRY_ATTEMPTS;
+
+  const attemptFocus = () => {
     const editorElement = container.querySelector(
       '[contenteditable="true"]'
     ) as HTMLElement | null;
-    if (!editorElement) return;
+    if (!editorElement) {
+      if (attemptsRemaining-- > 0) {
+        setTimeout(attemptFocus, FOCUS_RETRY_INTERVAL_MS);
+      }
+      return;
+    }
     editorElement.focus();
     const selection = window.getSelection();
     if (!selection) return;
@@ -30,11 +42,10 @@ export const focusLexicalEditorAtEnd = (container: HTMLDivElement | null) => {
     range.collapse(false);
     selection.removeAllRanges();
     selection.addRange(range);
-  }, 0);
-};
+  };
 
-const FOCUS_RETRY_INTERVAL_MS = 50;
-const FOCUS_RETRY_ATTEMPTS = 20;
+  setTimeout(attemptFocus, 0);
+};
 
 /**
  * Focus an editor that may not have mounted yet (dynamic import, template
