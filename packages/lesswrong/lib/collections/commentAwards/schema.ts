@@ -16,26 +16,12 @@ const schema = {
       foreignKey: "Users",
       nullable: false,
     },
-    graphql: {
-      outputType: "String!",
-      inputType: "String!",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-    },
   },
   commentId: {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Comments",
       nullable: false,
-    },
-    graphql: {
-      outputType: "String!",
-      inputType: "String!",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
     },
   },
   isDeleted: {
@@ -44,16 +30,6 @@ const schema = {
       defaultValue: false,
       canAutofillDefault: true,
       nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      inputType: "Boolean",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
     },
   },
   notifiedAt: {
@@ -68,15 +44,6 @@ const schema = {
       defaultValue: 1,
       canAutofillDefault: true,
       nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"CommentAwards">>;
