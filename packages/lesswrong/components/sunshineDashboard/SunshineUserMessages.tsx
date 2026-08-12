@@ -308,12 +308,18 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     handleStartConversation();
   };
 
+  // Escape while focused inside a section closes it, like clicking its tab again
+  const handleCloseSidebarTab = () => {
+    setSidebarTab(null);
+  };
+
   const dmTabContents = <>
     {embeddedConversationId ? (
       <ComposerKeydownWrapper
         className={classes.conversationForm}
         containerRef={dmEditorContainerRef}
         onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
+        onEscape={handleCloseSidebarTab}
       >
         <MessagesNewForm
           conversationId={embeddedConversationId}
@@ -341,6 +347,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       onFocusComposer={handleFocusComposer}
       focusSearchToken={templateSearchToken}
       active={dmTabActive}
+      onEscape={handleCloseSidebarTab}
     />
   </>;
 
@@ -403,7 +410,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </div>
     {canReject && focusedContent && (
       <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} />
+        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
       </div>
     )}
   </div>;
