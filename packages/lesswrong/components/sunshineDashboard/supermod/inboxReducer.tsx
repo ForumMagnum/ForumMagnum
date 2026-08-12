@@ -4,6 +4,7 @@ import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -54,6 +55,10 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
+  // Post ids removed by local moderator actions. A background refresh must not
+  // re-add these: the removal is dispatched before the server mutation
+  // resolves, so refreshed data may briefly still include them.
+  removedPostIds: string[];
 };
 
 export type InboxAction =
@@ -78,7 +83,9 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'SET_FOCUSED_CONTENT_INDEX'; index: number; }
+  | { type: 'REFRESH_DATA'; users: SunshineUsersList[]; posts: SunshinePostsList[]; classifiedPosts: SunshinePostsList[]; curationPosts: SunshineCurationPostsListItem[]; directUserId: string | null; };
 
 
 
@@ -115,6 +122,34 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
   return tabs;
+}
+
+/**
+ * Merge a background-refreshed list into the local copy, without disrupting
+ * whatever the moderator is currently doing:
+ * - Items the moderator is working on (`protectedIds`) keep their local
+ *   version and are never removed, even if the refreshed data no longer
+ *   includes them.
+ * - Other existing items are updated in place with the refreshed data,
+ *   preserving their current position in the list.
+ * - Items that vanished from the refreshed data (eg handled by another
+ *   moderator) are removed.
+ * - Newly arrived items are appended at the end, except ones removed by a
+ *   local action that the server may not reflect yet (`locallyRemovedIds`).
+ */
+function mergeRefreshedItems<T extends { _id: string }>(
+  currentItems: T[],
+  refreshedItems: T[],
+  protectedIds: Set<string>,
+  locallyRemovedIds: Set<string>,
+): T[] {
+  const refreshedById = new Map(refreshedItems.map(item => [item._id, item]));
+  const currentIds = new Set(currentItems.map(item => item._id));
+  const keptItems = currentItems
+    .filter(item => protectedIds.has(item._id) || refreshedById.has(item._id))
+    .map(item => protectedIds.has(item._id) ? item : refreshedById.get(item._id) ?? item);
+  const addedItems = refreshedItems.filter(item => !currentIds.has(item._id) && !locallyRemovedIds.has(item._id));
+  return [...keptItems, ...addedItems];
 }
 
 /**
@@ -537,6 +572,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
           posts: newPosts,
           classifiedPosts: newClassifiedPosts,
           focusedPostId: null,
+          removedPostIds: [...state.removedPostIds, action.postId],
         };
       }
 
@@ -549,6 +585,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         posts: newPosts,
         classifiedPosts: newClassifiedPosts,
         focusedPostId: nextPostId,
+        removedPostIds: [...state.removedPostIds, action.postId],
       };
     }
 
@@ -657,6 +694,35 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         runningLlmCheckId: action.documentId,
+      };
+    }
+
+    // Repositions the content focus without any of OPEN_CONTENT's side
+    // effects (it doesn't touch the composer), used to keep the focus anchored
+    // to the same item when a background refresh reorders the content list.
+    case 'SET_FOCUSED_CONTENT_INDEX': {
+      return {
+        ...state,
+        focusedContentIndex: action.index,
+      };
+    }
+
+    // Background-refreshed data from polling. Merges instead of replacing so
+    // that in-progress moderation (focused/opened items, the undo queue, and
+    // optimistic local updates on the item being acted on) is not disrupted.
+    case 'REFRESH_DATA': {
+      const protectedIds = new Set(filterNonnull([state.openedUserId, state.focusedUserId, state.focusedPostId, action.directUserId]));
+      const locallyRemovedUserIds = new Set([
+        ...state.undoQueue.map(item => item.user._id),
+        ...state.history.map(item => item.user._id),
+      ]);
+      const locallyRemovedPostIds = new Set(state.removedPostIds);
+      return {
+        ...state,
+        users: mergeRefreshedItems(state.users, action.users, protectedIds, locallyRemovedUserIds),
+        posts: mergeRefreshedItems(state.posts, action.posts, protectedIds, locallyRemovedPostIds),
+        classifiedPosts: mergeRefreshedItems(state.classifiedPosts, action.classifiedPosts, protectedIds, locallyRemovedPostIds),
+        curationPosts: mergeRefreshedItems(state.curationPosts, action.curationPosts, protectedIds, new Set()),
       };
     }
 

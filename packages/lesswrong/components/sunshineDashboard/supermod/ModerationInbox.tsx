@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -19,7 +19,8 @@ import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
-import { UNDO_QUEUE_DURATION } from './constants';
+import { UNDO_QUEUE_DURATION, BACKGROUND_POLL_INTERVAL } from './constants';
+import { skipPollWhenHidden } from '@/components/hooks/usePageVisibility';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
@@ -135,7 +136,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, removedPostIds: [] },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -153,6 +154,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          removedPostIds: [],
         };
       }
 
@@ -171,6 +173,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          removedPostIds: [],
         };
       }
 
@@ -200,6 +203,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          removedPostIds: [],
         };
       }
       
@@ -218,6 +222,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          removedPostIds: [],
         };
       }
 
@@ -236,6 +241,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          removedPostIds: [],
         };
       }
 
@@ -256,6 +262,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
     }
   );
@@ -277,6 +284,20 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       }, { replace: true, skipRouter: true });
     }
   }, [state.openedUserId, query.user, location, navigate]);
+
+  // The outer component polls ModerationInboxDataQuery in the background, so
+  // these props update over time. Fold refreshed results into the reducer
+  // state (REFRESH_DATA merges rather than replaces, so in-progress moderation
+  // isn't disrupted). The first value is skipped because it already seeded the
+  // reducer's initial state.
+  const initialDataSeededRef = useRef(false);
+  useEffect(() => {
+    if (!initialDataSeededRef.current) {
+      initialDataSeededRef.current = true;
+      return;
+    }
+    dispatch({ type: 'REFRESH_DATA', users, posts, classifiedPosts, curationPosts, directUserId: directUser?._id ?? null });
+  }, [users, posts, classifiedPosts, curationPosts, directUser]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -383,7 +404,34 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const isCurationTab = state.activeTab === 'curation';
   const isPostLikeTab = isPostsTab || isCurationTab;
 
-  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
+  const { posts: userPosts, comments: userComments, loading: userContentsLoading } = useModeratedUserContents(openedUser?._id ?? '', 20, BACKGROUND_POLL_INTERVAL);
+
+  // The detail view's content focus is index-based, into the merged
+  // newest-first list that ModerationUserDetailView renders (recomputed here
+  // with the same sort). When a background refresh inserts or removes items,
+  // re-anchor the index to the item that was focused so the focus doesn't
+  // silently jump to a different item.
+  const allUserContent = useMemo(() => [...userPosts, ...userComments].sort((a, b) =>
+    new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+  ), [userPosts, userComments]);
+
+  const focusedContentIdRef = useRef<string | null>(null);
+  const prevUserContentRef = useRef(allUserContent);
+  useEffect(() => {
+    const contentChanged = prevUserContentRef.current !== allUserContent;
+    prevUserContentRef.current = allUserContent;
+    // While the list may be partial (one of the two content queries hasn't
+    // returned yet), neither re-anchor nor move the anchor.
+    if (userContentsLoading) return;
+    if (contentChanged && state.openedUserId && focusedContentIdRef.current) {
+      const anchoredIndex = allUserContent.findIndex(item => item._id === focusedContentIdRef.current);
+      if (anchoredIndex >= 0 && anchoredIndex !== state.focusedContentIndex) {
+        dispatch({ type: 'SET_FOCUSED_CONTENT_INDEX', index: anchoredIndex });
+        return;
+      }
+    }
+    focusedContentIdRef.current = allUserContent[state.focusedContentIndex]?._id ?? null;
+  }, [allUserContent, userContentsLoading, state.openedUserId, state.focusedContentIndex]);
 
   return (
     <CoreTagsKeyboardProvider>
@@ -516,6 +564,10 @@ const ModerationInbox = () => {
       curationLimit: 200,
     },
     fetchPolicy: 'cache-and-network',
+    // Background refresh; ModerationInboxInner folds refreshed results into
+    // its reducer state without disrupting in-progress moderation.
+    pollInterval: BACKGROUND_POLL_INTERVAL,
+    skipPollAttempt: skipPollWhenHidden,
   });
 
   const initialOpenedUserId = query.user || null;

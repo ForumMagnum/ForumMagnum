@@ -25,6 +25,15 @@ export function usePageVisibility(onChange: (isVisible: boolean, visibilityState
   useEventListener('visibilitychange' as keyof WindowEventMap, handleVisibilityChange);
 }
 
+/**
+ * For apollo useQuery's `skipPollAttempt` option: skips background poll
+ * attempts while the tab is hidden, so backgrounded tabs don't keep hitting
+ * the server. Polling resumes on the next attempt after the tab is visible.
+ */
+export function skipPollWhenHidden() {
+  return !getPageVisibility().isVisible;
+}
+
 export function getPageVisibility(): {
   isVisible: boolean,
   visibilityState: DocumentVisibilityState

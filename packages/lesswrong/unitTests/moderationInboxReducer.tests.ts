@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { inboxStateReducer, type InboxAction, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -60,6 +60,17 @@ function createMockUser(
   } as SunshineUsersList;
 }
 
+function createMockPost(id: string, partialPost?: Partial<SunshinePostsList>): SunshinePostsList {
+  return {
+    __typename: 'Post' as const,
+    _id: id,
+    title: `Post ${id}`,
+    postedAt: new Date().toISOString(),
+    reviewedByUserId: null,
+    ...partialPost,
+  } as SunshinePostsList;
+}
+
 function createUndoItem(
   user: SunshineUsersList,
   overrides?: Partial<UndoHistoryItem>
@@ -100,6 +111,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -132,6 +144,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       // Next from last user should wrap to first
@@ -160,6 +173,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       // Prev from first user should wrap to last
@@ -190,6 +204,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       // Start at newContent (highest priority)
@@ -232,6 +247,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       // Start at newContent (highest priority)
@@ -270,6 +286,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -301,6 +318,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -330,6 +348,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -363,6 +382,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -394,6 +414,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -424,6 +445,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -457,6 +479,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -490,6 +513,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -516,6 +540,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -545,6 +570,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
 
       // Try to change tabs
@@ -571,6 +597,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        removedPostIds: [],
       };
     }
 
@@ -612,6 +639,248 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('REMOVE_POST', () => {
+    test('records the removed post id so a background refresh cannot re-add it', () => {
+      const state: InboxState = {
+        users: [],
+        posts: [createMockPost('postA'), createMockPost('postB')],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'posts',
+        focusedUserId: null,
+        openedUserId: null,
+        focusedPostId: 'postA',
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      const newState = inboxStateReducer(state, { type: 'REMOVE_POST', postId: 'postA' });
+
+      expect(newState.posts.map(p => p._id)).toEqual(['postB']);
+      expect(newState.removedPostIds).toEqual(['postA']);
+    });
+  });
+
+  describe('SET_FOCUSED_CONTENT_INDEX', () => {
+    test('moves the content focus without closing the open composer', () => {
+      const state: InboxState = {
+        users: [createMockUser('user1', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: null,
+        openedUserId: 'user1',
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: 'reject',
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      const newState = inboxStateReducer(state, { type: 'SET_FOCUSED_CONTENT_INDEX', index: 2 });
+
+      expect(newState.focusedContentIndex).toBe(2);
+      expect(newState.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('REFRESH_DATA', () => {
+    function refreshAction(overrides?: Partial<Extract<InboxAction, { type: 'REFRESH_DATA' }>>) {
+      return {
+        type: 'REFRESH_DATA' as const,
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        directUserId: null,
+        ...overrides,
+      };
+    }
+
+    test('appends newly arrived users and posts, and drops ones handled elsewhere', () => {
+      const state: InboxState = {
+        users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')],
+        posts: [createMockPost('postA')],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user1',
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      // user2 and postA vanished server-side; user3 and postB are new
+      const newState = inboxStateReducer(state, refreshAction({
+        users: [createMockUser('user1', 'newContent'), createMockUser('user3', 'highContext')],
+        posts: [createMockPost('postB')],
+      }));
+
+      expect(newState.users.map(u => u._id)).toEqual(['user1', 'user3']);
+      expect(newState.posts.map(p => p._id)).toEqual(['postB']);
+    });
+
+    test('updates fields of existing users, but keeps the local version of the focused user', () => {
+      const state: InboxState = {
+        users: [
+          createMockUser('user1', 'newContent', { karma: 1 }),
+          createMockUser('user2', 'newContent', { karma: 2 }),
+        ],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user1',
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      const newState = inboxStateReducer(state, refreshAction({
+        users: [
+          createMockUser('user1', 'newContent', { karma: 100 }),
+          createMockUser('user2', 'newContent', { karma: 200 }),
+        ],
+      }));
+
+      // user1 is focused (possibly mid-action with optimistic local updates), so keeps the local copy
+      expect(newState.users.find(u => u._id === 'user1')?.karma).toBe(1);
+      expect(newState.users.find(u => u._id === 'user2')?.karma).toBe(200);
+    });
+
+    test('never removes the opened, focused, or deep-linked user', () => {
+      const state: InboxState = {
+        users: [
+          createMockUser('user1', 'newContent'),
+          createMockUser('user2', 'newContent'),
+          createMockUser('user3', 'newContent'),
+        ],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user1',
+        openedUserId: 'user2',
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      const newState = inboxStateReducer(state, refreshAction({
+        users: [],
+        directUserId: 'user3',
+      }));
+
+      expect(newState.users.map(u => u._id)).toEqual(['user1', 'user2', 'user3']);
+    });
+
+    test('does not re-add users that are in the undo queue or history', () => {
+      const undoUser = createMockUser('user2', 'newContent');
+      const historyUser = createMockUser('user3', 'newContent');
+      const state: InboxState = {
+        users: [createMockUser('user1', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user1',
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [createUndoItem(undoUser)],
+        history: [{ user: historyUser, actionLabel: 'Approved', timestamp: 0 }],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      // The server hasn't processed those reviews yet, so it still returns both users
+      const newState = inboxStateReducer(state, refreshAction({
+        users: [createMockUser('user1', 'newContent'), undoUser, historyUser],
+      }));
+
+      expect(newState.users.map(u => u._id)).toEqual(['user1']);
+    });
+
+    test('does not re-add locally removed posts, and keeps the focused post', () => {
+      const state: InboxState = {
+        users: [],
+        posts: [createMockPost('postA')],
+        classifiedPosts: [createMockPost('postC')],
+        curationPosts: [],
+        activeTab: 'posts',
+        focusedUserId: null,
+        openedUserId: null,
+        focusedPostId: 'postA',
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: ['postB'],
+      };
+
+      // postB was just reviewed locally but the refreshed data still includes
+      // it; postA is focused and absent from the refreshed data
+      const newState = inboxStateReducer(state, refreshAction({
+        posts: [createMockPost('postB')],
+        classifiedPosts: [createMockPost('postC'), createMockPost('postB')],
+      }));
+
+      expect(newState.posts.map(p => p._id)).toEqual(['postA']);
+      expect(newState.classifiedPosts.map(p => p._id)).toEqual(['postC']);
+    });
+
+    test('leaves focus, tab, and composer state untouched', () => {
+      const state: InboxState = {
+        users: [createMockUser('user1', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: null,
+        openedUserId: 'user1',
+        focusedPostId: null,
+        focusedContentIndex: 3,
+        sidebarTab: 'dm',
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        removedPostIds: [],
+      };
+
+      const newState = inboxStateReducer(state, refreshAction({
+        users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'automod')],
+      }));
+
+      expect(newState.activeTab).toBe('newContent');
+      expect(newState.openedUserId).toBe('user1');
+      expect(newState.focusedContentIndex).toBe(3);
+      expect(newState.sidebarTab).toBe('dm');
     });
   });
 });
