@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -17,7 +17,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
-import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import { getHighlightedTemplateNames, getHighlightedRejectionTemplateNames } from './supermod/templateHighlightRules';
+import HighlightedTemplatesPreview from './supermod/HighlightedTemplatesPreview';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
@@ -197,6 +198,11 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     );
   }, [user, posts, comments]);
 
+  const highlightedRejectionTemplateNames = useMemo(() => {
+    if (!focusedContent) return new Set<string>();
+    return getHighlightedRejectionTemplateNames(focusedContent);
+  }, [focusedContent]);
+
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
@@ -313,6 +319,25 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     setSidebarTab(null);
   };
 
+  // RejectContentPanel stays mounted while its tab is closed, so its toggle
+  // function is available to the highlighted-template preview buttons
+  const rejectionToggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
+  const registerRejectionToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
+    rejectionToggleTemplateRef.current = fn;
+  }, []);
+
+  // Clicking a highlighted template before a section is open opens that
+  // section with the template already applied
+  const handlePreviewMessageTemplateClick = (template: ModerationTemplateFragment) => {
+    setSidebarTab('dm');
+    handleMessageTemplateClick(template);
+  };
+
+  const handlePreviewRejectionTemplateClick = (template: ModerationTemplateFragment) => {
+    setSidebarTab('reject');
+    rejectionToggleTemplateRef.current(template);
+  };
+
   const dmTabContents = <>
     {embeddedConversationId ? (
       <ComposerKeydownWrapper
@@ -405,12 +430,28 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       </div>}
     </div>
 
+    <HighlightedTemplatesPreview
+      showMessageTemplates={!dmTabActive}
+      showRejectionTemplates={!rejectTabActive && canReject && !!focusedContent}
+      highlightedMessageTemplateNames={highlightedTemplateNames}
+      highlightedRejectionTemplateNames={highlightedRejectionTemplateNames}
+      onMessageTemplateClick={handlePreviewMessageTemplateClick}
+      onRejectionTemplateClick={handlePreviewRejectionTemplateClick}
+    />
+
     <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
       {dmTabContents}
     </div>
     {canReject && focusedContent && (
       <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
+        <RejectContentPanel
+          user={user}
+          focusedContent={focusedContent}
+          active={rejectTabActive}
+          onEscape={handleCloseSidebarTab}
+          highlightedTemplateNames={highlightedRejectionTemplateNames}
+          registerToggleTemplate={registerRejectionToggleTemplate}
+        />
       </div>
     )}
   </div>;

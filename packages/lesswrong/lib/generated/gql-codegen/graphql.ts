@@ -19017,18 +19017,6 @@ export type multiLWEventEmailHistoryQueryQuery = { __typename?: 'Query', lWEvent
       & emailHistoryFragment
     )> } | null };
 
-export type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
-  selector?: InputMaybe<ModerationTemplateSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type multiModerationTemplateGroupedTemplateListQueryQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'ModerationTemplate' }
-      & ModerationTemplateFragment
-    )> } | null };
-
 export type updateModerationTemplateGroupedTemplateListMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateModerationTemplateDataInput;
@@ -19478,6 +19466,18 @@ export type createUserRateLimitUserRateLimitItemMutation = { __typename?: 'Mutat
       { __typename?: 'UserRateLimit' }
       & UserRateLimitDisplay
     ) | null } | null };
+
+export type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
+  selector?: InputMaybe<ModerationTemplateSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type multiModerationTemplateGroupedTemplateListQueryQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'ModerationTemplate' }
+      & ModerationTemplateFragment
+    )> } | null };
 
 export type CurationPostViewQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
@@ -23283,7 +23283,6 @@ export const updateUserAFSuggestUsersItemDocument = _o1(_1,[_o11(_981,_982,_o3(_
 export const multiUserAFSuggestUsersListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserAFSuggestUsersListQuery"),_1110,_o5(_7,[_o7(_8,_288,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_944)])),_792]))])),_61,_945]) as unknown as DocumentNode<multiUserAFSuggestUsersListQueryQuery, multiUserAFSuggestUsersListQueryQueryVariables>;
 export const AllReactedCommentsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"AllReactedComments"),_1229,_o5(_7,[_o7(_8,_o3(_3,"CommentsWithReacts"),_1230,_1231)])),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<AllReactedCommentsQuery, AllReactedCommentsQueryVariables>;
 export const multiLWEventEmailHistoryQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiLWEventEmailHistoryQuery"),_1209,_o5(_7,[_o7(_8,_1210,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_430)])),_792]))])),_431]) as unknown as DocumentNode<multiLWEventEmailHistoryQueryQuery, multiLWEventEmailHistoryQueryQueryVariables>;
-export const multiModerationTemplateGroupedTemplateListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateGroupedTemplateListQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateGroupedTemplateListQueryQuery, multiModerationTemplateGroupedTemplateListQueryQueryVariables>;
 export const updateModerationTemplateGroupedTemplateListDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateModerationTemplateGroupedTemplateList"),_1496,_1498),_226,_270,_437]) as unknown as DocumentNode<updateModerationTemplateGroupedTemplateListMutation, updateModerationTemplateGroupedTemplateListMutationVariables>;
 export const RunLlmCheckForDocumentDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"RunLlmCheckForDocument"),_1737,_o5(_7,[_o7(_8,_o3(_3,"runLlmCheckForDocument"),_1738,_337)])),_334]) as unknown as DocumentNode<RunLlmCheckForDocumentMutation, RunLlmCheckForDocumentMutationVariables>;
 export const multiClientIdModerationAltAccountsQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiClientIdModerationAltAccountsQuery"),[_o12(_983,_1049,_o4(_5,_o3(_3,"ClientIdSelector"))),_1044,_1109],_o5(_7,[_o7(_8,_o3(_3,"clientIds"),_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_284)])),_792]))])),_61,_290]) as unknown as DocumentNode<multiClientIdModerationAltAccountsQueryQuery, multiClientIdModerationAltAccountsQueryQueryVariables>;
@@ -23325,6 +23324,7 @@ export const updateUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_981,_
 export const updateUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserRateLimitUserRateLimitItem"),_1762,_o5(_7,[_o7(_8,_1763,_1135,_1765)])),_61,_661]) as unknown as DocumentNode<updateUserRateLimitUserRateLimitItemMutation, updateUserRateLimitUserRateLimitItemMutationVariables>;
 export const createUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_981,_982,_o3(_3,"createUserRateLimitUserRateLimitItem1"),_1766,_o5(_7,[_o7(_8,_1767,_1138,_1764)])),_846]) as unknown as DocumentNode<createUserRateLimitUserRateLimitItem1Mutation, createUserRateLimitUserRateLimitItem1MutationVariables>;
 export const createUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createUserRateLimitUserRateLimitItem"),_1766,_o5(_7,[_o7(_8,_1767,_1138,_1765)])),_61,_661]) as unknown as DocumentNode<createUserRateLimitUserRateLimitItemMutation, createUserRateLimitUserRateLimitItemMutationVariables>;
+export const multiModerationTemplateGroupedTemplateListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateGroupedTemplateListQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateGroupedTemplateListQueryQuery, multiModerationTemplateGroupedTemplateListQueryQueryVariables>;
 export const CurationPostViewQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"CurationPostViewQuery"),_1327,_o5(_7,[_o7(_8,_525,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"curationNoticesPostView"),_o14(_994,[_1389]))]))],_o5(_7,[_1146]))])),_61,_146,_158,_184,_23,_226,_270,_523]) as unknown as DocumentNode<CurationPostViewQueryQuery, CurationPostViewQueryQueryVariables>;
 export const ModerationInboxDataQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"ModerationInboxDataQuery"),[_o12(_983,_1768,_1106),_o12(_983,_1769,_1050),_o12(_983,_1770,_1050),_o12(_983,_1771,_1005),_o12(_983,_1772,_1005),_o12(_983,_1773,_1005)],_o5(_7,[_o7(_8,_288,[_o8(_534,_996,_1768),_o8(_534,_789,_1771)],_o5(_7,[_1746])),_o7(_8,_250,[_o8(_534,_996,_1769),_1774],_1775),_o15(_8,_o3(_3,"classifiedPosts"),_250,[_o8(_534,_996,_1770),_1774],_1775),_o7(_8,_o3(_3,"CurationCandidatePosts"),[_o8(_534,_789,_1773)],_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_528)]))])),_o6(_8,_o3(_3,"LastCuratedDate"),_o5(_7,[_o4(_8,_o3(_3,"lastCuratedDate"))]))])),_61,_620,_661,_23,_127,_136,_146,_158,_184,_192,_334,_226,_622,_627,_677,_637,_529]) as unknown as DocumentNode<ModerationInboxDataQueryQuery, ModerationInboxDataQueryQueryVariables>;
 export const singleUserSupermodQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singleUserSupermodQuery"),_1173,_o5(_7,[_o7(_8,_30,_1211,_1761)])),_61,_620,_661,_677]) as unknown as DocumentNode<singleUserSupermodQueryQuery, singleUserSupermodQueryQueryVariables>;
