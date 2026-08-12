@@ -56,6 +56,12 @@ const schema = {
       },
     },
   },
+  notifiedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+  },
   count: {
     database: {
       type: "DOUBLE PRECISION",
