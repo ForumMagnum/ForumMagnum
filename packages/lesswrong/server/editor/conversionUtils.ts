@@ -351,9 +351,9 @@ function getTurndown(): TurndownService {
     })
     turndownService.addRule('footnote-back-link', {
       filter: (node) => {
-        if (node.nodeName !== 'A') return false;
         const element = node as Element;
-        return element.classList?.contains('footnote-backref')
+        return element.classList?.contains('footnote-back-link')
+          || element.classList?.contains('footnote-backref')
           || (element.getAttribute('href') ?? '').startsWith('#fnref');
       },
       replacement: () => '',
