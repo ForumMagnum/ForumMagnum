@@ -237,5 +237,7 @@ export function useModerationUserActions({
     handleRestrictAndNotify,
     updateUserWith,
     getModSignatureWithNote,
+    posts,
+    comments,
   };
 }

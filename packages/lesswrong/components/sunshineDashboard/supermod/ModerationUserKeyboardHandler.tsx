@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import moment from 'moment';
 import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
-import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
@@ -51,8 +50,6 @@ const ModerationUserKeyboardHandler = ({
 }) => {
   const { flash } = useMessages();
 
-  const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
-
   const {
     unrejectContent,
   } = useRejectContent();
@@ -66,6 +63,8 @@ const ModerationUserKeyboardHandler = ({
     handleRestrictAndNotify,
     updateUserWith,
     getModSignatureWithNote,
+    posts,
+    comments,
   } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue });
 
   const {
