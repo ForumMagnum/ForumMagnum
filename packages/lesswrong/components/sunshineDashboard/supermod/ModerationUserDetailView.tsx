@@ -52,6 +52,7 @@ const ModerationUserDetailView = ({
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
+  addToUndoQueue,
   dispatch,
   state,
   currentUser,
@@ -62,6 +63,7 @@ const ModerationUserDetailView = ({
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SelectedSidebarTab;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
   currentUser: UsersCurrent;
@@ -121,6 +123,7 @@ const ModerationUserDetailView = ({
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
             setSidebarTab={setSidebarTab}
+            addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
           />
         </div>
