@@ -81,14 +81,16 @@ export const focusLexicalEditorWhenReady = (container: HTMLDivElement | null) =>
  * Once the editor is blurred, ArrowUp/ArrowDown navigate the content list
  * again. React's own listener is on document too, so only
  * stopImmediatePropagation keeps the event from reaching it.
+ * Returns whether the event was a bare Escape (so callers can react to it).
  */
 export const blurEditorOnEscape = (event: ReactKeyboardEvent) => {
-  if (event.key !== 'Escape' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+  if (event.key !== 'Escape' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return false;
   event.preventDefault();
   event.nativeEvent.stopImmediatePropagation();
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
+  return true;
 };
 
 /**

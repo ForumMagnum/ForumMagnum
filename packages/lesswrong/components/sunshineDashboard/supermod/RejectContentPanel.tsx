@@ -151,7 +151,7 @@ function extractBoldLead(html: string): string {
  * uses it verbatim, substituting the content link for the "[content]"
  * placeholder.
  */
-const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, onArrowDownPastEnd }: {
+const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, onArrowDownPastEnd, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   // False while the panel is hidden (but kept mounted to preserve the draft)
@@ -161,6 +161,8 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
   composerFocusToken: number,
   registerToggleTemplate: (fn: (template: ModerationTemplateFragment) => void) => void,
   onArrowDownPastEnd: () => void,
+  // Escape in the composer closes the panel's tab, as if it were clicked again
+  onEscape: () => void,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
@@ -268,7 +270,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
       <div className={classes.collapsedIntro}>{standardRejectionIntroPlaintext}</div>
       {addedTemplates.map(template => <div key={template.templateId} className={classes.reasonLead}>{template.lead}</div>)}
     </div>}
-    {editorOpen && <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={onArrowDownPastEnd}>
+    {editorOpen && <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={onArrowDownPastEnd} onEscape={onEscape}>
       <ContentStyles contentType='comment'>
         <LexicalEditor
           key={lexicalEditorVersion}
@@ -289,10 +291,12 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * Stays mounted while `active` is false so the draft survives the tab
  * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, active }: {
+const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
+  // Escape anywhere in the panel closes its tab, as if it were clicked again
+  onEscape: () => void,
 }) => {
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
@@ -319,6 +323,7 @@ const RejectContentPanel = ({ user, focusedContent, active }: {
       composerFocusToken={composerFocusToken}
       registerToggleTemplate={registerToggleTemplate}
       onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
+      onEscape={onEscape}
     />
     <GroupedModerationTemplateList
       collectionName="Rejections"
@@ -326,6 +331,7 @@ const RejectContentPanel = ({ user, focusedContent, active }: {
       focusSearchToken={templateSearchToken}
       active={active}
       onFocusComposer={() => setComposerFocusToken(token => token + 1)}
+      onEscape={onEscape}
     />
   </>;
 };

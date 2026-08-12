@@ -496,13 +496,13 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * The search box drives the same keyboard flow as the rejection dialog: "/" opens and
  * focuses it, up/down move the selection through the visible templates, Enter applies
  * the selected one, Tab (or ArrowUp past the top of the list) jumps to the composer,
- * and Escape closes the search.
+ * and Escape closes the search (and, via `onEscape`, the section around it).
  *
  * `focusSearchToken` is bumped by the composer above the list when the moderator
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
@@ -511,6 +511,8 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   // False while the list's composer tab is hidden (but kept mounted to
   // preserve drafts), so the "/" shortcut only reaches the visible list
   active?: boolean,
+  // Called when Escape is pressed in the search; closes the sidebar section containing the list
+  onEscape?: () => void,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -683,6 +685,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
         // stopImmediatePropagation keeps the event from reaching it.
         event.nativeEvent.stopImmediatePropagation();
         handleCloseSearch();
+        onEscape?.();
         break;
     }
   };
