@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
+import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import { useMessages } from '@/components/common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -329,26 +330,32 @@ const MergeAccountsSection = ({ targetUser }: {
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const [searchText, setSearchText] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<MergeSearchUser | null>(null);
   const [activeAction, setActiveAction] = useState<"dryRun" | "merge" | null>(null);
   const [lastResult, setLastResult] = useState<MergeResult | null>(null);
   const [mutate] = useMutation(mergeAccountsMutation);
   const loading = activeAction !== null;
 
-  const trimmedSearch = searchText.trim();
-  const { data } = useQuery(usersSearchForMergeQuery, {
+  const updateDebouncedQuery = useDebouncedCallback(setDebouncedQuery, {
+    rateLimitMs: 300,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
+
+  const trimmedSearch = debouncedQuery.trim();
+  const { data, loading: searchLoading } = useQuery(usersSearchForMergeQuery, {
     variables: { query: trimmedSearch },
     skip: trimmedSearch.length < 2,
   });
-  const results = (data?.UsersSearchForMerge ?? []).filter(
-    (user): user is MergeSearchUser => !!user && user._id !== targetUser._id,
-  );
+  const results = (data?.UsersSearchForMerge ?? []).filter((user) => user._id !== targetUser._id);
 
   const runMerge = useCallback(async (dryRun: boolean) => {
     if (!selectedSource || loading) return;
     const sourceLabel = `${selectedSource.displayName} (${selectedSource._id})`;
     const targetLabel = `${targetUser.displayName} (${targetUser._id})`;
-    if (!dryRun && !confirm(
+    if (!dryRun && !window.confirm(
       `Merge the SOURCE account\n  ${sourceLabel}\ninto the TARGET account\n  ${targetLabel}?\n\n` +
       `All of the source account's content (posts, comments, votes, karma, etc.) will be transferred to the target account, ` +
       `the target account's username "${targetUser.username ?? targetUser.displayName}" will be preserved, and the source account will be marked as deleted. ` +
@@ -371,6 +378,7 @@ const MergeAccountsSection = ({ targetUser }: {
       if (!dryRun && result.success) {
         setSelectedSource(null);
         setSearchText('');
+        setDebouncedQuery('');
       }
     } catch (e) {
       flash({ messageString: e instanceof Error ? e.message : "Failed to merge accounts" });
@@ -397,14 +405,17 @@ const MergeAccountsSection = ({ targetUser }: {
         className={classes.searchInput}
         placeholder="Search source account by email, username, slug, display name, or id"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={(e) => {
+          setSearchText(e.target.value);
+          updateDebouncedQuery(e.target.value);
+        }}
         disabled={loading}
       />
 
       {trimmedSearch.length >= 2 && (
         <div className={classes.results}>
           {results.length === 0 ? (
-            <div className={classes.noResults}>No matching users</div>
+            <div className={classes.noResults}>{searchLoading ? "Searching..." : "No matching users"}</div>
           ) : results.map((user) => (
             <div
               key={user._id}

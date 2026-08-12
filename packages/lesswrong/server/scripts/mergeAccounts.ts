@@ -519,9 +519,9 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
 
       if ((sourceUser?.emails) && (targetUser?.emails)) {
         const sourceEmailsEmail = sourceUser.emails.length > 0 && sourceUser.emails[0]
-        const targetEmailsEmail = targetUser.email.length > 0 && targetUser.emails[0]
+        const targetEmailsEmail = targetUser.emails.length > 0 && targetUser.emails[0]
 
-        if (sourceEmailsEmail === targetEmailsEmail) {
+        if (sourceEmailsEmail && targetEmailsEmail && sourceEmailsEmail.address === targetEmailsEmail.address) {
           await Users.rawUpdateOne(
             {_id: sourceUserId},
             {$set: {
