@@ -177,6 +177,7 @@ interface DbCommentAward extends DbObject {
   createdAt: Date
   isDeleted: boolean
   legacyData: any | null
+  notifiedAt: Date | null
   userId: string
 }
 

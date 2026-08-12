@@ -247,6 +247,7 @@ CREATE TABLE "CommentAwards" (
   "userId" VARCHAR(27) NOT NULL,
   "commentId" VARCHAR(27) NOT NULL,
   "isDeleted" BOOL NOT NULL DEFAULT FALSE,
+  "notifiedAt" TIMESTAMPTZ,
   "count" DOUBLE PRECISION NOT NULL DEFAULT 1
 );
 
@@ -256,14 +257,14 @@ CREATE INDEX IF NOT EXISTS "idx_CommentAwards_schemaVersion" ON "CommentAwards" 
 -- Index "idx_CommentAwards_commentId"
 CREATE INDEX IF NOT EXISTS "idx_CommentAwards_commentId" ON "CommentAwards" USING btree ("commentId");
 
--- Index "idx_CommentAwards_commentId_deleted"
-CREATE INDEX IF NOT EXISTS "idx_CommentAwards_commentId_deleted" ON "CommentAwards" USING btree ("commentId", "deleted");
+-- Index "idx_CommentAwards_commentId_isDeleted"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_commentId_isDeleted" ON "CommentAwards" USING btree ("commentId", "isDeleted");
 
 -- Index "idx_CommentAwards_userId"
 CREATE INDEX IF NOT EXISTS "idx_CommentAwards_userId" ON "CommentAwards" USING btree ("userId");
 
--- Index "idx_CommentAwards_userId_deleted"
-CREATE INDEX IF NOT EXISTS "idx_CommentAwards_userId_deleted" ON "CommentAwards" USING btree ("userId", "deleted");
+-- Index "idx_CommentAwards_userId_isDeleted"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_userId_isDeleted" ON "CommentAwards" USING btree ("userId", "isDeleted");
 
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
