@@ -50,6 +50,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
+    handlePurge,
   } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
 
   const moderatorActionRows = [
@@ -93,6 +94,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
         keystroke: 'Shift+R',
         tooltip: "Opens the rejection-reason dialog, then a message dialog. Rejects this user's most recent unapproved post or comment, disables their posting, commenting, messaging, and voting, sends them the message as a moderator PM, and removes them from the review queue.",
         onClick: handleRestrictAndNotify,
+      },
+    ],
+    [
+      {
+        label: 'Purge',
+        keystroke: 'P',
+        tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
+        onClick: handlePurge,
       },
     ],
   ];
