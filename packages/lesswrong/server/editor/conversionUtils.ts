@@ -319,16 +319,14 @@ function getTurndown(): TurndownService {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
-        return `[^${id}]: ${text} \n\n`
+        // Published Lexical revisions can have the footnote paragraphs directly
+        // under the item, while editor exports wrap them in `.footnote-content`.
+        // Use Turndown's converted child content so both forms work and inline
+        // formatting and links survive.
+        const lines = content.trim().split('\n');
+        const firstLine = lines.shift() ?? '';
+        const continuation = lines.map((line) => line ? `    ${line}` : '').join('\n');
+        return `[^${id}]: ${firstLine}${continuation ? `\n${continuation}` : ''}\n\n`
       }
     })
     // CommonMark link text cannot contain blank lines, but an anchor wrapping
@@ -350,6 +348,15 @@ function getTurndown(): TurndownService {
         if (!singleLineContent) return '';
         return `[${singleLineContent}](${href}${title})`;
       }
+    })
+    turndownService.addRule('footnote-back-link', {
+      filter: (node) => {
+        if (node.nodeName !== 'A') return false;
+        const element = node as Element;
+        return element.classList?.contains('footnote-backref')
+          || (element.getAttribute('href') ?? '').startsWith('#fnref');
+      },
+      replacement: () => '',
     })
     turndownService.addRule('subscript', {
       filter: ['sub'],
