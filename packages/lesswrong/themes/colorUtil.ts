@@ -87,6 +87,44 @@ export function invertColor(color: ColorTuple): ColorTuple
   return [invertChannel(r),invertChannel(g),invertChannel(b),1];
 }
 
+function rgbToHsl(r: number, g: number, b: number): [number, number, number]
+{
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const lightness = (max + min) / 2;
+
+  if (max === min) {
+    return [0, 0, lightness];
+  }
+
+  const delta = max - min;
+  const saturation = lightness > 0.5
+    ? delta / (2 - max - min)
+    : delta / (max + min);
+  let hue: number;
+
+  switch (max) {
+    case r:
+      hue = ((g - b) / delta) + (g < b ? 6 : 0);
+      break;
+    case g:
+      hue = ((b - r) / delta) + 2;
+      break;
+    default:
+      hue = ((r - g) / delta) + 4;
+      break;
+  }
+
+  return [hue / 6, saturation, lightness];
+}
+
+export function invertColorPreservingHue(color: ColorTuple): ColorTuple
+{
+  const [r,g,b] = color;
+  const [h,s,l] = rgbToHsl(r, g, b);
+  return hslToRgb(h, s, 1 - l);
+}
+
 function validateColor(color: ColorTuple) {
   const [r,g,b,a] = color;
   if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1 || a < 0 || a > 1) {
@@ -158,7 +196,7 @@ export const invertIfDarkMode = (color: string) => `light-dark(${color},${invert
  * Converts an HSL color value to RGB. Conversion formula
  * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
  * Assumes h, s, and l are contained in the set [0, 1] and
- * returns r, g, and b in the set [0, 255].
+ * returns r, g, and b in the range [0, 1].
  *
  * Source: https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
  */
@@ -175,7 +213,7 @@ function hslToRgb(h: number, s: number, l: number): ColorTuple {
     b = hueToRgb(p, q, h - (1/3));
   }
 
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), 1.0];
+  return [r, g, b, 1.0];
 }
 
 function hueToRgb(p: number, q: number, t: number) {

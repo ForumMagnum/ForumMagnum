@@ -19,7 +19,8 @@
  *   research-tool create-doc [--title "..."] [--initial-markdown "..."]
  *   research-tool list-documents
  *   research-tool list-conversations
- *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+ *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]
+ *   research-tool set-presentation (--markdown "..." | --clear)
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
@@ -320,10 +321,27 @@ async function cmdFetchConversation(args) {
   const query = {};
   if (args.flags["with-thinking"] !== undefined) query.withThinking = "1";
   if (args.flags["with-tool-payloads"] !== undefined) query.withToolPayloads = "1";
+  if (args.flags["with-timestamps"] !== undefined) query.withTimestamps = "1";
   const result = await callApi(
     "GET",
     `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/transcript`,
     { query },
+  );
+  printJson(result);
+}
+
+async function cmdSetPresentation(args) {
+  const conversationId = process.env.RESEARCH_CONVERSATION_ID;
+  if (!conversationId) fail(1, "Missing required env var: RESEARCH_CONVERSATION_ID");
+  const clear = args.flags.clear !== undefined;
+  const markdown = args.flags.markdown;
+  if (clear === (markdown !== undefined)) {
+    fail(1, "set-presentation requires exactly one of --markdown <md> or --clear");
+  }
+  const result = await callApi(
+    "POST",
+    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/presentation`,
+    { body: { markdown: clear ? null : markdown } },
   );
   printJson(result);
 }
@@ -345,7 +363,8 @@ async function cmdHelp() {
     "  create-doc        [--title <text>] [--initial-markdown <md>]",
     "  list-documents",
     "  list-conversations",
-    "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
+    "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]",
+    "  set-presentation  (--markdown <md> | --clear)   (this conversation's collapsed-block presentation)",
     "  dev       start | stop | restart    (control the supervised dev server)",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN, RESEARCH_PROJECT_ID",
@@ -401,6 +420,9 @@ async function main() {
       return;
     case "fetch-conversation":
       await cmdFetchConversation(rest);
+      return;
+    case "set-presentation":
+      await cmdSetPresentation(rest);
       return;
     case "dev":
       await cmdDev(rest);

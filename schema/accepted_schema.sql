@@ -60,8 +60,12 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "aiChoice" TEXT,
   "aiReasoning" TEXT,
   "aiCoT" TEXT,
+  "pangramApiVersion" TEXT,
   "pangramScore" DOUBLE PRECISION,
   "pangramMaxScore" DOUBLE PRECISION,
+  "pangramFractionAi" DOUBLE PRECISION,
+  "pangramFractionAiAssisted" DOUBLE PRECISION,
+  "pangramFractionHuman" DOUBLE PRECISION,
   "pangramPrediction" TEXT,
   "pangramWindowScores" JSONB
 );
@@ -2362,11 +2366,15 @@ CREATE TABLE "ResearchConversations" (
   "projectId" VARCHAR(27) NOT NULL,
   "claudeSessionId" TEXT,
   "title" TEXT,
+  "icon" TEXT,
   "entrypointKind" TEXT NOT NULL,
   "entrypointDocumentId" VARCHAR(27) NOT NULL,
   "baseEnvironmentId" VARCHAR(27),
   "runtime" TEXT,
-  "lastActivityAt" TIMESTAMPTZ NOT NULL
+  "presentationHtml" TEXT,
+  "lastActivityAt" TIMESTAMPTZ NOT NULL,
+  "lastReadAt" TIMESTAMPTZ,
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchConversations_projectId_lastActivityAt"
@@ -2382,6 +2390,9 @@ CREATE TABLE "ResearchDocuments" (
   "userId" VARCHAR(27) NOT NULL,
   "projectId" VARCHAR(27) NOT NULL,
   "title" TEXT,
+  "icon" TEXT,
+  "sortOrder" DOUBLE PRECISION,
+  "archived" BOOL NOT NULL DEFAULT FALSE,
   "contents_latest" TEXT
 );
 
@@ -2399,7 +2410,8 @@ CREATE TABLE "ResearchEnvironments" (
   "projectId" VARCHAR(27) NOT NULL,
   "label" TEXT NOT NULL,
   "vercelSnapshotId" TEXT NOT NULL,
-  "sourceEventId" VARCHAR(27)
+  "sourceEventId" VARCHAR(27),
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchEnvironments_projectId_createdAt"

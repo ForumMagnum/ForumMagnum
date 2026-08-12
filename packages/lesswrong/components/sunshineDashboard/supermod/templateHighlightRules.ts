@@ -19,10 +19,11 @@ const TEMPLATE_HIGHLIGHT_RULES: Record<string, HighlightRule> = {
     const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
     return moderatorMessages.length >= 2;
   },
-  "Multiple LLM rejections": ({ moderatorActions, posts }) => {
+  "Multiple LLM rejections": ({ moderatorActions, posts, comments }) => {
     const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
-    const highLLMPosts = posts.filter(p => (p.automatedContentEvaluations?.pangramScore ?? 0) >= .2);
-    return highLLMPosts.length >= 2 && moderatorMessages.length >= 2;
+    const userContent = [...posts, ...comments];
+    const highLLMContent = userContent.filter(c => (c.automatedContentEvaluations?.pangramScore ?? 0) >= .2);
+    return highLLMContent.length >= 2 && moderatorMessages.length >= 2;
   },
   "Semi-automoderated quality warning (downvoted)": ({ moderatorActions }) =>
     moderatorActions.some(a => a.active && a.type === RECENTLY_DOWNVOTED_CONTENT_ALERT),

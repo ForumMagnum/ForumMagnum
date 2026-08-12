@@ -357,46 +357,86 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
   },
 });
 
+// Editors hit-test clicks against this: triangle vs. title text.
+export const COLLAPSIBLE_MARKER_GUTTER = 22;
+
+const COLLAPSIBLE_MARKER_WIDTH = 6;
+const COLLAPSIBLE_MARKER_HEIGHT = 8;
+
+// Drawn with borders rather than as a "▶", which mobile browsers
+// substitute with an emoji glyph. `1lh` centers it on the title's
+// first line, however many lines or blocks the title has.
+const collapsibleMarkerStyles = (theme: ThemeType) => ({
+  content: '""',
+  position: "absolute",
+  left: (COLLAPSIBLE_MARKER_GUTTER - COLLAPSIBLE_MARKER_WIDTH) / 2,
+  top: `calc((1lh - ${COLLAPSIBLE_MARKER_HEIGHT}px) / 2)`,
+  width: 0,
+  height: 0,
+  borderStyle: "solid",
+  borderWidth: `${COLLAPSIBLE_MARKER_HEIGHT / 2}px 0 ${COLLAPSIBLE_MARKER_HEIGHT / 2}px ${COLLAPSIBLE_MARKER_WIDTH}px`,
+  borderColor: `transparent transparent transparent ${theme.palette.grey[600]}`,
+  transform: "rotate(0deg)",
+  transition: "transform 0.15s ease",
+  cursor: "pointer",
+});
+
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
-    // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
-    // that tries to turn border off and on to indicate selection. Use
-    // !important to ensure it's visible.
-    border: theme.palette.border.normal+' !important',
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 8,
+    // !important: CkEditor toggles a border here to show selection.
+    border: 'none !important',
+    marginTop: '.75em',
+    marginBottom: '.75em',
   },
   '& .detailsBlockTitle': {
-    padding: 8,
-    borderRadius: 0,
+    position: "relative",
+    padding: `2px 0 2px ${COLLAPSIBLE_MARKER_GUTTER}px`,
 
-    // give background !important to take precedence over CkEditor making it
-    // pure-white when the cursor is inside it, which would make the
-    // title-vs-contents distinction invisible
-    background: theme.palette.panelBackground.darken05+'!important',
-    
-    "&>*": {
-      display: "inline",
+    // !important: CkEditor whitens this when the cursor is inside.
+    background: 'transparent !important',
+
+    // Suppress the native <summary> marker in favour of ours.
+    listStyle: "none",
+    '&::-webkit-details-marker': {
+      display: "none",
     },
-  },
-  '& .detailsBlockTitle[open]': {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+    '&::marker': {
+      content: '""',
+    },
+    '&::before': {
+      ...collapsibleMarkerStyles(theme),
+    },
   },
   '& summary.detailsBlockTitle': {
     cursor: "pointer",
   },
+  // Half the gutter puts the rule directly under the triangle.
   '& .detailsBlockContent': {
-    padding: 8,
+    marginTop: 8,
+    marginLeft: COLLAPSIBLE_MARKER_GUTTER / 2,
+    paddingLeft: 14,
+    borderLeft: `1px solid ${theme.palette.grey[400]}`,
   },
-  // Cancel out a global paragraph style that adds bottom margin to paragraphs
-  // in the editor for some reason, which would create a page/editor mismatch
-  // and mess up the bottom margin of detail block contents.
-  "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
+  // !important: the global paragraph margins differ between the
+  // editor and the rendered page, so they'd desync the spacing.
+  "& .detailsBlockContent > *:first-child, & .detailsBlockTitle > *:first-child": {
+    marginTop: '0 !important',
+  },
+  "& .detailsBlockContent > *:last-child, & .detailsBlockTitle > *:last-child": {
     marginBottom: '0 !important',
   },
-  
+
+  // The editors' <div> form is open unless marked closed.
+  '& details.detailsBlock[open] > .detailsBlockTitle::before, & div.detailsBlockTitle::before': {
+    transform: "rotate(90deg)",
+  },
+  '& .detailsBlock.closed div.detailsBlockTitle::before, & .detailsBlockClosed div.detailsBlockTitle::before': {
+    transform: "rotate(0deg)",
+  },
+  "& .detailsBlock.closed .detailsBlockContent, & .detailsBlockClosed .detailsBlockContent": {
+    display: "none",
+  },
+
   // Placeholder text in the editor for a collapsible section with no title.
   // CkEditor represents this with a <br> placeholder as:
   //     <p><br data-cke-filler="true"/></p>
@@ -405,33 +445,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.3),
     pointerEvents: "none",
     position: "absolute",
-    top: 8,
+    top: 0,
   },
-  
-  "& .detailsBlock.closed .detailsBlockContent": {
-    display: "none",
-  },
-  
-  // The 'div' part of this selector makes it specific to the editor (outside
-  // the editor it would be a <summary> tag)
-  '& div.detailsBlockTitle': {
-    position: "relative",
-    paddingLeft: 24,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-
-  // The 'div' part of this selector makes it specific to the editor (outside
-  // the editor it would be a <summary> tag)
-  '& div.detailsBlockTitle::before': {
-    content: '"▼"',
-    cursor: "pointer",
-    fontSize: 14,
-    position: "absolute",
-    left: 8,
-  },
-  '& .detailsBlock.closed div.detailsBlockTitle::before': {
-    content: '"▶"',
-  }
 });
 
 const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({

@@ -73,7 +73,7 @@ user has left comments addressing you (or your earlier suggestions),
 read them here and respond with `reply-comment` and/or follow-up edits.
 
 ```
-research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]
 ```
 Returns a clean turn-by-turn transcript of a sibling conversation in the
 same project (bearer authorizes within-project access only):
@@ -87,7 +87,13 @@ same project (bearer authorizes within-project access only):
 ```
 `role` is one of `user | assistant | thinking | tool_use | tool_result | error`.
 Pass `--with-thinking` to include the assistant's internal reasoning, and
-`--with-tool-payloads` to include full tool args / results.
+`--with-tool-payloads` to include full tool args / results. Pass
+`--with-timestamps` to add a `createdAt` ISO-8601 field to each turn — this
+is when the turn was persisted server-side (usually within seconds of when
+it was said), so treat it as approximate. If many consecutive turns at the
+start of a transcript share one timestamp, that conversation was copied
+from an earlier one at that moment — those turns really happened earlier,
+over a longer span.
 
 ### Creating documents
 
@@ -359,6 +365,43 @@ The server validates each token before applying your write:
   identifying the bad token. Retry with a corrected id.
 - The title field can be approximate; the server replaces it with the
   canonical current title from the database before storing the chip.
+
+## Your conversation's collapsed presentation (`set-presentation`)
+
+Your conversation appears inside the user's research document as an inline
+block. While the user is interacting with it, it shows the full transcript;
+when they click away, it collapses to a compact "presentation" — and you can
+control what that presentation shows:
+
+```
+research-tool set-presentation --markdown <md>
+research-tool set-presentation --clear
+```
+
+The intended use-case of this tool is to make it easier for the user to
+remember what the subject of each conversation block is.  It is not meant
+to be used as the primary channel for communicating information to the user.
+Do not omit information you put into the presentation from your conversations
+with the user.
+
+- The collapsed block is short. Presentations should be no longer than ~80
+  words over 2-3 short paragraphs when rendered.
+- By default (no presentation set), the collapsed block falls back to your
+  last chat message — which is often conversational ("Done! I also fixed…")
+  rather than presentational. When you finish a substantive piece of work,
+  prefer to set an explicit presentation summarizing the *result*, not the
+  dialogue.
+- Update it as the work evolves; each call replaces the previous
+  presentation. `--clear` returns to the last-message fallback.
+- Plain markdown only (paragraphs, lists, tables, emphasis, code) —
+  `@[doc:...]` mention tokens and widgets are *not* supported here; they
+  render as literal text.
+- This styles only **your own** conversation's block; you cannot set another
+  conversation's presentation.
+
+Don't confuse this with document edits: the presentation lives on the
+conversation block itself. Durable write-ups still belong in the document via
+`edit-doc`.
 
 ## Query inputs (unsubmitted user questions)
 

@@ -12,44 +12,38 @@ import NotificationSettingsRow, { NotificationColumnHeaders } from './Notificati
 import type { SettingsTabProps } from './settingsTabTypes';
 
 const NotificationsSettingsTab = ({
-  form,
+  settings,
+  updateSettings,
+  bind,
+  isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
   return (
     <div>
       <SettingsSection title="Auto-Subscriptions">
         <HighlightableField name="auto_subscribe_to_my_posts">
-          <form.Field name="auto_subscribe_to_my_posts">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Auto-subscribe to my posts"
-                description="Get notified when someone comments on your posts"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.auto_subscribe_to_my_posts}
+            onChange={(value) => void updateSettings({ auto_subscribe_to_my_posts: value })}
+            label="Auto-subscribe to my posts"
+            description="Get notified when someone comments on your posts"
+          />
         </HighlightableField>
 
-        <form.Field name="auto_subscribe_to_my_comments">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Auto-subscribe to my comments"
-              description="Get notified when someone replies to your comments"
-            />
-          )}
-        </form.Field>
+        <SettingsToggleRow
+          value={settings.auto_subscribe_to_my_comments}
+          onChange={(value) => void updateSettings({ auto_subscribe_to_my_comments: value })}
+          label="Auto-subscribe to my comments"
+          description="Get notified when someone replies to your comments"
+        />
 
         {hasEventsSetting.get() && (
-          <form.Field name="autoSubscribeAsOrganizer">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Auto-subscribe as organizer"
-                description="Get notified about posts/events in groups you organize"
-              />
-            )}
-          </form.Field>
+          <SettingsToggleRow
+            value={settings.autoSubscribeAsOrganizer}
+            onChange={(value) => void updateSettings({ autoSubscribeAsOrganizer: value })}
+            label="Auto-subscribe as organizer"
+            description="Get notified about posts/events in groups you organize"
+          />
         )}
 
         <ManageSubscriptionsLink />
@@ -58,207 +52,215 @@ const NotificationsSettingsTab = ({
       <SettingsSection title="Followed Content">
         <NotificationColumnHeaders />
 
-        <form.Field name="notificationSubscribedUserPost">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Posts by subscribed users" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationSubscribedUserPost"
+          value={settings.notificationSubscribedUserPost ?? null}
+          onChange={(value) => void updateSettings({ notificationSubscribedUserPost: value })}
+          label="Posts by subscribed users"
+        />
 
-        <form.Field name="notificationSubscribedUserComment">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Comments by subscribed users" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationSubscribedUserComment"
+          value={settings.notificationSubscribedUserComment ?? null}
+          onChange={(value) => void updateSettings({ notificationSubscribedUserComment: value })}
+          label="Comments by subscribed users"
+        />
 
-        <form.Field name="notificationCommentsOnSubscribedPost">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Comments on subscribed posts" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationCommentsOnSubscribedPost"
+          value={settings.notificationCommentsOnSubscribedPost ?? null}
+          onChange={(value) => void updateSettings({ notificationCommentsOnSubscribedPost: value })}
+          label="Comments on subscribed posts"
+        />
 
         <HighlightableField name="notificationSubscribedTagPost">
-          <form.Field name="notificationSubscribedTagPost">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="Posts in subscribed tags" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationSubscribedTagPost"
+            value={settings.notificationSubscribedTagPost ?? null}
+            onChange={(value) => void updateSettings({ notificationSubscribedTagPost: value })}
+            label="Posts in subscribed tags"
+          />
         </HighlightableField>
 
         {allowSubscribeToSequencePosts() && (
-          <form.Field name="notificationSubscribedSequencePost">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="Posts in subscribed sequences" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationSubscribedSequencePost"
+            value={settings.notificationSubscribedSequencePost ?? null}
+            onChange={(value) => void updateSettings({ notificationSubscribedSequencePost: value })}
+            label="Posts in subscribed sequences"
+          />
         )}
 
         {hasEventsSetting.get() && (
-          <form.Field name="notificationPostsInGroups">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="Posts/events in subscribed groups" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationPostsInGroups"
+            value={settings.notificationPostsInGroups ?? null}
+            onChange={(value) => void updateSettings({ notificationPostsInGroups: value })}
+            label="Posts/events in subscribed groups"
+          />
         )}
 
-        <form.Field name="notificationShortformContent">
-          {(field) => (
-            <NotificationSettingsRow
-              field={field}
-              label={`${isEAForum() ? "Quick takes" : "Shortform"} by subscribed users`}
-            />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationShortformContent"
+          value={settings.notificationShortformContent ?? null}
+          onChange={(value) => void updateSettings({ notificationShortformContent: value })}
+          label={`${isEAForum() ? "Quick takes" : "Shortform"} by subscribed users`}
+        />
       </SettingsSection>
 
       <SettingsSection title="Replies & Mentions">
         <NotificationColumnHeaders />
 
-        <form.Field name="notificationRepliesToMyComments">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Replies to my comments" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationRepliesToMyComments"
+          value={settings.notificationRepliesToMyComments ?? null}
+          onChange={(value) => void updateSettings({ notificationRepliesToMyComments: value })}
+          label="Replies to my comments"
+        />
 
-        <form.Field name="notificationRepliesToSubscribedComments">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Replies to subscribed comments" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationRepliesToSubscribedComments"
+          value={settings.notificationRepliesToSubscribedComments ?? null}
+          onChange={(value) => void updateSettings({ notificationRepliesToSubscribedComments: value })}
+          label="Replies to subscribed comments"
+        />
 
-        <form.Field name="notificationNewMention">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Mentions of me" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationNewMention"
+          value={settings.notificationNewMention ?? null}
+          onChange={(value) => void updateSettings({ notificationNewMention: value })}
+          label="Mentions of me"
+        />
 
-        <form.Field name="notificationTypoSuggestions">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="AI-proposed fixes for typos in my content" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationTypoSuggestions"
+          value={settings.notificationTypoSuggestions ?? null}
+          onChange={(value) => void updateSettings({ notificationTypoSuggestions: value })}
+          label="AI-proposed fixes for typos in my content"
+        />
       </SettingsSection>
 
       <SettingsSection title="Messages & Collaboration">
         <NotificationColumnHeaders />
 
-        <form.Field name="notificationPrivateMessage">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Private messages" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationPrivateMessage"
+          value={settings.notificationPrivateMessage ?? null}
+          onChange={(value) => void updateSettings({ notificationPrivateMessage: value })}
+          label="Private messages"
+        />
 
-        <form.Field name="notificationSharedWithMe">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Drafts shared with me" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationSharedWithMe"
+          value={settings.notificationSharedWithMe ?? null}
+          onChange={(value) => void updateSettings({ notificationSharedWithMe: value })}
+          label="Drafts shared with me"
+        />
 
-        <form.Field name="notificationCommentsOnDraft">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Comments on shared drafts" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationCommentsOnDraft"
+          value={settings.notificationCommentsOnDraft ?? null}
+          onChange={(value) => void updateSettings({ notificationCommentsOnDraft: value })}
+          label="Comments on shared drafts"
+        />
 
-        <form.Field name="notificationAddedAsCoauthor">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="Added as coauthor" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationAddedAsCoauthor"
+          value={settings.notificationAddedAsCoauthor ?? null}
+          onChange={(value) => void updateSettings({ notificationAddedAsCoauthor: value })}
+          label="Added as coauthor"
+        />
 
-        <form.Field name="notificationDialogueMessages">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="New content in my dialogues" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationDialogueMessages"
+          value={settings.notificationDialogueMessages ?? null}
+          onChange={(value) => void updateSettings({ notificationDialogueMessages: value })}
+          label="New content in my dialogues"
+        />
 
-        <form.Field name="notificationPublishedDialogueMessages">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="New content in followed dialogues" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationPublishedDialogueMessages"
+          value={settings.notificationPublishedDialogueMessages ?? null}
+          onChange={(value) => void updateSettings({ notificationPublishedDialogueMessages: value })}
+          label="New content in followed dialogues"
+        />
       </SettingsSection>
 
       <SettingsSection title="Community & Events">
         <NotificationColumnHeaders />
 
-        <form.Field name="notificationSubforumUnread">
-          {(field) => (
-            <NotificationSettingsRow field={field} label="New discussions in subscribed topics" />
-          )}
-        </form.Field>
+        <NotificationSettingsRow
+          name="notificationSubforumUnread"
+          value={settings.notificationSubforumUnread ?? null}
+          onChange={(value) => void updateSettings({ notificationSubforumUnread: value })}
+          label="New discussions in subscribed topics"
+        />
 
         {isLWorAF() && (
-          <form.Field name="notificationAlignmentSubmissionApproved">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="AF submission approvals" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationAlignmentSubmissionApproved"
+            value={settings.notificationAlignmentSubmissionApproved ?? null}
+            onChange={(value) => void updateSettings({ notificationAlignmentSubmissionApproved: value })}
+            label="AF submission approvals"
+          />
         )}
 
         {hasEventsSetting.get() && (
-          <form.Field name="notificationEventInRadius">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="Events near me" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationEventInRadius"
+            value={settings.notificationEventInRadius ?? null}
+            onChange={(value) => void updateSettings({ notificationEventInRadius: value })}
+            label="Events near me"
+          />
         )}
 
         {hasEventsSetting.get() && (
-          <form.Field name="notificationRSVPs">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="RSVPs to my events" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationRSVPs"
+            value={settings.notificationRSVPs ?? null}
+            onChange={(value) => void updateSettings({ notificationRSVPs: value })}
+            label="RSVPs to my events"
+          />
         )}
 
         {hasEventsSetting.get() && (
-          <form.Field name="notificationGroupAdministration">
-            {(field) => (
-              <NotificationSettingsRow field={field} label="Group administration" />
-            )}
-          </form.Field>
+          <NotificationSettingsRow
+            name="notificationGroupAdministration"
+            value={settings.notificationGroupAdministration ?? null}
+            onChange={(value) => void updateSettings({ notificationGroupAdministration: value })}
+            label="Group administration"
+          />
         )}
       </SettingsSection>
 
       <SettingsSection title="Karma & Voting">
         <HighlightableField name="karmaChangeNotifierSettings">
           <div className={fieldWrapperClass}>
-            <form.Field name="karmaChangeNotifierSettings">
-              {(field) => (
-                <KarmaChangeNotifierSettings field={field} />
-              )}
-            </form.Field>
+            <KarmaChangeNotifierSettings field={bind('karmaChangeNotifierSettings')} />
           </div>
         </HighlightableField>
       </SettingsSection>
 
       <SettingsSection title="Emails">
-        <div className={fieldWrapperClass}>
-          <form.Field name="whenConfirmationEmailSent">
-            {() => <UsersEmailVerification />}
-          </form.Field>
-        </div>
-
-        {isLW() && <div className={fieldWrapperClass}>
-          <form.Field name="emailSubscribedToCurated">
-            {(field) => (
-              <EmailConfirmationRequiredCheckbox
-                field={field}
-                label="Email me new posts in Curated"
-              />
-            )}
-          </form.Field>
+        {/* Operates on the logged-in user's own verification state, so hide it
+            when an admin is editing someone else's settings */}
+        {isCurrentUser && <div className={fieldWrapperClass}>
+          <UsersEmailVerification />
         </div>}
 
-        <form.Field name="unsubscribeFromAll">
-          {(field) => (
-            <SettingsToggleRow
-              field={field}
-              label="Unsubscribe from all emails"
-              description="Stop receiving all email notifications from this site"
-            />
-          )}
-        </form.Field>
+        {isLW() && <div className={fieldWrapperClass}>
+          <EmailConfirmationRequiredCheckbox
+            field={bind('emailSubscribedToCurated')}
+            label="Email me new posts in Curated"
+          />
+        </div>}
+
+        <SettingsToggleRow
+          value={settings.unsubscribeFromAll}
+          onChange={(value) => void updateSettings({ unsubscribeFromAll: value })}
+          label="Unsubscribe from all emails"
+          description="Stop receiving all email notifications from this site"
+        />
       </SettingsSection>
     </div>
   );

@@ -103,7 +103,6 @@ type EventTemplateFields =
 
 type PrefilledPostFields =
   | "isEvent"
-  | "question"
   | "activateRSVPs"
   | "onlineEvent"
   | "globalEvent"
@@ -163,12 +162,10 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
   }
 }
 
-function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
+function getPostCategory(query: Record<string, string>) {
   return isPostCategory(query.category)
     ? query.category
-    : questionInQuery
-      ? ("question" as const)
-      : postDefaultCategory;
+    : postDefaultCategory;
 }
 
 const PostsNewForm = () => {
@@ -182,9 +179,8 @@ const PostsNewFormInner = () => {
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const questionInQuery = query && !!query.question;
 
-  const postCategory = getPostCategory(query, questionInQuery);
+  const postCategory = getPostCategory(query);
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -216,7 +212,6 @@ const PostsNewFormInner = () => {
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
-    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -316,5 +311,3 @@ const PostsNewFormInner = () => {
 }
 
 export default PostsNewForm;
-
-

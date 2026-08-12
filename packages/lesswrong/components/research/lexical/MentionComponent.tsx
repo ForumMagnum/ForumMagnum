@@ -18,6 +18,7 @@ import {
 } from 'lexical';
 import type { MentionKind } from './mentionFormat';
 import { useResearchNavigationContext } from './ResearchEditorContext';
+import { researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 
 const KIND_ICON: Record<MentionKind, ForumIconName> = {
   doc: 'Document',
@@ -31,8 +32,8 @@ const styles = defineStyles('MentionComponent', (theme: ThemeType) => ({
     gap: 4,
     padding: '0 6px 0 4px',
     margin: '0 1px',
-    borderRadius: 4,
-    background: theme.palette.greyAlpha(0.06),
+    borderRadius: researchRadius.xs,
+    background: researchWarmAlpha(0.06),
     border: theme.palette.greyBorder('1px', 0.08),
     color: theme.palette.text.primary,
     fontSize: '0.95em',
@@ -42,7 +43,7 @@ const styles = defineStyles('MentionComponent', (theme: ThemeType) => ({
     userSelect: 'none',
     cursor: 'default',
     '&:hover': {
-      background: theme.palette.greyAlpha(0.1),
+      background: researchWarmAlpha(0.1),
     },
   },
   selected: {
@@ -117,7 +118,7 @@ export function MentionComponent({ nodeKey, kind, id, title }: MentionComponentP
           if (kind === 'conv' && nav.host?.kind === 'conversation') return false;
           event?.preventDefault();
           if (kind === 'doc') nav.navigateToDocument(id);
-          else if (kind === 'conv') nav.openConversationInChat(id);
+          else if (kind === 'conv') nav.openConversation(id);
           return true;
         },
         COMMAND_PRIORITY_LOW,

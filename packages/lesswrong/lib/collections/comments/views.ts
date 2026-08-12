@@ -3,7 +3,7 @@ import { isEAForum, hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/ins
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
-import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
@@ -37,6 +37,7 @@ declare global {
     topLevelCommentId?: string,
     legacyId?: string,
     authorIsUnreviewed?: boolean|null,
+    includeRejected?: boolean,
     sortBy?: CommentSortingMode,
     before?: Date|string|null,
     after?: Date|string|null,
@@ -127,6 +128,10 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: Resolv
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
   };
   
+  // Rejected comments are only visible to their author and to admins, and only
+  // when a view opts in.
+  const includeRejected = !!terms.includeRejected && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
   //  * The comment was posted before the hideSince date
@@ -164,7 +169,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: Resolv
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
-      rejected: { $ne: true },
+      rejected: includeRejected ? viewFieldAllowAny : { $ne: true },
       ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
     },
     options: {

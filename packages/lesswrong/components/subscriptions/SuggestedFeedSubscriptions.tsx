@@ -347,7 +347,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
             ))}
           </div>
           <div className={classes.bottomButtonsContainer}>
-            <Link to="/manageSubscriptions" className={classes.manageButton}>
+            <Link to="/account?tab=subscriptions" className={classes.manageButton}>
               <span className={classes.followingCount}>{followingCount}</span> following
             </Link>
             {availableUsers.length > usersToShow && (

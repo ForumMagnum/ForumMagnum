@@ -1,71 +1,19 @@
 import React, { useCallback, useMemo } from 'react';
-import { useDialog } from '@/components/common/withDialog';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
 import moment from 'moment';
-import { getSignatureWithNote } from '@/lib/collections/users/helpers';
-import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
-import SnoozeAmountModal from './SnoozeAmountModal';
-import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
-import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
-import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
-import { ContentItem, isPost } from './helpers';
+import { useModerationUserActions } from './useModerationUserActions';
+import { canRejectContent, ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
-
-const SunshineUsersListUpdateMutation = gql(`
-  mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
-
-const RejectContentAndRemoveFromQueueMutation = gql(`
-  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {
-    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)
-  }
-`);
-
-const ApproveCurrentContentOnlyMutation = gql(`
-  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {
-    approveUserCurrentContentOnly(userId: $userId)
-  }
-`);
-
-function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
-  return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
-}
 
 function canRerunLlmCheck(selectedContent?: ContentItem) {
   if (!selectedContent) return false;
   const ace = selectedContent.automatedContentEvaluations;
   return !ace || ace.pangramScore === null;
-}
-
-function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
-  const allContent = [
-    ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
-    ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
-  ];
-
-  const unapprovedContent = allContent.filter(
-    item => !item.rejected && item.authorIsUnreviewed
-  );
-
-  if (unapprovedContent.length === 0) {
-    return null;
-  }
-
-  unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-  return unapprovedContent[0];
 }
 
 const ModerationUserKeyboardHandler = ({
@@ -81,6 +29,7 @@ const ModerationUserKeyboardHandler = ({
   addToUndoQueue,
   undoQueue,
   isDetailView,
+  onFocusRejectTab,
   dispatch,
 }: {
   onNextUser: () => void;
@@ -95,21 +44,28 @@ const ModerationUserKeyboardHandler = ({
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   undoQueue: UndoHistoryItem[];
+  /** Moves the moderation sidebar to its "reject the selected content" tab. */
+  onFocusRejectTab: () => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
-  const { openDialog } = useDialog();
   const { flash } = useMessages();
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-  const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
-  const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
-  
-  const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
   const {
-    rejectContent,
     unrejectContent,
-    rejectionTemplates,
   } = useRejectContent();
+
+  const {
+    handleReview,
+    handleApproveCurrentOnly,
+    handleSnooze,
+    handleSnoozeCustom,
+    handleRejectContentAndRemove,
+    handleRestrictAndNotify,
+    updateUserWith,
+    getModSignatureWithNote,
+    posts,
+    comments,
+  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue });
 
   const {
     toggleDisablePosting,
@@ -129,81 +85,6 @@ const ModerationUserKeyboardHandler = ({
   const selectedContentId = selectedContent?._id ?? null;
   const selectedContentCollectionName = selectedContent ? (isPost(selectedContent) ? 'Posts' as const : 'Comments' as const) : 'Posts' as const;
   const { handleRerunLlmCheck, isRunningLlmCheck } = useRerunLlmCheck(selectedContentId, selectedContentCollectionName, dispatch);
-
-  const getModSignatureWithNote = useCallback(
-    (note: string) => getSignatureWithNote(currentUser.displayName, note),
-    [currentUser.displayName]
-  );
-
-  const handleAction = useCallback(
-    (actionLabel: string, actionFn: () => Promise<void>) => addToUndoQueue(actionLabel, actionFn),
-    [addToUndoQueue]
-  );
-
-  const updateUserWith = useCallback((data: UpdateUserDataInput, undoActionLabel?: string) => {
-    if (!selectedUser) return;
-
-    const variables = { selector: { _id: selectedUser._id }, data };
-
-    if (undoActionLabel) {
-      handleAction(undoActionLabel, async () => { await updateUser({ variables }); });
-    } else {
-      void updateUser({ variables });
-    }
-  }, [selectedUser, updateUser, handleAction]);
-
-  const handleReview = useCallback(() => {
-    if (!selectedUser) return;
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Approved') + notes;
-    void updateUserWith({
-      sunshineFlagged: false,
-      reviewedByUserId: currentUser._id,
-      reviewedAt: new Date(),
-      needsReview: false,
-      sunshineNotes: newNotes,
-      snoozedUntilContentCount: null,
-    }, 'Approved');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
-
-  const handleApproveCurrentOnly = useCallback(() => {
-    if (!selectedUser) return;
-    handleAction('Approved Current Only', async () => {
-      await approveCurrentContentOnly({ variables: { userId: selectedUser._id } });
-    });
-  }, [selectedUser, handleAction, approveCurrentContentOnly]);
-
-  const handleSnooze = useCallback(
-    (contentCount: number) => {
-      if (!selectedUser) return;
-      const notes = selectedUser.sunshineNotes || '';
-      const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`) + notes;
-      void updateUserWith({
-        needsReview: false,
-        reviewedAt: new Date(),
-        reviewedByUserId: currentUser._id,
-        sunshineNotes: newNotes,
-        snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
-      }, `Snoozed ${contentCount}`);
-    },
-    [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
-  );
-
-  const handleSnoozeCustom = useCallback(() => {
-    if (!selectedUser) return;
-    openDialog({
-      name: 'SnoozeAmountModal',
-      contents: ({ onClose }) => (
-        <SnoozeAmountModal
-          onConfirm={(amount) => {
-            handleSnooze(amount);
-            onClose();
-          }}
-          onClose={onClose}
-        />
-      ),
-    });
-  }, [selectedUser, openDialog, handleSnooze]);
 
   const handleRemoveNeedsReview = useCallback(() => {
     if (!selectedUser) return;
@@ -267,33 +148,6 @@ const ModerationUserKeyboardHandler = ({
     });
   }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
 
-  const handleRejectCurrentContent = useCallback(() => {
-    if (!selectedUser) return;
-    if (!selectedContent || !canRejectCurrentlySelectedContent(selectedContent)) return;
-
-    const contentWrapper = isPost(selectedContent) ? {
-      collectionName: 'Posts' as const,
-      document: selectedContent,
-    } : {
-      collectionName: 'Comments' as const,
-      document: selectedContent,
-    };
-
-    const handleRejectContent = (reason: string) => { void rejectContent({ ...contentWrapper, reason }); };
-
-    openDialog({
-      name: 'RejectContentDialog',
-      contents: ({ onClose }) => (
-        <RejectContentDialog
-          rejectionTemplates={rejectionTemplates}
-          rejectContent={handleRejectContent}
-          displayName={selectedUser.displayName}
-          onClose={onClose}
-        />
-      ),
-    });
-  }, [openDialog, rejectContent, rejectionTemplates, selectedContent, selectedUser]);
-
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
     if (!selectedContent?.rejected) return;
@@ -309,52 +163,6 @@ const ModerationUserKeyboardHandler = ({
 
     void unrejectContent(contentWrapper);
   }, [selectedUser, selectedContent, unrejectContent]);
-
-  const handleRestrictAndNotify = useCallback(() => {
-    if (!selectedUser) return;
-    
-    // Find the most recent unapproved post or comment
-    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
-    if (!mostRecentUnapproved) {
-      alert('No unapproved content found for this user');
-      return;
-    }
-
-    openDialog({
-      name: 'RejectContentDialog',
-      contents: ({ onClose: closeRejectDialog }) => (
-        <RejectContentDialog
-          rejectionTemplates={rejectionTemplates}
-          displayName={selectedUser.displayName}
-          rejectContent={(rejectedReason: string) => {
-            closeRejectDialog();
-            
-            // We need setTimeout to ensure the RejectContentDialog is closed before the RestrictAndNotifyModal is opened;
-            // otherwise the second modal just doesn't open.
-            setTimeout(() => {
-              openDialog({
-                name: 'RestrictAndNotifyModal',
-                contents: ({ onClose: closeRestrictDialog }) => (
-                  <RestrictAndNotifyModal
-                    user={selectedUser}
-                    onComplete={(executeAction: () => Promise<void>) => {
-                      closeRestrictDialog();
-                      addToUndoQueue('Restricted & Notified', executeAction);
-                    }}
-                    onClose={closeRestrictDialog}
-                    rejectedReason={rejectedReason}
-                    documentId={mostRecentUnapproved._id}
-                    collectionName={mostRecentUnapproved.collectionName}
-                  />
-                ),
-              });
-            }, 0);
-          }}
-          onClose={closeRejectDialog}
-        />
-      ),
-    });
-  }, [selectedUser, openDialog, addToUndoQueue, posts, comments, rejectionTemplates]);
 
   const handleCopyUserId = useCallback(async () => {
     if (!selectedUser) return;
@@ -375,40 +183,6 @@ const ModerationUserKeyboardHandler = ({
     dispatch({ type: 'UNDO_ACTION', userId: mostRecentItem.user._id });
     flash({ messageString: `Undid: ${mostRecentItem.actionLabel}` });
   }, [undoQueue, dispatch, flash]);
-
-  const handleRejectContentAndRemove = useCallback(() => {
-    if (!selectedUser) return;
-    
-    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
-    if (!mostRecentUnapproved) {
-      alert('No unapproved content found for this user');
-      return;
-    }
-    
-    openDialog({
-      name: 'RejectContentDialog',
-      contents: ({ onClose }) => (
-        <RejectContentDialog
-          rejectionTemplates={rejectionTemplates}
-          displayName={selectedUser.displayName}
-          rejectContent={(rejectedReason: string) => {
-            onClose();
-            handleAction('Rejected & Removed', async () => {
-              await rejectContentAndRemoveFromQueue({
-                variables: {
-                  userId: selectedUser._id,
-                  documentId: mostRecentUnapproved._id,
-                  collectionName: mostRecentUnapproved.collectionName,
-                  rejectedReason,
-                },
-              });
-            });
-          }}
-          onClose={onClose}
-        />
-      ),
-    });
-  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
   const rerunLlmCheckCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Rerun LLM Check',
@@ -488,12 +262,12 @@ const ModerationUserKeyboardHandler = ({
       || !selectedUser
       || (selectedContent?.rejected
           ? !selectedContent.rejected
-          : !canRejectCurrentlySelectedContent(selectedContent))
+          : !canRejectContent(selectedContent))
     ),
     execute: selectedContent?.rejected
       ? handleUnrejectCurrentContent
-      : handleRejectCurrentContent,
-  }), [isDetailView, selectedUser, selectedContent, handleRejectCurrentContent, handleUnrejectCurrentContent]);
+      : onFocusRejectTab,
+  }), [isDetailView, selectedUser, selectedContent, onFocusRejectTab, handleUnrejectCurrentContent]);
 
   const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest & Remove',

@@ -84,44 +84,7 @@ The post editor at `/newPost` requires authentication. Use the chrome-devtools M
 
    Confirm `loggedIn` is `true` and `editorReady` is `true`.
 
-6. If the account was just created (step 3b returned `action: "signup"`), set `beta: true` on the user so they have access to the Lexical editor. Run this via `evaluate_script`:
-
-   ```javascript
-   async () => {
-     // First, get the current user's ID
-     const meResult = await fetch('/graphql', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({
-         query: `query { currentUser { _id } }`
-       })
-     });
-     const meData = await meResult.json();
-     const userId = meData.data?.currentUser?._id;
-     if (!userId) return { success: false, error: "Not logged in" };
-
-     // Set beta: true
-     const updateResult = await fetch('/graphql', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({
-         query: `mutation { updateUser(selector: { _id: "${userId}" }, data: { beta: true }) { data { _id beta } } }`
-       })
-     });
-     const updateData = await updateResult.json();
-     if (updateData.data?.updateUser?.data?.beta) {
-       return { success: true, userId };
-     }
-     return { success: false, error: updateData.errors };
-   }
-   ```
-
-   Then reload the page again to pick up the updated settings:
-   ```
-   navigate_page({ type: "url", url: "http://localhost:3000/newPost" })
-   ```
-
-   This only needs to be done once per account creation. The `beta` flag persists across sessions, but the test account is wiped by nightly DB syncs, so it will need to be re-created (and `beta` re-set) after each sync.
+6. Nothing else to set up: in dev, the signup mutation automatically grants the `agent-test` account `beta: true` (Lexical editor access) and `isAdmin: true` (needed for /research) — see the signup resolver in `@/server/vulcan-lib/apollo-server/authentication.tsx`. The test account is wiped by nightly DB syncs, so it will need to be re-created after each sync (the flags are re-granted automatically at signup).
 
 ### Notes
 

@@ -990,17 +990,86 @@ type SaveResearchEnvironmentOutput {
   data: ResearchEnvironment
 }
 
+type EnsureResearchScratchDocumentOutput {
+  documentId: String!
+}
+
+type ReorderResearchDocumentsOutput {
+  success: Boolean!
+}
+
+type RestartResearchSandboxOutput {
+  running: Boolean!
+}
+
+type MarkResearchConversationReadOutput {
+  ok: Boolean!
+}
+
+type AnswerResearchQuestionOutput {
+  ok: Boolean!
+  expired: Boolean!
+}
+
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
   cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+  answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
   mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
   setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
   saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+  ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+  reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+  markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
+  restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
+}
+
+type ResearchConversationSidebarStatus {
+  conversationId: String!
+  turnActive: Boolean!
+  lastActivityAt: Date
+  lastReadAt: Date
+}
+
+type ResearchSandboxDirEntry {
+  name: String!
+  kind: String!
+  size: Float
+}
+
+type ResearchSandboxDirListing {
+  path: String!
+  running: Boolean!
+  entries: [ResearchSandboxDirEntry!]!
+}
+
+type ResearchSandboxFileContents {
+  path: String!
+  running: Boolean!
+  content: String!
+  truncated: Boolean!
+  binary: Boolean!
+  size: Float!
+}
+
+type ResearchSandboxStats {
+  running: Boolean!
+  cpuPct: Float
+  memUsed: Float
+  memTotal: Float
+  diskUsed: Float
+  diskTotal: Float
+  hibernatingSince: Date
 }
 
 extend type Query {
-  researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
+  researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+  researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+  researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+  researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+  researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+  researchSandboxRunning(conversationId: String!): Boolean!
 }
 
 enum DocumentDeletionNetChange {
@@ -1584,8 +1653,12 @@ type AutomatedContentEvaluation {
   aiChoice: String
   aiReasoning: String
   aiCoT: String
+  pangramApiVersion: String
   pangramScore: Float
   pangramMaxScore: Float
+  pangramFractionAi: Float
+  pangramFractionAiAssisted: Float
+  pangramFractionHuman: Float
   pangramPrediction: String
   pangramWindowScores: [PangramWindowScore!]
 }
@@ -1600,6 +1673,9 @@ type PangramWindowScore {
   score: Float!
   startIndex: Int!
   endIndex: Int!
+  label: String
+  confidence: String
+  wordCount: Int
 }
 
 type Ban {
@@ -2232,7 +2308,9 @@ input CommentsProfileCommentsInput {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  includeRejected: Boolean
   sortBy: String
+  shortform: Boolean
   drafts: String
   limit: String
 }
@@ -6132,11 +6210,16 @@ type ResearchConversation {
   projectId: String
   claudeSessionId: String
   title: String
+  icon: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
   baseEnvironmentId: String
   runtime: String
+  presentationHtml: String
+  userTurnCount: Int
   lastActivityAt: Date
+  lastReadAt: Date
+  archived: Boolean
 }
 
 input SingleResearchConversationInput {
@@ -6152,9 +6235,14 @@ input ResearchConversationsByProjectInput {
   projectId: String
 }
 
+input ResearchConversationsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchConversationSelector {
   default: EmptyViewInput
   byProject: ResearchConversationsByProjectInput
+  byProjectArchived: ResearchConversationsByProjectArchivedInput
 }
 
 input MultiResearchConversationInput {
@@ -6180,6 +6268,9 @@ type ResearchDocument {
   userId: String
   projectId: String
   title: String
+  icon: String
+  sortOrder: Float
+  archived: Boolean
   contents(version: String): Revision
   contents_latest: String
   revisions(limit: Int = 5): [Revision!]
@@ -6199,9 +6290,14 @@ input ResearchDocumentsByProjectInput {
   projectId: String
 }
 
+input ResearchDocumentsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchDocumentSelector {
   default: EmptyViewInput
   byProject: ResearchDocumentsByProjectInput
+  byProjectArchived: ResearchDocumentsByProjectArchivedInput
 }
 
 input MultiResearchDocumentInput {
@@ -6229,6 +6325,7 @@ type ResearchEnvironment {
   label: String
   vercelSnapshotId: String
   sourceEventId: String
+  archived: Boolean
 }
 
 input SingleResearchEnvironmentInput {
@@ -6244,9 +6341,14 @@ input ResearchEnvironmentsByProjectInput {
   projectId: String
 }
 
+input ResearchEnvironmentsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchEnvironmentSelector {
   default: EmptyViewInput
   byProject: ResearchEnvironmentsByProjectInput
+  byProjectArchived: ResearchEnvironmentsByProjectArchivedInput
 }
 
 input MultiResearchEnvironmentInput {
@@ -9039,11 +9141,13 @@ input UpdateResearchConversationDataInput {
   projectId: String
   claudeSessionId: String
   title: String
+  icon: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
   baseEnvironmentId: String
   runtime: String
   lastActivityAt: Date
+  archived: Boolean
 }
 
 input UpdateResearchConversationInput {
@@ -9057,6 +9161,28 @@ type ResearchConversationOutput {
 
 extend type Mutation {
   updateResearchConversation(selector: SelectorInput!, data: UpdateResearchConversationDataInput!): ResearchConversationOutput
+}
+
+input UpdateResearchEnvironmentDataInput {
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+  archived: Boolean
+}
+
+input UpdateResearchEnvironmentInput {
+  selector: SelectorInput!
+  data: UpdateResearchEnvironmentDataInput!
+}
+
+type ResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
+extend type Mutation {
+  updateResearchEnvironment(selector: SelectorInput!, data: UpdateResearchEnvironmentDataInput!): ResearchEnvironmentOutput
 }
 
 input CreateResearchDocumentDataInput {
@@ -9074,6 +9200,8 @@ input UpdateResearchDocumentDataInput {
   userId: String
   projectId: String
   title: String
+  icon: String
+  archived: Boolean
   contents: CreateRevisionDataInput
 }
 

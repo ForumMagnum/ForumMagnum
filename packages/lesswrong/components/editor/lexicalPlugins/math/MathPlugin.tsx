@@ -21,7 +21,7 @@ import { $isCodeNode } from '@lexical/code';
 import { $isLinkNode } from '@lexical/link';
 import { mergeRegister } from '@lexical/utils';
 import { MathNode, $createMathNode, $isMathNode } from './MathNode';
-import MathEditorPanel from './MathEditorPanel';
+import MathEditorPanel, { MathEditorAnchor } from './MathEditorPanel';
 import { loadMathJax } from './loadMathJax';
 
 // Commands for opening the math editor panel
@@ -70,6 +70,18 @@ function extractDelimiters(text: string): { equation: string; display: boolean }
 }
 
 /**
+ * Convert a viewport-relative rect (from getBoundingClientRect) into the
+ * document-relative anchor position used by MathEditorPanel.
+ */
+function viewportRectToDocumentAnchor(rect: DOMRect): MathEditorAnchor {
+  return {
+    left: rect.left + window.scrollX,
+    bottom: rect.bottom + window.scrollY,
+    width: rect.width,
+  };
+}
+
+/**
  * Get the DOM rect of the current selection
  */
 function getSelectionRect(): DOMRect | null {
@@ -98,7 +110,7 @@ interface MathEditorState {
   isOpen: boolean;
   isInline: boolean;
   initialEquation: string;
-  anchorRect: DOMRect | null;
+  anchor: MathEditorAnchor | null;
   editingNodeKey: string | null;
 }
 
@@ -153,7 +165,7 @@ export function MathPlugin(): React.ReactElement {
     isOpen: false,
     isInline: true,
     initialEquation: '',
-    anchorRect: null,
+    anchor: null,
     editingNodeKey: null,
   });
 
@@ -176,7 +188,7 @@ export function MathPlugin(): React.ReactElement {
       isOpen: true,
       isInline: inline,
       initialEquation: existingEquation,
-      anchorRect: rect,
+      anchor: rect ? viewportRectToDocumentAnchor(rect) : null,
       editingNodeKey: nodeKey,
     });
   }, [editor]);
@@ -349,12 +361,17 @@ export function MathPlugin(): React.ReactElement {
         editor.update(() => {
           const node = $getNearestNodeFromDOMNode(target);
           if ($isMathNode(node)) {
+            // Move the insertion point next to the clicked equation, so that
+            // when the panel closes and the editor regains focus, the user
+            // stays at the equation instead of being scrolled back to
+            // wherever their insertion point was before clicking.
+            node.selectNext(0, 0);
             const rect = mathPreview.getBoundingClientRect();
             setEditorState({
               isOpen: true,
               isInline: !node.isDisplayMode(),
               initialEquation: node.getEquation(),
-              anchorRect: rect,
+              anchor: viewportRectToDocumentAnchor(rect),
               editingNodeKey: node.getKey(),
             });
           }
@@ -377,7 +394,7 @@ export function MathPlugin(): React.ReactElement {
       isOpen={editorState.isOpen}
       initialEquation={editorState.initialEquation}
       isInline={editorState.isInline}
-      anchorRect={editorState.anchorRect}
+      anchor={editorState.anchor}
       onSubmit={handleSubmit}
       onCancel={closeEditor}
     />

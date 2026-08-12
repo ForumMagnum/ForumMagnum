@@ -339,7 +339,7 @@ const UsersProfileFn = ({terms, slug}: {
                 </div>
               }
               { currentUser?.isAdmin && <NewFeedButton user={user} /> }
-              { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+              { currentUser && currentUser._id === user._id && <Link to="/account?tab=subscriptions">
                 Manage Subscriptions
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>

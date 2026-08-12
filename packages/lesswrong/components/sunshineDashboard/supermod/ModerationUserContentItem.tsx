@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
@@ -13,6 +13,8 @@ import HoverOver from '@/components/common/HoverOver';
 import type { InboxAction } from './inboxReducer';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
 import LLMScoreBadge from './LLMScoreBadge';
+import { extractRejectionReasonSummary } from '@/lib/rejectionReasonSummary';
+import { PANGRAM_AUTOREJECT_THRESHOLD } from '@/lib/collections/automatedContentEvaluations/constants';
 
 const styles = defineStyles('ModerationUserContentItem', (theme: ThemeType) => ({
   root: {
@@ -104,6 +106,12 @@ const styles = defineStyles('ModerationUserContentItem', (theme: ThemeType) => (
     backgroundColor: theme.palette.error.light,
     color: theme.palette.error.dark,
   },
+  rejectedReasonStatus: {
+    maxWidth: 100,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textTransform: 'none',
+  },
   rejectButtonContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -123,6 +131,7 @@ const styles = defineStyles('ModerationUserContentItem', (theme: ThemeType) => (
     '& ul': {
       marginBlockStart: 0,
       marginBlockEnd: 0,
+      paddingInlineStart: 16,
     }
   },
   rejectionInfo: {
@@ -192,12 +201,15 @@ const ModerationUserContentItem = ({
   isFocused,
   isRunningLlmCheck,
   onOpen,
+  onReject,
   dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
   isRunningLlmCheck: boolean;
   onOpen: () => void;
+  /** Selects this item and opens the sidebar's reject composer for it. */
+  onReject: () => void;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
@@ -242,7 +254,18 @@ const ModerationUserContentItem = ({
     />
   );
 
-  const rejectedReasonText = item.rejectedReason 
+  const rejectedReasonSummary = useMemo(
+    () => item.rejectedReason ? extractRejectionReasonSummary(item.rejectedReason) : [],
+    [item.rejectedReason]
+  );
+
+  // Autorejections all share one boilerplate reason, so don't show it.
+  const isAutorejected = !!score && score > PANGRAM_AUTOREJECT_THRESHOLD;
+  const rejectionLabel = isAutorejected
+    ? 'Autorejected'
+    : (rejectedReasonSummary[0] ?? 'Rejected');
+
+  const rejectedReasonText = item.rejectedReason
     ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
     : '[No reason provided]';
 
@@ -284,17 +307,23 @@ const ModerationUserContentItem = ({
         <div className={classes.rejectionInfo}>
           <div className={classes.rejectionTopRow}>
             <HoverOver
-              title={<div className={classes.rejectedReasonTooltipContents} dangerouslySetInnerHTML={{ __html: item.rejectedReason ?? '[No reason provided]' }} />}
+              title={<div className={classes.rejectedReasonTooltipContents}>
+                {rejectedReasonSummary.length > 1
+                  ? <ul>{rejectedReasonSummary.map((sentence, i) => <li key={i}>{sentence}</li>)}</ul>
+                  : (rejectedReasonSummary[0] ?? '[No reason provided]')}
+              </div>}
               placement="auto-end"
               clickable
             >
-              <div className={classNames(classes.status, classes.rejectedStatus)}>
-                {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
+              <div className={classNames(classes.status, classes.rejectedStatus, {
+                [classes.rejectedReasonStatus]: !isAutorejected,
+              })}>
+                {rejectionLabel}
               </div>
             </HoverOver>
             {evaluationBadge}
           </div>
-          <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>
+          {isAutorejected && <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>}
         </div>
       )}
 
@@ -304,7 +333,7 @@ const ModerationUserContentItem = ({
         </div>
       )}
 
-      {!item.rejected && showRerunButton && (
+      {showRerunButton && (
         <button
           className={classes.rerunButton}
           onClick={onRerunClick}
@@ -318,7 +347,7 @@ const ModerationUserContentItem = ({
 
       {!item.rejected && item.authorIsUnreviewed && (
         <div className={classes.rejectButtonContainer} onClick={(e) => e.stopPropagation()}>
-          <RejectContentButton contentWrapper={contentWrapper} />
+          <RejectContentButton contentWrapper={contentWrapper} onReject={onReject} />
           <KeystrokeDisplay keystroke="R" />
         </div>
       )}

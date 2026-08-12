@@ -205,6 +205,9 @@ export default () => createJestConfig({
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101
     '^axios$': require.resolve('axios'),
+    // geist's font modules are ESM and call next/font/local at module scope,
+    // which only works under the Next build.
+    "^geist/font/(sans|mono)$": "<rootDir>/packages/lesswrong/stubs/geistFont.ts",
     // react-dom/server.edge is apparently needed instead of react-dom/server to avoid this error:
     // > Uncaught ReferenceError: MessageChannel is not defined
     // See https://github.com/facebook/react/issues/31827#issuecomment-2563094822

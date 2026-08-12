@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import moment from '@/lib/moment-timezone';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
@@ -14,6 +14,19 @@ import { useNavigate } from '@/lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
 import { useMessages } from '../common/withMessages';
+import {
+  researchEyebrow,
+  researchGhostButton,
+  researchMono,
+  researchPrimaryButton,
+  researchScrollbars,
+  researchTextInput,
+  researchCard,
+  researchWarmAlpha,
+  researchCanvas,
+  researchUiSans,
+  researchRadius,
+} from './researchStyleUtils';
 
 interface ResearchProjectSummary {
   _id: string;
@@ -67,179 +80,194 @@ const SetClaudeCodeOAuthTokenMutation = gql(`
   }
 `);
 
-function researchPlainTextInputStyles(theme: ThemeType) {
-  return {
-    flex: 1,
-    width: '100%',
-    boxSizing: 'border-box' as const,
-    border: theme.palette.border.normal,
-    borderRadius: 6,
-    padding: '9px 12px',
-    fontSize: 14,
-    color: theme.palette.grey[900],
-    background: theme.palette.panelBackground.default,
-    fontFamily: theme.typography.fontFamily,
-    outline: 'none',
-    '&:hover': {
-      border: theme.palette.border.slightlyIntense,
-    },
-    '&:focus': {
-      // Global styles zero out input borders on focus; restate the full border or the edge disappears.
-      border: theme.palette.border.slightlyIntense2,
-    },
-    '&::placeholder': { color: theme.palette.grey[400] },
-    '&:disabled': {
-      background: theme.palette.greyAlpha(0.04),
-      color: theme.palette.grey[500],
-      cursor: 'not-allowed',
-    },
-  };
-}
-
 const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
   outer: {
     display: 'flex',
     flexDirection: 'column',
-    height: 'calc(100vh - 64px)',
+    height: '100%',
     minHeight: 0,
-    background: theme.palette.background.default,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    background: researchCanvas(theme),
+    fontFamily: researchUiSans,
   },
-  panes: {
+  scroll: {
     flex: 1,
     minHeight: 0,
     overflowY: 'auto',
+    ...researchScrollbars(theme),
   },
-  leftPaneInner: {
-    maxWidth: 900,
+  column: {
+    maxWidth: 640,
     margin: '0 auto',
-    padding: '24px 24px 64px',
+    padding: '11vh 24px 96px',
     display: 'flex',
     flexDirection: 'column',
-    gap: 20,
+    gap: 28,
+  },
+  escapeHatch: {
+    position: 'fixed',
+    top: 14,
+    left: 18,
+    fontFamily: researchMono,
+    fontSize: 11,
+    color: theme.palette.text.dim,
+    textDecoration: 'none',
+    padding: '4px 8px',
+    borderRadius: researchRadius.xs,
+    '&:hover': {
+      color: theme.palette.text.primary,
+      background: researchWarmAlpha(0.05),
+    },
+  },
+  heading: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+  },
+  eyebrow: researchEyebrow(theme),
+  title: {
+    fontSize: 32,
+    fontWeight: 400,
+    fontFamily: theme.palette.fonts.headerStack,
+    color: theme.palette.text.primary,
+    margin: 0,
   },
   newProjectRow: {
     display: 'flex',
-    gap: 10,
+    gap: 8,
     alignItems: 'flex-start',
   },
-  textInput: researchPlainTextInputStyles(theme),
+  textInput: researchTextInput(theme),
   newProjectTitle: {
     flex: 2,
   },
   newProjectDescription: {
     flex: 3,
   },
+  primaryButton: researchPrimaryButton(theme),
+  ghostButton: researchGhostButton(theme),
   list: {
     listStyle: 'none',
     padding: 0,
     margin: 0,
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.08)}`,
-    borderRadius: 8,
+    borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
+  },
+  item: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 12,
+    padding: '11px 8px',
+    borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
+    cursor: 'pointer',
+    borderRadius: researchRadius.xs,
+    '&:hover': {
+      background: researchWarmAlpha(0.03),
+    },
+  },
+  itemTitle: {
+    flex: 'none',
+    fontSize: 17,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.serifStack,
+    color: theme.palette.text.primary,
+    whiteSpace: 'nowrap',
     overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '55%',
+  },
+  itemDescription: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: 12.5,
+    color: theme.palette.text.dim,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  itemDate: {
+    flex: 'none',
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: researchWarmAlpha(0.35),
   },
   empty: {
-    padding: 24,
-    textAlign: 'center',
-    color: theme.palette.grey[500],
+    padding: '20px 8px',
+    color: theme.palette.text.dim,
     fontSize: 13,
+    fontStyle: 'italic',
   },
 }));
 
 const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType) => ({
-  tokenChipRow: {
+  tokenCorner: {
+    position: 'fixed',
+    bottom: 14,
+    right: 18,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end',
     gap: 6,
-    padding: '8px 24px 0',
   },
   tokenChip: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 8,
     padding: '4px 10px',
-    borderRadius: 12,
-    background: theme.palette.greyAlpha(0.05),
-    fontSize: 12.5,
-    color: theme.palette.grey[700],
-    fontFamily: theme.typography.fontFamily,
+    borderRadius: 999,
+    border: `1px solid ${researchWarmAlpha(0.1)}`,
+    background: researchCanvas(theme),
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: theme.palette.text.dim,
   },
   tokenChipReplace: {
     background: 'transparent',
     border: 'none',
-    color: theme.palette.grey[500],
-    fontSize: 12.5,
+    color: researchWarmAlpha(0.4),
+    fontSize: 10.5,
     padding: 0,
     cursor: 'pointer',
     fontFamily: 'inherit',
     textDecoration: 'underline',
     '&:hover': {
-      color: theme.palette.grey[700],
+      color: theme.palette.text.primary,
     },
   },
   tokenChipSuccess: {
-    fontSize: 12,
-    color: theme.palette.lwTertiary.main,
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: theme.palette.primary.main,
   },
   setupCard: {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
-    borderRadius: 8,
-    padding: 20,
+    ...researchCard(theme),
+    padding: 18,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-    boxShadow: theme.palette.boxShadow.default,
   },
   setupCardLabel: {
     fontSize: 14,
-    fontWeight: 500,
-    color: theme.palette.grey[800],
+    fontWeight: 600,
+    color: theme.palette.text.primary,
     marginBottom: 2,
   },
   setupCardDescription: {
     fontSize: 12.5,
-    color: theme.palette.grey[500],
+    color: theme.palette.text.dim,
     lineHeight: 1.45,
     marginBottom: 12,
   },
   setupCardRow: {
     display: 'flex',
-    gap: 10,
+    gap: 8,
     alignItems: 'flex-start',
   },
-  textInput: researchPlainTextInputStyles(theme),
+  textInput: researchTextInput(theme),
+  primaryButton: researchPrimaryButton(theme),
+  ghostButton: researchGhostButton(theme),
   inlineError: {
     fontSize: 12,
     color: theme.palette.error.main,
     marginTop: 4,
-  },
-}));
-
-const projectListItemStyles = defineStyles('ResearchProjectListItem', (theme: ThemeType) => ({
-  item: {
-    padding: '12px 16px',
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.05)}`,
-    cursor: 'pointer',
-    transition: 'background-color 0.1s ease',
-    '&:last-child': { borderBottom: 'none' },
-    '&:hover': {
-      background: theme.palette.greyAlpha(0.03),
-    },
-  },
-  itemTitle: {
-    fontSize: 15,
-    fontWeight: 500,
-    color: theme.palette.grey[900],
-  },
-  itemDescription: {
-    fontSize: 13,
-    color: theme.palette.grey[500],
-    marginTop: 2,
-    lineHeight: 1.4,
   },
 }));
 
@@ -323,17 +351,14 @@ const ResearchProjectList = () => {
 
   return (
     <div className={classes.outer}>
-      {tokenIsSet && !replacingToken && (
-        <ClaudeCodeTokenChip
-          saveMessage={tokenSaveMessage}
-          onReplaceClick={() => {
-            setTokenSaveMessage(null);
-            setReplacingToken(true);
-          }}
-        />
-      )}
-      <div className={classes.panes}>
-        <div className={classes.leftPaneInner}>
+      <a className={classes.escapeHatch} href="/">← LessWrong</a>
+      <div className={classes.scroll}>
+        <div className={classes.column}>
+          <div className={classes.heading}>
+            <span className={classes.eyebrow}>Research workspace</span>
+            <h1 className={classes.title}>Projects</h1>
+          </div>
+
           {(!tokenIsSet || replacingToken) && (
             <ClaudeCodeTokenSetup
               tokenIsSet={tokenIsSet}
@@ -361,14 +386,14 @@ const ResearchProjectList = () => {
               disabled={creating}
               autoComplete="off"
             />
-            <Button
-              variant="contained"
-              color="primary"
+            <button
+              type="button"
+              className={classes.primaryButton}
               onClick={handleCreate}
               disabled={creating || !newTitle.trim()}
             >
               {creating ? 'Creating…' : 'New project'}
-            </Button>
+            </button>
           </div>
 
           {loading && projects.length === 0 ? <Loading /> : null}
@@ -389,6 +414,15 @@ const ResearchProjectList = () => {
           )}
         </div>
       </div>
+      {tokenIsSet && !replacingToken && (
+        <ClaudeCodeTokenChip
+          saveMessage={tokenSaveMessage}
+          onReplaceClick={() => {
+            setTokenSaveMessage(null);
+            setReplacingToken(true);
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -402,16 +436,16 @@ function ClaudeCodeTokenChip({
 }) {
   const classes = useStyles(claudeCodeTokenStyles);
   return (
-    <div className={classes.tokenChipRow}>
+    <div className={classes.tokenCorner}>
+      {saveMessage && <span className={classes.tokenChipSuccess}>{saveMessage}</span>}
       <span className={classes.tokenChip}>
-        <span>Claude Code token ✓</span>
+        <span>claude token ✓</span>
         <button
           type="button"
           className={classes.tokenChipReplace}
           onClick={onReplaceClick}
         >replace</button>
       </span>
-      {saveMessage && <span className={classes.tokenChipSuccess}>{saveMessage}</span>}
     </div>
   );
 }
@@ -480,21 +514,23 @@ function ClaudeCodeTokenSetup({
           spellCheck={false}
         />
         {tokenIsSet && (
-          <Button
+          <button
+            type="button"
+            className={classes.ghostButton}
             onClick={() => { onCancel(); setTokenDraft(''); setTokenError(null); }}
             disabled={saving}
           >
             Cancel
-          </Button>
+          </button>
         )}
-        <Button
-          variant="contained"
-          color="primary"
+        <button
+          type="button"
+          className={classes.primaryButton}
           onClick={handleSave}
           disabled={saving || !tokenDraft.trim()}
         >
           {saving ? 'Saving…' : 'Save token'}
-        </Button>
+        </button>
       </div>
       {tokenError && <div className={classes.inlineError}>{tokenError}</div>}
     </div>
@@ -508,13 +544,12 @@ function ProjectListItem({
   project: ResearchProjectSummary;
   onOpen: () => void;
 }) {
-  const classes = useStyles(projectListItemStyles);
+  const classes = useStyles(styles);
   return (
     <li className={classes.item} onClick={onOpen}>
-      <div className={classes.itemTitle}>{project.title}</div>
-      {project.description && (
-        <div className={classes.itemDescription}>{project.description}</div>
-      )}
+      <span className={classes.itemTitle}>{project.title}</span>
+      <span className={classes.itemDescription}>{project.description ?? ''}</span>
+      <span className={classes.itemDate}>{moment(project.createdAt).format('MMM D')}</span>
     </li>
   );
 }

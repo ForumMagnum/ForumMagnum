@@ -21,9 +21,14 @@ export const graphqlResearchConversationQueryTypeDefs = gql`
     projectId: String
   }
 
+  input ResearchConversationsByProjectArchivedInput {
+    projectId: String
+  }
+
   input ResearchConversationSelector {
     default: EmptyViewInput
     byProject: ResearchConversationsByProjectInput
+    byProjectArchived: ResearchConversationsByProjectArchivedInput
   }
 
   input MultiResearchConversationInput {

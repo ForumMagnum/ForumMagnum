@@ -46,6 +46,7 @@ import {
   QueryInputContentNode,
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
+import { useActiveResearchEnvironmentIds, type ActiveResearchEnvironmentIds } from '../researchEnvironmentsQuery';
 import { isSandboxWarmingError } from '../sandboxWarming';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
@@ -216,6 +217,12 @@ export function QueryInputPlugin() {
   const isSuggestionModeRef = useRef(false);
   isSuggestionModeRef.current = externalModeContext?.userMode === EditorUserMode.Suggest;
 
+  // Read through a ref for the same reason as the mode above: the submit
+  // handler must see the current environment list without re-registering.
+  const activeEnvironments = useActiveResearchEnvironmentIds(env.projectId);
+  const activeEnvironmentsRef = useRef<ActiveResearchEnvironmentIds>(activeEnvironments);
+  activeEnvironmentsRef.current = activeEnvironments;
+
   useEffect(() => {
     if (!editor.hasNodes([QueryInputNode, QueryInputContentNode])) {
       throw new Error('QueryInputPlugin: QueryInputNode / QueryInputContentNode not registered on editor');
@@ -296,11 +303,22 @@ export function QueryInputPlugin() {
           // Default to a blank baseline if neither field is set (e.g. a submit
           // before the header finished hydrating), so we never send "neither"
           // and trip the backend's exactly-one check.
+          //
+          // A saved-environment selection that no longer resolves to an active
+          // environment (archived or deleted since it was stored in the node)
+          // must never reach the server either — it would boot the sandbox
+          // from an obsolete snapshot. `settled` gates the check so a
+          // cold-load submit can't misclassify a valid environment as stale.
           const rawSelection = queryInput.getSelection();
+          const { settled, activeIds } = activeEnvironmentsRef.current;
+          const environmentIsStale = !!rawSelection.baseEnvironmentId && settled && !activeIds.has(rawSelection.baseEnvironmentId);
           const querySelection: QueryInputSelection =
-            rawSelection.baseEnvironmentId || rawSelection.runtime
+            !environmentIsStale && (rawSelection.baseEnvironmentId || rawSelection.runtime)
               ? rawSelection
               : { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
+          if (environmentIsStale) {
+            flash({ messageString: `The selected environment is no longer available — running on a blank ${DEFAULT_BLANK_RUNTIME} sandbox instead.` });
+          }
 
           // Generate the conversation id client-side so the doc binds to the
           // conversation BEFORE the mutation returns: a refresh mid-flight

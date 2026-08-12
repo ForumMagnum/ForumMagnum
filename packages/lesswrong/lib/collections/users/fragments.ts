@@ -369,13 +369,6 @@ export const SunshineUsersList = gql(`
     }
     reviewGroup
     usersContactedBeforeReview
-    associatedClientIds {
-      clientId
-      firstSeenReferrer
-      firstSeenLandingPage
-      userIds
-    }
-    altAccountsDetected
 
     voteReceivedCount
     smallUpvoteReceivedCount
@@ -397,7 +390,30 @@ export const SunshineUsersList = gql(`
 export const UserAltAccountsFragment = gql(`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
     IPs
+  }
+`)
+
+// Client-ID/alt-account info is expensive to resolve, so it is excluded from
+// SunshineUsersList (which is loaded in bulk for the moderation queue) and
+// fetched lazily per-user when an individual moderation profile is opened.
+export const UserClientIdsInfo = gql(`
+  fragment UserClientIdsInfo on User {
+    _id
+    slug
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
+    altAccountsDetected
   }
 `)
 

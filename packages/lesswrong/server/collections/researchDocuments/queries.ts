@@ -21,9 +21,14 @@ export const graphqlResearchDocumentQueryTypeDefs = gql`
     projectId: String
   }
 
+  input ResearchDocumentsByProjectArchivedInput {
+    projectId: String
+  }
+
   input ResearchDocumentSelector {
     default: EmptyViewInput
     byProject: ResearchDocumentsByProjectInput
+    byProjectArchived: ResearchDocumentsByProjectArchivedInput
   }
 
   input MultiResearchDocumentInput {

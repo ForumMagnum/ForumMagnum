@@ -1,0 +1,723 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Vendored from @lexical/markdown v0.44.0 (MarkdownShortcuts.ts), with the
+ * internal helpers it depends on (canContainTransformableMarkdown, indexBy,
+ * transformersByType and the punctuation regexes) inlined, since the npm
+ * package only exposes its root entry point.
+ *
+ * Local modification: getOpenTagStartIndex applies the CommonMark
+ * "left-flanking" rule when searching for an opening text-format tag, so a
+ * word-final delimiter (e.g. the asterisk in "If*,") is not treated as
+ * opening emphasis when a later delimiter is typed.
+ */
+
+import type {
+  ElementTransformer,
+  MultilineElementTransformer,
+  TextFormatTransformer,
+  TextMatchTransformer,
+  Transformer,
+} from '@lexical/markdown';
+import type {ElementNode, LexicalEditor, LexicalNode, TextNode} from 'lexical';
+
+import {$isCodeNode} from '@lexical/code';
+import {TRANSFORMERS} from '@lexical/markdown';
+import {
+  $addUpdateTag,
+  $createRangeSelection,
+  $getSelection,
+  $isLineBreakNode,
+  $isRangeSelection,
+  $isRootOrShadowRoot,
+  $isTextNode,
+  $setSelection,
+  COLLABORATION_TAG,
+  COMMAND_PRIORITY_LOW,
+  HISTORIC_TAG,
+  HISTORY_PUSH_TAG,
+  KEY_ENTER_COMMAND,
+  mergeRegister,
+} from 'lexical';
+
+import invariant from '../lexical-shared/invariant';
+
+// Inlined from @lexical/markdown's internal utils.ts
+const PUNCTUATION_OR_SPACE = /[!-/:-@[-`{-~\s]/;
+const WHITESPACE = /[ \t\n\r\f]/;
+const PUNCTUATION = /[!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~]/;
+
+// Inlined from @lexical/markdown's internal importTextTransformers.ts
+function canContainTransformableMarkdown(
+  node: LexicalNode | undefined,
+): node is TextNode {
+  return $isTextNode(node) && !node.hasFormat('code');
+}
+
+// Inlined from @lexical/markdown's internal utils.ts
+function indexBy<T>(
+  list: Array<T>,
+  callback: (arg0: T) => string | undefined,
+): Readonly<Record<string, Array<T>>> {
+  const index: Record<string, Array<T>> = {};
+
+  for (const item of list) {
+    const key = callback(item);
+
+    if (!key) {
+      continue;
+    }
+
+    if (index[key]) {
+      index[key].push(item);
+    } else {
+      index[key] = [item];
+    }
+  }
+
+  return index;
+}
+
+// Inlined from @lexical/markdown's internal utils.ts
+function transformersByType(transformers: Array<Transformer>): Readonly<{
+  element: Array<ElementTransformer>;
+  multilineElement: Array<MultilineElementTransformer>;
+  textFormat: Array<TextFormatTransformer>;
+  textMatch: Array<TextMatchTransformer>;
+}> {
+  const byType = indexBy(transformers, (t) => t.type);
+
+  return {
+    element: (byType.element || []) as Array<ElementTransformer>,
+    multilineElement: (byType['multiline-element'] ||
+      []) as Array<MultilineElementTransformer>,
+    textFormat: (byType['text-format'] || []) as Array<TextFormatTransformer>,
+    textMatch: (byType['text-match'] || []) as Array<TextMatchTransformer>,
+  };
+}
+
+function runElementTransformers(
+  parentNode: ElementNode,
+  anchorNode: TextNode,
+  anchorOffset: number,
+  elementTransformers: ReadonlyArray<ElementTransformer>,
+): boolean {
+  const grandParentNode = parentNode.getParent();
+
+  if (
+    !$isRootOrShadowRoot(grandParentNode) ||
+    parentNode.getFirstChild() !== anchorNode
+  ) {
+    return false;
+  }
+
+  const textContent = anchorNode.getTextContent();
+
+  // Checking for anchorOffset position to prevent any checks for cases when caret is too far
+  // from a line start to be a part of block-level markdown trigger.
+  //
+  // TODO:
+  // Can have a quick check if caret is close enough to the beginning of the string (e.g. offset less than 10-20)
+  // since otherwise it won't be a markdown shortcut, but tables are exception
+  if (textContent[anchorOffset - 1] !== ' ') {
+    return false;
+  }
+
+  for (const {regExp, replace} of elementTransformers) {
+    const match = textContent.match(regExp);
+
+    if (
+      match &&
+      match[0].length ===
+        (match[0].endsWith(' ') ? anchorOffset : anchorOffset - 1)
+    ) {
+      const nextSiblings = anchorNode.getNextSiblings();
+      const [leadingNode, remainderNode] = anchorNode.splitText(anchorOffset);
+      const siblings = remainderNode
+        ? [remainderNode, ...nextSiblings]
+        : nextSiblings;
+      if (replace(parentNode, siblings, match, false) !== false) {
+        leadingNode.remove();
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function runMultilineElementTransformers(
+  parentNode: ElementNode,
+  anchorNode: TextNode,
+  anchorOffset: number,
+  elementTransformers: ReadonlyArray<MultilineElementTransformer>,
+  triggerOnEnter?: boolean,
+): boolean {
+  const grandParentNode = parentNode.getParent();
+
+  if (
+    !$isRootOrShadowRoot(grandParentNode) ||
+    parentNode.getFirstChild() !== anchorNode
+  ) {
+    return false;
+  }
+
+  const textContent = anchorNode.getTextContent();
+
+  if (!triggerOnEnter) {
+    // Checking for anchorOffset position to prevent any checks for cases when caret is too far
+    // from a line start to be a part of block-level markdown trigger.
+    //
+    // TODO:
+    // Can have a quick check if caret is close enough to the beginning of the string (e.g. offset less than 10-20)
+    // since otherwise it won't be a markdown shortcut, but tables are exception
+    if (textContent[anchorOffset - 1] !== ' ') {
+      return false;
+    }
+  }
+
+  for (const {regExpStart, replace, regExpEnd} of elementTransformers) {
+    if (
+      (regExpEnd && !('optional' in regExpEnd)) ||
+      (regExpEnd && 'optional' in regExpEnd && !regExpEnd.optional)
+    ) {
+      continue;
+    }
+
+    const match = textContent.match(regExpStart);
+
+    if (match) {
+      const matchLength =
+        triggerOnEnter || match[0].endsWith(' ')
+          ? anchorOffset
+          : anchorOffset - 1;
+
+      if (match[0].length !== matchLength) {
+        continue;
+      }
+
+      const nextSiblings = anchorNode.getNextSiblings();
+      const [leadingNode, remainderNode] = anchorNode.splitText(anchorOffset);
+      const siblings = remainderNode
+        ? [remainderNode, ...nextSiblings]
+        : nextSiblings;
+
+      if (replace(parentNode, siblings, match, null, null, false) !== false) {
+        leadingNode.remove();
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function runTextMatchTransformers(
+  anchorNode: TextNode,
+  anchorOffset: number,
+  transformersByTrigger: Readonly<Record<string, Array<TextMatchTransformer>>>,
+): boolean {
+  let textContent = anchorNode.getTextContent();
+  const lastChar = textContent[anchorOffset - 1];
+  const transformers = transformersByTrigger[lastChar];
+
+  if (transformers == null) {
+    return false;
+  }
+
+  // If typing in the middle of content, remove the tail to do
+  // reg exp match up to a string end (caret position)
+  if (anchorOffset < textContent.length) {
+    textContent = textContent.slice(0, anchorOffset);
+  }
+
+  for (const transformer of transformers) {
+    if (!transformer.replace || !transformer.regExp) {
+      continue;
+    }
+    const match = textContent.match(transformer.regExp);
+
+    if (match === null) {
+      continue;
+    }
+
+    const startIndex = match.index || 0;
+    const endIndex = startIndex + match[0].length;
+    let replaceNode;
+
+    if (startIndex === 0) {
+      [replaceNode] = anchorNode.splitText(endIndex);
+    } else {
+      [, replaceNode] = anchorNode.splitText(startIndex, endIndex);
+    }
+
+    replaceNode.selectNext(0, 0);
+    transformer.replace(replaceNode, match);
+    return true;
+  }
+
+  return false;
+}
+
+function $runTextFormatTransformers(
+  anchorNode: TextNode,
+  anchorOffset: number,
+  textFormatTransformers: Readonly<
+    Record<string, ReadonlyArray<TextFormatTransformer>>
+  >,
+): boolean {
+  const textContent = anchorNode.getTextContent();
+  const closeTagEndIndex = anchorOffset - 1;
+  const closeChar = textContent[closeTagEndIndex];
+  // Quick check if we're possibly at the end of inline markdown style
+  const matchers = textFormatTransformers[closeChar];
+
+  if (!matchers) {
+    return false;
+  }
+
+  for (const matcher of matchers) {
+    const {tag} = matcher;
+    const tagLength = tag.length;
+    const closeTagStartIndex = closeTagEndIndex - tagLength + 1;
+
+    // If tag is not single char check if rest of it matches with text content
+    if (tagLength > 1) {
+      if (
+        !isEqualSubString(textContent, closeTagStartIndex, tag, 0, tagLength)
+      ) {
+        continue;
+      }
+    }
+
+    // Space before closing tag cancels inline markdown
+    if (textContent[closeTagStartIndex - 1] === ' ') {
+      continue;
+    }
+
+    // Some tags can not be used within words, hence should have newline/space/punctuation after it
+    const afterCloseTagChar = textContent[closeTagEndIndex + 1];
+
+    if (
+      matcher.intraword === false &&
+      afterCloseTagChar &&
+      !PUNCTUATION_OR_SPACE.test(afterCloseTagChar)
+    ) {
+      continue;
+    }
+
+    const closeNode = anchorNode;
+    let openNode = closeNode;
+    let openTagStartIndex = getOpenTagStartIndex(
+      textContent,
+      closeTagStartIndex,
+      tag,
+    );
+
+    // Go through text node siblings and search for opening tag
+    // if haven't found it within the same text node as closing tag
+    let sibling: TextNode | null = openNode;
+
+    while (
+      openTagStartIndex < 0 &&
+      (sibling = sibling.getPreviousSibling<TextNode>())
+    ) {
+      if ($isLineBreakNode(sibling)) {
+        break;
+      }
+
+      if ($isTextNode(sibling)) {
+        if (sibling.hasFormat('code')) {
+          continue;
+        }
+        const siblingTextContent = sibling.getTextContent();
+        const nextSibling = sibling.getNextSibling();
+        openNode = sibling;
+        openTagStartIndex = getOpenTagStartIndex(
+          siblingTextContent,
+          siblingTextContent.length,
+          tag,
+          $isTextNode(nextSibling)
+            ? nextSibling.getTextContent()[0]
+            : undefined,
+        );
+      }
+    }
+
+    // Opening tag is not found
+    if (openTagStartIndex < 0) {
+      continue;
+    }
+
+    // No content between opening and closing tag
+    if (
+      openNode === closeNode &&
+      openTagStartIndex + tagLength === closeTagStartIndex
+    ) {
+      continue;
+    }
+
+    // Checking longer tags for repeating chars (e.g. *** vs **)
+    const prevOpenNodeText = openNode.getTextContent();
+
+    if (
+      openTagStartIndex > 0 &&
+      prevOpenNodeText[openTagStartIndex - 1] === closeChar
+    ) {
+      continue;
+    }
+
+    // Some tags can not be used within words, hence should have newline/space/punctuation before it
+    const beforeOpenTagChar = prevOpenNodeText[openTagStartIndex - 1];
+
+    if (
+      matcher.intraword === false &&
+      beforeOpenTagChar &&
+      !PUNCTUATION_OR_SPACE.test(beforeOpenTagChar)
+    ) {
+      continue;
+    }
+
+    // Per CommonMark, code spans take precedence over other inline formatting
+    if (
+      !matcher.format.includes('code') &&
+      $isInsideUnclosedCodeSpan(openNode, openTagStartIndex)
+    ) {
+      continue;
+    }
+
+    // Clean text from opening and closing tags (starting from closing tag
+    // to prevent any offset shifts if we start from opening one)
+    const prevCloseNodeText = closeNode.getTextContent();
+    const closeNodeText =
+      prevCloseNodeText.slice(0, closeTagStartIndex) +
+      prevCloseNodeText.slice(closeTagEndIndex + 1);
+    closeNode.setTextContent(closeNodeText);
+    const openNodeText =
+      openNode === closeNode ? closeNodeText : prevOpenNodeText;
+    openNode.setTextContent(
+      openNodeText.slice(0, openTagStartIndex) +
+        openNodeText.slice(openTagStartIndex + tagLength),
+    );
+    const selection = $getSelection();
+    const nextSelection = $createRangeSelection();
+    $setSelection(nextSelection);
+    // Adjust offset based on deleted chars
+    const newOffset =
+      closeTagEndIndex - (tagLength * (openNode === closeNode ? 2 : 1)) + 1;
+    nextSelection.anchor.set(openNode.__key, openTagStartIndex, 'text');
+    nextSelection.focus.set(closeNode.__key, newOffset, 'text');
+
+    // Apply formatting to selected text
+    for (const format of matcher.format) {
+      if (!nextSelection.hasFormat(format)) {
+        nextSelection.formatText(format);
+      }
+    }
+
+    // Collapse selection up to the focus point
+    nextSelection.anchor.set(
+      nextSelection.focus.key,
+      nextSelection.focus.offset,
+      nextSelection.focus.type,
+    );
+
+    // Remove formatting from collapsed selection
+    for (const format of matcher.format) {
+      if (nextSelection.hasFormat(format)) {
+        nextSelection.toggleFormat(format);
+      }
+    }
+
+    if ($isRangeSelection(selection)) {
+      nextSelection.format = selection.format;
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+// Per CommonMark spec, code spans take precedence over other inline
+// formatting. Returns true if there is an unclosed backtick (code span
+// opener) in the text preceding the given offset, which means the offset
+// is inside a code span that hasn't been closed yet.
+function $isInsideUnclosedCodeSpan(node: TextNode, offset: number): boolean {
+  let backtickCount = 0;
+
+  const text = node.getTextContent();
+  for (let i = 0; i < offset; i++) {
+    if (text[i] === '`') {
+      backtickCount++;
+    }
+  }
+
+  return backtickCount % 2 !== 0;
+}
+
+/**
+ * Search backwards from maxIndex for an opening tag. `charAfterString` is
+ * the character that follows `string` in the document (the first character
+ * of the next text node), used to classify a tag at the very end of the
+ * string.
+ */
+function getOpenTagStartIndex(
+  string: string,
+  maxIndex: number,
+  tag: string,
+  charAfterString?: string,
+): number {
+  const tagLength = tag.length;
+
+  for (let i = maxIndex; i >= tagLength; i--) {
+    const startIndex = i - tagLength;
+
+    if (!isEqualSubString(string, startIndex, tag, 0, tagLength)) {
+      continue;
+    }
+
+    // CommonMark left-flanking rule: an opening tag must not be followed by
+    // whitespace, and if it is followed by punctuation it must be preceded
+    // by whitespace or punctuation. This prevents a word-final tag (e.g.
+    // the asterisk in "If*,") from opening emphasis.
+    const afterChar =
+      startIndex + tagLength < string.length
+        ? string[startIndex + tagLength]
+        : charAfterString;
+    if (afterChar !== undefined) {
+      if (WHITESPACE.test(afterChar)) {
+        continue;
+      }
+      const beforeChar = string[startIndex - 1];
+      if (
+        PUNCTUATION.test(afterChar) &&
+        beforeChar !== undefined &&
+        !PUNCTUATION_OR_SPACE.test(beforeChar)
+      ) {
+        continue;
+      }
+    }
+
+    return startIndex;
+  }
+
+  return -1;
+}
+
+function isEqualSubString(
+  stringA: string,
+  aStart: number,
+  stringB: string,
+  bStart: number,
+  length: number,
+): boolean {
+  for (let i = 0; i < length; i++) {
+    if (stringA[aStart + i] !== stringB[bStart + i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function registerMarkdownShortcuts(
+  editor: LexicalEditor,
+  transformers: Array<Transformer> = TRANSFORMERS,
+): () => void {
+  const byType = transformersByType(transformers);
+  const textFormatTransformersByTrigger = indexBy(
+    byType.textFormat,
+    ({tag}) => tag[tag.length - 1],
+  );
+  const textMatchTransformersByTrigger = indexBy(
+    byType.textMatch,
+    ({trigger}) => trigger,
+  );
+
+  for (const transformer of transformers) {
+    const type = transformer.type;
+    if (
+      type === 'element' ||
+      type === 'text-match' ||
+      type === 'multiline-element'
+    ) {
+      const dependencies = transformer.dependencies;
+      for (const node of dependencies) {
+        if (!editor.hasNode(node)) {
+          invariant(
+            false,
+            'MarkdownShortcuts: missing dependency %s for transformer. Ensure node dependency is included in editor initial config.',
+            node.getType(),
+          );
+        }
+      }
+    }
+  }
+
+  const $transform = (
+    parentNode: ElementNode,
+    anchorNode: TextNode,
+    anchorOffset: number,
+  ): boolean => {
+    if (
+      runElementTransformers(
+        parentNode,
+        anchorNode,
+        anchorOffset,
+        byType.element,
+      )
+    ) {
+      return true;
+    }
+
+    if (
+      runMultilineElementTransformers(
+        parentNode,
+        anchorNode,
+        anchorOffset,
+        byType.multilineElement,
+      )
+    ) {
+      return true;
+    }
+
+    if (
+      runTextMatchTransformers(
+        anchorNode,
+        anchorOffset,
+        textMatchTransformersByTrigger,
+      )
+    ) {
+      return true;
+    }
+
+    if (
+      $runTextFormatTransformers(
+        anchorNode,
+        anchorOffset,
+        textFormatTransformersByTrigger,
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  return mergeRegister(
+    editor.registerUpdateListener(
+      ({tags, dirtyLeaves, editorState, prevEditorState}) => {
+        // Ignore updates from collaboration and undo/redo (as changes already calculated)
+        if (tags.has(COLLABORATION_TAG) || tags.has(HISTORIC_TAG)) {
+          return;
+        }
+
+        // If editor is still composing (i.e. backticks) we must wait before the user confirms the key
+        if (editor.isComposing()) {
+          return;
+        }
+
+        const selection = editorState.read($getSelection);
+        const prevSelection = prevEditorState.read($getSelection);
+
+        // We expect selection to be a collapsed range and not match previous one (as we want
+        // to trigger transforms only as user types)
+        if (
+          !$isRangeSelection(prevSelection) ||
+          !$isRangeSelection(selection) ||
+          !selection.isCollapsed() ||
+          selection.is(prevSelection)
+        ) {
+          return;
+        }
+
+        const anchorKey = selection.anchor.key;
+        const anchorOffset = selection.anchor.offset;
+
+        const anchorNode = editorState._nodeMap.get(anchorKey);
+
+        if (
+          !$isTextNode(anchorNode) ||
+          !dirtyLeaves.has(anchorKey) ||
+          (anchorOffset !== 1 && anchorOffset > prevSelection.anchor.offset + 1)
+        ) {
+          return;
+        }
+
+        editor.update(() => {
+          if (!canContainTransformableMarkdown(anchorNode)) {
+            return;
+          }
+
+          const parentNode = anchorNode.getParent();
+
+          if (parentNode === null || $isCodeNode(parentNode)) {
+            return;
+          }
+
+          if ($transform(parentNode, anchorNode, selection.anchor.offset)) {
+            $addUpdateTag(HISTORY_PUSH_TAG);
+          }
+        });
+      },
+    ),
+    editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      (event) => {
+        if (event !== null && event.shiftKey) {
+          return false;
+        }
+
+        const selection = $getSelection();
+
+        if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+          return false;
+        }
+
+        const anchorOffset = selection.anchor.offset;
+        const anchorNode = selection.anchor.getNode();
+
+        if (
+          !$isTextNode(anchorNode) ||
+          !canContainTransformableMarkdown(anchorNode)
+        ) {
+          return false;
+        }
+
+        const parentNode = anchorNode.getParent();
+
+        if (parentNode === null || $isCodeNode(parentNode)) {
+          return false;
+        }
+
+        const textContent = anchorNode.getTextContent();
+
+        if (anchorOffset !== textContent.length) {
+          return false;
+        }
+
+        if (
+          runMultilineElementTransformers(
+            parentNode,
+            anchorNode,
+            anchorOffset,
+            byType.multilineElement,
+            true,
+          )
+        ) {
+          if (event !== null) {
+            event.preventDefault();
+          }
+          return true;
+        }
+
+        return false;
+      },
+      COMMAND_PRIORITY_LOW,
+    ),
+  );
+}

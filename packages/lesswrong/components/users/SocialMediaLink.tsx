@@ -3,8 +3,16 @@ import {
   SocialMediaProfileField,
   profileFieldToSocialMediaHref,
 } from "../../lib/collections/users/helpers";
-import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
 import SocialMediaIcon from "../icons/SocialMediaIcon";
+
+const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
+  "linkedinProfileURL": "linkedin",
+  "facebookProfileURL": "facebook",
+  "blueskyProfileURL": "bluesky",
+  "twitterProfileURL": "twitter",
+  "githubProfileURL": "github",
+  "website": "website",
+};
 
 const SocialMediaLink = ({user, field, className}: {
   user: UsersProfile,

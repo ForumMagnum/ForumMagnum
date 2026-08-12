@@ -12,7 +12,6 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 20,
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -20,6 +19,9 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   },
   section: {
     marginBottom: 16,
+    '&:last-child': {
+      marginBottom: 0,
+    },
   },
   sectionTitle: {
     fontSize: 12,
@@ -29,8 +31,27 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     marginBottom: 8,
     letterSpacing: '0.5px',
   },
+  sectionTitleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  markAllDone: {
+    fontSize: 11,
+    fontWeight: 400,
+    color: theme.palette.grey[500],
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
   item: {
     marginBottom: 8,
+    '&:last-child': {
+      marginBottom: 0,
+    },
     borderRadius: 4,
     border: theme.palette.border.faint,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
@@ -98,7 +119,17 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     fontSize: 12,
     fontStyle: 'italic',
   },
+  loadMore: {
+    fontSize: 12,
+    color: theme.palette.grey[500],
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
 }));
+
+const HISTORY_PAGE_SIZE = 2;
 
 const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDuration: number }) => {
   const classes = useStyles(styles);
@@ -152,6 +183,7 @@ const ModerationUndoHistory = ({
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
+  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
 
   // Warn user if they try to close the tab or navigate away while there are pending actions
   useEffect(() => {
@@ -176,10 +208,26 @@ const ModerationUndoHistory = ({
     dispatch({ type: 'UNDO_ACTION', userId });
   };
 
+  const handleMarkAllDone = () => {
+    for (const item of undoQueue) {
+      // Cancel the pending expiration timeout so the action doesn't run twice
+      clearTimeout(item.timeoutId);
+      dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: item.user._id });
+      void item.executeAction();
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Undo Queue</div>
+        <div className={classes.sectionTitleRow}>
+          <div className={classes.sectionTitle}>Undo Queue</div>
+          {undoQueue.length > 0 && (
+            <div className={classes.markAllDone} onClick={handleMarkAllDone}>
+              Mark all done
+            </div>
+          )}
+        </div>
         {undoQueue.length === 0 ? (
           <div className={classes.empty}>No pending actions</div>
         ) : (
@@ -210,16 +258,23 @@ const ModerationUndoHistory = ({
         {history.length === 0 ? (
           <div className={classes.empty}>No history</div>
         ) : (
-          history.slice(-5).reverse().map((item) => (
-            <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
-              <div className={classes.itemContent}>
-                <div className={classes.itemLeft}>
-                  <span className={classes.userName}>{item.user.displayName}</span>
-                  <span className={classes.actionLabel}>{item.actionLabel}</span>
+          <>
+            {history.slice(-historyLimit).reverse().map((item) => (
+              <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
+                <div className={classes.itemContent}>
+                  <div className={classes.itemLeft}>
+                    <span className={classes.userName}>{item.user.displayName}</span>
+                    <span className={classes.actionLabel}>{item.actionLabel}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+            {history.length > historyLimit && (
+              <div className={classes.loadMore} onClick={() => setHistoryLimit(historyLimit + HISTORY_PAGE_SIZE)}>
+                Load more
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

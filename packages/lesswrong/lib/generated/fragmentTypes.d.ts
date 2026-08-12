@@ -179,6 +179,7 @@ interface FragmentTypes {
   UltraFeedPostFragment: UltraFeedPostFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserAltAccountsFragment: UserAltAccountsFragment
+  UserClientIdsInfo: UserClientIdsInfo
   UserKarmaChanges: UserKarmaChanges
   UserMostValuablePostInfo: UserMostValuablePostInfo
   UserProfilePost: UserProfilePost
@@ -268,7 +269,7 @@ interface FragmentTypesByCollection {
   TypoSuggestions: "TypoSuggestionsDefaultFragment"
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMergeSearchResult"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserClientIdsInfo"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMergeSearchResult"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -444,6 +445,7 @@ interface CollectionNamesByFragmentName {
   UltraFeedPostFragment: "Posts"
   UnclaimedReportsList: "Reports"
   UserAltAccountsFragment: "Users"
+  UserClientIdsInfo: "Users"
   UserKarmaChanges: "Users"
   UserMostValuablePostInfo: "UserMostValuablePosts"
   UserProfilePost: "Posts"

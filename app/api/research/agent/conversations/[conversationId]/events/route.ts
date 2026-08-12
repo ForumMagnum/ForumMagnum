@@ -24,7 +24,7 @@ const eventKindSchema = z.enum([
   // Per-turn metadata wrapper (`subtype`, `duration_ms`, `usage`,
   // `is_error`). Claude Code emits exactly one per turn, regardless of how
   // many intermediate events the turn produced, so we use it as a robust
-  // turn-end signal in the UI. Skipped during `writeBootstrapJsonl` so it
+  // turn-end signal in the UI. Skipped during `buildBootstrapJsonl` so it
   // never lands back in Claude's resume context.
   "result",
 ]);

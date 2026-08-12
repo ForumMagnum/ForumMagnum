@@ -33,7 +33,7 @@ export function viewTermsToQuery<N extends CollectionNameString>(
   apolloClient: any,
   resolverContext: ResolverContext
 ) {
-  return getParameters(viewSet, terms, apolloClient, resolverContext);
+  return getParameters(viewSet, terms, resolverContext, apolloClient);
 }
 
 /**
@@ -66,8 +66,8 @@ export async function mergeWithDefaultViewSelector<N extends CollectionNameStrin
 async function getParameters<N extends CollectionNameString>(
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
   terms: ViewTermsByCollectionName[N],
+  context: ResolverContext,
   apolloClient?: any,
-  context?: ResolverContext
 ): Promise<MergedViewQueryAndOptions<ObjectsByCollectionName[N]>> {
   const logger = loggerConstructor(`views-${viewSet.collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);

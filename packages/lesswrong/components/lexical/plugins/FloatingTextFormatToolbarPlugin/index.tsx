@@ -57,7 +57,10 @@ import {
 } from '../ToolbarPlugin/utils';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
-import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import {
+  $isSelectionInCollapsibleSection,
+  WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND,
+} from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { SHORTCUTS } from '../ShortcutsPlugin/shortcuts';
 
 const styles = defineStyles('LexicalFloatingTextFormatToolbar', (theme: ThemeType) => ({
@@ -209,6 +212,7 @@ function TextFormatFloatingToolbar({
   isStrikethrough,
   setIsLinkEditMode,
   blockType,
+  isInCollapsibleSection,
   variant,
   showInlineCommentButton,
   isSuggestionMode,
@@ -221,6 +225,7 @@ function TextFormatFloatingToolbar({
   isStrikethrough: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   blockType: string;
+  isInCollapsibleSection: boolean;
   variant: FloatingToolbarVariant;
   showInlineCommentButton: boolean;
   isSuggestionMode: boolean;
@@ -547,11 +552,13 @@ function TextFormatFloatingToolbar({
       key="collapsible"
       type="button"
       onClick={() => {
-        editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined);
+        editor.dispatchCommand(WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND, undefined);
       }}
-      className={classNames(classes.popupItem, classes.spaced)}
-      title="Insert collapsible section"
-      aria-label="Insert collapsible section">
+      className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isInCollapsibleSection })}
+      title={isInCollapsibleSection
+        ? 'Remove collapsible section'
+        : 'Collapsible section (first selected block becomes the summary)'}
+      aria-label="Format selection as collapsible section">
       <CaretRightFillIcon className={classes.format} />
     </button>
   );
@@ -563,7 +570,7 @@ function TextFormatFloatingToolbar({
     [linkButton],
     [quoteButton, bulletListButton, numberedListButton],
     ...(variant === 'post' ? [[codeButton]] : []),
-    [mathButton, footnoteButton, ...(variant === 'comment' ? [collapsibleSectionButton] : [])],
+    [mathButton, footnoteButton, collapsibleSectionButton],
   ];
 
   const visibleGroups = groups.filter((group) => group.length > 0);
@@ -593,6 +600,7 @@ function useFloatingTextFormatToolbar(
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isInCollapsibleSection, setIsInCollapsibleSection] = useState(false);
   const { toolbarState } = useToolbarState();
 
   const updatePopup = useCallback(() => {
@@ -625,6 +633,7 @@ function useFloatingTextFormatToolbar(
       setIsBold(selection.hasFormat('bold'));
       setIsItalic(selection.hasFormat('italic'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsInCollapsibleSection($isSelectionInCollapsibleSection());
 
       // Update links
       const parent = node.getParent();
@@ -686,6 +695,7 @@ function useFloatingTextFormatToolbar(
       isItalic={isItalic}
       isStrikethrough={isStrikethrough}
       blockType={toolbarState.blockType}
+      isInCollapsibleSection={isInCollapsibleSection}
       setIsLinkEditMode={setIsLinkEditMode}
       variant={variant}
       showInlineCommentButton={showInlineCommentButton}

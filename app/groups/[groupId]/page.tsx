@@ -6,7 +6,6 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { notFound } from "next/navigation";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -46,7 +45,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   
     const localgroup = data?.localgroup?.result;
   
-    if (!localgroup) return notFound();
+    if (!localgroup) return defaultMetadata;
   
     const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get();
     const descriptionFields = getMetadataDescriptionFields(description);

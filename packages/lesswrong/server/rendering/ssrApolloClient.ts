@@ -4,6 +4,7 @@ import { LoggedOutCacheLink } from "@/server/rendering/loggedOutCacheLink";
 import { ApolloClient, InMemoryCache } from "@apollo/client-integration-nextjs";
 import { ApolloLink } from "@apollo/client";
 import { headerLink, createErrorLink } from "@/lib/apollo/links";
+import { apolloTypePolicies } from "@/lib/apollo/typePolicies";
 import { type GraphQLSchema } from "graphql";
 import { SchemaLink } from "@apollo/client/link/schema";
 
@@ -85,7 +86,7 @@ export async function getApolloClientForSSRWithContext(context: ResolverContext)
   const schema = getExecutableSchema();
 
   return new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({ typePolicies: apolloTypePolicies }),
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),

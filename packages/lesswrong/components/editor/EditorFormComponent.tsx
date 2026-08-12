@@ -11,7 +11,7 @@ import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebounc
 import { useMessages } from '../common/withMessages';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FieldValueSetter } from '@/components/tanstack-form-components/BaseAppForm';
 import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
@@ -36,7 +36,7 @@ export type AddOnSuccessCallback<R> = (fn: EditorSuccessCallback<R>) => () => vo
 export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback) => () => void;
 
 interface EditorFormComponentProps<S, R> {
-  field: TypedFieldApi<any>;
+  field: FieldValueSetter<AnyBecauseHard> & { handleChange: (value: AnyBecauseHard) => void };
   commentEditor?: boolean;
   commentStyles?: boolean;
   commentMinimalistStyle?: boolean;
@@ -54,6 +54,12 @@ interface EditorFormComponentProps<S, R> {
   revisionsHaveCommitMessages?: boolean;
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
+  /**
+   * Called on every editor change with whether the contents are blank. Unlike
+   * the form field value (which is only updated on a throttle), this fires
+   * immediately, so it's suitable for enabling/disabling a submit button.
+   */
+  onBlankStateChange?: (isBlank: boolean) => void;
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
@@ -117,6 +123,7 @@ function InnerEditorFormComponent<S, R>({
   revisionsHaveCommitMessages,
   hasToc,
   setFieldEditorType,
+  onBlankStateChange,
   addOnSubmitCallback,
   addOnSuccessCallback,
   getLocalStorageId,
@@ -256,6 +263,7 @@ function InnerEditorFormComponent<S, R>({
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     setFieldEditorType?.(newContents?.type)
+    onBlankStateChange?.(isBlank(newContents))
     void throttledSetContentsValue(newContents)
     
     if (autosave) {

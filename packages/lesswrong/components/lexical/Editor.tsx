@@ -8,6 +8,7 @@
 
 import React, {useContext, type JSX} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { COLLAPSIBLE_MARKER_GUTTER } from '@/themes/stylePiping';
 import classNames from 'classnames';
 
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
@@ -59,6 +60,7 @@ import CodeHighlightCSSPlugin from './plugins/CodeHighlightCSSPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
+import ResearchCommentsMargin from '@/components/research/lexical/ResearchCommentsMargin';
 import { CommentStoreProvider } from './commenting/CommentStoreContext';
 import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
@@ -126,6 +128,7 @@ import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNav
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
+import InlineCodeEscapePlugin from '../editor/lexicalPlugins/inlineCodeEscape';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
@@ -230,6 +233,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       padding: '0 !important',
       minHeight: '0 !important',
       border: 'none !important',
+      // The collapsed block still contains the full syntax-highlighted code
+      // DOM (thousands of token spans on big widgets). Skip its rendering
+      // work (style/layout/paint) entirely — the element keeps its explicit
+      // height, so the spacer geometry is unaffected, but per-keystroke
+      // style recalcs no longer walk the hidden token spans.
+      contentVisibility: 'hidden',
       '&::before': {
         display: 'none !important',
       },
@@ -259,50 +268,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         width: 'calc(100% - 20px)',
       },
     },
-    '& .detailsBlock': {
-      margin: '1em 0',
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 4,
-      overflow: 'hidden',
-    },
-    '& .detailsBlockEdit': {
-      // In editing mode, we use a div instead of details for better cursor control
-    },
-    '& .detailsBlockTitle': {
-      backgroundColor: theme.palette.grey[100],
-      fontWeight: 600,
-      cursor: 'default',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5em',
-      position: 'relative',
-      '&::before': {
-        content: '"▼"',
-        fontSize: '0.75em',
-        transition: 'transform 0.2s ease',
-        cursor: 'pointer',
-      },
-      '& p': {
-        margin: 0,
-        flex: 1,
-        cursor: 'text',
-      },
-    },
-    '& .detailsBlockClosed .detailsBlockContent': {
-      display: 'none',
-    },
-    '& .detailsBlockClosed .detailsBlockTitle::before': {
-      transform: 'rotate(-90deg)',
-    },
-    '& .detailsBlockContent': {
-      padding: '0.75em 1em',
-      '& > p:first-child': {
-        marginTop: 0,
-      },
-      '& > p:last-child': {
-        marginBottom: 0,
-      },
-    },
+    // Collapsible sections are styled by `collapsibleSectionStyles` in
+    // stylePiping, which reaches the editor via its ContentStyles wrapper.
+    // Only Lexical-specific affordances belong here.
     '& .detailsBlock.detailsBlockSelected': {
       outline: `2px solid ${theme.palette.primary.main}`,
       outlineOffset: 2,
@@ -311,8 +279,17 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       content: '"Collapsible Section Title"',
       color: theme.palette.grey[500],
       position: 'absolute',
-      top: 8,
-      left: 24,
+      top: 2,
+      left: COLLAPSIBLE_MARKER_GUTTER,
+    },
+    // Sentinels' <br> line box blocks margin collapsing, doubling the
+    // gaps around collapsible sections vs the rendered page. Only zero
+    // margins next to neighbours that have their own margin.
+    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, blockquote, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
+      marginTop: 0,
+    },
+    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6, + .sentinel-paragraph + blockquote)': {
+      marginBottom: 0,
     },
     '& .footnote-content': {
       flex: 1,
@@ -376,12 +353,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     [`& .${QUERY_INPUT_DOM_CLASS}`]: {
       position: 'relative',
-      margin: '12px 0',
-      padding: '8px 12px',
-      paddingRight: 240,
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 6,
-      background: theme.palette.grey[50],
+      margin: '14px 0',
+      padding: '2px 0 2px 14px',
+      borderLeft: `2px solid ${theme.palette.greyAlpha(0.14)}`,
       '& > p:first-of-type': {
         marginTop: 0,
       },
@@ -391,9 +365,16 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     [`& .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
       position: 'absolute',
-      top: 4,
-      right: 8,
+      bottom: 0,
+      right: 0,
       zIndex: 1,
+      background: theme.palette.panelBackground.default,
+      borderRadius: 4,
+      opacity: 0.45,
+      transition: 'opacity 120ms ease',
+    },
+    [`& .${QUERY_INPUT_DOM_CLASS}:hover .${QUERY_INPUT_HEADER_DOM_CLASS}, & .${QUERY_INPUT_DOM_CLASS}:focus-within .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
+      opacity: 1,
     },
     [`& .${QUERY_INPUT_CONTENT_DOM_CLASS}`]: {
       outline: 0,
@@ -747,7 +728,8 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
-  const { supportsCollabComments } = useLexicalEditorContext();
+  const { isPostEditor, collectionName: editorCollectionName, supportsCollabComments } = useLexicalEditorContext();
+  const isResearchEditor = editorCollectionName === 'ResearchDocuments';
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -763,6 +745,8 @@ export default function Editor({
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+  const showPostCommentFeatures = isPostEditor && !isCommentEditor;
+  const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
   const showCommentFeatures = supportsCollabComments && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
@@ -833,13 +817,14 @@ export default function Editor({
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
+    if (!onChangeHtml) return;
     editorState.read(() => {
       const html = $generateHtmlFromNodes(editor, null);
       const restoredHtml = restoreInternalIds(
         html,
         internalIdsRef.current
       );
-      onChangeHtml?.(restoredHtml);
+      onChangeHtml(restoredHtml);
     });
   }, [editor, onChangeHtml]);
 
@@ -897,7 +882,7 @@ export default function Editor({
                 {!(isCollab && useCollabV2) && (
                   <>
                     <CommentPlugin />
-                    <SideCommentsPlugin />
+                    {showPostCommentFeatures && <SideCommentsPlugin />}
                   </>
                 )}
               <SuggestedEditsPlugin
@@ -905,6 +890,7 @@ export default function Editor({
                 userMode={userMode}
                 onUserModeChange={handleUserModeChange}
               />
+              {showResearchCommentFeatures && <ResearchCommentsMargin />}
               </CommentStoreProvider>
             </CollaboratorIdentityProvider>
           )}
@@ -1000,12 +986,13 @@ export default function Editor({
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <HorizontalRuleEnterPlugin />
+            <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
-            <CollapsibleSectionsPlugin />
+            <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />
             <ContainerQuotePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />

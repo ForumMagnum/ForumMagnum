@@ -6,9 +6,10 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
+import { researchMono, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { ResearchEnvironmentsByProjectQuery } from '../researchEnvironmentsQuery';
-import { useResearchEditorEnvironmentOptional } from './ResearchEditorContext';
+import { useResearchEditorEnvironment } from './ResearchEditorContext';
 import {
   $isQueryInputNode,
   type QueryInputSelection,
@@ -19,19 +20,36 @@ import {
 } from './QueryInputNode';
 
 const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
+  cluster: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '1px 2px',
+  },
   select: {
-    background: theme.palette.panelBackground.default,
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    fontSize: 12,
-    color: theme.palette.text.normal,
-    padding: '2px 4px',
-    maxWidth: 220,
+    background: 'transparent',
+    border: 'none',
+    borderRadius: researchRadius.xs,
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: theme.palette.text.dim,
+    padding: '1px 2px',
+    maxWidth: 200,
     cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
     '&:disabled': {
       color: theme.palette.text.dim,
       cursor: 'default',
     },
+  },
+  runHint: {
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: researchWarmAlpha(0.4),
+    whiteSpace: 'nowrap',
+    userSelect: 'none',
   },
 }));
 
@@ -44,13 +62,22 @@ function storageKeyForProject(projectId: string): string {
   return `research:lastSelectedEnvironment:${projectId}`;
 }
 
-function resolveDefaultSelection(projectId: string | null): QueryInputSelection {
-  if (projectId) {
-    const last = getBrowserLocalStorage()?.getItem(storageKeyForProject(projectId)) ?? null;
-    const decoded = last ? decodeSelection(last) : null;
-    if (decoded?.runtime && (RESEARCH_BLANK_RUNTIMES as readonly string[]).includes(decoded.runtime)) {
-      return decoded;
-    }
+function readRememberedSelection(projectId: string): QueryInputSelection | null {
+  const last = getBrowserLocalStorage()?.getItem(storageKeyForProject(projectId)) ?? null;
+  return last ? decodeSelection(last) : null;
+}
+
+function dropRememberedSelectionIfStale(projectId: string, activeEnvIds: Set<string>): void {
+  const remembered = readRememberedSelection(projectId);
+  if (remembered?.baseEnvironmentId && !activeEnvIds.has(remembered.baseEnvironmentId)) {
+    getBrowserLocalStorage()?.removeItem(storageKeyForProject(projectId));
+  }
+}
+
+function resolveDefaultSelection(projectId: string): QueryInputSelection {
+  const remembered = readRememberedSelection(projectId);
+  if (remembered?.runtime && (RESEARCH_BLANK_RUNTIMES as readonly string[]).includes(remembered.runtime)) {
+    return remembered;
   }
   return { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
 }
@@ -63,8 +90,7 @@ export function QueryInputHeaderComponent({
   const [editor] = useLexicalComposerContext();
   const selectRef = useRef<HTMLSelectElement>(null);
   const hasHydratedRef = useRef(false);
-  const env = useResearchEditorEnvironmentOptional();
-  const projectId = env?.projectId ?? null;
+  const { projectId } = useResearchEditorEnvironment();
 
   // The selection lives on the parent QueryInputNode, but decorate() only
   // re-runs when this DecoratorNode is dirty — not when the parent mutates.
@@ -91,8 +117,7 @@ export function QueryInputHeaderComponent({
   }, [editor, containerNodeKey]);
 
   const { data } = useQuery(ResearchEnvironmentsByProjectQuery, {
-    variables: { projectId: projectId ?? '' },
-    skip: !projectId,
+    variables: { projectId },
     fetchPolicy: 'cache-first',
   });
   const environments = useMemo(() => data?.researchEnvironments?.results ?? [], [data]);
@@ -108,9 +133,7 @@ export function QueryInputHeaderComponent({
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const next = decodeSelection(event.target.value) ?? { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
     setSelected(next);
-    if (projectId) {
-      getBrowserLocalStorage()?.setItem(storageKeyForProject(projectId), encodeSelection(next));
-    }
+    getBrowserLocalStorage()?.setItem(storageKeyForProject(projectId), encodeSelection(next));
     writeSelectionToContainer(next);
   };
 
@@ -130,13 +153,12 @@ export function QueryInputHeaderComponent({
   // saved `baseEnvironmentId` is invalid. On a cold load the cache-first query
   // hasn't resolved yet (`knownEnvIds` empty), and hydrating then would clobber a
   // genuine saved-environment selection with a blank baseline. `data !== undefined`
-  // (or no projectId, so the query is skipped and no env could be valid anyway)
   // means it's safe to decide; the effect re-runs when `data` arrives.
   useEffect(() => {
     if (hasHydratedRef.current) return;
-    const envQuerySettled = !projectId || data !== undefined;
-    if (!envQuerySettled) return;
+    if (data === undefined) return;
     hasHydratedRef.current = true;
+    dropRememberedSelectionIfStale(projectId, knownEnvIds);
     editor.getEditorState().read(() => {
       const parent = $getNodeByKey(containerNodeKey);
       if (!$isQueryInputNode(parent)) return;
@@ -145,10 +167,7 @@ export function QueryInputHeaderComponent({
         (current.baseEnvironmentId && knownEnvIds.has(current.baseEnvironmentId)) ||
         (!current.baseEnvironmentId && current.runtime);
       if (hasValid) return;
-      const last = projectId
-        ? getBrowserLocalStorage()?.getItem(storageKeyForProject(projectId)) ?? null
-        : null;
-      const remembered = last ? decodeSelection(last) : null;
+      const remembered = readRememberedSelection(projectId);
       const next: QueryInputSelection =
         remembered?.baseEnvironmentId && knownEnvIds.has(remembered.baseEnvironmentId)
           ? remembered
@@ -162,32 +181,51 @@ export function QueryInputHeaderComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, containerNodeKey, projectId, data, knownEnvIds]);
 
+  // A block must never *keep* a selection pointing at an environment that has
+  // been archived or deleted — whether it was persisted in the document before
+  // the archive or the archive happened while this editor was open, so this
+  // runs on every env-list change, not once per mount.
+  useEffect(() => {
+    if (data === undefined) return;
+    if (!selected.baseEnvironmentId || knownEnvIds.has(selected.baseEnvironmentId)) return;
+    dropRememberedSelectionIfStale(projectId, knownEnvIds);
+    const next = resolveDefaultSelection(projectId);
+    setSelected(next);
+    writeSelectionToContainer(next);
+    // Tracks the env-query settle and the mirrored node selection, not the
+    // inline helpers it calls.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, data, knownEnvIds, selected, editor, containerNodeKey]);
+
   return (
-    <select
-      ref={selectRef}
-      className={classes.select}
-      value={selectValue}
-      onChange={handleChange}
-    >
-      <optgroup label="Blank baseline">
-        {RESEARCH_BLANK_RUNTIMES.map((runtime) => (
-          <option key={runtime} value={encodeSelection({ baseEnvironmentId: null, runtime })}>
-            Blank · {runtime}
-          </option>
-        ))}
-      </optgroup>
-      {environments.length > 0 && (
-        <optgroup label="Saved environments">
-          {environments.map((environment) => (
-            <option
-              key={environment._id}
-              value={encodeSelection({ baseEnvironmentId: environment._id, runtime: null })}
-            >
-              {environment.label}
+    <span className={classes.cluster}>
+      <select
+        ref={selectRef}
+        className={classes.select}
+        value={selectValue}
+        onChange={handleChange}
+      >
+        <optgroup label="Blank baseline">
+          {RESEARCH_BLANK_RUNTIMES.map((runtime) => (
+            <option key={runtime} value={encodeSelection({ baseEnvironmentId: null, runtime })}>
+              Blank · {runtime}
             </option>
           ))}
         </optgroup>
-      )}
-    </select>
+        {environments.length > 0 && (
+          <optgroup label="Saved environments">
+            {environments.map((environment) => (
+              <option
+                key={environment._id}
+                value={encodeSelection({ baseEnvironmentId: environment._id, runtime: null })}
+              >
+                {environment.label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </select>
+      <span className={classes.runHint} title="Run query">⌘↵</span>
+    </span>
   );
 }

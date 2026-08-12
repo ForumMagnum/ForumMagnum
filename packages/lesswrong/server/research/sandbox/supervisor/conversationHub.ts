@@ -18,32 +18,35 @@
  * Turn lifecycle: a dispatch writes one user message to the process's stdin.
  * Claude Code queues messages that arrive mid-turn and runs each as its own
  * turn (one `result` line per turn). Background-task completions re-invoke
- * the agent inside the same process with *no* dispatch — such turns begin
- * with a `system:init` line and also end with a `result`. Busy state is
- * therefore derived from the stream itself:
+ * the agent inside the same process with *no* dispatch.
  *
- *  - `pendingTurns` counts dispatched user messages whose turn hasn't
- *    *started* yet. It's decremented on `system:init` (the line that opens
- *    every turn), NOT on `result` — a result can belong to a background-task
- *    re-invocation that had no dispatch, and consuming a queued turn's count
- *    there would let the conversation read idle (and the sandbox get rolled)
- *    out from under a queued message. A re-invocation's init can still
- *    consume a queued turn's count, but that mislabels a much smaller window
- *    (the re-invocation itself is busy via activity) and re-rights itself at
- *    the queued turn's own init.
- *  - `activitySinceResult` is true while turn output is streaming.
+ * Busy state is read from the CLI's own `session_state_changed` events
+ * (enabled via `CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1`): `running` /
+ * `requires_action` mean busy, `idle` means done. `idle` is the CLI's
+ * authoritative turn-over signal — it fires only after the turn's result
+ * flushes AND any background-task re-invocation completes — so it natively
+ * accounts for queued messages and re-invocations without us reconstructing
+ * the turn count. We deliberately do NOT keep a fallback inference from the
+ * turn stream: if the authoritative events stopped arriving, that's a broken
+ * assumption about the CLI we want to surface loudly, not paper over.
+ *
+ * `sessionState` is set to `running` optimistically on dispatch (to cover the
+ * sub-second window before the CLI's first event), then driven entirely by the
+ * events. A dispatch that arrives while a cancel is in flight is flagged
+ * (`dispatchedDuringCancel`) so its possibly-dropped turn gets a synthetic
+ * terminal result; see the `result` branch of `emit`.
  */
 import { randomUUID } from "node:crypto";
 import { ParsedJsonlLine, ClaudeEventKind } from "./jsonlParser";
-import { ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
+import { CanUseToolRequest, ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
 import { BackendEvent, PostPersister } from "./postPersister";
-import { writeBootstrapJsonl } from "./sessionBootstrap";
-import { ConversationState } from "./server";
 import {
-  isTurnActivity,
-  FLUSH_RESULT_SUBTYPE,
-  TURN_OPENING_SYSTEM_SUBTYPE,
-} from "../../../../lib/research/turnActivity";
+  installStagedSessionJsonl,
+  SESSION_FILE_MISSING_REASON,
+  sessionJsonlExists,
+} from "./sessionBootstrap";
+import { ConversationState } from "./server";
+import { FLUSH_RESULT_SUBTYPE } from "../../../../lib/research/turnActivity";
 
 /** How long cancel waits for the interrupt control_request to end the turn
  * before escalating to SIGTERM (then SIGKILL). Interrupt normally lands in
@@ -51,14 +54,31 @@ import {
 const CANCEL_INTERRUPT_GRACE_MS = 10_000;
 const CANCEL_SIGKILL_GRACE_MS = 5_000;
 
+/** Subtype of the CLI's authoritative busy/idle event (see module doc). */
+const SESSION_STATE_SUBTYPE = "session_state_changed";
+
+const ASK_USER_QUESTION_TOOL = "AskUserQuestion";
+
+export type AnswerQuestionResult =
+  | { ok: true }
+  | { ok: false; reason: "no_pending_question" | "process_unavailable" };
+
+type SessionState = "idle" | "running" | "requires_action";
+
+function parseSessionState(value: unknown): SessionState | null {
+  return value === "idle" || value === "running" || value === "requires_action" ? value : null;
+}
+
 /**
- * `task_notification` statuses that do NOT mean the task ended. The CLI's
- * task events are undocumented, so deletion from the outstanding set is the
- * default (a wedged-awake sandbox is bounded by the 5h session cap and the
- * liveness gate in `hasPendingWork`), and only an explicitly in-progress
- * status keeps the task counted.
+ * Task statuses that mean a background task has settled, taken from the Claude
+ * Code Agent SDK message types (`@anthropic-ai/claude-agent-sdk`): the union of
+ * `SDKTaskNotificationMessage.status` ({completed, failed, stopped}) and the
+ * terminal subset of `SDKTaskUpdatedMessage.patch.status` ({completed, failed,
+ * killed}). The SDK exports the same set as `TERMINAL_TASK_STATUSES`. Every
+ * other status (pending/running/paused) and statusless patches (e.g.
+ * `{is_backgrounded: true}`) are non-terminal and keep the task counted.
  */
-const NON_TERMINAL_TASK_STATUSES = new Set(["running", "pending", "queued", "in_progress", "started"]);
+const TERMINAL_TASK_STATUSES = new Set(["completed", "failed", "killed", "stopped"]);
 
 export interface ConversationHubConfig {
   postPersister: PostPersister;
@@ -73,18 +93,18 @@ interface ConversationEntry {
   state: ConversationState;
   proc: ClaudeProcessHandle | null;
   claudeSessionId: string | null;
-  /** Dispatched user messages whose turn hasn't opened (no `system:init` yet). */
-  pendingTurns: number;
-  /** True when turn output has streamed since the last `result` line. */
-  activitySinceResult: boolean;
   /**
-   * Whether a `system:init` arrived since the last `result`. A result that
-   * arrives without one belongs to a dispatched turn that failed before
-   * opening (early CLI error), so it must release a pending count — otherwise
-   * the conversation reads busy forever while the client transcript reads
-   * idle.
+   * The CLI's authoritative busy/idle state, from `session_state_changed`
+   * events; set to `running` optimistically on dispatch. `isBusy` is exactly
+   * `sessionState !== "idle"`.
    */
-  initSeenSinceResult: boolean;
+  sessionState: SessionState;
+  /**
+   * The terminal status to record once the session next goes `idle`
+   * (`completed`, or `cancelled`/`errored` after a cancel/crash). Drives the
+   * client-facing `state.status`, which stays `running` until idle.
+   */
+  terminalReason: ConversationState["status"];
   /**
    * Set by cancel(); cleared by the next `result` line (the interrupted
    * turn's terminal) or process exit — NOT by a dispatch, so a new message
@@ -93,12 +113,20 @@ interface ConversationEntry {
    */
   cancelPending: boolean;
   /**
-   * Background Bash tasks the agent has started that haven't reached a
-   * terminal `task_notification` yet. A pending task means the process will
-   * re-invoke the agent later, so the sandbox must be kept alive even though
-   * no turn is running — surfaced to the heartbeat via `hasPendingWork`.
+   * Whether a user message was dispatched while a cancel was in flight. Such a
+   * turn may be dropped by the CLI on interrupt, so on the cancel's `result` we
+   * emit a synthetic terminal result to keep its transcript turn from dangling.
+   */
+  dispatchedDuringCancel: boolean;
+  /**
+   * Background Bash tasks the agent has started that haven't reached a terminal
+   * status yet (see `updateOutstandingTasks` for the terminal signals). A
+   * pending task means the process may re-invoke the agent later, so the
+   * sandbox must be kept alive even though no turn is running — surfaced to the
+   * heartbeat via `hasPendingWork`.
    */
   outstandingTaskIds: Set<string>;
+  pendingQuestions: Map<string, { requestId: string; input: Record<string, unknown> }>;
   /** Serializes spawn/teardown so two dispatches can't race a respawn. */
   opChain: Promise<void>;
 }
@@ -125,33 +153,24 @@ export interface DispatchInput {
   /**
    * True when a Claude session for this conversation has existed before (the
    * backend checks its persisted events for any line carrying a session_id).
-   * Decides `--resume` vs `--session-id` at spawn. This deliberately comes
-   * from the backend rather than a supervisor-side existence check on the
-   * session file: right after a sandbox resume the snapshot restore can lag,
-   * so a filesystem probe races it — observed as `--session-id` being chosen
-   * for an existing session, which the CLI rejects with "already in use".
+   * Decides `--resume` vs `--session-id` at spawn. This comes from the backend
+   * rather than being inferred from a session-file existence check: right
+   * after a sandbox resume the snapshot restore can lag, so a filesystem probe
+   * races it — observed as `--session-id` being chosen for an existing
+   * session, which the CLI rejects with "already in use". The hub still
+   * probes the file before an `--resume` spawn, but a miss never downgrades
+   * to `--session-id`; it rejects the dispatch as `session_file_missing` so
+   * the backend can ship a reconstruction and retry.
    */
   sessionHasHistory?: boolean;
-  /**
-   * Verbatim JSONL lines from prior `ResearchConversationEvents`, in seq order.
-   * If non-empty, the hub writes them to the Claude Code session dir before
-   * spawning so `--resume` finds the history. Each entry is one line of text.
-   * The write replaces any file already at that path: the backend only ships
-   * a bootstrap when the on-disk file can't be trusted (fresh rebuild — where
-   * any file present came from a stale base snapshot — or a legacy
-   * conversation with a just-derived id), so the reconstruction wins.
-   * Ignored when the conversation's process is already running (the live
-   * process owns the session file).
-   */
-  bootstrapJsonl?: string[];
 }
 
 /**
  * Ship a supervisor-synthesized terminal `result` for a turn that can't end
  * normally (process crash, cancel flush, sandbox restart). Uses the
  * `interrupted` subtype, which in-flight derivations treat as closing every
- * outstanding user turn; `writeBootstrapJsonl` strips result lines, so it
- * never lands back in Claude's resume context.
+ * outstanding user turn; the session reconstruction (`buildBootstrapJsonl`)
+ * strips result lines, so it never lands back in Claude's resume context.
  */
 export function enqueueSyntheticInterruptedResult(
   postPersister: PostPersister,
@@ -172,6 +191,27 @@ export function enqueueSyntheticInterruptedResult(
   });
 }
 
+const SESSION_PROBE_ATTEMPTS = 3;
+const SESSION_PROBE_RETRY_MS = 1500;
+
+/**
+ * Existence check for the session JSONL that tolerates the snapshot-restore
+ * lag documented on `DispatchInput.sessionHasHistory`: a file that is really
+ * on the snapshot can transiently read as absent right after a resume, so
+ * only a miss that persists across a few seconds counts.
+ */
+async function sessionFileExistsWithRetry(
+  target: { claudeSessionId: string; cwd?: string },
+): Promise<boolean> {
+  for (let attempt = 0; attempt < SESSION_PROBE_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, SESSION_PROBE_RETRY_MS));
+    }
+    if (await sessionJsonlExists(target)) return true;
+  }
+  return false;
+}
+
 export function createConversationHub(config: ConversationHubConfig) {
   const now = config.now ?? (() => Date.now());
   const startProcess = config.startProcess ?? startClaudeProcess;
@@ -186,19 +226,57 @@ export function createConversationHub(config: ConversationHubConfig) {
       state: { conversationId, status: "idle" },
       proc: null,
       claudeSessionId: null,
-      pendingTurns: 0,
-      activitySinceResult: false,
-      initSeenSinceResult: false,
+      sessionState: "idle",
+      terminalReason: "completed",
       cancelPending: false,
+      dispatchedDuringCancel: false,
       outstandingTaskIds: new Set(),
+      pendingQuestions: new Map(),
       opChain: Promise.resolve(),
     };
     conversations.set(conversationId, entry);
     return entry;
   }
 
+  function handleCanUseTool(entry: ConversationEntry, req: CanUseToolRequest) {
+    if (req.toolName !== ASK_USER_QUESTION_TOOL) {
+      entry.proc?.respondPermission(req.requestId, {
+        behavior: "allow",
+        updatedInput: req.input,
+        toolUseId: req.toolUseId,
+      });
+      return;
+    }
+    entry.pendingQuestions.set(req.toolUseId, { requestId: req.requestId, input: req.input });
+  }
+
+  function answerQuestion(
+    conversationId: string,
+    toolUseId: string,
+    answers: Record<string, string>,
+  ): AnswerQuestionResult {
+    const entry = conversations.get(conversationId);
+    const pending = entry?.pendingQuestions.get(toolUseId);
+    if (!entry || !pending) return { ok: false, reason: "no_pending_question" };
+    if (!entry.proc?.alive()) return { ok: false, reason: "process_unavailable" };
+    const wrote = entry.proc.respondPermission(pending.requestId, {
+      behavior: "allow",
+      updatedInput: { ...pending.input, answers },
+      toolUseId,
+    });
+    if (!wrote) return { ok: false, reason: "process_unavailable" };
+    entry.pendingQuestions.delete(toolUseId);
+    return { ok: true };
+  }
+
   function isBusy(entry: ConversationEntry): boolean {
-    return entry.pendingTurns > 0 || entry.activitySinceResult;
+    return entry.sessionState !== "idle";
+  }
+
+  /** Apply an authoritative `session_state_changed` event. */
+  function applySessionState(entry: ConversationEntry, state: SessionState) {
+    entry.sessionState = state;
+    refreshStatus(entry, state === "idle" ? entry.terminalReason : undefined);
   }
 
   function refreshStatus(entry: ConversationEntry, terminal?: ConversationState["status"]) {
@@ -214,6 +292,17 @@ export function createConversationHub(config: ConversationHubConfig) {
   }
 
   function emit(entry: ConversationEntry, line: ParsedJsonlLine) {
+    const subtype = systemSubtypeOf(line);
+
+    // `session_state_changed` is the CLI's authoritative busy/idle signal — our
+    // control input, not transcript content, so it drives `sessionState` and is
+    // not persisted.
+    if (line.kind === "system" && subtype === SESSION_STATE_SUBTYPE) {
+      const state = parseSessionState(line.parsed?.state);
+      if (state) applySessionState(entry, state);
+      return;
+    }
+
     const persistKind = mapKindForPersistence(line.kind);
     if (persistKind) {
       config.postPersister.enqueue(entry.conversationId, {
@@ -225,53 +314,21 @@ export function createConversationHub(config: ConversationHubConfig) {
       });
     }
 
-    const subtype = systemSubtypeOf(line);
-
     if (line.kind === "system" && line.parsed) {
-      if (subtype === TURN_OPENING_SYSTEM_SUBTYPE) {
-        // A turn opened; if one of ours was queued, it's (presumably) this
-        // one. See the module doc for why init — not result — consumes the
-        // pending count.
-        entry.pendingTurns = Math.max(0, entry.pendingTurns - 1);
-        entry.initSeenSinceResult = true;
-      }
-      // `task_started` / `task_notification` bracket a background Bash task's
-      // lifetime. `task_updated` is deliberately ignored (can fire on
-      // non-terminal transitions), and a notification carrying an explicitly
-      // in-progress status keeps the task counted.
-      const taskId = line.parsed.task_id;
-      if (typeof taskId === "string") {
-        if (subtype === "task_started") entry.outstandingTaskIds.add(taskId);
-        if (subtype === "task_notification") {
-          const status = line.parsed.status;
-          if (typeof status !== "string" || !NON_TERMINAL_TASK_STATUSES.has(status)) {
-            entry.outstandingTaskIds.delete(taskId);
-          }
-        }
-      }
+      updateOutstandingTasks(entry, subtype, line.parsed);
     }
 
     if (line.kind === "result") {
-      // One `result` per turn — dispatched, queued, or a background-task
-      // re-invocation. Turn-end for busy purposes; the conversation may still
-      // have queued turns pending. An init-less result is a dispatched turn
-      // that failed before opening: release its pending count here, since no
-      // init ever will. (Re-invocation results can't take this branch — every
-      // re-invocation opens with its own init.)
-      if (!entry.initSeenSinceResult) {
-        entry.pendingTurns = Math.max(0, entry.pendingTurns - 1);
-      }
-      entry.initSeenSinceResult = false;
-      entry.activitySinceResult = false;
+      // One `result` per turn. Busy/idle is owned by `session_state_changed`
+      // (the conversation may still have a re-invocation or queued turn to go,
+      // so a result is not by itself turn-over); here we only record how the
+      // turn ended and flush a cancelled-and-possibly-dropped queued turn.
       const wasCancel = entry.cancelPending;
       entry.cancelPending = false;
-      if (wasCancel && entry.pendingTurns > 0) {
-        // The cancel interrupted a turn while other dispatched messages were
-        // still queued on stdin. Whether the CLI runs or drops queued
-        // messages after an interrupt is version-dependent, so close them out
-        // now — a cancel means "stop everything outstanding". If the CLI does
-        // run one anyway, its init/activity re-raise busy state.
-        entry.pendingTurns = 0;
+      if (wasCancel && entry.dispatchedDuringCancel) {
+        // A message was dispatched while the cancel was in flight; the CLI may
+        // drop it on interrupt, so close its turn out so the transcript can't
+        // dangle. (If the CLI does run it, its own result supersedes this.)
         enqueueSyntheticInterruptedResult(
           config.postPersister,
           entry.conversationId,
@@ -279,13 +336,11 @@ export function createConversationHub(config: ConversationHubConfig) {
           now(),
         );
       }
-      refreshStatus(entry, wasCancel ? "cancelled" : "completed");
+      entry.dispatchedDuringCancel = false;
+      entry.terminalReason = wasCancel ? "cancelled" : "completed";
+      // Applies only once the session is idle; stays "running" if more is coming.
+      refreshStatus(entry, entry.terminalReason);
       return;
-    }
-
-    if (isTurnActivity(line.kind, subtype)) {
-      entry.activitySinceResult = true;
-      refreshStatus(entry);
     }
   }
 
@@ -311,22 +366,34 @@ export function createConversationHub(config: ConversationHubConfig) {
     const claudeSessionId = entry.claudeSessionId ?? input.claudeSessionId ?? randomUUID();
     entry.claudeSessionId = claudeSessionId;
 
-    let sessionExists = input.sessionHasHistory ?? false;
+    const sessionExists = input.sessionHasHistory ?? false;
 
-    if (input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
+    if (sessionExists) {
+      const target = { claudeSessionId, cwd: runnerOpts.cwd };
+      // A backend-staged session reconstruction is installed here — and only
+      // here — because the opChain guarantees no live process holds the
+      // session file at this point, which the backend's out-of-band staging
+      // write cannot guarantee on its own.
       try {
-        await writeBootstrapJsonl(
-          { claudeSessionId, cwd: runnerOpts.cwd },
-          input.bootstrapJsonl.map((line) => ({ payload: line })),
-        );
-        sessionExists = true;
+        await installStagedSessionJsonl(target);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error(
-          `[hub] bootstrap write failed for conv=${entry.conversationId} session=${claudeSessionId}:`,
+          `[hub] staged session install failed for conv=${entry.conversationId} session=${claudeSessionId}:`,
           err,
         );
-        return { ok: false, reason: "bootstrap_failed" };
+      }
+      // `--resume` hard-fails the spawn when the session file is gone (e.g.
+      // the sandbox was rebuilt from a base snapshot). A persistent miss
+      // rejects the dispatch with a reason the backend recognizes; it stages
+      // a reconstruction and re-dispatches.
+      const exists = await sessionFileExistsWithRetry(target);
+      if (!exists) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[hub] session file missing for conv=${entry.conversationId} session=${claudeSessionId}; rejecting dispatch for backend bootstrap`,
+        );
+        return { ok: false, reason: SESSION_FILE_MISSING_REASON };
       }
     }
 
@@ -338,13 +405,19 @@ export function createConversationHub(config: ConversationHubConfig) {
       cwd: runnerOpts.cwd,
       env: runnerOpts.env,
       onLine: (line) => emit(entry, line),
+      onCanUseTool: (req) => handleCanUseTool(entry, req),
       onExit: ({ code }) => {
         if (entry.proc !== proc) return;
         entry.proc = null;
-        if (isBusy(entry)) {
-          // The process died mid-turn (crash, OOM, cancel escalation). Close
-          // the dangling turn(s) with a synthetic terminal `result` so
-          // clients aren't stuck on "running".
+        const wasBusy = isBusy(entry);
+        // The process is gone: no more events will arrive, so force the session
+        // idle ourselves (the only place we set state without an event).
+        entry.sessionState = "idle";
+        if (wasBusy) {
+          // It died mid-turn (crash, OOM, cancel escalation). Close the
+          // dangling turn with a synthetic terminal `result` so clients aren't
+          // stuck on "running", and record the terminal status (now applied,
+          // since the session reads idle).
           const interrupted = entry.cancelPending;
           enqueueSyntheticInterruptedResult(
             config.postPersister,
@@ -354,15 +427,19 @@ export function createConversationHub(config: ConversationHubConfig) {
               : `Turn interrupted: the agent process exited unexpectedly${code !== null ? ` (code ${code})` : ""}.`,
             now(),
           );
-          entry.pendingTurns = 0;
-          entry.activitySinceResult = false;
-          refreshStatus(entry, interrupted ? "cancelled" : "errored");
+          entry.terminalReason = interrupted ? "cancelled" : "errored";
+          refreshStatus(entry, entry.terminalReason);
         }
-        entry.initSeenSinceResult = false;
         entry.cancelPending = false;
+        entry.dispatchedDuringCancel = false;
         // No process, no future re-invocation: pending tasks can't keep the
         // sandbox alive any more (orphaned task processes die with the sandbox).
         entry.outstandingTaskIds.clear();
+        // Any unanswered question's requestId belonged to the dead process;
+        // the synthetic terminal result above (or the dangling-turn heal on a
+        // restart) closes its turn, so a later answer must not resolve a stale
+        // request against a new process.
+        entry.pendingQuestions.clear();
       },
       onError: (err) => {
         // eslint-disable-next-line no-console
@@ -435,7 +512,12 @@ export function createConversationHub(config: ConversationHubConfig) {
         claudeMessageUuid: null,
         supervisorEmittedAt: new Date(now()).toISOString(),
       });
-      entry.pendingTurns += 1;
+      // Mark busy optimistically: we've handed the CLI work, and its first
+      // `session_state_changed` (running) may lag the send by a beat. A dispatch
+      // racing an in-flight cancel is flagged so its turn can be flushed if the
+      // CLI drops it (see the `result` branch of `emit`).
+      if (entry.cancelPending) entry.dispatchedDuringCancel = true;
+      entry.sessionState = "running";
       refreshStatus(entry);
     });
     entry.opChain = run.then(noop, noop);
@@ -459,6 +541,7 @@ export function createConversationHub(config: ConversationHubConfig) {
     if (!entry || !entry.proc?.alive() || !isBusy(entry)) return;
     const proc = entry.proc;
     entry.cancelPending = true;
+    entry.dispatchedDuringCancel = false;
     const requestId = `interrupt-${++interruptCounter}`;
     const wrote = proc.interrupt(requestId);
     const escalate = () => {
@@ -510,6 +593,7 @@ export function createConversationHub(config: ConversationHubConfig) {
   return {
     dispatch,
     cancel,
+    answerQuestion,
     snapshot,
     hasPendingWork,
     shutdown,
@@ -523,6 +607,50 @@ function systemSubtypeOf(line: ParsedJsonlLine): string | undefined {
   return typeof subtype === "string" ? subtype : undefined;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isTerminalTaskStatus(status: unknown): boolean {
+  return typeof status === "string" && TERMINAL_TASK_STATUSES.has(status);
+}
+
+/**
+ * Maintain `entry.outstandingTaskIds` from the agent's task lifecycle events: a
+ * background Bash task is added on `task_started` and removed once it settles.
+ * Its terminal signal arrives in one of two shapes (Agent SDK message types),
+ * and a background Bash task uses ONLY the second — it emits no
+ * `task_notification` (verified against Claude Code 2.1.170 and 2.1.181):
+ *   - `task_notification.status` ∈ TERMINAL_TASK_STATUSES
+ *   - `task_updated.patch.status` ∈ TERMINAL_TASK_STATUSES
+ * Non-terminal `task_updated` patches (status running/pending/paused, or an
+ * `is_backgrounded`/progress-only patch with no status) keep the task counted;
+ * anything still outstanding when the process exits is cleared in `onExit`.
+ */
+function updateOutstandingTasks(
+  entry: ConversationEntry,
+  subtype: string | undefined,
+  parsed: Record<string, unknown>,
+): void {
+  const taskId = parsed.task_id;
+  if (typeof taskId !== "string") return;
+
+  if (subtype === "task_started") {
+    entry.outstandingTaskIds.add(taskId);
+    return;
+  }
+  if (subtype === "task_notification" && isTerminalTaskStatus(parsed.status)) {
+    entry.outstandingTaskIds.delete(taskId);
+    return;
+  }
+  if (subtype === "task_updated") {
+    const patch = parsed.patch;
+    if (isRecord(patch) && isTerminalTaskStatus(patch.status)) {
+      entry.outstandingTaskIds.delete(taskId);
+    }
+  }
+}
+
 /**
  * Translate the parser-detected kind into one of the backend's accepted
  * persistence kinds. Returns null for kinds we drop on the floor:
@@ -533,7 +661,8 @@ function systemSubtypeOf(line: ParsedJsonlLine): string | undefined {
  * `result` is persisted because it's the only line Claude Code emits exactly
  * once per turn regardless of how many intermediate events the turn produced;
  * the client uses its presence as a turn-end signal. It's filtered back out
- * in `writeBootstrapJsonl` so it never lands in Claude's resume context.
+ * of session reconstructions (`buildBootstrapJsonl`) so it never lands in
+ * Claude's resume context.
  */
 function mapKindForPersistence(kind: ClaudeEventKind): BackendEvent["kind"] | null {
   switch (kind) {

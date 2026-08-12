@@ -12,7 +12,6 @@ import {
 } from '@/lib/collections/users/notificationFieldHelpers';
 import { getNotificationTypeByUserSetting } from '@/lib/notificationTypes';
 import BatchTimePicker, { PickedTime } from '@/components/common/BatchTimePicker';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
 
 const styles = defineStyles('NotificationSettingsRow', (theme: ThemeType) => ({
@@ -198,16 +197,16 @@ const styles = defineStyles('NotificationSettingsRow', (theme: ThemeType) => ({
 }));
 
 interface NotificationSettingsRowProps {
-  field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;
+  name: keyof EditableUser & `notification${string}`;
+  value: NotificationTypeSettings | LegacyNotificationTypeSettings | null;
+  onChange: (value: NotificationTypeSettings) => void;
   label: string;
 }
 
-const NotificationSettingsRow = ({ field, label }: NotificationSettingsRowProps) => {
+const NotificationSettingsRow = ({ name, value, onChange, label }: NotificationSettingsRowProps) => {
   const classes = useStyles(styles);
-  const path = field.name;
-  const value = field.state.value;
 
-  const notificationType = getNotificationTypeByUserSetting(path as keyof EditableUser & `notification${string}`);
+  const notificationType = getNotificationTypeByUserSetting(name);
   const cleanValue = legacyToNewNotificationTypeSettings(value);
   const allowedChannels = notificationType.allowedChannels ?? ['onsite', 'email'];
 
@@ -216,8 +215,8 @@ const NotificationSettingsRow = ({ field, label }: NotificationSettingsRowProps)
       ...cleanValue,
       [channel]: { ...cleanValue[channel], ...changes },
     };
-    field.handleChange(newSettings);
-  }, [cleanValue, field]);
+    onChange(newSettings);
+  }, [cleanValue, onChange]);
 
   return (
     <div className={classes.root}>

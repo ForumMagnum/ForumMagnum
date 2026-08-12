@@ -142,7 +142,7 @@ const UsersMenu = () => {
     {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
-  /** Prevent navigation to your profile on mobile, where the only way to open
+  /** Prevent navigation to your dashboard on mobile, where the only way to open
    * the menu is to click the button */
   const menuButtonOnClick = (ev: MouseEvent) => {
     if (isMobile()) {
@@ -155,7 +155,7 @@ const UsersMenu = () => {
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={userGetProfileUrl(currentUser)}>
+      <Link to="/account">
         <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
@@ -280,7 +280,7 @@ const UsersMenu = () => {
               />}
               <DropdownItem
                 title="Account Settings"
-                to="/account"
+                to="/account?tab=settings-account"
                 icon="Settings"
                 iconClassName={classes.icon}
               />

@@ -86,7 +86,7 @@ const PostSharingIcon: FC<{
   return <PersonAddIcon {...props} />;
 }
 
-const noSharePermissionTooltip = "You need at least 1 karma or to be approved by a mod to share";
+const noSharePermissionTooltip = "You need to be logged in to share";
 
 interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;

@@ -29,7 +29,7 @@ export const ManageSubscriptionsLink = () => {
 
   return (
     <div className={classes.root}>
-      <Link to="/manageSubscriptions" className={classes.link}>
+      <Link to="/account?tab=subscriptions" className={classes.link}>
         Manage Active Subscriptions
       </Link>
     </div>

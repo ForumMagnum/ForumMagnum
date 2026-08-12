@@ -1,4 +1,18 @@
+import { promises as fs } from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { createConversationHub } from "../server/research/sandbox/supervisor/conversationHub";
+
+// The session-file probe resolves ~ via os.homedir(), which the probe tests
+// must point at a temp dir. Neither $HOME (jest copies process.env, so writes
+// never reach the C environment homedir() reads) nor jest.spyOn (module
+// interop copies) redirect it reliably, so mock the module itself; the
+// override is read lazily, and everything else passes through.
+let mockHomedir: string | null = null;
+jest.mock("node:os", () => {
+  const actual = jest.requireActual<typeof import("node:os")>("node:os");
+  return { ...actual, homedir: () => mockHomedir ?? actual.homedir() };
+});
 import {
   ClaudeProcessHandle,
   ClaudeProcessOptions,
@@ -6,6 +20,10 @@ import {
 } from "../server/research/sandbox/supervisor/claudeRunner";
 import { createJsonlChunker } from "../server/research/sandbox/supervisor/jsonlParser";
 import { BackendEvent, PostPersister } from "../server/research/sandbox/supervisor/postPersister";
+import {
+  SESSION_STAGING_SUFFIX,
+  sessionJsonlPath,
+} from "../server/research/sandbox/supervisor/sessionBootstrap";
 
 interface FakeProcess {
   opts: ClaudeProcessOptions;
@@ -13,6 +31,7 @@ interface FakeProcess {
   sent: string[];
   interrupts: string[];
   kills: string[];
+  permissionResponses: Array<{ requestId: string; decision: unknown }>;
   /** Feed one stdout line (an object; stringified through the real chunker). */
   emit(payload: Record<string, unknown>): void;
   /** Simulate process exit. */
@@ -38,9 +57,24 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
       sent: [],
       interrupts: [],
       kills: [],
+      permissionResponses: [],
       emit(payload) {
         for (const line of chunker.push(`${JSON.stringify(payload)}\n`)) {
-          procOpts.onLine(line);
+          const req = line.parsed;
+          if (
+            req?.type === "control_request" &&
+            (req.request as Record<string, unknown> | undefined)?.subtype === "can_use_tool"
+          ) {
+            const r = req.request as Record<string, unknown>;
+            procOpts.onCanUseTool?.({
+              requestId: req.request_id as string,
+              toolName: r.tool_name as string,
+              toolUseId: r.tool_use_id as string,
+              input: r.input as Record<string, unknown>,
+            });
+          } else {
+            procOpts.onLine(line);
+          }
         }
       },
       exit(code) {
@@ -62,6 +96,11 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
         interrupt(requestId: string) {
           if (exited) return false;
           fake.interrupts.push(requestId);
+          return true;
+        },
+        respondPermission(requestId: string, decision) {
+          if (exited) return false;
+          fake.permissionResponses.push({ requestId, decision });
           return true;
         },
         kill(signal = "SIGTERM") {
@@ -98,6 +137,8 @@ const assistantLine = {
   session_id: "sess-1",
 };
 const resultLine = { type: "result", subtype: "success", uuid: "u-r", session_id: "sess-1" };
+// The CLI's authoritative turn-over signal (CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS).
+const stateIdle = { type: "system", subtype: "session_state_changed", state: "idle", uuid: "u-si", session_id: "sess-1" };
 
 function mkHub(factoryOpts?: { sendFailsForProcs?: number[] }) {
   const { factory, procs } = mkFakeFactory(factoryOpts);
@@ -122,6 +163,7 @@ describe("conversationHub", () => {
     procs[0].emit(init);
     procs[0].emit(assistantLine);
     procs[0].emit(resultLine);
+    procs[0].emit(stateIdle); // CLI's authoritative turn-over
     expect(status(hub)).toBe("completed");
 
     const r2 = await hub.dispatch({ conversationId: "c1", prompt: "second", claudeSessionId: "sess-1" });
@@ -130,20 +172,79 @@ describe("conversationHub", () => {
     expect(procs[0].sent).toEqual(["first", "second"]);
   });
 
-  it("resumes the session when the backend reports prior history", async () => {
-    const { hub, procs } = mkHub();
-    await hub.dispatch({
-      conversationId: "c1",
-      prompt: "continue",
-      claudeSessionId: "sess-1",
-      sessionHasHistory: true,
+  // The history-bearing dispatch path probes the real filesystem for the
+  // session JSONL (at ~/.claude/projects/...), so these tests point the
+  // (mocked) home directory at a temp dir and place (or omit) a real file
+  // there.
+  describe("session-file probe", () => {
+    let tmpHome: string;
+
+    beforeEach(async () => {
+      tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "hub-probe-"));
+      mockHomedir = tmpHome;
     });
-    // No filesystem probe: the backend's word decides --resume vs --session-id
-    // (an existence check races snapshot restore on freshly-resumed sandboxes).
-    expect(procs[0].opts.sessionMode).toBe("resume");
+
+    afterEach(async () => {
+      mockHomedir = null;
+      await fs.rm(tmpHome, { recursive: true, force: true });
+    });
+
+    async function writeSessionFile(filePath: string, content: string): Promise<void> {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, content, "utf8");
+    }
+
+    it("resumes the session when the backend reports prior history", async () => {
+      await writeSessionFile(
+        sessionJsonlPath({ claudeSessionId: "sess-1" }),
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(procs[0].opts.sessionMode).toBe("resume");
+    });
+
+    it("installs a backend-staged reconstruction before resuming", async () => {
+      const finalPath = sessionJsonlPath({ claudeSessionId: "sess-1" });
+      await writeSessionFile(
+        finalPath + SESSION_STAGING_SUFFIX,
+        '{"type":"user","uuid":"u-0","message":{"role":"user","content":"hi"}}\n',
+      );
+      const { hub, procs } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      expect(r.accepted).toBe(true);
+      expect(procs[0].opts.sessionMode).toBe("resume");
+      await expect(fs.access(finalPath)).resolves.toBeUndefined();
+      await expect(fs.access(finalPath + SESSION_STAGING_SUFFIX)).rejects.toThrow();
+    });
+
+    it("rejects a history-bearing dispatch when the session file is missing", async () => {
+      const { hub, procs, events } = mkHub();
+      const r = await hub.dispatch({
+        conversationId: "c1",
+        prompt: "continue",
+        claudeSessionId: "sess-1",
+        sessionHasHistory: true,
+      });
+      // Never downgrade to --session-id (that silently drops the history): the
+      // backend reacts to this reason by writing a reconstruction and retrying.
+      expect(r).toEqual({ accepted: false, reason: "session_file_missing" });
+      expect(procs.length).toBe(0);
+      expect(events.length).toBe(0); // rejected before the user turn was recorded
+    }, 15000); // the probe retries over a few seconds before giving up
   });
 
-  it("accepts a dispatch mid-turn and stays running until the queued turn ends", async () => {
+  it("stays busy until the CLI reports idle, not at the first result", async () => {
     const { hub, procs } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "one", claudeSessionId: "sess-1" });
     procs[0].emit(init);
@@ -154,69 +255,62 @@ describe("conversationHub", () => {
     expect(r.accepted).toBe(true);
     expect(procs[0].sent.length).toBe(2);
 
-    procs[0].emit(resultLine); // ends turn one; turn two still pending
-    expect(status(hub)).toBe("running");
-    procs[0].emit(init);
-    procs[0].emit(resultLine); // ends turn two
-    expect(status(hub)).toBe("completed");
-  });
-
-  it("goes busy again on a background-task re-invocation with no dispatch", async () => {
-    const { hub, procs } = mkHub();
-    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
-    procs[0].emit(init);
-    procs[0].emit(resultLine);
-    expect(status(hub)).toBe("completed");
-
-    // Task finishes later; the process re-invokes the agent: init arrives
-    // with no dispatch having happened.
-    procs[0].emit(init);
-    procs[0].emit(assistantLine);
-    expect(status(hub)).toBe("running");
-    procs[0].emit(resultLine);
-    expect(status(hub)).toBe("completed");
-  });
-
-  it("does not let a re-invocation's result consume a queued turn's pending count", async () => {
-    const { hub, procs } = mkHub();
-    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
-    procs[0].emit(init);
-    procs[0].emit(resultLine);
-
-    // Re-invocation running; user dispatches B mid-re-invocation.
-    procs[0].emit(init);
-    procs[0].emit(assistantLine);
-    await hub.dispatch({ conversationId: "c1", prompt: "queued", claudeSessionId: "sess-1" });
-
-    // The re-invocation's result must not make the conversation read idle
-    // while B is still queued on stdin.
+    // A turn's result is NOT turn-over: more work (the queued turn) is coming,
+    // and the CLI hasn't reported idle.
     procs[0].emit(resultLine);
     expect(status(hub)).toBe("running");
     expect(hub.hasPendingWork()).toBe(true);
-
-    procs[0].emit(init); // B starts
+    procs[0].emit(init);
     procs[0].emit(resultLine);
+    expect(hub.hasPendingWork()).toBe(true); // still no idle event
+
+    procs[0].emit(stateIdle);
+    expect(status(hub)).toBe("completed");
+    expect(hub.hasPendingWork()).toBe(false);
+  });
+
+  it("stays busy through a background-task re-invocation until idle (no wedge)", async () => {
+    // Regression for the pendingTurns wedge: turn 1 launches a background task;
+    // after turn 1's result the task settles and re-invokes the agent (an init
+    // with no dispatch), then more turns run. Only the CLI's `idle` ends it —
+    // and it must end cleanly, not stick busy forever.
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    procs[0].emit(init);
+    procs[0].emit(resultLine); // turn 1 result, but session not idle (task pending)
+    expect(hub.hasPendingWork()).toBe(true);
+
+    procs[0].emit(init); // background-task re-invocation, no dispatch
+    procs[0].emit(assistantLine);
+    procs[0].emit(resultLine);
+    expect(hub.hasPendingWork()).toBe(true);
+
+    procs[0].emit(stateIdle);
+    expect(hub.hasPendingWork()).toBe(false);
     expect(status(hub)).toBe("completed");
   });
 
-  it("releases the pending count when a dispatched turn fails before opening", async () => {
+  it("ends busy when the CLI goes idle even if a turn fails before opening", async () => {
     const { hub, procs } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
     expect(hub.hasPendingWork()).toBe(true);
-    // Early CLI failure: the turn's result arrives without any system:init.
-    // The pending count must not outlive it (the conversation would read
-    // busy forever while the client transcript reads idle).
+    // Early CLI failure: an error result, then the CLI reports idle.
     procs[0].emit({ ...resultLine, subtype: "error_during_execution", is_error: true });
+    procs[0].emit(stateIdle);
     expect(hub.hasPendingWork()).toBe(false);
     expect(status(hub)).toBe("completed");
   });
 
   it("reports pending work while a background task is outstanding", async () => {
+    // A background agent/workflow can let the session report idle while it
+    // keeps running, so `outstandingTaskIds` keeps the sandbox awake
+    // independently of `sessionState`.
     const { hub, procs } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "scrape", claudeSessionId: "sess-1" });
     procs[0].emit(init);
     procs[0].emit({ type: "system", subtype: "task_started", task_id: "t1", session_id: "sess-1", uuid: "u-t1" });
     procs[0].emit(resultLine);
+    procs[0].emit(stateIdle); // session idle, but the task is still outstanding
     expect(status(hub)).toBe("completed");
     expect(hub.hasPendingWork()).toBe(true); // task keeps the sandbox awake
 
@@ -225,6 +319,46 @@ describe("conversationHub", () => {
     expect(hub.hasPendingWork()).toBe(true);
 
     procs[0].emit({ type: "system", subtype: "task_notification", task_id: "t1", status: "completed", session_id: "sess-1", uuid: "u-t3" });
+    expect(hub.hasPendingWork()).toBe(false);
+  });
+
+  it("clears a background task that finishes via task_updated with no task_notification", async () => {
+    // A backgrounded Bash task signals completion through a terminal
+    // `task_updated.patch.status` and emits no `task_notification` (verified
+    // against Claude Code 2.1.170 and 2.1.181).
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "install deps", claudeSessionId: "sess-1" });
+    procs[0].emit(init);
+    procs[0].emit({ type: "system", subtype: "task_started", task_id: "t1", task_type: "local_bash", session_id: "sess-1", uuid: "u-t1" });
+    procs[0].emit(resultLine);
+    procs[0].emit(stateIdle);
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A non-terminal update (here, the task being backgrounded) keeps it counted.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { is_backgrounded: true }, session_id: "sess-1", uuid: "u-t2" });
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A terminal patch status settles it — without any task_notification.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "completed", end_time: 1 }, session_id: "sess-1", uuid: "u-t3" });
+    expect(hub.hasPendingWork()).toBe(false);
+  });
+
+  it("keeps a task counted while task_updated reports a non-terminal status", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "start proxy", claudeSessionId: "sess-1" });
+    procs[0].emit(init);
+    procs[0].emit({ type: "system", subtype: "task_started", task_id: "t1", task_type: "local_bash", session_id: "sess-1", uuid: "u-t1" });
+    procs[0].emit(resultLine);
+    procs[0].emit(stateIdle);
+
+    // `running` / `paused` are non-terminal and must not clear the task.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "running" }, session_id: "sess-1", uuid: "u-t2" });
+    expect(hub.hasPendingWork()).toBe(true);
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "paused" }, session_id: "sess-1", uuid: "u-t3" });
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A failed task is terminal and clears it.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "failed", error: "boom" }, session_id: "sess-1", uuid: "u-t4" });
     expect(hub.hasPendingWork()).toBe(false);
   });
 
@@ -283,6 +417,7 @@ describe("conversationHub", () => {
     expect(procs[0].kills.length).toBe(0); // no escalation needed
 
     procs[0].emit({ ...resultLine, subtype: "error_during_execution", is_error: true });
+    procs[0].emit(stateIdle);
     expect(status(hub)).toBe("cancelled");
     expect(hub.hasPendingWork()).toBe(false);
 
@@ -295,11 +430,10 @@ describe("conversationHub", () => {
   it("stays busy after a cancel issued before the turn produced output", async () => {
     const { hub, procs } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
-    // No output yet: busy comes solely from the pending dispatched turn.
+    // No idle event yet: the dispatch's optimistic `running` keeps it busy, so
+    // the cancel proceeds (isBusy gate) and the escalation timer can fire.
     await hub.cancel("c1");
     expect(procs[0].interrupts.length).toBe(1);
-    // The cancel must not zero the pending count — otherwise the escalation
-    // path would read the conversation as already-interrupted and never fire.
     expect(status(hub)).toBe("running");
     expect(hub.hasPendingWork()).toBe(true);
   });
@@ -317,10 +451,13 @@ describe("conversationHub", () => {
     await hub.dispatch({ conversationId: "c1", prompt: "raced", claudeSessionId: "sess-1" });
 
     procs[0].emit({ ...resultLine, subtype: "error_during_execution", is_error: true });
-    expect(status(hub)).toBe("cancelled");
+    // The flush (a synthetic interrupted result for the raced turn) fires on
+    // the cancelled turn's result, before the session reports idle.
     const last = events[events.length - 1];
     expect(last.kind).toBe("result");
     expect(JSON.parse(last.rawJsonl).subtype).toBe("interrupted");
+    procs[0].emit(stateIdle);
+    expect(status(hub)).toBe("cancelled");
     expect(hub.hasPendingWork()).toBe(false);
   });
 
@@ -329,8 +466,60 @@ describe("conversationHub", () => {
     await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
     procs[0].emit(init);
     procs[0].emit(resultLine);
+    procs[0].emit(stateIdle);
     await hub.cancel("c1");
     expect(procs[0].interrupts.length).toBe(0);
     expect(procs[0].kills.length).toBe(0);
+  });
+
+  const askControlRequest = {
+    type: "control_request",
+    request_id: "perm-1",
+    request: {
+      subtype: "can_use_tool",
+      tool_name: "AskUserQuestion",
+      tool_use_id: "toolu_q1",
+      input: { questions: [{ question: "Red or blue?", header: "Color", multiSelect: false, options: [{ label: "Red" }, { label: "Blue" }] }] },
+    },
+  };
+
+  it("parks an AskUserQuestion permission request and resolves it on answer", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "ask me", claudeSessionId: "sess-1" });
+    procs[0].emit(askControlRequest);
+    expect(procs[0].permissionResponses.length).toBe(0);
+
+    const result = hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Red" });
+    expect(result.ok).toBe(true);
+    expect(procs[0].permissionResponses.length).toBe(1);
+    const resp = procs[0].permissionResponses[0];
+    expect(resp.requestId).toBe("perm-1");
+    expect(resp.decision).toMatchObject({
+      behavior: "allow",
+      toolUseId: "toolu_q1",
+      updatedInput: { answers: { "Red or blue?": "Red" } },
+    });
+    expect((resp.decision as { updatedInput: { questions: unknown[] } }).updatedInput.questions).toBeDefined();
+
+    expect(hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Blue" }).ok).toBe(false);
+  });
+
+  it("auto-allows a non-AskUserQuestion permission request", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    procs[0].emit({
+      type: "control_request",
+      request_id: "perm-2",
+      request: { subtype: "can_use_tool", tool_name: "Bash", tool_use_id: "toolu_b1", input: { command: "ls" } },
+    });
+    expect(procs[0].permissionResponses.length).toBe(1);
+    expect(procs[0].permissionResponses[0].decision).toMatchObject({ behavior: "allow", toolUseId: "toolu_b1" });
+  });
+
+  it("reports no pending question when answering an unknown tool_use", async () => {
+    const { hub } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    const result = hub.answerQuestion("c1", "toolu_missing", { q: "a" });
+    expect(result).toEqual({ ok: false, reason: "no_pending_question" });
   });
 });

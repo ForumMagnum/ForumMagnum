@@ -1090,7 +1090,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
         </>}
       </> : (
         <div className={classes.disabledMessage}>
-          You need at least 1 karma to use sharing features
+          You need to be logged in to use sharing features
         </div>
       )}
     </div>

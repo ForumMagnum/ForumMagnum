@@ -35,7 +35,6 @@ const routesWithWhiteBackground = [
   "/highlights/[slug]",
   "/hpmor/[slug]",
   "/login",
-  "/manageSubscriptions",
   "/newPost",
   "/petrov/ceremony",
   "/postAnalytics",

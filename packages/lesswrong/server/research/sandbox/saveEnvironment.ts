@@ -4,6 +4,7 @@ import {
   getRunningSandbox,
   sandboxNameForConversation,
   supervisorUrlForSandbox,
+  SNAPSHOT_EXPIRATION_MS,
 } from "./sandboxManager";
 
 const QUIESCE_TIMEOUT_MS = 60_000;
@@ -144,52 +145,40 @@ export async function buildEnvironmentSnapshot(args: {
   }
   const effectiveWith = withConversation && sourceEventId !== null;
 
-  let intermediateSnapshot: Snapshot | null = null;
   let clone: Sandbox | null = null;
 
   try {
-    let repoDir: string | null = null;
-    let envSnapshotId: string;
-
-    if (effectiveWith) {
-      if (running) {
-        repoDir = await detectRepoDirName(running);
-        // Snapshot the quiesced sandbox directly (stops it → cold resume next turn).
-        const snap = await running.snapshot({ expiration: 0 });
-        envSnapshotId = snap.snapshotId;
-      } else {
-        const srcSnapshotId = await Snapshot.fromSandbox(sandboxName);
-        clone = await createCloneFromSnapshot(srcSnapshotId);
-        repoDir = await detectRepoDirName(clone);
-        const snap = await clone.snapshot({ expiration: 0 });
-        envSnapshotId = snap.snapshotId;
-      }
+    // The env snapshot is always taken from a throwaway clone, never from the
+    // conversation's persistent sandbox: an env snapshot's lifecycle is the
+    // environment's (deleted if the insert fails, deletable by the user), and
+    // the persistent sandbox must never resume from a snapshot that can be
+    // deleted out from under it.
+    let cloneSourceSnapshotId: string;
+    if (running) {
+      // Stops the sandbox (cold resume next turn). This snapshot is what the
+      // persistent sandbox resumes from, so it must outlive this function; it
+      // gets the same retention as the sandbox's own auto-snapshots and is
+      // superseded by the next one.
+      const intermediate = await running.snapshot({ expiration: SNAPSHOT_EXPIRATION_MS });
+      cloneSourceSnapshotId = intermediate.snapshotId;
     } else {
-      let cloneSourceSnapshotId: string;
-      if (running) {
-        intermediateSnapshot = await running.snapshot({ expiration: 0 });
-        cloneSourceSnapshotId = intermediateSnapshot.snapshotId;
-      } else {
-        cloneSourceSnapshotId = await Snapshot.fromSandbox(sandboxName);
-      }
-      clone = await createCloneFromSnapshot(cloneSourceSnapshotId);
-      repoDir = await detectRepoDirName(clone);
-      await scrubAgentSession(clone);
-      const snap = await clone.snapshot({ expiration: 0 });
-      envSnapshotId = snap.snapshotId;
+      cloneSourceSnapshotId = await Snapshot.fromSandbox(sandboxName);
     }
+    clone = await createCloneFromSnapshot(cloneSourceSnapshotId);
+    const repoDir = await detectRepoDirName(clone);
+    if (!effectiveWith) {
+      await scrubAgentSession(clone);
+    }
+    const snap = await clone.snapshot({ expiration: 0 });
 
     return {
-      vercelSnapshotId: envSnapshotId,
+      vercelSnapshotId: snap.snapshotId,
       sourceEventId: effectiveWith ? sourceEventId : null,
       label: deriveLabel(repoDir, conversationTitle),
     };
   } finally {
     if (clone) {
       await clone.stop().catch(() => {});
-    }
-    if (intermediateSnapshot) {
-      await intermediateSnapshot.delete().catch(() => {});
     }
   }
 }

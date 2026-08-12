@@ -42,10 +42,14 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
+  pangramApiVersion: string | null
+  pangramFractionAi: number | null
+  pangramFractionAiAssisted: number | null
+  pangramFractionHuman: number | null
   pangramMaxScore: number | null
   pangramPrediction: "AI" | "Human" | "Mixed" | null
   pangramScore: number | null
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null
@@ -1166,12 +1170,16 @@ type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
 
 interface DbResearchConversation extends DbObject {
   __collectionName?: "ResearchConversations"
+  archived: boolean
   baseEnvironmentId: string | null
   claudeSessionId: string | null
   createdAt: Date
   entrypointDocumentId: string
   entrypointKind: string
+  icon: string | null
   lastActivityAt: Date
+  lastReadAt: Date | null
+  presentationHtml: string | null
   projectId: string
   runtime: string | null
   title: string | null
@@ -1182,9 +1190,12 @@ type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
 
 interface DbResearchDocument extends DbObject {
   __collectionName?: "ResearchDocuments"
+  archived: boolean
   contents_latest: string | null
   createdAt: Date
+  icon: string | null
   projectId: string
+  sortOrder: number | null
   title: string | null
   userId: string
 }
@@ -1193,6 +1204,7 @@ type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
 
 interface DbResearchEnvironment extends DbObject {
   __collectionName?: "ResearchEnvironments"
+  archived: boolean
   createdAt: Date
   label: string
   projectId: string
