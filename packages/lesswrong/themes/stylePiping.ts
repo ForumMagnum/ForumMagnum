@@ -776,6 +776,9 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
+    '& .llm-content-block': {
+      fontSize: 'inherit',
+    },
     '& .footnotes': {
       marginTop: 0,
       paddingTop: 8,
