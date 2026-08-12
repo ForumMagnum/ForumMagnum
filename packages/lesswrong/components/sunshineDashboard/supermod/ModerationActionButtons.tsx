@@ -21,7 +21,8 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '4px 4px 4px 8px',
+    gap: 4,
+    padding: '4px 4px 4px 6px',
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
     backgroundColor: theme.palette.background.paper,
@@ -59,12 +60,6 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
         tooltip: "Approve this user and all their content. Marks them as reviewed by you, so their future posts and comments no longer need review. Clears any snooze and any flag, and signs an 'Approved' note in their moderator notes.",
         onClick: handleReview,
       },
-      {
-        label: 'Approve Current Only',
-        keystroke: 'Shift+A',
-        tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
-        onClick: handleApproveCurrentOnly,
-      },
     ],
     [
       {
@@ -74,10 +69,16 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
         onClick: () => handleSnooze(10),
       },
       {
-        label: 'Snooze Custom',
+        label: 'Snooze X',
         keystroke: 'Shift+S',
         tooltip: 'Same as Snooze 10, but opens a dialog to choose how many more posts or comments the user can make before they return to the review queue.',
         onClick: handleSnoozeCustom,
+      },
+      {
+        label: 'Approve Current Only',
+        keystroke: 'Shift+A',
+        tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
+        onClick: handleApproveCurrentOnly,
       },
     ],
     [
@@ -104,7 +105,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
             <LWTooltip key={label} title={tooltip} placement="left">
               <div className={classes.actionButton} onClick={onClick}>
                 <span>{label}</span>
-                <KeystrokeDisplay keystroke={keystroke} withMargin splitBeforeTranslation />
+                <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation />
               </div>
             </LWTooltip>
           ))}
