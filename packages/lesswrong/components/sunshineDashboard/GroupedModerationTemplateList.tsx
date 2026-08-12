@@ -666,8 +666,6 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
         break;
       case 'Enter':
         // Cmd/Ctrl+Enter submits the composer above the list (e.g. rejecting
-        // the content), handled by its own document-level listener; only a
-        // plain Enter toggles the selected template
         if (event.metaKey || event.ctrlKey) return;
         event.preventDefault();
         if (selectedTemplate) {
