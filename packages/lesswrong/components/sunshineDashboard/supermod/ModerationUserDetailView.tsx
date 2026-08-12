@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
@@ -7,6 +7,7 @@ import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -50,6 +51,7 @@ const ModerationUserDetailView = ({
   comments,
   focusedContentIndex,
   runningLlmCheckId,
+  sidebarTab,
   dispatch,
   state,
   currentUser,
@@ -59,13 +61,19 @@ const ModerationUserDetailView = ({
   comments: SunshineCommentsList[];
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
+  sidebarTab: SelectedSidebarTab;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
 
-  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
+  const setSidebarTab = useCallback(
+    (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
+    [dispatch]
+  );
+
+  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) =>
     new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [posts, comments]);
 
@@ -110,6 +118,9 @@ const ModerationUserDetailView = ({
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
             dispatch={dispatch}
           />
         </div>

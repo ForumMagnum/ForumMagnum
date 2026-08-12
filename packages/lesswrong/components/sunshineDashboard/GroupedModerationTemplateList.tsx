@@ -154,6 +154,22 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     gap: 4,
     marginBottom: 8,
   },
+  // Collapsed state reads as an unopened search field: icon on the left,
+  // greyed placeholder, underlined like the open input
+  collapsedSearch: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '4px 0',
+    marginBottom: 8,
+    borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    cursor: 'pointer',
+  },
+  collapsedSearchPlaceholder: {
+    fontSize: 13,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[500],
+  },
   searchIcon: {
     height: 16,
     width: 16,
@@ -293,11 +309,12 @@ const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose
 
   if (!searchOpen) {
     return (
-      <div className={classes.listHeader}>
-        <LWTooltip title="Search templates (/)" placement="left">
-          <ForumIcon icon="Search" className={classes.searchIcon} onClick={onOpen} />
-        </LWTooltip>
-      </div>
+      <LWTooltip title="Search templates (/)" placement="left">
+        <div className={classes.collapsedSearch} onClick={onOpen}>
+          <ForumIcon icon="Search" className={classes.searchIcon} />
+          <span className={classes.collapsedSearchPlaceholder}>Search templates...</span>
+        </div>
+      </LWTooltip>
     );
   }
 
@@ -478,13 +495,22 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  *
  * The search box drives the same keyboard flow as the rejection dialog: "/" opens and
  * focuses it, up/down move the selection through the visible templates, Enter applies
- * the selected one, Tab jumps to the composer, and Escape closes the search.
+ * the selected one, Tab (or ArrowUp past the top of the list) jumps to the composer,
+ * and Escape closes the search.
+ *
+ * `focusSearchToken` is bumped by the composer above the list when the moderator
+ * presses ArrowDown on its last line; it opens and focuses the search with nothing
+ * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
   onFocusComposer?: () => void,
+  focusSearchToken?: number,
+  // False while the list's composer tab is hidden (but kept mounted to
+  // preserve drafts), so the "/" shortcut only reaches the visible list
+  active?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -500,13 +526,23 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   // "/" is the way into the template list from the rest of the supermod keyboard flow,
   // which is why this listens globally rather than on the list itself
   useGlobalKeydown(useCallback((event: KeyboardEvent) => {
+    if (!active) return;
     if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
     if (isInTextInput(event.target)) return;
     event.preventDefault();
     setSearchOpen(true);
     setSelectedIndex(0);
     setSearchFocusToken(token => token + 1);
-  }, []));
+  }, [active]));
+
+  // ArrowDown from the last line of the composer lands here: the search itself is
+  // the selection (index -1), and the next ArrowDown moves into the template list
+  useEffect(() => {
+    if (!focusSearchToken) return;
+    setSearchOpen(true);
+    setSelectedIndex(-1);
+    setSearchFocusToken(token => token + 1);
+  }, [focusSearchToken]);
 
   // In an effect, not render: localStorage would break hydration
   useEffect(() => {
@@ -619,9 +655,14 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
         setSelectedIndex(prev => prev >= navigableTemplates.length - 1 ? 0 : prev + 1);
         break;
       case 'ArrowUp':
+        // Mirrors ArrowDown's composer → search → list flow: walk back up the
+        // list, pause at the search level (-1), then continue into the composer
         event.preventDefault();
-        if (navigableTemplates.length === 0) return;
-        setSelectedIndex(prev => prev <= 0 ? navigableTemplates.length - 1 : prev - 1);
+        if (selectedIndex < 0) {
+          onFocusComposer?.();
+          return;
+        }
+        setSelectedIndex(prev => prev - 1);
         break;
       case 'Enter':
         event.preventDefault();

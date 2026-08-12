@@ -102,11 +102,26 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   hovercard: {
     padding: 16,
     maxWidth: 400,
-    border: theme.palette.border.commentBorder,
+    border: theme.palette.border.slightlyIntense3,
     borderRadius: theme.borderRadius.small,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    // Large soft halo so the preview is readable over the busy page behind it
+    boxShadow: `0 0 200px 200px ${theme.palette.boxShadowColor(0.03)}`,
+    // Crop the halo at the card's right edge so it doesn't dim the sidebar
+    // column the card floats next to. 500px comfortably exceeds the shadow's
+    // blur+spread (400px), so the other three sides show no hard edge. Assumes
+    // the card stays on the left of its row (left-start only flips to the
+    // right if there's no room on the left, which this layout doesn't hit).
+    clipPath: 'inset(-500px 0 -500px -500px)',
+    // The comment ContentStyles on this element add vertical margins, which
+    // push the card out of flush left-start alignment with the hovered row;
+    // && outweighs the commentBody class regardless of injection order
+    '&&': {
+      marginTop: 0,
+      marginBottom: 0,
+    },
   },
   actionIcon: {
     fontSize: 22,
@@ -152,6 +167,9 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
     <LWTooltip
       tooltip={false}
       placement="left-start"
+      // Pushes the card left past the sidebar section's padding, so its
+      // right edge clears the column boundary rather than overlapping the list
+      distance={13}
       // Not inline-block, so the row fills the sidebar width
       As="div"
       inlineBlock={false}
