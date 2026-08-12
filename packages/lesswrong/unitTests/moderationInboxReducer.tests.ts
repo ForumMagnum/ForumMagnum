@@ -763,7 +763,7 @@ describe('Moderation Inbox Reducer', () => {
         ],
       }));
 
-      // user1 is focused (possibly mid-action with optimistic local updates), so keeps the local copy
+      // user1 is focused (possibly mid-action), so it keeps the local copy
       expect(newState.users.find(u => u._id === 'user1')?.karma).toBe(1);
       expect(newState.users.find(u => u._id === 'user2')?.karma).toBe(200);
     });
@@ -844,8 +844,7 @@ describe('Moderation Inbox Reducer', () => {
         removedPostIds: ['postB'],
       };
 
-      // postB was just reviewed locally but the refreshed data still includes
-      // it; postA is focused and absent from the refreshed data
+      // postB was reviewed locally but still returned; postA is focused and absent
       const newState = inboxStateReducer(state, refreshAction({
         posts: [createMockPost('postB')],
         classifiedPosts: [createMockPost('postC'), createMockPost('postB')],

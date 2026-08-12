@@ -285,11 +285,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   }, [state.openedUserId, query.user, location, navigate]);
 
-  // The outer component polls ModerationInboxDataQuery in the background, so
-  // these props update over time. Fold refreshed results into the reducer
-  // state (REFRESH_DATA merges rather than replaces, so in-progress moderation
-  // isn't disrupted). The first value is skipped because it already seeded the
-  // reducer's initial state.
+  // Folds background-poll updates to these props into the reducer state; the first
+  // value is skipped because it already seeded the reducer's initial state.
   const initialDataSeededRef = useRef(false);
   useEffect(() => {
     if (!initialDataSeededRef.current) {
@@ -406,11 +403,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const { posts: userPosts, comments: userComments, loading: userContentsLoading } = useModeratedUserContents(openedUser?._id ?? '', 20, BACKGROUND_POLL_INTERVAL);
 
-  // The detail view's content focus is index-based, into the merged
-  // newest-first list that ModerationUserDetailView renders (recomputed here
-  // with the same sort). When a background refresh inserts or removes items,
-  // re-anchor the index to the item that was focused so the focus doesn't
-  // silently jump to a different item.
+  // Content focus is an index into this list (same sort as ModerationUserDetailView);
+  // when a refresh changes the list, re-anchor the index to the item that was focused.
   const allUserContent = useMemo(() => [...userPosts, ...userComments].sort((a, b) =>
     new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [userPosts, userComments]);
@@ -420,8 +414,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   useEffect(() => {
     const contentChanged = prevUserContentRef.current !== allUserContent;
     prevUserContentRef.current = allUserContent;
-    // While the list may be partial (one of the two content queries hasn't
-    // returned yet), neither re-anchor nor move the anchor.
+    // While the list may be partial (a query hasn't returned), leave the anchor alone
     if (userContentsLoading) return;
     if (contentChanged && state.openedUserId && focusedContentIdRef.current) {
       const anchoredIndex = allUserContent.findIndex(item => item._id === focusedContentIdRef.current);
@@ -564,8 +557,7 @@ const ModerationInbox = () => {
       curationLimit: 200,
     },
     fetchPolicy: 'cache-and-network',
-    // Background refresh; ModerationInboxInner folds refreshed results into
-    // its reducer state without disrupting in-progress moderation.
+    // Background refresh; ModerationInboxInner merges results into its reducer state
     pollInterval: BACKGROUND_POLL_INTERVAL,
     skipPollAttempt: skipPollWhenHidden,
   });

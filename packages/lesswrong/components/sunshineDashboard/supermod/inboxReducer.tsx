@@ -55,9 +55,7 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
-  // Post ids removed by local moderator actions. A background refresh must not
-  // re-add these: the removal is dispatched before the server mutation
-  // resolves, so refreshed data may briefly still include them.
+  // Posts removed locally; refreshes must not re-add them (mutation may be in flight)
   removedPostIds: string[];
 };
 
@@ -125,17 +123,10 @@ export function getVisibleTabsInOrder(
 }
 
 /**
- * Merge a background-refreshed list into the local copy, without disrupting
- * whatever the moderator is currently doing:
- * - Items the moderator is working on (`protectedIds`) keep their local
- *   version and are never removed, even if the refreshed data no longer
- *   includes them.
- * - Other existing items are updated in place with the refreshed data,
- *   preserving their current position in the list.
- * - Items that vanished from the refreshed data (eg handled by another
- *   moderator) are removed.
- * - Newly arrived items are appended at the end, except ones removed by a
- *   local action that the server may not reflect yet (`locallyRemovedIds`).
+ * Merge a background-refreshed list into the local copy without disrupting the
+ * moderator: `protectedIds` items keep their local version and are never removed,
+ * other existing items are updated in place, vanished items are removed, and new
+ * items are appended (except `locallyRemovedIds`, which the server may still return).
  */
 function mergeRefreshedItems<T extends { _id: string }>(
   currentItems: T[],
@@ -697,9 +688,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       };
     }
 
-    // Repositions the content focus without any of OPEN_CONTENT's side
-    // effects (it doesn't touch the composer), used to keep the focus anchored
-    // to the same item when a background refresh reorders the content list.
+    // Moves the content focus without closing the composer (unlike OPEN_CONTENT)
     case 'SET_FOCUSED_CONTENT_INDEX': {
       return {
         ...state,
@@ -707,9 +696,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       };
     }
 
-    // Background-refreshed data from polling. Merges instead of replacing so
-    // that in-progress moderation (focused/opened items, the undo queue, and
-    // optimistic local updates on the item being acted on) is not disrupted.
+    // Background poll results; merged so in-progress moderation isn't disrupted
     case 'REFRESH_DATA': {
       const protectedIds = new Set(filterNonnull([state.openedUserId, state.focusedUserId, state.focusedPostId, action.directUserId]));
       const locallyRemovedUserIds = new Set([

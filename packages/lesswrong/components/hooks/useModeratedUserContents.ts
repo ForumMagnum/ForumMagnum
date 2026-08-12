@@ -38,8 +38,7 @@ export function useModeratedUserContents(userId: string, contentLimit = 20, poll
   return {
     posts: posts ?? [],
     comments,
-    // True until both queries have returned data at least once; while this is
-    // set, the content list may be partial (eg comments without posts).
+    // True until both queries have returned once; until then the list may be partial.
     loading: posts === undefined || commentsData === undefined,
   };
 }
