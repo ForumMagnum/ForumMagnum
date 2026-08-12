@@ -12,7 +12,7 @@ export const sendCommentAwardNotifications = async () => {
   const now = new Date();
   // We only send notifications for awards created at least 30 minutes ago to
   // give a buffer to remove the award without sending the notification.
-  const cutoff = new Date(now.getTime() - 30 * 60 * 1000)
+  const cutoff = new Date(now.getTime() - (30 * 60 * 1000))
 
   const awards = await CommentAwards.find({
     createdAt: { $lt: cutoff },
@@ -66,6 +66,7 @@ export const sendCommentAwardNotifications = async () => {
       // eslint-disable-next-line no-console
       console.log(`Comment award notifications: created for comment ${commentId}`);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       captureException(e);
     }
