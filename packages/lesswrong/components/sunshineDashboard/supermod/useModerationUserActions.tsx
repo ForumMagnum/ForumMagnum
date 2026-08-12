@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import moment from 'moment';
 import { useDialog } from '@/components/common/withDialog';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -148,6 +149,24 @@ export function useModerationUserActions({
     });
   }, [selectedUser, openDialog, handleSnooze]);
 
+  const handlePurge = useCallback(() => {
+    if (!selectedUser) return;
+    if (!confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) return;
+
+    const notes = selectedUser.sunshineNotes || '';
+    const newNotes = getModSignatureWithNote('Purge') + notes;
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      nullifyVotes: true,
+      deleteContent: true,
+      needsReview: false,
+      reviewedAt: new Date(),
+      banned: moment().add(1000, 'years').toDate(),
+      sunshineNotes: newNotes,
+    }, 'Purged');
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
+
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
     
@@ -235,6 +254,7 @@ export function useModerationUserActions({
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
+    handlePurge,
     updateUserWith,
     getModSignatureWithNote,
     posts,

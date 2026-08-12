@@ -61,6 +61,7 @@ const ModerationUserKeyboardHandler = ({
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
+    handlePurge,
     updateUserWith,
     getModSignatureWithNote,
     posts,
@@ -113,24 +114,6 @@ const ModerationUserKeyboardHandler = ({
       banned: moment().add(banMonths, 'months').toDate(),
       sunshineNotes: newNotes,
     }, 'Banned 3mo');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
-
-  const handlePurge = useCallback(() => {
-    if (!selectedUser) return;
-    if (!confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) return;
-
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Purge') + notes;
-    void updateUserWith({
-      sunshineFlagged: false,
-      reviewedByUserId: currentUser._id,
-      nullifyVotes: true,
-      deleteContent: true,
-      needsReview: false,
-      reviewedAt: new Date(),
-      banned: moment().add(1000, 'years').toDate(),
-      sunshineNotes: newNotes,
-    }, 'Purged');
   }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleFlag = useCallback(() => {
