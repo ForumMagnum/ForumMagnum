@@ -448,6 +448,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               sidebarTab={state.sidebarTab}
+              addToUndoQueue={addToUndoQueue}
               dispatch={dispatch}
               state={state}
             />

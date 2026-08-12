@@ -42,6 +42,7 @@ const ModerationSidebar = ({
   focusedContent,
   sidebarTab,
   setSidebarTab,
+  addToUndoQueue,
   dispatch,
 }: {
   user: SunshineUsersList;
@@ -51,6 +52,7 @@ const ModerationSidebar = ({
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -69,7 +71,7 @@ const ModerationSidebar = ({
     <div className={classes.root}>
       <div className={classes.section}>
         <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-        <SupermodModeratorActions user={user} dispatch={dispatch} />
+        <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
         <div className={classes.userMessages}>

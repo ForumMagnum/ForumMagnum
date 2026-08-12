@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
+import ModerationActionButtons from './ModerationActionButtons';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
@@ -36,13 +37,19 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, dispatch: React.ActionDispatch<[action: InboxAction]>}) => {
+const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}: {
+  user: SunshineUsersList,
+  currentUser: UsersCurrent,
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
+  dispatch: React.ActionDispatch<[action: InboxAction]>,
+}) => {
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
 
   return (
     <div>
+      <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} />
       <div className={classes.rateLimitSection}>
         <ModerationPermissionButtons user={user} dispatch={dispatch} />
         <div
