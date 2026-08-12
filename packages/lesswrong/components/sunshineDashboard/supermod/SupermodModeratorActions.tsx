@@ -2,13 +2,26 @@ import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModerationActionButtons from './ModerationActionButtons';
+import ModerationSectionTitle from './ModerationSectionTitle';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
+import ForumIcon from '@/components/common/ForumIcon';
+import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
+  sectionTitleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  collapseChevron: {
+    fontSize: 16,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+  },
   modActionsColumn: {
     display: 'flex',
     flexDirection: 'column',
@@ -47,35 +60,52 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
 
+  const { moderatorActionsCollapsed, setModeratorActionsCollapsed } = useLocalStorageState(
+    'moderatorActionsCollapsed',
+    (key) => `supermod_${key}`,
+    'false'
+  );
+  const isCollapsed = moderatorActionsCollapsed === 'true';
+
   return (
     <div>
-      <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} />
-      <div className={classes.rateLimitSection}>
-        <ModerationPermissionButtons user={user} dispatch={dispatch} />
-        <div
-          className={classes.rateLimitButton}
-          onClick={() => setShowRateLimitForm(!showRateLimitForm)}
-        >
-          Limits
-        </div>
+      <div className={classes.sectionTitleRow}>
+        <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
+        <ForumIcon
+          icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"}
+          className={classes.collapseChevron}
+          onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
+        />
       </div>
-      <div className={classes.modActionsColumn}>
-        {activeModeratorActions.map(action => (
-          <div key={action._id} className={classes.modActionItem}>
-            <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+      {!isCollapsed && <>
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} />
+        <div className={classes.rateLimitSection}>
+          <ModerationPermissionButtons user={user} dispatch={dispatch} />
+          <div
+            className={classes.rateLimitButton}
+            onClick={() => setShowRateLimitForm(!showRateLimitForm)}
+          >
+            Limits
           </div>
-        ))}
-      </div>
-      {/* 
-        TODO: rework rate limits into a nicer UI and/or get rid of them completely
-      since we don't use them a ton. 
+        </div>
+        <div className={classes.modActionsColumn}>
+          {activeModeratorActions.map(action => (
+            <div key={action._id} className={classes.modActionItem}>
+              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+            </div>
+          ))}
+        </div>
+        {/* 
+          TODO: rework rate limits into a nicer UI and/or get rid of them completely
+        since we don't use them a ton. 
 
-        For now, we're only showing the options for it when we've toggled the button here.
-        (but, still rendering the list of existing rate limits whether you've expanded it or not)
-      */}
-      <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
-        <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
-      </div>
+          For now, we're only showing the options for it when we've toggled the button here.
+          (but, still rendering the list of existing rate limits whether you've expanded it or not)
+        */}
+        <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
+          <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
+        </div>
+      </>}
     </div>
   );
 }

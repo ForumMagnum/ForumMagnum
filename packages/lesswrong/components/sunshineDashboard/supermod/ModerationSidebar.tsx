@@ -2,9 +2,6 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
 import SupermodModeratorActions from './SupermodModeratorActions';
-import ModerationSectionTitle from './ModerationSectionTitle';
-import ForumIcon from '@/components/common/ForumIcon';
-import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import type { InboxAction } from './inboxReducer';
 import type { ContentItem } from './helpers';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -34,16 +31,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
-  sectionTitleRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  collapseChevron: {
-    fontSize: 16,
-    color: theme.palette.grey[600],
-    cursor: 'pointer',
-  },
 }));
 
 const ModerationSidebar = ({
@@ -69,13 +56,6 @@ const ModerationSidebar = ({
 }) => {
   const classes = useStyles(styles);
 
-  const { moderatorActionsCollapsed, setModeratorActionsCollapsed } = useLocalStorageState(
-    'moderatorActionsCollapsed',
-    (key) => `supermod_${key}`,
-    'false'
-  );
-  const isCollapsed = moderatorActionsCollapsed === 'true';
-
   if (!user) {
     return (
       <div className={classes.root}>
@@ -89,15 +69,7 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitleRow}>
-          <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-          <ForumIcon
-            icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"}
-            className={classes.collapseChevron}
-            onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
-          />
-        </div>
-        {!isCollapsed && <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />}
+        <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
         <div className={classes.userMessages}>
