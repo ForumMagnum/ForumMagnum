@@ -12325,6 +12325,20 @@ type RunPangramOnTextMutationVariables = Exact<{
 
 type RunPangramOnTextMutation = RunPangramOnTextMutation_Mutation;
 
+type ModeratedUserMetadataQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null };
+
+type ModeratedUserMetadataQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: ModeratedUserMetadataQuery_user_SingleUserOutput_result_User | null };
+
+type ModeratedUserMetadataQuery_Query = { __typename?: 'Query', user: ModeratedUserMetadataQuery_user_SingleUserOutput | null };
+
+
+type ModeratedUserMetadataQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ModeratedUserMetadataQuery = ModeratedUserMetadataQuery_Query;
+
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
 
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };

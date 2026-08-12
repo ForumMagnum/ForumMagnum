@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
 import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
+import { getPageTitleString } from '@/lib/pageTitle';
 
 const IGNORED_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document']);
 
@@ -59,11 +60,6 @@ export async function getDefaultMetadata() {
     },
     ...(noIndexSetting.get() ? noIndexMetadata : {})
   } satisfies Metadata;
-}
-
-function getPageTitleString(title: string) {
-  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
-  return `${title} — ${siteName}`;
 }
 
 export function getPageTitleFields(title: string): Metadata {

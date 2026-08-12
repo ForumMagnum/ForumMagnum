@@ -27,6 +27,9 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { getModerationInboxTitle } from './helpers';
+import { getPageTitleString } from '@/lib/pageTitle';
+import { userGetDisplayName } from '@/lib/collections/users/helpers';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -305,6 +308,12 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     if (!state.openedUserId) return null;
     return allOrderedUsers.find(u => u._id === state.openedUserId) ?? null;
   }, [state.openedUserId, allOrderedUsers]);
+
+  // The URL is updated with skipRouter, so NextJS won't regenerate the page metadata when
+  // you open a different user; keep the window title in sync ourselves.
+  useEffect(() => {
+    document.title = getPageTitleString(getModerationInboxTitle(openedUser ? userGetDisplayName(openedUser) : null));
+  }, [openedUser]);
 
   const sidebarUser = useMemo(() => {
     if (openedUser) return openedUser;
