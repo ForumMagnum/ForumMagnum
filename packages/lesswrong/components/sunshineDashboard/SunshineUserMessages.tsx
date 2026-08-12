@@ -22,9 +22,11 @@ import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
+import KeystrokeDisplay from './supermod/KeystrokeDisplay';
+import ComposerKeydownWrapper from './supermod/ComposerKeydownWrapper';
 import { canRejectContent, getContentTitle, type ContentItem } from './supermod/helpers';
-import type { SidebarTab, SelectedSidebarTab } from './supermod/sidebarTabs';
-import { focusLexicalEditor, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
+import type { SelectedSidebarTab } from './supermod/sidebarTabs';
+import { focusLexicalEditorAtEnd, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -83,6 +85,15 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   conversationForm: {
     marginBottom: 16,
     paddingBottom: 8,
+    // One line tall until the moderator types or inserts a template (the
+    // lexical min-height var is already 1em via MessagesNewForm's own styles,
+    // but the editor wrapper adds a 100px min-height that we undo here)
+    '& .EditorFormComponent-commentEditorHeight': {
+      minHeight: 'unset',
+    },
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
+      minHeight: 'unset',
+    },
   },
   messagePrompt: {
     padding: 8,
@@ -124,6 +135,17 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     borderBottom: '2px solid transparent',
     paddingBottom: 2,
   },
+  // KeystrokeDisplay's root is display:flex, so the label needs to be a flex
+  // container for the badge to sit inline with the text
+  rejectTabLabel: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    maxWidth: '100%',
+  },
+  rejectTabTitle: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
   dmTab: {
     flexShrink: 0,
   },
@@ -144,6 +166,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     },
   },
+  // Deselected composers stay mounted (so drafts survive), just hidden
+  hiddenTabContent: {
+    display: 'none',
+  },
 }));
 
 interface SunshineUserMessagesProps {
@@ -153,7 +179,7 @@ interface SunshineUserMessagesProps {
   comments?: SunshineCommentsList[];
   focusedContent?: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
-  setSidebarTab: (tab: SidebarTab) => void;
+  setSidebarTab: (tab: SelectedSidebarTab) => void;
 }
 
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
@@ -174,6 +200,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const [templateSearchToken, setTemplateSearchToken] = useState(0);
+  const [pendingComposerFocus, setPendingComposerFocus] = useState(false);
   const dmEditorContainerRef = useRef<HTMLDivElement>(null);
 
   const { captureEvent } = useTracking()
@@ -208,20 +236,35 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
   const dmTabActive = sidebarTab === 'dm';
 
-  // Start the conversation on tab click, not on a second click on the prompt
+  // Start the conversation on tab click, not on a second click on the prompt.
+  // Clicking the already-active tab closes the composer.
   const handleSelectDmTab = () => {
+    if (dmTabActive) {
+      setSidebarTab(null);
+      return;
+    }
     setSidebarTab('dm');
     handleStartConversation();
   };
 
+  // The template search is the initial keyboard target whenever the tab is picked
   useEffect(() => {
     if (dmTabActive) {
+      setTemplateSearchToken(token => token + 1);
+    }
+  }, [dmTabActive]);
+
+  // Composer focus has to wait until the conversation (and thus the editor) exists
+  useEffect(() => {
+    if (pendingComposerFocus && dmTabActive && embeddedConversationId) {
+      setPendingComposerFocus(false);
       return focusLexicalEditorWhenReady(dmEditorContainerRef.current);
     }
-  }, [dmTabActive, embeddedConversationId]);
+  }, [pendingComposerFocus, dmTabActive, embeddedConversationId]);
 
   const handleMessageTemplateClick = (template: ModerationTemplateFragment) => {
     if (!embeddedConversationId) {
+      setPendingComposerFocus(true);
       initiateConversation([user._id]);
       const newTemplateQueries = {
         templateId: template._id,
@@ -251,18 +294,31 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   // composer doesn't exist, so start one — the effect above focuses it once it renders.
   const handleFocusComposer = () => {
     if (embeddedConversationId) {
-      focusLexicalEditor(dmEditorContainerRef.current);
+      focusLexicalEditorAtEnd(dmEditorContainerRef.current);
     } else {
+      setPendingComposerFocus(true);
       handleStartConversation();
     }
   };
 
+  // Clicking the prompt is an explicit request to type a message, so the
+  // composer (not the search) gets focus once the conversation exists
+  const handleMessagePromptClick = () => {
+    setPendingComposerFocus(true);
+    handleStartConversation();
+  };
+
   const dmTabContents = <>
     {embeddedConversationId ? (
-      <div className={classes.conversationForm} ref={dmEditorContainerRef}>
+      <ComposerKeydownWrapper
+        className={classes.conversationForm}
+        containerRef={dmEditorContainerRef}
+        onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
+      >
         <MessagesNewForm
           conversationId={embeddedConversationId}
           templateQueries={templateQueries}
+          keystrokeSubmitButton
           successEvent={async (newMessage) => {
             await refetch();
             captureEvent('messageSent', {
@@ -272,9 +328,9 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
             })
           }}
         />
-      </div>
+      </ComposerKeydownWrapper>
     ) : (
-      <div className={classes.messagePrompt} onClick={handleStartConversation}>
+      <div className={classes.messagePrompt} onClick={handleMessagePromptClick}>
         Click to start a new message...
       </div>
     )}
@@ -283,6 +339,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       onTemplateClick={handleMessageTemplateClick}
       highlightedTemplateNames={highlightedTemplateNames}
       onFocusComposer={handleFocusComposer}
+      focusSearchToken={templateSearchToken}
+      active={dmTabActive}
     />
   </>;
 
@@ -330,18 +388,23 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       </div>
       {showRejectTab && <div
         className={classNames(classes.tab, classes.rejectTab, { [classes.disabledTab]: !canReject })}
-        onClick={() => canReject && setSidebarTab('reject')}
+        onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
         title={canReject ? undefined : "This content can't be rejected"}
       >
-        <span className={classNames(classes.tabLabel, { [classes.activeTab]: rejectTabActive })}>
-          Reject “{getContentTitle(focusedContent)}”
+        <span className={classNames(classes.tabLabel, classes.rejectTabLabel, { [classes.activeTab]: rejectTabActive })}>
+          <span className={classes.rejectTabTitle}>Reject “{getContentTitle(focusedContent)}”</span>
+          <KeystrokeDisplay keystroke="R" withMargin />
         </span>
       </div>}
     </div>
 
-    {dmTabActive && dmTabContents}
-    {rejectTabActive && focusedContent && (
-      <RejectContentPanel user={user} focusedContent={focusedContent} />
+    <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
+      {dmTabContents}
+    </div>
+    {canReject && focusedContent && (
+      <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
+        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} />
+      </div>
     )}
   </div>;
 }

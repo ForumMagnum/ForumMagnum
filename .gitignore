@@ -139,3 +139,7 @@ acxMeetupImports/
 
 # Claude Code
 .claude
+.env*
+
+# Local ML rejection-model experiments (large data dumps and model binaries)
+ml-rejection/

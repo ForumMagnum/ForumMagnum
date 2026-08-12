@@ -7,7 +7,7 @@ import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
-import type { SidebarTab, SelectedSidebarTab } from './sidebarTabs';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -69,7 +69,7 @@ const ModerationUserDetailView = ({
   const classes = useStyles(styles);
 
   const setSidebarTab = useCallback(
-    (tab: SidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
+    (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
     [dispatch]
   );
 

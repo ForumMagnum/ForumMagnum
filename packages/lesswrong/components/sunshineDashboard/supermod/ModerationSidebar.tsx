@@ -5,7 +5,7 @@ import SupermodModeratorActions from './SupermodModeratorActions';
 import ModerationSectionTitle from './ModerationSectionTitle';
 import type { InboxAction } from './inboxReducer';
 import type { ContentItem } from './helpers';
-import type { SidebarTab, SelectedSidebarTab } from './sidebarTabs';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const ModerationSidebar = ({
   comments: SunshineCommentsList[];
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
-  setSidebarTab: (tab: SidebarTab) => void;
+  setSidebarTab: (tab: SelectedSidebarTab) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);

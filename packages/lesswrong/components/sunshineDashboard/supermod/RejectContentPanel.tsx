@@ -1,27 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { AppendToEditorProvider, useAppendToEditor } from '@/components/editor/AppendToEditorContext';
-import { focusLexicalEditor, focusLexicalEditorWhenReady } from '@/components/editor/focusLexicalEditor';
+import { focusLexicalEditor, focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
-import KeystrokeDisplay from './KeystrokeDisplay';
+import ComposerKeydownWrapper from './ComposerKeydownWrapper';
+import ComposerSubmitButton from './ComposerSubmitButton';
 import { isPost, type ContentItem } from './helpers';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
-  // Rule separating the editor from the template list above it
   root: {
     marginTop: 16,
-    paddingTop: 16,
-    borderTop: theme.palette.border.normal,
   },
   introMessage: {
     marginBottom: 10,
@@ -47,7 +44,8 @@ const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
   },
   editorContainer: {
-    minHeight: 100,
+    // One line tall until the moderator types or inserts a template
+    '--lexical-comment-min-height': '1em',
   },
 }));
 
@@ -56,9 +54,13 @@ function appendHtml(existingHtml: string, newHtml: string) {
   return `${existingHtml}${separator}${newHtml}`;
 }
 
-const RejectContentEditor = ({ user, focusedContent }: {
+const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, onArrowDownPastEnd }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  // False while the panel is hidden (but kept mounted to preserve the draft)
+  active: boolean,
+  editorContainerRef: React.RefObject<HTMLDivElement | null>,
+  onArrowDownPastEnd: () => void,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
@@ -71,7 +73,6 @@ const RejectContentEditor = ({ user, focusedContent }: {
   const [hasRejectedReason, setHasRejectedReason] = useState(false);
   const [lexicalEditorVersion, setLexicalEditorVersion] = useState(0);
   const [introExpanded, setIntroExpanded] = useState(false);
-  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   const setEditorContents = useCallback((html: string) => {
     rejectedReasonRef.current = html;
@@ -92,10 +93,7 @@ const RejectContentEditor = ({ user, focusedContent }: {
       focusLexicalEditor(editorContainerRef.current);
     });
     return () => registerAppendToEditor(() => {});
-  }, [registerAppendToEditor, setEditorContents]);
-
-  // The panel only mounts on a deliberate tab pick, so taking focus is safe
-  useEffect(() => focusLexicalEditorWhenReady(editorContainerRef.current), []);
+  }, [registerAppendToEditor, setEditorContents, editorContainerRef]);
 
   const handleReject = useCallback(() => {
     const reason = rejectedReasonRef.current;
@@ -110,11 +108,12 @@ const RejectContentEditor = ({ user, focusedContent }: {
   }, [focusedContent, rejectContent, setEditorContents]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
+    if (!active) return;
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && hasRejectedReason) {
       e.preventDefault();
       handleReject();
     }
-  }, [hasRejectedReason, handleReject]));
+  }, [active, hasRejectedReason, handleReject]));
 
   return <div className={classes.root}>
     <div className={classes.introMessage} onClick={() => setIntroExpanded(!introExpanded)}>
@@ -124,7 +123,7 @@ const RejectContentEditor = ({ user, focusedContent }: {
           </ContentStyles>
         : <div className={classes.collapsedIntro}>{standardRejectionIntroPlaintext}</div>}
     </div>
-    <div className={classes.editorContainer} ref={editorContainerRef}>
+    <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={onArrowDownPastEnd}>
       <ContentStyles contentType='comment'>
         <LexicalEditor
           key={lexicalEditorVersion}
@@ -134,15 +133,17 @@ const RejectContentEditor = ({ user, focusedContent }: {
           commentEditor
         />
       </ContentStyles>
-    </div>
-    <Button onClick={handleReject} disabled={!hasRejectedReason}>
-      Reject
-      <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
-    </Button>
+    </ComposerKeydownWrapper>
+    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason} onClick={handleReject} />
   </div>;
 };
 
-const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
+const RejectionTemplateList = ({ displayName, focusSearchToken, active, onFocusComposer }: {
+  displayName: string,
+  focusSearchToken: number,
+  active: boolean,
+  onFocusComposer: () => void,
+}) => {
   const { appendToEditor } = useAppendToEditor();
 
   const handleTemplateClick = (template: ModerationTemplateFragment) => {
@@ -153,20 +154,47 @@ const RejectionTemplateList = ({ displayName }: { displayName: string }) => {
   return <GroupedModerationTemplateList
     collectionName="Rejections"
     onTemplateClick={handleTemplateClick}
+    focusSearchToken={focusSearchToken}
+    active={active}
+    onFocusComposer={onFocusComposer}
   />;
 };
 
 /**
  * Inline replacement for RejectContentDialog in the moderation sidebar:
- * clicking a template above the editor appends its text as a reason.
+ * clicking a template below the editor appends its text as a reason.
+ * Stays mounted while `active` is false so the draft survives the tab
+ * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent }: {
+const RejectContentPanel = ({ user, focusedContent, active }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  active: boolean,
 }) => {
+  const [templateSearchToken, setTemplateSearchToken] = useState(0);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
+
+  // The template search is the initial keyboard target whenever the tab is picked
+  useEffect(() => {
+    if (active) {
+      setTemplateSearchToken(token => token + 1);
+    }
+  }, [active]);
+
   return <AppendToEditorProvider>
-    <RejectionTemplateList displayName={user.displayName} />
-    <RejectContentEditor user={user} focusedContent={focusedContent} />
+    <RejectContentEditor
+      user={user}
+      focusedContent={focusedContent}
+      active={active}
+      editorContainerRef={editorContainerRef}
+      onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
+    />
+    <RejectionTemplateList
+      displayName={user.displayName}
+      focusSearchToken={templateSearchToken}
+      active={active}
+      onFocusComposer={() => focusLexicalEditorAtEnd(editorContainerRef.current)}
+    />
   </AppendToEditorProvider>;
 };
 
