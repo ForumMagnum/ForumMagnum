@@ -20320,25 +20320,6 @@ type multiLWEventEmailHistoryQueryQueryVariables = Exact<{
 
 type multiLWEventEmailHistoryQueryQuery = multiLWEventEmailHistoryQueryQuery_Query;
 
-type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type multiModerationTemplateGroupedTemplateListQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiModerationTemplateGroupedTemplateListQueryQuery = multiModerationTemplateGroupedTemplateListQueryQuery_Query;
-
 type updateModerationTemplateGroupedTemplateListMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
   & ModerationTemplateFragment
@@ -21071,6 +21052,25 @@ type createUserRateLimitUserRateLimitItemMutationVariables = Exact<{
 
 
 type createUserRateLimitUserRateLimitItemMutation = createUserRateLimitUserRateLimitItemMutation_Mutation;
+
+type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateGroupedTemplateListQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateGroupedTemplateListQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateGroupedTemplateListQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateGroupedTemplateListQueryQuery = multiModerationTemplateGroupedTemplateListQueryQuery_Query;
 
 type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice = (
   { __typename?: 'CurationNotice' }

@@ -291,21 +291,26 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * Stays mounted while `active` is false so the draft survives the tab
  * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
+const RejectContentPanel = ({ user, focusedContent, active, onEscape, highlightedTemplateNames, registerToggleTemplate }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
+  highlightedTemplateNames?: Set<string>,
+  // Lets the sidebar around the panel toggle a template into the draft (used by
+  // the highlighted-template buttons shown while this panel's tab is closed)
+  registerToggleTemplate?: (fn: (template: ModerationTemplateFragment) => void) => void,
 }) => {
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
 
-  const registerToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
+  const handleRegisterToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
     toggleTemplateRef.current = fn;
-  }, []);
+    registerToggleTemplate?.(fn);
+  }, [registerToggleTemplate]);
 
   // The template search is the initial keyboard target whenever the tab is picked
   useEffect(() => {
@@ -321,13 +326,14 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
       active={active}
       editorContainerRef={editorContainerRef}
       composerFocusToken={composerFocusToken}
-      registerToggleTemplate={registerToggleTemplate}
+      registerToggleTemplate={handleRegisterToggleTemplate}
       onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
       onEscape={onEscape}
     />
     <GroupedModerationTemplateList
       collectionName="Rejections"
       onTemplateClick={(template) => toggleTemplateRef.current(template)}
+      highlightedTemplateNames={highlightedTemplateNames}
       focusSearchToken={templateSearchToken}
       active={active}
       onFocusComposer={() => setComposerFocusToken(token => token + 1)}

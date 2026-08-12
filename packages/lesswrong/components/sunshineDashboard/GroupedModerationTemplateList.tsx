@@ -14,6 +14,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useMutation } from '@apollo/client/react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
+import { ModerationTemplatesListQuery, UNGROUPED_TEMPLATES_LABEL, getModerationTemplatesQueryVariables, groupTemplatesByLabel } from './moderationTemplatesShared';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
@@ -23,17 +24,6 @@ import { useCurrentUser } from '../common/withUser';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
-
-const ModerationTemplatesListQuery = gql(`
-  query multiModerationTemplateGroupedTemplateListQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
-    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...ModerationTemplateFragment
-      }
-      totalCount
-    }
-  }
-`);
 
 const UpdateModerationTemplateGroupMutation = gql(`
   mutation updateModerationTemplateGroupedTemplateList($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {
@@ -45,7 +35,6 @@ const UpdateModerationTemplateGroupMutation = gql(`
   }
 `);
 
-const UNGROUPED_TEMPLATES_LABEL = "Other";
 const HIDDEN_TEMPLATES_LABEL = "Hidden";
 
 // Hiding is per-moderator, so it lives in localStorage
@@ -71,37 +60,6 @@ function loadHiddenTemplateIds(userId: string, collectionName: TemplateType): st
 function saveHiddenTemplateIds(userId: string, collectionName: TemplateType, hiddenTemplateIds: Set<string>) {
   const ls = getBrowserLocalStorage();
   ls?.setItem(getHiddenTemplatesStorageKey(userId, collectionName), JSON.stringify([...hiddenTemplateIds]));
-}
-
-function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
-  return {
-    selector: { moderationTemplatesList: { collectionName } },
-    limit: 50,
-    enableTotal: false,
-  };
-}
-
-function groupTemplatesByLabel(templates: ModerationTemplateFragment[]): [string, ModerationTemplateFragment[]][] {
-  const grouped: Record<string, ModerationTemplateFragment[]> = {};
-  const templatesWithoutGroup: ModerationTemplateFragment[] = [];
-
-  templates.forEach(template => {
-    const groupLabel = template.groupLabel;
-    if (groupLabel) {
-      if (!grouped[groupLabel]) {
-        grouped[groupLabel] = [];
-      }
-      grouped[groupLabel].push(template);
-    } else {
-      templatesWithoutGroup.push(template);
-    }
-  });
-
-  if (templatesWithoutGroup.length > 0) {
-    grouped[UNGROUPED_TEMPLATES_LABEL] = templatesWithoutGroup;
-  }
-
-  return Object.entries(grouped);
 }
 
 // Same matching as the rejection dialog's template search: case-insensitive substring of the name
