@@ -1791,23 +1791,23 @@ const _1772=_o4(_535,_o3(_3,"postLimit"))
 const _1773=_o4(_535,_o3(_3,"curationLimit"))
 const _1774=_o8(_534,_789,_1772)
 const _1775=_o5(_7,[_1419])
-const _1776=_o4(_535,_182)
-const _1777=_o12(_983,_1776,_987)
-const _1778=_o3(_3,"rejectContentAndRemoveUserFromQueue")
-const _1779=_o8(_534,_182,_1776)
-const _1780=[_1103]
-const _1781=[_1559,_1169]
-const _1782=_o3(_3,"addOrUpvoteTag")
-const _1783=[_537,_849]
-const _1784=_o5(_7,[_o7(_8,_1782,_1783,_636)])
-const _1785=_o3(_3,"extendedVote")
-const _1786=_o4(_535,_1785)
-const _1787=[_1081,_1245,_o12(_983,_1786,_1277)]
-const _1788=_o3(_3,"performVoteTagRel")
-const _1789=[_1085,_1248,_o8(_534,_1785,_1786)]
-const _1790=_o6(_8,_1251,_538)
-const _1791=_o3(_3,"messageContent")
-const _1792=_o4(_535,_1791)
+const _1776=[_1559,_1169]
+const _1777=_o3(_3,"addOrUpvoteTag")
+const _1778=[_537,_849]
+const _1779=_o5(_7,[_o7(_8,_1777,_1778,_636)])
+const _1780=_o3(_3,"extendedVote")
+const _1781=_o4(_535,_1780)
+const _1782=[_1081,_1245,_o12(_983,_1781,_1277)]
+const _1783=_o3(_3,"performVoteTagRel")
+const _1784=[_1085,_1248,_o8(_534,_1780,_1781)]
+const _1785=_o6(_8,_1251,_538)
+const _1786=_o4(_535,_182)
+const _1787=_o12(_983,_1786,_987)
+const _1788=_o3(_3,"messageContent")
+const _1789=_o4(_535,_1788)
+const _1790=_o3(_3,"rejectContentAndRemoveUserFromQueue")
+const _1791=_o8(_534,_182,_1786)
+const _1792=[_1103]
 const _1793=_o5(_7,[_o6(_8,_266,_o5(_7,[_10,_265,_20,_283]))])
 const _1794=_o6(_8,_1018,_169)
 const _1795=_o3(_3,"slugs")
@@ -19523,34 +19523,6 @@ export type singleUserSupermodQueryQuery = { __typename?: 'Query', user: { __typ
       & SunshineUsersList
     ) | null } | null };
 
-export type updateUserModerationKeyboardMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserModerationKeyboardMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & SunshineUsersList
-    ) | null } | null };
-
-export type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
-  userId: Scalars['String']['input'];
-  documentId: Scalars['String']['input'];
-  collectionName: ContentCollectionName;
-  rejectedReason: Scalars['String']['input'];
-}>;
-
-
-export type rejectContentAndRemoveFromQueueModerationKeyboardMutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
-
-export type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
-  userId: Scalars['String']['input'];
-}>;
-
-
-export type approveCurrentContentOnlyModerationKeyboardMutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
-
 export type addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables = Exact<{
   tagId?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
@@ -19618,6 +19590,34 @@ export type updateModeratorActionSupermodMutation = { __typename?: 'Mutation', u
       { __typename?: 'ModeratorAction' }
       & ModeratorActionDisplay
     ) | null } | null };
+
+export type updateUserModerationKeyboardMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+export type updateUserModerationKeyboardMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
+      { __typename?: 'User' }
+      & SunshineUsersList
+    ) | null } | null };
+
+export type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+}>;
+
+
+export type rejectContentAndRemoveFromQueueModerationKeyboardMutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+export type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type approveCurrentContentOnlyModerationKeyboardMutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
 
 export type updatePostPostReviewActionsMutationVariables = Exact<{
   selector: SelectorInput;
@@ -23328,22 +23328,22 @@ export const createUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_981,_9
 export const CurationPostViewQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"CurationPostViewQuery"),_1327,_o5(_7,[_o7(_8,_525,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"curationNoticesPostView"),_o14(_994,[_1389]))]))],_o5(_7,[_1146]))])),_61,_146,_158,_184,_23,_226,_270,_523]) as unknown as DocumentNode<CurationPostViewQueryQuery, CurationPostViewQueryQueryVariables>;
 export const ModerationInboxDataQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"ModerationInboxDataQuery"),[_o12(_983,_1768,_1106),_o12(_983,_1769,_1050),_o12(_983,_1770,_1050),_o12(_983,_1771,_1005),_o12(_983,_1772,_1005),_o12(_983,_1773,_1005)],_o5(_7,[_o7(_8,_288,[_o8(_534,_996,_1768),_o8(_534,_789,_1771)],_o5(_7,[_1746])),_o7(_8,_250,[_o8(_534,_996,_1769),_1774],_1775),_o15(_8,_o3(_3,"classifiedPosts"),_250,[_o8(_534,_996,_1770),_1774],_1775),_o7(_8,_o3(_3,"CurationCandidatePosts"),[_o8(_534,_789,_1773)],_o5(_7,[_o6(_8,_1018,_o5(_7,[_o4(_25,_528)]))])),_o6(_8,_o3(_3,"LastCuratedDate"),_o5(_7,[_o4(_8,_o3(_3,"lastCuratedDate"))]))])),_61,_620,_661,_23,_127,_136,_146,_158,_184,_192,_334,_226,_622,_627,_677,_637,_529]) as unknown as DocumentNode<ModerationInboxDataQueryQuery, ModerationInboxDataQueryQueryVariables>;
 export const singleUserSupermodQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"singleUserSupermodQuery"),_1173,_o5(_7,[_o7(_8,_30,_1211,_1761)])),_61,_620,_661,_677]) as unknown as DocumentNode<singleUserSupermodQueryQuery, singleUserSupermodQueryQueryVariables>;
-export const updateUserModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserModerationKeyboard"),_1188,_1735),_61,_620,_661,_677]) as unknown as DocumentNode<updateUserModerationKeyboardMutation, updateUserModerationKeyboardMutationVariables>;
-export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"rejectContentAndRemoveFromQueueModerationKeyboard"),[_1069,_990,_1736,_1777],_o5(_7,[_o10(_8,_1778,[_1103,_1085,_1084,_1779])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
-export const approveCurrentContentOnlyModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"approveCurrentContentOnlyModerationKeyboard"),_1630,_o5(_7,[_o10(_8,_o3(_3,"approveUserCurrentContentOnly"),_1780)]))]) as unknown as DocumentNode<approveCurrentContentOnlyModerationKeyboardMutation, approveCurrentContentOnlyModerationKeyboardMutationVariables>;
-export const addOrUpvoteTagModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"addOrUpvoteTagModeratorCoreTagsChecklist"),_1781,_1784),_622,_146,_158,_627]) as unknown as DocumentNode<addOrUpvoteTagModeratorCoreTagsChecklistMutation, addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables>;
-export const performVoteTagRelModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"performVoteTagRelModeratorCoreTagsChecklist"),_1787,_o5(_7,[_o7(_8,_1788,_1789,_o5(_7,[_1790]))])),_532]) as unknown as DocumentNode<performVoteTagRelModeratorCoreTagsChecklistMutation, performVoteTagRelModeratorCoreTagsChecklistMutationVariables>;
+export const addOrUpvoteTagModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"addOrUpvoteTagModeratorCoreTagsChecklist"),_1776,_1779),_622,_146,_158,_627]) as unknown as DocumentNode<addOrUpvoteTagModeratorCoreTagsChecklistMutation, addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables>;
+export const performVoteTagRelModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"performVoteTagRelModeratorCoreTagsChecklist"),_1782,_o5(_7,[_o7(_8,_1783,_1784,_o5(_7,[_1785]))])),_532]) as unknown as DocumentNode<performVoteTagRelModeratorCoreTagsChecklistMutation, performVoteTagRelModeratorCoreTagsChecklistMutationVariables>;
 export const updateUserModeratorNotesDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserModeratorNotes"),_1188,_1735),_61,_620,_661,_677]) as unknown as DocumentNode<updateUserModeratorNotesMutation, updateUserModeratorNotesMutationVariables>;
 export const multiModerationTemplateRestrictAndNotifyModalQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiModerationTemplateRestrictAndNotifyModalQuery"),_1424,_1425),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateRestrictAndNotifyModalQueryQuery, multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables>;
-export const rejectContentAndRemoveFromQueueRestrictAndNotifyDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"rejectContentAndRemoveFromQueueRestrictAndNotify"),[_1069,_990,_1736,_1777,_o12(_983,_1792,_986)],_o5(_7,[_o10(_8,_1778,[_1103,_1085,_1084,_1779,_o8(_534,_1791,_1792)])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueRestrictAndNotifyMutation, rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables>;
+export const rejectContentAndRemoveFromQueueRestrictAndNotifyDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"rejectContentAndRemoveFromQueueRestrictAndNotify"),[_1069,_990,_1736,_1787,_o12(_983,_1789,_986)],_o5(_7,[_o10(_8,_1790,[_1103,_1085,_1084,_1791,_o8(_534,_1788,_1789)])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueRestrictAndNotifyMutation, rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables>;
 export const updateModeratorActionSupermodDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateModeratorActionSupermod"),_1748,_1750),_61,_620]) as unknown as DocumentNode<updateModeratorActionSupermodMutation, updateModeratorActionSupermodMutationVariables>;
+export const updateUserModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserModerationKeyboard"),_1188,_1735),_61,_620,_661,_677]) as unknown as DocumentNode<updateUserModerationKeyboardMutation, updateUserModerationKeyboardMutationVariables>;
+export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"rejectContentAndRemoveFromQueueModerationKeyboard"),[_1069,_990,_1736,_1787],_o5(_7,[_o10(_8,_1790,[_1103,_1085,_1084,_1791])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
+export const approveCurrentContentOnlyModerationKeyboardDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"approveCurrentContentOnlyModerationKeyboard"),_1630,_o5(_7,[_o10(_8,_o3(_3,"approveUserCurrentContentOnly"),_1792)]))]) as unknown as DocumentNode<approveCurrentContentOnlyModerationKeyboardMutation, approveCurrentContentOnlyModerationKeyboardMutationVariables>;
 export const updatePostPostReviewActionsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updatePostPostReviewActions"),_1139,_1141),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<updatePostPostReviewActionsMutation, updatePostPostReviewActionsMutationVariables>;
 export const createModeratorActionPostReviewActionsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createModeratorActionPostReviewActions"),_1743,_1756)]) as unknown as DocumentNode<createModeratorActionPostReviewActionsMutation, createModeratorActionPostReviewActionsMutationVariables>;
 export const RerunLlmCheckHookDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"RerunLlmCheckHook"),_1737,_o5(_7,[_o7(_8,_o3(_3,"rerunLlmCheck"),_1738,_337)])),_334]) as unknown as DocumentNode<RerunLlmCheckHookMutation, RerunLlmCheckHookMutationVariables>;
 export const updateUserContentPermissionsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserContentPermissions"),_1188,_1735),_61,_620,_661,_677]) as unknown as DocumentNode<updateUserContentPermissionsMutation, updateUserContentPermissionsMutationVariables>;
 export const createModeratorActionContentPermissionsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"createModeratorActionContentPermissions"),_1743,_o5(_7,[_o7(_8,_1742,_1138,_1793)]))]) as unknown as DocumentNode<createModeratorActionContentPermissionsMutation, createModeratorActionContentPermissionsMutationVariables>;
 export const updateModeratorActionContentPermissionsDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateModeratorActionContentPermissions"),_1748,_o5(_7,[_o7(_8,_1749,_1135,_1793)]))]) as unknown as DocumentNode<updateModeratorActionContentPermissionsMutation, updateModeratorActionContentPermissionsMutationVariables>;
-export const addPostsToTagDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"addPostsToTag"),_1781,_o5(_7,[_o7(_8,_1782,_1783,_o5(_7,[_o4(_25,_769)]))])),_622,_146,_158,_23,_127,_61,_136,_184,_192,_198,_532,_770]) as unknown as DocumentNode<addPostsToTagMutation, addPostsToTagMutationVariables>;
+export const addPostsToTagDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"addPostsToTag"),_1776,_o5(_7,[_o7(_8,_1777,_1778,_o5(_7,[_o4(_25,_769)]))])),_622,_146,_158,_23,_127,_61,_136,_184,_192,_198,_532,_770]) as unknown as DocumentNode<addPostsToTagMutation, addPostsToTagMutationVariables>;
 export const AllPostsPageTagRevisionItemDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"AllPostsPageTagRevisionItem"),_1173,_o5(_7,[_o7(_8,_1350,_1000,_o5(_7,[_o6(_8,_1001,_1278)]))])),_548,_61,_699]) as unknown as DocumentNode<AllPostsPageTagRevisionItemQuery, AllPostsPageTagRevisionItemQueryVariables>;
 export const multiTagAllTagsAlphabeticalQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiTagAllTagsAlphabeticalQuery"),_1396,_o5(_7,[_o7(_8,_191,_1111,_o5(_7,[_1794,_792]))])),_146,_158]) as unknown as DocumentNode<multiTagAllTagsAlphabeticalQueryQuery, multiTagAllTagsAlphabeticalQueryQueryVariables>;
 export const AllWikiTagsPageQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"AllWikiTagsPageQuery"),[_o12(_983,_1796,_1096)],_o5(_7,[_o7(_8,_191,[_o8(_534,_996,_o14(_994,[_o8(_995,_o3(_3,"tagsBySlugs"),_o14(_994,[_o8(_995,_1795,_1796)]))]))],_o5(_7,[_o6(_8,_1018,_1797)]))])),_829]) as unknown as DocumentNode<AllWikiTagsPageQueryQuery, AllWikiTagsPageQueryQueryVariables>;
@@ -23351,7 +23351,7 @@ export const multiTagArbitalExplorePageQueryDocument = _o1(_1,[_o11(_981,_988,_o
 export const multiTagCoreTagsSectionQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiTagCoreTagsSectionQuery"),_1396,_o5(_7,[_o7(_8,_191,_1111,_o5(_7,[_o6(_8,_1018,_o5(_7,[_706])),_792]))])),_146,_61,_230,_226,_239,_704]) as unknown as DocumentNode<multiTagCoreTagsSectionQueryQuery, multiTagCoreTagsSectionQueryQueryVariables>;
 export const FilterModeDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"FilterMode"),_1173,_1799),_146,_158]) as unknown as DocumentNode<FilterModeQuery, FilterModeQueryVariables>;
 export const multiTagRelFooterTagListQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiTagRelFooterTagListQuery"),_1757,_o5(_7,[_o7(_8,_635,_1111,_o5(_7,[_o6(_8,_1018,_636),_792]))])),_622,_146,_158,_627]) as unknown as DocumentNode<multiTagRelFooterTagListQueryQuery, multiTagRelFooterTagListQueryQueryVariables>;
-export const addOrUpvoteTagDocument = _o1(_1,[_o11(_981,_982,_1782,_1781,_1784),_622,_146,_158,_627]) as unknown as DocumentNode<addOrUpvoteTagMutation, addOrUpvoteTagMutationVariables>;
+export const addOrUpvoteTagDocument = _o1(_1,[_o11(_981,_982,_1777,_1776,_1779),_622,_146,_158,_627]) as unknown as DocumentNode<addOrUpvoteTagMutation, addOrUpvoteTagMutationVariables>;
 export const multiTagLWTagPageQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiTagLWTagPageQuery"),_1396,_1800),_146,_61,_230,_226,_239,_704,_707,_763,_781]) as unknown as DocumentNode<multiTagLWTagPageQueryQuery, multiTagLWTagPageQueryQueryVariables>;
 export const LWTagPageDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"LWTagPage"),_1173,_1801),_146,_61,_230,_226,_239,_704,_270,_822]) as unknown as DocumentNode<LWTagPageQuery, LWTagPageQueryVariables>;
 export const updateTagNewTagPageDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateTagNewTagPage"),_1216,_o5(_7,[_o7(_8,_1217,_1135,_o5(_7,[_o6(_8,_266,_1224)]))])),_146,_61,_230,_226,_239,_704,_270,_822]) as unknown as DocumentNode<updateTagNewTagPageMutation, updateTagNewTagPageMutationVariables>;
@@ -23440,7 +23440,7 @@ export const UsersNameWrapperDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersName
 export const multiUserUsersProfileQueryDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"multiUserUsersProfileQuery"),_1110,_1113),_61,_226,_904]) as unknown as DocumentNode<multiUserUsersProfileQueryQuery, multiUserUsersProfileQueryQueryVariables>;
 export const updateUserDeactivateAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeactivateAccountSection"),_1188,_1510),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeactivateAccountSectionMutation, updateUserDeactivateAccountSectionMutationVariables>;
 export const updateUserDeleteAccountSectionDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserDeleteAccountSection"),_1188,_1510),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<updateUserDeleteAccountSectionMutation, updateUserDeleteAccountSectionMutationVariables>;
-export const SoftDeleteUserDocument = _o1(_1,[_o11(_981,_982,_1876,_1630,_o5(_7,[_o10(_8,_1876,_1780)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
+export const SoftDeleteUserDocument = _o1(_1,[_o11(_981,_982,_1876,_1630,_o5(_7,[_o10(_8,_1876,_1792)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
 export const UserTopPostsForManagerDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UserTopPostsForManager"),_1052,_o5(_7,[_o7(_8,_250,_1054,_1720)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserTopPostsForManagerQuery, UserTopPostsForManagerQueryVariables>;
 export const UsersAccountTargetUserDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountTargetUser"),_1062,_1495),_61]) as unknown as DocumentNode<UsersAccountTargetUserQuery, UsersAccountTargetUserQueryVariables>;
 export const UsersAccountManagementGetUserBySlugDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"UsersAccountManagementGetUserBySlug"),_1062,_1877),_61,_226,_904,_932,_270,_940]) as unknown as DocumentNode<UsersAccountManagementGetUserBySlugQuery, UsersAccountManagementGetUserBySlugQueryVariables>;
@@ -23457,13 +23457,13 @@ export const SubscribedLocalgroupDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"Subsc
 export const SubscribedTagDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedTag"),_991,_o5(_7,[_o7(_8,_165,_1844,_1798)])),_146,_158]) as unknown as DocumentNode<SubscribedTagQuery, SubscribedTagQueryVariables>;
 export const SubscribedSequenceDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"SubscribedSequence"),_991,_o5(_7,[_o7(_8,_558,_1844,_1843)])),_230]) as unknown as DocumentNode<SubscribedSequenceQuery, SubscribedSequenceQueryVariables>;
 export const updateUserReactionsPaletteDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateUserReactionsPalette"),_1188,_1191),_61,_226,_932]) as unknown as DocumentNode<updateUserReactionsPaletteMutation, updateUserReactionsPaletteMutationVariables>;
-export const performVoteCommentDocument = _o1(_1,[_o11(_981,_982,_1254,_1787,_o5(_7,[_o7(_8,_1254,_1789,_1255)])),_343]) as unknown as DocumentNode<performVoteCommentMutation, performVoteCommentMutationVariables>;
-export const performVotePostDocument = _o1(_1,[_o11(_981,_982,_1247,_1787,_o5(_7,[_o7(_8,_1247,_1789,_1253)])),_639]) as unknown as DocumentNode<performVotePostMutation, performVotePostMutationVariables>;
-export const performVoteTagRelDocument = _o1(_1,[_o11(_981,_982,_1788,_1787,_o5(_7,[_o7(_8,_1788,_1789,_o5(_7,[_1790,_1252]))])),_532]) as unknown as DocumentNode<performVoteTagRelMutation, performVoteTagRelMutationVariables>;
-export const performVoteRevisionDocument = _o1(_1,[_o11(_981,_982,_1879,_1787,_o5(_7,[_o7(_8,_1879,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_739)])),_1252]))])),_740]) as unknown as DocumentNode<performVoteRevisionMutation, performVoteRevisionMutationVariables>;
-export const performVoteTagDocument = _o1(_1,[_o11(_981,_982,_1880,_1787,_o5(_7,[_o7(_8,_1880,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_838)])),_1252]))])),_146,_839]) as unknown as DocumentNode<performVoteTagMutation, performVoteTagMutationVariables>;
-export const performVoteMultiDocumentDocument = _o1(_1,[_o11(_981,_982,_1881,_1787,_o5(_7,[_o7(_8,_1881,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_446)])),_1252]))])),_445,_449]) as unknown as DocumentNode<performVoteMultiDocumentMutation, performVoteMultiDocumentMutationVariables>;
-export const performVoteMessageDocument = _o1(_1,[_o11(_981,_982,_1882,_1787,_o5(_7,[_o7(_8,_1882,_1789,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_432)])),_1252]))])),_434]) as unknown as DocumentNode<performVoteMessageMutation, performVoteMessageMutationVariables>;
+export const performVoteCommentDocument = _o1(_1,[_o11(_981,_982,_1254,_1782,_o5(_7,[_o7(_8,_1254,_1784,_1255)])),_343]) as unknown as DocumentNode<performVoteCommentMutation, performVoteCommentMutationVariables>;
+export const performVotePostDocument = _o1(_1,[_o11(_981,_982,_1247,_1782,_o5(_7,[_o7(_8,_1247,_1784,_1253)])),_639]) as unknown as DocumentNode<performVotePostMutation, performVotePostMutationVariables>;
+export const performVoteTagRelDocument = _o1(_1,[_o11(_981,_982,_1783,_1782,_o5(_7,[_o7(_8,_1783,_1784,_o5(_7,[_1785,_1252]))])),_532]) as unknown as DocumentNode<performVoteTagRelMutation, performVoteTagRelMutationVariables>;
+export const performVoteRevisionDocument = _o1(_1,[_o11(_981,_982,_1879,_1782,_o5(_7,[_o7(_8,_1879,_1784,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_739)])),_1252]))])),_740]) as unknown as DocumentNode<performVoteRevisionMutation, performVoteRevisionMutationVariables>;
+export const performVoteTagDocument = _o1(_1,[_o11(_981,_982,_1880,_1782,_o5(_7,[_o7(_8,_1880,_1784,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_838)])),_1252]))])),_146,_839]) as unknown as DocumentNode<performVoteTagMutation, performVoteTagMutationVariables>;
+export const performVoteMultiDocumentDocument = _o1(_1,[_o11(_981,_982,_1881,_1782,_o5(_7,[_o7(_8,_1881,_1784,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_446)])),_1252]))])),_445,_449]) as unknown as DocumentNode<performVoteMultiDocumentMutation, performVoteMultiDocumentMutationVariables>;
+export const performVoteMessageDocument = _o1(_1,[_o11(_981,_982,_1882,_1782,_o5(_7,[_o7(_8,_1882,_1784,_o5(_7,[_o6(_8,_1251,_o5(_7,[_o4(_25,_432)])),_1252]))])),_434]) as unknown as DocumentNode<performVoteMessageMutation, performVoteMessageMutationVariables>;
 export const emailstestsDocument = _o1(_1,[_o11(_981,_988,_o3(_3,"emailstests"),_1533,_1883),_23,_127,_61,_136,_146,_158,_184,_192,_497,_198,_203,_207,_504,_226,_548,_556]) as unknown as DocumentNode<emailstestsQuery, emailstestsQueryVariables>;
 export const updateCommentCommentsNewFormDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updateCommentCommentsNewForm"),_1164,_1320),_146,_158,_61,_184,_23,_356]) as unknown as DocumentNode<updateCommentCommentsNewFormMutation, updateCommentCommentsNewFormMutationVariables>;
 export const updatePostPostsEditFormDocument = _o1(_1,[_o11(_981,_982,_o3(_3,"updatePostPostsEditForm"),_1139,_1734),_23,_127,_61,_136,_146,_158,_184,_192,_198,_655]) as unknown as DocumentNode<updatePostPostsEditFormMutation, updatePostPostsEditFormMutationVariables>;
