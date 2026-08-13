@@ -78,7 +78,7 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
         />
       </div>
       {!isCollapsed && <>
-        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} />
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
         <div className={classes.rateLimitSection}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} />
           <div

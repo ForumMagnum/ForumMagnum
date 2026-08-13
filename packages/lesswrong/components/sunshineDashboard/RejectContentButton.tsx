@@ -1,14 +1,9 @@
-import React, {useState} from 'react';
+import React from 'react';
 import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
-import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
-import LWPopper from "../common/LWPopper";
-import LWClickAwayListener from "../common/LWClickAwayListener";
-import RejectContentDialog from "./RejectContentDialog";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
-import { useDialog } from '../common/withDialog';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -34,55 +29,22 @@ const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
 
 export const RejectContentButton = ({contentWrapper, onReject}: {
   contentWrapper: RejectContentParams,
-  /** Overrides the rejection dialog, for callers with their own rejection UI. */
+  /** Rejection UI to open. Without it, only the undo-rejection button is shown. */
   onReject?: () => void,
 }) => {
   const classes = useStyles(styles);
-  const { eventHandlers, anchorEl } = useHover();
-  const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
-  const { openDialog } = useDialog();
-  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+  const { unrejectContent } = useRejectContent();
   const { document } = contentWrapper;
 
-  const handleRejectContent = (reason: string) => {
-    setShowRejectionDialog(false);
-    void rejectContent({ reason, ...contentWrapper });
-  };
-
-  const openRejectionDialog = () => {
-    openDialog({
-      name: 'RejectContentDialog',
-      contents: ({ onClose }) => (
-        <RejectContentDialog
-          rejectionTemplates={rejectionTemplates}
-          rejectContent={handleRejectContent}
-          displayName={document.user?.displayName}
-          onClose={onClose}
-        />
-      ),
-    });
-  };
-
-  return <span {...eventHandlers}>
+  return <span>
     {document.rejected && <span>
       <LWTooltip title="Undo rejection">
         <ReplayIcon className={classes.icon} onClick={() => unrejectContent({ ...contentWrapper })}/>
       </LWTooltip>
     </span>}
-    {!document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={onReject ?? openRejectionDialog}>
+    {onReject && !document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={onReject}>
       <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
     </span>}
-    <LWPopper
-      open={showRejectionDialog}
-      anchorEl={anchorEl}
-      clickable={true}
-      allowOverflow={true}
-      placement={"right-start"}
-    >
-      <LWClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
-        <RejectContentDialog rejectionTemplates={rejectionTemplates} rejectContent={handleRejectContent} displayName={document.user?.displayName}/>
-      </LWClickAwayListener>
-    </LWPopper>
   </span>
 }
 

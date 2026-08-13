@@ -1242,7 +1242,7 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
-  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, restrictUser: Boolean): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!

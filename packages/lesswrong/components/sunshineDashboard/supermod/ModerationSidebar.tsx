@@ -83,6 +83,7 @@ const ModerationSidebar = ({
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
             setSidebarTab={setSidebarTab}
+            addToUndoQueue={addToUndoQueue}
           />
         </div>
       </div>

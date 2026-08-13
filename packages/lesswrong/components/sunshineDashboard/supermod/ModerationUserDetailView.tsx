@@ -7,6 +7,7 @@ import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
+import { getContentSortedByDate } from './helpers';
 import type { SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
@@ -75,9 +76,7 @@ const ModerationUserDetailView = ({
     [dispatch]
   );
 
-  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) =>
-    new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-  ), [posts, comments]);
+  const allContent = useMemo(() => getContentSortedByDate(posts, comments), [posts, comments]);
 
   const focusedContent = useMemo(() => 
     allContent[focusedContentIndex] || null,
