@@ -12,6 +12,10 @@ export type HighlightableModeratorAction = typeof highlightableModeratorActions[
  *   normal styling, and gets a somewhat darker outline in the expanded view.
  * - Level 2: the action's outline changes to a per-action color (see
  *   `moderatorActionHighlightColors`) in both the collapsed and expanded views.
+ *
+ * Highlights default to level 1; rules only return level 2 when there's particular evidence
+ * that the action should apply (e.g. actual rejections, or affirmatively human LLM scores),
+ * rather than just a compatible absence of information.
  */
 export type ModeratorActionHighlightLevel = 1 | 2;
 
@@ -45,37 +49,50 @@ const getLlmScore = (item: SunshinePostsList | SunshineCommentsList) => item.aut
 
 const isUnapproved = (item: SunshinePostsList | SunshineCommentsList) => !item.rejected && item.authorIsUnreviewed;
 
-/** The user has content awaiting review, and none of it looks LLM-written */
-const hasOnlyLowLlmScoreUnapprovedContent = ({ posts, comments }: ActionHighlightContext): boolean => {
+/**
+ * The user has content awaiting review, and none of it looks LLM-written. Level 2 when every
+ * unapproved content has actually been evaluated and scored human (particular evidence, rather
+ * than just an absence of high scores).
+ */
+const approveHighlightLevel: ActionHighlightRule = ({ posts, comments }) => {
   const unapprovedContents = [...posts, ...comments].filter(isUnapproved);
-  return unapprovedContents.length >= 1 && !unapprovedContents.some(c => getLlmScore(c) > LLM_SCORE_HIGHLIGHT_THRESHOLD);
+  if (unapprovedContents.length === 0) return null;
+  if (unapprovedContents.some(c => getLlmScore(c) > LLM_SCORE_HIGHLIGHT_THRESHOLD)) return null;
+  const allContentsEvaluatedAsHuman = unapprovedContents.every(c => c.automatedContentEvaluations?.pangramScore != null);
+  return allContentsEvaluatedAsHuman ? 2 : 1;
 };
 
 const ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction, ActionHighlightRule> = {
-  approve: (ctx) => hasOnlyLowLlmScoreUnapprovedContent(ctx) ? 2 : null,
-  snoozeCustom: (ctx) => hasOnlyLowLlmScoreUnapprovedContent(ctx) ? 2 : null,
-  approveCurrentOnly: (ctx) => hasOnlyLowLlmScoreUnapprovedContent(ctx) ? 2 : null,
-  // Everything the user has submitted has already been either approved or rejected
+  approve: approveHighlightLevel,
+  snoozeCustom: approveHighlightLevel,
+  approveCurrentOnly: approveHighlightLevel,
+  // Everything the user has submitted has already been either approved or rejected.
+  // Level 2 when that's the result of actual rejections rather than just having no pending content.
   remove: ({ posts, comments }) => {
     const allContents = [...posts, ...comments];
-    return !allContents.some(isUnapproved) ? 2 : null;
+    if (allContents.some(isUnapproved)) return null;
+    const rejectedContents = allContents.filter(c => c.rejected);
+    return rejectedContents.length >= 1 ? 2 : 1;
   },
-  // The user has no approved content
+  // The user has no approved content. Level 2 when multiple contents were actually rejected.
   purge: ({ posts, comments }) => {
     const allContents = [...posts, ...comments];
-    return !allContents.some(c => !c.rejected && !c.authorIsUnreviewed) ? 2 : null;
+    if (allContents.some(c => !c.rejected && !c.authorIsUnreviewed)) return null;
+    const rejectedContents = allContents.filter(c => c.rejected);
+    return rejectedContents.length >= 2 ? 2 : 1;
   },
-  // The user has at least two rejected contents, or their most recent content is rejected.
-  // (The button toggles to "Enable Permissions" once everything is disabled, so don't suggest it then.)
+  // Level 2 when the user has at least two rejected contents; level 1 when just their most
+  // recent content is rejected. (The button toggles to "Enable Permissions" once everything
+  // is disabled, so don't suggest it then.)
   disablePermissions: ({ user, posts, comments }) => {
     if (areAllContentPermissionsDisabled(user)) return null;
     const allContents = [...posts, ...comments];
     const rejectedContents = allContents.filter(c => c.rejected);
     if (rejectedContents.length >= 2) return 2;
     const mostRecentContent = maxBy(allContents, c => new Date(c.postedAt).getTime());
-    return mostRecentContent?.rejected ? 2 : null;
+    return mostRecentContent?.rejected ? 1 : null;
   },
-  // Same trigger as the "Lotsa DMs" message template
+  // Same trigger as the "Lotsa DMs" message template; the flag itself is particular evidence.
   disableMessages: ({ user, moderatorActions }) => {
     if (user.conversationsDisabled) return null;
     const flaggedForDMs = moderatorActions.some(a => a.active && (a.type === FLAGGED_FOR_N_DMS || a.type === AUTO_BLOCKED_FROM_SENDING_DMS));
