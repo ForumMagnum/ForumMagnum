@@ -29,13 +29,14 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 // ContentItemBody as a replacement for <a> tags in user-provided content.
 // Props
 //   href: The link destination, the href attribute on the original <a> tag.
-const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children }: {
+const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, footnoteSourceHtml, className, children }: {
   href: string,
   id?: string,
   rel?: string,
   // Only Implemented for Tag Hover Previews
   noPrefetch?: boolean,
   contentStyleType?: ContentStyleType,
+  footnoteSourceHtml?: string,
   className?: string,
   children: React.ReactNode,
 }) => {
@@ -58,7 +59,13 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
       </a>
     }
     if (locationHashIsFootnote(href)){
-      return <FootnotePreview href={href} id={id} rel={rel} contentStyleType={contentStyleType}>
+      return <FootnotePreview
+        href={href}
+        id={id}
+        rel={rel}
+        contentStyleType={contentStyleType}
+        footnoteSourceHtml={footnoteSourceHtml}
+      >
         {children}
       </FootnotePreview>
     } else if (locationHashIsFootnoteBackreference(href)) {

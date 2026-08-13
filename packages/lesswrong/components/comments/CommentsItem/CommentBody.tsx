@@ -68,7 +68,8 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = (truncated && !truncationDisabledByUserConfig) ? commentExcerptFromHTML(comment, postPage) : (html ?? '')
+  const shouldTruncate = truncated && !truncationDisabledByUserConfig;
+  const innerHtml = shouldTruncate ? commentExcerptFromHTML(comment, postPage) : html;
 
   let contentType: ContentStyleType;
   if (comment.answer) {
@@ -94,6 +95,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       replacedSubstrings={highlights}
       contentStyleType={contentType}
+      footnoteSourceHtml={shouldTruncate ? html : undefined}
     />
   </ContentStyles>
 

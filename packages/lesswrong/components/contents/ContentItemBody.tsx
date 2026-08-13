@@ -27,7 +27,7 @@ import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
-type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
+type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"|"footnoteSourceHtml"> & {
   themeName: UserThemeSetting,
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
@@ -138,7 +138,7 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   }, [html]);
 
   const passedThroughProps: PassedThroughContentItemBodyProps = {
-    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
+    ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions", "footnoteSourceHtml"]),
     themeName: abstractThemeOptions.name,
     bodyRef,
   };

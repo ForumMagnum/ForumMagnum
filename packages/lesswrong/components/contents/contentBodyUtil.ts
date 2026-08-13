@@ -68,6 +68,13 @@ export interface ContentItemBodyProps {
   contentStyleType?: ContentStyleType;
 
   /**
+   * If passed, footnote previews will extract their contents from this HTML
+   * instead of the rendered DOM. This is used when the displayed HTML is a
+   * truncated excerpt but the full content is already available.
+   */
+  footnoteSourceHtml?: string;
+
+  /**
    * If passed, will invert the colors of the content.
    */
   invertSubstitutionColors?: boolean;

@@ -144,11 +144,12 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
  */
 export const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
 
-const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", children}: {
+const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", footnoteSourceHtml, children}: {
   href: string,
   id?: string,
   rel?: string,
   contentStyleType?: ContentStyleType,
+  footnoteSourceHtml?: string,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(footnotePreviewStyles);
@@ -176,11 +177,11 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
   useEffect(() => {
     const extractedFootnoteHTML = footnoteAncestors.includes(href)
       ? null
-      : extractFootnoteHTML(href);
+      : extractFootnoteHTML(href, footnoteSourceHtml);
     if (extractedFootnoteHTML) {
       setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
     }
-  }, [href, footnoteAncestors]);
+  }, [href, footnoteAncestors, footnoteSourceHtml]);
   
   // TODO: Getting the footnote content from the DOM didn't necessarily work;
   // for example if the page was only showing an excerpt (with the rest hidden
@@ -270,7 +271,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
   );
 }
 
-function extractFootnoteHTML(href: string): string|null {
+export function extractFootnoteHTML(href: string, sourceHtml?: string): string|null {
   // Get the contents of the linked footnote.
   // This has a try-catch-ignore around it because the link doesn't necessarily
   // make a valid CSS selector; eg there are some posts in the DB with internal
@@ -280,7 +281,10 @@ function extractFootnoteHTML(href: string): string|null {
     // `href` is (probably) an anchor link, of the form `#fn1234`. Since it starts
     // with a hash it can also be used as a CSS selector, which finds its contents
     // in the footer.
-    const footnoteContentsElement = document.querySelector(href);
+    const sourceDocument = sourceHtml === undefined
+      ? document
+      : parseDocumentFromString(sourceHtml).document;
+    const footnoteContentsElement = sourceDocument.querySelector(href);
     const footnoteHTML = footnoteContentsElement?.innerHTML ?? null;
     
     
