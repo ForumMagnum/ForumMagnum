@@ -128,9 +128,11 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     ],
     [
       {
-        label: 'Enable/Disable Permissions',
+        label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
         keystroke: 'Shift+P',
-        tooltip: "Disable posting, commenting, messaging, and voting. If all four are already disabled, enable them all instead. Signs an 'all permissions disabled/enabled' note in their moderator notes.",
+        tooltip: allPermissionsDisabled
+          ? "Re-enable posting, commenting, messaging, and voting. Signs an 'all permissions enabled' note in their moderator notes."
+          : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
         onClick: toggleAllPermissions,
         active: allPermissionsDisabled,
       },

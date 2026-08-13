@@ -6,7 +6,7 @@ import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { useModerationUserActions } from './useModerationUserActions';
-import { canRejectContent, ContentItem, isPost } from './helpers';
+import { areAllContentPermissionsDisabled, canRejectContent, ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
 
@@ -296,7 +296,7 @@ const ModerationUserKeyboardHandler = ({
   }), [isDetailView, selectedUser, toggleDisableVoting]);
 
   const toggleAllPermissionsCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Enable/Disable Permissions',
+    label: selectedUser && areAllContentPermissionsDisabled(selectedUser) ? 'Enable Permissions' : 'Disable Permissions',
     keystroke: 'Shift+P',
     isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleAllPermissions,
