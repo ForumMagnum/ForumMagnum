@@ -194,6 +194,7 @@ interface FragmentTypes {
   UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
   UsersEdit: UsersEdit
   UsersMapEntry: UsersMapEntry
+  UsersMergeSearchResult: UsersMergeSearchResult
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersProfileEdit: UsersProfileEdit
@@ -268,7 +269,7 @@ interface FragmentTypesByCollection {
   TypoSuggestions: "TypoSuggestionsDefaultFragment"
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserClientIdsInfo"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserClientIdsInfo"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMergeSearchResult"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -459,6 +460,7 @@ interface CollectionNamesByFragmentName {
   UsersCurrentPostRateLimit: "Users"
   UsersEdit: "Users"
   UsersMapEntry: "Users"
+  UsersMergeSearchResult: "Users"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersProfileEdit: "Users"

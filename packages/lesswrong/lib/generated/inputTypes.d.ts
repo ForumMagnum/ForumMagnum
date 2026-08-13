@@ -5,6 +5,7 @@ interface Query {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   GetRandomUser: User | null;
   IsDisplayNameTaken: boolean;
+  UsersSearchForMerge: Array<User>;
   GetUserBySlug: User | null;
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
@@ -217,6 +218,7 @@ interface Mutation {
   UserUpdateSubforumMembership: User | null;
   karmaChangesChecked: boolean;
   SoftDeleteUser: boolean;
+  MergeAccounts: MergeAccountsResult;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
@@ -605,6 +607,19 @@ interface NewUserCompletedProfile {
 interface UserCoreTagReads {
   tagId: string;
   userReadCount: number;
+}
+
+interface MergeAccountsFailure {
+  stage: string;
+  message: string;
+  collectionName: string | null;
+  documentId: string | null;
+}
+
+interface MergeAccountsResult {
+  completed: boolean;
+  success: boolean;
+  failures: Array<MergeAccountsFailure>;
 }
 
 interface NetKarmaChangesForAuthorsOverPeriod {
@@ -7028,6 +7043,7 @@ interface User {
   isAdmin: boolean;
   profile: any;
   services: any;
+  associatedOAuthServices: Array<string> | null;
   hasAuth0Id: boolean | null;
   displayName: string;
   previousDisplayName: string | null;
@@ -9257,6 +9273,8 @@ interface GraphQLTypeMap {
   UserDialogueUsefulData: UserDialogueUsefulData;
   NewUserCompletedProfile: NewUserCompletedProfile;
   UserCoreTagReads: UserCoreTagReads;
+  MergeAccountsFailure: MergeAccountsFailure;
+  MergeAccountsResult: MergeAccountsResult;
   NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
   AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;

@@ -7,6 +7,7 @@ import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
 import SoftDeleteUserSection from './SoftDeleteUserSection';
+import MergeAccountsSection from './MergeAccountsSection';
 import type { SettingsTabProps } from './settingsTabTypes';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -255,6 +256,23 @@ const AdminSettingsTab = ({
           <SoftDeleteUserSection userId={settings._id} />
         )}
       </SettingsSection>
+
+      {userIsAdmin(currentUser) && (
+        <SettingsSection title="Merge Accounts">
+          <MergeAccountsSection targetUser={{
+            _id: settings._id,
+            displayName: settings.displayName ?? null,
+            username: settings.username ?? null,
+            slug: settings.slug ?? null,
+            karma: settings.karma ?? null,
+            postCount: settings.postCount ?? null,
+            commentCount: settings.commentCount ?? null,
+            email: settings.email ?? null,
+            createdAt: settings.createdAt ?? null,
+            associatedOAuthServices: settings.associatedOAuthServices ?? null,
+          }} />
+        </SettingsSection>
+      )}
 
       {isLWorAF() && userIsAdmin(currentUser) && (
         <SettingsSection title="Prize / Payment Info">
