@@ -56,7 +56,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
 
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
-  const { html = "" } = comment.contents || {}
+  const html = comment.contents?.html ?? "";
 
   const bodyClasses = classNames(
     className,

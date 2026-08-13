@@ -1,3 +1,5 @@
+/** @jest-environment jsdom */
+
 import { extractFootnoteHTML } from "@/components/linkPreview/FootnotePreview";
 
 describe("extractFootnoteHTML", () => {
