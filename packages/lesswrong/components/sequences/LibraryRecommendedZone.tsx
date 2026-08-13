@@ -168,9 +168,6 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
   card: {
     display: 'block',
     overflow: 'hidden',
-    '&:hover': {
-      boxShadow: `0 0 10px ${theme.palette.boxShadowColor(0.2)}`,
-    },
   },
   cardImageWrapper: {
     display: 'block',

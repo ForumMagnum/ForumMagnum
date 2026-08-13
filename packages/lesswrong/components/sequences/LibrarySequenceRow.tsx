@@ -246,9 +246,6 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
   },
   startReadingLink: {
     color: theme.palette.primary.main,
-    '&:hover': {
-      opacity: 0.85,
-    },
   },
   linkIcon: {
     fontSize: 17,
