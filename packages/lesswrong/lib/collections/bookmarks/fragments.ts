@@ -16,6 +16,19 @@ export const BookmarksWithDocumentFragment = gql(`
   }
 `);
 
+export const BookmarksLibraryItemFragment = gql(`
+  fragment BookmarksLibraryItemFragment on Bookmark {
+    ...BookmarksMinimumInfoFragment
+    collectionName
+    sequence {
+      ...LibrarySequenceRowFragment
+    }
+    collection {
+      ...LibraryCollectionRowFragment
+    }
+  }
+`);
+
 export const BookmarksFeedItemFragment = gql(`
   fragment BookmarksFeedItemFragment on Bookmark {
     ...BookmarksMinimumInfoFragment
