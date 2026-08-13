@@ -156,6 +156,7 @@ interface DbCollection extends DbObject {
   gridImageId: string | null
   hideStartReadingButton: boolean | null
   legacyData: any | null
+  libraryTopic: "AI Alignment" | "Epistemics" | "Rationality" | "Practical" | "World Modeling" | "Fiction" | "Decision Theory" | "Forecasting" | "Mathematics" | "Community" | "Site Meta" | null
   noindex: boolean
   slug: string
   title: string
@@ -1343,6 +1344,7 @@ interface DbSequence extends DbObject {
   isDeleted: boolean
   lastUpdated: Date
   legacyData: any | null
+  libraryTopic: "AI Alignment" | "Epistemics" | "Rationality" | "Practical" | "World Modeling" | "Fiction" | "Decision Theory" | "Forecasting" | "Mathematics" | "Community" | "Site Meta" | null
   noindex: boolean
   title: string
   userId: string

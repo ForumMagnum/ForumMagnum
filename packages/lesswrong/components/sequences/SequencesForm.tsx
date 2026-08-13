@@ -17,6 +17,8 @@ import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGro
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { FormComponentSelect } from "../form-components/FormComponentSelect";
+import { LIBRARY_TOPICS } from "@/lib/collections/sequences/libraryTopics";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -39,6 +41,8 @@ const SequencesEditMutation = gql(`
     }
   }
 `);
+
+const libraryTopicOptions = LIBRARY_TOPICS.map((topic) => ({ label: topic, value: topic }));
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -256,6 +260,18 @@ export const SequencesForm = ({
             )}
           </form.Field>
         </div>}
+
+        <div className={classNames('form-input', 'input-libraryTopic', classes.fieldWrapper)}>
+          <form.Field name="libraryTopic">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={libraryTopicOptions}
+                label="Library topic"
+              />
+            )}
+          </form.Field>
+        </div>
 
         <div className={classNames('form-input', 'input-userProfileOrder', classes.fieldWrapper)}>
           <form.Field name="userProfileOrder">

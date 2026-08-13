@@ -9,6 +9,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getChaptersInSequence } from "./sequenceServerHelpers";
 import { getCollectionBySlug } from "./helpers";
+import { LIBRARY_TOPICS } from "./libraryTopics";
 
 async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
   const { currentUser, Bookmarks } = context;
@@ -220,6 +221,23 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+      },
+    },
+  },
+  // Mod-curated library topic (one of LIBRARY_TOPICS), shown as the row's
+  // topic pill on the /library page and used for its tag filter.
+  libraryTopic: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+        allowedValues: [...LIBRARY_TOPICS],
       },
     },
   },

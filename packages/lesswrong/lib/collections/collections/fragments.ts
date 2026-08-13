@@ -25,6 +25,7 @@ export const CollectionsPageFragment = gql(`
     firstPageLink
     gridImageId
     coverImageId
+    libraryTopic
     books {
       ...BookPageFragment
     }

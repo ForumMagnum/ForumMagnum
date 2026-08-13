@@ -198,6 +198,7 @@ CREATE TABLE "Collections" (
   "slug" TEXT NOT NULL,
   "gridImageId" TEXT,
   "coverImageId" TEXT,
+  "libraryTopic" TEXT,
   "firstPageLink" TEXT NOT NULL,
   "hideStartReadingButton" BOOL,
   "noindex" BOOL NOT NULL DEFAULT FALSE
@@ -2587,6 +2588,7 @@ CREATE TABLE "Sequences" (
   "draft" BOOL NOT NULL DEFAULT FALSE,
   "isDeleted" BOOL NOT NULL DEFAULT FALSE,
   "curatedOrder" DOUBLE PRECISION,
+  "libraryTopic" TEXT,
   "userProfileOrder" DOUBLE PRECISION,
   "canonicalCollectionSlug" TEXT,
   "hidden" BOOL NOT NULL DEFAULT FALSE,

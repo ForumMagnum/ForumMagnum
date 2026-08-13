@@ -33,6 +33,7 @@ export const SequencesPageFragment = gql(`
     hideFromAuthorPage
     noindex
     curatedOrder
+    libraryTopic
     userProfileOrder
     af
     postsCount

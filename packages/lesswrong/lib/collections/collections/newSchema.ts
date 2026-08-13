@@ -4,6 +4,7 @@ import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/sche
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
+import { LIBRARY_TOPICS } from "../sequences/libraryTopics";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -173,6 +174,23 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+      },
+    },
+  },
+  // Mod-curated library topic (one of LIBRARY_TOPICS), shown as the row's
+  // topic pill on the /library page and used for its tag filter.
+  libraryTopic: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+        allowedValues: [...LIBRARY_TOPICS],
       },
     },
   },

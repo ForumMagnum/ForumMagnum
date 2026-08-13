@@ -407,6 +407,7 @@ type Collection = {
   gridImageId?: Maybe<Scalars['String']['output']>;
   hideStartReadingButton?: Maybe<Scalars['Boolean']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  libraryTopic?: Maybe<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
@@ -1195,6 +1196,7 @@ type CreateCollectionDataInput = {
   gridImageId?: InputMaybe<Scalars['String']['input']>;
   hideStartReadingButton?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  libraryTopic?: InputMaybe<Scalars['String']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];
   title: Scalars['String']['input'];
@@ -1621,6 +1623,7 @@ type CreateSequenceDataInput = {
   isDeleted?: InputMaybe<Scalars['Boolean']['input']>;
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  libraryTopic?: InputMaybe<Scalars['String']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   title: Scalars['String']['input'];
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -9383,6 +9386,7 @@ type Sequence = {
   isDeleted: Scalars['Boolean']['output'];
   lastUpdated: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  libraryTopic?: Maybe<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
@@ -10872,6 +10876,7 @@ type UpdateCollectionDataInput = {
   gridImageId?: InputMaybe<Scalars['String']['input']>;
   hideStartReadingButton?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  libraryTopic?: InputMaybe<Scalars['String']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -11340,6 +11345,7 @@ type UpdateSequenceDataInput = {
   isDeleted?: InputMaybe<Scalars['Boolean']['input']>;
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  libraryTopic?: InputMaybe<Scalars['String']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -23694,7 +23700,7 @@ type CollectionsPageFragment_Collection_books_Book = (
   & BookPageFragment
 );
 
-type CollectionsPageFragment = { __typename?: 'Collection', _id: string, createdAt: string, slug: string, userId: string, title: string, firstPageLink: string, gridImageId: string | null, coverImageId: string | null, hideStartReadingButton: boolean | null, noindex: boolean, user: CollectionsPageFragment_Collection_user_User | null, contents: CollectionsPageFragment_Collection_contents_Revision | null, books: Array<CollectionsPageFragment_Collection_books_Book> };
+type CollectionsPageFragment = { __typename?: 'Collection', _id: string, createdAt: string, slug: string, userId: string, title: string, firstPageLink: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, hideStartReadingButton: boolean | null, noindex: boolean, user: CollectionsPageFragment_Collection_user_User | null, contents: CollectionsPageFragment_Collection_contents_Revision | null, books: Array<CollectionsPageFragment_Collection_books_Book> };
 
 type CollectionsEditFragment_Collection_contents_Revision = (
   { __typename?: 'Revision' }
@@ -24837,7 +24843,7 @@ type SequencesPageFragment_Sequence_contents_Revision = (
 );
 
 type SequencesPageFragment = (
-  { __typename?: 'Sequence', createdAt: string, userId: string, gridImageId: string | null, bannerImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, draft: boolean, isDeleted: boolean, hidden: boolean, hideFromAuthorPage: boolean, noindex: boolean, curatedOrder: number | null, userProfileOrder: number | null, af: boolean, postsCount: number, readPostsCount: number, user: SequencesPageFragment_Sequence_user_User | null, contents: SequencesPageFragment_Sequence_contents_Revision | null }
+  { __typename?: 'Sequence', createdAt: string, userId: string, gridImageId: string | null, bannerImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, draft: boolean, isDeleted: boolean, hidden: boolean, hideFromAuthorPage: boolean, noindex: boolean, curatedOrder: number | null, libraryTopic: string | null, userProfileOrder: number | null, af: boolean, postsCount: number, readPostsCount: number, user: SequencesPageFragment_Sequence_user_User | null, contents: SequencesPageFragment_Sequence_contents_Revision | null }
   & SequencesPageTitleFragment
 );
 

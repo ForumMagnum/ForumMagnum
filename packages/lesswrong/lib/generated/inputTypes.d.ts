@@ -1752,6 +1752,7 @@ interface Collection {
   readPostsCount: number;
   gridImageId: string | null;
   coverImageId: string | null;
+  libraryTopic: string | null;
   firstPageLink: string;
   hideStartReadingButton: boolean | null;
   noindex: boolean;
@@ -6188,6 +6189,7 @@ interface Sequence {
   draft: boolean;
   isDeleted: boolean;
   curatedOrder: number | null;
+  libraryTopic: string | null;
   userProfileOrder: number | null;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;
@@ -7497,6 +7499,7 @@ interface CreateCollectionDataInput {
   slug: string;
   gridImageId?: string | null;
   coverImageId?: string | null;
+  libraryTopic?: string | null;
   firstPageLink?: string | null;
   hideStartReadingButton?: boolean | null;
   noindex?: boolean | null;
@@ -7514,6 +7517,7 @@ interface UpdateCollectionDataInput {
   slug?: string | null;
   gridImageId?: string | null;
   coverImageId?: string | null;
+  libraryTopic?: string | null;
   firstPageLink?: string | null;
   hideStartReadingButton?: boolean | null;
   noindex?: boolean | null;
@@ -8496,6 +8500,7 @@ interface CreateSequenceDataInput {
   draft?: boolean | null;
   isDeleted?: boolean | null;
   curatedOrder?: number | null;
+  libraryTopic?: string | null;
   userProfileOrder?: number | null;
   canonicalCollectionSlug?: string | null;
   hidden?: boolean | null;
@@ -8520,6 +8525,7 @@ interface UpdateSequenceDataInput {
   draft?: boolean | null;
   isDeleted?: boolean | null;
   curatedOrder?: number | null;
+  libraryTopic?: string | null;
   userProfileOrder?: number | null;
   canonicalCollectionSlug?: string | null;
   hidden?: boolean | null;

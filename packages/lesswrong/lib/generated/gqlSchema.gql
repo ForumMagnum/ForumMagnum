@@ -1976,6 +1976,7 @@ type Collection {
   readPostsCount: Int!
   gridImageId: String
   coverImageId: String
+  libraryTopic: String
   firstPageLink: String!
   hideStartReadingButton: Boolean
   noindex: Boolean!
@@ -6686,6 +6687,7 @@ type Sequence {
   draft: Boolean!
   isDeleted: Boolean!
   curatedOrder: Float
+  libraryTopic: String
   userProfileOrder: Float
   canonicalCollectionSlug: String
   canonicalCollection: Collection
@@ -8157,6 +8159,7 @@ input CreateCollectionDataInput {
   slug: String!
   gridImageId: String
   coverImageId: String
+  libraryTopic: String
   firstPageLink: String
   hideStartReadingButton: Boolean
   noindex: Boolean
@@ -8174,6 +8177,7 @@ input UpdateCollectionDataInput {
   slug: String
   gridImageId: String
   coverImageId: String
+  libraryTopic: String
   firstPageLink: String
   hideStartReadingButton: Boolean
   noindex: Boolean
@@ -9292,6 +9296,7 @@ input CreateSequenceDataInput {
   draft: Boolean
   isDeleted: Boolean
   curatedOrder: Float
+  libraryTopic: String
   userProfileOrder: Float
   canonicalCollectionSlug: String
   hidden: Boolean
@@ -9316,6 +9321,7 @@ input UpdateSequenceDataInput {
   draft: Boolean
   isDeleted: Boolean
   curatedOrder: Float
+  libraryTopic: String
   userProfileOrder: Float
   canonicalCollectionSlug: String
   hidden: Boolean

@@ -10,8 +10,12 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { FormComponentSelect } from "../form-components/FormComponentSelect";
+import { LIBRARY_TOPICS } from "@/lib/collections/sequences/libraryTopics";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+
+const libraryTopicOptions = LIBRARY_TOPICS.map((topic) => ({ label: topic, value: topic }));
 
 const CollectionsPageFragmentUpdateMutation = gql(`
   mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {
@@ -180,6 +184,18 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
               <MuiTextField
                 field={field}
                 label="Cover image ID (portrait)"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classes.fieldWrapper}>
+          <form.Field name="libraryTopic">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={libraryTopicOptions}
+                label="Library topic"
               />
             )}
           </form.Field>
