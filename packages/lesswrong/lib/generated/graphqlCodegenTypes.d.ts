@@ -4533,8 +4533,8 @@ type MutationpublishHomePageDesignArgs = {
 type MutationrejectContentAndRemoveUserFromQueueArgs = {
   collectionName: ContentCollectionName;
   documentId: Scalars['String']['input'];
-  messageContent?: InputMaybe<Scalars['String']['input']>;
   rejectedReason: Scalars['String']['input'];
+  restrictUser?: InputMaybe<Scalars['Boolean']['input']>;
   userId: Scalars['String']['input'];
 };
 
@@ -21204,39 +21204,6 @@ type updateUserModeratorNotesMutationVariables = Exact<{
 
 type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
 
-type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiModerationTemplateRestrictAndNotifyModalQueryQuery = multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query;
-
-type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
-
-
-type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
-  userId: Scalars['String']['input'];
-  documentId: Scalars['String']['input'];
-  collectionName: ContentCollectionName;
-  rejectedReason: Scalars['String']['input'];
-  messageContent: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
-
 type updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
   { __typename?: 'ModeratorAction' }
   & ModeratorActionDisplay
@@ -21272,19 +21239,6 @@ type updateUserModerationKeyboardMutationVariables = Exact<{
 
 
 type updateUserModerationKeyboardMutation = updateUserModerationKeyboardMutation_Mutation;
-
-type rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
-
-
-type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
-  userId: Scalars['String']['input'];
-  documentId: Scalars['String']['input'];
-  collectionName: ContentCollectionName;
-  rejectedReason: Scalars['String']['input'];
-}>;
-
-
-type rejectContentAndRemoveFromQueueModerationKeyboardMutation = rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation;
 
 type approveCurrentContentOnlyModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
 
@@ -21327,6 +21281,20 @@ type createModeratorActionPostReviewActionsMutationVariables = Exact<{
 
 
 type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
+
+type rejectContentAndRemoveFromQueueSupermodMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+
+type rejectContentAndRemoveFromQueueSupermodMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+  restrictUser: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type rejectContentAndRemoveFromQueueSupermodMutation = rejectContentAndRemoveFromQueueSupermodMutation_Mutation;
 
 type RerunLlmCheckHookMutation_rerunLlmCheck_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }

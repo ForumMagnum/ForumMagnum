@@ -4,13 +4,14 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
-import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
-import { isPost, type ContentItem } from './helpers';
+import { useRejectPanelSubmit } from './useRejectPanelSubmit';
+import type { ContentItem } from './helpers';
+import type { RejectSidebarTab } from './sidebarTabs';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
@@ -151,21 +152,31 @@ function extractBoldLead(html: string): string {
  * uses it verbatim, substituting the content link for the "[content]"
  * placeholder.
  */
-const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, onArrowDownPastEnd, onEscape }: {
+const RejectContentEditor = ({ user, focusedContent, rejectTab, active, editorContainerRef, composerFocusToken, registerToggleTemplate, addToUndoQueue, onComposeRestrictNotifyDm, onArrowDownPastEnd, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  // Which of the reject tabs this was opened from, i.e. what submitting does
+  rejectTab: RejectSidebarTab,
   // False while the panel is hidden (but kept mounted to preserve the draft)
   active: boolean,
   editorContainerRef: React.RefObject<HTMLDivElement | null>,
   // Bumped when the template list hands focus to the composer; opens the editor
   composerFocusToken: number,
   registerToggleTemplate: (fn: (template: ModerationTemplateFragment) => void) => void,
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
+  onComposeRestrictNotifyDm: (rejectedReason: string) => void,
   onArrowDownPastEnd: () => void,
   // Escape in the composer closes the panel's tab, as if it were clicked again
   onEscape: () => void,
 }) => {
   const classes = useStyles(styles);
-  const { rejectContent } = useRejectContent();
+  const { submitLabel, submitRejection } = useRejectPanelSubmit({
+    user,
+    focusedContent,
+    rejectTab,
+    addToUndoQueue,
+    onComposeRestrictNotifyDm,
+  });
 
   // Source of truth while the preview is showing; the reasons html is derived
   const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
@@ -245,17 +256,13 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
     if (!reason) return;
 
-    if (isPost(focusedContent)) {
-      void rejectContent({ collectionName: 'Posts', document: focusedContent, reason });
-    } else {
-      void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
-    }
+    submitRejection(reason);
     fullMessageRef.current = '';
     setAddedTemplates([]);
     setEditorOpen(false);
     setEditorHtml('');
     setLexicalEditorVersion(prev => prev + 1);
-  }, [editorOpen, addedTemplates, focusedContent, rejectContent]);
+  }, [editorOpen, addedTemplates, submitRejection]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
@@ -281,20 +288,22 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         />
       </ContentStyles>
     </ComposerKeydownWrapper>}
-    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason} onClick={handleReject} />
+    <ComposerSubmitButton label={submitLabel} disabled={!hasRejectedReason} onClick={handleReject} />
   </div>;
 };
 
 /**
- * Inline replacement for RejectContentDialog in the moderation sidebar:
- * clicking a template below the composer toggles it as a rejection reason.
- * Stays mounted while `active` is false so the draft survives the tab
- * being toggled closed and reopened.
+ * The rejection composer in the moderation sidebar: clicking a template below
+ * the composer toggles it as a rejection reason. Stays mounted while `active`
+ * is false so the draft survives the tab being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
+const RejectContentPanel = ({ user, focusedContent, rejectTab, active, addToUndoQueue, onComposeRestrictNotifyDm, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  rejectTab: RejectSidebarTab,
   active: boolean,
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
+  onComposeRestrictNotifyDm: (rejectedReason: string) => void,
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
 }) => {
@@ -318,10 +327,13 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
     <RejectContentEditor
       user={user}
       focusedContent={focusedContent}
+      rejectTab={rejectTab}
       active={active}
       editorContainerRef={editorContainerRef}
       composerFocusToken={composerFocusToken}
       registerToggleTemplate={registerToggleTemplate}
+      addToUndoQueue={addToUndoQueue}
+      onComposeRestrictNotifyDm={onComposeRestrictNotifyDm}
       onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
       onEscape={onEscape}
     />

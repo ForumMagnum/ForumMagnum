@@ -6,7 +6,7 @@ import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { useModerationUserActions } from './useModerationUserActions';
-import { canRejectContent, ContentItem, isPost } from './helpers';
+import { canRejectContent, ContentItem, getContentSortedByDate, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
 
@@ -64,9 +64,10 @@ const ModerationUserKeyboardHandler = ({
     handlePurge,
     updateUserWith,
     getModSignatureWithNote,
+    soleRejectableContentIndex,
     posts,
     comments,
-  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue });
+  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue, dispatch });
 
   const {
     toggleDisablePosting,
@@ -75,11 +76,7 @@ const ModerationUserKeyboardHandler = ({
     toggleDisableVoting,
   } = useUserContentPermissions(selectedUser, dispatch);
   
-  const allContent = useMemo(() => {
-    return [...posts, ...comments].sort((a, b) => 
-      new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-    );
-  }, [posts, comments]);
+  const allContent = useMemo(() => getContentSortedByDate(posts, comments), [posts, comments]);
 
   const selectedContent = useMemo<ContentItem | undefined>(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
 
@@ -253,18 +250,18 @@ const ModerationUserKeyboardHandler = ({
   }), [isDetailView, selectedUser, selectedContent, onFocusRejectTab, handleUnrejectCurrentContent]);
 
   const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Reject Latest & Remove',
+    label: 'Reject & Remove',
     keystroke: 'X',
-    isDisabled: () => !isDetailView || !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser || soleRejectableContentIndex === null,
     execute: handleRejectContentAndRemove,
-  }), [isDetailView, selectedUser, handleRejectContentAndRemove]);
+  }), [isDetailView, selectedUser, soleRejectableContentIndex, handleRejectContentAndRemove]);
 
   const restrictAndNotifyCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Reject Latest, Restrict, & Notify',
+    label: 'Reject, Restrict, & Notify',
     keystroke: 'Shift+R',
-    isDisabled: () => !isDetailView || !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser || soleRejectableContentIndex === null,
     execute: handleRestrictAndNotify,
-  }), [isDetailView, selectedUser, handleRestrictAndNotify]);
+  }), [isDetailView, selectedUser, soleRejectableContentIndex, handleRestrictAndNotify]);
 
   const disablePostingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Posting',

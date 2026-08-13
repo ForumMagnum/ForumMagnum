@@ -24,8 +24,9 @@ import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import ComposerKeydownWrapper from './supermod/ComposerKeydownWrapper';
-import { canRejectContent, getContentTitle, type ContentItem } from './supermod/helpers';
-import type { SelectedSidebarTab } from './supermod/sidebarTabs';
+import { canRejectContent, getContentTitle, isPost, type ContentItem } from './supermod/helpers';
+import { isRejectTab, type SelectedSidebarTab } from './supermod/sidebarTabs';
+import { useRejectContentAndRemoveFromQueue } from './supermod/useRejectContentAndRemoveFromQueue';
 import { focusLexicalEditorAtEnd, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
 
 const ConversationsListMultiQuery = gql(`
@@ -170,7 +171,21 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   hiddenTabContent: {
     display: 'none',
   },
+  // Spells out the consequences of sending, since the DM is what triggers them
+  pendingRestrictNotice: {
+    marginBottom: 8,
+    fontSize: 12,
+    color: theme.palette.error.main,
+  },
 }));
+
+/** A rejection composed via "Reject, Restrict & Notify", waiting on its DM to be sent */
+interface PendingRestrictNotify {
+  documentId: string;
+  collectionName: 'Posts' | 'Comments';
+  rejectedReason: string;
+  contentTitle: string;
+}
 
 interface SunshineUserMessagesProps {
   user: SunshineUsersList;
@@ -180,9 +195,10 @@ interface SunshineUserMessagesProps {
   focusedContent?: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
 }
 
-const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
+const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab, addToUndoQueue}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
   const highlightedTemplateNames = useMemo(() => {
@@ -202,11 +218,13 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [pendingComposerFocus, setPendingComposerFocus] = useState(false);
+  const [pendingRestrictNotify, setPendingRestrictNotify] = useState<PendingRestrictNotify | null>(null);
   const dmEditorContainerRef = useRef<HTMLDivElement>(null);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
   const { appendToEditor } = useAppendToEditor();
+  const rejectContentAndRemoveFromQueue = useRejectContentAndRemoveFromQueue();
 
   // When a conversation is created/found, sync it to state
   useEffect(() => {
@@ -233,7 +251,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const canReject = canRejectContent(focusedContent);
   const showRejectTab = !!focusedContent;
-  const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
+  const rejectTabActive = isRejectTab(sidebarTab) && canReject && !!focusedContent;
   const dmTabActive = sidebarTab === 'dm';
 
   // Start the conversation on tab click, not on a second click on the prompt.
@@ -251,6 +269,14 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   useEffect(() => {
     if (dmTabActive) {
       setTemplateSearchToken(token => token + 1);
+    }
+  }, [dmTabActive]);
+
+  // A rejection handed over to the DM composer only stands while that composer
+  // is open, so it can't end up attached to some unrelated later message
+  useEffect(() => {
+    if (!dmTabActive) {
+      setPendingRestrictNotify(null);
     }
   }, [dmTabActive]);
 
@@ -313,7 +339,39 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     setSidebarTab(null);
   };
 
+  // "Reject, Restrict & Notify" composes its rejection reason in the reject
+  // panel and then hands it over here: the offboarding DM is written in the
+  // normal DM composer, and sending it is what carries out the rejection.
+  const handleComposeRestrictNotifyDm = (rejectedReason: string) => {
+    if (!focusedContent) return;
+    setPendingRestrictNotify({
+      documentId: focusedContent._id,
+      collectionName: isPost(focusedContent) ? 'Posts' : 'Comments',
+      rejectedReason,
+      contentTitle: getContentTitle(focusedContent),
+    });
+    setSidebarTab('dm');
+    handleStartConversation();
+  };
+
+  const completePendingRestrictNotify = () => {
+    if (!pendingRestrictNotify) return;
+    const { documentId, collectionName, rejectedReason } = pendingRestrictNotify;
+    setPendingRestrictNotify(null);
+    addToUndoQueue('Restricted & Notified', () => rejectContentAndRemoveFromQueue({
+      userId: user._id,
+      documentId,
+      collectionName,
+      rejectedReason,
+      restrictUser: true,
+    }));
+  };
+
   const dmTabContents = <>
+    {pendingRestrictNotify && <div className={classes.pendingRestrictNotice}>
+      Sending this will also reject “{pendingRestrictNotify.contentTitle}”, disable this user's
+      posting, commenting, messaging and voting, and remove them from the review queue.
+    </div>}
     {embeddedConversationId ? (
       <ComposerKeydownWrapper
         className={classes.conversationForm}
@@ -325,6 +383,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           conversationId={embeddedConversationId}
           templateQueries={templateQueries}
           keystrokeSubmitButton
+          submitLabel={pendingRestrictNotify ? 'Send DM, Restrict & Remove' : undefined}
           successEvent={async (newMessage) => {
             await refetch();
             captureEvent('messageSent', {
@@ -332,6 +391,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
               sender: currentUser._id,
               moderatorConveration: true
             })
+            completePendingRestrictNotify();
           }}
         />
       </ComposerKeydownWrapper>
@@ -410,7 +470,15 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </div>
     {canReject && focusedContent && (
       <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
+        <RejectContentPanel
+          user={user}
+          focusedContent={focusedContent}
+          rejectTab={isRejectTab(sidebarTab) ? sidebarTab : 'reject'}
+          active={rejectTabActive}
+          addToUndoQueue={addToUndoQueue}
+          onComposeRestrictNotifyDm={handleComposeRestrictNotifyDm}
+          onEscape={handleCloseSidebarTab}
+        />
       </div>
     )}
   </div>;

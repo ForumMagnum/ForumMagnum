@@ -12,8 +12,6 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
-import { createConversation } from '../collections/conversations/mutations';
-import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
@@ -43,7 +41,7 @@ export const moderationGqlTypeDefs = gql`
   extend type Mutation {
     lockThread(commentId: String!, until: String): Boolean!
     unlockThread(commentId: String!): Boolean!
-    rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
+    rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, restrictUser: Boolean): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
     rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
@@ -120,13 +118,13 @@ export const moderationGqlMutations = {
 
     return true;
   },
-  async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName, rejectedReason: string, messageContent?: string}, context: ResolverContext) {
+  async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName, rejectedReason: string, restrictUser?: boolean}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can reject content and remove users from queue");
     }
 
-    const { userId, documentId, collectionName, rejectedReason, messageContent } = args;
+    const { userId, documentId, collectionName, rejectedReason, restrictUser } = args;
 
     const user = await Users.findOne(userId);
     if (!user) {
@@ -161,8 +159,9 @@ export const moderationGqlMutations = {
       }, context);
     }
 
-    // If messageContent is provided, we restrict all of the user's permissions and send them an offboarding message
-    if (messageContent) {
+    // The offboarding message itself is sent by the moderator through the DM
+    // composer; this only takes away the permissions it's warning them about.
+    if (restrictUser) {
       const restrictNote = 'Restricted & notified (rejected content, disabled all permissions)';
       const notes = user.sunshineNotes || '';
       const newNotes = getSignatureWithNote(currentUser.displayName, restrictNote) + notes;
@@ -186,32 +185,6 @@ export const moderationGqlMutations = {
           type: VOTING_DISABLED,
           endedAt: null,
         }
-      }, context);
-
-      const conversationData: CreateConversationDataInput = {
-        participantIds: [userId, currentUser._id],
-        title: `Content rejected and permissions restricted`,
-        moderator: true,
-      };
-
-      const conversation = await createConversation({
-        data: conversationData,
-      }, context);
-
-      const messageData = {
-        userId: currentUser._id,
-        contents: {
-          originalContents: {
-            type: "html",
-            data: messageContent
-          }
-        },
-        conversationId: conversation._id,
-        noEmail: false,
-      };
-
-      await createMessage({
-        data: messageData,
       }, context);
     } else {
       const notes = user.sunshineNotes || '';

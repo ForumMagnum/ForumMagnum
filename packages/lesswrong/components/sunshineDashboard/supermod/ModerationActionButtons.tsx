@@ -1,8 +1,10 @@
 import React from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWTooltip from '@/components/common/LWTooltip';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { useModerationUserActions } from './useModerationUserActions';
+import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionsColumn: {
@@ -34,12 +36,29 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
       borderColor: theme.palette.grey[400],
     },
   },
+  disabledActionButton: {
+    opacity: 0.4,
+    cursor: 'default',
+    '&:hover': {
+      backgroundColor: theme.palette.background.paper,
+      borderColor: theme.palette.grey[300],
+    },
+  },
 }));
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
+interface ModeratorActionButtonSpec {
+  label: string;
+  keystroke: string;
+  tooltip: string;
+  disabled?: boolean;
+  onClick: () => void;
+}
+
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
 
@@ -51,9 +70,15 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handlePurge,
-  } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
+    soleRejectableContentIndex,
+  } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue, dispatch });
 
-  const moderatorActionRows = [
+  // Both reject-and-remove actions take the user out of the queue, so they're
+  // only offered while the content they'd reject is the last thing left to review
+  const hasSoleRejectableContent = soleRejectableContentIndex !== null;
+  const noSoleRejectableContentTooltip = "Only available when the user has exactly one un-rejected post or comment left to review.";
+
+  const moderatorActionRows: ModeratorActionButtonSpec[][] = [
     [
       {
         label: 'Approve',
@@ -84,15 +109,21 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
     ],
     [
       {
-        label: 'Reject Latest & Remove',
+        label: 'Reject & Remove',
         keystroke: 'X',
-        tooltip: "Opens the rejection-reason dialog, then rejects this user's most recent unapproved post or comment with that reason, and removes the user from the review queue (without approving them).",
+        tooltip: hasSoleRejectableContent
+          ? "Opens the rejection composer for the user's one remaining un-rejected post or comment; submitting it rejects that content and removes the user from the review queue (without approving them)."
+          : noSoleRejectableContentTooltip,
+        disabled: !hasSoleRejectableContent,
         onClick: handleRejectContentAndRemove,
       },
       {
         label: 'Reject, Restrict & Notify',
         keystroke: 'Shift+R',
-        tooltip: "Opens the rejection-reason dialog, then a message dialog. Rejects this user's most recent unapproved post or comment, disables their posting, commenting, messaging, and voting, sends them the message as a moderator PM, and removes them from the review queue.",
+        tooltip: hasSoleRejectableContent
+          ? "Opens the rejection composer for the user's one remaining un-rejected post or comment, then hands the reason to the DM composer. Sending that DM rejects the content, disables the user's posting, commenting, messaging and voting, and removes them from the review queue."
+          : noSoleRejectableContentTooltip,
+        disabled: !hasSoleRejectableContent,
         onClick: handleRestrictAndNotify,
       },
     ],
@@ -110,9 +141,12 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
     <div className={classes.actionsColumn}>
       {moderatorActionRows.map((row, rowIndex) => (
         <div key={rowIndex} className={classes.actionRow}>
-          {row.map(({label, keystroke, tooltip, onClick}) => (
+          {row.map(({label, keystroke, tooltip, disabled, onClick}) => (
             <LWTooltip key={label} title={tooltip} placement="left">
-              <div className={classes.actionButton} onClick={onClick}>
+              <div
+                className={classNames(classes.actionButton, {[classes.disabledActionButton]: disabled})}
+                onClick={disabled ? undefined : onClick}
+              >
                 <span>{label}</span>
                 <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation />
               </div>
