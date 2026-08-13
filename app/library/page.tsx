@@ -1,5 +1,5 @@
 import React from "react";
-import LibraryPage from '@/components/sequences/LibraryPage';
+import LibraryPageSwitch from '@/components/sequences/LibraryPageSwitch';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -22,6 +22,6 @@ assertRouteAttributes("/library", {
 
 export default function Page() {
   return <RouteRoot>
-    {isAF() ? <AFLibraryPage /> : <LibraryPage />}
+    {isAF() ? <AFLibraryPage /> : <LibraryPageSwitch />}
   </RouteRoot>;
 }

@@ -34,6 +34,8 @@ export const userHasAutosummarize = adminOnly
 
 export const visitorGetsDynamicFrontpage: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
+export const userHasLibraryPageRedesign: BetaGate = (user) => isLW() && adminOrBeta(user);
+
 export const userHasSubscribeTabFeed: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
 export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
