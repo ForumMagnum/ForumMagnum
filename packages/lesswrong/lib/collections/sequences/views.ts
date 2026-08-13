@@ -119,10 +119,34 @@ function communitySequences(terms: SequencesViewTerms) {
   };
 }
 
+/**
+ * The /library redesign's merged all-sequences list: curated sequences first
+ * (in curated order), then everything else newest-first. Unlike
+ * communitySequences this doesn't exclude imageless sequences (the list has a
+ * cover-art fallback) or canonical-collection sub-sequences (the design shows
+ * them as rows). The SQL layer sorts DESC NULLS LAST, so the null-curatedOrder
+ * long tail follows the curated block.
+ */
+function librarySequences(_terms: SequencesViewTerms) {
+  return {
+    selector: {
+      isDeleted: false,
+      draft: false,
+    },
+    options: {
+      sort: {
+        curatedOrder: -1,
+        createdAt: -1,
+      }
+    },
+  };
+}
+
 export const SequencesViews = new CollectionViewSet('Sequences', {
   userProfile,
   userProfilePrivate,
   userProfileAll,
   curatedSequences,
-  communitySequences
+  communitySequences,
+  librarySequences
 }, defaultView);

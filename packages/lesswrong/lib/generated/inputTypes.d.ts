@@ -6248,6 +6248,7 @@ interface SequenceSelector {
   userProfileAll: SequencesUserProfileAllInput | null;
   curatedSequences: SequencesCuratedSequencesInput | null;
   communitySequences: SequencesCommunitySequencesInput | null;
+  librarySequences: EmptyViewInput | null;
 }
 
 interface MultiSequenceInput {

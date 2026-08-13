@@ -54,6 +54,7 @@ export const graphqlSequenceQueryTypeDefs = gql`
     userProfileAll: SequencesUserProfileAllInput
     curatedSequences: SequencesCuratedSequencesInput
     communitySequences: SequencesCommunitySequencesInput
+    librarySequences: EmptyViewInput
   }
   
   input MultiSequenceInput {

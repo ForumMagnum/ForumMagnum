@@ -51,6 +51,8 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   JargonTerms: JargonTerms
   JargonTermsPost: JargonTermsPost
+  LibrarySequenceExpansionFragment: LibrarySequenceExpansionFragment
+  LibrarySequenceRowFragment: LibrarySequenceRowFragment
   LlmConversationsFragment: LlmConversationsFragment
   LlmConversationsViewingPageFragment: LlmConversationsViewingPageFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
@@ -258,7 +260,7 @@ interface FragmentTypesByCollection {
   ReviewWinnerArts: "ReviewWinnerArtImages"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerTopPostsPage"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"WithVoteRevision"
-  Sequences: "SequenceContinueReadingFragment"|"SequenceSummaryFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
+  Sequences: "LibrarySequenceExpansionFragment"|"LibrarySequenceRowFragment"|"SequenceContinueReadingFragment"|"SequenceSummaryFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"
@@ -316,6 +318,8 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   JargonTerms: "JargonTerms"
   JargonTermsPost: "JargonTerms"
+  LibrarySequenceExpansionFragment: "Sequences"
+  LibrarySequenceRowFragment: "Sequences"
   LlmConversationsFragment: "LlmConversations"
   LlmConversationsViewingPageFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"

@@ -51,6 +51,44 @@ export const SequenceContinueReadingFragment = gql(`
   }
 `)
 
+export const LibrarySequenceRowFragment = gql(`
+  fragment LibrarySequenceRowFragment on Sequence {
+    _id
+    title
+    gridImageId
+    coverImageId
+    bannerImageId
+    curatedOrder
+    libraryTopic
+    postsCount
+    readPostsCount
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      _id
+      plaintextDescription
+    }
+  }
+`)
+
+export const LibrarySequenceExpansionFragment = gql(`
+  fragment LibrarySequenceExpansionFragment on Sequence {
+    _id
+    contents {
+      ...RevisionHTML
+    }
+    chapters {
+      _id
+      title
+      number
+      posts {
+        ...ChapterPostSlim
+      }
+    }
+  }
+`)
+
 export const SequencesPageWithChaptersFragment = gql(`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment

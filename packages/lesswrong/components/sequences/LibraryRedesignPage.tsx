@@ -2,6 +2,7 @@ import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import LibraryContinueReadingStrip from './LibraryContinueReadingStrip';
 import LibraryRecommendedZone from './LibraryRecommendedZone';
+import LibraryAllSequencesList from './LibraryAllSequencesList';
 import SequencesNewButton from './SequencesNewButton';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -49,12 +50,6 @@ const styles = defineStyles('LibraryRedesignPage', (theme: ThemeType) => ({
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
   },
-  listPlaceholder: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    color: theme.palette.text.dim,
-    padding: '24px 0',
-  },
 }));
 
 const LibraryRedesignPage = () => {
@@ -73,11 +68,7 @@ const LibraryRedesignPage = () => {
             <span className={classes.allSequencesLabel}>All Sequences</span>
             <SequencesNewButton />
           </div>
-          {/* TODO: the merged sequences+collections list (search, topic filter,
-              expandable rows) replaces this placeholder in a later slice */}
-          <div className={classes.listPlaceholder}>
-            The full sequence list is under construction.
-          </div>
+          <LibraryAllSequencesList />
         </div>
       </AnalyticsContext>
     </div>
