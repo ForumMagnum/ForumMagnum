@@ -74,6 +74,23 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     lineHeight: 1,
     color: theme.palette.primary.main,
   },
+  startReadingButton: {
+    display: 'block',
+    marginTop: 6,
+    padding: '4px 0',
+    textAlign: 'center',
+    background: 'light-dark(#f1f1f1, #333333)',
+    borderRadius: 6,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
+    fontWeight: 500,
+    letterSpacing: '0.03em',
+    textTransform: 'uppercase',
+    color: theme.palette.greyAlpha(0.87),
+    '&:hover': {
+      background: 'light-dark(#e7e7e7, #3d3d3d)',
+    },
+  },
   itemTitle: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
@@ -127,12 +144,14 @@ const LibraryContinueReadingStrip = () => {
               height={COVER_HEIGHT}
               className={classes.cover}
             />
-            <div className={classes.progressRow}>
-              <div className={classes.progressTrack}>
-                <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
-              </div>
-              <span className={classes.progressLabel}>{progressPercent}%</span>
-            </div>
+            {(entry.numRead ?? 0) > 0
+              ? <div className={classes.progressRow}>
+                  <div className={classes.progressTrack}>
+                    <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
+                  </div>
+                  <span className={classes.progressLabel}>{progressPercent}%</span>
+                </div>
+              : <span className={classes.startReadingButton}>Start reading</span>}
             <div className={classes.itemTitle}>{item.title}</div>
           </Link>;
         })}
