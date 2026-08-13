@@ -3,6 +3,10 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWTooltip from '@/components/common/LWTooltip';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { useModerationUserActions } from './useModerationUserActions';
+import { useUserContentPermissions } from './useUserContentPermissions';
+import type { InboxAction } from './inboxReducer';
+import { areAllContentPermissionsDisabled } from './helpers';
+import classNames from 'classnames';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionsColumn: {
@@ -33,13 +37,22 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[50],
       borderColor: theme.palette.grey[400],
     },
+    '&.active': {
+      backgroundColor: theme.palette.error.light,
+      borderColor: theme.palette.error.main,
+      color: theme.palette.error.contrastText,
+      '&:hover': {
+        backgroundColor: theme.palette.error.main,
+      },
+    },
   },
 }));
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
 
@@ -53,7 +66,16 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
     handlePurge,
   } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
 
-  const moderatorActionRows = [
+  const { toggleAllPermissions } = useUserContentPermissions(user, dispatch);
+  const allPermissionsDisabled = areAllContentPermissionsDisabled(user);
+
+  const moderatorActionRows: Array<Array<{
+    label: string;
+    keystroke: string;
+    tooltip: string;
+    onClick: () => void;
+    active?: boolean;
+  }>> = [
     [
       {
         label: 'Approve',
@@ -104,17 +126,28 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue}: {
         onClick: handlePurge,
       },
     ],
+    [
+      {
+        label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
+        keystroke: 'Shift+P',
+        tooltip: allPermissionsDisabled
+          ? "Re-enable posting, commenting, messaging, and voting. Signs an 'all permissions enabled' note in their moderator notes."
+          : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
+        onClick: toggleAllPermissions,
+        active: allPermissionsDisabled,
+      },
+    ],
   ];
 
   return (
     <div className={classes.actionsColumn}>
       {moderatorActionRows.map((row, rowIndex) => (
         <div key={rowIndex} className={classes.actionRow}>
-          {row.map(({label, keystroke, tooltip, onClick}) => (
+          {row.map(({label, keystroke, tooltip, onClick, active}) => (
             <LWTooltip key={label} title={tooltip} placement="left">
-              <div className={classes.actionButton} onClick={onClick}>
+              <div className={classNames(classes.actionButton, active && 'active')} onClick={onClick}>
                 <span>{label}</span>
-                <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation />
+                <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation activeContext={!!active} />
               </div>
             </LWTooltip>
           ))}
