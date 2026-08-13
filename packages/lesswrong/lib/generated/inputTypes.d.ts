@@ -83,6 +83,8 @@ interface Query {
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
+  librarySequencesSearch: Array<Sequence>;
+  libraryTopicCounts: Array<LibraryTopicCount>;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -1323,6 +1325,11 @@ interface ElicitQuestionPredictionCreator {
 interface SequenceStats {
   totalWordCount: number | null;
   totalReadTime: number | null;
+}
+
+interface LibraryTopicCount {
+  topic: string;
+  count: number;
 }
 
 interface AdminEmailAudienceFilterInput {
@@ -6247,6 +6254,12 @@ interface SequencesCommunitySequencesInput {
   userId?: string | null;
 }
 
+interface SequencesLibrarySequencesInput {
+  libraryTopics?: Array<string> | null;
+  curatedOnly?: boolean | null;
+  sortBy?: string | null;
+}
+
 interface SequenceSelector {
   default: SequenceDefaultViewInput | null;
   userProfile: SequencesUserProfileInput | null;
@@ -6254,7 +6267,7 @@ interface SequenceSelector {
   userProfileAll: SequencesUserProfileAllInput | null;
   curatedSequences: SequencesCuratedSequencesInput | null;
   communitySequences: SequencesCommunitySequencesInput | null;
-  librarySequences: EmptyViewInput | null;
+  librarySequences: SequencesLibrarySequencesInput | null;
 }
 
 interface MultiSequenceInput {
@@ -9397,6 +9410,7 @@ interface GraphQLTypeMap {
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   SequenceStats: SequenceStats;
+  LibraryTopicCount: LibraryTopicCount;
   AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
   AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
   AdminSendTestEmailInput: AdminSendTestEmailInput;
@@ -9883,6 +9897,7 @@ interface GraphQLTypeMap {
   SequencesUserProfileAllInput: SequencesUserProfileAllInput;
   SequencesCuratedSequencesInput: SequencesCuratedSequencesInput;
   SequencesCommunitySequencesInput: SequencesCommunitySequencesInput;
+  SequencesLibrarySequencesInput: SequencesLibrarySequencesInput;
   SequenceSelector: SequenceSelector;
   MultiSequenceInput: MultiSequenceInput;
   MultiSequenceOutput: MultiSequenceOutput;

@@ -1,7 +1,7 @@
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userOwns, userCanDo } from "@/lib/vulcan-users/permissions";
+import { userOwns, userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
@@ -25,6 +25,11 @@ function newCheck(user: DbUser | null, document: DbSequence | null) {
 
 function editCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
+  // Mods don't have sequences.edit.all, but most sequence fields (including
+  // libraryTopic, which they're expected to set on any sequence) grant
+  // sunshineRegiment canUpdate; let them past the document-level check and
+  // rely on the per-field canUpdate validation.
+  if (userIsAdminOrMod(user)) return true;
   return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
     : userCanDo(user, `sequences.edit.all`)

@@ -2610,6 +2610,12 @@ type LegacyData = {
   schemaVersion: Scalars['Float']['output'];
 };
 
+type LibraryTopicCount = {
+  __typename?: 'LibraryTopicCount';
+  count: Scalars['Int']['output'];
+  topic: Scalars['String']['output'];
+};
+
 type LlmConversation = {
   __typename?: 'LlmConversation';
   _id: Scalars['String']['output'];
@@ -7353,6 +7359,8 @@ type Query = {
   lWEvents?: Maybe<MultiLWEventOutput>;
   latestDialogueMessages?: Maybe<Array<Scalars['String']['output']>>;
   latestGoogleDocMetadata?: Maybe<Scalars['JSON']['output']>;
+  librarySequencesSearch: Array<Sequence>;
+  libraryTopicCounts: Array<LibraryTopicCount>;
   llmConversation?: Maybe<SingleLlmConversationOutput>;
   llmConversations?: Maybe<MultiLlmConversationOutput>;
   localgroup?: Maybe<SingleLocalgroupOutput>;
@@ -8126,6 +8134,15 @@ type QuerylatestDialogueMessagesArgs = {
 type QuerylatestGoogleDocMetadataArgs = {
   postId: Scalars['String']['input'];
   version?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type QuerylibrarySequencesSearchArgs = {
+  curatedOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  libraryTopics?: InputMaybe<Array<Scalars['String']['input']>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -9421,7 +9438,7 @@ type SequenceSelector = {
   communitySequences?: InputMaybe<SequencesCommunitySequencesInput>;
   curatedSequences?: InputMaybe<SequencesCuratedSequencesInput>;
   default?: InputMaybe<SequenceDefaultViewInput>;
-  librarySequences?: InputMaybe<EmptyViewInput>;
+  librarySequences?: InputMaybe<SequencesLibrarySequencesInput>;
   userProfile?: InputMaybe<SequencesUserProfileInput>;
   userProfileAll?: InputMaybe<SequencesUserProfileAllInput>;
   userProfilePrivate?: InputMaybe<SequencesUserProfilePrivateInput>;
@@ -9441,6 +9458,12 @@ type SequencesCommunitySequencesInput = {
 type SequencesCuratedSequencesInput = {
   sequenceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type SequencesLibrarySequencesInput = {
+  curatedOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  libraryTopics?: InputMaybe<Array<Scalars['String']['input']>>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 type SequencesUserProfileAllInput = {
@@ -13113,6 +13136,37 @@ type AdminSendBulkEmailMutationVariables = Exact<{
 
 type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
 
+type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence = { __typename?: 'Sequence', _id: string, title: string, curatedOrder: number | null, libraryTopic: string | null, user: LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User | null };
+
+type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', results: Array<LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type LibraryTopicsAdminSequencesQuery_Query = { __typename?: 'Query', sequences: LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput | null };
+
+
+type LibraryTopicsAdminSequencesQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type LibraryTopicsAdminSequencesQuery = LibraryTopicsAdminSequencesQuery_Query;
+
+type LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput_data_Sequence = { __typename?: 'Sequence', _id: string, libraryTopic: string | null };
+
+type LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput_data_Sequence | null };
+
+type LibraryTopicsAdminUpdateSequenceMutation_Mutation = { __typename?: 'Mutation', updateSequence: LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput | null };
+
+
+type LibraryTopicsAdminUpdateSequenceMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateSequenceDataInput;
+}>;
+
+
+type LibraryTopicsAdminUpdateSequenceMutation = LibraryTopicsAdminUpdateSequenceMutation_Mutation;
+
 type randomUserQuery_GetRandomUser_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -13251,6 +13305,25 @@ type PostsAnalyticsPageQueryVariables = Exact<{
 
 
 type PostsAnalyticsPageQuery = PostsAnalyticsPageQuery_Query;
+
+type multiBookmarkBookmarkedSequencesListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
+  { __typename?: 'Bookmark' }
+  & BookmarksLibraryItemFragment
+);
+
+type multiBookmarkBookmarkedSequencesListQueryQuery_bookmarks_MultiBookmarkOutput = { __typename?: 'MultiBookmarkOutput', totalCount: number | null, results: Array<multiBookmarkBookmarkedSequencesListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark> };
+
+type multiBookmarkBookmarkedSequencesListQueryQuery_Query = { __typename?: 'Query', bookmarks: multiBookmarkBookmarkedSequencesListQueryQuery_bookmarks_MultiBookmarkOutput | null };
+
+
+type multiBookmarkBookmarkedSequencesListQueryQueryVariables = Exact<{
+  selector: InputMaybe<BookmarkSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiBookmarkBookmarkedSequencesListQueryQuery = multiBookmarkBookmarkedSequencesListQueryQuery_Query;
 
 type multiBookmarkBookmarksFeedQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
   { __typename?: 'Bookmark' }
@@ -19690,12 +19763,32 @@ type LibraryAllSequencesQuery_Query = { __typename?: 'Query', sequences: Library
 
 
 type LibraryAllSequencesQueryVariables = Exact<{
+  selector: InputMaybe<SequenceSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
   enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
 type LibraryAllSequencesQuery = LibraryAllSequencesQuery_Query;
+
+type LibrarySequencesSearchQuery_librarySequencesSearch_Sequence = (
+  { __typename?: 'Sequence' }
+  & LibrarySequenceRowFragment
+);
+
+type LibrarySequencesSearchQuery_Query = { __typename?: 'Query', librarySequencesSearch: Array<LibrarySequencesSearchQuery_librarySequencesSearch_Sequence> };
+
+
+type LibrarySequencesSearchQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  libraryTopics: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  curatedOnly: InputMaybe<Scalars['Boolean']['input']>;
+  sortBy: InputMaybe<Scalars['String']['input']>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type LibrarySequencesSearchQuery = LibrarySequencesSearchQuery_Query;
 
 type LibraryCollectionsQuery_collections_MultiCollectionOutput_results_Collection = (
   { __typename?: 'Collection' }
@@ -19728,6 +19821,16 @@ type LibraryCollectionExpansionQueryVariables = Exact<{
 
 
 type LibraryCollectionExpansionQuery = LibraryCollectionExpansionQuery_Query;
+
+type LibraryTopicCountsQuery_libraryTopicCounts_LibraryTopicCount = { __typename?: 'LibraryTopicCount', topic: string, count: number };
+
+type LibraryTopicCountsQuery_Query = { __typename?: 'Query', libraryTopicCounts: Array<LibraryTopicCountsQuery_libraryTopicCounts_LibraryTopicCount> };
+
+
+type LibraryTopicCountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type LibraryTopicCountsQuery = LibraryTopicCountsQuery_Query;
 
 type LibrarySequenceExpansionQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
@@ -23669,6 +23772,21 @@ type BookmarksWithDocumentFragment_Bookmark_post_Post = (
 
 type BookmarksWithDocumentFragment = (
   { __typename?: 'Bookmark', post: BookmarksWithDocumentFragment_Bookmark_post_Post | null }
+  & BookmarksMinimumInfoFragment
+);
+
+type BookmarksLibraryItemFragment_Bookmark_sequence_Sequence = (
+  { __typename?: 'Sequence' }
+  & LibrarySequenceRowFragment
+);
+
+type BookmarksLibraryItemFragment_Bookmark_collection_Collection = (
+  { __typename?: 'Collection' }
+  & LibraryCollectionRowFragment
+);
+
+type BookmarksLibraryItemFragment = (
+  { __typename?: 'Bookmark', collectionName: string, sequence: BookmarksLibraryItemFragment_Bookmark_sequence_Sequence | null, collection: BookmarksLibraryItemFragment_Bookmark_collection_Collection | null }
   & BookmarksMinimumInfoFragment
 );
 

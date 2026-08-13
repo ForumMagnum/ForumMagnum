@@ -1491,8 +1491,15 @@ type SequenceStats {
   totalReadTime: Float
 }
 
+type LibraryTopicCount {
+  topic: String!
+  count: Int!
+}
+
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
+  librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): [Sequence!]!
+  libraryTopicCounts: [LibraryTopicCount!]!
 }
 
 extend type Query {
@@ -6745,6 +6752,12 @@ input SequencesCommunitySequencesInput {
   userId: String
 }
 
+input SequencesLibrarySequencesInput {
+  libraryTopics: [String!]
+  curatedOnly: Boolean
+  sortBy: String
+}
+
 input SequenceSelector {
   default: SequenceDefaultViewInput
   userProfile: SequencesUserProfileInput
@@ -6752,7 +6765,7 @@ input SequenceSelector {
   userProfileAll: SequencesUserProfileAllInput
   curatedSequences: SequencesCuratedSequencesInput
   communitySequences: SequencesCommunitySequencesInput
-  librarySequences: EmptyViewInput
+  librarySequences: SequencesLibrarySequencesInput
 }
 
 input MultiSequenceInput {

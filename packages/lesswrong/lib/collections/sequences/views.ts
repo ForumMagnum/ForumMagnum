@@ -6,6 +6,9 @@ declare global {
     view: SequencesViewName | 'default'
     userId?: string
     sequenceIds?: string[]
+    libraryTopics?: string[]
+    curatedOnly?: boolean
+    sortBy?: string
   }
 }
 
@@ -126,18 +129,26 @@ function communitySequences(terms: SequencesViewTerms) {
  * cover-art fallback) or canonical-collection sub-sequences (the design shows
  * them as rows). The SQL layer sorts DESC NULLS LAST, so the null-curatedOrder
  * long tail follows the curated block.
+ *
+ * Optional terms back the tag/sort popover: filter to a set of library topics
+ * and/or curated sequences, and switch between the default ("recommended")
+ * order and plain newest-first. Title search doesn't go through this view (the
+ * selector layer has no substring matching) — see librarySequencesSearch in
+ * sequencesResolvers.ts, which must stay consistent with this view's filters.
  */
-function librarySequences(_terms: SequencesViewTerms) {
+function librarySequences(terms: SequencesViewTerms) {
   return {
     selector: {
       isDeleted: false,
       draft: false,
+      hidden: false,
+      ...(terms.libraryTopics?.length && {libraryTopic: {$in: terms.libraryTopics}}),
+      ...(terms.curatedOnly && {curatedOrder: {$exists: true}}),
     },
     options: {
-      sort: {
-        curatedOrder: -1,
-        createdAt: -1,
-      }
+      sort: terms.sortBy === 'newest'
+        ? {createdAt: -1}
+        : {curatedOrder: -1, createdAt: -1},
     },
   };
 }

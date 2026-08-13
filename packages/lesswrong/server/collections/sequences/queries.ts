@@ -46,7 +46,13 @@ export const graphqlSequenceQueryTypeDefs = gql`
     sequenceIds: [String!]
     userId: String
   }
-  
+
+  input SequencesLibrarySequencesInput {
+    libraryTopics: [String!]
+    curatedOnly: Boolean
+    sortBy: String
+  }
+
   input SequenceSelector  {
     default: SequenceDefaultViewInput
     userProfile: SequencesUserProfileInput
@@ -54,7 +60,7 @@ export const graphqlSequenceQueryTypeDefs = gql`
     userProfileAll: SequencesUserProfileAllInput
     curatedSequences: SequencesCuratedSequencesInput
     communitySequences: SequencesCommunitySequencesInput
-    librarySequences: EmptyViewInput
+    librarySequences: SequencesLibrarySequencesInput
   }
   
   input MultiSequenceInput {

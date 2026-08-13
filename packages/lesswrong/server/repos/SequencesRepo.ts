@@ -125,6 +125,54 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     });
   }
 
+  /**
+   * Title-substring search over the /library redesign's all-sequences list.
+   * The WHERE conditions (other than the title match) must stay in sync with
+   * the librarySequences view in lib/collections/sequences/views.ts.
+   */
+  async searchLibrarySequences({query, libraryTopics, curatedOnly, sortBy, limit}: {
+    query: string,
+    libraryTopics: string[] | null,
+    curatedOnly: boolean,
+    sortBy: string | null,
+    limit: number,
+  }): Promise<DbSequence[]> {
+    const pattern = `%${query.replace(/[\\%_]/g, "\\$&")}%`;
+    const orderBy = sortBy === "newest"
+      ? `s."createdAt" DESC`
+      : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
+    return this.any(`
+      -- SequencesRepo.searchLibrarySequences
+      SELECT s.*
+      FROM "Sequences" s
+      WHERE s."title" ILIKE $(pattern)
+        AND s."isDeleted" IS NOT TRUE
+        AND s."draft" IS NOT TRUE
+        AND s."hidden" IS NOT TRUE
+        AND ($(libraryTopics) IS NULL OR s."libraryTopic" = ANY($(libraryTopics)))
+        AND ($(curatedOnly) IS NOT TRUE OR s."curatedOrder" IS NOT NULL)
+      ORDER BY ${orderBy}
+      LIMIT $(limit)
+    `, {pattern, libraryTopics, curatedOnly, limit});
+  }
+
+  /**
+   * Static per-topic totals for the /library tag filter popover, over the same
+   * set of sequences as the librarySequences view.
+   */
+  async libraryTopicCounts(): Promise<{topic: string, count: number}[]> {
+    return this.getRawDb().any(`
+      -- SequencesRepo.libraryTopicCounts
+      SELECT s."libraryTopic" AS topic, COUNT(*)::INTEGER AS count
+      FROM "Sequences" s
+      WHERE s."libraryTopic" IS NOT NULL
+        AND s."isDeleted" IS NOT TRUE
+        AND s."draft" IS NOT TRUE
+        AND s."hidden" IS NOT TRUE
+      GROUP BY s."libraryTopic"
+    `);
+  }
+
   async getSequenceWordCountAndReadTime(sequenceId: string): Promise<{ totalWordCount: number, totalReadTime: number }> {
     const result = await this.getRawDb().oneOrNone<{ totalWordCount: number, totalReadTime: number }>(`
       -- SequencesRepo.getSequenceWordCountAndReadTime
