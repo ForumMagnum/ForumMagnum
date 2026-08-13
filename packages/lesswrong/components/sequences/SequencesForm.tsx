@@ -190,6 +190,7 @@ export const SequencesForm = ({
             <ImageUpload
               field={field}
               label="Cover Image (portrait)"
+              croppingAspectRatio={0.74}
             />
           )}
         </form.Field>
