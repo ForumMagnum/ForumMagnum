@@ -106,6 +106,8 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       LEFT JOIN "Comments" c ON b."documentId" = c."_id"
       WHERE b."userId" = $(userId)
         AND b."active" IS TRUE
+        -- The ultraFeed only knows how to render posts and comments
+        AND b."collectionName" IN ('Posts', 'Comments')
       ORDER BY
         -- Add a small factor based on creation time to the random sort
         -- Adjust the multiplier (e.g., 1e-11) to tune the recency bias

@@ -32,7 +32,7 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
 
   const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
     variables: {
-      selector: { myBookmarks: {} },
+      selector: { myBookmarks: { collectionNames: ["Posts", "Comments"] } },
       limit: 20,
       enableTotal: false,
     },

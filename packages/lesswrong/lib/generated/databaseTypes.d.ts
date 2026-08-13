@@ -74,7 +74,7 @@ type BookmarksCollection = PgCollection<"Bookmarks">;
 interface DbBookmark extends DbObject {
   __collectionName?: "Bookmarks"
   active: boolean
-  collectionName: "Posts" | "Comments"
+  collectionName: "Posts" | "Comments" | "Sequences"
   createdAt: Date
   documentId: string
   lastUpdated: Date

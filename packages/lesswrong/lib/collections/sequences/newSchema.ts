@@ -10,6 +10,23 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getChaptersInSequence } from "./sequenceServerHelpers";
 import { getCollectionBySlug } from "./helpers";
 
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Sequences`,
+    { userId: currentUser._id, collectionName: "Sequences", active: true },
+    "documentId",
+    documentId,
+    { limit: 1 }
+  );
+
+  return bookmarks.length > 0;
+}
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -320,6 +337,15 @@ const schema = {
         return count;
       },
     },
+  },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (sequence, args, context) => {
+        return await getIsBookmarked(sequence._id, context);
+      },
+    }
   },
   // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
   chapters: {

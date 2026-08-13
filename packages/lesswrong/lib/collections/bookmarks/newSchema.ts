@@ -81,6 +81,22 @@ const schema = {
     }
   },
 
+  sequence: {
+    graphql: {
+      outputType: 'Sequence',
+      canRead: ['guests'],
+      resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
+        const { currentUser } = context;
+        const { documentId, collectionName } = bookmark;
+        if (collectionName !== "Sequences") {
+            return null;
+        }
+        const sequence = await context.loaders.Sequences.load(documentId);
+        return await accessFilterSingle(currentUser, "Sequences", sequence, context);
+      }
+    }
+  },
+
   lastUpdated: {
     database: {
       type: "TIMESTAMPTZ",

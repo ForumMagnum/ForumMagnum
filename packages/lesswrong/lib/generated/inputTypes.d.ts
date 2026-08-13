@@ -1517,6 +1517,7 @@ interface Bookmark {
   userId: string;
   post: Post | null;
   comment: Comment | null;
+  sequence: Sequence | null;
   lastUpdated: Date;
   active: boolean;
 }
@@ -1537,9 +1538,14 @@ interface BookmarksUserDocumentBookmarkInput {
   collectionName?: string | null;
 }
 
+interface BookmarksMyBookmarksInput {
+  collectionNames?: Array<string> | null;
+}
+
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
-  myBookmarks: EmptyViewInput | null;
+  myBookmarkedSequences: EmptyViewInput | null;
+  myBookmarks: BookmarksMyBookmarksInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }
 
@@ -6189,6 +6195,7 @@ interface Sequence {
   noindex: boolean;
   postsCount: number;
   readPostsCount: number;
+  isBookmarked: boolean;
   chapters: Array<Chapter>;
   af: boolean;
 }
@@ -9406,6 +9413,7 @@ interface GraphQLTypeMap {
   SingleBookmarkInput: SingleBookmarkInput;
   SingleBookmarkOutput: SingleBookmarkOutput;
   BookmarksUserDocumentBookmarkInput: BookmarksUserDocumentBookmarkInput;
+  BookmarksMyBookmarksInput: BookmarksMyBookmarksInput;
   BookmarkSelector: BookmarkSelector;
   MultiBookmarkInput: MultiBookmarkInput;
   MultiBookmarkOutput: MultiBookmarkOutput;

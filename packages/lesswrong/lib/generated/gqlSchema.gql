@@ -1716,6 +1716,7 @@ type Bookmark {
   userId: String!
   post: Post
   comment: Comment
+  sequence: Sequence
   lastUpdated: Date!
   active: Boolean!
 }
@@ -1736,9 +1737,14 @@ input BookmarksUserDocumentBookmarkInput {
   collectionName: String
 }
 
+input BookmarksMyBookmarksInput {
+  collectionNames: [String!]
+}
+
 input BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput
-  myBookmarks: EmptyViewInput
+  myBookmarkedSequences: EmptyViewInput
+  myBookmarks: BookmarksMyBookmarksInput
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput
 }
 
@@ -6687,6 +6693,7 @@ type Sequence {
   noindex: Boolean!
   postsCount: Int!
   readPostsCount: Int!
+  isBookmarked: Boolean!
   chapters: [Chapter!]!
   af: Boolean!
 }

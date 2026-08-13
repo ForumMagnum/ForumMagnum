@@ -1,4 +1,5 @@
 import { CollectionViewSet } from '@/lib/views/collectionViewSet';
+import type { BookmarkableCollectionName } from './constants';
 
 declare global {
   interface BookmarksViewTerms extends ViewTermsBase {
@@ -6,7 +7,8 @@ declare global {
     limit?: number
     userId?: string
     documentId?: string
-    collectionName?: "Posts" | "Comments"
+    collectionName?: BookmarkableCollectionName
+    collectionNames?: BookmarkableCollectionName[]
   }
 }
 
@@ -29,6 +31,25 @@ function myBookmarkedPosts(terms: BookmarksViewTerms, _: any, context: ResolverC
   };
 }
 
+function myBookmarkedSequences(terms: BookmarksViewTerms, _: any, context: ResolverContext) {
+  if (!context.currentUser?._id) {
+    throw new Error("Cannot view bookmarks when not logged in");
+  }
+
+  return {
+    selector: {
+      userId: context.currentUser._id,
+      collectionName: "Sequences",
+      active: true,
+    },
+    options: {
+      sort: {
+        lastUpdated: -1,
+      },
+    },
+  };
+}
+
 function myBookmarks(terms: BookmarksViewTerms, _: any, context: ResolverContext) {
   if (!context.currentUser?._id) {
     throw new Error("Cannot view bookmarks when not logged in");
@@ -37,6 +58,7 @@ function myBookmarks(terms: BookmarksViewTerms, _: any, context: ResolverContext
   return {
     selector: {
       userId: context.currentUser._id,
+      ...(terms.collectionNames ? { collectionName: { $in: terms.collectionNames } } : {}),
       active: true,
     },
     options: {
@@ -69,6 +91,7 @@ function userDocumentBookmark(terms: BookmarksViewTerms, _: any, context: Resolv
 
 export const BookmarksViews = new CollectionViewSet('Bookmarks', {
   myBookmarkedPosts,
+  myBookmarkedSequences,
   myBookmarks,
   userDocumentBookmark,
 });

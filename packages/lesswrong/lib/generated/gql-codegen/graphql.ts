@@ -2196,13 +2196,19 @@ export type Bookmark = {
   documentId: Scalars['String']['output'];
   lastUpdated: Scalars['Date']['output'];
   post: Maybe<Post>;
+  sequence: Maybe<Sequence>;
   userId: Scalars['String']['output'];
 };
 
 export type BookmarkSelector = {
   myBookmarkedPosts?: InputMaybe<EmptyViewInput>;
-  myBookmarks?: InputMaybe<EmptyViewInput>;
+  myBookmarkedSequences?: InputMaybe<EmptyViewInput>;
+  myBookmarks?: InputMaybe<BookmarksMyBookmarksInput>;
   userDocumentBookmark?: InputMaybe<BookmarksUserDocumentBookmarkInput>;
+};
+
+export type BookmarksMyBookmarksInput = {
+  collectionNames?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type BookmarksUserDocumentBookmarkInput = {
@@ -11286,6 +11292,7 @@ export type Sequence = {
   gridImageId: Maybe<Scalars['String']['output']>;
   hidden: Scalars['Boolean']['output'];
   hideFromAuthorPage: Scalars['Boolean']['output'];
+  isBookmarked: Scalars['Boolean']['output'];
   isDeleted: Scalars['Boolean']['output'];
   lastUpdated: Scalars['Date']['output'];
   legacyData: Maybe<Scalars['JSON']['output']>;

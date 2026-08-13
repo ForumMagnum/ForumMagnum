@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
+import { BookmarkableCollectionName, bookmarkableCollectionNames } from '@/lib/collections/bookmarks/constants';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 
 export const bookmarkGqlTypeDefs = gql`
@@ -47,8 +47,8 @@ async function toggleBookmarkResolver(root: void, { input }: { input: ToggleBook
     throw new Error("You must be logged in to bookmark items.");
   }
 
-  if (!["Posts", "Comments"].includes(collectionName)) {
-    throw new Error("Invalid input: collectionName must be Posts or Comments.");
+  if (!bookmarkableCollectionNames.has(collectionName)) {
+    throw new Error(`Invalid input: collectionName must be one of ${[...bookmarkableCollectionNames].join(", ")}.`);
   }
 
   const resultingBookmark = await context.repos.bookmarks.upsertBookmark(currentUser._id, documentId, collectionName);
@@ -65,8 +65,8 @@ async function setIsBookmarkedResolver(root: void, { input }: { input: SetIsBook
     throw new Error("You must be logged in to bookmark items.");
   }
 
-  if (!["Posts", "Comments"].includes(collectionName)) {
-    throw new Error("Invalid input: collectionName must be Posts or Comments.");
+  if (!bookmarkableCollectionNames.has(collectionName)) {
+    throw new Error(`Invalid input: collectionName must be one of ${[...bookmarkableCollectionNames].join(", ")}.`);
   }
 
   const resultingBookmark = await context.repos.bookmarks.setBookmarkActive(

@@ -24,10 +24,14 @@ export const graphqlBookmarkQueryTypeDefs = gql`
     collectionName: String
   }
 
+  input BookmarksMyBookmarksInput {
+    collectionNames: [String!]
+  }
 
   input BookmarkSelector {
     myBookmarkedPosts: EmptyViewInput
-    myBookmarks: EmptyViewInput
+    myBookmarkedSequences: EmptyViewInput
+    myBookmarks: BookmarksMyBookmarksInput
     userDocumentBookmark: BookmarksUserDocumentBookmarkInput
   }
   
