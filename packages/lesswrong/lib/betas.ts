@@ -34,7 +34,9 @@ export const userHasAutosummarize = adminOnly
 
 export const visitorGetsDynamicFrontpage: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
-export const userHasLibraryPageRedesign: BetaGate = (user) => isLW() && adminOrBeta(user);
+// PREVIEW-ONLY change on branch preview/library-page-redesign, do not merge:
+// beta gate disabled so anyone with the preview URL can see the redesign.
+export const userHasLibraryPageRedesign: BetaGate = () => isLW();
 
 export const userHasSubscribeTabFeed: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
