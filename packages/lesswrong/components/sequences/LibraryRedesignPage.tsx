@@ -11,6 +11,10 @@ const styles = defineStyles('LibraryRedesignPage', (theme: ThemeType) => ({
     maxWidth: 805,
     marginLeft: 'auto',
     marginRight: 'auto',
+    // Lift the page above the site-wide LWBackgroundImage overlay, which
+    // otherwise intercepts clicks (SingleColumnSection does the same).
+    position: 'relative',
+    zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 12,
       paddingRight: 12,

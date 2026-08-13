@@ -124,7 +124,6 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     justifySelf: 'center',
   },
   expandedWrapper: {
-    borderLeft: `3px solid ${theme.palette.primary.main}`,
     borderBottom: theme.palette.border.faint,
   },
   expandedHeader: {

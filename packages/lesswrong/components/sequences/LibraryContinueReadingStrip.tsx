@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -11,8 +10,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 /** Covers shown in the strip itself; further entries are only counted in "N more >" */
 const STRIP_ITEM_COUNT = 4;
 
-const FIRST_COVER_WIDTH = 118;
-const FIRST_COVER_HEIGHT = 159;
 const COVER_WIDTH = 104;
 const COVER_HEIGHT = 140;
 
@@ -47,9 +44,6 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     display: 'block',
     flex: 'none',
     width: COVER_WIDTH,
-  },
-  firstItem: {
-    width: FIRST_COVER_WIDTH,
   },
   cover: {
     // The design's book covers use a wider shadow than PortraitCoverImage's
@@ -112,7 +106,7 @@ const LibraryContinueReadingStrip = () => {
         {moreCount > 0 && <span className={classes.moreLink}>{moreCount} more &gt;</span>}
       </div>
       <div className={classes.strip}>
-        {shownEntries.map((entry, i) => {
+        {shownEntries.map((entry) => {
           const item = entry.sequence ?? entry.collection;
           if (!item) {
             return null;
@@ -120,19 +114,17 @@ const LibraryContinueReadingStrip = () => {
           const progressPercent = entry.numTotal
             ? Math.round(100 * (entry.numRead ?? 0) / entry.numTotal)
             : 0;
-          const width = i === 0 ? FIRST_COVER_WIDTH : COVER_WIDTH;
-          const height = i === 0 ? FIRST_COVER_HEIGHT : COVER_HEIGHT;
           return <Link
             key={item._id}
             to={postGetPageUrl(entry.nextPost, false, entry.sequence?._id ?? null)}
-            className={classNames(classes.item, i === 0 && classes.firstItem)}
+            className={classes.item}
           >
             <PortraitCoverImage
               coverImageId={item.coverImageId}
               gridImageId={item.gridImageId}
               title={item.title ?? ""}
-              width={width}
-              height={height}
+              width={COVER_WIDTH}
+              height={COVER_HEIGHT}
               className={classes.cover}
             />
             <div className={classes.progressRow}>
