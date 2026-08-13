@@ -7,7 +7,7 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import { getHighlightedModeratorActions, type HighlightableModeratorAction } from './actionHighlightRules';
+import { getHighlightedModeratorActions, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -22,6 +22,12 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
     fontSize: 16,
     color: theme.palette.grey[600],
     cursor: 'pointer',
+  },
+  highlightedActionsRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 8,
   },
   modActionsColumn: {
     display: 'flex',
@@ -74,7 +80,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
   // While the user's contents are still loading, the empty posts/comments lists would
   // spuriously satisfy the absence-based rules (e.g. Remove, Purge), so highlight nothing.
   const highlightedActions = useMemo(() => contentsLoading
-    ? new Set<HighlightableModeratorAction>()
+    ? new Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>()
     : getHighlightedModeratorActions({
       user,
       moderatorActions: user.moderatorActions ?? [],
@@ -92,10 +98,12 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
           onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
         />
       </div>
-      {isCollapsed && <>
-        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
-        <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
-      </>}
+      {isCollapsed && highlightedActions.size > 0 && (
+        <div className={classes.highlightedActionsRow}>
+          <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+        </div>
+      )}
       {!isCollapsed && <>
         <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />
         <div className={classes.rateLimitSection}>

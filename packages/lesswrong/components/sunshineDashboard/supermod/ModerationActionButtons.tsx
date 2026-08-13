@@ -1,13 +1,11 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import LWTooltip from '@/components/common/LWTooltip';
-import KeystrokeDisplay from './KeystrokeDisplay';
+import ModerationActionButton from './ModerationActionButton';
 import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
-import type { HighlightableModeratorAction } from './actionHighlightRules';
-import classNames from 'classnames';
+import { getActionHighlightStyle, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionsColumn: {
@@ -22,41 +20,6 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     gap: 4,
     flexWrap: 'wrap',
   },
-  actionButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 4,
-    padding: '4px 4px 4px 6px',
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    cursor: 'pointer',
-    fontSize: 12,
-    transition: 'all 0.15s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[50],
-      borderColor: theme.palette.grey[400],
-    },
-    '&.active': {
-      backgroundColor: theme.palette.error.light,
-      borderColor: theme.palette.error.main,
-      color: theme.palette.error.contrastText,
-      '&:hover': {
-        backgroundColor: theme.palette.error.main,
-      },
-    },
-  },
-  highlighted: {
-    backgroundColor: theme.palette.grey[900],
-    borderColor: theme.palette.grey[900],
-    color: theme.palette.grey[100],
-    fontWeight: 600,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[800],
-      borderColor: theme.palette.grey[800],
-    },
-  },
 }));
 
 const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, onlyHighlighted=false}: {
@@ -64,7 +27,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
-  highlightedActions?: Set<HighlightableModeratorAction>;
+  highlightedActions?: Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>;
   onlyHighlighted?: boolean;
 }) => {
   const classes = useStyles(styles);
@@ -148,30 +111,41 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
     ],
   ];
 
-  const visibleActionRows = onlyHighlighted
-    ? moderatorActionRows
-        .map(row => row.filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey)))
-        .filter(row => row.length > 0)
-    : moderatorActionRows;
-
-  if (visibleActionRows.length === 0) {
-    return null;
+  // When showing only the highlighted actions (i.e. while the section is collapsed),
+  // render the buttons bare so they all flow together in the parent's wrapping row.
+  if (onlyHighlighted) {
+    const highlightedButtons = moderatorActionRows
+      .flat()
+      .filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey));
+    return <>
+      {highlightedButtons.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
+        <ModerationActionButton
+          key={label}
+          label={label}
+          keystroke={keystroke}
+          tooltip={tooltip}
+          onClick={onClick}
+          active={!!active}
+          highlightStyle={highlightKey ? getActionHighlightStyle(highlightKey, highlightedActions?.get(highlightKey), true) : null}
+        />
+      ))}
+    </>;
   }
 
   return (
     <div className={classes.actionsColumn}>
-      {visibleActionRows.map((row, rowIndex) => (
+      {moderatorActionRows.map((row, rowIndex) => (
         <div key={rowIndex} className={classes.actionRow}>
           {row.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
-            <LWTooltip key={label} title={tooltip} placement="left">
-              <div
-                className={classNames(classes.actionButton, active && 'active', highlightKey && highlightedActions?.has(highlightKey) && classes.highlighted)}
-                onClick={onClick}
-              >
-                <span>{label}</span>
-                <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation activeContext={!!active} />
-              </div>
-            </LWTooltip>
+            <ModerationActionButton
+              key={label}
+              label={label}
+              keystroke={keystroke}
+              tooltip={tooltip}
+              onClick={onClick}
+              active={!!active}
+              highlightStyle={highlightKey ? getActionHighlightStyle(highlightKey, highlightedActions?.get(highlightKey), false) : null}
+            />
           ))}
         </div>
       ))}
