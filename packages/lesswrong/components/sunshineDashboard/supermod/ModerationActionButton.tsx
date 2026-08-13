@@ -19,26 +19,30 @@ export const moderatorActionHighlightStyles = (theme: ThemeType) => ({
   },
   green: {
     borderColor: theme.palette.primary.main,
+    boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
     '&:hover': {
-      borderColor: theme.palette.primary.dark,
+      borderColor: theme.palette.primary.main,
     },
   },
   gold: {
-    borderColor: theme.palette.panelBackground.reviewGold,
+    borderColor: theme.palette.bookPromotion.starGold,
+    boxShadow: `0 0 0 1px ${theme.palette.bookPromotion.starGold}`,
     '&:hover': {
-      borderColor: theme.palette.panelBackground.reviewGold,
+      borderColor: theme.palette.bookPromotion.starGold,
     },
   },
   black: {
     borderColor: theme.palette.grey[900],
+    boxShadow: `0 0 0 1px ${theme.palette.grey[900]}`,
     '&:hover': {
       borderColor: theme.palette.grey[900],
     },
   },
   red: {
     borderColor: theme.palette.error.main,
+    boxShadow: `0 0 0 1px ${theme.palette.error.main}`,
     '&:hover': {
-      borderColor: theme.palette.error.dark,
+      borderColor: theme.palette.error.main,
     },
   },
 });
