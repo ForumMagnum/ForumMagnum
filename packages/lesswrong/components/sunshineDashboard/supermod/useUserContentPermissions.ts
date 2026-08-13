@@ -87,6 +87,12 @@ export function useUserContentPermissions(
   // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
+  // The most recently created VOTING_DISABLED action. The re-enable paths look the
+  // active action up in user.moderatorActions, but that client copy can be up to 5s
+  // stale (debounced source-of-truth refresh), so an action created by a just-run
+  // disable wouldn't be found there yet; this ref covers that window.
+  const lastCreatedVotingActionRef = useRef<{ userId: string, actionId: string } | null>(null);
+
   const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
     const currentQueue = mutationQueueRef.current;
     const newMutation = currentQueue
@@ -180,20 +186,25 @@ export function useUserContentPermissions(
       const votingDisabledAction = user.moderatorActions?.find(
         action => action.type === VOTING_DISABLED && !action.endedAt
       );
-      
-      if (votingDisabledAction && !disableOnly) {
+      const votingDisabledActionId = votingDisabledAction?._id
+        ?? (lastCreatedVotingActionRef.current?.userId === user._id ? lastCreatedVotingActionRef.current.actionId : undefined);
+
+      if (votingDisabledActionId && !disableOnly) {
         await updateModeratorAction({
           variables: {
-            selector: { _id: votingDisabledAction._id },
+            selector: { _id: votingDisabledActionId },
             data: {
               endedAt: new Date(),
             },
           },
         });
+        if (lastCreatedVotingActionRef.current?.actionId === votingDisabledActionId) {
+          lastCreatedVotingActionRef.current = null;
+        }
       }
     } else {
       // Create a new moderator action
-      await createModeratorAction({
+      const { data: createdActionData } = await createModeratorAction({
         variables: {
           data: {
             userId: user._id,
@@ -201,6 +212,10 @@ export function useUserContentPermissions(
           },
         },
       });
+      const createdActionId = createdActionData?.createModeratorAction?.data?._id;
+      if (createdActionId) {
+        lastCreatedVotingActionRef.current = { userId: user._id, actionId: createdActionId };
+      }
     }
     
     const { data } = await updateUser({
@@ -244,7 +259,7 @@ export function useUserContentPermissions(
     void queueMutation(async () => {
       if (disableAll) {
         if (!user.votingDisabled) {
-          await createModeratorAction({
+          const { data: createdActionData } = await createModeratorAction({
             variables: {
               data: {
                 userId: user._id,
@@ -252,18 +267,27 @@ export function useUserContentPermissions(
               },
             },
           });
+          const createdActionId = createdActionData?.createModeratorAction?.data?._id;
+          if (createdActionId) {
+            lastCreatedVotingActionRef.current = { userId: user._id, actionId: createdActionId };
+          }
         }
       } else {
         const votingDisabledAction = user.moderatorActions?.find(
           action => action.type === VOTING_DISABLED && !action.endedAt
         );
-        if (votingDisabledAction) {
+        const votingDisabledActionId = votingDisabledAction?._id
+          ?? (lastCreatedVotingActionRef.current?.userId === user._id ? lastCreatedVotingActionRef.current.actionId : undefined);
+        if (votingDisabledActionId) {
           await updateModeratorAction({
             variables: {
-              selector: { _id: votingDisabledAction._id },
+              selector: { _id: votingDisabledActionId },
               data: { endedAt: new Date() },
             },
           });
+          if (lastCreatedVotingActionRef.current?.actionId === votingDisabledActionId) {
+            lastCreatedVotingActionRef.current = null;
+          }
         }
       }
 
