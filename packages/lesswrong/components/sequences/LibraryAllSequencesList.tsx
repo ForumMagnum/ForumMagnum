@@ -9,6 +9,8 @@ import { LIBRARY_TOPICS } from '@/lib/collections/sequences/libraryTopics';
 import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
 import LibraryFilterPopover, { LibraryFilterSettings, defaultLibraryFilterSettings } from './LibraryFilterPopover';
+import SequencesNewButton from './SequencesNewButton';
+import SettingsButton from '../icons/SettingsButton';
 import Loading from '../vulcan-core/Loading';
 import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
 import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
@@ -47,6 +49,25 @@ const LibraryCollectionsQuery = gql(`
 `);
 
 const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: 10,
+  },
+  headerLabel: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 15,
+    fontWeight: 500,
+    letterSpacing: '.6px',
+    textTransform: 'uppercase',
+    color: theme.palette.grey[600],
+  },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+  },
   searchField: {
     display: 'flex',
     alignItems: 'center',
@@ -79,6 +100,10 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     alignItems: 'center',
     marginBottom: 10,
   },
+  // Keep the "All tags" chip on the first line when the chip row wraps
+  filterRowExpanded: {
+    alignItems: 'flex-start',
+  },
   chipRow: {
     flex: 1,
     minWidth: 0,
@@ -90,6 +115,9 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     '&::-webkit-scrollbar': {
       display: 'none',
     },
+  },
+  chipRowExpanded: {
+    flexWrap: 'wrap',
   },
   chip: {
     flex: 'none',
@@ -130,6 +158,15 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     fontSize: 15,
     marginRight: -3,
   },
+  allTagsChevronExpanded: {
+    transform: 'rotate(180deg)',
+  },
+  // Reserve a viewport's worth of height below the search bar so the document
+  // can't get shorter than the scroll position while typing a search (which
+  // would clamp the scroll and make the search bar jump around on screen).
+  results: {
+    minHeight: '100vh',
+  },
   panel: {
     background: theme.palette.panelBackground.default,
     boxShadow: `0 1px 5px ${theme.palette.boxShadowColor(0.025)}`,
@@ -156,8 +193,9 @@ const LibraryAllSequencesList = () => {
   const { captureEvent } = useTracking();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [filterSettings, setFilterSettings] = useState<LibraryFilterSettings>(defaultLibraryFilterSettings);
+  const [tagsExpanded, setTagsExpanded] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const allTagsChipRef = useRef<HTMLSpanElement | null>(null);
+  const settingsAnchorRef = useRef<HTMLSpanElement | null>(null);
 
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
@@ -190,7 +228,7 @@ const LibraryAllSequencesList = () => {
     itemsPerPage: LIST_ITEMS_PER_PAGE,
     skip: searchActive,
   });
-  const { data: searchData, loading: searchLoading } = useQuery(LibrarySequencesSearchQuery, {
+  const { data: searchData, previousData: previousSearchData, loading: searchLoading } = useQuery(LibrarySequencesSearchQuery, {
     variables: {
       query: searchQueryText,
       libraryTopics: topics.length > 0 ? topics : null,
@@ -202,7 +240,10 @@ const LibraryAllSequencesList = () => {
   });
   const { data: collectionsData } = useQuery(LibraryCollectionsQuery);
 
-  const results = searchActive ? searchData?.librarySequencesSearch : data?.sequences?.results;
+  // While a new search is in flight, keep showing the previous results so the
+  // list doesn't collapse to a spinner on every debounced keystroke.
+  const searchResults = searchData?.librarySequencesSearch ?? previousSearchData?.librarySequencesSearch;
+  const results = searchActive ? searchResults : data?.sequences?.results;
   const resultsLoading = searchActive ? searchLoading : loading;
   const totalCount = data?.sequences?.totalCount ?? undefined;
 
@@ -232,6 +273,11 @@ const LibraryAllSequencesList = () => {
     applyFilterSettings({ ...filterSettings, topics: newTopics }, 'chip');
   };
 
+  const toggleTagsExpanded = () => {
+    setTagsExpanded(!tagsExpanded);
+    captureEvent('libraryAllTagsToggled', { expanded: !tagsExpanded });
+  };
+
   const toggleSequenceRow = (sequenceId: string) => {
     const nowExpanded = expandedRowId !== sequenceId;
     setExpandedRowId(nowExpanded ? sequenceId : null);
@@ -244,15 +290,29 @@ const LibraryAllSequencesList = () => {
     captureEvent('libraryCollectionRowToggled', { collectionId, expanded: nowExpanded });
   };
 
-  const popoverFiltersActive = topics.length > 0 || curatedOnly || sortBy !== 'recommended';
   const listEmpty = !resultsLoading && !results?.length && !collectionResults?.length;
 
-  // Selected topics first, so active filters (e.g. picked in the popover) are
-  // never hidden in the chip row's clipped tail.
+  // Selected topics first, so active filters are never hidden in the collapsed
+  // chip row's clipped tail.
   const orderedTopicChips = [...LIBRARY_TOPICS].sort((a, b) =>
     Number(topics.includes(b)) - Number(topics.includes(a)));
 
   return <div>
+    <div className={classes.header}>
+      <span className={classes.headerLabel}>All Sequences</span>
+      <div className={classes.headerActions}>
+        <span ref={settingsAnchorRef}>
+          <SettingsButton onClick={() => setPopoverOpen(!popoverOpen)} />
+        </span>
+        <SequencesNewButton />
+      </div>
+    </div>
+    {popoverOpen && <LibraryFilterPopover
+      anchorEl={settingsAnchorRef.current}
+      settings={filterSettings}
+      onApply={settings => applyFilterSettings(settings, 'popover')}
+      onClose={() => setPopoverOpen(false)}
+    />}
     <div className={classes.searchField}>
       <SearchIcon className={classes.searchIcon} />
       <input
@@ -263,8 +323,8 @@ const LibraryAllSequencesList = () => {
         onChange={handleSearchChange}
       />
     </div>
-    <div className={classes.filterRow}>
-      <div className={classes.chipRow}>
+    <div className={classNames(classes.filterRow, tagsExpanded && classes.filterRowExpanded)}>
+      <div className={classNames(classes.chipRow, tagsExpanded && classes.chipRowExpanded)}>
         <span
           className={classNames(classes.chip, topics.length === 0 && classes.chipSelected)}
           onClick={() => applyFilterSettings({ ...filterSettings, topics: [] }, 'chip')}
@@ -280,44 +340,39 @@ const LibraryAllSequencesList = () => {
         </span>)}
       </div>
       <span
-        ref={allTagsChipRef}
-        className={classNames(classes.chip, classes.allTagsChip, popoverFiltersActive && classes.allTagsChipActive)}
-        onClick={() => setPopoverOpen(!popoverOpen)}
+        className={classNames(classes.chip, classes.allTagsChip, tagsExpanded && classes.allTagsChipActive)}
+        onClick={toggleTagsExpanded}
       >
         All tags
-        <ExpandMoreIcon className={classes.allTagsChevron} />
+        <ExpandMoreIcon className={classNames(classes.allTagsChevron, tagsExpanded && classes.allTagsChevronExpanded)} />
       </span>
-      {popoverOpen && <LibraryFilterPopover
-        anchorEl={allTagsChipRef.current}
-        settings={filterSettings}
-        onApply={settings => applyFilterSettings(settings, 'popover')}
-        onClose={() => setPopoverOpen(false)}
-      />}
     </div>
-    <div className={classes.panel}>
-      {collectionResults?.map(collection => <LibraryCollectionRow
-        key={collection._id}
-        collection={collection}
-        expanded={collection._id === expandedRowId}
-        onToggle={() => toggleCollectionRow(collection._id)}
-      />)}
-      {results?.map(sequence => <LibrarySequenceRow
-        key={sequence._id}
-        sequence={sequence}
-        expanded={sequence._id === expandedRowId}
-        onToggle={() => toggleSequenceRow(sequence._id)}
-      />)}
-      {resultsLoading && !results && <Loading />}
-      {listEmpty && <div className={classes.emptyMessage}>
-        {searchActive ? 'No sequences match your search.' : 'No sequences match the selected filters.'}
-      </div>}
+    <div className={classes.results}>
+      <div className={classes.panel}>
+        {collectionResults?.map(collection => <LibraryCollectionRow
+          key={collection._id}
+          collection={collection}
+          expanded={collection._id === expandedRowId}
+          onToggle={() => toggleCollectionRow(collection._id)}
+        />)}
+        {results?.map(sequence => <LibrarySequenceRow
+          key={sequence._id}
+          sequence={sequence}
+          expanded={sequence._id === expandedRowId}
+          onToggle={() => toggleSequenceRow(sequence._id)}
+        />)}
+        {resultsLoading && !results && <Loading />}
+        {listEmpty && <div className={classes.emptyMessage}>
+          {searchActive ? 'No sequences match your search.' : 'No sequences match the selected filters.'}
+        </div>}
+      </div>
+      {!searchActive && totalCount !== undefined && loadMoreProps.count < totalCount && <a
+        className={classes.loadMore}
+        onClick={() => loadMoreProps.loadMore()}
+      >
+        Load More ({loadMoreProps.count}/{totalCount})
+      </a>}
     </div>
-    {!searchActive && totalCount !== undefined && loadMoreProps.count < totalCount && <a
-      className={classes.loadMore}
-      onClick={() => loadMoreProps.loadMore()}
-    >
-      Load More ({loadMoreProps.count}/{totalCount})
-    </a>}
   </div>;
 };
 
