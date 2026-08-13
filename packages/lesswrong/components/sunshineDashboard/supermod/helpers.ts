@@ -1,5 +1,19 @@
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
 
+export function areAllContentPermissionsDisabled(user: {
+  postingDisabled?: boolean | null;
+  allCommentingDisabled?: boolean | null;
+  conversationsDisabled?: boolean | null;
+  votingDisabled?: boolean | null;
+}): boolean {
+  return !!(
+    user.postingDisabled &&
+    user.allCommentingDisabled &&
+    user.conversationsDisabled &&
+    user.votingDisabled
+  );
+}
+
 export function isPost(item: ContentItem): item is SunshinePostsList {
   return 'title' in item && item.title !== null;
 };
