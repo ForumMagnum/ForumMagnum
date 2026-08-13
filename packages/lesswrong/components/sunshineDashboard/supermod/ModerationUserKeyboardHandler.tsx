@@ -73,6 +73,7 @@ const ModerationUserKeyboardHandler = ({
     toggleDisableCommenting,
     toggleDisableMessaging,
     toggleDisableVoting,
+    toggleAllPermissions,
   } = useUserContentPermissions(selectedUser, dispatch);
   
   const allContent = useMemo(() => {
@@ -294,6 +295,13 @@ const ModerationUserKeyboardHandler = ({
     execute: toggleDisableVoting,
   }), [isDetailView, selectedUser, toggleDisableVoting]);
 
+  const toggleAllPermissionsCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Enable/Disable Permissions',
+    keystroke: 'Shift+P',
+    isDisabled: () => !isDetailView || !selectedUser,
+    execute: toggleAllPermissions,
+  }), [isDetailView, selectedUser, toggleAllPermissions]);
+
   const nextContentOrUserCommand: CommandPaletteItem = useMemo(() => ({
     label: isDetailView ? 'Next Content Item' : 'Next User',
     keystroke: 'ArrowDown',
@@ -353,11 +361,11 @@ const ModerationUserKeyboardHandler = ({
     purgeCommand,
     flagCommand,
     copyUserIdCommand,
-    disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand,
+    disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand,
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,
