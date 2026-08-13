@@ -51,6 +51,8 @@ interface FragmentTypes {
   HighlightWithHash: HighlightWithHash
   JargonTerms: JargonTerms
   JargonTermsPost: JargonTermsPost
+  LibraryCollectionExpansionFragment: LibraryCollectionExpansionFragment
+  LibraryCollectionRowFragment: LibraryCollectionRowFragment
   LibrarySequenceExpansionFragment: LibrarySequenceExpansionFragment
   LibrarySequenceRowFragment: LibrarySequenceRowFragment
   LlmConversationsFragment: LlmConversationsFragment
@@ -228,7 +230,7 @@ interface FragmentTypesByCollection {
   Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
-  Collections: "CollectionContinueReadingFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
+  Collections: "CollectionContinueReadingFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"|"LibraryCollectionExpansionFragment"|"LibraryCollectionRowFragment"
   Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CurationNotices: "CurationNoticesFragment"
@@ -318,6 +320,8 @@ interface CollectionNamesByFragmentName {
   HighlightWithHash: "Posts"
   JargonTerms: "JargonTerms"
   JargonTermsPost: "JargonTerms"
+  LibraryCollectionExpansionFragment: "Collections"
+  LibraryCollectionRowFragment: "Collections"
   LibrarySequenceExpansionFragment: "Sequences"
   LibrarySequenceRowFragment: "Sequences"
   LlmConversationsFragment: "LlmConversations"

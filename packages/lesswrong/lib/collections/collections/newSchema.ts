@@ -1,10 +1,26 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getWithCustomLoader } from "../../loaders";
+import { getWithCustomLoader, getWithLoader } from "../../loaders";
 import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 import { LIBRARY_TOPICS } from "../sequences/libraryTopics";
+
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Collections`,
+    { userId: currentUser._id, collectionName: "Collections", active: true },
+    "documentId",
+    documentId
+  );
+
+  return bookmarks.length > 0;
+}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -193,6 +209,15 @@ const schema = {
         allowedValues: [...LIBRARY_TOPICS],
       },
     },
+  },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (collection, args, context) => {
+        return await getIsBookmarked(collection._id, context);
+      },
+    }
   },
   firstPageLink: {
     database: {

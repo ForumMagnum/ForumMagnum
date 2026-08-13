@@ -23,6 +23,7 @@ export const graphqlCollectionQueryTypeDefs = gql`
   
   input CollectionSelector  {
     default: CollectionDefaultViewInput
+    libraryCollections: EmptyViewInput
   }
   
   input MultiCollectionInput {

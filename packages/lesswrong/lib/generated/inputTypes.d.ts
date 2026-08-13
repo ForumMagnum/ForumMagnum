@@ -1518,6 +1518,7 @@ interface Bookmark {
   post: Post | null;
   comment: Comment | null;
   sequence: Sequence | null;
+  collection: Collection | null;
   lastUpdated: Date;
   active: boolean;
 }
@@ -1545,6 +1546,7 @@ interface BookmarksMyBookmarksInput {
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
   myBookmarkedSequences: EmptyViewInput | null;
+  myBookmarkedCollections: EmptyViewInput | null;
   myBookmarks: BookmarksMyBookmarksInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }
@@ -1578,6 +1580,8 @@ interface Book {
   posts: Array<Post>;
   sequenceIds: Array<string>;
   sequences: Array<Sequence>;
+  postsCount: number;
+  readPostsCount: number;
   displaySequencesAsGrid: boolean | null;
   hideProgressBar: boolean | null;
   showChapters: boolean | null;
@@ -1753,6 +1757,7 @@ interface Collection {
   gridImageId: string | null;
   coverImageId: string | null;
   libraryTopic: string | null;
+  isBookmarked: boolean;
   firstPageLink: string;
   hideStartReadingButton: boolean | null;
   noindex: boolean;
@@ -1773,6 +1778,7 @@ interface CollectionDefaultViewInput {
 
 interface CollectionSelector {
   default: CollectionDefaultViewInput | null;
+  libraryCollections: EmptyViewInput | null;
 }
 
 interface MultiCollectionInput {

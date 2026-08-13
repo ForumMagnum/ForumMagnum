@@ -1717,6 +1717,7 @@ type Bookmark {
   post: Post
   comment: Comment
   sequence: Sequence
+  collection: Collection
   lastUpdated: Date!
   active: Boolean!
 }
@@ -1744,6 +1745,7 @@ input BookmarksMyBookmarksInput {
 input BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput
   myBookmarkedSequences: EmptyViewInput
+  myBookmarkedCollections: EmptyViewInput
   myBookmarks: BookmarksMyBookmarksInput
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput
 }
@@ -1782,6 +1784,8 @@ type Book {
   posts: [Post!]!
   sequenceIds: [String!]!
   sequences: [Sequence!]!
+  postsCount: Int!
+  readPostsCount: Int!
   displaySequencesAsGrid: Boolean
   hideProgressBar: Boolean
   showChapters: Boolean
@@ -1977,6 +1981,7 @@ type Collection {
   gridImageId: String
   coverImageId: String
   libraryTopic: String
+  isBookmarked: Boolean!
   firstPageLink: String!
   hideStartReadingButton: Boolean
   noindex: Boolean!
@@ -1997,6 +2002,7 @@ input CollectionDefaultViewInput {
 
 input CollectionSelector {
   default: CollectionDefaultViewInput
+  libraryCollections: EmptyViewInput
 }
 
 input MultiCollectionInput {

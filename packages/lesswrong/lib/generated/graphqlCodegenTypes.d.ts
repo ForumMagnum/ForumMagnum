@@ -250,6 +250,8 @@ type Book = {
   postIds: Array<Scalars['String']['output']>;
   postedAt?: Maybe<Scalars['Date']['output']>;
   posts: Array<Post>;
+  postsCount: Scalars['Int']['output'];
+  readPostsCount: Scalars['Int']['output'];
   schemaVersion: Scalars['Float']['output'];
   sequenceIds: Array<Scalars['String']['output']>;
   sequences: Array<Sequence>;
@@ -277,6 +279,7 @@ type Bookmark = {
   __typename?: 'Bookmark';
   _id: Scalars['String']['output'];
   active: Scalars['Boolean']['output'];
+  collection?: Maybe<Collection>;
   collectionName: Scalars['String']['output'];
   comment?: Maybe<Comment>;
   createdAt: Scalars['Date']['output'];
@@ -288,6 +291,7 @@ type Bookmark = {
 };
 
 type BookmarkSelector = {
+  myBookmarkedCollections?: InputMaybe<EmptyViewInput>;
   myBookmarkedPosts?: InputMaybe<EmptyViewInput>;
   myBookmarkedSequences?: InputMaybe<EmptyViewInput>;
   myBookmarks?: InputMaybe<BookmarksMyBookmarksInput>;
@@ -406,6 +410,7 @@ type Collection = {
   firstPageLink: Scalars['String']['output'];
   gridImageId?: Maybe<Scalars['String']['output']>;
   hideStartReadingButton?: Maybe<Scalars['Boolean']['output']>;
+  isBookmarked: Scalars['Boolean']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   libraryTopic?: Maybe<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
@@ -434,6 +439,7 @@ type CollectionOutput = {
 
 type CollectionSelector = {
   default?: InputMaybe<CollectionDefaultViewInput>;
+  libraryCollections?: InputMaybe<EmptyViewInput>;
 };
 
 type Comment = {
@@ -19691,6 +19697,38 @@ type LibraryAllSequencesQueryVariables = Exact<{
 
 type LibraryAllSequencesQuery = LibraryAllSequencesQuery_Query;
 
+type LibraryCollectionsQuery_collections_MultiCollectionOutput_results_Collection = (
+  { __typename?: 'Collection' }
+  & LibraryCollectionRowFragment
+);
+
+type LibraryCollectionsQuery_collections_MultiCollectionOutput = { __typename?: 'MultiCollectionOutput', results: Array<LibraryCollectionsQuery_collections_MultiCollectionOutput_results_Collection> };
+
+type LibraryCollectionsQuery_Query = { __typename?: 'Query', collections: LibraryCollectionsQuery_collections_MultiCollectionOutput | null };
+
+
+type LibraryCollectionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type LibraryCollectionsQuery = LibraryCollectionsQuery_Query;
+
+type LibraryCollectionExpansionQuery_collection_SingleCollectionOutput_result_Collection = (
+  { __typename?: 'Collection' }
+  & LibraryCollectionExpansionFragment
+);
+
+type LibraryCollectionExpansionQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: LibraryCollectionExpansionQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type LibraryCollectionExpansionQuery_Query = { __typename?: 'Query', collection: LibraryCollectionExpansionQuery_collection_SingleCollectionOutput | null };
+
+
+type LibraryCollectionExpansionQueryVariables = Exact<{
+  collectionId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type LibraryCollectionExpansionQuery = LibraryCollectionExpansionQuery_Query;
+
 type LibrarySequenceExpansionQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & LibrarySequenceExpansionFragment
@@ -23720,6 +23758,24 @@ type ModeratorClientIDInfo_ClientId_users_User = (
 type ModeratorClientIDInfo = { __typename?: 'ClientId', _id: string, clientId: string | null, createdAt: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, users: Array<ModeratorClientIDInfo_ClientId_users_User> | null };
 
 type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null };
+
+type LibraryCollectionRowFragment_Collection_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type LibraryCollectionRowFragment_Collection_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
+
+type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, postsCount: number, readPostsCount: number, firstPageLink: string, hideStartReadingButton: boolean | null, user: LibraryCollectionRowFragment_Collection_user_User | null, contents: LibraryCollectionRowFragment_Collection_contents_Revision | null };
+
+type LibraryCollectionExpansionFragment_Collection_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionHTML
+);
+
+type LibraryCollectionExpansionFragment_Collection_books_Book = { __typename?: 'Book', _id: string, title: string | null, tocTitle: string | null, number: number | null, postsCount: number, readPostsCount: number };
+
+type LibraryCollectionExpansionFragment = { __typename?: 'Collection', _id: string, contents: LibraryCollectionExpansionFragment_Collection_contents_Revision | null, books: Array<LibraryCollectionExpansionFragment_Collection_books_Book> };
 
 type CollectionsPageFragment_Collection_user_User = (
   { __typename?: 'User' }

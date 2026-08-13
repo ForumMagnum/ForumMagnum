@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@/lib/crud/useQuery';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import LibrarySequenceRow from './LibrarySequenceRow';
+import LibraryCollectionRow from './LibraryCollectionRow';
 import Loading from '../vulcan-core/Loading';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -15,6 +17,16 @@ const LibraryAllSequencesQuery = gql(`
         ...LibrarySequenceRowFragment
       }
       totalCount
+    }
+  }
+`);
+
+const LibraryCollectionsQuery = gql(`
+  query LibraryCollections {
+    collections(selector: { libraryCollections: {} }, limit: 10) {
+      results {
+        ...LibraryCollectionRowFragment
+      }
     }
   }
 `);
@@ -38,19 +50,27 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
 const LibraryAllSequencesList = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const [expandedSequenceId, setExpandedSequenceId] = useState<string | null>(null);
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(LibraryAllSequencesQuery, {
     variables: { limit: LIST_ITEMS_PER_PAGE, enableTotal: true },
     itemsPerPage: LIST_ITEMS_PER_PAGE,
   });
+  const { data: collectionsData } = useQuery(LibraryCollectionsQuery);
   const results = data?.sequences?.results;
   const totalCount = data?.sequences?.totalCount ?? undefined;
+  const collectionResults = collectionsData?.collections?.results;
 
-  const toggleRow = (sequenceId: string) => {
-    const nowExpanded = expandedSequenceId !== sequenceId;
-    setExpandedSequenceId(nowExpanded ? sequenceId : null);
+  const toggleSequenceRow = (sequenceId: string) => {
+    const nowExpanded = expandedRowId !== sequenceId;
+    setExpandedRowId(nowExpanded ? sequenceId : null);
     captureEvent('librarySequenceRowToggled', { sequenceId, expanded: nowExpanded });
+  };
+
+  const toggleCollectionRow = (collectionId: string) => {
+    const nowExpanded = expandedRowId !== collectionId;
+    setExpandedRowId(nowExpanded ? collectionId : null);
+    captureEvent('libraryCollectionRowToggled', { collectionId, expanded: nowExpanded });
   };
 
   if (!results) {
@@ -59,11 +79,17 @@ const LibraryAllSequencesList = () => {
 
   return <div>
     <div className={classes.panel}>
+      {collectionResults?.map(collection => <LibraryCollectionRow
+        key={collection._id}
+        collection={collection}
+        expanded={collection._id === expandedRowId}
+        onToggle={() => toggleCollectionRow(collection._id)}
+      />)}
       {results.map(sequence => <LibrarySequenceRow
         key={sequence._id}
         sequence={sequence}
-        expanded={sequence._id === expandedSequenceId}
-        onToggle={() => toggleRow(sequence._id)}
+        expanded={sequence._id === expandedRowId}
+        onToggle={() => toggleSequenceRow(sequence._id)}
       />)}
     </div>
     {totalCount !== undefined && loadMoreProps.count < totalCount && <a

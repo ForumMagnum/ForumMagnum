@@ -9,6 +9,45 @@ export const CollectionContinueReadingFragment = gql(`
   }
 `)
 
+export const LibraryCollectionRowFragment = gql(`
+  fragment LibraryCollectionRowFragment on Collection {
+    _id
+    title
+    slug
+    gridImageId
+    coverImageId
+    libraryTopic
+    postsCount
+    readPostsCount
+    firstPageLink
+    hideStartReadingButton
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      _id
+      plaintextDescription
+    }
+  }
+`)
+
+export const LibraryCollectionExpansionFragment = gql(`
+  fragment LibraryCollectionExpansionFragment on Collection {
+    _id
+    contents {
+      ...RevisionHTML
+    }
+    books {
+      _id
+      title
+      tocTitle
+      number
+      postsCount
+      readPostsCount
+    }
+  }
+`)
+
 export const CollectionsPageFragment = gql(`
   fragment CollectionsPageFragment on Collection {
     _id

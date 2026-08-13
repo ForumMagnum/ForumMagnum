@@ -33,7 +33,7 @@ const ROMAN_NUMERAL_TABLE: Array<[number, string]> = [
   [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
 ];
 
-function toRomanNumeral(n: number): string {
+export function toRomanNumeral(n: number): string {
   let result = '';
   for (const [value, numeral] of ROMAN_NUMERAL_TABLE) {
     while (n >= value) {
@@ -44,7 +44,9 @@ function toRomanNumeral(n: number): string {
   return result;
 }
 
-const styles = defineStyles('LibrarySequenceRow', (theme: ThemeType) => ({
+// Shared with LibraryCollectionRow, which renders the same row/expansion
+// layout for collections in the merged all-sequences list.
+export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: ThemeType) => ({
   row: {
     display: 'grid',
     gridTemplateColumns: '40px 1fr auto 28px',
@@ -257,7 +259,7 @@ const styles = defineStyles('LibrarySequenceRow', (theme: ThemeType) => ({
 const LibrarySequenceRowBody = ({sequence}: {
   sequence: LibrarySequenceRowFragment,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(libraryRowStyles);
   const { data, loading } = useQuery(LibrarySequenceExpansionQuery, {
     variables: { sequenceId: sequence._id },
   });
@@ -318,7 +320,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
   expanded: boolean,
   onToggle: () => void,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(libraryRowStyles);
   const { icon: bookmarkIcon, labelText: bookmarkLabel, toggleBookmark } = useBookmark(sequence._id, "Sequences");
 
   const handleHeaderKeyDown = (event: React.KeyboardEvent) => {

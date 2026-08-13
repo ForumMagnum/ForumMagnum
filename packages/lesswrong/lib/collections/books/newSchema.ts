@@ -2,6 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti } from "../../utils/schemaUtils";
+import { getWithCustomLoader } from "../../loaders";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {
@@ -167,6 +168,45 @@ const schema = {
       outputType: "[Sequence!]!",
       canRead: ["guests"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Sequences", fieldName: "sequenceIds" }),
+    },
+  },
+  postsCount: {
+    graphql: {
+      outputType: "Int!",
+      canRead: ["guests"],
+      resolver: async (book, args, context) => {
+        const count = await getWithCustomLoader(context, "bookPostsCount", book._id, (bookIds) => {
+          return context.repos.books.postsCount(bookIds);
+        });
+        return count;
+      },
+    },
+  },
+  readPostsCount: {
+    graphql: {
+      outputType: "Int!",
+      canRead: ["guests"],
+      resolver: async (book, args, context) => {
+        const currentUser = context.currentUser;
+        if (!currentUser) return 0;
+        const createCompositeId = (bookId: string, userId: string) => `${bookId}-${userId}`;
+        const splitCompositeId = (compositeId: string) => {
+          const [bookId, userId] = compositeId.split("-");
+          return {
+            bookId,
+            userId,
+          };
+        };
+        const count = await getWithCustomLoader(
+          context,
+          "bookReadPostsCount",
+          createCompositeId(book._id, currentUser._id),
+          (compositeIds) => {
+            return context.repos.books.readPostsCount(compositeIds.map(splitCompositeId));
+          }
+        );
+        return count;
+      },
     },
   },
   displaySequencesAsGrid: {
