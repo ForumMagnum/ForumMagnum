@@ -63,7 +63,7 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
   const { moderatorActionsCollapsed, setModeratorActionsCollapsed } = useLocalStorageState(
     'moderatorActionsCollapsed',
     (key) => `supermod_${key}`,
-    'false'
+    'true'
   );
   const isCollapsed = moderatorActionsCollapsed === 'true';
 
