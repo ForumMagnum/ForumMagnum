@@ -61,8 +61,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     handleApproveCurrentOnly,
     handleSnooze,
     handleSnoozeCustom,
-    handleRejectContentAndRemove,
-    handleRestrictAndNotify,
+    handleRemoveNeedsReview,
     handlePurge,
   } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
 
@@ -106,27 +105,17 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     ],
     [
       {
-        label: 'Reject Latest & Remove',
-        keystroke: 'X',
-        tooltip: "Opens the rejection-reason dialog, then rejects this user's most recent unapproved post or comment with that reason, and removes the user from the review queue (without approving them).",
-        onClick: handleRejectContentAndRemove,
+        label: 'Remove',
+        keystroke: 'Q',
+        tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
+        onClick: handleRemoveNeedsReview,
       },
-      {
-        label: 'Reject, Restrict & Notify',
-        keystroke: 'Shift+R',
-        tooltip: "Opens the rejection-reason dialog, then a message dialog. Rejects this user's most recent unapproved post or comment, disables their posting, commenting, messaging, and voting, sends them the message as a moderator PM, and removes them from the review queue.",
-        onClick: handleRestrictAndNotify,
-      },
-    ],
-    [
       {
         label: 'Purge',
         keystroke: 'P',
         tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
         onClick: handlePurge,
       },
-    ],
-    [
       {
         label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
         keystroke: 'Shift+P',

@@ -61,6 +61,7 @@ const ModerationUserKeyboardHandler = ({
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
+    handleRemoveNeedsReview,
     handlePurge,
     updateUserWith,
     getModSignatureWithNote,
@@ -87,18 +88,6 @@ const ModerationUserKeyboardHandler = ({
   const selectedContentId = selectedContent?._id ?? null;
   const selectedContentCollectionName = selectedContent ? (isPost(selectedContent) ? 'Posts' as const : 'Comments' as const) : 'Posts' as const;
   const { handleRerunLlmCheck, isRunningLlmCheck } = useRerunLlmCheck(selectedContentId, selectedContentCollectionName, dispatch);
-
-  const handleRemoveNeedsReview = useCallback(() => {
-    if (!selectedUser) return;
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('removed from review queue without snooze/approval') + notes;
-    void updateUserWith({
-      needsReview: false,
-      reviewedByUserId: null,
-      reviewedAt: selectedUser.reviewedAt ? new Date() : null,
-      sunshineNotes: newNotes,
-    }, 'Removed from queue');
-  }, [selectedUser, getModSignatureWithNote, updateUserWith]);
 
   const handleBan = useCallback(() => {
     if (!selectedUser) return;
