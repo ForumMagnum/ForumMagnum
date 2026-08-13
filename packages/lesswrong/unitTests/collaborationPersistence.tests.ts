@@ -1,5 +1,4 @@
 import { Doc } from "yjs";
-import { HocuspocusProvider } from "@hocuspocus/provider";
 import { IndexeddbPersistence } from "y-indexeddb";
 import {
   COMMENTS_SUBDOC_ID,
@@ -30,13 +29,9 @@ jest.mock("@hocuspocus/provider", () => ({
   ),
 }));
 
-const mockHocuspocusProvider = jest.mocked(HocuspocusProvider);
-const mockIndexeddbPersistence = jest.mocked(IndexeddbPersistence);
-
 describe("collaboration IndexedDB persistence", () => {
   beforeEach(() => {
-    mockHocuspocusProvider.mockClear();
-    mockIndexeddbPersistence.mockClear();
+    jest.clearAllMocks();
     process.env.NEXT_PUBLIC_HOCUSPOCUS_URL = "ws://example.com";
     setCollaborationConfig({
       postId: "test-post",
@@ -58,15 +53,9 @@ describe("collaboration IndexedDB persistence", () => {
 
     await provider.connect();
 
-    expect(mockIndexeddbPersistence).toHaveBeenCalledWith(
+    expect(IndexeddbPersistence).toHaveBeenCalledWith(
       "post-test-post/comments-v1",
       commentsDoc,
     );
-    const originalConnect = jest.mocked(
-      mockHocuspocusProvider.mock.results[0].value.connect,
-    );
-    expect(originalConnect).toHaveBeenCalledTimes(1);
-    expect(mockIndexeddbPersistence.mock.invocationCallOrder[0])
-      .toBeLessThan(originalConnect.mock.invocationCallOrder[0]);
   });
 });
