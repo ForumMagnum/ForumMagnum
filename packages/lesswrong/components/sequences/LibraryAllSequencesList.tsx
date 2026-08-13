@@ -85,7 +85,11 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '6px',
-    overflow: 'hidden',
+    overflowX: 'auto',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
   },
   chip: {
     flex: 'none',
@@ -243,6 +247,11 @@ const LibraryAllSequencesList = () => {
   const popoverFiltersActive = topics.length > 0 || curatedOnly || sortBy !== 'recommended';
   const listEmpty = !resultsLoading && !results?.length && !collectionResults?.length;
 
+  // Selected topics first, so active filters (e.g. picked in the popover) are
+  // never hidden in the chip row's clipped tail.
+  const orderedTopicChips = [...LIBRARY_TOPICS].sort((a, b) =>
+    Number(topics.includes(b)) - Number(topics.includes(a)));
+
   return <div>
     <div className={classes.searchField}>
       <SearchIcon className={classes.searchIcon} />
@@ -262,7 +271,7 @@ const LibraryAllSequencesList = () => {
         >
           All
         </span>
-        {LIBRARY_TOPICS.map(topic => <span
+        {orderedTopicChips.map(topic => <span
           key={topic}
           className={classNames(classes.chip, topics.includes(topic) && classes.chipSelected)}
           onClick={() => toggleTopicChip(topic)}
