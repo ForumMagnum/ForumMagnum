@@ -7,7 +7,7 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import { getHighlightedModeratorActions } from './actionHighlightRules';
+import { getHighlightedModeratorActions, type HighlightableModeratorAction } from './actionHighlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -51,11 +51,12 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, posts, comments, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsLoading, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   posts: SunshinePostsList[],
   comments: SunshineCommentsList[],
+  contentsLoading: boolean,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
@@ -70,12 +71,16 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, addToUndo
   );
   const isCollapsed = moderatorActionsCollapsed === 'true';
 
-  const highlightedActions = useMemo(() => getHighlightedModeratorActions({
-    user,
-    moderatorActions: user.moderatorActions ?? [],
-    posts,
-    comments,
-  }), [user, posts, comments]);
+  // While the user's contents are still loading, the empty posts/comments lists would
+  // spuriously satisfy the absence-based rules (e.g. Remove, Purge), so highlight nothing.
+  const highlightedActions = useMemo(() => contentsLoading
+    ? new Set<HighlightableModeratorAction>()
+    : getHighlightedModeratorActions({
+      user,
+      moderatorActions: user.moderatorActions ?? [],
+      posts,
+      comments,
+    }), [user, posts, comments, contentsLoading]);
 
   return (
     <div>
