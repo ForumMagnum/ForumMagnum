@@ -25,6 +25,7 @@ export const SequencesPageFragment = gql(`
     }
     gridImageId
     bannerImageId
+    coverImageId
     canonicalCollectionSlug
     draft
     isDeleted
@@ -44,6 +45,7 @@ export const SequenceContinueReadingFragment = gql(`
     _id
     title
     gridImageId
+    coverImageId
     canonicalCollectionSlug
   }
 `)

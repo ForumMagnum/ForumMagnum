@@ -122,6 +122,22 @@ const schema = {
       },
     },
   },
+  // Cloudinary image id for the portrait (~3:4) book-cover image. Optional;
+  // where absent, UI falls back to a cropped gridImageId/bannerImageId.
+  coverImageId: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   hideFromAuthorPage: {
     database: {
       type: "BOOL",

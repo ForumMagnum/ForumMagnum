@@ -150,6 +150,7 @@ interface DbCollection extends DbObject {
   __collectionName?: "Collections"
   contents: EditableFieldContents | null
   contents_latest: string | null
+  coverImageId: string | null
   createdAt: Date
   firstPageLink: string
   gridImageId: string | null
@@ -1332,6 +1333,7 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string | null
   contents: EditableFieldContents | null
   contents_latest: string | null
+  coverImageId: string | null
   createdAt: Date
   curatedOrder: number | null
   draft: boolean

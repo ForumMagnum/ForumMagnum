@@ -100,6 +100,7 @@ export const formPreviewSizeByImageType: Record<
 > = {
   gridImageId: { width: 250, height: 100 },
   bannerImageId: { width: 1600, height: 380, imgProps: { g: 'custom', dpr: '2.0' } },
+  coverImageId: { width: 104, height: 140 },
   squareImageId: { width: 90, height: 90 },
   profileImageId: { width: 90, height: 90 },
   socialPreviewImageId: { width: 153, height: 80 },

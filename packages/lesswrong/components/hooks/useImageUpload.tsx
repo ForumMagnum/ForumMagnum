@@ -108,6 +108,15 @@ const getCloudinaryArgsByImageType = () => ({
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
+  coverImageId: {
+    minImageHeight: 270,
+    minImageWidth: 200,
+    croppingAspectRatio: 0.74,
+    croppingDefaultSelectionRatio: 1,
+    // Reuse the grid image upload preset; covers are the portrait counterpart
+    // of the same card art
+    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
+  },
   squareImageId: {
     minImageHeight: 300,
     minImageWidth: 300,

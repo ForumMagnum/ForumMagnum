@@ -1745,6 +1745,7 @@ interface Collection {
   postsCount: number;
   readPostsCount: number;
   gridImageId: string | null;
+  coverImageId: string | null;
   firstPageLink: string;
   hideStartReadingButton: boolean | null;
   noindex: boolean;
@@ -6176,6 +6177,7 @@ interface Sequence {
   title: string;
   bannerImageId: string | null;
   gridImageId: string | null;
+  coverImageId: string | null;
   hideFromAuthorPage: boolean;
   draft: boolean;
   isDeleted: boolean;
@@ -7487,6 +7489,7 @@ interface CreateCollectionDataInput {
   title: string;
   slug: string;
   gridImageId?: string | null;
+  coverImageId?: string | null;
   firstPageLink?: string | null;
   hideStartReadingButton?: boolean | null;
   noindex?: boolean | null;
@@ -7503,6 +7506,7 @@ interface UpdateCollectionDataInput {
   title?: string | null;
   slug?: string | null;
   gridImageId?: string | null;
+  coverImageId?: string | null;
   firstPageLink?: string | null;
   hideStartReadingButton?: boolean | null;
   noindex?: boolean | null;
@@ -8480,6 +8484,7 @@ interface CreateSequenceDataInput {
   title: string;
   bannerImageId?: string | null;
   gridImageId?: string | null;
+  coverImageId?: string | null;
   hideFromAuthorPage?: boolean | null;
   draft?: boolean | null;
   isDeleted?: boolean | null;
@@ -8503,6 +8508,7 @@ interface UpdateSequenceDataInput {
   title?: string | null;
   bannerImageId?: string | null;
   gridImageId?: string | null;
+  coverImageId?: string | null;
   hideFromAuthorPage?: boolean | null;
   draft?: boolean | null;
   isDeleted?: boolean | null;

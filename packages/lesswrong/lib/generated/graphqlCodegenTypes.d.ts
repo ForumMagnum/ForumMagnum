@@ -395,6 +395,7 @@ type Collection = {
   books: Array<Book>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
+  coverImageId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   firstPageLink: Scalars['String']['output'];
   gridImageId?: Maybe<Scalars['String']['output']>;
@@ -1182,6 +1183,7 @@ type CreateChapterInput = {
 
 type CreateCollectionDataInput = {
   contents?: InputMaybe<CreateRevisionDataInput>;
+  coverImageId?: InputMaybe<Scalars['String']['input']>;
   createdAt: Scalars['Date']['input'];
   firstPageLink?: InputMaybe<Scalars['String']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -1604,6 +1606,7 @@ type CreateSequenceDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canonicalCollectionSlug?: InputMaybe<Scalars['String']['input']>;
   contents?: InputMaybe<CreateRevisionDataInput>;
+  coverImageId?: InputMaybe<Scalars['String']['input']>;
   curatedOrder?: InputMaybe<Scalars['Float']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -9363,6 +9366,7 @@ type Sequence = {
   chapters: Array<Chapter>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
+  coverImageId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   curatedOrder?: Maybe<Scalars['Float']['output']>;
   draft: Scalars['Boolean']['output'];
@@ -10855,6 +10859,7 @@ type UpdateChapterInput = {
 
 type UpdateCollectionDataInput = {
   contents?: InputMaybe<CreateRevisionDataInput>;
+  coverImageId?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['Date']['input']>;
   firstPageLink?: InputMaybe<Scalars['String']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -11319,6 +11324,7 @@ type UpdateSequenceDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   canonicalCollectionSlug?: InputMaybe<Scalars['String']['input']>;
   contents?: InputMaybe<CreateRevisionDataInput>;
+  coverImageId?: InputMaybe<Scalars['String']['input']>;
   curatedOrder?: InputMaybe<Scalars['Float']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   gridImageId?: InputMaybe<Scalars['String']['input']>;
@@ -23664,7 +23670,7 @@ type ModeratorClientIDInfo_ClientId_users_User = (
 
 type ModeratorClientIDInfo = { __typename?: 'ClientId', _id: string, clientId: string | null, createdAt: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, users: Array<ModeratorClientIDInfo_ClientId_users_User> | null };
 
-type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null };
+type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null };
 
 type CollectionsPageFragment_Collection_user_User = (
   { __typename?: 'User' }
@@ -23681,7 +23687,7 @@ type CollectionsPageFragment_Collection_books_Book = (
   & BookPageFragment
 );
 
-type CollectionsPageFragment = { __typename?: 'Collection', _id: string, createdAt: string, slug: string, userId: string, title: string, firstPageLink: string, gridImageId: string | null, hideStartReadingButton: boolean | null, noindex: boolean, user: CollectionsPageFragment_Collection_user_User | null, contents: CollectionsPageFragment_Collection_contents_Revision | null, books: Array<CollectionsPageFragment_Collection_books_Book> };
+type CollectionsPageFragment = { __typename?: 'Collection', _id: string, createdAt: string, slug: string, userId: string, title: string, firstPageLink: string, gridImageId: string | null, coverImageId: string | null, hideStartReadingButton: boolean | null, noindex: boolean, user: CollectionsPageFragment_Collection_user_User | null, contents: CollectionsPageFragment_Collection_contents_Revision | null, books: Array<CollectionsPageFragment_Collection_books_Book> };
 
 type CollectionsEditFragment_Collection_contents_Revision = (
   { __typename?: 'Revision' }
@@ -24824,11 +24830,11 @@ type SequencesPageFragment_Sequence_contents_Revision = (
 );
 
 type SequencesPageFragment = (
-  { __typename?: 'Sequence', createdAt: string, userId: string, gridImageId: string | null, bannerImageId: string | null, canonicalCollectionSlug: string | null, draft: boolean, isDeleted: boolean, hidden: boolean, hideFromAuthorPage: boolean, noindex: boolean, curatedOrder: number | null, userProfileOrder: number | null, af: boolean, postsCount: number, readPostsCount: number, user: SequencesPageFragment_Sequence_user_User | null, contents: SequencesPageFragment_Sequence_contents_Revision | null }
+  { __typename?: 'Sequence', createdAt: string, userId: string, gridImageId: string | null, bannerImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, draft: boolean, isDeleted: boolean, hidden: boolean, hideFromAuthorPage: boolean, noindex: boolean, curatedOrder: number | null, userProfileOrder: number | null, af: boolean, postsCount: number, readPostsCount: number, user: SequencesPageFragment_Sequence_user_User | null, contents: SequencesPageFragment_Sequence_contents_Revision | null }
   & SequencesPageTitleFragment
 );
 
-type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, canonicalCollectionSlug: string | null };
+type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null };
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }

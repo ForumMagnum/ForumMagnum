@@ -184,6 +184,17 @@ export const SequencesForm = ({
         </form.Field>
       </div>
 
+      <div className={classNames('form-input', 'input-coverImageId', classes.fieldWrapper)}>
+        <form.Field name="coverImageId">
+          {(field) => (
+            <ImageUpload
+              field={field}
+              label="Cover Image (portrait)"
+            />
+          )}
+        </form.Field>
+      </div>
+
       <div className={classNames('form-input', 'input-hideFromAuthorPage', classes.fieldWrapper)}>
         <form.Field name="hideFromAuthorPage">
           {(field) => (

@@ -175,6 +175,17 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         </div>
 
         <div className={classes.fieldWrapper}>
+          <form.Field name="coverImageId">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Cover image ID (portrait)"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classes.fieldWrapper}>
           <form.Field name="firstPageLink">
             {(field) => (
               <MuiTextField

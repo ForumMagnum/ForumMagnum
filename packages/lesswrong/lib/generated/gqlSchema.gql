@@ -1969,6 +1969,7 @@ type Collection {
   postsCount: Int!
   readPostsCount: Int!
   gridImageId: String
+  coverImageId: String
   firstPageLink: String!
   hideStartReadingButton: Boolean
   noindex: Boolean!
@@ -6674,6 +6675,7 @@ type Sequence {
   title: String!
   bannerImageId: String
   gridImageId: String
+  coverImageId: String
   hideFromAuthorPage: Boolean!
   draft: Boolean!
   isDeleted: Boolean!
@@ -8147,6 +8149,7 @@ input CreateCollectionDataInput {
   title: String!
   slug: String!
   gridImageId: String
+  coverImageId: String
   firstPageLink: String
   hideStartReadingButton: Boolean
   noindex: Boolean
@@ -8163,6 +8166,7 @@ input UpdateCollectionDataInput {
   title: String
   slug: String
   gridImageId: String
+  coverImageId: String
   firstPageLink: String
   hideStartReadingButton: Boolean
   noindex: Boolean
@@ -9276,6 +9280,7 @@ input CreateSequenceDataInput {
   title: String!
   bannerImageId: String
   gridImageId: String
+  coverImageId: String
   hideFromAuthorPage: Boolean
   draft: Boolean
   isDeleted: Boolean
@@ -9299,6 +9304,7 @@ input UpdateSequenceDataInput {
   title: String
   bannerImageId: String
   gridImageId: String
+  coverImageId: String
   hideFromAuthorPage: Boolean
   draft: Boolean
   isDeleted: Boolean

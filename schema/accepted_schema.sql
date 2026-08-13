@@ -197,6 +197,7 @@ CREATE TABLE "Collections" (
   "title" TEXT NOT NULL,
   "slug" TEXT NOT NULL,
   "gridImageId" TEXT,
+  "coverImageId" TEXT,
   "firstPageLink" TEXT NOT NULL,
   "hideStartReadingButton" BOOL,
   "noindex" BOOL NOT NULL DEFAULT FALSE
@@ -2581,6 +2582,7 @@ CREATE TABLE "Sequences" (
   "title" TEXT NOT NULL,
   "bannerImageId" TEXT,
   "gridImageId" TEXT,
+  "coverImageId" TEXT,
   "hideFromAuthorPage" BOOL NOT NULL DEFAULT FALSE,
   "draft" BOOL NOT NULL DEFAULT FALSE,
   "isDeleted" BOOL NOT NULL DEFAULT FALSE,

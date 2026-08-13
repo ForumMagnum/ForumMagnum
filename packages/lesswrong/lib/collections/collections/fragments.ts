@@ -5,6 +5,7 @@ export const CollectionContinueReadingFragment = gql(`
     title
     slug
     gridImageId
+    coverImageId
   }
 `)
 
@@ -23,6 +24,7 @@ export const CollectionsPageFragment = gql(`
     }
     firstPageLink
     gridImageId
+    coverImageId
     books {
       ...BookPageFragment
     }
