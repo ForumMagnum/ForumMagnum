@@ -4735,6 +4735,7 @@ export type MergeAccountsFailure = {
 
 export type MergeAccountsResult = {
   __typename?: 'MergeAccountsResult';
+  completed: Scalars['Boolean']['output'];
   failures: Array<MergeAccountsFailure>;
   success: Scalars['Boolean']['output'];
 };
@@ -20794,7 +20795,7 @@ export type MergeAccountsMutationVariables = Exact<{
 }>;
 
 
-export type MergeAccountsMutation = { __typename?: 'Mutation', MergeAccounts: { __typename?: 'MergeAccountsResult', success: boolean, failures: Array<{ __typename?: 'MergeAccountsFailure', stage: string, message: string, collectionName: string | null, documentId: string | null }> } };
+export type MergeAccountsMutation = { __typename?: 'Mutation', MergeAccounts: { __typename?: 'MergeAccountsResult', completed: boolean, success: boolean, failures: Array<{ __typename?: 'MergeAccountsFailure', stage: string, message: string, collectionName: string | null, documentId: string | null }> } };
 
 export type SoftDeleteUserMutationVariables = Exact<{
   userId: Scalars['String']['input'];
@@ -23510,7 +23511,7 @@ export const multiUserUsersProfileQueryDocument = _o1(_1,[_o11(_986,_993,_o3(_3,
 export const updateUserDeactivateAccountSectionDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateUserDeactivateAccountSection"),_1193,_1517),_61,_226,_906,_934,_270,_943]) as unknown as DocumentNode<updateUserDeactivateAccountSectionMutation, updateUserDeactivateAccountSectionMutationVariables>;
 export const updateUserDeleteAccountSectionDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateUserDeleteAccountSection"),_1193,_1517),_61,_226,_906,_934,_270,_943]) as unknown as DocumentNode<updateUserDeleteAccountSectionMutation, updateUserDeleteAccountSectionMutationVariables>;
 export const UsersSearchForMergeDocument = _o1(_1,[_o11(_986,_993,_1884,[_1199],_o5(_7,[_o7(_8,_1884,[_1203],_o5(_7,[_o4(_25,_949)]))])),_61,_950]) as unknown as DocumentNode<UsersSearchForMergeQuery, UsersSearchForMergeQueryVariables>;
-export const MergeAccountsDocument = _o1(_1,[_o11(_986,_987,_1885,[_o12(_988,_1886,_992),_o12(_988,_1888,_992),_o12(_988,_1890,_1017)],_o5(_7,[_o7(_8,_1885,[_o8(_535,_666,_1886),_o8(_535,_1887,_1888),_o8(_535,_1889,_1890)],_o5(_7,[_1626,_o6(_8,_o3(_3,"failures"),_o5(_7,[_o4(_8,_o3(_3,"stage")),_454,_220,_282]))]))]))]) as unknown as DocumentNode<MergeAccountsMutation, MergeAccountsMutationVariables>;
+export const MergeAccountsDocument = _o1(_1,[_o11(_986,_987,_1885,[_o12(_988,_1886,_992),_o12(_988,_1888,_992),_o12(_988,_1890,_1017)],_o5(_7,[_o7(_8,_1885,[_o8(_535,_666,_1886),_o8(_535,_1887,_1888),_o8(_535,_1889,_1890)],_o5(_7,[_o4(_8,_o3(_3,"completed")),_1626,_o6(_8,_o3(_3,"failures"),_o5(_7,[_o4(_8,_o3(_3,"stage")),_454,_220,_282]))]))]))]) as unknown as DocumentNode<MergeAccountsMutation, MergeAccountsMutationVariables>;
 export const SoftDeleteUserDocument = _o1(_1,[_o11(_986,_987,_1891,_1638,_o5(_7,[_o10(_8,_1891,_1800)]))]) as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
 export const UserTopPostsForManagerDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"UserTopPostsForManager"),_1057,_o5(_7,[_o7(_8,_250,_1059,_1728)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<UserTopPostsForManagerQuery, UserTopPostsForManagerQueryVariables>;
 export const UsersAccountTargetUserDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"UsersAccountTargetUser"),_1067,_1502),_61]) as unknown as DocumentNode<UsersAccountTargetUserQuery, UsersAccountTargetUserQueryVariables>;

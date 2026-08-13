@@ -2808,6 +2808,7 @@ type MergeAccountsFailure = {
 
 type MergeAccountsResult = {
   __typename?: 'MergeAccountsResult';
+  completed: Scalars['Boolean']['output'];
   failures: Array<MergeAccountsFailure>;
   success: Scalars['Boolean']['output'];
 };
@@ -23147,7 +23148,7 @@ type UsersSearchForMergeQuery = UsersSearchForMergeQuery_Query;
 
 type MergeAccountsMutation_MergeAccounts_MergeAccountsResult_failures_MergeAccountsFailure = { __typename?: 'MergeAccountsFailure', stage: string, message: string, collectionName: string | null, documentId: string | null };
 
-type MergeAccountsMutation_MergeAccounts_MergeAccountsResult = { __typename?: 'MergeAccountsResult', success: boolean, failures: Array<MergeAccountsMutation_MergeAccounts_MergeAccountsResult_failures_MergeAccountsFailure> };
+type MergeAccountsMutation_MergeAccounts_MergeAccountsResult = { __typename?: 'MergeAccountsResult', completed: boolean, success: boolean, failures: Array<MergeAccountsMutation_MergeAccounts_MergeAccountsResult_failures_MergeAccountsFailure> };
 
 type MergeAccountsMutation_Mutation = { __typename?: 'Mutation', MergeAccounts: MergeAccountsMutation_MergeAccounts_MergeAccountsResult };
 

@@ -262,6 +262,7 @@ type MergeAccountsFailure {
 }
 
 type MergeAccountsResult {
+  completed: Boolean!
   success: Boolean!
   failures: [MergeAccountsFailure!]!
 }

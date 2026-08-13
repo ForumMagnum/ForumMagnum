@@ -617,6 +617,7 @@ interface MergeAccountsFailure {
 }
 
 interface MergeAccountsResult {
+  completed: boolean;
   success: boolean;
   failures: Array<MergeAccountsFailure>;
 }

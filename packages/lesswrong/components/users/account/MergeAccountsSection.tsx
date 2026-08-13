@@ -10,6 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
+import range from 'lodash/range';
 
 const usersSearchForMergeQuery = gql(`
   query UsersSearchForMerge($query: String!) {
@@ -22,6 +23,7 @@ const usersSearchForMergeQuery = gql(`
 const mergeAccountsMutation = gql(`
   mutation MergeAccounts($sourceUserId: String!, $targetUserId: String!, $dryRun: Boolean!) {
     MergeAccounts(sourceUserId: $sourceUserId, targetUserId: $targetUserId, dryRun: $dryRun) {
+      completed
       success
       failures {
         stage
@@ -32,6 +34,15 @@ const mergeAccountsMutation = gql(`
     }
   }
 `);
+
+/**
+ * The server runs each MergeAccounts call with a ~60s time budget and returns
+ * `completed: false` if the merge didn't finish, in which case calling the
+ * mutation again resumes it. This caps how many passes we're willing to make
+ * before giving up (the merge stays resumable — clicking Merge again picks up
+ * where it left off).
+ */
+const MAX_MERGE_PASSES = 60;
 
 const styles = defineStyles('MergeAccountsSection', (theme: ThemeType) => ({
   root: {
@@ -333,6 +344,7 @@ const MergeAccountsSection = ({ targetUser }: {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<MergeSearchUser | null>(null);
   const [activeAction, setActiveAction] = useState<"dryRun" | "merge" | null>(null);
+  const [mergePass, setMergePass] = useState(1);
   const [lastResult, setLastResult] = useState<MergeResult | null>(null);
   const [mutate] = useMutation(mergeAccountsMutation);
   const loading = activeAction !== null;
@@ -364,22 +376,34 @@ const MergeAccountsSection = ({ targetUser }: {
       return;
     }
     setActiveAction(dryRun ? "dryRun" : "merge");
+    setMergePass(1);
     setLastResult(null);
     try {
-      const { data } = await mutate({ variables: { sourceUserId: selectedSource._id, targetUserId: targetUser._id, dryRun } });
-      const result = data?.MergeAccounts;
-      if (!result) {
-        throw new Error("Merge did not return a result");
+      // A large merge doesn't fit in one serverless request, so the server
+      // works with a time budget and tells us (via `completed`) whether to
+      // call again to resume. Dry runs always complete on the first pass.
+      const mergePassNumbers = range(1, MAX_MERGE_PASSES + 1);
+      for (const mergePassNumber of mergePassNumbers) {
+        setMergePass(mergePassNumber);
+        const { data } = await mutate({ variables: { sourceUserId: selectedSource._id, targetUserId: targetUser._id, dryRun } });
+        const result = data?.MergeAccounts;
+        if (!result) {
+          throw new Error("Merge did not return a result");
+        }
+        setLastResult(result);
+        if (result.completed) {
+          flash({ messageString: result.success
+            ? (dryRun ? "Dry run completed successfully." : "Accounts merged successfully.")
+            : `${dryRun ? "Dry run" : "Merge"} finished with ${result.failures.length} failure${result.failures.length === 1 ? "" : "s"}.` });
+          if (!dryRun && result.success) {
+            setSelectedSource(null);
+            setSearchText('');
+            setDebouncedQuery('');
+          }
+          return;
+        }
       }
-      setLastResult(result);
-      flash({ messageString: result.success
-        ? (dryRun ? "Dry run completed successfully." : "Accounts merged successfully.")
-        : `${dryRun ? "Dry run" : "Merge"} finished with ${result.failures.length} failure${result.failures.length === 1 ? "" : "s"}.` });
-      if (!dryRun && result.success) {
-        setSelectedSource(null);
-        setSearchText('');
-        setDebouncedQuery('');
-      }
+      flash({ messageString: `Merge still incomplete after ${MAX_MERGE_PASSES} passes. Click Merge again to continue it.` });
     } catch (e) {
       flash({ messageString: e instanceof Error ? e.message : "Failed to merge accounts" });
     } finally {
@@ -447,7 +471,9 @@ const MergeAccountsSection = ({ targetUser }: {
           </div>
           {activeAction && (
             <div className={classes.status}>
-              {activeAction === "dryRun" ? "Dry run in progress..." : "Merge in progress. Keep this tab open until it finishes."}
+              {activeAction === "dryRun"
+                ? "Dry run in progress..."
+                : `Merge in progress${mergePass > 1 ? ` (pass ${mergePass})` : ""}. Keep this tab open until it finishes; if it gets interrupted, clicking Merge again resumes it.`}
             </div>
           )}
           {lastResult && lastResult.failures.length > 0 && (

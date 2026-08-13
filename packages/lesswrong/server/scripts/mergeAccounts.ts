@@ -45,6 +45,13 @@ export interface MergeAccountsFailure {
 }
 
 export interface MergeAccountsResult {
+  /**
+   * False if the merge ran out of its time budget (`deadlineAt`) before
+   * finishing. An incomplete merge is resumable: calling `mergeAccounts` again
+   * with the same arguments picks up where it left off, because every transfer
+   * step moves documents that still belong to the source user.
+   */
+  completed: boolean
   success: boolean
   failures: MergeAccountsFailure[]
 }
@@ -53,6 +60,8 @@ const getErrorMessage = (err: unknown) => {
   if (err instanceof Error) return `${err.name}: ${err.message}`
   return String(err)
 }
+
+const deadlinePassed = (deadlineAt: number | undefined) => !!deadlineAt && Date.now() >= deadlineAt
 
 const recordMergeFailure = ({failures, stage, err, collectionName, documentId}: {
   failures: MergeAccountsFailure[],
@@ -76,13 +85,14 @@ const runMergeStep = async ({failures, stage, fn}: {
   }
 }
 
-const transferCollection = async <N extends TransferableCollectionName>({sourceUserId, targetUserId, collectionName, fieldName = "userId", dryRun, failures}: {
+const transferCollection = async <N extends TransferableCollectionName>({sourceUserId, targetUserId, collectionName, fieldName = "userId", dryRun, failures, deadlineAt}: {
   sourceUserId: string,
   targetUserId: string,
   collectionName: N,
   fieldName?: string,
   dryRun: boolean,
-  failures: MergeAccountsFailure[]
+  failures: MergeAccountsFailure[],
+  deadlineAt?: number
 }) => {
   const collection = getCollection(collectionName)
 
@@ -103,6 +113,11 @@ const transferCollection = async <N extends TransferableCollectionName>({sourceU
       // eslint-disable-next-line no-console
       console.log(`Transferring ${documents.length} documents in collection ${collectionName}`)
       for (const doc of documents) {
+        if (deadlinePassed(deadlineAt)) {
+          // Out of time budget; the caller returns an incomplete result and a
+          // later invocation picks up the documents that weren't transferred.
+          return
+        }
         try {
           await transferOwnership({documentId: doc._id, targetUserId, collection, fieldName})
           // Transfer ownership of all revisions and denormalized references for editable fields
@@ -267,6 +282,12 @@ const mergeReadStatus = async ({sourceUserId, targetUserId, postOrTagSelector}: 
     const {_id, ...sourceUserStatusWithoutId} = sourceUserStatus
     await ReadStatuses.rawInsert({...sourceUserStatusWithoutId, userId: targetUserId})
   }
+  if (sourceUserStatus) {
+    // Removing the source row records progress, which is what makes the
+    // readStatus-merging loop in mergeAccounts resumable after running out of
+    // its time budget. (The source account is about to be deleted anyway.)
+    await ReadStatuses.rawRemove({_id: sourceUserStatus._id})
+  }
 }
 
 const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: boolean) => {
@@ -294,11 +315,21 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
+const incompleteMergeResult = (failures: MergeAccountsFailure[]): MergeAccountsResult => {
+  // eslint-disable-next-line no-console
+  console.log("Merge ran out of its time budget; returning an incomplete (resumable) result")
+  return {completed: false, success: false, failures}
+}
+
 // Exported to allow usage with "yarn repl". Also wrapped by scripts/mergeUsers.sh.
-export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
+// If `deadlineAt` (a Date.now()-style timestamp) is provided, the merge stops
+// cleanly when it runs out of time and returns `completed: false`; see
+// MergeAccountsResult.
+export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun, deadlineAt}: {
   sourceUserId: string, 
   targetUserId: string, 
-  dryRun: boolean
+  dryRun: boolean,
+  deadlineAt?: number
 }): Promise<MergeAccountsResult> => {
   if (typeof dryRun !== "boolean") throw Error("dryRun value missing")
   const failures: MergeAccountsFailure[] = []
@@ -314,13 +345,16 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   // We don't transfer revisions because that's handled by transferEditableField
 
   // Transfer bans
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Bans", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Bans", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer subscriptions (i.e. email subscriptions)
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Subscriptions", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Subscriptions", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer posts
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Posts", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Posts", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
   // Transfer post co-authorship
   if (!dryRun) {
     await runMergeStep({failures, stage: "transfer post co-authorship", fn: async () => {
@@ -329,28 +363,32 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   }
 
   // Transfer comments
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Comments", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Comments", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer user-created tags
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Tags", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Tags", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer tag-post relationships (first user who voted on that tag for that post)
-  await transferCollection({sourceUserId, targetUserId, collectionName: "TagRels", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "TagRels", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer rss feeds (for crossposting)
-  await transferCollection({sourceUserId, targetUserId, collectionName: "RSSFeeds", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "RSSFeeds", dryRun, failures, deadlineAt})
 
   // Transfer petrov day launches
-  await transferCollection({sourceUserId, targetUserId, collectionName: "PetrovDayLaunchs", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "PetrovDayLaunchs", dryRun, failures, deadlineAt})
 
   // Transfer reports (i.e. user reporting a comment/tag/etc)
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Reports", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Reports", dryRun, failures, deadlineAt})
   
   // Transfer moderator actions
-  await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun, failures, deadlineAt})
   
   // Transfer user rate limits
-  await transferCollection({sourceUserId, targetUserId, collectionName: "UserRateLimits", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "UserRateLimits", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   try {
     const [sourceConversationsCount, targetConversationsCount] = await Promise.all([
@@ -377,10 +415,11 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   }
 
   // Transfer private messages
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Messages", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Messages", dryRun, failures, deadlineAt})
 
   // Transfer notifications
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Notifications", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Notifications", dryRun, failures, deadlineAt})
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   try {
     const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
@@ -392,12 +431,14 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
     console.log(`source readTagIds count: ${readTagIds.length}`)
     if (!dryRun) {
       // Transfer readStatuses
-      await asyncForeachSequential(readPostIds, async (postId) => {
+      for (const postId of readPostIds) {
+        if (deadlinePassed(deadlineAt)) break
         await mergeReadStatus({sourceUserId, targetUserId, postOrTagSelector:{postId}})
-      })
-      await asyncForeachSequential(readTagIds, async (tagId) => {
+      }
+      for (const tagId of readTagIds) {
+        if (deadlinePassed(deadlineAt)) break
         await mergeReadStatus({sourceUserId, targetUserId, postOrTagSelector:{tagId}})
-      })
+      }
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -408,10 +449,11 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
     console.log(err)
     recordMergeFailure({failures, stage: "merge read statuses", err})
   }
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
 
   // Transfer sequences
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Sequences", dryRun, failures})
-  await transferCollection({sourceUserId, targetUserId, collectionName: "Collections", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Sequences", dryRun, failures, deadlineAt})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Collections", dryRun, failures, deadlineAt})
 
   // Transfer localgroups
   if (!dryRun) {
@@ -421,7 +463,15 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   }
 
   // Transfer review votes
-  await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes", dryRun, failures})
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ReviewVotes", dryRun, failures, deadlineAt})
+
+  // This is the last deadline check: everything from here down must run in a
+  // single invocation. In particular the karma/afKarma update below is not
+  // idempotent (it adds the source's afKarma to the target's), so it must not
+  // be re-run by a resumed merge, and the steps after it are cheap single
+  // queries. By this point all the per-document transfer loops above have
+  // completed, so the remaining work is bounded.
+  if (deadlinePassed(deadlineAt)) return incompleteMergeResult(failures)
   
   try {
     const [authorVotesCount, userVoteCounts] = await Promise.all([
@@ -575,7 +625,7 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
 
   // eslint-disable-next-line no-console
   console.log("Done merging accounts")
-  return {success: failures.length === 0, failures}
+  return {completed: true, success: failures.length === 0, failures}
 }
 
 

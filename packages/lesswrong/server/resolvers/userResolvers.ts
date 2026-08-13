@@ -101,6 +101,7 @@ export const graphqlTypeDefs = gql`
     documentId: String
   }
   type MergeAccountsResult {
+    completed: Boolean!
     success: Boolean!
     failures: [MergeAccountsFailure!]!
   }
@@ -137,6 +138,11 @@ export const graphqlTypeDefs = gql`
   ${suggestedFeedTypeDefs}
   ${suggestedTopActiveUsersTypeDefs}
 `
+
+// Per-invocation time budget for the MergeAccounts mutation. The graphql
+// route's maxDuration is 120s; this leaves headroom for request overhead and
+// for the merge's non-interruptible tail steps (karma recompute etc).
+const MERGE_ACCOUNTS_MUTATION_BUDGET_MS = 60 * 1000;
 
 export const graphqlMutations = {
   async NewUserCompleteProfile(root: void, { username, email, subscribeToDigest, acceptedTos }: NewUserUpdates, context: ResolverContext) {
@@ -307,7 +313,13 @@ export const graphqlMutations = {
     if (!targetUser) {
       throw new Error(`Target user not found: ${targetUserId}`);
     }
-    return await mergeAccounts({ sourceUserId, targetUserId, dryRun });
+    // Real merges run with a time budget so that large accounts don't hit the
+    // serverless function's duration limit (the graphql route allows 120s):
+    // when the budget expires, mergeAccounts returns `completed: false` and
+    // the client calls this mutation again to resume where it left off. Dry
+    // runs only log per-collection counts, so they don't need a budget.
+    const deadlineAt = dryRun ? undefined : Date.now() + MERGE_ACCOUNTS_MUTATION_BUDGET_MS;
+    return await mergeAccounts({ sourceUserId, targetUserId, dryRun, deadlineAt });
   },
 }
 
