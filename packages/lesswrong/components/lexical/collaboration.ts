@@ -300,12 +300,11 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   const baseDocumentName = getCollaborationBaseDocumentNameFromConfig(config);
   const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
-  // Initialize persistence if needed.
-  // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
-  // For others, we proceed immediately.
-  const readyPromise = id === 'main'
-    ? setupPersistence(documentName, doc, config)
-    : Promise.resolve();
+  // Wait for IndexedDB to restore both the editor and its comments before
+  // connecting. In particular, comment threads live in a separate Yjs
+  // document and need their own offline persistence; otherwise a comments
+  // socket failure can leave apparently-saved threads only in memory.
+  const readyPromise = setupPersistence(documentName, doc, config);
 
   // Track whether this is the first sync (for bootstrap detection)
   let hasReceivedFirstSync = false;
