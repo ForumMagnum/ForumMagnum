@@ -69,7 +69,7 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
+        <SupermodModeratorActions user={user} currentUser={currentUser} posts={posts} comments={comments} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
         <div className={classes.userMessages}>

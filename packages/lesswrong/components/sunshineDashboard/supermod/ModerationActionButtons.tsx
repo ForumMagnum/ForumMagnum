@@ -6,6 +6,7 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
+import type { HighlightableModeratorAction } from './actionHighlightRules';
 import classNames from 'classnames';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
@@ -46,13 +47,25 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
       },
     },
   },
+  highlighted: {
+    backgroundColor: theme.palette.grey[900],
+    borderColor: theme.palette.grey[900],
+    color: theme.palette.grey[100],
+    fontWeight: 600,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[800],
+      borderColor: theme.palette.grey[800],
+    },
+  },
 }));
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, onlyHighlighted=false}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: Set<HighlightableModeratorAction>;
+  onlyHighlighted?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -74,6 +87,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     tooltip: string;
     onClick: () => void;
     active?: boolean;
+    highlightKey?: HighlightableModeratorAction;
   }>> = [
     [
       {
@@ -81,6 +95,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'A',
         tooltip: "Approve this user and all their content. Marks them as reviewed by you, so their future posts and comments no longer need review. Clears any snooze and any flag, and signs an 'Approved' note in their moderator notes.",
         onClick: handleReview,
+        highlightKey: 'approve',
       },
     ],
     [
@@ -95,12 +110,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'Shift+S',
         tooltip: 'Same as Snooze 10, but opens a dialog to choose how many more posts or comments the user can make before they return to the review queue.',
         onClick: handleSnoozeCustom,
+        highlightKey: 'snoozeCustom',
       },
       {
         label: 'Approve Current Only',
         keystroke: 'Shift+A',
         tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
         onClick: handleApproveCurrentOnly,
+        highlightKey: 'approveCurrentOnly',
       },
     ],
     [
@@ -109,12 +126,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'Q',
         tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
         onClick: handleRemoveNeedsReview,
+        highlightKey: 'remove',
       },
       {
         label: 'Purge',
         keystroke: 'P',
         tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
         onClick: handlePurge,
+        highlightKey: 'purge',
       },
       {
         label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
@@ -124,17 +143,31 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
           : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
         onClick: toggleAllPermissions,
         active: allPermissionsDisabled,
+        highlightKey: 'disablePermissions',
       },
     ],
   ];
 
+  const visibleActionRows = onlyHighlighted
+    ? moderatorActionRows
+        .map(row => row.filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey)))
+        .filter(row => row.length > 0)
+    : moderatorActionRows;
+
+  if (visibleActionRows.length === 0) {
+    return null;
+  }
+
   return (
     <div className={classes.actionsColumn}>
-      {moderatorActionRows.map((row, rowIndex) => (
+      {visibleActionRows.map((row, rowIndex) => (
         <div key={rowIndex} className={classes.actionRow}>
-          {row.map(({label, keystroke, tooltip, onClick, active}) => (
+          {row.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
             <LWTooltip key={label} title={tooltip} placement="left">
-              <div className={classNames(classes.actionButton, active && 'active')} onClick={onClick}>
+              <div
+                className={classNames(classes.actionButton, active && 'active', highlightKey && highlightedActions?.has(highlightKey) && classes.highlighted)}
+                onClick={onClick}
+              >
                 <span>{label}</span>
                 <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation activeContext={!!active} />
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModerationActionButtons from './ModerationActionButtons';
@@ -7,6 +7,7 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import { getHighlightedModeratorActions } from './actionHighlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -50,9 +51,11 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, posts, comments, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
+  posts: SunshinePostsList[],
+  comments: SunshineCommentsList[],
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
@@ -67,6 +70,13 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
   );
   const isCollapsed = moderatorActionsCollapsed === 'true';
 
+  const highlightedActions = useMemo(() => getHighlightedModeratorActions({
+    user,
+    moderatorActions: user.moderatorActions ?? [],
+    posts,
+    comments,
+  }), [user, posts, comments]);
+
   return (
     <div>
       <div className={classes.sectionTitleRow}>
@@ -77,10 +87,14 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
           onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
         />
       </div>
+      {isCollapsed && <>
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+        <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+      </>}
       {!isCollapsed && <>
-        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />
         <div className={classes.rateLimitSection}>
-          <ModerationPermissionButtons user={user} dispatch={dispatch} />
+          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} />
           <div
             className={classes.rateLimitButton}
             onClick={() => setShowRateLimitForm(!showRateLimitForm)}

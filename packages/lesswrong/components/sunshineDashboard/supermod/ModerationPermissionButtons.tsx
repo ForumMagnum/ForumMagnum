@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
+import type { HighlightableModeratorAction } from './actionHighlightRules';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
@@ -36,6 +37,16 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
       },
     },
   },
+  highlighted: {
+    backgroundColor: theme.palette.grey[900],
+    borderColor: theme.palette.grey[900],
+    color: theme.palette.grey[100],
+    fontWeight: 600,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[800],
+      borderColor: theme.palette.grey[800],
+    },
+  },
   permissionButtonLabel: {
     flexGrow: 1,
   },
@@ -44,9 +55,13 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
 const ModerationPermissionButtons = ({
   user,
   dispatch,
+  highlightedActions,
+  onlyHighlighted=false,
 }: {
   user: SunshineUsersList;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: Set<HighlightableModeratorAction>;
+  onlyHighlighted?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -57,36 +72,46 @@ const ModerationPermissionButtons = ({
     toggleDisableVoting,
   } = useUserContentPermissions(user, dispatch);
 
+  const messagingHighlighted = !!highlightedActions?.has('disableMessages');
+
+  if (onlyHighlighted && !messagingHighlighted) {
+    return null;
+  }
+
   return (
     <div className={classes.permissionButtonsContainer}>
+      {!onlyHighlighted && <>
+        <div 
+          className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
+          onClick={toggleDisablePosting}
+        >
+          <span className={classes.permissionButtonLabel}>Post</span>
+          <KeystrokeDisplay keystroke="D" withMargin activeContext={!!user.postingDisabled} />
+        </div>
+        <div 
+          className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
+          onClick={toggleDisableCommenting}
+        >
+          <span className={classes.permissionButtonLabel}>Comment</span>
+          <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
+        </div>
+      </>}
       <div 
-        className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
-        onClick={toggleDisablePosting}
-      >
-        <span className={classes.permissionButtonLabel}>Post</span>
-        <KeystrokeDisplay keystroke="D" withMargin activeContext={!!user.postingDisabled} />
-      </div>
-      <div 
-        className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
-        onClick={toggleDisableCommenting}
-      >
-        <span className={classes.permissionButtonLabel}>Comment</span>
-        <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
-      </div>
-      <div 
-        className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
+        className={classNames(classes.permissionButton, user.conversationsDisabled && 'active', messagingHighlighted && classes.highlighted)}
         onClick={toggleDisableMessaging}
       >
         <span className={classes.permissionButtonLabel}>Message</span>
         <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
       </div>
-      <div 
-        className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
-        onClick={() => toggleDisableVoting()}
-      >
-        <span className={classes.permissionButtonLabel}>Vote</span>
-        <KeystrokeDisplay keystroke="V" withMargin activeContext={!!user.votingDisabled} />
-      </div>
+      {!onlyHighlighted && (
+        <div 
+          className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
+          onClick={() => toggleDisableVoting()}
+        >
+          <span className={classes.permissionButtonLabel}>Vote</span>
+          <KeystrokeDisplay keystroke="V" withMargin activeContext={!!user.votingDisabled} />
+        </div>
+      )}
     </div>
   );
 };
