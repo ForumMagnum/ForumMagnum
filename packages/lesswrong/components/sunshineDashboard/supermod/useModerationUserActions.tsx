@@ -149,6 +149,18 @@ export function useModerationUserActions({
     });
   }, [selectedUser, openDialog, handleSnooze]);
 
+  const handleRemoveNeedsReview = useCallback(() => {
+    if (!selectedUser) return;
+    const notes = selectedUser.sunshineNotes || '';
+    const newNotes = getModSignatureWithNote('removed from review queue without snooze/approval') + notes;
+    void updateUserWith({
+      needsReview: false,
+      reviewedByUserId: null,
+      reviewedAt: selectedUser.reviewedAt ? new Date() : null,
+      sunshineNotes: newNotes,
+    }, 'Removed from queue');
+  }, [selectedUser, getModSignatureWithNote, updateUserWith]);
+
   const handlePurge = useCallback(() => {
     if (!selectedUser) return;
     if (!confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) return;
@@ -254,6 +266,7 @@ export function useModerationUserActions({
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
+    handleRemoveNeedsReview,
     handlePurge,
     updateUserWith,
     getModSignatureWithNote,
