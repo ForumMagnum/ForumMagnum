@@ -59,8 +59,7 @@ export interface PangramEvaluationResult {
   }[] | null;
 }
 
-// Transient Pangram failures (timeouts, 5xxs) used to permanently leave content
-// without an evaluation, so retry a couple of times before giving up.
+// There's no backfill sweep, so one transient failure permanently skips the content
 const PANGRAM_RETRY_DELAYS_MS = [1000, 4000];
 
 async function fetchPangramWithRetries(key: string, textToCheck: string): Promise<Response> {
@@ -257,6 +256,7 @@ interface CreateAutomatedContentEvaluationOptions {
 }
 
 async function parentDocumentIsDraft(collectionName: DbRevision['collectionName'], documentId: string): Promise<boolean> {
+  // Fresh findOne (not loaders): the caller may have flipped draft this same request
   if (collectionName === "Posts") {
     const post = await Posts.findOne({ _id: documentId });
     return !post || !!post.draft;
@@ -265,6 +265,7 @@ async function parentDocumentIsDraft(collectionName: DbRevision['collectionName'
     const comment = await Comments.findOne({ _id: documentId });
     return !comment || !!comment.draft;
   }
+  // Fail closed: revisions of other collections keep the old always-skip behavior
   return true;
 }
 
@@ -278,13 +279,9 @@ export async function createAutomatedContentEvaluation(
   const documentId = revision.documentId;
   if (!documentId) return;
 
-  // Revisions with draft=true are usually autosaves, which we don't want to evaluate.
-  // But a document that gets published without a simultaneous content edit (e.g. a
-  // collaborative-editing post, or a publish from outside the editor form) keeps
-  // pointing at its last draft revision: no new revision is created, and the
-  // revision's own draft flag is only cleared later (via ensurePostHasNonDraftContents),
-  // if ever. So before skipping, check whether the parent document itself is still a
-  // draft; if it's published, evaluate the revision even though it's flagged as draft.
+  // Draft revisions are usually autosaves, which we don't evaluate. But publishing
+  // without a body edit creates no new revision, so a published document can still
+  // point at a draft-flagged revision — trust the document's draft state instead.
   if (revision.draft && await parentDocumentIsDraft(revision.collectionName, documentId)) return;
 
   const pangramEvaluation = await getPangramEvaluation(revision).catch((err) => {

@@ -1157,8 +1157,7 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
 }
 
 function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
-  // Only when publishing: undrafting an existing post, or creating a post
-  // that's published from the start (oldPost is null on creation)
+  // oldPost is null when the post was created already-published
   const isBeingPublished = oldPost ? (!post.draft && oldPost.draft) : !post.draft;
   if (!isBeingPublished) return false;
 
