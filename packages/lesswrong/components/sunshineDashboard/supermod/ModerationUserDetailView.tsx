@@ -8,6 +8,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import { useAutoRescoreMissingLlmScores } from './useRerunLlmCheck';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -69,6 +70,10 @@ const ModerationUserDetailView = ({
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
+
+  // Posts that never got an LLM score (failed or skipped evaluation at publish
+  // time) get rescored automatically when they show up in this view
+  useAutoRescoreMissingLlmScores(posts, dispatch);
 
   const setSidebarTab = useCallback(
     (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
