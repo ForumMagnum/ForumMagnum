@@ -66,7 +66,8 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     minWidth: 0,
   },
   title: {
-    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    ...theme.typography.smallCaps,
     fontSize: 16.9,
     fontWeight: 500,
     color: theme.palette.text.normal,
@@ -135,7 +136,8 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     cursor: 'pointer',
   },
   expandedTitle: {
-    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    ...theme.typography.smallCaps,
     fontSize: 19,
     fontWeight: 500,
     color: theme.palette.text.normal,

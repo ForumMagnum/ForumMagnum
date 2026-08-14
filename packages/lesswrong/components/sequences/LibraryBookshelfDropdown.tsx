@@ -62,7 +62,8 @@ const styles = defineStyles('LibraryBookshelfDropdown', (theme: ThemeType) => ({
     minWidth: 0,
   },
   rowTitle: {
-    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    ...theme.typography.smallCaps,
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.text.normal,
@@ -111,6 +112,7 @@ const styles = defineStyles('LibraryBookshelfDropdown', (theme: ThemeType) => ({
   savedTitle: {
     flex: 1,
     minWidth: 0,
+    ...theme.typography.smallCaps,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
