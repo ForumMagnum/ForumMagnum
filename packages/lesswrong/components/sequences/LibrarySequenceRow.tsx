@@ -79,7 +79,7 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     verticalAlign: -1,
   },
   rowDescription: {
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     lineHeight: '17px',
     color: theme.palette.text.secondary,
@@ -181,7 +181,7 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     padding: '6px 24px 20px 68px',
   },
   description: {
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 15,
     lineHeight: '22px',
     color: theme.palette.text.secondary,

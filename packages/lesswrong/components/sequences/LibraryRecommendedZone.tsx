@@ -107,7 +107,7 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
     marginBottom: 8,
   },
   heroBody: {
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14.5,
     lineHeight: '20px',
     color: theme.palette.text.secondary,
@@ -153,7 +153,7 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
     color: theme.palette.text.normal,
   },
   highlightsBody: {
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13.5,
     lineHeight: '19px',
     color: theme.palette.text.secondary,
@@ -192,7 +192,7 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
     color: theme.palette.text.normal,
   },
   cardDescription: {
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13.5,
     lineHeight: '18px',
     color: theme.palette.text.secondary,
