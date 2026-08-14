@@ -291,12 +291,16 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * Stays mounted while `active` is false so the draft survives the tab
  * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
+const RejectContentPanel = ({ user, focusedContent, active, onEscape, highlightedTemplateNames, onRegisterToggleTemplate }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
+  highlightedTemplateNames?: Set<string>,
+  // Lets the parent toggle a template into the composer from outside the panel
+  // (e.g. the highlighted-template shortcuts shown while the panel's tab is closed)
+  onRegisterToggleTemplate?: (fn: (template: ModerationTemplateFragment) => void) => void,
 }) => {
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
@@ -305,7 +309,8 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
 
   const registerToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
     toggleTemplateRef.current = fn;
-  }, []);
+    onRegisterToggleTemplate?.(fn);
+  }, [onRegisterToggleTemplate]);
 
   // The template search is the initial keyboard target whenever the tab is picked
   useEffect(() => {
@@ -328,6 +333,7 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
     <GroupedModerationTemplateList
       collectionName="Rejections"
       onTemplateClick={(template) => toggleTemplateRef.current(template)}
+      highlightedTemplateNames={highlightedTemplateNames}
       focusSearchToken={templateSearchToken}
       active={active}
       onFocusComposer={() => setComposerFocusToken(token => token + 1)}

@@ -19470,6 +19470,18 @@ export type multiConversationSunshineUserMessagesQueryQuery = { __typename?: 'Qu
       & ConversationsList
     )> } | null };
 
+export type rejectionTemplatesSunshineUserMessagesQueryQueryVariables = Exact<{
+  selector?: InputMaybe<ModerationTemplateSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type rejectionTemplatesSunshineUserMessagesQueryQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'ModerationTemplate' }
+      & ModerationTemplateFragment
+    )> } | null };
+
 export type multiUserRateLimitUserRateLimitItemQueryQueryVariables = Exact<{
   selector?: InputMaybe<UserRateLimitSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -23390,6 +23402,7 @@ export const updateCommentSunshineReportedItemDocument = _o1(_1,[_o11(_986,_987,
 export const updateReportSunshineReportedContentListDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateReportSunshineReportedContentList"),[_1136,_o12(_988,_1137,_o13(_990,_o4(_5,_o3(_3,"UpdateReportDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"updateReport"),_1140,_1760)])),_61,_146,_158,_184,_23,_127,_136,_192,_198,_621,_662,_679,_686]) as unknown as DocumentNode<updateReportSunshineReportedContentListMutation, updateReportSunshineReportedContentListMutationVariables>;
 export const multiModerationTemplateSunshineSendMessageWithDefaultsQueryDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"multiModerationTemplateSunshineSendMessageWithDefaultsQuery"),_1431,_1432),_226,_270,_437]) as unknown as DocumentNode<multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery, multiModerationTemplateSunshineSendMessageWithDefaultsQueryQueryVariables>;
 export const multiConversationSunshineUserMessagesQueryDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"multiConversationSunshineUserMessagesQuery"),_1496,_o5(_7,[_o7(_8,_1497,_1116,_o5(_7,[_o6(_8,_1023,_1493),_794]))])),_365,_61,_370,_374]) as unknown as DocumentNode<multiConversationSunshineUserMessagesQueryQuery, multiConversationSunshineUserMessagesQueryQueryVariables>;
+export const rejectionTemplatesSunshineUserMessagesQueryDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"rejectionTemplatesSunshineUserMessagesQuery"),_1431,_1432),_226,_270,_437]) as unknown as DocumentNode<rejectionTemplatesSunshineUserMessagesQueryQuery, rejectionTemplatesSunshineUserMessagesQueryQueryVariables>;
 export const multiUserRateLimitUserRateLimitItemQueryDocument = _o1(_1,[_o11(_986,_993,_o3(_3,"multiUserRateLimitUserRateLimitItemQuery"),[_o12(_988,_1054,_o4(_5,_o3(_3,"UserRateLimitSelector"))),_1049,_1114],_o5(_7,[_o7(_8,_677,_1116,_o5(_7,[_o6(_8,_1023,_678),_794]))])),_61,_662]) as unknown as DocumentNode<multiUserRateLimitUserRateLimitItemQueryQuery, multiUserRateLimitUserRateLimitItemQueryQueryVariables>;
 export const updateUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_986,_987,_o3(_3,"updateUserRateLimitUserRateLimitItem1"),_1770,_o5(_7,[_o7(_8,_1771,_1140,_1772)])),_848]) as unknown as DocumentNode<updateUserRateLimitUserRateLimitItem1Mutation, updateUserRateLimitUserRateLimitItem1MutationVariables>;
 export const updateUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateUserRateLimitUserRateLimitItem"),_1770,_o5(_7,[_o7(_8,_1771,_1140,_1773)])),_61,_662]) as unknown as DocumentNode<updateUserRateLimitUserRateLimitItemMutation, updateUserRateLimitUserRateLimitItemMutationVariables>;

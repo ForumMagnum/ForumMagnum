@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -33,6 +33,19 @@ const ConversationsListMultiQuery = gql(`
     conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...ConversationsList
+      }
+      totalCount
+    }
+  }
+`);
+
+// Same selector as the rejection panel's template list, so the highlighted-template
+// shortcuts shown while the panel is closed resolve from the same cached data
+const RejectionTemplatesQuery = gql(`
+  query rejectionTemplatesSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
       }
       totalCount
     }
@@ -148,11 +161,11 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
   dmTab: {
     flexShrink: 0,
+    // Pushed to the right edge so the tabs read as separate choices
+    marginLeft: 'auto',
   },
   rejectTab: {
     flexShrink: 1,
-    // Pushed to the right edge so the tabs read as separate choices
-    marginLeft: 'auto',
   },
   activeTab: {
     color: theme.palette.grey[900],
@@ -169,6 +182,27 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   // Deselected composers stay mounted (so drafts survive), just hidden
   hiddenTabContent: {
     display: 'none',
+  },
+  // Highlighted rejection templates stay visible as shortcuts while the
+  // reject section itself is closed
+  collapsedHighlightedTemplates: {
+    ...theme.typography.commentStyle,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    marginBottom: 8,
+  },
+  collapsedHighlightedTemplate: {
+    fontSize: 13,
+    fontWeight: 600,
+    padding: '4px 8px',
+    borderRadius: 4,
+    outline: theme.palette.greyBorder("1px", 0.8),
+    outlineOffset: -1,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.05),
+    },
   },
 }));
 
@@ -235,6 +269,30 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const showRejectTab = !!focusedContent;
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
   const dmTabActive = sidebarTab === 'dm';
+
+  const { data: rejectionTemplatesData } = useQuery(RejectionTemplatesQuery, {
+    variables: {
+      selector: { moderationTemplatesList: { collectionName: "Rejections" } },
+      limit: 50,
+      enableTotal: false,
+    },
+    skip: !showRejectTab,
+  });
+  const highlightedRejectionTemplates = (rejectionTemplatesData?.moderationTemplates?.results ?? [])
+    .filter(template => highlightedTemplateNames.has(template.name));
+
+  // The reject panel registers its composer's template toggle here, so the
+  // highlighted-template shortcuts can insert a template while the panel's tab
+  // is closed (the panel stays mounted, just hidden)
+  const rejectToggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
+  const registerRejectToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
+    rejectToggleTemplateRef.current = fn;
+  }, []);
+
+  const handleCollapsedRejectTemplateClick = (template: ModerationTemplateFragment) => {
+    setSidebarTab('reject');
+    rejectToggleTemplateRef.current(template);
+  };
 
   // Start the conversation on tab click, not on a second click on the prompt.
   // Clicking the already-active tab closes the composer.
@@ -385,14 +443,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </div>}
 
     <div className={classes.tabs}>
-      <div
-        className={classNames(classes.tab, classes.dmTab)}
-        onClick={handleSelectDmTab}
-      >
-        <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
-          Send DM
-        </span>
-      </div>
       {showRejectTab && <div
         className={classNames(classes.tab, classes.rejectTab, { [classes.disabledTab]: !canReject })}
         onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
@@ -403,14 +453,43 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           <KeystrokeDisplay keystroke="R" withMargin />
         </span>
       </div>}
+      <div
+        className={classNames(classes.tab, classes.dmTab)}
+        onClick={handleSelectDmTab}
+      >
+        <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
+          Send DM
+        </span>
+      </div>
     </div>
+
+    {showRejectTab && canReject && !rejectTabActive && highlightedRejectionTemplates.length > 0 && (
+      <div className={classes.collapsedHighlightedTemplates}>
+        {highlightedRejectionTemplates.map(template => (
+          <div
+            key={template._id}
+            className={classes.collapsedHighlightedTemplate}
+            onClick={() => handleCollapsedRejectTemplateClick(template)}
+          >
+            {template.name}
+          </div>
+        ))}
+      </div>
+    )}
 
     <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
       {dmTabContents}
     </div>
     {canReject && focusedContent && (
       <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
+        <RejectContentPanel
+          user={user}
+          focusedContent={focusedContent}
+          active={rejectTabActive}
+          onEscape={handleCloseSidebarTab}
+          highlightedTemplateNames={highlightedTemplateNames}
+          onRegisterToggleTemplate={registerRejectToggleTemplate}
+        />
       </div>
     )}
   </div>;
