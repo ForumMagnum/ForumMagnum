@@ -18,6 +18,8 @@
  * becoming the real "Recommended" sort.
  */
 
+import { getKarmaInflationSeries } from "../karmaInflation/cache";
+
 /**
  * Shared CTE prefix: the sequence universe and the sequence->post join
  * through Chapters. "A sequence's posts" = distinct public posts across its
@@ -114,6 +116,45 @@ const LIBRARY_RANKING_SQL: Record<string, LibraryRankingSql> = {
     ctes: `${TOP5_KARMA_CTES},
 scores AS (
   SELECT "sequenceId", score FROM karma
+)`,
+    orderBy: `scores.score DESC NULLS LAST`,
+  },
+
+  // 1b. Sum of top-5 post karma, inflation-adjusted: baseScore times the
+  // site's stored karmaInflationSeries multiplier for the post's 28-day
+  // posting window (the same series behind the "Top (inflation-adjusted)"
+  // post sort / karmaInflationAdjustedScore in lib/collections/posts/views.ts,
+  // index clamped to the series bounds the same way). Series values arrive as
+  // the $(kiValues)/$(kiStart)/$(kiInterval) params from
+  // getLibraryRankingParams.
+  karma5Adj: {
+    ctes: `adjusted AS (
+  SELECT sp."sequenceId",
+    p."baseScore" * COALESCE(
+      ($(kiValues)::FLOAT8[])[
+        LEAST(
+          GREATEST(
+            FLOOR((EXTRACT(EPOCH FROM p."postedAt") * 1000 - $(kiStart)) / $(kiInterval))::INTEGER,
+            0
+          ),
+          ARRAY_UPPER($(kiValues)::FLOAT8[], 1) - 1
+        ) + 1
+      ],
+      ($(kiValues)::FLOAT8[])[ARRAY_UPPER($(kiValues)::FLOAT8[], 1)]
+    ) AS adj_score
+  FROM seq_posts sp
+  JOIN "Posts" p ON p._id = sp."postId"
+),
+adj_ranks AS (
+  SELECT "sequenceId", adj_score,
+    row_number() OVER (PARTITION BY "sequenceId" ORDER BY adj_score DESC) AS rn
+  FROM adjusted
+),
+scores AS (
+  SELECT "sequenceId", sum(adj_score) AS score
+  FROM adj_ranks
+  WHERE rn <= 5
+  GROUP BY "sequenceId"
 )`,
     orderBy: `scores.score DESC NULLS LAST`,
   },
@@ -270,3 +311,16 @@ scores AS (
 
 export const getLibraryRankingSql = (sortBy: string | null): LibraryRankingSql | null =>
   sortBy ? LIBRARY_RANKING_SQL[sortBy] ?? null : null;
+
+/**
+ * Query params a ranking mechanism's SQL needs beyond the shared ones.
+ * karma5Adj gets the cached karmaInflationSeries (per-28-day-window
+ * multipliers, reciprocal of the window's mean post karma).
+ */
+export const getLibraryRankingParams = async (sortBy: string | null): Promise<Record<string, unknown>> => {
+  if (sortBy === "karma5Adj") {
+    const series = await getKarmaInflationSeries();
+    return {kiValues: series.values, kiStart: series.start, kiInterval: series.interval};
+  }
+  return {};
+};

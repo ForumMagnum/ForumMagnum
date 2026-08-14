@@ -21,6 +21,7 @@ export const LIBRARY_BASE_SORT_OPTIONS: LibrarySortOption[] = [
 
 export const LIBRARY_RANKING_SORT_OPTIONS: LibrarySortOption[] = [
   {value: "karma5", label: "1 · Top-5 karma"},
+  {value: "karma5Adj", label: "1b · Top-5 adjusted karma"},
   {value: "readers70", label: "2 · Readers ≥70%"},
   {value: "rankProd", label: "3 · Karma × readers"},
   {value: "complRate", label: "4 · Completion rate"},
