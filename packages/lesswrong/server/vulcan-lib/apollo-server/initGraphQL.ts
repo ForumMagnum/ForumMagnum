@@ -12,7 +12,7 @@ import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections
 import { graphqlTypeDefs as additionalPostsTypeDefs } from "@/lib/collections/posts/graphqlTypeDefs";
 import { graphqlTypeDefs as additionalTagsTypeDefs } from "@/lib/collections/tags/graphqlTypeDefs";
 import { graphqlTypeDefs as additionalUsersTypeDefs } from "@/lib/collections/users/graphqlTypeDefs";
-import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
+import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries, graphqlMutations as recommendationsMutations } from '@/server/recommendations';
 import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
 import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutations, graphqlQueries as commentQueries } from '@/server/resolvers/commentResolvers'
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
@@ -599,6 +599,7 @@ const getResolvers = () => ({
     ...emailTokensGraphQLMutations,
     ...fmCrosspostGraphQLMutations,
     ...recommendationsGqlMutations,
+    ...recommendationsMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
