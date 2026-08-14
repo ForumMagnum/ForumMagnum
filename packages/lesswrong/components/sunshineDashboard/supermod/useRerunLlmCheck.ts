@@ -69,20 +69,21 @@ export function useRerunLlmCheck(
   };
 }
 
-// Drafts are deliberately excluded: the evaluation pipeline scores content on
-// publish, and scoring an unpublished draft would just produce a stale result.
+// Drafts get scored when published; scoring one now could capture a stale autosave.
+// Rejected posts are included: highlight rules read scores on rejected content too.
 function postNeedsLlmRescore(post: SunshinePostsList): boolean {
   return !post.draft && post.automatedContentEvaluations?.pangramScore == null;
 }
 
+function findNextPostToRescore(posts: SunshinePostsList[], attemptedPostIds: Set<string>): SunshinePostsList | undefined {
+  return posts.find((post) => postNeedsLlmRescore(post) && !attemptedPostIds.has(post._id));
+}
+
 /**
- * When the moderation user-detail view shows posts that never got an LLM
- * (Pangram) score — because the evaluation failed or was skipped at publish
- * time — automatically rescore them, one at a time, instead of waiting for a
- * moderator to click the manual "LLM" rerun button on each item.
- *
- * Failures are silent (each item is only attempted once per mount) and leave
- * the manual rerun button in place as the fallback.
+ * Backfills missing Pangram scores for posts shown in the user detail view, via
+ * the same mutation as the manual "LLM" button (which records scores, never
+ * autorejects). Sequential, to avoid bursts against the paid Pangram API. Each
+ * post is attempted once per mount; the manual button remains the fallback.
  */
 export function useAutoRescoreMissingLlmScores(
   posts: SunshinePostsList[],
@@ -91,28 +92,31 @@ export function useAutoRescoreMissingLlmScores(
   const [rerunLlmCheck] = useMutation(RerunLlmCheckMutation);
   const attemptedPostIdsRef = useRef<Set<string>>(new Set());
   const isRescoringRef = useRef(false);
+  // The drain loop reads the latest posts, so ones arriving mid-run (e.g. after a
+  // user switch) aren't dropped — the effect can't re-fire while the loop is going
+  const latestPostsRef = useRef(posts);
+  latestPostsRef.current = posts;
 
   useEffect(() => {
-    const postsToRescore = posts.filter(
-      (post) => postNeedsLlmRescore(post) && !attemptedPostIdsRef.current.has(post._id)
-    );
-    if (isRescoringRef.current || !postsToRescore.length) return;
-
-    isRescoringRef.current = true;
-    for (const post of postsToRescore) {
-      attemptedPostIdsRef.current.add(post._id);
+    if (isRescoringRef.current || !findNextPostToRescore(posts, attemptedPostIdsRef.current)) {
+      return;
     }
+    isRescoringRef.current = true;
 
     void (async () => {
-      for (const post of postsToRescore) {
-        dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: post._id });
+      for (;;) {
+        const post = findNextPostToRescore(latestPostsRef.current, attemptedPostIdsRef.current);
+        if (!post) break;
+        const postId = post._id;
+        attemptedPostIdsRef.current.add(postId);
+        dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: postId });
         try {
           const result = await rerunLlmCheck({
-            variables: { documentId: post._id, collectionName: 'Posts' },
+            variables: { documentId: postId, collectionName: 'Posts' },
             update: (cache, { data }) => {
               if (!data?.rerunLlmCheck) return;
               cache.modify({
-                id: cache.identify({ __typename: 'Post', _id: post._id }),
+                id: cache.identify({ __typename: 'Post', _id: postId }),
                 fields: {
                   automatedContentEvaluations: () => data.rerunLlmCheck,
                 },
@@ -121,17 +125,17 @@ export function useAutoRescoreMissingLlmScores(
           });
           const newAce = result.data?.rerunLlmCheck;
           if (newAce) {
+            // The inbox tabs render reducer-owned copies of posts; keep those in sync
             dispatch({
               type: 'UPDATE_POST',
-              postId: post._id,
+              postId,
               fields: { automatedContentEvaluations: newAce },
             });
           }
         } catch {
-          // Best-effort: the manual rerun button remains as the fallback
+          // Silent: no toast spam from a background backfill; manual button remains
         }
       }
-      // Also re-triggers this effect, picking up any posts that appeared mid-run
       dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
       isRescoringRef.current = false;
     })();

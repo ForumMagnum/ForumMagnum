@@ -71,8 +71,6 @@ const ModerationUserDetailView = ({
 }) => {
   const classes = useStyles(styles);
 
-  // Posts that never got an LLM score (failed or skipped evaluation at publish
-  // time) get rescored automatically when they show up in this view
   useAutoRescoreMissingLlmScores(posts, dispatch);
 
   const setSidebarTab = useCallback(
