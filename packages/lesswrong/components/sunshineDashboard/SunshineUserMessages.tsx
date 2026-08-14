@@ -19,7 +19,7 @@ import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
-import GroupedModerationTemplateList from './GroupedModerationTemplateList';
+import GroupedModerationTemplateList, { getModerationTemplatesQueryVariables } from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
@@ -39,8 +39,7 @@ const ConversationsListMultiQuery = gql(`
   }
 `);
 
-// Same selector as the rejection panel's template list, so the highlighted-template
-// shortcuts shown while the panel is closed resolve from the same cached data
+// Same field+variables as the reject panel's list, so Apollo answers from its cache
 const RejectionTemplatesQuery = gql(`
   query rejectionTemplatesSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
     moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
@@ -161,7 +160,9 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
   dmTab: {
     flexShrink: 0,
-    // Pushed to the right edge so the tabs read as separate choices
+  },
+  // Pushed right so the tabs read as separate choices; not applied when it's alone
+  dmTabPushedRight: {
     marginLeft: 'auto',
   },
   rejectTab: {
@@ -183,8 +184,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   hiddenTabContent: {
     display: 'none',
   },
-  // Highlighted rejection templates stay visible as shortcuts while the
-  // reject section itself is closed
   collapsedHighlightedTemplates: {
     ...theme.typography.commentStyle,
     display: 'flex',
@@ -271,19 +270,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const dmTabActive = sidebarTab === 'dm';
 
   const { data: rejectionTemplatesData } = useQuery(RejectionTemplatesQuery, {
-    variables: {
-      selector: { moderationTemplatesList: { collectionName: "Rejections" } },
-      limit: 50,
-      enableTotal: false,
-    },
+    variables: getModerationTemplatesQueryVariables("Rejections"),
     skip: !showRejectTab,
   });
   const highlightedRejectionTemplates = (rejectionTemplatesData?.moderationTemplates?.results ?? [])
     .filter(template => highlightedTemplateNames.has(template.name));
 
-  // The reject panel registers its composer's template toggle here, so the
-  // highlighted-template shortcuts can insert a template while the panel's tab
-  // is closed (the panel stays mounted, just hidden)
   const rejectToggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
   const registerRejectToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
     rejectToggleTemplateRef.current = fn;
@@ -454,7 +446,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         </span>
       </div>}
       <div
-        className={classNames(classes.tab, classes.dmTab)}
+        className={classNames(classes.tab, classes.dmTab, { [classes.dmTabPushedRight]: showRejectTab })}
         onClick={handleSelectDmTab}
       >
         <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>

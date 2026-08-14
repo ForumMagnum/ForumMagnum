@@ -298,8 +298,6 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape, highlighte
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
   highlightedTemplateNames?: Set<string>,
-  // Lets the parent toggle a template into the composer from outside the panel
-  // (e.g. the highlighted-template shortcuts shown while the panel's tab is closed)
   onRegisterToggleTemplate?: (fn: (template: ModerationTemplateFragment) => void) => void,
 }) => {
   const [templateSearchToken, setTemplateSearchToken] = useState(0);

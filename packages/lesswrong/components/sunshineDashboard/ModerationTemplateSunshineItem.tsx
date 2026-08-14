@@ -82,8 +82,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
-  // Defined before `suggested` so a selected-and-suggested row keeps the suggested
-  // background and only picks up the outline
+  // Defined before `suggested`, whose stronger outline wins when a row has both
   selected: {
     outline: theme.palette.greyBorder("1px", 0.3),
     backgroundColor: theme.palette.greyAlpha(0.1),

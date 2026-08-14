@@ -73,7 +73,7 @@ function saveHiddenTemplateIds(userId: string, collectionName: TemplateType, hid
   ls?.setItem(getHiddenTemplatesStorageKey(userId, collectionName), JSON.stringify([...hiddenTemplateIds]));
 }
 
-function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
+export function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
   return {
     selector: { moderationTemplatesList: { collectionName } },
     limit: 50,
