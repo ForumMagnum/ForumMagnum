@@ -1147,7 +1147,7 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
-export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
+export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
   if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
@@ -1156,9 +1156,11 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   }
 }
 
-function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  //Only when undrafting
-  if (post.draft || !oldPost.draft) return false;
+function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
+  // Only when publishing: undrafting an existing post, or creating a post
+  // that's published from the start (oldPost is null on creation)
+  const isBeingPublished = oldPost ? (!post.draft && oldPost.draft) : !post.draft;
+  if (!isBeingPublished) return false;
 
   // Skip for AF
   if (!isLW()) return false;

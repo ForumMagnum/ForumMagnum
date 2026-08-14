@@ -11,6 +11,7 @@ import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
 import { PANGRAM_AUTOREJECT_THRESHOLD } from "@/lib/collections/automatedContentEvaluations/constants";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -58,6 +59,38 @@ export interface PangramEvaluationResult {
   }[] | null;
 }
 
+// Transient Pangram failures (timeouts, 5xxs) used to permanently leave content
+// without an evaluation, so retry a couple of times before giving up.
+const PANGRAM_RETRY_DELAYS_MS = [1000, 4000];
+
+async function fetchPangramWithRetries(key: string, textToCheck: string): Promise<Response> {
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= PANGRAM_RETRY_DELAYS_MS.length; attempt++) {
+    if (attempt > 0) {
+      await sleep(PANGRAM_RETRY_DELAYS_MS[attempt - 1]);
+    }
+    try {
+      const response = await fetch('https://text.api.pangram.com/v3', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+        },
+        body: JSON.stringify({ text: textToCheck }),
+      });
+      if (response.status >= 500) {
+        const errorText = await response.text().catch(() => 'Unable to read error response');
+        lastError = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
+        continue;
+      }
+      return response;
+    } catch (e) {
+      lastError = e instanceof Error ? e : new Error(`Pangram API request failed: ${e}`);
+    }
+  }
+  throw lastError ?? new Error("Pangram API request failed");
+}
+
 export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
   const key = process.env.PANGRAM_API_KEY;
   if (!key) {
@@ -68,14 +101,7 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
   // an entire long post in one go isn't usually worth the extra $$$.
   const textToCheck = text.slice(0, 30_000);
 
-  const response = await fetch('https://text.api.pangram.com/v3', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-    },
-    body: JSON.stringify({ text: textToCheck }),
-  });
+  const response = await fetchPangramWithRetries(key, textToCheck);
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unable to read error response');
@@ -230,6 +256,18 @@ interface CreateAutomatedContentEvaluationOptions {
   autoreject?: boolean;
 }
 
+async function parentDocumentIsDraft(collectionName: DbRevision['collectionName'], documentId: string): Promise<boolean> {
+  if (collectionName === "Posts") {
+    const post = await Posts.findOne({ _id: documentId });
+    return !post || !!post.draft;
+  }
+  if (collectionName === "Comments") {
+    const comment = await Comments.findOne({ _id: documentId });
+    return !comment || !!comment.draft;
+  }
+  return true;
+}
+
 export async function createAutomatedContentEvaluation(
   revision: DbRevision,
   context: ResolverContext,
@@ -237,10 +275,17 @@ export async function createAutomatedContentEvaluation(
 ) {
   const { autoreject } = options;
 
-  // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
-  if (revision.draft) return;
   const documentId = revision.documentId;
   if (!documentId) return;
+
+  // Revisions with draft=true are usually autosaves, which we don't want to evaluate.
+  // But a document that gets published without a simultaneous content edit (e.g. a
+  // collaborative-editing post, or a publish from outside the editor form) keeps
+  // pointing at its last draft revision: no new revision is created, and the
+  // revision's own draft flag is only cleared later (via ensurePostHasNonDraftContents),
+  // if ever. So before skipping, check whether the parent document itself is still a
+  // draft; if it's published, evaluate the revision even though it's flagged as draft.
+  if (revision.draft && await parentDocumentIsDraft(revision.collectionName, documentId)) return;
 
   const pangramEvaluation = await getPangramEvaluation(revision).catch((err) => {
     // eslint-disable-next-line no-console
