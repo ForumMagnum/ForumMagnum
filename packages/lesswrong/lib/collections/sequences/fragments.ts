@@ -48,6 +48,10 @@ export const SequenceContinueReadingFragment = gql(`
     gridImageId
     coverImageId
     canonicalCollectionSlug
+    user {
+      _id
+      displayName
+    }
   }
 `)
 

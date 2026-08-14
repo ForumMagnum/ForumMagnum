@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useRef, useState, MouseEvent } from 'react';
 import sortBy from 'lodash/sortBy';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@/lib/crud/useQuery';
+import { useCurrentUser } from '../common/withUser';
 import { useContinueReading } from '../recommendations/withContinueReading';
+import { useDismissRecommendation } from '../recommendations/withDismissRecommendation';
+import LWTooltip from '../common/LWTooltip';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import PortraitCoverImage from './PortraitCoverImage';
+import LibraryBookshelfDropdown from './LibraryBookshelfDropdown';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const LibraryBookshelfBookmarksQuery = gql(`
+  query LibraryBookshelfBookmarksQuery($selector: BookmarkSelector, $limit: Int) {
+    bookmarks(selector: $selector, limit: $limit) {
+      results {
+        ...BookmarksBookshelfItemFragment
+      }
+    }
+  }
+`);
 
 /** Covers shown in the strip itself; further entries are only counted in "N more >" */
 const STRIP_ITEM_COUNT = 4;
@@ -13,7 +30,12 @@ const STRIP_ITEM_COUNT = 4;
 const COVER_WIDTH = 104;
 const COVER_HEIGHT = 140;
 
+const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
+
 const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) => ({
+  root: {
+    marginBottom: 32,
+  },
   labelRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -28,22 +50,28 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
   },
-  // TODO: becomes the trigger for the bookshelf dropdown when that gets built
-  moreLink: {
+  trigger: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.dim,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.primary.main,
+    },
   },
   strip: {
     display: 'flex',
     gap: '14px',
-    marginBottom: 32,
     overflowX: 'auto',
   },
   item: {
     display: 'block',
+    position: 'relative',
     flex: 'none',
     width: COVER_WIDTH,
+    '&:hover $coverDismiss': {
+      opacity: 1,
+    },
   },
   cover: {
     // The design's book covers use a wider shadow than PortraitCoverImage's
@@ -51,6 +79,28 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     '&&': {
       boxShadow: `0 1px 5px ${theme.palette.boxShadowColor(0.15)}`,
     },
+  },
+  coverDismiss: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    background: theme.palette.panelBackground.default,
+    boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.3)}`,
+    color: theme.palette.text.dim,
+    opacity: 0,
+    transition: 'opacity .2s',
+    '&:hover': {
+      color: theme.palette.primary.main,
+    },
+  },
+  coverDismissIcon: {
+    fontSize: 14,
   },
   progressRow: {
     display: 'flex',
@@ -106,23 +156,86 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
 
 const LibraryContinueReadingStrip = () => {
   const classes = useStyles(styles);
-  const { continueReading, loading } = useContinueReading();
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
+  const dismissRecommendation = useDismissRecommendation();
+  const [dismissedPostIds, setDismissedPostIds] = useState<Record<string, boolean>>({});
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const labelRowRef = useRef<HTMLDivElement | null>(null);
 
-  if (loading || !continueReading.length) {
+  // Guests never have a bookshelf: don't render getResumeSequences' hardcoded
+  // logged-out defaults (they carry no read progress and would show broken 0%
+  // bars), and myBookmarks errors when logged out.
+  const { continueReading, loading } = useContinueReading({skip: !currentUser});
+  const { data: savedData, loading: savedLoading } = useQuery(LibraryBookshelfBookmarksQuery, {
+    variables: {
+      selector: { myBookmarks: { collectionNames: ["Sequences", "Collections"] } },
+      limit: 100,
+    },
+    skip: !currentUser,
+  });
+
+  if (!currentUser || loading || savedLoading) {
     return null;
   }
 
-  const sorted = sortBy(continueReading, r => r.lastReadTime).reverse();
+  const sorted = sortBy(
+    continueReading.filter(entry => !dismissedPostIds[entry.nextPost._id]),
+    r => r.lastReadTime,
+  ).reverse();
+  const savedBookmarks = savedData?.bookmarks?.results ?? [];
+
+  // The label row and dropdown trigger render whenever the user has ANY
+  // bookshelf content (in-progress or saved); the covers strip additionally
+  // requires continue-reading entries.
+  if (!sorted.length && !savedBookmarks.length) {
+    return null;
+  }
+
   const shownEntries = sorted.slice(0, STRIP_ITEM_COUNT);
   const moreCount = sorted.length - shownEntries.length;
 
+  const toggleDropdown = () => {
+    const nowOpen = !dropdownOpen;
+    setDropdownOpen(nowOpen);
+    captureEvent('libraryBookshelfDropdownToggled', {open: nowOpen});
+  };
+
+  const handleTriggerKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleDropdown();
+    }
+  };
+
+  const dismissEntry = (postId: string) => {
+    void dismissRecommendation(postId);
+    setDismissedPostIds(prev => ({...prev, [postId]: true}));
+    captureEvent('continueReadingDismissed', {postId});
+  };
+
+  const handleCoverDismiss = (event: MouseEvent, postId: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dismissEntry(postId);
+  };
+
   return <AnalyticsContext pageSectionContext="libraryContinueReading">
-    <div>
-      <div className={classes.labelRow}>
+    <div className={classes.root}>
+      <div className={classes.labelRow} ref={labelRowRef}>
         <span className={classes.label}>Continue Reading</span>
-        {moreCount > 0 && <span className={classes.moreLink}>{moreCount} more &gt;</span>}
+        <span
+          className={classes.trigger}
+          onClick={toggleDropdown}
+          onKeyDown={handleTriggerKeyDown}
+          role="button"
+          tabIndex={0}
+          aria-expanded={dropdownOpen}
+        >
+          {moreCount > 0 ? `${moreCount} more >` : 'Your bookshelf ›'}
+        </span>
       </div>
-      <div className={classes.strip}>
+      {shownEntries.length > 0 && <div className={classes.strip}>
         {shownEntries.map((entry) => {
           const item = entry.sequence ?? entry.collection;
           if (!item) {
@@ -144,6 +257,14 @@ const LibraryContinueReadingStrip = () => {
               height={COVER_HEIGHT}
               className={classes.cover}
             />
+            <span
+              className={classes.coverDismiss}
+              onClick={(event) => handleCoverDismiss(event, entry.nextPost._id)}
+            >
+              <LWTooltip title={dismissRecommendationTooltip} placement="right">
+                <CloseIcon className={classes.coverDismissIcon} />
+              </LWTooltip>
+            </span>
             {(entry.numRead ?? 0) > 0
               ? <div className={classes.progressRow}>
                   <div className={classes.progressTrack}>
@@ -155,7 +276,14 @@ const LibraryContinueReadingStrip = () => {
             <div className={classes.itemTitle}>{item.title}</div>
           </Link>;
         })}
-      </div>
+      </div>}
+      {dropdownOpen && <LibraryBookshelfDropdown
+        anchorEl={labelRowRef.current}
+        continueReading={sorted}
+        savedBookmarks={savedBookmarks}
+        onDismiss={dismissEntry}
+        onClose={() => setDropdownOpen(false)}
+      />}
     </div>
   </AnalyticsContext>;
 };

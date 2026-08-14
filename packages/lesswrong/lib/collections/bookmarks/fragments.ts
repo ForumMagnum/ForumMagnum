@@ -29,6 +29,30 @@ export const BookmarksLibraryItemFragment = gql(`
   }
 `);
 
+export const BookmarksBookshelfItemFragment = gql(`
+  fragment BookmarksBookshelfItemFragment on Bookmark {
+    ...BookmarksMinimumInfoFragment
+    collectionName
+    sequence {
+      _id
+      title
+      user {
+        _id
+        displayName
+      }
+    }
+    collection {
+      _id
+      title
+      slug
+      user {
+        _id
+        displayName
+      }
+    }
+  }
+`);
+
 export const BookmarksFeedItemFragment = gql(`
   fragment BookmarksFeedItemFragment on Bookmark {
     ...BookmarksMinimumInfoFragment

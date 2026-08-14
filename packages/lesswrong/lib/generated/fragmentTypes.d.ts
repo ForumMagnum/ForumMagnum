@@ -13,6 +13,7 @@ interface FragmentTypes {
   AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
   BookEdit: BookEdit
   BookPageFragment: BookPageFragment
+  BookmarksBookshelfItemFragment: BookmarksBookshelfItemFragment
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksLibraryItemFragment: BookmarksLibraryItemFragment
   BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
@@ -226,7 +227,7 @@ interface FragmentTypes {
 interface FragmentTypesByCollection {
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
-  Bookmarks: "BookmarksFeedItemFragment"|"BookmarksLibraryItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
+  Bookmarks: "BookmarksBookshelfItemFragment"|"BookmarksFeedItemFragment"|"BookmarksLibraryItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
   Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
@@ -283,6 +284,7 @@ interface CollectionNamesByFragmentName {
   AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"
   BookEdit: "Books"
   BookPageFragment: "Books"
+  BookmarksBookshelfItemFragment: "Bookmarks"
   BookmarksFeedItemFragment: "Bookmarks"
   BookmarksLibraryItemFragment: "Bookmarks"
   BookmarksMinimumInfoFragment: "Bookmarks"

@@ -6,6 +6,10 @@ export const CollectionContinueReadingFragment = gql(`
     slug
     gridImageId
     coverImageId
+    user {
+      _id
+      displayName
+    }
   }
 `)
 

@@ -19798,6 +19798,24 @@ type LibraryCollectionExpansionQueryVariables = Exact<{
 
 type LibraryCollectionExpansionQuery = LibraryCollectionExpansionQuery_Query;
 
+type LibraryBookshelfBookmarksQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
+  { __typename?: 'Bookmark' }
+  & BookmarksBookshelfItemFragment
+);
+
+type LibraryBookshelfBookmarksQueryQuery_bookmarks_MultiBookmarkOutput = { __typename?: 'MultiBookmarkOutput', results: Array<LibraryBookshelfBookmarksQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark> };
+
+type LibraryBookshelfBookmarksQueryQuery_Query = { __typename?: 'Query', bookmarks: LibraryBookshelfBookmarksQueryQuery_bookmarks_MultiBookmarkOutput | null };
+
+
+type LibraryBookshelfBookmarksQueryQueryVariables = Exact<{
+  selector: InputMaybe<BookmarkSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type LibraryBookshelfBookmarksQueryQuery = LibraryBookshelfBookmarksQueryQuery_Query;
+
 type LibraryTopicCountsQuery_libraryTopicCounts_LibraryTopicCount = { __typename?: 'LibraryTopicCount', topic: string, count: number };
 
 type LibraryTopicCountsQuery_Query = { __typename?: 'Query', libraryTopicCounts: Array<LibraryTopicCountsQuery_libraryTopicCounts_LibraryTopicCount> };
@@ -23766,6 +23784,19 @@ type BookmarksLibraryItemFragment = (
   & BookmarksMinimumInfoFragment
 );
 
+type BookmarksBookshelfItemFragment_Bookmark_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type BookmarksBookshelfItemFragment_Bookmark_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string, user: BookmarksBookshelfItemFragment_Bookmark_sequence_Sequence_user_User | null };
+
+type BookmarksBookshelfItemFragment_Bookmark_collection_Collection_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type BookmarksBookshelfItemFragment_Bookmark_collection_Collection = { __typename?: 'Collection', _id: string, title: string, slug: string, user: BookmarksBookshelfItemFragment_Bookmark_collection_Collection_user_User | null };
+
+type BookmarksBookshelfItemFragment = (
+  { __typename?: 'Bookmark', collectionName: string, sequence: BookmarksBookshelfItemFragment_Bookmark_sequence_Sequence | null, collection: BookmarksBookshelfItemFragment_Bookmark_collection_Collection | null }
+  & BookmarksMinimumInfoFragment
+);
+
 type BookmarksFeedItemFragment_Bookmark_post_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -23851,7 +23882,9 @@ type ModeratorClientIDInfo_ClientId_users_User = (
 
 type ModeratorClientIDInfo = { __typename?: 'ClientId', _id: string, clientId: string | null, createdAt: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, users: Array<ModeratorClientIDInfo_ClientId_users_User> | null };
 
-type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null };
+type CollectionContinueReadingFragment_Collection_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, user: CollectionContinueReadingFragment_Collection_user_User | null };
 
 type LibraryCollectionRowFragment_Collection_user_User = (
   { __typename?: 'User' }
@@ -25033,7 +25066,9 @@ type SequencesPageFragment = (
   & SequencesPageTitleFragment
 );
 
-type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null };
+type SequenceContinueReadingFragment_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, user: SequenceContinueReadingFragment_Sequence_user_User | null };
 
 type LibrarySequenceRowFragment_Sequence_user_User = (
   { __typename?: 'User' }
