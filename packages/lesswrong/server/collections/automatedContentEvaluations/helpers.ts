@@ -59,7 +59,7 @@ export interface PangramEvaluationResult {
   }[] | null;
 }
 
-// There's no backfill sweep, so one transient failure permanently skips the content
+// The publish-time pipeline has no later retry, so ride out transient failures here
 const PANGRAM_RETRY_DELAYS_MS = [1000, 4000];
 
 async function fetchPangramWithRetries(key: string, textToCheck: string): Promise<Response> {
@@ -77,6 +77,7 @@ async function fetchPangramWithRetries(key: string, textToCheck: string): Promis
         },
         body: JSON.stringify({ text: textToCheck }),
       });
+      // Retry 5xx and network errors; 4xx returns for the normal !response.ok handling
       if (response.status >= 500) {
         const errorText = await response.text().catch(() => 'Unable to read error response');
         lastError = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
@@ -87,7 +88,9 @@ async function fetchPangramWithRetries(key: string, textToCheck: string): Promis
       lastError = e instanceof Error ? e : new Error(`Pangram API request failed: ${e}`);
     }
   }
-  throw lastError ?? new Error("Pangram API request failed");
+  const finalError = lastError ?? new Error("Pangram API request failed");
+  captureException(finalError);
+  throw finalError;
 }
 
 export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
@@ -256,7 +259,8 @@ interface CreateAutomatedContentEvaluationOptions {
 }
 
 async function parentDocumentIsDraft(collectionName: DbRevision['collectionName'], documentId: string): Promise<boolean> {
-  // Fresh findOne (not loaders): the caller may have flipped draft this same request
+  // Fresh findOne (not loaders): the caller may have flipped draft this same request,
+  // and the moderation resolvers only hold a revision. Missing docs count as draft.
   if (collectionName === "Posts") {
     const post = await Posts.findOne({ _id: documentId });
     return !post || !!post.draft;
@@ -280,8 +284,9 @@ export async function createAutomatedContentEvaluation(
   if (!documentId) return;
 
   // Draft revisions are usually autosaves, which we don't evaluate. But publishing
-  // without a body edit creates no new revision, so a published document can still
-  // point at a draft-flagged revision — trust the document's draft state instead.
+  // without a body edit creates no new revision, and ensurePostHasNonDraftContents
+  // (which clears the stale flag) is skipped for unreviewed authors — so trust the
+  // document's own draft state rather than the revision's.
   if (revision.draft && await parentDocumentIsDraft(revision.collectionName, documentId)) return;
 
   const pangramEvaluation = await getPangramEvaluation(revision).catch((err) => {

@@ -1148,7 +1148,7 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
-  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
+  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
       await createAutomatedContentEvaluation(revision, context, { autoreject: true });
@@ -1156,8 +1156,8 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   }
 }
 
-function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
-  // oldPost is null when the post was created already-published
+function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost | null) {
+  // On create there's no oldPost; "being published" just means the post isn't a draft
   const isBeingPublished = oldPost ? (!post.draft && oldPost.draft) : !post.draft;
   if (!isBeingPublished) return false;
 
