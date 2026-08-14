@@ -69,8 +69,9 @@ export function useRerunLlmCheck(
   };
 }
 
-// Drafts get scored when published; scoring one now could capture a stale autosave.
-// Rejected posts are included: highlight rules read scores on rejected content too.
+// Drafts are excluded: rerunLlmCheck follows contents_latest blindly, so it would
+// score an in-progress autosave that the publish-time pipeline deliberately skips.
+// Rejected posts are included: templateHighlightRules reads their scores too.
 function postNeedsLlmRescore(post: SunshinePostsList): boolean {
   return !post.draft && post.automatedContentEvaluations?.pangramScore == null;
 }
@@ -82,8 +83,10 @@ function findNextPostToRescore(posts: SunshinePostsList[], attemptedPostIds: Set
 /**
  * Backfills missing Pangram scores for posts shown in the user detail view, via
  * the same mutation as the manual "LLM" button (which records scores, never
- * autorejects). Sequential, to avoid bursts against the paid Pangram API. Each
- * post is attempted once per mount; the manual button remains the fallback.
+ * autorejects). Sequential, to bound spend against the paid Pangram API: at most
+ * the ~20 posts the view fetches, each attempted once per mount, with the manual
+ * button as the fallback. Not coordinated with the manual button — a concurrent
+ * manual rerun just wastes one duplicate check.
  */
 export function useAutoRescoreMissingLlmScores(
   posts: SunshinePostsList[],
@@ -96,6 +99,15 @@ export function useAutoRescoreMissingLlmScores(
   // user switch) aren't dropped — the effect can't re-fire while the loop is going
   const latestPostsRef = useRef(posts);
   latestPostsRef.current = posts;
+  // Unmount-only cancellation: the work-starting effect below re-runs whenever
+  // posts change, so its own cleanup must not cancel the in-flight loop
+  const unmountedRef = useRef(false);
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (isRescoringRef.current || !findNextPostToRescore(posts, attemptedPostIdsRef.current)) {
@@ -104,7 +116,7 @@ export function useAutoRescoreMissingLlmScores(
     isRescoringRef.current = true;
 
     void (async () => {
-      for (;;) {
+      while (!unmountedRef.current) {
         const post = findNextPostToRescore(latestPostsRef.current, attemptedPostIdsRef.current);
         if (!post) break;
         const postId = post._id;
@@ -125,7 +137,8 @@ export function useAutoRescoreMissingLlmScores(
           });
           const newAce = result.data?.rerunLlmCheck;
           if (newAce) {
-            // The inbox tabs render reducer-owned copies of posts; keep those in sync
+            // This view's list updates via the cache write above; the inbox tabs
+            // render reducer-owned copies of posts, so sync those too
             dispatch({
               type: 'UPDATE_POST',
               postId,
@@ -133,11 +146,14 @@ export function useAutoRescoreMissingLlmScores(
             });
           }
         } catch {
-          // Silent: no toast spam from a background backfill; manual button remains
+          // Silent: a background backfill shouldn't toast per failure
         }
       }
-      dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
       isRescoringRef.current = false;
+      // After unmount a newer view's loop may own the shared spinner slot
+      if (!unmountedRef.current) {
+        dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
+      }
     })();
   }, [posts, dispatch, rerunLlmCheck]);
 }
