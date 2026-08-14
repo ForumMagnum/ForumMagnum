@@ -79,9 +79,6 @@ export const LibrarySequenceRowFragment = gql(`
 export const LibrarySequenceExpansionFragment = gql(`
   fragment LibrarySequenceExpansionFragment on Sequence {
     _id
-    contents {
-      ...RevisionHTML
-    }
     chapters {
       _id
       title

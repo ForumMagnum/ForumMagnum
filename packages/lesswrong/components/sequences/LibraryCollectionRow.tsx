@@ -1,21 +1,18 @@
 import React, { MouseEvent } from 'react';
-import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import { Link } from '../../lib/reactRouterWrapper';
 import { collectionGetPageUrl } from '../../lib/collections/collections/helpers';
 import { useBookmark } from '../hooks/useBookmark';
 import PortraitCoverImage from './PortraitCoverImage';
 import ForumIcon from '../common/ForumIcon';
+import LWTooltip from '../common/LWTooltip';
 import Loading from '../vulcan-core/Loading';
-import { ContentItemBody } from '../contents/ContentItemBody';
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import { useStyles } from '@/components/hooks/useStyles';
-import { libraryRowStyles, toRomanNumeral } from './LibrarySequenceRow';
+import { libraryRowStyles, LibraryRowExpansionBody } from './LibrarySequenceRow';
 
 const LibraryCollectionExpansionQuery = gql(`
   query LibraryCollectionExpansion($collectionId: String) {
@@ -36,53 +33,28 @@ const LibraryCollectionRowBody = ({collection}: {
   });
   const expansion = data?.collection?.result;
 
-  const books = sortBy(expansion?.books ?? [], book => book.number ?? 0);
-  const titledBooks = books.filter(book => book.tocTitle || book.title);
-  const hasProgress = collection.readPostsCount > 0;
-
   if (loading || !expansion) {
     return <div className={classes.body}>
       <Loading />
     </div>;
   }
 
-  return <div className={classes.body}>
-    {expansion.contents?.html && <ContentItemBody
-      dangerouslySetInnerHTML={{__html: expansion.contents.html}}
-      description={`collection ${collection._id}`}
-      className={classes.description}
-    />}
-    {titledBooks.length > 0 && <div className={classes.chapterGrid}>
-      {titledBooks.map((book, i) => {
-        const completed = book.postsCount > 0 && book.readPostsCount >= book.postsCount;
-        return <div key={book._id} className={classes.chapterEntry}>
-          <span className={classes.chapterNumeral}>{toRomanNumeral(i + 1)}</span>
-          <span className={classNames(classes.chapterName, completed && classes.chapterNameCompleted)}>
-            {book.tocTitle || book.title}{completed && " ✓"}
-          </span>
-        </div>;
-      })}
-    </div>}
-    <div className={classes.bodyFooter}>
-      <Link
-        to={collectionGetPageUrl(collection)}
-        className={classNames(classes.footerLink, classes.viewSequenceLink)}
-      >
-        View collection
-        <ArrowForwardIcon className={classes.linkIcon} />
-      </Link>
-      {/* Unlike sequence rows this doesn't enroll in continue-reading:
-          firstPageLink is an arbitrary path, not a post id, so there's
-          nothing to pass to updateContinueReading. */}
-      {!collection.hideStartReadingButton && <Link
-        to={collection.firstPageLink}
-        className={classNames(classes.footerLink, classes.startReadingLink)}
-      >
-        {hasProgress ? "Continue reading" : "Start reading"}
-        <ArrowForwardIcon className={classes.linkIcon} />
-      </Link>}
-    </div>
-  </div>;
+  const books = sortBy(expansion.books ?? [], book => book.number ?? 0);
+  const checklistRows = books
+    .filter(book => book.tocTitle || book.title)
+    .map(book => ({
+      key: book._id,
+      label: book.tocTitle || book.title || '',
+      read: book.postsCount > 0 && book.readPostsCount >= book.postsCount,
+    }));
+
+  return <LibraryRowExpansionBody
+    description={collection.contents?.plaintextDescription ?? null}
+    rows={checklistRows}
+    totalPostsCount={collection.postsCount}
+    viewLink={collectionGetPageUrl(collection)}
+    viewLinkLabel="View collection"
+  />;
 };
 
 const LibraryCollectionRow = ({collection, expanded, onToggle}: {
@@ -142,6 +114,10 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
     </div>;
   }
 
+  const postsCount = collection.postsCount;
+  const readPostsCount = collection.readPostsCount;
+  const progressPercent = postsCount > 0 ? Math.round((readPostsCount / postsCount) * 100) : 0;
+
   return <div className={classes.expandedWrapper}>
     <div
       className={classes.expandedHeader}
@@ -152,21 +128,32 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
       aria-expanded={true}
     >
       {cover}
-      <div className={classes.titleCell}>
-        <div className={classes.expandedTitle}>{collection.title}</div>
-        <div className={classes.metaLine}>
-          {collection.user?.displayName} · {collection.postsCount} posts
+      <div className={classes.expandedTitleCell}>
+        <div>
+          <div className={classes.expandedTitle}>{collection.title}</div>
+          <div className={classes.metaLine}>{collection.user?.displayName}</div>
         </div>
+        {postsCount > 0 && <div className={classes.progressTrack}>
+          <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
+        </div>}
       </div>
       <span className={classes.headerActions}>
-        <span className={classes.save} onClick={handleSaveClick}>
-          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
-          {bookmarkLabel}
-        </span>
         {collection.libraryTopic && <span className={classes.topicChip}>{collection.libraryTopic}</span>}
+        <span className={classes.save} onClick={handleSaveClick} title={bookmarkLabel}>
+          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+        </span>
       </span>
       <ExpandMoreIcon className={classes.chevron} />
     </div>
+    {postsCount > 0 && <div className={classes.progressCaptionRow}>
+      <LWTooltip
+        title={`${readPostsCount} / ${postsCount} read`}
+        placement="bottom-start"
+        distance={6}
+      >
+        <span className={classes.progressCaption}>{progressPercent}% read</span>
+      </LWTooltip>
+    </div>}
     <LibraryCollectionRowBody collection={collection} />
   </div>;
 };

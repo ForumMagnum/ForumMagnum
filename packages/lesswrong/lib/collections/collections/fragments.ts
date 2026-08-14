@@ -23,8 +23,6 @@ export const LibraryCollectionRowFragment = gql(`
     libraryTopic
     postsCount
     readPostsCount
-    firstPageLink
-    hideStartReadingButton
     user {
       ...UsersMinimumInfo
     }
@@ -38,9 +36,6 @@ export const LibraryCollectionRowFragment = gql(`
 export const LibraryCollectionExpansionFragment = gql(`
   fragment LibraryCollectionExpansionFragment on Collection {
     _id
-    contents {
-      ...RevisionHTML
-    }
     books {
       _id
       title
