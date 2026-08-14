@@ -34,7 +34,9 @@ export const userHasAutosummarize = adminOnly
 
 export const visitorGetsDynamicFrontpage: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
-export const userHasLibraryPageRedesign: BetaGate = (user) => isLW() && adminOrBeta(user);
+// TODO: revert to `isLW() && adminOrBeta(user)` before PR — shipped to
+// everyone temporarily for local testing.
+export const userHasLibraryPageRedesign: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
 export const userHasSubscribeTabFeed: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 
