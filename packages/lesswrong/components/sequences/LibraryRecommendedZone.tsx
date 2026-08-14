@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { Link } from '../../lib/reactRouterWrapper';
 import CloudinaryImage2 from '../common/CloudinaryImage2';
+import { CloudinaryPropsType } from '../common/cloudinaryHelpers';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 interface LibraryRecommendedCard {
@@ -10,6 +11,8 @@ interface LibraryRecommendedCard {
   description: string,
   imageId: string,
   url: string,
+  /** Cloudinary transform override, for art that needs a custom crop */
+  imgProps?: CloudinaryPropsType,
 }
 
 // Hardcoded editorial picks, following the precedent of LWCoreReading's
@@ -19,7 +22,9 @@ const RECOMMENDED_CARDS: LibraryRecommendedCard[] = [
   {
     title: "The Codex",
     description: "Scott Alexander on science, medicine, philosophy, futurism and politics.",
-    imageId: "sequences/r6u4ghtv3smv1zeh6rvv",
+    // codex_u7ptgt (also used by LWCoreReading) rather than the collection's
+    // grid image, which is a huge gradient with a tiny icon in the middle.
+    imageId: "codex_u7ptgt",
     url: "/codex",
   },
   {
@@ -50,6 +55,9 @@ const RECOMMENDED_CARDS: LibraryRecommendedCard[] = [
     title: "Inadequate Equilibria",
     description: "When can you outperform the experts and the markets?",
     imageId: "sequences/c1h4gtqbcw3v04ikuprj",
+    // The art is a 2133x1600 black field with a small emblem at the center;
+    // crop in around the emblem so it isn't a speck at card size.
+    imgProps: {c: "crop", g: "center", w: "1044", h: "520"},
     url: "/s/oLGCcbnvabyibnG9d",
   },
 ];
@@ -243,7 +251,7 @@ const LibraryRecommendedZone = () => {
           <Link key={card.title} to={card.url} className={classNames(classes.panel, classes.card)}>
             <CloudinaryImage2
               publicId={card.imageId}
-              imgProps={{w: "522", h: "260"}}
+              imgProps={card.imgProps ?? {w: "522", h: "260"}}
               className={classes.cardImage}
               wrapperClassName={classes.cardImageWrapper}
             />

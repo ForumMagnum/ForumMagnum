@@ -192,6 +192,12 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     '& p:last-child': {
       marginBottom: 0,
     },
+    // Collection descriptions (e.g. Best of LessWrong) embed cover art at
+    // natural size; keep it within the text column.
+    '& img': {
+      maxWidth: 320,
+      height: 'auto',
+    },
   },
   chapterGrid: {
     display: 'grid',

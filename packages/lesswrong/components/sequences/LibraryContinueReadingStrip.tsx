@@ -70,7 +70,7 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     flex: 'none',
     width: COVER_WIDTH,
     '&:hover $coverDismiss': {
-      opacity: 1,
+      opacity: 0.75,
     },
   },
   cover: {
@@ -89,14 +89,14 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     justifyContent: 'center',
     width: 20,
     height: 20,
-    borderRadius: '50%',
-    background: theme.palette.panelBackground.default,
-    boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.3)}`,
-    color: theme.palette.text.dim,
+    // No chip background: just the icon, shadowed for legibility on any cover
+    color: theme.palette.text.alwaysWhite,
+    filter: `drop-shadow(0 1px 2px ${theme.palette.boxShadowColor(0.6)})`,
     opacity: 0,
     transition: 'opacity .2s',
-    '&:hover': {
-      color: theme.palette.primary.main,
+    // Doubled selector to out-rank the item-hover opacity rule above
+    '&&:hover': {
+      opacity: 1,
     },
   },
   coverDismissIcon: {
@@ -124,21 +124,18 @@ const styles = defineStyles('LibraryContinueReadingStrip', (theme: ThemeType) =>
     lineHeight: 1,
     color: theme.palette.primary.main,
   },
-  startReadingButton: {
+  // Plain text line; sized to occupy the same slot as progressRow so titles
+  // stay aligned across cards with and without progress.
+  startReadingLink: {
     display: 'block',
     marginTop: 6,
-    padding: '4px 0',
-    textAlign: 'center',
-    background: 'light-dark(#f1f1f1, #333333)',
-    borderRadius: 6,
     fontFamily: theme.typography.fontFamily,
     fontSize: 11,
     fontWeight: 500,
-    letterSpacing: '0.03em',
-    textTransform: 'uppercase',
-    color: theme.palette.greyAlpha(0.87),
+    lineHeight: '11px',
+    color: theme.palette.primary.main,
     '&:hover': {
-      background: 'light-dark(#e7e7e7, #3d3d3d)',
+      opacity: 0.7,
     },
   },
   itemTitle: {
@@ -272,7 +269,7 @@ const LibraryContinueReadingStrip = () => {
                   </div>
                   <span className={classes.progressLabel}>{progressPercent}%</span>
                 </div>
-              : <span className={classes.startReadingButton}>Start reading</span>}
+              : <span className={classes.startReadingLink}>Start reading</span>}
             <div className={classes.itemTitle}>{item.title}</div>
           </Link>;
         })}
