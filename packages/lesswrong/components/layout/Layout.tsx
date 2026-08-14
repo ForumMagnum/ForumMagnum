@@ -164,6 +164,9 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
 }));
 
+const isPathnameWithHiddenFloatingButtons = (pathname: string) =>
+  pathname.startsWith('/inbox') || pathname.startsWith('/research') || pathname.startsWith('/admin/supermod');
+
 const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
@@ -183,7 +186,7 @@ const Layout = ({children}: {
 
   // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const hideIntercom = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
+  const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
   let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
@@ -295,7 +298,7 @@ const LlmSidebarWrapper = ({children}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
-  const hideLlmChatButton = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
+  const hideLlmChatButton = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);

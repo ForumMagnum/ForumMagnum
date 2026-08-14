@@ -11,9 +11,10 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
-import { accessFilterSingle } from '@/lib/utils/schemaUtils';
+import { accessFilterSingle, accessFilterMultiple } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
+import { mergeAccounts } from '../scripts/mergeAccounts';
 
 type NewUserUpdates = {
   username: string
@@ -93,6 +94,17 @@ export const graphqlTypeDefs = gql`
     tagId: String!,
     userReadCount: Int!
   }
+  type MergeAccountsFailure {
+    stage: String!
+    message: String!
+    collectionName: String
+    documentId: String
+  }
+  type MergeAccountsResult {
+    completed: Boolean!
+    success: Boolean!
+    failures: [MergeAccountsFailure!]!
+  }
 
   extend type Mutation {
     NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
@@ -100,12 +112,14 @@ export const graphqlTypeDefs = gql`
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
     karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
     SoftDeleteUser(userId: String!): Boolean!
+    MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): MergeAccountsResult!
   }
 
   extend type Query {
     UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
     GetRandomUser(userIsAuthor: String!): User
     IsDisplayNameTaken(displayName: String!): Boolean!
+    UsersSearchForMerge(query: String!): [User!]!
     GetUserBySlug(slug: String!): User
     NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
     AirtableLeaderboards: [AirtableLeaderboardResult!]!
@@ -124,6 +138,11 @@ export const graphqlTypeDefs = gql`
   ${suggestedFeedTypeDefs}
   ${suggestedTopActiveUsersTypeDefs}
 `
+
+// Per-invocation time budget for the MergeAccounts mutation. The graphql
+// route's maxDuration is 120s; this leaves headroom for request overhead and
+// for the merge's non-interruptible tail steps (karma recompute etc).
+const MERGE_ACCOUNTS_MUTATION_BUDGET_MS = 60 * 1000;
 
 export const graphqlMutations = {
   async NewUserCompleteProfile(root: void, { username, email, subscribeToDigest, acceptedTos }: NewUserUpdates, context: ResolverContext) {
@@ -272,6 +291,36 @@ export const graphqlMutations = {
     backgroundTask(invalidateLoginTokensFor(userId));
     return true;
   },
+  async MergeAccounts(
+    _root: void,
+    { sourceUserId, targetUserId, dryRun }: { sourceUserId: string, targetUserId: string, dryRun: boolean },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can merge accounts");
+    }
+    if (sourceUserId === targetUserId) {
+      throw new Error("Cannot merge an account into itself");
+    }
+    const [sourceUser, targetUser] = await Promise.all([
+      Users.findOne({ _id: sourceUserId }),
+      Users.findOne({ _id: targetUserId }),
+    ]);
+    if (!sourceUser) {
+      throw new Error(`Source user not found: ${sourceUserId}`);
+    }
+    if (!targetUser) {
+      throw new Error(`Target user not found: ${targetUserId}`);
+    }
+    // Real merges run with a time budget so that large accounts don't hit the
+    // serverless function's duration limit (the graphql route allows 120s):
+    // when the budget expires, mergeAccounts returns `completed: false` and
+    // the client calls this mutation again to resume where it left off. Dry
+    // runs only log per-collection counts, so they don't need a budget.
+    const deadlineAt = dryRun ? undefined : Date.now() + MERGE_ACCOUNTS_MUTATION_BUDGET_MS;
+    return await mergeAccounts({ sourceUserId, targetUserId, dryRun, deadlineAt });
+  },
 }
 
 export const graphqlQueries = {
@@ -311,6 +360,22 @@ export const graphqlQueries = {
     }
     const isTaken = await context.repos.users.isDisplayNameTaken({ displayName, currentUserId: currentUser._id });
     return isTaken;
+  },
+  async UsersSearchForMerge(
+    _root: void,
+    { query }: { query: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can search for accounts to merge");
+    }
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return [];
+    }
+    const users = await context.repos.users.searchUsersForMerge(trimmedQuery, 20);
+    return accessFilterMultiple(currentUser, 'Users', users, context);
   },
   ...suggestedFeedQuery,
   ...suggestedTopActiveUsersQuery,
