@@ -83,10 +83,10 @@ function findNextPostToRescore(posts: SunshinePostsList[], attemptedPostIds: Set
 /**
  * Backfills missing Pangram scores for posts shown in the user detail view, via
  * the same mutation as the manual "LLM" button (which records scores, never
- * autorejects). Sequential, to bound spend against the paid Pangram API: at most
- * the ~20 posts the view fetches, each attempted once per mount, with the manual
- * button as the fallback. Not coordinated with the manual button — a concurrent
- * manual rerun just wastes one duplicate check.
+ * autorejects). Sequential, to pace spend on the paid Pangram API: each post is
+ * attempted at most once per mount (the view fetches ~20 posts per viewed user),
+ * with the manual button as the fallback. Not coordinated with the manual button
+ * — a concurrent manual rerun just wastes one duplicate check.
  */
 export function useAutoRescoreMissingLlmScores(
   posts: SunshinePostsList[],
@@ -96,63 +96,68 @@ export function useAutoRescoreMissingLlmScores(
   const attemptedPostIdsRef = useRef<Set<string>>(new Set());
   const isRescoringRef = useRef(false);
   // The drain loop reads the latest posts, so ones arriving mid-run (e.g. after a
-  // user switch) aren't dropped — the effect can't re-fire while the loop is going
+  // user switch) aren't dropped; effect re-runs during a drain bail on the latch
   const latestPostsRef = useRef(posts);
-  latestPostsRef.current = posts;
-  // Unmount-only cancellation: the work-starting effect below re-runs whenever
-  // posts change, so its own cleanup must not cancel the in-flight loop
+  // Unmount-only cancellation: the work effect re-runs whenever posts change, so
+  // it deliberately has no cleanup; re-setting false covers StrictMode remounts
   const unmountedRef = useRef(false);
   useEffect(() => {
     unmountedRef.current = false;
     return () => {
       unmountedRef.current = true;
+      // Free the shared spinner slot; a successor view's effects run after this
+      dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
+    latestPostsRef.current = posts;
     if (isRescoringRef.current || !findNextPostToRescore(posts, attemptedPostIdsRef.current)) {
       return;
     }
     isRescoringRef.current = true;
 
     void (async () => {
-      while (!unmountedRef.current) {
-        const post = findNextPostToRescore(latestPostsRef.current, attemptedPostIdsRef.current);
-        if (!post) break;
-        const postId = post._id;
-        attemptedPostIdsRef.current.add(postId);
-        dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: postId });
-        try {
-          const result = await rerunLlmCheck({
-            variables: { documentId: postId, collectionName: 'Posts' },
-            update: (cache, { data }) => {
-              if (!data?.rerunLlmCheck) return;
-              cache.modify({
-                id: cache.identify({ __typename: 'Post', _id: postId }),
-                fields: {
-                  automatedContentEvaluations: () => data.rerunLlmCheck,
-                },
-              });
-            },
-          });
-          const newAce = result.data?.rerunLlmCheck;
-          if (newAce) {
-            // This view's list updates via the cache write above; the inbox tabs
-            // render reducer-owned copies of posts, so sync those too
-            dispatch({
-              type: 'UPDATE_POST',
-              postId,
-              fields: { automatedContentEvaluations: newAce },
+      try {
+        while (!unmountedRef.current) {
+          const post = findNextPostToRescore(latestPostsRef.current, attemptedPostIdsRef.current);
+          if (!post) break;
+          const postId = post._id;
+          attemptedPostIdsRef.current.add(postId);
+          dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: postId });
+          try {
+            const result = await rerunLlmCheck({
+              variables: { documentId: postId, collectionName: 'Posts' },
+              update: (cache, { data }) => {
+                if (!data?.rerunLlmCheck) return;
+                cache.modify({
+                  id: cache.identify({ __typename: 'Post', _id: postId }),
+                  fields: {
+                    automatedContentEvaluations: () => data.rerunLlmCheck,
+                  },
+                });
+              },
             });
+            const newAce = result.data?.rerunLlmCheck;
+            if (newAce) {
+              // This view's list updates via the cache write above; the inbox tabs
+              // render reducer-owned copies of posts, so sync those too
+              dispatch({
+                type: 'UPDATE_POST',
+                postId,
+                fields: { automatedContentEvaluations: newAce },
+              });
+            }
+          } catch {
+            // Silent: a background backfill shouldn't toast per failure
           }
-        } catch {
-          // Silent: a background backfill shouldn't toast per failure
         }
-      }
-      isRescoringRef.current = false;
-      // After unmount a newer view's loop may own the shared spinner slot
-      if (!unmountedRef.current) {
-        dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
+      } finally {
+        isRescoringRef.current = false;
+        // After unmount the cleanup above already freed the shared spinner slot
+        if (!unmountedRef.current) {
+          dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
+        }
       }
     })();
   }, [posts, dispatch, rerunLlmCheck]);
