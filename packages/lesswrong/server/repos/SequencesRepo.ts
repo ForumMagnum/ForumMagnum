@@ -5,6 +5,7 @@ import { getViewablePostsSelector, getViewableSequencesSelector } from "./helper
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
 import { LIBRARY_TOPICS, LIBRARY_TOPIC_TAG_SLUGS, isLibraryTopic } from "@/lib/collections/sequences/libraryTopics";
+import { LIBRARY_RANKING_SHARED_CTES, getLibraryRankingSql } from "./librarySequenceRankingSql";
 
 // A sequence "holds" a library topic when at least half its posts have the
 // topic's tag (LIBRARY_TOPIC_TAG_SLUGS). The set-based subqueries below and
@@ -147,13 +148,20 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     const topicTagSlugs = libraryTopics?.length
       ? libraryTopics.filter(isLibraryTopic).map(topic => LIBRARY_TOPIC_TAG_SLUGS[topic])
       : null;
-    const orderBy = sortBy === "newest"
-      ? `s."createdAt" DESC`
-      : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
+    // Bake-off ranking sorts (librarySortOptions.ts) join a computed
+    // scores CTE; the two base sorts order on Sequences columns directly.
+    const ranking = getLibraryRankingSql(sortBy);
+    const orderBy = ranking
+      ? `${ranking.orderBy}, s."createdAt" DESC`
+      : sortBy === "newest"
+        ? `s."createdAt" DESC`
+        : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
     return this.any(`
       -- SequencesRepo.searchLibrarySequences
+      ${ranking ? `WITH ${LIBRARY_RANKING_SHARED_CTES}, ${ranking.ctes}` : ""}
       SELECT s.*
       FROM "Sequences" s
+      ${ranking ? `LEFT JOIN scores ON scores."sequenceId" = s."_id"` : ""}
       WHERE s."title" ILIKE $(pattern)
         AND s."isDeleted" IS NOT TRUE
         AND s."draft" IS NOT TRUE

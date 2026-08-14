@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LIBRARY_TOPICS } from '@/lib/collections/sequences/libraryTopics';
+import { LIBRARY_BASE_SORT_OPTIONS, LIBRARY_RANKING_SORT_OPTIONS } from '@/lib/collections/sequences/librarySortOptions';
 import LWPopper from '../common/LWPopper';
 import LWClickAwayListener from '../common/LWClickAwayListener';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
@@ -20,7 +21,7 @@ const LibraryTopicCountsQuery = gql(`
 export interface LibraryFilterSettings {
   topics: string[];
   curatedOnly: boolean;
-  sortBy: 'recommended' | 'newest';
+  sortBy: string;
 }
 
 export const defaultLibraryFilterSettings: LibraryFilterSettings = {
@@ -29,16 +30,9 @@ export const defaultLibraryFilterSettings: LibraryFilterSettings = {
   sortBy: 'recommended',
 };
 
-// v1 deliberately ships only these two orderings; "Most read" and "Highest
-// karma" from the mock are deferred until their backends are defined.
-const SORT_OPTIONS: {value: LibraryFilterSettings['sortBy'], label: string}[] = [
-  {value: 'recommended', label: 'Recommended'},
-  {value: 'newest', label: 'Newest'},
-];
-
 const styles = defineStyles('LibraryFilterPopover', (theme: ThemeType) => ({
   popover: {
-    width: 420,
+    width: 450,
     marginTop: 4,
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.faint,
@@ -50,7 +44,7 @@ const styles = defineStyles('LibraryFilterPopover', (theme: ThemeType) => ({
     display: 'flex',
   },
   sortColumn: {
-    width: 150,
+    width: 180,
     flex: 'none',
     borderRight: `1px solid ${theme.palette.greyAlpha(0.08)}`,
     padding: '8px 0',
@@ -202,7 +196,15 @@ const LibraryFilterPopover = ({anchorEl, settings, onApply, onClose}: {
         <div className={classes.columns}>
           <div className={classes.sortColumn}>
             <div className={classes.columnHeader}>Sort by</div>
-            {SORT_OPTIONS.map(({value, label}) => <div
+            {LIBRARY_BASE_SORT_OPTIONS.map(({value, label}) => <div
+              key={value}
+              className={classNames(classes.sortOption, staged.sortBy === value && classes.sortOptionSelected)}
+              onClick={() => setStaged(prev => ({...prev, sortBy: value}))}
+            >
+              {label}
+            </div>)}
+            <div className={classes.columnHeader}>Bake-off</div>
+            {LIBRARY_RANKING_SORT_OPTIONS.map(({value, label}) => <div
               key={value}
               className={classNames(classes.sortOption, staged.sortBy === value && classes.sortOptionSelected)}
               onClick={() => setStaged(prev => ({...prev, sortBy: value}))}

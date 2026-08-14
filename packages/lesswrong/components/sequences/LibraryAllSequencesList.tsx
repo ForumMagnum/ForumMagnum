@@ -6,6 +6,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { LIBRARY_TOPICS } from '@/lib/collections/sequences/libraryTopics';
+import { isLibraryRankingSort } from '@/lib/collections/sequences/librarySortOptions';
 import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
 import LibraryFilterPopover, { LibraryFilterSettings, defaultLibraryFilterSettings } from './LibraryFilterPopover';
@@ -225,8 +226,9 @@ const LibraryAllSequencesList = () => {
   const { topics, curatedOnly, sortBy } = filterSettings;
   // Sequence topics are derived from post tags via SQL joins the view
   // selector can't express, so a topic filter routes through the search
-  // resolver too (with an empty query when the user isn't searching).
-  const useSearchResolver = searchActive || topics.length > 0;
+  // resolver too (with an empty query when the user isn't searching), as do
+  // the bake-off ranking sorts (computed scores, not sortable view columns).
+  const useSearchResolver = searchActive || topics.length > 0 || isLibraryRankingSort(sortBy);
   const popoverFiltersActive = curatedOnly || sortBy !== 'recommended';
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(LibraryAllSequencesQuery, {
