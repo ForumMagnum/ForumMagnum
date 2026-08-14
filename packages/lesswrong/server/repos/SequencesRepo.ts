@@ -5,7 +5,7 @@ import { getViewablePostsSelector, getViewableSequencesSelector } from "./helper
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
 import { LIBRARY_TOPICS, LIBRARY_TOPIC_TAG_SLUGS, isLibraryTopic } from "@/lib/collections/sequences/libraryTopics";
-import { LIBRARY_RANKING_SHARED_CTES, getLibraryRankingSql } from "./librarySequenceRankingSql";
+import { LIBRARY_RANKING_SHARED_CTES, getLibraryRankingSql, getLibraryRankingParams } from "./librarySequenceRankingSql";
 
 // A sequence "holds" a library topic when at least half its posts have the
 // topic's tag (LIBRARY_TOPIC_TAG_SLUGS). The set-based subqueries below and
@@ -151,6 +151,7 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     // Bake-off ranking sorts (librarySortOptions.ts) join a computed
     // scores CTE; the two base sorts order on Sequences columns directly.
     const ranking = getLibraryRankingSql(sortBy);
+    const rankingParams = ranking ? await getLibraryRankingParams(sortBy) : {};
     const orderBy = ranking
       ? `${ranking.orderBy}, s."createdAt" DESC`
       : sortBy === "newest"
@@ -182,7 +183,7 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         AND ($(curatedOnly) IS NOT TRUE OR s."curatedOrder" IS NOT NULL)
       ORDER BY ${orderBy}
       LIMIT $(limit)
-    `, {pattern, topicTagSlugs, curatedOnly, limit});
+    `, {...rankingParams, pattern, topicTagSlugs, curatedOnly, limit});
   }
 
   /**
