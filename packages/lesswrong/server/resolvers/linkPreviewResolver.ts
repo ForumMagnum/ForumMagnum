@@ -957,7 +957,21 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  let normalizedUrl: string
+  try {
+    normalizedUrl = normalizePreviewUrl(url);
+  } catch(e) {
+    return {
+      title: null,
+      imageUrl: null,
+      html: null,
+      error: "Invalid URL",
+      status: "error",
+      cacheVersion: LINK_PREVIEW_CACHE_VERSION,
+      fetchedAt: null,
+      nextRefreshAt: null,
+    };
+  }
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
