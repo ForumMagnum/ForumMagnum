@@ -271,6 +271,20 @@ const schema = {
       )`,
     },
   },
+  // All tags derived from the sequence's posts under the same at-least-half
+  // rule as libraryTopics, but over every tag rather than the curated topic
+  // set. Rendered as chips in the /library expanded row header. Resolver-only
+  // (one query per expansion) — don't add this to list-row fragments.
+  libraryTags: {
+    graphql: {
+      outputType: "[Tag!]!",
+      canRead: ["guests"],
+      resolver: async (sequence, args, context) => {
+        const tags = await context.repos.sequences.getDerivedTags(sequence._id);
+        return await accessFilterMultiple(context.currentUser, "Tags", tags, context);
+      },
+    },
+  },
   userProfileOrder: {
     database: {
       type: "DOUBLE PRECISION",

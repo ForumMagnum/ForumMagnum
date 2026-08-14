@@ -40,13 +40,25 @@ const LibraryCollectionRowBody = ({collection}: {
   }
 
   const books = sortBy(expansion.books ?? [], book => book.number ?? 0);
-  const checklistRows = books
-    .filter(book => book.tocTitle || book.title)
-    .map(book => ({
-      key: book._id,
-      label: book.tocTitle || book.title || '',
-      read: book.postsCount > 0 && book.readPostsCount >= book.postsCount,
-    }));
+  const titledBooks = books.filter(book => book.tocTitle || book.title);
+
+  // Collections with titled books (e.g. Rationality: A-Z) show a book
+  // checklist; collections whose books are untitled containers (e.g. HPMOR's
+  // single anonymous book) fall back to a checklist of the books' sequences.
+  const checklistRows = titledBooks.length > 0
+    ? titledBooks.map(book => ({
+        key: book._id,
+        label: book.tocTitle || book.title || '',
+        read: book.postsCount > 0 && book.readPostsCount >= book.postsCount,
+      }))
+    : books
+        .flatMap(book => book.sequences)
+        .filter(sequence => sequence.title)
+        .map(sequence => ({
+          key: sequence._id,
+          label: sequence.title ?? '',
+          read: sequence.postsCount > 0 && sequence.readPostsCount >= sequence.postsCount,
+        }));
 
   return <LibraryRowExpansionBody
     description={collection.contents?.plaintextDescription ?? null}
@@ -133,7 +145,7 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
           <div className={classes.expandedTitle}>{collection.title}</div>
           <div className={classes.metaLine}>{collection.user?.displayName}</div>
         </div>
-        {postsCount > 0 && <div className={classes.progressTrack}>
+        {postsCount > 0 && progressPercent > 0 && <div className={classes.progressTrack}>
           <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
         </div>}
       </div>

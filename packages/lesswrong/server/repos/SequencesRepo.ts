@@ -187,6 +187,38 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
   }
 
   /**
+   * All tags a sequence holds, derived from its posts' tags for the
+   * libraryTags field resolver: any non-deleted, non-admin-only tag with
+   * positive tagRelevance on at least half the sequence's posts (the same
+   * rule as getDerivedLibraryTopics, but over every tag rather than the
+   * curated topic set). Ordered by number of matching posts, then name.
+   */
+  async getDerivedTags(sequenceId: string): Promise<DbTag[]> {
+    return this.getRawDb().any<DbTag>(`
+      -- SequencesRepo.getDerivedTags
+      WITH sequence_posts AS (
+        SELECT p."_id", p."tagRelevance"
+        FROM "Chapters" c
+        JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+        JOIN "Posts" p ON p."_id" = pid.post_id
+        WHERE c."sequenceId" = $(sequenceId)
+      ), tag_counts AS (
+        SELECT tr.key AS tag_id, COUNT(*) AS matched
+        FROM sequence_posts sp, LATERAL JSONB_EACH_TEXT(sp."tagRelevance") tr
+        WHERE COALESCE(tr.value::INTEGER, 0) >= 1
+        GROUP BY tr.key
+      )
+      SELECT tag.*
+      FROM tag_counts
+      JOIN "Tags" tag ON tag."_id" = tag_counts.tag_id
+        AND tag."deleted" IS NOT TRUE
+        AND tag."adminOnly" IS NOT TRUE
+      WHERE tag_counts.matched * 2 >= (SELECT COUNT(*) FROM sequence_posts)
+      ORDER BY tag_counts.matched DESC, tag."name"
+    `, { sequenceId });
+  }
+
+  /**
    * Topics a sequence holds, derived from its posts' tags — non-SQL fallback
    * for the libraryTopics field resolver. Ordered by number of matching
    * posts, dominant topic first.

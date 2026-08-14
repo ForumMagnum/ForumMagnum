@@ -6721,6 +6721,7 @@ type Sequence {
   curatedOrder: Float
   libraryTopic: String
   libraryTopics: [String!]!
+  libraryTags: [Tag!]!
   userProfileOrder: Float
   canonicalCollectionSlug: String
   canonicalCollection: Collection

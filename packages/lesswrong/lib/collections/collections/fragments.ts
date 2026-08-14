@@ -43,6 +43,12 @@ export const LibraryCollectionExpansionFragment = gql(`
       number
       postsCount
       readPostsCount
+      sequences {
+        _id
+        title
+        postsCount
+        readPostsCount
+      }
     }
   }
 `)

@@ -18,6 +18,7 @@ import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const LIST_ITEMS_PER_PAGE = 12;
+const LIST_LOAD_MORE_COUNT = 30;
 const SEARCH_RESULTS_LIMIT = 50;
 
 const LibraryAllSequencesQuery = gql(`
@@ -240,7 +241,7 @@ const LibraryAllSequencesList = () => {
       limit: LIST_ITEMS_PER_PAGE,
       enableTotal: true,
     },
-    itemsPerPage: LIST_ITEMS_PER_PAGE,
+    itemsPerPage: LIST_LOAD_MORE_COUNT,
     skip: useSearchResolver,
   });
   const {

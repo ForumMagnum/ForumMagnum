@@ -6223,6 +6223,7 @@ interface Sequence {
   curatedOrder: number | null;
   libraryTopic: string | null;
   libraryTopics: Array<string>;
+  libraryTags: Array<Tag>;
   userProfileOrder: number | null;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;

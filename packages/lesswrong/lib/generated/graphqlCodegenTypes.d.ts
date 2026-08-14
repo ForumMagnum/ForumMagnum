@@ -9443,6 +9443,7 @@ type Sequence = {
   isDeleted: Scalars['Boolean']['output'];
   lastUpdated: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  libraryTags: Array<Tag>;
   libraryTopic?: Maybe<Scalars['String']['output']>;
   libraryTopics: Array<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
@@ -23956,7 +23957,9 @@ type LibraryCollectionRowFragment_Collection_contents_Revision = { __typename?: 
 
 type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, postsCount: number, readPostsCount: number, user: LibraryCollectionRowFragment_Collection_user_User | null, contents: LibraryCollectionRowFragment_Collection_contents_Revision | null };
 
-type LibraryCollectionExpansionFragment_Collection_books_Book = { __typename?: 'Book', _id: string, title: string | null, tocTitle: string | null, number: number | null, postsCount: number, readPostsCount: number };
+type LibraryCollectionExpansionFragment_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string, postsCount: number, readPostsCount: number };
+
+type LibraryCollectionExpansionFragment_Collection_books_Book = { __typename?: 'Book', _id: string, title: string | null, tocTitle: string | null, number: number | null, postsCount: number, readPostsCount: number, sequences: Array<LibraryCollectionExpansionFragment_Collection_books_Book_sequences_Sequence> };
 
 type LibraryCollectionExpansionFragment = { __typename?: 'Collection', _id: string, books: Array<LibraryCollectionExpansionFragment_Collection_books_Book> };
 
@@ -25135,6 +25138,8 @@ type LibrarySequenceRowFragment_Sequence_contents_Revision = { __typename?: 'Rev
 
 type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, libraryTopics: Array<string>, postsCount: number, readPostsCount: number, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
 
+type LibrarySequenceExpansionFragment_Sequence_libraryTags_Tag = { __typename?: 'Tag', _id: string, name: string };
+
 type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post = (
   { __typename?: 'Post' }
   & ChapterPostSlim
@@ -25142,7 +25147,7 @@ type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post = (
 
 type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter = { __typename?: 'Chapter', _id: string, title: string | null, number: number | null, posts: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post> };
 
-type LibrarySequenceExpansionFragment = { __typename?: 'Sequence', _id: string, chapters: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter> };
+type LibrarySequenceExpansionFragment = { __typename?: 'Sequence', _id: string, libraryTags: Array<LibrarySequenceExpansionFragment_Sequence_libraryTags_Tag>, chapters: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter> };
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }

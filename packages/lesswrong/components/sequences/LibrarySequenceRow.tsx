@@ -171,6 +171,11 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     display: 'flex',
     gap: '5px',
     alignItems: 'center',
+    // A sequence can derive several tags; wrap rather than crowding out the
+    // title column.
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    maxWidth: 320,
   },
   save: {
     display: 'inline-flex',
@@ -353,14 +358,12 @@ export const LibraryRowExpansionBody = ({description, rows, totalPostsCount, vie
   </div>;
 };
 
-const LibrarySequenceRowBody = ({sequence}: {
+const LibrarySequenceRowBody = ({sequence, expansion, loading}: {
   sequence: LibrarySequenceRowFragment,
+  expansion: LibrarySequenceExpansionFragment | null | undefined,
+  loading: boolean,
 }) => {
   const classes = useStyles(libraryRowStyles);
-  const { data, loading } = useQuery(LibrarySequenceExpansionQuery, {
-    variables: { sequenceId: sequence._id },
-  });
-  const expansion = data?.sequence?.result;
 
   if (loading || !expansion) {
     return <div className={classes.body}>
@@ -403,6 +406,13 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
 }) => {
   const classes = useStyles(libraryRowStyles);
   const { icon: bookmarkIcon, labelText: bookmarkLabel, toggleBookmark } = useBookmark(sequence._id, "Sequences");
+  // Fetched only once expanded; the header renders the derived post-tag
+  // chips from it and the body renders the chapter checklist.
+  const { data: expansionData, loading: expansionLoading } = useQuery(LibrarySequenceExpansionQuery, {
+    variables: { sequenceId: sequence._id },
+    skip: !expanded,
+  });
+  const expansion = expansionData?.sequence?.result;
 
   const handleHeaderKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -473,12 +483,12 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
           <div className={classes.expandedTitle}>{sequence.title}</div>
           <div className={classes.metaLine}>{sequence.user?.displayName}</div>
         </div>
-        {postsCount > 0 && <div className={classes.progressTrack}>
+        {postsCount > 0 && progressPercent > 0 && <div className={classes.progressTrack}>
           <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
         </div>}
       </div>
       <span className={classes.headerActions}>
-        {sequence.libraryTopics.map(topic => <span key={topic} className={classes.topicChip}>{topic}</span>)}
+        {(expansion?.libraryTags ?? []).map(tag => <span key={tag._id} className={classes.topicChip}>{tag.name}</span>)}
         <span className={classes.save} onClick={handleSaveClick} title={bookmarkLabel}>
           <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
         </span>
@@ -494,7 +504,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
         <span className={classes.progressCaption}>{progressPercent}% read</span>
       </LWTooltip>
     </div>}
-    <LibrarySequenceRowBody sequence={sequence} />
+    <LibrarySequenceRowBody sequence={sequence} expansion={expansion} loading={expansionLoading} />
   </div>;
 };
 
