@@ -39,7 +39,7 @@ const ConversationsListMultiQuery = gql(`
   }
 `);
 
-// Same field+variables as the reject panel's list, so Apollo answers from its cache
+// Same variables as the reject panel's list, so repeat opens are served from cache
 const RejectionTemplatesQuery = gql(`
   query rejectionTemplatesSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
     moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
@@ -161,7 +161,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   dmTab: {
     flexShrink: 0,
   },
-  // Pushed right so the tabs read as separate choices; not applied when it's alone
+  // Right-aligned when the Reject tab is present; a lone DM tab stays flush left
   dmTabPushedRight: {
     marginLeft: 'auto',
   },
@@ -184,18 +184,19 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   hiddenTabContent: {
     display: 'none',
   },
-  collapsedHighlightedTemplates: {
+  rejectShortcutsRow: {
     ...theme.typography.commentStyle,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
     marginBottom: 8,
   },
-  collapsedHighlightedTemplate: {
+  rejectShortcut: {
     fontSize: 13,
     fontWeight: 600,
     padding: '4px 8px',
     borderRadius: 4,
+    // Matches the suggested-template outline in ModerationTemplateSunshineItem
     outline: theme.palette.greyBorder("1px", 0.8),
     outlineOffset: -1,
     cursor: 'pointer',
@@ -281,8 +282,9 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     rejectToggleTemplateRef.current = fn;
   }, []);
 
-  const handleCollapsedRejectTemplateClick = (template: ModerationTemplateFragment) => {
+  const handleRejectShortcutClick = (template: ModerationTemplateFragment) => {
     setSidebarTab('reject');
+    // Works synchronously because the reject panel stays mounted while hidden
     rejectToggleTemplateRef.current(template);
   };
 
@@ -455,13 +457,15 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       </div>
     </div>
 
+    {/* Rule-suggested rejection reasons stay visible while the reject tab is closed;
+        clicking one opens the tab with that reason already inserted */}
     {showRejectTab && canReject && !rejectTabActive && highlightedRejectionTemplates.length > 0 && (
-      <div className={classes.collapsedHighlightedTemplates}>
+      <div className={classes.rejectShortcutsRow}>
         {highlightedRejectionTemplates.map(template => (
           <div
             key={template._id}
-            className={classes.collapsedHighlightedTemplate}
-            onClick={() => handleCollapsedRejectTemplateClick(template)}
+            className={classes.rejectShortcut}
+            onClick={() => handleRejectShortcutClick(template)}
           >
             {template.name}
           </div>

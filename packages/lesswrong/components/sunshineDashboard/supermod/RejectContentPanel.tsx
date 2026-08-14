@@ -297,8 +297,10 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape, highlighte
   active: boolean,
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
-  highlightedTemplateNames?: Set<string>,
-  onRegisterToggleTemplate?: (fn: (template: ModerationTemplateFragment) => void) => void,
+  highlightedTemplateNames: Set<string>,
+  // Hands the composer's template toggle up to the parent's reject-shortcut row;
+  // the composer owns the draft state, so the parent must reach in, not the reverse
+  onRegisterToggleTemplate: (fn: (template: ModerationTemplateFragment) => void) => void,
 }) => {
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
@@ -307,7 +309,7 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape, highlighte
 
   const registerToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
     toggleTemplateRef.current = fn;
-    onRegisterToggleTemplate?.(fn);
+    onRegisterToggleTemplate(fn);
   }, [onRegisterToggleTemplate]);
 
   // The template search is the initial keyboard target whenever the tab is picked
