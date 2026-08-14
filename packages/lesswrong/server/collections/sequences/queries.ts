@@ -48,7 +48,6 @@ export const graphqlSequenceQueryTypeDefs = gql`
   }
 
   input SequencesLibrarySequencesInput {
-    libraryTopics: [String!]
     curatedOnly: Boolean
     sortBy: String
   }

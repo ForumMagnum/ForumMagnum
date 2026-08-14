@@ -6,7 +6,6 @@ import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardA
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import SunshineNewUsersList from "./SunshineNewUsersList";
 import SunshineNewCommentsList from "./SunshineNewCommentsList";
 import SunshineNewTagsList from "./SunshineNewTagsList";
@@ -47,17 +46,6 @@ const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     cursor: "pointer",
     
-    "&:hover": {
-      color: theme.palette.grey[800],
-    },
-  },
-  toolLink: {
-    display: "block",
-    padding: 8,
-    whiteSpace: "nowrap",
-    fontSize: "1rem",
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[500],
     "&:hover": {
       color: theme.palette.grey[800],
     },
@@ -106,9 +94,6 @@ const SunshineSidebar = () => {
         { showUnderbelly && <div>
           <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} currentUser={currentUser} />
         </div>}
-        <Link className={classes.toolLink} to="/admin/libraryTopics">
-          Library Topic Tagging
-        </Link>
       </div>}
     </div>
   )

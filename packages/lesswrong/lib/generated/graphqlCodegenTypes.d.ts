@@ -2610,6 +2610,11 @@ type LegacyData = {
   schemaVersion: Scalars['Float']['output'];
 };
 
+type LibrarySequencesSearchResult = {
+  __typename?: 'LibrarySequencesSearchResult';
+  results: Array<Sequence>;
+};
+
 type LibraryTopicCount = {
   __typename?: 'LibraryTopicCount';
   count: Scalars['Int']['output'];
@@ -7359,7 +7364,7 @@ type Query = {
   lWEvents?: Maybe<MultiLWEventOutput>;
   latestDialogueMessages?: Maybe<Array<Scalars['String']['output']>>;
   latestGoogleDocMetadata?: Maybe<Scalars['JSON']['output']>;
-  librarySequencesSearch: Array<Sequence>;
+  librarySequencesSearch: LibrarySequencesSearchResult;
   libraryTopicCounts: Array<LibraryTopicCount>;
   llmConversation?: Maybe<SingleLlmConversationOutput>;
   llmConversations?: Maybe<MultiLlmConversationOutput>;
@@ -9410,6 +9415,7 @@ type Sequence = {
   lastUpdated: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   libraryTopic?: Maybe<Scalars['String']['output']>;
+  libraryTopics: Array<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
@@ -9462,7 +9468,6 @@ type SequencesCuratedSequencesInput = {
 
 type SequencesLibrarySequencesInput = {
   curatedOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  libraryTopics?: InputMaybe<Array<Scalars['String']['input']>>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -13135,37 +13140,6 @@ type AdminSendBulkEmailMutationVariables = Exact<{
 
 
 type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
-
-type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string };
-
-type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence = { __typename?: 'Sequence', _id: string, title: string, curatedOrder: number | null, libraryTopic: string | null, user: LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User | null };
-
-type LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', results: Array<LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput_results_Sequence> };
-
-type LibraryTopicsAdminSequencesQuery_Query = { __typename?: 'Query', sequences: LibraryTopicsAdminSequencesQuery_sequences_MultiSequenceOutput | null };
-
-
-type LibraryTopicsAdminSequencesQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type LibraryTopicsAdminSequencesQuery = LibraryTopicsAdminSequencesQuery_Query;
-
-type LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput_data_Sequence = { __typename?: 'Sequence', _id: string, libraryTopic: string | null };
-
-type LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput_data_Sequence | null };
-
-type LibraryTopicsAdminUpdateSequenceMutation_Mutation = { __typename?: 'Mutation', updateSequence: LibraryTopicsAdminUpdateSequenceMutation_updateSequence_SequenceOutput | null };
-
-
-type LibraryTopicsAdminUpdateSequenceMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateSequenceDataInput;
-}>;
-
-
-type LibraryTopicsAdminUpdateSequenceMutation = LibraryTopicsAdminUpdateSequenceMutation_Mutation;
 
 type randomUserQuery_GetRandomUser_User = (
   { __typename?: 'User' }
@@ -19771,12 +19745,14 @@ type LibraryAllSequencesQueryVariables = Exact<{
 
 type LibraryAllSequencesQuery = LibraryAllSequencesQuery_Query;
 
-type LibrarySequencesSearchQuery_librarySequencesSearch_Sequence = (
+type LibrarySequencesSearchQuery_librarySequencesSearch_LibrarySequencesSearchResult_results_Sequence = (
   { __typename?: 'Sequence' }
   & LibrarySequenceRowFragment
 );
 
-type LibrarySequencesSearchQuery_Query = { __typename?: 'Query', librarySequencesSearch: Array<LibrarySequencesSearchQuery_librarySequencesSearch_Sequence> };
+type LibrarySequencesSearchQuery_librarySequencesSearch_LibrarySequencesSearchResult = { __typename?: 'LibrarySequencesSearchResult', results: Array<LibrarySequencesSearchQuery_librarySequencesSearch_LibrarySequencesSearchResult_results_Sequence> };
+
+type LibrarySequencesSearchQuery_Query = { __typename?: 'Query', librarySequencesSearch: LibrarySequencesSearchQuery_librarySequencesSearch_LibrarySequencesSearchResult };
 
 
 type LibrarySequencesSearchQueryVariables = Exact<{
@@ -25066,7 +25042,7 @@ type LibrarySequenceRowFragment_Sequence_user_User = (
 
 type LibrarySequenceRowFragment_Sequence_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, libraryTopic: string | null, postsCount: number, readPostsCount: number, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
+type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, libraryTopics: Array<string>, postsCount: number, readPostsCount: number, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
 
 type LibrarySequenceExpansionFragment_Sequence_contents_Revision = (
   { __typename?: 'Revision' }

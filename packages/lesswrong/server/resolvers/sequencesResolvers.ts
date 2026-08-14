@@ -12,14 +12,20 @@ export const sequencesResolversTypeDefs = gql`
     count: Int!
   }
 
+  type LibrarySequencesSearchResult {
+    results: [Sequence!]!
+  }
+
   extend type Query {
     getSequenceStats(sequenceId: String!): SequenceStats
-    librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): [Sequence!]!
+    librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
     libraryTopicCounts: [LibraryTopicCount!]!
   }
 `;
 
-const MAX_LIBRARY_SEARCH_RESULTS = 50;
+// Backstop only — the client pages through results by growing its limit
+// (useQueryWithLoadMore), so this must stay above any plausible topic size.
+const MAX_LIBRARY_SEARCH_RESULTS = 1000;
 
 interface LibrarySequencesSearchArgs {
   query: string;
@@ -34,7 +40,7 @@ export const sequencesResolversQueries = {
     return await context.repos.sequences.getSequenceWordCountAndReadTime(sequenceId);
   },
   librarySequencesSearch: async (root: void, args: LibrarySequencesSearchArgs, context: ResolverContext) => {
-    const limit = Math.min(args.limit ?? MAX_LIBRARY_SEARCH_RESULTS, MAX_LIBRARY_SEARCH_RESULTS);
+    const limit = Math.min(args.limit ?? 50, MAX_LIBRARY_SEARCH_RESULTS);
     const results = await context.repos.sequences.searchLibrarySequences({
       query: args.query,
       libraryTopics: args.libraryTopics?.length ? args.libraryTopics : null,
@@ -42,7 +48,7 @@ export const sequencesResolversQueries = {
       sortBy: args.sortBy ?? null,
       limit,
     });
-    return await accessFilterMultiple(context.currentUser, 'Sequences', results, context);
+    return { results: await accessFilterMultiple(context.currentUser, 'Sequences', results, context) };
   },
   libraryTopicCounts: async (root: void, args: {}, context: ResolverContext) => {
     return await context.repos.sequences.libraryTopicCounts();

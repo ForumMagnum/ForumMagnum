@@ -33,7 +33,9 @@ const LibraryAllSequencesQuery = gql(`
 const LibrarySequencesSearchQuery = gql(`
   query LibrarySequencesSearch($query: String!, $libraryTopics: [String!], $curatedOnly: Boolean, $sortBy: String, $limit: Int) {
     librarySequencesSearch(query: $query, libraryTopics: $libraryTopics, curatedOnly: $curatedOnly, sortBy: $sortBy, limit: $limit) {
-      ...LibrarySequenceRowFragment
+      results {
+        ...LibrarySequenceRowFragment
+      }
     }
   }
 `);
@@ -67,6 +69,13 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
+  },
+  // Flags filters that are only visible inside the popover (curated-only,
+  // non-default sort), which otherwise silently filter/reorder the list.
+  settingsButtonActive: {
+    '&&': {
+      color: theme.palette.primary.main,
+    },
   },
   searchField: {
     display: 'flex',
@@ -214,11 +223,15 @@ const LibraryAllSequencesList = () => {
   const searchQueryText = debouncedSearchText.trim();
   const searchActive = searchQueryText.length > 0;
   const { topics, curatedOnly, sortBy } = filterSettings;
+  // Sequence topics are derived from post tags via SQL joins the view
+  // selector can't express, so a topic filter routes through the search
+  // resolver too (with an empty query when the user isn't searching).
+  const useSearchResolver = searchActive || topics.length > 0;
+  const popoverFiltersActive = curatedOnly || sortBy !== 'recommended';
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(LibraryAllSequencesQuery, {
     variables: {
       selector: { librarySequences: {
-        ...(topics.length > 0 && { libraryTopics: topics }),
         ...(curatedOnly && { curatedOnly: true }),
         sortBy,
       } },
@@ -226,9 +239,14 @@ const LibraryAllSequencesList = () => {
       enableTotal: true,
     },
     itemsPerPage: LIST_ITEMS_PER_PAGE,
-    skip: searchActive,
+    skip: useSearchResolver,
   });
-  const { data: searchData, previousData: previousSearchData, loading: searchLoading } = useQuery(LibrarySequencesSearchQuery, {
+  const {
+    data: searchData,
+    previousData: previousSearchData,
+    loading: searchLoading,
+    loadMoreProps: searchLoadMoreProps,
+  } = useQueryWithLoadMore(LibrarySequencesSearchQuery, {
     variables: {
       query: searchQueryText,
       libraryTopics: topics.length > 0 ? topics : null,
@@ -236,15 +254,16 @@ const LibraryAllSequencesList = () => {
       sortBy,
       limit: SEARCH_RESULTS_LIMIT,
     },
-    skip: !searchActive,
+    itemsPerPage: SEARCH_RESULTS_LIMIT,
+    skip: !useSearchResolver,
   });
   const { data: collectionsData } = useQuery(LibraryCollectionsQuery);
 
   // While a new search is in flight, keep showing the previous results so the
   // list doesn't collapse to a spinner on every debounced keystroke.
-  const searchResults = searchData?.librarySequencesSearch ?? previousSearchData?.librarySequencesSearch;
-  const results = searchActive ? searchResults : data?.sequences?.results;
-  const resultsLoading = searchActive ? searchLoading : loading;
+  const searchResults = searchData?.librarySequencesSearch?.results ?? previousSearchData?.librarySequencesSearch?.results;
+  const results = useSearchResolver ? searchResults : data?.sequences?.results;
+  const resultsLoading = useSearchResolver ? searchLoading : loading;
   const totalCount = data?.sequences?.totalCount ?? undefined;
 
   // Collections are a handful of rows fetched unfiltered; apply the search
@@ -266,10 +285,10 @@ const LibraryAllSequencesList = () => {
     captureEvent('libraryFilterChanged', { ...settings, source });
   };
 
-  const toggleTopicChip = (topic: string) => {
-    const newTopics = topics.includes(topic)
-      ? topics.filter(t => t !== topic)
-      : [...topics, topic];
+  // Chips are single-select: clicking a chip replaces the selection, and
+  // clicking the selected chip deselects it (equivalent to "All").
+  const selectTopicChip = (topic: string) => {
+    const newTopics = topics.includes(topic) ? [] : [topic];
     applyFilterSettings({ ...filterSettings, topics: newTopics }, 'chip');
   };
 
@@ -302,7 +321,10 @@ const LibraryAllSequencesList = () => {
       <span className={classes.headerLabel}>All Sequences</span>
       <div className={classes.headerActions}>
         <span ref={settingsAnchorRef}>
-          <SettingsButton onClick={() => setPopoverOpen(!popoverOpen)} />
+          <SettingsButton
+            className={classNames(popoverFiltersActive && classes.settingsButtonActive)}
+            onClick={() => setPopoverOpen(!popoverOpen)}
+          />
         </span>
         <SequencesNewButton />
       </div>
@@ -334,7 +356,7 @@ const LibraryAllSequencesList = () => {
         {orderedTopicChips.map(topic => <span
           key={topic}
           className={classNames(classes.chip, topics.includes(topic) && classes.chipSelected)}
-          onClick={() => toggleTopicChip(topic)}
+          onClick={() => selectTopicChip(topic)}
         >
           {topic}
         </span>)}
@@ -366,11 +388,17 @@ const LibraryAllSequencesList = () => {
           {searchActive ? 'No sequences match your search.' : 'No sequences match the selected filters.'}
         </div>}
       </div>
-      {!searchActive && totalCount !== undefined && loadMoreProps.count < totalCount && <a
+      {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
         className={classes.loadMore}
         onClick={() => loadMoreProps.loadMore()}
       >
         Load More ({loadMoreProps.count}/{totalCount})
+      </a>}
+      {useSearchResolver && !searchLoadMoreProps.hidden && <a
+        className={classes.loadMore}
+        onClick={() => searchLoadMoreProps.loadMore()}
+      >
+        Load More
       </a>}
     </div>
   </div>;

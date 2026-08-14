@@ -1,7 +1,7 @@
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userOwns, userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { userOwns, userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
@@ -23,32 +23,11 @@ function newCheck(user: DbUser | null, document: DbSequence | null) {
     userCanDo(user, `sequences.new.all`)
 }
 
-function editCheck(user: DbUser | null, document: DbSequence | null, _context?: ResolverContext, previewDocument?: DbSequence) {
+function editCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
-  const hasFullEditPermission = userOwns(user, document)
+  return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
-    : userCanDo(user, `sequences.edit.all`);
-  if (hasFullEditPermission) return true;
-  // Mods don't have sequences.edit.all, but are expected to set libraryTopic
-  // on any sequence (the /library topic backfill). Let them past the
-  // document-level check only when the update touches nothing else; field
-  // permissions are still validated separately.
-  if (userIsAdminOrMod(user) && previewDocument) {
-    return getChangedFields(document, previewDocument).every(field => field === 'libraryTopic');
-  }
-  return false;
-}
-
-// getPreviewDocument strips null-valued fields, so a field being unset shows
-// up as present on the old document but absent from the preview; normalize
-// both sides to null before comparing.
-function getChangedFields(oldDocument: DbSequence, previewDocument: DbSequence): string[] {
-  const allFields = new Set([...Object.keys(oldDocument), ...Object.keys(previewDocument)]);
-  return [...allFields].filter(field => {
-    const before = oldDocument[field as keyof DbSequence] ?? null;
-    const after = previewDocument[field as keyof DbSequence] ?? null;
-    return before !== after && JSON.stringify(before) !== JSON.stringify(after);
-  });
+    : userCanDo(user, `sequences.edit.all`)
 }
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {

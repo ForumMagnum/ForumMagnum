@@ -68,7 +68,6 @@ const AdminHome = () => {
       <h3>Site Admin</h3>
       <ul>
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
-        <li><Link className={classes.link} to="/admin/libraryTopics">Library Topic Tagging</Link></li>
         <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>

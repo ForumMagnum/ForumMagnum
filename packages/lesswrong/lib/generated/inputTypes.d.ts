@@ -83,7 +83,7 @@ interface Query {
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
-  librarySequencesSearch: Array<Sequence>;
+  librarySequencesSearch: LibrarySequencesSearchResult;
   libraryTopicCounts: Array<LibraryTopicCount>;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
@@ -1330,6 +1330,10 @@ interface SequenceStats {
 interface LibraryTopicCount {
   topic: string;
   count: number;
+}
+
+interface LibrarySequencesSearchResult {
+  results: Array<Sequence>;
 }
 
 interface AdminEmailAudienceFilterInput {
@@ -6203,6 +6207,7 @@ interface Sequence {
   isDeleted: boolean;
   curatedOrder: number | null;
   libraryTopic: string | null;
+  libraryTopics: Array<string>;
   userProfileOrder: number | null;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;
@@ -6255,7 +6260,6 @@ interface SequencesCommunitySequencesInput {
 }
 
 interface SequencesLibrarySequencesInput {
-  libraryTopics?: Array<string> | null;
   curatedOnly?: boolean | null;
   sortBy?: string | null;
 }
@@ -9411,6 +9415,7 @@ interface GraphQLTypeMap {
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   SequenceStats: SequenceStats;
   LibraryTopicCount: LibraryTopicCount;
+  LibrarySequencesSearchResult: LibrarySequencesSearchResult;
   AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
   AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
   AdminSendTestEmailInput: AdminSendTestEmailInput;

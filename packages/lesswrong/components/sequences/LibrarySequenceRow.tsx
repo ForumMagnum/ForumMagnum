@@ -362,7 +362,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
       <span className={classes.rightMeta}>
         <span className={classes.author}>{sequence.user?.displayName}</span>
         <span>
-          {sequence.libraryTopic && <span className={classes.topicPill}>{sequence.libraryTopic}</span>}
+          {sequence.libraryTopics.length > 0 && <span className={classes.topicPill}>{sequence.libraryTopics[0]}</span>}
         </span>
       </span>
       <KeyboardArrowRightIcon className={classes.chevron} />
@@ -390,7 +390,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
           <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
           {bookmarkLabel}
         </span>
-        {sequence.libraryTopic && <span className={classes.topicChip}>{sequence.libraryTopic}</span>}
+        {sequence.libraryTopics.map(topic => <span key={topic} className={classes.topicChip}>{topic}</span>)}
       </span>
       <ExpandMoreIcon className={classes.chevron} />
     </div>

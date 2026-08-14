@@ -1496,9 +1496,13 @@ type LibraryTopicCount {
   count: Int!
 }
 
+type LibrarySequencesSearchResult {
+  results: [Sequence!]!
+}
+
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
-  librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): [Sequence!]!
+  librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
   libraryTopicCounts: [LibraryTopicCount!]!
 }
 
@@ -6701,6 +6705,7 @@ type Sequence {
   isDeleted: Boolean!
   curatedOrder: Float
   libraryTopic: String
+  libraryTopics: [String!]!
   userProfileOrder: Float
   canonicalCollectionSlug: String
   canonicalCollection: Collection
@@ -6753,7 +6758,6 @@ input SequencesCommunitySequencesInput {
 }
 
 input SequencesLibrarySequencesInput {
-  libraryTopics: [String!]
   curatedOnly: Boolean
   sortBy: String
 }

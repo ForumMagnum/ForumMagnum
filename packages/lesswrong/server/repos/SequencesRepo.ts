@@ -4,6 +4,12 @@ import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
+import { LIBRARY_TOPICS, LIBRARY_TOPIC_TAG_SLUGS, isLibraryTopic } from "@/lib/collections/sequences/libraryTopics";
+
+// A sequence "holds" a library topic when at least half its posts have the
+// topic's tag (LIBRARY_TOPIC_TAG_SLUGS). The set-based subqueries below and
+// the libraryTopics sqlResolver in lib/collections/sequences/newSchema.ts
+// must stay in sync on this rule.
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
@@ -138,6 +144,9 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     limit: number,
   }): Promise<DbSequence[]> {
     const pattern = `%${query.replace(/[\\%_]/g, "\\$&")}%`;
+    const topicTagSlugs = libraryTopics?.length
+      ? libraryTopics.filter(isLibraryTopic).map(topic => LIBRARY_TOPIC_TAG_SLUGS[topic])
+      : null;
     const orderBy = sortBy === "newest"
       ? `s."createdAt" DESC`
       : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
@@ -149,28 +158,93 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         AND s."isDeleted" IS NOT TRUE
         AND s."draft" IS NOT TRUE
         AND s."hidden" IS NOT TRUE
-        AND ($(libraryTopics) IS NULL OR s."libraryTopic" = ANY($(libraryTopics)))
+        AND ($(topicTagSlugs) IS NULL OR s."_id" IN (
+          SELECT c."sequenceId"
+          FROM "Chapters" c
+          CROSS JOIN LATERAL UNNEST(c."postIds") AS pid(post_id)
+          JOIN "Posts" p ON p."_id" = pid.post_id
+          CROSS JOIN (
+            SELECT t."_id" FROM "Tags" t
+            WHERE t."slug" = ANY($(topicTagSlugs)) AND t."deleted" IS NOT TRUE
+          ) tag
+          GROUP BY c."sequenceId", tag."_id"
+          HAVING COUNT(*) FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) > 0
+             AND COUNT(*) FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) * 2 >= COUNT(*)
+        ))
         AND ($(curatedOnly) IS NOT TRUE OR s."curatedOrder" IS NOT NULL)
       ORDER BY ${orderBy}
       LIMIT $(limit)
-    `, {pattern, libraryTopics, curatedOnly, limit});
+    `, {pattern, topicTagSlugs, curatedOnly, limit});
+  }
+
+  /**
+   * Topics a sequence holds, derived from its posts' tags — non-SQL fallback
+   * for the libraryTopics field resolver. Ordered by number of matching
+   * posts, dominant topic first.
+   */
+  async getDerivedLibraryTopics(sequenceId: string): Promise<string[]> {
+    const rows = await this.getRawDb().any<{topic: string}>(`
+      -- SequencesRepo.getDerivedLibraryTopics
+      SELECT matches.topic
+      FROM (
+        SELECT
+          topic.name AS topic,
+          COUNT(p."_id") AS total,
+          COUNT(p."_id") FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) AS matched
+        FROM UNNEST($(topicNames)::TEXT[], $(topicSlugs)::TEXT[]) AS topic(name, slug)
+        JOIN "Tags" tag ON tag."slug" = topic.slug AND tag."deleted" IS NOT TRUE
+        LEFT JOIN "Chapters" c ON c."sequenceId" = $(sequenceId)
+        LEFT JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+        LEFT JOIN "Posts" p ON p."_id" = pid.post_id
+        GROUP BY topic.name
+      ) matches
+      WHERE matches.matched > 0 AND matches.matched * 2 >= matches.total
+      ORDER BY matches.matched DESC, matches.topic
+    `, {
+      sequenceId,
+      topicNames: [...LIBRARY_TOPICS],
+      topicSlugs: LIBRARY_TOPICS.map(topic => LIBRARY_TOPIC_TAG_SLUGS[topic]),
+    });
+    return rows.map(row => row.topic);
   }
 
   /**
    * Static per-topic totals for the /library tag filter popover, over the same
-   * set of sequences as the librarySequences view.
+   * set of sequences as the librarySequences view, using the same derived
+   * topic definition as searchLibrarySequences.
    */
   async libraryTopicCounts(): Promise<{topic: string, count: number}[]> {
     return this.getRawDb().any(`
       -- SequencesRepo.libraryTopicCounts
-      SELECT s."libraryTopic" AS topic, COUNT(*)::INTEGER AS count
-      FROM "Sequences" s
-      WHERE s."libraryTopic" IS NOT NULL
-        AND s."isDeleted" IS NOT TRUE
-        AND s."draft" IS NOT TRUE
-        AND s."hidden" IS NOT TRUE
-      GROUP BY s."libraryTopic"
-    `);
+      SELECT topic.name AS topic, COUNT(*)::INTEGER AS count
+      FROM (
+        SELECT
+          c."sequenceId",
+          tag."slug",
+          COUNT(*) AS total,
+          COUNT(*) FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) AS matched
+        FROM "Chapters" c
+        JOIN "Sequences" s ON s."_id" = c."sequenceId"
+          AND s."isDeleted" IS NOT TRUE
+          AND s."draft" IS NOT TRUE
+          AND s."hidden" IS NOT TRUE
+        CROSS JOIN LATERAL UNNEST(c."postIds") AS pid(post_id)
+        JOIN "Posts" p ON p."_id" = pid.post_id
+        CROSS JOIN (
+          SELECT t."_id", t."slug" FROM "Tags" t
+          WHERE t."slug" = ANY($(topicSlugs)) AND t."deleted" IS NOT TRUE
+        ) tag
+        GROUP BY c."sequenceId", tag."_id", tag."slug"
+      ) per_sequence_topic
+      JOIN UNNEST($(topicNames)::TEXT[], $(topicSlugs)::TEXT[]) AS topic(name, slug)
+        ON topic.slug = per_sequence_topic."slug"
+      WHERE per_sequence_topic.matched > 0
+        AND per_sequence_topic.matched * 2 >= per_sequence_topic.total
+      GROUP BY topic.name
+    `, {
+      topicNames: [...LIBRARY_TOPICS],
+      topicSlugs: LIBRARY_TOPICS.map(topic => LIBRARY_TOPIC_TAG_SLUGS[topic]),
+    });
   }
 
   async getSequenceWordCountAndReadTime(sequenceId: string): Promise<{ totalWordCount: number, totalReadTime: number }> {

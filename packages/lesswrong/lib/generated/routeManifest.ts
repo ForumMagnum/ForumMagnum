@@ -70,9 +70,6 @@ export const routeTrie = {
         "emailSender": {
           "hasPage": true
         },
-        "libraryTopics": {
-          "hasPage": true
-        },
         "llmConversations": {
           "hasPage": true
         },
@@ -105,7 +102,6 @@ export const routeTrie = {
         "debugheaders": "debugHeaders",
         "designreview": "designReview",
         "emailsender": "emailSender",
-        "librarytopics": "libraryTopics",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderationtemplates": "moderationTemplates",

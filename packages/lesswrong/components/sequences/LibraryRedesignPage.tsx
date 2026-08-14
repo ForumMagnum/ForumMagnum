@@ -14,6 +14,13 @@ const styles = defineStyles('LibraryRedesignPage', (theme: ThemeType) => ({
     // otherwise intercepts clicks (SingleColumnSection does the same).
     position: 'relative',
     zIndex: theme.zIndexes.singleColumnSection,
+    // The central-column grid track is sized minmax(0, min-content), so the
+    // page needs a definite width or the column collapses to the content's
+    // intrinsic width, which shifts when the tag-chip row wraps
+    // (SingleColumnSection does the same).
+    [theme.breakpoints.up('md')]: {
+      width: 805,
+    },
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 12,
       paddingRight: 12,

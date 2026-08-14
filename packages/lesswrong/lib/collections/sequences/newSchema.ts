@@ -9,7 +9,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getChaptersInSequence } from "./sequenceServerHelpers";
 import { getCollectionBySlug } from "./helpers";
-import { LIBRARY_TOPICS } from "./libraryTopics";
+import { LIBRARY_TOPICS, libraryTopicTagValuesSql } from "./libraryTopics";
 
 async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
   const { currentUser, Bookmarks } = context;
@@ -223,8 +223,9 @@ const schema = {
       },
     },
   },
-  // Mod-curated library topic (one of LIBRARY_TOPICS), shown as the row's
-  // topic pill on the /library page and used for its tag filter.
+  // Legacy mod-curated library topic. No longer read for sequences (the
+  // /library page derives topics from post tags via libraryTopics below);
+  // collections still use their own libraryTopic field.
   libraryTopic: {
     database: {
       type: "TEXT",
@@ -238,6 +239,36 @@ const schema = {
         optional: true,
         allowedValues: [...LIBRARY_TOPICS],
       },
+    },
+  },
+  // Library topics derived from the tags on the sequence's posts: the
+  // sequence holds a topic when at least half its posts have the topic's tag
+  // (see LIBRARY_TOPIC_TAG_SLUGS). Ordered by how many posts match, so the
+  // first entry is the sequence's dominant topic. Drives the /library tag
+  // filter and row topic pills.
+  libraryTopics: {
+    graphql: {
+      outputType: "[String!]!",
+      canRead: ["guests"],
+      resolver: async (sequence, args, context) => {
+        return await context.repos.sequences.getDerivedLibraryTopics(sequence._id);
+      },
+      sqlResolver: ({ field }) => `(
+        SELECT COALESCE(ARRAY_AGG(matches.topic ORDER BY matches.matched DESC, matches.topic), '{}'::TEXT[])
+        FROM (
+          SELECT
+            topic.name AS topic,
+            COUNT(p."_id") AS total,
+            COUNT(p."_id") FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) AS matched
+          FROM (VALUES ${libraryTopicTagValuesSql}) AS topic(name, slug)
+          JOIN "Tags" tag ON tag."slug" = topic.slug AND tag."deleted" IS NOT TRUE
+          LEFT JOIN "Chapters" c ON c."sequenceId" = ${field("_id")}
+          LEFT JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+          LEFT JOIN "Posts" p ON p."_id" = pid.post_id
+          GROUP BY topic.name
+        ) matches
+        WHERE matches.matched > 0 AND matches.matched * 2 >= matches.total
+      )`,
     },
   },
   userProfileOrder: {

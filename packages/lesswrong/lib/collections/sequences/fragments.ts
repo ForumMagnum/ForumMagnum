@@ -59,7 +59,7 @@ export const LibrarySequenceRowFragment = gql(`
     coverImageId
     bannerImageId
     curatedOrder
-    libraryTopic
+    libraryTopics
     postsCount
     readPostsCount
     user {
