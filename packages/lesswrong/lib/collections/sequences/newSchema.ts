@@ -271,16 +271,21 @@ const schema = {
       )`,
     },
   },
-  // All tags derived from the sequence's posts under the same at-least-half
-  // rule as libraryTopics, but over every tag rather than the curated topic
-  // set. Rendered as chips in the /library expanded row header. Resolver-only
-  // (one query per expansion) — don't add this to list-row fragments.
+  // Tags derived from the sequence's posts per the "Sequence tags resolved
+  // from post tags" handoff (see SequencesRepo.getDerivedTags): up to 3 core
+  // tags (coreTagId rollups, with Fiction as an eighth core tag, >=50%
+  // coverage with a relative fallback) plus up to 2 specific topic labels
+  // (>=60% coverage). The source of truth for sequence tagging on /library:
+  // the collapsed row pill shows the first entry, the expanded header shows
+  // all of them. Batched per request via DataLoader.
   libraryTags: {
     graphql: {
       outputType: "[Tag!]!",
       canRead: ["guests"],
       resolver: async (sequence, args, context) => {
-        const tags = await context.repos.sequences.getDerivedTags(sequence._id);
+        const tags = await getWithCustomLoader(context, "sequenceLibraryTags", sequence._id, (sequenceIds: string[]) => {
+          return context.repos.sequences.getDerivedTags(sequenceIds);
+        });
         return await accessFilterMultiple(context.currentUser, "Tags", tags, context);
       },
     },

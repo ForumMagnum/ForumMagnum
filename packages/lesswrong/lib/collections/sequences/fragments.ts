@@ -63,7 +63,12 @@ export const LibrarySequenceRowFragment = gql(`
     coverImageId
     bannerImageId
     curatedOrder
-    libraryTopics
+    libraryTags {
+      _id
+      name
+      slug
+      core
+    }
     postsCount
     readPostsCount
     user {
@@ -79,10 +84,6 @@ export const LibrarySequenceRowFragment = gql(`
 export const LibrarySequenceExpansionFragment = gql(`
   fragment LibrarySequenceExpansionFragment on Sequence {
     _id
-    libraryTags {
-      _id
-      name
-    }
     chapters {
       _id
       title

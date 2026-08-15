@@ -18,6 +18,28 @@ export const LIBRARY_TOPICS = [
 
 export type LibraryTopic = typeof LIBRARY_TOPICS[number];
 
+// The Fiction tag is treated as an eighth core tag by the derived sequence
+// tagging (SequencesRepo.getDerivedTags) even though Tags.core is false on
+// it, both when deriving and when styling core-tag chips.
+export const FICTION_TAG_SLUG = "fiction";
+
+// The /library topic filter's chips: the 7 Tags.core tags plus Fiction,
+// matched by name against the derived sequence tags so the filter can never
+// disagree with the chips shown on rows. Ordered by sitewide prevalence.
+export const LIBRARY_CORE_TAG_NAMES = [
+  "AI",
+  "World Modeling",
+  "Rationality",
+  "World Optimization",
+  "Practical",
+  "Community",
+  "Fiction",
+  "Site Meta",
+] as const;
+
+export const isCoreLibraryTag = (tag: { core: boolean, slug: string }): boolean =>
+  tag.core || tag.slug === FICTION_TAG_SLUG;
+
 export const isLibraryTopic = (value: string): value is LibraryTopic =>
   LIBRARY_TOPICS.some(topic => topic === value);
 

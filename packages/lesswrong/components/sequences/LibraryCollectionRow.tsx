@@ -1,18 +1,20 @@
 import React, { MouseEvent } from 'react';
+import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { collectionGetPageUrl } from '../../lib/collections/collections/helpers';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import UsersName from '../users/UsersName';
 import { useBookmark } from '../hooks/useBookmark';
 import PortraitCoverImage from './PortraitCoverImage';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import Loading from '../vulcan-core/Loading';
-import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
-import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useStyles } from '@/components/hooks/useStyles';
-import { libraryRowStyles, LibraryRowExpansionBody } from './LibrarySequenceRow';
+import { libraryRowStyles, LibraryRowExpansionBody, LibraryRowCollapsedDescription } from './LibrarySequenceRow';
 
 const LibraryCollectionExpansionQuery = gql(`
   query LibraryCollectionExpansion($collectionId: String) {
@@ -58,6 +60,7 @@ const LibraryCollectionRowBody = ({collection}: {
           key: sequence._id,
           label: sequence.title ?? '',
           read: sequence.postsCount > 0 && sequence.readPostsCount >= sequence.postsCount,
+          url: sequenceGetPageUrl(sequence),
         }));
 
   return <LibraryRowExpansionBody
@@ -75,7 +78,7 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
   onToggle: () => void,
 }) => {
   const classes = useStyles(libraryRowStyles);
-  const { icon: bookmarkIcon, labelText: bookmarkLabel, toggleBookmark } = useBookmark(collection._id, "Collections");
+  const { icon: bookmarkIcon, hoverText: bookmarkHoverText, toggleBookmark } = useBookmark(collection._id, "Collections");
 
   const handleHeaderKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -112,17 +115,21 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
           {collection.title}
           <StarIcon className={classes.star} />
         </div>
-        {collection.contents?.plaintextDescription && <div className={classes.rowDescription}>
-          {collection.contents.plaintextDescription}
-        </div>}
+        {collection.contents?.plaintextDescription && <LibraryRowCollapsedDescription
+          title={collection.title}
+          authorName={collection.user?.displayName ?? null}
+          description={collection.contents.plaintextDescription}
+          url={collectionGetPageUrl(collection)}
+          documentId={collection._id}
+          collectionName="Collections"
+        />}
       </div>
       <span className={classes.rightMeta}>
         <span className={classes.author}>{collection.user?.displayName}</span>
-        <span>
-          {collection.libraryTopic && <span className={classes.topicPill}>{collection.libraryTopic}</span>}
+        <span className={classes.pillCell}>
+          {collection.libraryTopic && <span className={classNames(classes.topicChip, classes.coreTagChip)}>{collection.libraryTopic}</span>}
         </span>
       </span>
-      <KeyboardArrowRightIcon className={classes.chevron} />
     </div>;
   }
 
@@ -131,41 +138,46 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
   const progressPercent = postsCount > 0 ? Math.round((readPostsCount / postsCount) * 100) : 0;
 
   return <div className={classes.expandedWrapper}>
-    <div
-      className={classes.expandedHeader}
-      onClick={onToggle}
-      onKeyDown={handleHeaderKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-expanded={true}
-    >
+    <div className={classes.expandedHeader}>
       {cover}
-      <div className={classes.expandedTitleCell}>
-        <div>
-          <div className={classes.expandedTitle}>{collection.title}</div>
-          <div className={classes.metaLine}>{collection.user?.displayName}</div>
+      <div className={classes.titleCell}>
+        <div className={classes.title}>
+          <Link to={collectionGetPageUrl(collection)}>
+            {collection.title}
+          </Link>
+          <StarIcon className={classes.star} />
         </div>
-        {postsCount > 0 && progressPercent > 0 && <div className={classes.progressTrack}>
-          <div className={classes.progressFill} style={{width: `${progressPercent}%`}} />
-        </div>}
+        <div className={classes.metaLine}>
+          <UsersName user={collection.user} />
+          {postsCount > 0 && <>
+            {' · '}
+            <LWTooltip
+              title={`${readPostsCount} / ${postsCount} read`}
+              placement="bottom-start"
+              distance={6}
+            >
+              <span className={classes.progressCaption}>{progressPercent}% read</span>
+            </LWTooltip>
+            {progressPercent > 0 && <span className={classes.progressTrack}>
+              <span className={classes.progressFill} style={{width: `${progressPercent}%`}} />
+            </span>}
+          </>}
+        </div>
       </div>
-      <span className={classes.headerActions}>
-        {collection.libraryTopic && <span className={classes.topicChip}>{collection.libraryTopic}</span>}
-        <span className={classes.save} onClick={handleSaveClick} title={bookmarkLabel}>
-          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+      <span className={classes.headerRight}>
+        <span className={classes.headerTags}>
+          {collection.libraryTopic && <span className={classNames(classes.topicChip, classes.coreTagChip)}>{collection.libraryTopic}</span>}
         </span>
+        <a className={classes.collapseToggle} onClick={onToggle} role="button" aria-label="Collapse">
+          [<span>-</span>]
+        </a>
       </span>
-      <ExpandMoreIcon className={classes.chevron} />
     </div>
-    {postsCount > 0 && <div className={classes.progressCaptionRow}>
-      <LWTooltip
-        title={`${readPostsCount} / ${postsCount} read`}
-        placement="bottom-start"
-        distance={6}
-      >
-        <span className={classes.progressCaption}>{progressPercent}% read</span>
-      </LWTooltip>
-    </div>}
+    <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
+      <span onClick={handleSaveClick}>
+        <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+      </span>
+    </LWTooltip>
     <LibraryCollectionRowBody collection={collection} />
   </div>;
 };

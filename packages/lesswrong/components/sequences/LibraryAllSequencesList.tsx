@@ -5,7 +5,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
-import { LIBRARY_TOPICS } from '@/lib/collections/sequences/libraryTopics';
+import { LIBRARY_CORE_TAG_NAMES } from '@/lib/collections/sequences/libraryTopics';
 import { isLibraryRankingSort } from '@/lib/collections/sequences/librarySortOptions';
 import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
@@ -66,11 +66,6 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     letterSpacing: '.6px',
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
-  },
-  headerActions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
   },
   // Flags filters that are only visible inside the popover (curated-only,
   // non-default sort), which otherwise silently filter/reorder the list.
@@ -188,9 +183,14 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     fontSize: 13.5,
     color: theme.palette.text.dim,
   },
+  bottomRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   loadMore: {
     display: 'inline-block',
-    marginTop: 10,
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     fontWeight: 500,
@@ -202,7 +202,7 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
 const LibraryAllSequencesList = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
   const [filterSettings, setFilterSettings] = useState<LibraryFilterSettings>(defaultLibraryFilterSettings);
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -272,9 +272,13 @@ const LibraryAllSequencesList = () => {
   // Collections are a handful of rows fetched unfiltered; apply the search
   // text and topic filter to them client-side. "Curated only" intentionally
   // keeps them visible: they're all editorially curated (the mock stars them).
+  // Collections' manual libraryTopic still uses the curated topic names, so
+  // "AI Alignment" maps onto the core-tag "AI" filter chip.
+  const collectionMatchesTopics = (libraryTopic: string | null) =>
+    !!libraryTopic && (topics.includes(libraryTopic) || (libraryTopic === 'AI Alignment' && topics.includes('AI')));
   const collectionResults = collectionsData?.collections?.results?.filter(collection =>
     (!searchActive || (collection.title ?? '').toLowerCase().includes(searchQueryText.toLowerCase())) &&
-    (topics.length === 0 || (!!collection.libraryTopic && topics.includes(collection.libraryTopic)))
+    (topics.length === 0 || collectionMatchesTopics(collection.libraryTopic))
   );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -300,15 +304,25 @@ const LibraryAllSequencesList = () => {
     captureEvent('libraryAllTagsToggled', { expanded: !tagsExpanded });
   };
 
+  const toggleRowExpanded = (rowId: string): boolean => {
+    const nowExpanded = !expandedRowIds.has(rowId);
+    const newExpandedRowIds = new Set(expandedRowIds);
+    if (nowExpanded) {
+      newExpandedRowIds.add(rowId);
+    } else {
+      newExpandedRowIds.delete(rowId);
+    }
+    setExpandedRowIds(newExpandedRowIds);
+    return nowExpanded;
+  };
+
   const toggleSequenceRow = (sequenceId: string) => {
-    const nowExpanded = expandedRowId !== sequenceId;
-    setExpandedRowId(nowExpanded ? sequenceId : null);
+    const nowExpanded = toggleRowExpanded(sequenceId);
     captureEvent('librarySequenceRowToggled', { sequenceId, expanded: nowExpanded });
   };
 
   const toggleCollectionRow = (collectionId: string) => {
-    const nowExpanded = expandedRowId !== collectionId;
-    setExpandedRowId(nowExpanded ? collectionId : null);
+    const nowExpanded = toggleRowExpanded(collectionId);
     captureEvent('libraryCollectionRowToggled', { collectionId, expanded: nowExpanded });
   };
 
@@ -316,21 +330,18 @@ const LibraryAllSequencesList = () => {
 
   // Selected topics first, so active filters are never hidden in the collapsed
   // chip row's clipped tail.
-  const orderedTopicChips = [...LIBRARY_TOPICS].sort((a, b) =>
+  const orderedTopicChips = [...LIBRARY_CORE_TAG_NAMES].sort((a, b) =>
     Number(topics.includes(b)) - Number(topics.includes(a)));
 
   return <div>
     <div className={classes.header}>
       <span className={classes.headerLabel}>All Sequences</span>
-      <div className={classes.headerActions}>
-        <span ref={settingsAnchorRef}>
-          <SettingsButton
-            className={classNames(popoverFiltersActive && classes.settingsButtonActive)}
-            onClick={() => setPopoverOpen(!popoverOpen)}
-          />
-        </span>
-        <SequencesNewButton />
-      </div>
+      <span ref={settingsAnchorRef}>
+        <SettingsButton
+          className={classNames(popoverFiltersActive && classes.settingsButtonActive)}
+          onClick={() => setPopoverOpen(!popoverOpen)}
+        />
+      </span>
     </div>
     {popoverOpen && <LibraryFilterPopover
       anchorEl={settingsAnchorRef.current}
@@ -377,13 +388,13 @@ const LibraryAllSequencesList = () => {
         {collectionResults?.map(collection => <LibraryCollectionRow
           key={collection._id}
           collection={collection}
-          expanded={collection._id === expandedRowId}
+          expanded={expandedRowIds.has(collection._id)}
           onToggle={() => toggleCollectionRow(collection._id)}
         />)}
         {results?.map(sequence => <LibrarySequenceRow
           key={sequence._id}
           sequence={sequence}
-          expanded={sequence._id === expandedRowId}
+          expanded={expandedRowIds.has(sequence._id)}
           onToggle={() => toggleSequenceRow(sequence._id)}
         />)}
         {resultsLoading && !results && <Loading />}
@@ -391,18 +402,23 @@ const LibraryAllSequencesList = () => {
           {searchActive ? 'No sequences match your search.' : 'No sequences match the selected filters.'}
         </div>}
       </div>
-      {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
-        className={classes.loadMore}
-        onClick={() => loadMoreProps.loadMore()}
-      >
-        Load More ({loadMoreProps.count}/{totalCount})
-      </a>}
-      {useSearchResolver && !searchLoadMoreProps.hidden && <a
-        className={classes.loadMore}
-        onClick={() => searchLoadMoreProps.loadMore()}
-      >
-        Load More
-      </a>}
+      <div className={classes.bottomRow}>
+        <span>
+          {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
+            className={classes.loadMore}
+            onClick={() => loadMoreProps.loadMore()}
+          >
+            Load More ({loadMoreProps.count}/{totalCount})
+          </a>}
+          {useSearchResolver && !searchLoadMoreProps.hidden && <a
+            className={classes.loadMore}
+            onClick={() => searchLoadMoreProps.loadMore()}
+          >
+            Load More
+          </a>}
+        </span>
+        <SequencesNewButton />
+      </div>
     </div>
   </div>;
 };

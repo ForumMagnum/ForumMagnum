@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import { LIBRARY_TOPICS } from '@/lib/collections/sequences/libraryTopics';
+import { LIBRARY_CORE_TAG_NAMES } from '@/lib/collections/sequences/libraryTopics';
 import { LIBRARY_BASE_SORT_OPTIONS, LIBRARY_RANKING_SORT_OPTIONS } from '@/lib/collections/sequences/librarySortOptions';
 import LWPopper from '../common/LWPopper';
 import LWClickAwayListener from '../common/LWClickAwayListener';
@@ -214,7 +214,7 @@ const LibraryFilterPopover = ({anchorEl, settings, onApply, onClose}: {
           </div>
           <div className={classes.tagsColumn}>
             <div className={classes.columnHeader}>Tags</div>
-            {LIBRARY_TOPICS.map(topic => {
+            {LIBRARY_CORE_TAG_NAMES.map(topic => {
               const checked = staged.topics.includes(topic);
               const count = getTopicCount(topic);
               return <div key={topic} className={classes.tagRow} onClick={() => toggleTopic(topic)}>

@@ -19874,6 +19874,17 @@ type LibrarySequenceExpansionQueryVariables = Exact<{
 
 type LibrarySequenceExpansionQuery = LibrarySequenceExpansionQuery_Query;
 
+type libraryRowMarkAsReadOrUnreadMutation_Mutation = { __typename?: 'Mutation', markAsReadOrUnread: boolean | null };
+
+
+type libraryRowMarkAsReadOrUnreadMutationVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  isRead: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type libraryRowMarkAsReadOrUnreadMutation = libraryRowMarkAsReadOrUnreadMutation_Mutation;
+
 type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -25129,6 +25140,8 @@ type SequenceContinueReadingFragment_Sequence_user_User = { __typename?: 'User',
 
 type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, user: SequenceContinueReadingFragment_Sequence_user_User | null };
 
+type LibrarySequenceRowFragment_Sequence_libraryTags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, core: boolean };
+
 type LibrarySequenceRowFragment_Sequence_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25136,9 +25149,7 @@ type LibrarySequenceRowFragment_Sequence_user_User = (
 
 type LibrarySequenceRowFragment_Sequence_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, libraryTopics: Array<string>, postsCount: number, readPostsCount: number, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
-
-type LibrarySequenceExpansionFragment_Sequence_libraryTags_Tag = { __typename?: 'Tag', _id: string, name: string };
+type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, postsCount: number, readPostsCount: number, libraryTags: Array<LibrarySequenceRowFragment_Sequence_libraryTags_Tag>, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
 
 type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post = (
   { __typename?: 'Post' }
@@ -25147,7 +25158,7 @@ type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post = (
 
 type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter = { __typename?: 'Chapter', _id: string, title: string | null, number: number | null, posts: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post> };
 
-type LibrarySequenceExpansionFragment = { __typename?: 'Sequence', _id: string, libraryTags: Array<LibrarySequenceExpansionFragment_Sequence_libraryTags_Tag>, chapters: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter> };
+type LibrarySequenceExpansionFragment = { __typename?: 'Sequence', _id: string, chapters: Array<LibrarySequenceExpansionFragment_Sequence_chapters_Chapter> };
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }

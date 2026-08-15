@@ -41,13 +41,23 @@ export const sequencesResolversQueries = {
   },
   librarySequencesSearch: async (root: void, args: LibrarySequencesSearchArgs, context: ResolverContext) => {
     const limit = Math.min(args.limit ?? 50, MAX_LIBRARY_SEARCH_RESULTS);
-    const results = await context.repos.sequences.searchLibrarySequences({
+    const topics = args.libraryTopics?.length ? args.libraryTopics : null;
+    // Topic filtering matches against the derived tags shown as row chips
+    // (SequencesRepo.getDerivedTags), so the filter can never disagree with
+    // the chips. Fetch all candidates first, then filter and trim.
+    const candidates = await context.repos.sequences.searchLibrarySequences({
       query: args.query,
-      libraryTopics: args.libraryTopics?.length ? args.libraryTopics : null,
       curatedOnly: !!args.curatedOnly,
       sortBy: args.sortBy ?? null,
-      limit,
+      limit: topics ? MAX_LIBRARY_SEARCH_RESULTS : limit,
     });
+    let results = candidates;
+    if (topics) {
+      const derivedTags = await context.repos.sequences.getDerivedTags(candidates.map(sequence => sequence._id));
+      results = candidates
+        .filter((sequence, index) => derivedTags[index].some(tag => topics.includes(tag.name ?? '')))
+        .slice(0, limit);
+    }
     return { results: await accessFilterMultiple(context.currentUser, 'Sequences', results, context) };
   },
   libraryTopicCounts: async (root: void, args: {}, context: ResolverContext) => {
