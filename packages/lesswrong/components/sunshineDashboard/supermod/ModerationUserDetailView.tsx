@@ -39,7 +39,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   // Sits flush against the bottom of the column, taking only the height its
   // contents need, so the rest goes to the user info above it.
-  undoQueueColumn: {
+  historyColumn: {
     marginTop: 'auto',
     flexShrink: 0,
   }
@@ -94,12 +94,8 @@ const ModerationUserDetailView = ({
             comments={comments}
             currentUser={currentUser}
           />
-          <div className={classes.undoQueueColumn}>
-            <ModerationUndoHistory
-              undoQueue={state.undoQueue}
-              history={state.history}
-              dispatch={dispatch}
-            />
+          <div className={classes.historyColumn}>
+            <ModerationUndoHistory history={state.history} />
           </div>
         </div>
         <div className={classes.contentListColumn}>

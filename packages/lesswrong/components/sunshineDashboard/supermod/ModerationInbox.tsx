@@ -27,6 +27,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import ModerationUndoToast from './ModerationUndoToast';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -95,7 +96,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
   },
-  undoQueueSection: {
+  historySection: {
     width: 300,
     flexShrink: 0,
     borderRight: theme.palette.border.normal,
@@ -454,13 +455,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
             />
           ) : (
             <>
-              {!isPostLikeTab && (
-                <div className={classes.undoQueueSection}>
-                  <ModerationUndoHistory
-                    undoQueue={state.undoQueue}
-                    history={state.history}
-                    dispatch={dispatch}
-                  />
+              {!isPostLikeTab && state.history.length > 0 && (
+                <div className={classes.historySection}>
+                  <ModerationUndoHistory history={state.history} />
                 </div>
               )}
               <div className={classes.inboxListContainer}>
@@ -497,6 +494,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           </div>
         )}
       </div>
+      {/* Fixed-position, so it is mounted exactly once here rather than per-view */}
+      <ModerationUndoToast undoQueue={state.undoQueue} dispatch={dispatch} />
     </div>
     </CoreTagsKeyboardProvider>
   );
