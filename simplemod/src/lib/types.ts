@@ -99,8 +99,3 @@ export interface NextItemResponse {
   nextItem: QueueItem | null;
   remainingCount: number;
 }
-
-export interface EarliestItemConflict {
-  error: string;
-  currentEarliest: QueueItem | null;
-}

@@ -85,6 +85,8 @@ const ModQueueApp = () => {
   const [checkState, setCheckState] = useState<CheckState>(null);
   const [checkNonce, setCheckNonce] = useState(0);
   const checkAttemptedRef = useRef<Set<string>>(new Set());
+  const checkDocumentIdRef = useRef<string | null>(null);
+  const busyRef = useRef(false);
   const flashNonceRef = useRef(0);
 
   const topCard = cards?.[0] ?? null;
@@ -133,6 +135,7 @@ const ModQueueApp = () => {
   const topItemDocumentId = topCard?.type === 'content' ? topCard.item.documentId : null;
   const topItemCollectionName = topCard?.type === 'content' ? topCard.item.collectionName : null;
   const topItemHasScore = topCard?.type === 'content' ? topCard.item.pangramScore !== null : true;
+  checkDocumentIdRef.current = topItemDocumentId;
 
   useEffect(() => {
     if (!topItemDocumentId || !topItemCollectionName || topItemHasScore) {
@@ -145,9 +148,12 @@ const ModQueueApp = () => {
     }
     checkAttemptedRef.current.add(topItemDocumentId);
     setCheckState('running');
+    const requestedDocumentId = topItemDocumentId;
     api.runCheck({ collectionName: topItemCollectionName, documentId: topItemDocumentId })
       .then(result => {
-        setCheckState(result.pangramScore === null ? 'failed' : null);
+        if (checkDocumentIdRef.current === requestedDocumentId) {
+          setCheckState(result.pangramScore === null ? 'failed' : null);
+        }
         setCards(previous => previous?.map(entry =>
           entry.type === 'content' && entry.item.documentId === topItemDocumentId
             ? {
@@ -163,7 +169,11 @@ const ModQueueApp = () => {
             : entry
         ) ?? previous);
       })
-      .catch(() => setCheckState('failed'));
+      .catch(() => {
+        if (checkDocumentIdRef.current === requestedDocumentId) {
+          setCheckState('failed');
+        }
+      });
   }, [topItemDocumentId, topItemCollectionName, topItemHasScore, checkNonce]);
 
   const retryCheck = useCallback(() => {
@@ -194,7 +204,8 @@ const ModQueueApp = () => {
   }, []);
 
   const runAction = useCallback(async (direction: SwipeDirection, flashLabel: string, action: () => Promise<void>) => {
-    if (busy || !topKey) return;
+    if (busyRef.current || !topKey) return;
+    busyRef.current = true;
     setBusy(true);
     setExitDirection(direction);
     setExitingKey(topKey);
@@ -205,9 +216,10 @@ const ModQueueApp = () => {
       await handleActionError(error);
     } finally {
       setExitingKey(null);
+      busyRef.current = false;
       setBusy(false);
     }
-  }, [busy, topKey, flashAction, handleActionError]);
+  }, [topKey, flashAction, handleActionError]);
 
   const advanceContentCard = useCallback((card: ContentCardData, result: NextItemResponse) => {
     setDecidedCount(count => count + 1);
@@ -580,6 +592,7 @@ const ModQueueApp = () => {
       {composer && (
         <Composer
           mode={composer.mode}
+          recipientDisplayName={composer.card.user.displayName}
           draftKey={
             composer.mode === 'offboard'
               ? `offboard-${composer.card.user._id}`

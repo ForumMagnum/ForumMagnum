@@ -323,8 +323,10 @@ export async function rerunLlmCheck(
   // Run the Pangram evaluation - errors will propagate to the client with descriptive messages
   const pangramResult = await getPangramEvaluation(revision);
 
-  // Check if there's an existing ACE record for this revision
-  const existingAce = await AutomatedContentEvaluations.findOne({ revisionId: revision._id });
+  // Check if there's an existing ACE record for this revision. There's no
+  // unique index on revisionId, so take the newest record — readers that
+  // display evaluations resolve multiple records the same way.
+  const existingAce = await AutomatedContentEvaluations.findOne({ revisionId: revision._id }, { sort: { createdAt: -1 } });
 
   if (existingAce) {
     // Update the existing record with the new Pangram results

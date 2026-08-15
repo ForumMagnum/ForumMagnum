@@ -4,15 +4,12 @@ import Users from '@/server/collections/users/collection';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const health: { collectionLoaded: string; database: string } = {
-    collectionLoaded: Users.collectionName,
-    database: 'unavailable',
-  };
   try {
-    const user = await Users.findOne({});
-    health.database = user ? 'connected' : 'connected (empty)';
+    await Users.findOne({});
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    health.database = `unavailable: ${error instanceof Error ? error.message : String(error)}`;
+    // eslint-disable-next-line no-console
+    console.error('SimpleMod health check failed:', error);
+    return NextResponse.json({ ok: false }, { status: 503 });
   }
-  return NextResponse.json(health);
 }

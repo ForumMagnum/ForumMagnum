@@ -104,6 +104,7 @@ const liveUnreviewedItemsSql = `
     AND c."rejected" IS NOT TRUE
     AND c."reviewedByUserId" IS NULL
     AND c."deleted" IS NOT TRUE
+    AND c."draft" IS NOT TRUE
   ORDER BY "postedAt" ASC, "documentId" ASC
 `;
 

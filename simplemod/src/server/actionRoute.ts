@@ -4,6 +4,8 @@ import { getModeratorSession, isErrorResponse, type ModeratorSession } from './f
 import { EarliestItemConflictError } from './actions';
 import type { ReviewCollectionName } from '../lib/types';
 
+export class ValidationError extends Error {}
+
 export async function handleActionRequest(
   req: NextRequest,
   handler: (session: ModeratorSession, body: Record<string, unknown>) => Promise<unknown>,
@@ -26,6 +28,9 @@ export async function handleActionRequest(
         { status: 409 },
       );
     }
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -34,7 +39,7 @@ export async function handleActionRequest(
 export function requireString(body: Record<string, unknown>, field: string): string {
   const value = body[field];
   if (typeof value !== 'string' || !value) {
-    throw new Error(`${field} is required`);
+    throw new ValidationError(`${field} is required`);
   }
   return value;
 }
@@ -42,7 +47,7 @@ export function requireString(body: Record<string, unknown>, field: string): str
 export function requireCollectionName(body: Record<string, unknown>): ReviewCollectionName {
   const value = body.collectionName;
   if (value !== 'Posts' && value !== 'Comments') {
-    throw new Error('collectionName must be Posts or Comments');
+    throw new ValidationError('collectionName must be Posts or Comments');
   }
   return value;
 }

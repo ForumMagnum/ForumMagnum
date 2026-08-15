@@ -5,8 +5,8 @@ import { createConversation } from '@/server/collections/conversations/mutations
 import { createMessage } from '@/server/collections/messages/mutations';
 import { createModeratorAction } from '@/server/collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
-import { appendToSunshineNotes, getSignatureWithNote } from '@/lib/collections/users/helpers';
-import { approveUnreviewedSubmissions } from '@/server/callbacks/userCallbackFunctions';
+import { getSignatureWithNote } from '@/lib/collections/users/helpers';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getEarliestUnreviewedItem } from './queue';
 import type { NextItemResponse, QueueItem, ReviewCollectionName } from '../lib/types';
 
@@ -44,6 +44,21 @@ export class EarliestItemConflictError extends Error {
   }
 }
 
+/**
+ * Prepends a signed note without read-modify-write: FM callbacks (rejection
+ * moderator actions, DM logging) append to sunshineNotes from background tasks
+ * that run concurrently with our writes, so a findOne-then-set here would race
+ * them and silently drop audit entries.
+ */
+async function appendSunshineNote(moderator: DbUser, userId: string, text: string): Promise<void> {
+  const db = getSqlClientOrThrow();
+  await db.none(`
+    UPDATE "Users"
+    SET "sunshineNotes" = $(note) || COALESCE("sunshineNotes", '')
+    WHERE "_id" = $(userId)
+  `, { note: getSignatureWithNote(moderator.displayName ?? moderator._id, text), userId });
+}
+
 interface ItemActionArgs {
   userId: string;
   collectionName: ReviewCollectionName;
@@ -77,6 +92,13 @@ function itemDescription(collectionName: ReviewCollectionName, document: DbPost 
   return `comment ${document._id}`;
 }
 
+/**
+ * Once every current item has been individually decided, the user leaves the
+ * queue without a user-level approval: reviewedByUserId stays null so future
+ * content is still created unreviewed. reviewedAt is set unconditionally
+ * (matching approveUserCurrentContentOnly) so their next submission triggers
+ * an "unreviewed content" action rather than a "first post" one.
+ */
 async function dequeueIfNoItemsRemain(context: ResolverContext, moderator: DbUser, userId: string): Promise<NextItemResponse> {
   const { item, remainingCount } = await getEarliestUnreviewedItem(userId);
   if (item) {
@@ -88,11 +110,13 @@ async function dequeueIfNoItemsRemain(context: ResolverContext, moderator: DbUse
       data: {
         needsReview: false,
         reviewedByUserId: null,
-        reviewedAt: user.reviewedAt ? new Date() : null,
-        sunshineNotes: getSignatureWithNote(moderator.displayName ?? moderator._id, 'SimpleMod: reviewed all current content individually') + (user.sunshineNotes ?? ''),
+        reviewedAt: new Date(),
+        sunshineFlagged: false,
+        snoozedUntilContentCount: null,
       },
       selector: { _id: userId },
     }, context);
+    await appendSunshineNote(moderator, userId, 'SimpleMod: reviewed all current content individually');
   }
   return { nextItem: null, remainingCount: 0 };
 }
@@ -107,12 +131,7 @@ export async function approveItem(context: ResolverContext, moderator: DbUser, a
     } else {
       await updateComment({ data, selector: { _id: args.documentId } }, context);
     }
-    await appendToSunshineNotes({
-      moderatedUserId: args.userId,
-      adminName: moderator.displayName ?? moderator._id,
-      text: `SimpleMod: approved ${itemDescription(args.collectionName, document)}`,
-      context,
-    });
+    await appendSunshineNote(moderator, args.userId, `SimpleMod: approved ${itemDescription(args.collectionName, document)}`);
     return dequeueIfNoItemsRemain(context, moderator, args.userId);
   });
 }
@@ -165,50 +184,49 @@ export async function approveItemAndDm(context: ResolverContext, moderator: DbUs
     title: 'A note from the moderation team',
     messageHtml: args.messageHtml,
   });
-  await appendToSunshineNotes({
-    moderatedUserId: args.userId,
-    adminName: moderator.displayName ?? moderator._id,
-    text: 'SimpleMod: sent DM about approved content',
-    context,
-  });
+  await appendSunshineNote(moderator, args.userId, 'SimpleMod: sent DM about approved content');
   return result;
 }
 
 export async function skipUser(context: ResolverContext, moderator: DbUser, userId: string): Promise<void> {
-  const user = await context.Users.findOne(userId);
-  if (!user) {
-    throw new Error('Invalid user ID');
-  }
-  if (!user.needsReview) {
-    return;
-  }
-  await updateUser({
-    data: {
-      needsReview: false,
-      reviewedByUserId: null,
-      reviewedAt: user.reviewedAt ? new Date() : null,
-      sunshineNotes: getSignatureWithNote(moderator.displayName ?? moderator._id, 'SimpleMod: removed from review queue') + (user.sunshineNotes ?? ''),
-    },
-    selector: { _id: userId },
-  }, context);
+  return withUserLock(userId, async () => {
+    const user = await context.Users.findOne(userId);
+    if (!user) {
+      throw new Error('Invalid user ID');
+    }
+    if (!user.needsReview) {
+      return;
+    }
+    await updateUser({
+      data: {
+        needsReview: false,
+        reviewedByUserId: null,
+        reviewedAt: user.reviewedAt ? new Date() : null,
+      },
+      selector: { _id: userId },
+    }, context);
+    await appendSunshineNote(moderator, userId, 'SimpleMod: removed from review queue');
+  });
 }
 
 export async function approveUser(context: ResolverContext, moderator: DbUser, userId: string): Promise<void> {
-  const user = await context.Users.findOne(userId);
-  if (!user) {
-    throw new Error('Invalid user ID');
-  }
-  await updateUser({
-    data: {
-      sunshineFlagged: false,
-      reviewedByUserId: moderator._id,
-      reviewedAt: new Date(),
-      needsReview: false,
-      sunshineNotes: getSignatureWithNote(moderator.displayName ?? moderator._id, 'SimpleMod: approved user') + (user.sunshineNotes ?? ''),
-      snoozedUntilContentCount: null,
-    },
-    selector: { _id: userId },
-  }, context);
+  return withUserLock(userId, async () => {
+    const user = await context.Users.findOne(userId);
+    if (!user) {
+      throw new Error('Invalid user ID');
+    }
+    await updateUser({
+      data: {
+        sunshineFlagged: false,
+        reviewedByUserId: moderator._id,
+        reviewedAt: new Date(),
+        needsReview: false,
+        snoozedUntilContentCount: null,
+      },
+      selector: { _id: userId },
+    }, context);
+    await appendSunshineNote(moderator, userId, 'SimpleMod: approved user');
+  });
 }
 
 export async function offboardUser(context: ResolverContext, moderator: DbUser, { userId, rejections, removePermissions, messageHtml }: {
@@ -232,10 +250,6 @@ export async function offboardUser(context: ResolverContext, moderator: DbUser, 
       }
     }
 
-    const note = removePermissions
-      ? 'SimpleMod: offboarded (disabled posting, commenting, and messaging)'
-      : 'SimpleMod: removed from review queue (offboard review)';
-    const freshUser = await context.Users.findOne(userId);
     await updateUser({
       data: {
         ...(removePermissions ? {
@@ -246,10 +260,12 @@ export async function offboardUser(context: ResolverContext, moderator: DbUser, 
         needsReview: false,
         reviewedByUserId: null,
         reviewedAt: user.reviewedAt ? new Date() : null,
-        sunshineNotes: getSignatureWithNote(moderator.displayName ?? moderator._id, note) + (freshUser?.sunshineNotes ?? ''),
       },
       selector: { _id: userId },
     }, context);
+    await appendSunshineNote(moderator, userId, removePermissions
+      ? 'SimpleMod: offboarded (disabled posting, commenting, and messaging)'
+      : 'SimpleMod: removed from review queue (offboard review)');
 
     if (removePermissions) {
       await createModeratorAction({

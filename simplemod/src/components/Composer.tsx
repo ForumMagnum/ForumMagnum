@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import { fetchTemplates } from '../lib/api';
 import type { ModerationTemplateData } from '../lib/types';
 
@@ -41,10 +42,14 @@ interface TemplateSectionState extends SectionDraft {
   templates: ModerationTemplateData[];
 }
 
-function buildHtml(state: TemplateSectionState): string {
+// Templates go through the same processing FM's composers apply: strip the
+// moderator-only preamble (everything before a \\ marker) and substitute
+// {{displayName}}/{{firstName}}.
+function buildHtml(state: TemplateSectionState, recipientDisplayName: string): string {
   const templateHtml = state.selectedIds
     .map(id => state.templates.find(template => template._id === id)?.html ?? '')
     .filter(Boolean)
+    .map(html => getDraftMessageHtml({ html, displayName: recipientDisplayName }))
     .join('');
   return templateHtml + textToHtml(state.freeText);
 }
@@ -91,10 +96,11 @@ const TemplateSection = ({ label, state, onChange, autoFocus }: {
   );
 };
 
-const Composer = ({ mode, title, draftKey, rejectionCount = 0, submitLabel, onSubmit, onCancel }: {
+const Composer = ({ mode, title, draftKey, recipientDisplayName, rejectionCount = 0, submitLabel, onSubmit, onCancel }: {
   mode: ComposerMode;
   title: string;
   draftKey: string;
+  recipientDisplayName: string;
   rejectionCount?: number;
   submitLabel: string;
   onSubmit: (result: ComposerResult) => void;
@@ -163,12 +169,12 @@ const Composer = ({ mode, title, draftKey, rejectionCount = 0, submitLabel, onSu
   }, [draftKey, rejectionSection, messageSection]);
 
   const rejectedReason = useMemo(
-    () => rejectionSection ? buildHtml(rejectionSection) : '',
-    [rejectionSection],
+    () => rejectionSection ? buildHtml(rejectionSection, recipientDisplayName) : '',
+    [rejectionSection, recipientDisplayName],
   );
   const messageHtml = useMemo(
-    () => messageSection ? buildHtml(messageSection) : '',
-    [messageSection],
+    () => messageSection ? buildHtml(messageSection, recipientDisplayName) : '',
+    [messageSection, recipientDisplayName],
   );
 
   const canSubmit =

@@ -84,7 +84,7 @@ export async function getUserContentHistory(userId: string): Promise<UserContent
       c."rejected",
       pr."html",
       pu."displayName",
-      FALSE,
+      c."draft",
       c."authorIsUnreviewed",
       c."reviewedByUserId"
     FROM "Comments" c
