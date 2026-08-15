@@ -45,7 +45,7 @@
     "unused-graphql-fragments": "ts-node --swc -r tsconfig-paths/register scripts/unusedGraphqlFragments.ts",
     "unused-jss-classes": "ts-node --swc -r tsconfig-paths/register scripts/unusedJssClasses.ts",
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start",
-    "simplemod": "next dev simplemod --turbopack -p 3030"
+    "simplemod": "scripts/runSimplemod.sh"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.84",
