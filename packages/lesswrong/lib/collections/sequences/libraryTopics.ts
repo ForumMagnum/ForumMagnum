@@ -59,10 +59,3 @@ export const LIBRARY_TOPIC_TAG_SLUGS: Record<LibraryTopic, string> = {
   "Community": "community",
   "Site Meta": "site-meta",
 };
-
-// (topic, slug) VALUES list for SQL that needs the mapping inline (the
-// libraryTopics sqlResolver, which can't take query parameters). Topic names
-// and slugs are compile-time constants, so inlining is injection-safe.
-export const libraryTopicTagValuesSql = LIBRARY_TOPICS
-  .map(topic => `('${topic}', '${LIBRARY_TOPIC_TAG_SLUGS[topic]}')`)
-  .join(", ");

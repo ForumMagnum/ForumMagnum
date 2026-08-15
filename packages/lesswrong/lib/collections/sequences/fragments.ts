@@ -63,6 +63,7 @@ export const LibrarySequenceRowFragment = gql(`
     coverImageId
     bannerImageId
     curatedOrder
+    isBookmarked
     libraryTags {
       _id
       name

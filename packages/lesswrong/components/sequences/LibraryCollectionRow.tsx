@@ -26,8 +26,9 @@ const LibraryCollectionExpansionQuery = gql(`
   }
 `);
 
-const LibraryCollectionRowBody = ({collection}: {
+const LibraryCollectionRowBody = ({collection, saveButton}: {
   collection: LibraryCollectionRowFragment,
+  saveButton: React.ReactNode,
 }) => {
   const classes = useStyles(libraryRowStyles);
   const { data, loading } = useQuery(LibraryCollectionExpansionQuery, {
@@ -58,6 +59,7 @@ const LibraryCollectionRowBody = ({collection}: {
         key: book._id,
         label: book.tocTitle || book.title || '',
         read: book.postsCount > 0 && book.readPostsCount >= book.postsCount,
+        postsCount: book.postsCount,
       }))
     : books
         .flatMap(book => book.sequences)
@@ -66,6 +68,7 @@ const LibraryCollectionRowBody = ({collection}: {
           key: sequence._id,
           label: sequence.title ?? '',
           read: sequence.postsCount > 0 && sequence.readPostsCount >= sequence.postsCount,
+          postsCount: sequence.postsCount,
           url: sequenceGetPageUrl(sequence),
         }));
 
@@ -75,6 +78,7 @@ const LibraryCollectionRowBody = ({collection}: {
     totalPostsCount={collection.postsCount}
     viewLink={collectionGetPageUrl(collection)}
     viewLinkLabel="View collection"
+    saveButton={saveButton}
   />;
 };
 
@@ -84,7 +88,7 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
   onToggle: () => void,
 }) => {
   const classes = useStyles(libraryRowStyles);
-  const { icon: bookmarkIcon, hoverText: bookmarkHoverText, toggleBookmark } = useBookmark(collection._id, "Collections");
+  const { icon: bookmarkIcon, hoverText: bookmarkHoverText, toggleBookmark } = useBookmark(collection._id, "Collections", collection.isBookmarked);
 
   const handleHeaderKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -128,6 +132,7 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
           url={collectionGetPageUrl(collection)}
           documentId={collection._id}
           collectionName="Collections"
+          isBookmarked={collection.isBookmarked}
         />}
       </div>
       <span className={classes.rightMeta}>
@@ -179,12 +184,13 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
         </a>
       </span>
     </div>
-    <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
-      <span onClick={handleSaveClick}>
-        <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
-      </span>
-    </LWTooltip>
-    <LibraryCollectionRowBody collection={collection} />
+    <LibraryCollectionRowBody collection={collection} saveButton={
+      <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
+        <span onClick={handleSaveClick}>
+          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+        </span>
+      </LWTooltip>
+    } />
   </div>;
 };
 

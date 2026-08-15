@@ -8173,6 +8173,7 @@ type QuerylatestGoogleDocMetadataArgs = {
 
 type QuerylibrarySequencesSearchArgs = {
   curatedOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  filterTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
   libraryTopics?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
@@ -9445,7 +9446,6 @@ type Sequence = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   libraryTags: Array<Tag>;
   libraryTopic?: Maybe<Scalars['String']['output']>;
-  libraryTopics: Array<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
@@ -19789,6 +19789,7 @@ type LibrarySequencesSearchQuery_Query = { __typename?: 'Query', librarySequence
 type LibrarySequencesSearchQueryVariables = Exact<{
   query: Scalars['String']['input'];
   libraryTopics: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  filterTagIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   curatedOnly: InputMaybe<Scalars['Boolean']['input']>;
   sortBy: InputMaybe<Scalars['String']['input']>;
   limit: InputMaybe<Scalars['Int']['input']>;
@@ -23966,7 +23967,7 @@ type LibraryCollectionRowFragment_Collection_user_User = (
 
 type LibraryCollectionRowFragment_Collection_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, postsCount: number, readPostsCount: number, user: LibraryCollectionRowFragment_Collection_user_User | null, contents: LibraryCollectionRowFragment_Collection_contents_Revision | null };
+type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, isBookmarked: boolean, postsCount: number, readPostsCount: number, user: LibraryCollectionRowFragment_Collection_user_User | null, contents: LibraryCollectionRowFragment_Collection_contents_Revision | null };
 
 type LibraryCollectionExpansionFragment_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string, postsCount: number, readPostsCount: number };
 
@@ -25149,7 +25150,7 @@ type LibrarySequenceRowFragment_Sequence_user_User = (
 
 type LibrarySequenceRowFragment_Sequence_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, postsCount: number, readPostsCount: number, libraryTags: Array<LibrarySequenceRowFragment_Sequence_libraryTags_Tag>, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
+type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, isBookmarked: boolean, postsCount: number, readPostsCount: number, libraryTags: Array<LibrarySequenceRowFragment_Sequence_libraryTags_Tag>, user: LibrarySequenceRowFragment_Sequence_user_User | null, contents: LibrarySequenceRowFragment_Sequence_contents_Revision | null };
 
 type LibrarySequenceExpansionFragment_Sequence_chapters_Chapter_posts_Post = (
   { __typename?: 'Post' }

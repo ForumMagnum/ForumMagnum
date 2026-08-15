@@ -6,7 +6,7 @@ import uniq from "lodash/uniq";
 import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { READ_WORDS_PER_MINUTE, postStatuses } from "@/lib/collections/posts/constants";
-import { LIBRARY_TOPICS, LIBRARY_TOPIC_TAG_SLUGS, LIBRARY_CORE_TAG_NAMES, FICTION_TAG_SLUG } from "@/lib/collections/sequences/libraryTopics";
+import { LIBRARY_CORE_TAG_NAMES, FICTION_TAG_SLUG } from "@/lib/collections/sequences/libraryTopics";
 import { LIBRARY_RANKING_SHARED_CTES, getLibraryRankingSql, getLibraryRankingParams } from "./librarySequenceRankingSql";
 
 // Derived sequence tags (getDerivedTags), per the "Sequence tags resolved
@@ -101,11 +101,6 @@ function computeDerivedSequenceTagIds(rows: SequencePostTagRow[]): string[] {
     ...labelTags.slice(0, MAX_LABEL_TAGS),
   ].map(entry => entry.tagId);
 }
-
-// A sequence "holds" a library topic when at least half its posts have the
-// topic's tag (LIBRARY_TOPIC_TAG_SLUGS). The set-based subqueries below and
-// the libraryTopics sqlResolver in lib/collections/sequences/newSchema.ts
-// must stay in sync on this rule.
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
@@ -231,9 +226,16 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
    * Title-substring search over the /library redesign's all-sequences list.
    * The WHERE conditions (other than the title match) must stay in sync with
    * the librarySequences view in lib/collections/sequences/views.ts.
+   *
+   * filterTagIds filters to sequences with at least one published post
+   * carrying any of the given wikitags (a tag applies to a post via TagRels
+   * under the same conditions as getDerivedTags) — deliberately the full
+   * union of the posts' tags, not the thresholded/capped derived-chip set,
+   * so niche wikitags picked from the chip row's "+" picker can match.
    */
-  async searchLibrarySequences({query, curatedOnly, sortBy, limit}: {
+  async searchLibrarySequences({query, filterTagIds, curatedOnly, sortBy, limit}: {
     query: string,
+    filterTagIds: string[] | null,
     curatedOnly: boolean,
     sortBy: string | null,
     limit: number,
@@ -259,9 +261,22 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         AND s."draft" IS NOT TRUE
         AND s."hidden" IS NOT TRUE
         AND ($(curatedOnly) IS NOT TRUE OR s."curatedOrder" IS NOT NULL)
+        AND ($(filterTagIds) IS NULL OR EXISTS (
+          SELECT 1
+          FROM "Chapters" c
+          JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+          JOIN "Posts" p ON p."_id" = pid.post_id
+            AND p."draft" IS NOT TRUE
+            AND p."status" = $(statusApproved)
+          JOIN "TagRels" tr ON tr."postId" = p."_id"
+            AND tr."deleted" IS NOT TRUE
+            AND tr."score" > 0
+            AND tr."tagId" = ANY($(filterTagIds)::TEXT[])
+          WHERE c."sequenceId" = s."_id"
+        ))
       ORDER BY ${orderBy}
       LIMIT $(limit)
-    `, {...rankingParams, pattern, curatedOnly, limit});
+    `, {...rankingParams, pattern, filterTagIds, curatedOnly, limit, statusApproved: postStatuses.STATUS_APPROVED});
   }
 
   /**
@@ -318,40 +333,11 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
   }
 
   /**
-   * Topics a sequence holds, derived from its posts' tags — non-SQL fallback
-   * for the libraryTopics field resolver. Ordered by number of matching
-   * posts, dominant topic first.
-   */
-  async getDerivedLibraryTopics(sequenceId: string): Promise<string[]> {
-    const rows = await this.getRawDb().any<{topic: string}>(`
-      -- SequencesRepo.getDerivedLibraryTopics
-      SELECT matches.topic
-      FROM (
-        SELECT
-          topic.name AS topic,
-          COUNT(p."_id") AS total,
-          COUNT(p."_id") FILTER (WHERE COALESCE((p."tagRelevance"->>tag."_id")::INTEGER, 0) >= 1) AS matched
-        FROM UNNEST($(topicNames)::TEXT[], $(topicSlugs)::TEXT[]) AS topic(name, slug)
-        JOIN "Tags" tag ON tag."slug" = topic.slug AND tag."deleted" IS NOT TRUE
-        LEFT JOIN "Chapters" c ON c."sequenceId" = $(sequenceId)
-        LEFT JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
-        LEFT JOIN "Posts" p ON p."_id" = pid.post_id
-        GROUP BY topic.name
-      ) matches
-      WHERE matches.matched > 0 AND matches.matched * 2 >= matches.total
-      ORDER BY matches.matched DESC, matches.topic
-    `, {
-      sequenceId,
-      topicNames: [...LIBRARY_TOPICS],
-      topicSlugs: LIBRARY_TOPICS.map(topic => LIBRARY_TOPIC_TAG_SLUGS[topic]),
-    });
-    return rows.map(row => row.topic);
-  }
-
-  /**
    * Static per-topic totals for the /library tag filter popover, over the same
    * set of sequences as the librarySequences view, using the same derived
-   * topic definition as searchLibrarySequences.
+   * topic definition as searchLibrarySequences. Heavy: materializes every
+   * sequence's post TagRels into Node, so callers must cache the result (the
+   * libraryTopicCounts resolver serves it from an SwrCache).
    */
   async libraryTopicCounts(): Promise<{topic: string, count: number}[]> {
     const sequenceRows = await this.getRawDb().any<{_id: string}>(`
