@@ -1,7 +1,15 @@
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 import { getUserReviewGroup } from '@/lib/collections/users/newSchema';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import type { PangramWindowScore, QueueCard, QueueItem, QueueUser, ReviewCollectionName } from '../lib/types';
+
+export function getItemUrl(collectionName: ReviewCollectionName, documentId: string, postId: string | null): string {
+  if (collectionName === 'Posts') {
+    return `${getSiteUrl()}posts/${documentId}`;
+  }
+  return postId ? `${getSiteUrl()}posts/${postId}?commentId=${documentId}` : getSiteUrl();
+}
 
 const QUEUE_USER_LIMIT = 100;
 
@@ -21,6 +29,8 @@ interface QueueItemRow {
   pangramWindowScores: PangramWindowScore[] | null;
   aiChoice: string | null;
   rejected: boolean | null;
+  parentCommentHtml: string | null;
+  parentCommentAuthor: string | null;
 }
 
 const liveUnreviewedItemsSql = `
@@ -39,7 +49,9 @@ const liveUnreviewedItemsSql = `
     ace."pangramPrediction",
     ace."pangramWindowScores",
     ace."aiChoice",
-    p."rejected"
+    p."rejected",
+    NULL AS "parentCommentHtml",
+    NULL AS "parentCommentAuthor"
   FROM "Posts" p
   LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
   LEFT JOIN LATERAL (
@@ -71,10 +83,15 @@ const liveUnreviewedItemsSql = `
     ace."pangramPrediction",
     ace."pangramWindowScores",
     ace."aiChoice",
-    c."rejected"
+    c."rejected",
+    pr."html" AS "parentCommentHtml",
+    pu."displayName" AS "parentCommentAuthor"
   FROM "Comments" c
   LEFT JOIN "Posts" post ON post."_id" = c."postId"
   LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
+  LEFT JOIN "Comments" pc ON pc."_id" = c."parentCommentId"
+  LEFT JOIN "Revisions" pr ON pr."_id" = pc."contents_latest"
+  LEFT JOIN "Users" pu ON pu."_id" = pc."userId"
   LEFT JOIN LATERAL (
     SELECT a."pangramScore", a."pangramFractionAi", a."pangramPrediction", a."pangramWindowScores", a."aiChoice"
     FROM "AutomatedContentEvaluations" a
@@ -106,6 +123,9 @@ function toQueueItem(row: QueueItemRow): QueueItem {
     pangramWindowScores: row.pangramWindowScores,
     aiChoice: row.aiChoice,
     rejected: row.rejected ?? false,
+    itemUrl: getItemUrl(row.collectionName, row.documentId, row.postId),
+    parentCommentHtml: row.parentCommentHtml,
+    parentCommentAuthor: row.parentCommentAuthor,
   };
 }
 
@@ -144,6 +164,7 @@ function toQueueUser(user: DbUser, htmlBio: string | null, reviewGroup: 'newCont
     postingDisabled: !!user.postingDisabled,
     allCommentingDisabled: !!user.allCommentingDisabled,
     conversationsDisabled: !!user.conversationsDisabled,
+    profileUrl: `${getSiteUrl()}users/${user.slug ?? user._id}`,
   };
 }
 

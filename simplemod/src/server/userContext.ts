@@ -1,4 +1,5 @@
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
+import { getItemUrl } from './queue';
 import type { PangramWindowScore, ReviewCollectionName, UserContentItem } from '../lib/types';
 
 interface UserContentRow {
@@ -16,6 +17,8 @@ interface UserContentRow {
   pangramWindowScores: PangramWindowScore[] | null;
   aiChoice: string | null;
   rejected: boolean | null;
+  parentCommentHtml: string | null;
+  parentCommentAuthor: string | null;
   draft: boolean | null;
   authorIsUnreviewed: boolean | null;
   reviewedByUserId: string | null;
@@ -46,6 +49,8 @@ export async function getUserContentHistory(userId: string): Promise<UserContent
       ace."pangramWindowScores",
       ace."aiChoice",
       p."rejected",
+      NULL AS "parentCommentHtml",
+      NULL AS "parentCommentAuthor",
       p."draft",
       p."authorIsUnreviewed",
       p."reviewedByUserId"
@@ -77,12 +82,17 @@ export async function getUserContentHistory(userId: string): Promise<UserContent
       ace."pangramWindowScores",
       ace."aiChoice",
       c."rejected",
+      pr."html",
+      pu."displayName",
       FALSE,
       c."authorIsUnreviewed",
       c."reviewedByUserId"
     FROM "Comments" c
     LEFT JOIN "Posts" post ON post."_id" = c."postId"
     LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
+    LEFT JOIN "Comments" pc ON pc."_id" = c."parentCommentId"
+    LEFT JOIN "Revisions" pr ON pr."_id" = pc."contents_latest"
+    LEFT JOIN "Users" pu ON pu."_id" = pc."userId"
     LEFT JOIN LATERAL (
       SELECT a."pangramScore", a."pangramFractionAi", a."pangramPrediction", a."pangramWindowScores", a."aiChoice"
       FROM "AutomatedContentEvaluations" a
@@ -111,6 +121,9 @@ export async function getUserContentHistory(userId: string): Promise<UserContent
     pangramWindowScores: row.pangramWindowScores,
     aiChoice: row.aiChoice,
     rejected: row.rejected ?? false,
+    itemUrl: getItemUrl(row.collectionName, row.documentId, row.postId),
+    parentCommentHtml: row.parentCommentHtml,
+    parentCommentAuthor: row.parentCommentAuthor,
     status: rowStatus(row),
   }));
 }

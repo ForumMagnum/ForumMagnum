@@ -11,19 +11,23 @@ function accountAge(createdAt: string): string {
   return `${Math.floor(days / 365)}y old`;
 }
 
+function pluralize(count: number, singular: string): string {
+  return `${count} ${singular}${count === 1 ? '' : 's'}`;
+}
+
 const UserHeader = ({ user, subtitle }: { user: QueueUser; subtitle?: string }) => {
   return (
     <header className="user-header">
       <div className="user-header-main">
-        <span className="user-name">{user.displayName}</span>
+        <a className="user-name" href={user.profileUrl} target="_blank" rel="noreferrer">{user.displayName}</a>
         {user.sunshineFlagged && <span className="chip chip-flagged">Flagged</span>}
         {user.reviewGroup === 'offboard' && <span className="chip chip-offboard">Offboard candidate</span>}
       </div>
       <div className="user-header-stats">
         <span>{user.karma} karma</span>
         <span>{accountAge(user.createdAt)}</span>
-        <span>{user.postCount} posts</span>
-        <span>{user.commentCount} comments</span>
+        <span>{pluralize(user.postCount, 'post')}</span>
+        <span>{pluralize(user.commentCount, 'comment')}</span>
         {subtitle && <span className="user-header-subtitle">{subtitle}</span>}
       </div>
     </header>

@@ -12,6 +12,15 @@ export interface ComposerResult {
   messageHtml?: string;
 }
 
+interface SectionDraft {
+  selectedIds: string[];
+  freeText: string;
+}
+
+// Drafts survive Esc/backdrop dismissal so a stray close never destroys a
+// carefully-worded note. Keyed per item/user, cleared on submit.
+const draftStore = new Map<string, { rejection?: SectionDraft; message?: SectionDraft }>();
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -28,10 +37,8 @@ function textToHtml(text: string): string {
     .join('');
 }
 
-interface TemplateSectionState {
+interface TemplateSectionState extends SectionDraft {
   templates: ModerationTemplateData[];
-  selectedIds: string[];
-  freeText: string;
 }
 
 function buildHtml(state: TemplateSectionState): string {
@@ -84,15 +91,10 @@ const TemplateSection = ({ label, state, onChange, autoFocus }: {
   );
 };
 
-const emptySection = (templates: ModerationTemplateData[]): TemplateSectionState => ({
-  templates,
-  selectedIds: [],
-  freeText: '',
-});
-
-const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCancel }: {
+const Composer = ({ mode, title, draftKey, rejectionCount = 0, submitLabel, onSubmit, onCancel }: {
   mode: ComposerMode;
   title: string;
+  draftKey: string;
   rejectionCount?: number;
   submitLabel: string;
   onSubmit: (result: ComposerResult) => void;
@@ -119,18 +121,28 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
 
   useEffect(() => {
     let cancelled = false;
+    const draft = draftStore.get(draftKey);
     const load = async () => {
       try {
-        if (needsRejection) {
-          const { templates, rejectionIntroHtml } = await fetchTemplates('Rejections');
-          if (cancelled) return;
-          setRejectionSection(emptySection(templates));
-          setRejectionIntro(rejectionIntroHtml);
+        const [rejections, messages] = await Promise.all([
+          needsRejection ? fetchTemplates('Rejections') : null,
+          needsMessage ? fetchTemplates('Messages') : null,
+        ]);
+        if (cancelled) return;
+        if (rejections) {
+          setRejectionSection({
+            templates: rejections.templates,
+            selectedIds: draft?.rejection?.selectedIds ?? [],
+            freeText: draft?.rejection?.freeText ?? '',
+          });
+          setRejectionIntro(rejections.rejectionIntroHtml);
         }
-        if (needsMessage) {
-          const { templates } = await fetchTemplates('Messages');
-          if (cancelled) return;
-          setMessageSection(emptySection(templates));
+        if (messages) {
+          setMessageSection({
+            templates: messages.templates,
+            selectedIds: draft?.message?.selectedIds ?? [],
+            freeText: draft?.message?.freeText ?? '',
+          });
         }
       } catch (error) {
         if (!cancelled) {
@@ -140,7 +152,15 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
     };
     void load();
     return () => { cancelled = true; };
-  }, [needsRejection, needsMessage]);
+  }, [needsRejection, needsMessage, draftKey]);
+
+  useEffect(() => {
+    if (!rejectionSection && !messageSection) return;
+    draftStore.set(draftKey, {
+      ...(rejectionSection ? { rejection: { selectedIds: rejectionSection.selectedIds, freeText: rejectionSection.freeText } } : {}),
+      ...(messageSection ? { message: { selectedIds: messageSection.selectedIds, freeText: messageSection.freeText } } : {}),
+    });
+  }, [draftKey, rejectionSection, messageSection]);
 
   const rejectedReason = useMemo(
     () => rejectionSection ? buildHtml(rejectionSection) : '',
@@ -157,6 +177,7 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
 
   const submit = () => {
     if (!canSubmit) return;
+    draftStore.delete(draftKey);
     onSubmit({
       ...(needsRejection && rejectedReason ? { rejectedReason } : {}),
       ...(needsMessage && messageHtml ? { messageHtml } : {}),
@@ -181,7 +202,7 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
   return (
     <div className="composer-overlay" onKeyDown={handleKeyDown} onMouseDown={handleBackdropMouseDown}>
       <div className="composer">
-        <h2 className="composer-title">{title}</h2>
+        <h2 className="composer-title" title={title}>{title}</h2>
         {loadError && <div className="composer-error">{loadError}</div>}
         {loading && !loadError && <div className="composer-loading">Loading templates…</div>}
         {needsRejection && rejectionSection && (

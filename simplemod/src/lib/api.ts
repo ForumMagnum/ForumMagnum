@@ -43,8 +43,22 @@ export function fetchQueue(): Promise<QueueResponse> {
   return request<QueueResponse>('/api/queue');
 }
 
-export function fetchTemplates(collection: 'Rejections' | 'Messages'): Promise<{ templates: ModerationTemplateData[]; rejectionIntroHtml: string }> {
-  return request(`/api/templates?collection=${collection}`);
+interface TemplatesResponse {
+  templates: ModerationTemplateData[];
+  rejectionIntroHtml: string;
+}
+
+const templateCache = new Map<string, Promise<TemplatesResponse>>();
+
+export function fetchTemplates(collection: 'Rejections' | 'Messages'): Promise<TemplatesResponse> {
+  const cached = templateCache.get(collection);
+  if (cached) {
+    return cached;
+  }
+  const fetched = request<TemplatesResponse>(`/api/templates?collection=${collection}`);
+  templateCache.set(collection, fetched);
+  fetched.catch(() => templateCache.delete(collection));
+  return fetched;
 }
 
 export function fetchUserContext(userId: string): Promise<UserContextResponse> {

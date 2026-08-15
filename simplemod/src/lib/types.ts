@@ -22,6 +22,9 @@ export interface QueueItem {
   pangramWindowScores: PangramWindowScore[] | null;
   aiChoice: string | null;
   rejected: boolean;
+  itemUrl: string;
+  parentCommentHtml: string | null;
+  parentCommentAuthor: string | null;
 }
 
 export interface UserContentItem extends QueueItem {
@@ -55,6 +58,7 @@ export interface QueueUser {
   postingDisabled: boolean;
   allCommentingDisabled: boolean;
   conversationsDisabled: boolean;
+  profileUrl: string;
 }
 
 export interface ContentCardData {

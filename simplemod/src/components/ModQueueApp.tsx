@@ -12,15 +12,32 @@ import ContentCard, { type CheckState } from './ContentCard';
 import WrapupCard from './WrapupCard';
 import OffboardCard, { type OffboardSelection } from './OffboardCard';
 import Composer, { type ComposerResult } from './Composer';
-import HotkeyLegend from './HotkeyLegend';
+import HotkeyLegend, { type LegendAction } from './HotkeyLegend';
 import ContextPanel from './ContextPanel';
 
 const PANEL_OPEN_STORAGE_KEY = 'simplemod_contextPanelOpen';
+const USER_ACTION_GRACE_MS = 2000;
 
 type ComposerState =
   | { mode: 'reject'; card: ContentCardData }
   | { mode: 'dm'; card: ContentCardData }
   | { mode: 'offboard'; card: OffboardCardData };
+
+interface Toast {
+  text: string;
+  kind: 'info' | 'error';
+}
+
+interface ActionFlash {
+  label: string;
+  direction: SwipeDirection;
+  nonce: number;
+}
+
+interface PendingUserAction {
+  label: string;
+  timer: number;
+}
 
 function cardKey(card: QueueCard): string {
   return card.type === 'content'
@@ -36,6 +53,20 @@ function stampsForCard(card: QueueCard): { left: string; right: string } {
   }
 }
 
+function scrollTopCardBody(delta: number) {
+  document.querySelector('.swipe-card .card-body')?.scrollBy({ top: delta, behavior: 'smooth' });
+}
+
+function isTextEntryTarget(target: HTMLElement | null): boolean {
+  if (!target) return false;
+  if (target.tagName === 'TEXTAREA' || target.isContentEditable) return true;
+  if (target.tagName === 'INPUT') {
+    const type = (target as HTMLInputElement).type;
+    return type !== 'checkbox' && type !== 'radio' && type !== 'button';
+  }
+  return false;
+}
+
 const ModQueueApp = () => {
   const router = useRouter();
   const [cards, setCards] = useState<QueueCard[] | null>(null);
@@ -43,12 +74,18 @@ const ModQueueApp = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [exitDirection, setExitDirection] = useState<SwipeDirection>(1);
+  const [exitingKey, setExitingKey] = useState<string | null>(null);
   const [composer, setComposer] = useState<ComposerState | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [actionFlash, setActionFlash] = useState<ActionFlash | null>(null);
+  const [pendingUserAction, setPendingUserAction] = useState<PendingUserAction | null>(null);
+  const [decidedCount, setDecidedCount] = useState(0);
   const [offboardSelection, setOffboardSelection] = useState<OffboardSelection>({ selectedIds: [], removePermissions: true });
   const [panelOpen, setPanelOpen] = useState(false);
   const [checkState, setCheckState] = useState<CheckState>(null);
+  const [checkNonce, setCheckNonce] = useState(0);
   const checkAttemptedRef = useRef<Set<string>>(new Set());
+  const flashNonceRef = useRef(0);
 
   const topCard = cards?.[0] ?? null;
   const topKey = topCard ? cardKey(topCard) : null;
@@ -127,37 +164,53 @@ const ModQueueApp = () => {
         ) ?? previous);
       })
       .catch(() => setCheckState('failed'));
-  }, [topItemDocumentId, topItemCollectionName, topItemHasScore]);
+  }, [topItemDocumentId, topItemCollectionName, topItemHasScore, checkNonce]);
+
+  const retryCheck = useCallback(() => {
+    if (topItemDocumentId) {
+      checkAttemptedRef.current.delete(topItemDocumentId);
+      setCheckNonce(nonce => nonce + 1);
+    }
+  }, [topItemDocumentId]);
 
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toast.kind === 'error') return;
     const timeout = setTimeout(() => setToast(null), 4000);
     return () => clearTimeout(timeout);
   }, [toast]);
 
   const handleActionError = useCallback(async (error: unknown) => {
     if (error instanceof ConflictError) {
-      setToast('Someone else got there first — queue reloaded');
+      setToast({ text: 'Someone else got there first — queue reloaded', kind: 'info' });
     } else {
-      setToast(error instanceof Error ? error.message : String(error));
+      setToast({ text: error instanceof Error ? error.message : String(error), kind: 'error' });
     }
     await loadQueue();
   }, [loadQueue]);
 
-  const runAction = useCallback(async (direction: SwipeDirection, action: () => Promise<void>) => {
-    if (busy) return;
+  const flashAction = useCallback((label: string, direction: SwipeDirection) => {
+    flashNonceRef.current += 1;
+    setActionFlash({ label, direction, nonce: flashNonceRef.current });
+  }, []);
+
+  const runAction = useCallback(async (direction: SwipeDirection, flashLabel: string, action: () => Promise<void>) => {
+    if (busy || !topKey) return;
     setBusy(true);
     setExitDirection(direction);
+    setExitingKey(topKey);
+    flashAction(flashLabel, direction);
     try {
       await action();
     } catch (error) {
       await handleActionError(error);
     } finally {
+      setExitingKey(null);
       setBusy(false);
     }
-  }, [busy, handleActionError]);
+  }, [busy, topKey, flashAction, handleActionError]);
 
   const advanceContentCard = useCallback((card: ContentCardData, result: NextItemResponse) => {
+    setDecidedCount(count => count + 1);
     setCards(previous => {
       if (!previous) return previous;
       const key = cardKey(card);
@@ -173,11 +226,12 @@ const ModQueueApp = () => {
   }, []);
 
   const removeUserCards = useCallback((userId: string) => {
+    setDecidedCount(count => count + 1);
     setCards(previous => previous?.filter(entry => entry.user._id !== userId) ?? previous);
   }, []);
 
   const approveTop = useCallback((card: ContentCardData) =>
-    runAction(1, async () => {
+    runAction(1, 'Approved', async () => {
       const result = await api.approveItem({
         userId: card.user._id,
         collectionName: card.item.collectionName,
@@ -187,7 +241,7 @@ const ModQueueApp = () => {
     }), [runAction, advanceContentCard]);
 
   const rejectTop = useCallback((card: ContentCardData, rejectedReason: string) =>
-    runAction(-1, async () => {
+    runAction(-1, 'Rejected', async () => {
       const result = await api.rejectItem({
         userId: card.user._id,
         collectionName: card.item.collectionName,
@@ -198,7 +252,7 @@ const ModQueueApp = () => {
     }), [runAction, advanceContentCard]);
 
   const approveAndDmTop = useCallback((card: ContentCardData, messageHtml: string) =>
-    runAction(1, async () => {
+    runAction(1, 'Approved + DM sent', async () => {
       const result = await api.approveItemAndDm({
         userId: card.user._id,
         collectionName: card.item.collectionName,
@@ -208,20 +262,8 @@ const ModQueueApp = () => {
       advanceContentCard(card, result);
     }), [runAction, advanceContentCard]);
 
-  const approveUserTop = useCallback((card: QueueCard) =>
-    runAction(1, async () => {
-      await api.approveUser(card.user._id);
-      removeUserCards(card.user._id);
-    }), [runAction, removeUserCards]);
-
-  const skipTop = useCallback((card: QueueCard) =>
-    runAction(-1, async () => {
-      await api.skipUser(card.user._id);
-      removeUserCards(card.user._id);
-    }), [runAction, removeUserCards]);
-
   const offboardTop = useCallback((card: OffboardCardData, selection: OffboardSelection, result: ComposerResult) =>
-    runAction(-1, async () => {
+    runAction(-1, 'Offboarded', async () => {
       const rejectedReason = result.rejectedReason;
       const selectedItems = card.items.filter(item => selection.selectedIds.includes(item.documentId));
       await api.offboardUser({
@@ -239,13 +281,50 @@ const ModQueueApp = () => {
       removeUserCards(card.user._id);
     }), [runAction, removeUserCards]);
 
+  const cancelPendingUserAction = useCallback(() => {
+    setPendingUserAction(previous => {
+      if (previous) {
+        clearTimeout(previous.timer);
+      }
+      return null;
+    });
+  }, []);
+
+  // U (approve user) and S (skip user) are single-keystroke, user-level
+  // actions, so they get a short cancellable grace period instead of firing
+  // instantly.
+  const scheduleUserAction = useCallback((label: string, run: () => void) => {
+    cancelPendingUserAction();
+    const timer = window.setTimeout(() => {
+      setPendingUserAction(null);
+      run();
+    }, USER_ACTION_GRACE_MS);
+    setPendingUserAction({ label, timer });
+  }, [cancelPendingUserAction]);
+
+  const approveUserTop = useCallback((card: QueueCard) =>
+    scheduleUserAction(`Approving ${card.user.displayName} as a user`, () => {
+      void runAction(1, 'User approved', async () => {
+        await api.approveUser(card.user._id);
+        removeUserCards(card.user._id);
+      });
+    }), [scheduleUserAction, runAction, removeUserCards]);
+
+  const skipTop = useCallback((card: QueueCard) =>
+    scheduleUserAction(`Removing ${card.user.displayName} from the queue`, () => {
+      void runAction(-1, 'Skipped', async () => {
+        await api.skipUser(card.user._id);
+        removeUserCards(card.user._id);
+      });
+    }), [scheduleUserAction, runAction, removeUserCards]);
+
   const handleSwipe = useCallback((direction: SwipeDirection) => {
-    if (!topCard || busy || composer) return;
+    if (!topCard || busy || composer || pendingUserAction) return;
     if (direction === 1) {
       if (topCard.type === 'content') {
         void approveTop(topCard);
       } else {
-        void approveUserTop(topCard);
+        approveUserTop(topCard);
       }
     } else {
       if (topCard.type === 'content') {
@@ -253,22 +332,83 @@ const ModQueueApp = () => {
       } else if (topCard.type === 'offboard') {
         setComposer({ mode: 'offboard', card: topCard });
       } else {
-        void skipTop(topCard);
+        skipTop(topCard);
       }
     }
-  }, [topCard, busy, composer, approveTop, approveUserTop, skipTop]);
+  }, [topCard, busy, composer, pendingUserAction, approveTop, approveUserTop, skipTop]);
+
+  const handleLegendAction = useCallback((action: LegendAction) => {
+    if (!topCard) return;
+    switch (action) {
+      case 'approve':
+        if (topCard.type === 'content') handleSwipe(1);
+        break;
+      case 'rejectIntent':
+        handleSwipe(-1);
+        break;
+      case 'dm':
+        if (topCard.type === 'content' && !busy && !composer && !pendingUserAction) {
+          setComposer({ mode: 'dm', card: topCard });
+        }
+        break;
+      case 'approveUser':
+        if (!busy && !composer && !pendingUserAction) approveUserTop(topCard);
+        break;
+      case 'skip':
+        if (!busy && !composer && !pendingUserAction) skipTop(topCard);
+        break;
+      case 'context':
+        togglePanel();
+        break;
+    }
+  }, [topCard, busy, composer, pendingUserAction, handleSwipe, approveUserTop, skipTop, togglePanel]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (composer || busy || !topCard) return;
+      if (composer) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (isTextEntryTarget(event.target as HTMLElement | null)) return;
+
+      if (pendingUserAction) {
+        if (event.key.toLowerCase() === 'z' || event.key === 'Escape') {
+          event.preventDefault();
+          cancelPendingUserAction();
+        }
+        return;
+      }
+
       if (event.key === 'Tab') {
         event.preventDefault();
         togglePanel();
         return;
       }
+      if (event.key === 'Escape' && panelOpen) {
+        event.preventDefault();
+        togglePanel();
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          scrollTopCardBody(120);
+          return;
+        case 'ArrowUp':
+          event.preventDefault();
+          scrollTopCardBody(-120);
+          return;
+        case 'PageDown':
+        case ' ':
+          event.preventDefault();
+          scrollTopCardBody(480);
+          return;
+        case 'PageUp':
+          event.preventDefault();
+          scrollTopCardBody(-480);
+          return;
+      }
+
+      if (busy || !topCard) return;
       switch (event.key.toLowerCase()) {
         case 'arrowright':
         case 'a':
@@ -288,23 +428,26 @@ const ModQueueApp = () => {
           break;
         case 's':
           event.preventDefault();
-          void skipTop(topCard);
+          skipTop(topCard);
           break;
         case 'u':
           event.preventDefault();
-          void approveUserTop(topCard);
+          approveUserTop(topCard);
           break;
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [composer, busy, topCard, handleSwipe, skipTop, approveUserTop, togglePanel]);
+  }, [composer, busy, topCard, panelOpen, pendingUserAction, handleSwipe, skipTop, approveUserTop, togglePanel, cancelPendingUserAction]);
 
   const counts = useMemo(() => {
-    const content = cards?.filter(card => card.type === 'content').length ?? 0;
+    const summed = (cards ?? []).reduce((total, card) => {
+      if (card.type === 'content') return total + card.remainingCount;
+      if (card.type === 'offboard') return total + Math.max(card.items.length, 1);
+      return total + 1;
+    }, 0);
     const offboard = cards?.filter(card => card.type === 'offboard').length ?? 0;
-    const wrapup = cards?.filter(card => card.type === 'wrapup').length ?? 0;
-    return { content, offboard, wrapup };
+    return { users: cards?.length ?? 0, items: summed, offboard };
   }, [cards]);
 
   const handleComposerSubmit = (result: ComposerResult) => {
@@ -355,16 +498,17 @@ const ModQueueApp = () => {
   }
 
   const stamps = topCard ? stampsForCard(topCard) : null;
+  const showTopCard = topCard && stamps && topKey !== exitingKey;
 
   return (
     <main className="queue-shell">
       <header className="queue-hud">
         <span className="queue-hud-title">SimpleMod</span>
         <span className="queue-hud-counts">
-          {counts.content > 0 && <span>{counts.content} content</span>}
+          {counts.items > 0 && <span>{counts.items} item{counts.items === 1 ? '' : 's'} · {counts.users} user{counts.users === 1 ? '' : 's'}</span>}
           {counts.offboard > 0 && <span className="hud-offboard">{counts.offboard} offboard</span>}
-          {counts.wrapup > 0 && <span>{counts.wrapup} wrap-up</span>}
           {cards.length === 0 && <span>queue clear</span>}
+          {decidedCount > 0 && <span className="hud-decided">✓ {decidedCount} this session</span>}
         </span>
         <button type="button" className="hud-context-toggle" onClick={togglePanel}>
           {panelOpen ? 'Hide context' : 'Context'} <kbd>⇥</kbd>
@@ -373,11 +517,14 @@ const ModQueueApp = () => {
       </header>
       <div className={classNames('stage-row', panelOpen && topCard && 'stage-row-with-panel')}>
         {panelOpen && topCard && (
-          <ContextPanel
-            user={topCard.user}
-            currentDocumentId={topCard.type === 'content' ? topCard.item.documentId : null}
-            onClose={togglePanel}
-          />
+          <>
+            <div className="context-scrim" onClick={togglePanel} />
+            <ContextPanel
+              user={topCard.user}
+              currentDocumentId={topCard.type === 'content' ? topCard.item.documentId : null}
+              onClose={togglePanel}
+            />
+          </>
         )}
         <div className="card-stage">
           {cards.slice(1, 3).map((card, index) => (
@@ -388,16 +535,18 @@ const ModQueueApp = () => {
             />
           ))}
           <AnimatePresence custom={exitDirection} initial={false}>
-            {topCard && stamps && (
+            {showTopCard && (
               <SwipeCard
                 key={topKey}
                 onSwipe={handleSwipe}
-                disabled={busy || !!composer}
+                disabled={busy || !!composer || !!pendingUserAction}
                 busy={busy}
                 leftStamp={stamps.left}
                 rightStamp={stamps.right}
               >
-                {topCard.type === 'content' && <ContentCard card={topCard} checkState={checkState} />}
+                {topCard.type === 'content' && (
+                  <ContentCard card={topCard} checkState={checkState} onRetryCheck={retryCheck} />
+                )}
                 {topCard.type === 'wrapup' && <WrapupCard card={topCard} />}
                 {topCard.type === 'offboard' && (
                   <OffboardCard
@@ -409,6 +558,15 @@ const ModQueueApp = () => {
               </SwipeCard>
             )}
           </AnimatePresence>
+          {actionFlash && (
+            <div
+              key={actionFlash.nonce}
+              className={classNames('action-flash', actionFlash.direction === 1 ? 'action-flash-right' : 'action-flash-left')}
+              onAnimationEnd={() => setActionFlash(null)}
+            >
+              {actionFlash.label}
+            </div>
+          )}
           {cards.length === 0 && (
             <div className="queue-message queue-done">
               <h2>All clear 🎉</h2>
@@ -418,10 +576,15 @@ const ModQueueApp = () => {
           )}
         </div>
       </div>
-      {topCard && <HotkeyLegend card={topCard} />}
+      {topCard && <HotkeyLegend card={topCard} onAction={handleLegendAction} />}
       {composer && (
         <Composer
           mode={composer.mode}
+          draftKey={
+            composer.mode === 'offboard'
+              ? `offboard-${composer.card.user._id}`
+              : `${composer.mode}-${composer.card.item.documentId}`
+          }
           title={
             composer.mode === 'reject'
               ? `Reject ${composer.card.item.collectionName === 'Posts' ? `"${composer.card.item.title}"` : 'this comment'}`
@@ -439,7 +602,22 @@ const ModQueueApp = () => {
           onCancel={() => setComposer(null)}
         />
       )}
-      {toast && <div className="toast">{toast}</div>}
+      {pendingUserAction && (
+        <div className="pending-action">
+          <span>{pendingUserAction.label}…</span>
+          <button type="button" className="button button-secondary" onClick={cancelPendingUserAction}>
+            Cancel <kbd>Z</kbd>
+          </button>
+        </div>
+      )}
+      {toast && (
+        <div className={classNames('toast', toast.kind === 'error' && 'toast-error')}>
+          {toast.text}
+          {toast.kind === 'error' && (
+            <button type="button" className="toast-close" onClick={() => setToast(null)} aria-label="Dismiss">✕</button>
+          )}
+        </div>
+      )}
     </main>
   );
 };
