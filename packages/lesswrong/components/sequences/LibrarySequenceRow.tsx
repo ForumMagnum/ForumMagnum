@@ -117,8 +117,6 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
   },
   expandedWrapper: {
     borderBottom: theme.palette.border.faint,
-    // Anchor for the absolutely-positioned bookmark and secondary tag line.
-    position: 'relative',
   },
   expandedHeader: {
     display: 'grid',
@@ -210,14 +208,13 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     },
   },
   save: {
-    position: 'absolute',
-    // Vertically centered on the footer's "View sequence" line.
-    bottom: 10.5,
-    right: 12,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+    // The padding enlarges the click target; the negative margin cancels it
+    // out of the footer line's layout so the icon centers on the link text.
     padding: 4,
+    margin: -4,
     color: theme.palette.icon.dim3,
     cursor: 'pointer',
   },
@@ -231,7 +228,7 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     padding: '3px 8px',
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
-    color: theme.palette.text.normal,
+    color: theme.palette.grey[600],
     whiteSpace: 'nowrap',
   },
   // Core tags (incl. Fiction) render white; specific topic labels stay grey.
@@ -390,9 +387,11 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: '14px',
     marginTop: 14,
-    // Clear the bookmark pinned in the expansion's bottom-right corner.
-    marginRight: 30,
+    // Let the bookmark hang slightly outside the body's right padding, into
+    // the expansion's bottom-right corner.
+    marginRight: -8,
   },
   footerLink: {
     display: 'inline-flex',
@@ -532,12 +531,13 @@ const LibraryChecklistRowItem = ({row}: {
 // The expansion body's height is set by the chapter checklist (capped at
 // MAX_CHECKLIST_ROWS); the description clamps to however many lines fit
 // beside it, so long descriptions never make the expansion taller.
-export const LibraryRowExpansionBody = ({description, rows, totalPostsCount, viewLink, viewLinkLabel}: {
+export const LibraryRowExpansionBody = ({description, rows, totalPostsCount, viewLink, viewLinkLabel, saveButton}: {
   description: string | null,
   rows: LibraryChecklistRow[],
   totalPostsCount: number,
   viewLink: string,
   viewLinkLabel: string,
+  saveButton: React.ReactNode,
 }) => {
   const classes = useStyles(libraryRowStyles);
   const chaptersColumnRef = useRef<HTMLDivElement | null>(null);
@@ -596,13 +596,15 @@ export const LibraryRowExpansionBody = ({description, rows, totalPostsCount, vie
           {viewLinkLabel}
           <ArrowForwardIcon className={classes.linkIcon} />
         </Link>
+        {saveButton}
       </div>
     </div>
   </div>;
 };
 
-const LibrarySequenceRowBody = ({sequence}: {
+const LibrarySequenceRowBody = ({sequence, saveButton}: {
   sequence: LibrarySequenceRowFragment,
+  saveButton: React.ReactNode,
 }) => {
   const classes = useStyles(libraryRowStyles);
   const { data, loading } = useQuery(LibrarySequenceExpansionQuery, {
@@ -647,6 +649,7 @@ const LibrarySequenceRowBody = ({sequence}: {
     totalPostsCount={sequence.postsCount ?? 0}
     viewLink={sequenceGetPageUrl(sequence)}
     viewLinkLabel="View sequence"
+    saveButton={saveButton}
   />;
 };
 
@@ -766,12 +769,13 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
         </a>
       </span>
     </div>
-    <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
-      <span onClick={handleSaveClick}>
-        <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
-      </span>
-    </LWTooltip>
-    <LibrarySequenceRowBody sequence={sequence} />
+    <LibrarySequenceRowBody sequence={sequence} saveButton={
+      <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
+        <span onClick={handleSaveClick}>
+          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+        </span>
+      </LWTooltip>
+    } />
   </div>;
 };
 
