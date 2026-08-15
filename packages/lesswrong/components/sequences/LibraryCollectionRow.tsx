@@ -26,8 +26,9 @@ const LibraryCollectionExpansionQuery = gql(`
   }
 `);
 
-const LibraryCollectionRowBody = ({collection}: {
+const LibraryCollectionRowBody = ({collection, saveButton}: {
   collection: LibraryCollectionRowFragment,
+  saveButton: React.ReactNode,
 }) => {
   const classes = useStyles(libraryRowStyles);
   const { data, loading } = useQuery(LibraryCollectionExpansionQuery, {
@@ -71,6 +72,7 @@ const LibraryCollectionRowBody = ({collection}: {
     totalPostsCount={collection.postsCount}
     viewLink={collectionGetPageUrl(collection)}
     viewLinkLabel="View collection"
+    saveButton={saveButton}
   />;
 };
 
@@ -176,12 +178,13 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
         </a>
       </span>
     </div>
-    <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
-      <span onClick={handleSaveClick}>
-        <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
-      </span>
-    </LWTooltip>
-    <LibraryCollectionRowBody collection={collection} />
+    <LibraryCollectionRowBody collection={collection} saveButton={
+      <LWTooltip title={bookmarkHoverText} placement="right" className={classes.save}>
+        <span onClick={handleSaveClick}>
+          <ForumIcon icon={bookmarkIcon} className={classes.saveIcon} />
+        </span>
+      </LWTooltip>
+    } />
   </div>;
 };
 
