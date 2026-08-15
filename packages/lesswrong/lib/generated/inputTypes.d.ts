@@ -6222,7 +6222,6 @@ interface Sequence {
   isDeleted: boolean;
   curatedOrder: number | null;
   libraryTopic: string | null;
-  libraryTopics: Array<string>;
   libraryTags: Array<Tag>;
   userProfileOrder: number | null;
   canonicalCollectionSlug: string | null;

@@ -238,11 +238,11 @@ const _219=_o4(_8,_o3(_3,"curatedOrder"))
 const _220=_o4(_8,_o3(_3,"readPostsCount"))
 const _221=_o5(_7,[_10,_37])
 const _222=_o6(_8,_36,_221)
-const _223=_o2(_2,_215,_63,_o5(_7,[_10,_14,_216,_217,_218,_219,_o6(_8,_o3(_3,"libraryTags"),_o5(_7,[_10,_123,_12,_139])),_64,_220,_68,_222]))
+const _223=_o2(_2,_215,_63,_o5(_7,[_10,_14,_216,_217,_218,_219,_180,_o6(_8,_o3(_3,"libraryTags"),_o5(_7,[_10,_123,_12,_139])),_64,_220,_68,_222]))
 const _224=_o3(_3,"LibraryCollectionRowFragment")
 const _225=_o4(_5,_o3(_3,"Collection"))
 const _226=_o4(_8,_o3(_3,"libraryTopic"))
-const _227=_o2(_2,_224,_225,_o5(_7,[_10,_14,_12,_216,_217,_226,_64,_220,_68,_222]))
+const _227=_o2(_2,_224,_225,_o5(_7,[_10,_14,_12,_216,_217,_226,_180,_64,_220,_68,_222]))
 const _228=_o3(_3,"BookmarksLibraryItemFragment")
 const _229=_o3(_3,"collectionName")
 const _230=_o4(_8,_229)
@@ -11408,7 +11408,6 @@ export type Sequence = {
   legacyData: Maybe<Scalars['JSON']['output']>;
   libraryTags: Array<Tag>;
   libraryTopic: Maybe<Scalars['String']['output']>;
-  libraryTopics: Array<Scalars['String']['output']>;
   noindex: Scalars['Boolean']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
@@ -21351,7 +21350,7 @@ export type ModeratorClientIDInfo = { __typename?: 'ClientId', _id: string, clie
 
 export type CollectionContinueReadingFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, user: { __typename?: 'User', _id: string, displayName: string } | null };
 
-export type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, postsCount: number, readPostsCount: number, user: (
+export type LibraryCollectionRowFragment = { __typename?: 'Collection', _id: string, title: string, slug: string, gridImageId: string | null, coverImageId: string | null, libraryTopic: string | null, isBookmarked: boolean, postsCount: number, readPostsCount: number, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null, contents: { __typename?: 'Revision', _id: string, plaintextDescription: string } | null };
@@ -22146,7 +22145,7 @@ export type SequencesPageFragment = (
 
 export type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, canonicalCollectionSlug: string | null, user: { __typename?: 'User', _id: string, displayName: string } | null };
 
-export type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, postsCount: number, readPostsCount: number, libraryTags: Array<{ __typename?: 'Tag', _id: string, name: string, slug: string, core: boolean }>, user: (
+export type LibrarySequenceRowFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, coverImageId: string | null, bannerImageId: string | null, curatedOrder: number | null, isBookmarked: boolean, postsCount: number, readPostsCount: number, libraryTags: Array<{ __typename?: 'Tag', _id: string, name: string, slug: string, core: boolean }>, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null, contents: { __typename?: 'Revision', _id: string, plaintextDescription: string } | null };

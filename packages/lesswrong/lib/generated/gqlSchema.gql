@@ -6720,7 +6720,6 @@ type Sequence {
   isDeleted: Boolean!
   curatedOrder: Float
   libraryTopic: String
-  libraryTopics: [String!]!
   libraryTags: [Tag!]!
   userProfileOrder: Float
   canonicalCollectionSlug: String

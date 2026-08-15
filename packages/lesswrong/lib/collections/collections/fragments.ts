@@ -21,6 +21,7 @@ export const LibraryCollectionRowFragment = gql(`
     gridImageId
     coverImageId
     libraryTopic
+    isBookmarked
     postsCount
     readPostsCount
     user {

@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
+import { SwrCache } from "@/lib/utils/swrCache";
 
 export const sequencesResolversTypeDefs = gql`
   type SequenceStats {
@@ -26,6 +27,15 @@ export const sequencesResolversTypeDefs = gql`
 // Backstop only — the client pages through results by growing its limit
 // (useQueryWithLoadMore), so this must stay above any plausible topic size.
 const MAX_LIBRARY_SEARCH_RESULTS = 1000;
+
+// Sitewide topic totals for the filter popover. The underlying repo query
+// materializes every sequence's post TagRels into Node (seconds of work) and
+// the resolver is guest-reachable, so serve it stale-while-revalidate
+// instead of recomputing per uncached client.
+const libraryTopicCountsCache = new SwrCache<{topic: string, count: number}[], [ResolverContext]>({
+  generate: (context) => context.repos.sequences.libraryTopicCounts(),
+  expiryMs: 60 * 60 * 1000,
+});
 
 interface LibrarySequencesSearchArgs {
   query: string;
@@ -63,6 +73,6 @@ export const sequencesResolversQueries = {
     return { results: await accessFilterMultiple(context.currentUser, 'Sequences', results, context) };
   },
   libraryTopicCounts: async (root: void, args: {}, context: ResolverContext) => {
-    return await context.repos.sequences.libraryTopicCounts();
+    return await libraryTopicCountsCache.get(context);
   },
 };

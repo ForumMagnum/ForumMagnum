@@ -413,13 +413,14 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
 // Collapsed-row description: two-line clamp, with a post-preview-style
 // hover-over card (title, author, save button, description, read-more).
 // Shared with LibraryCollectionRow.
-export const LibraryRowCollapsedDescription = ({title, authorName, description, url, documentId, collectionName}: {
+export const LibraryRowCollapsedDescription = ({title, authorName, description, url, documentId, collectionName, isBookmarked}: {
   title: string,
   authorName: string | null,
   description: string,
   url: string,
   documentId: string,
   collectionName: 'Sequences' | 'Collections',
+  isBookmarked: boolean,
 }) => {
   const classes = useStyles(libraryRowStyles);
 
@@ -436,7 +437,7 @@ export const LibraryRowCollapsedDescription = ({title, authorName, description, 
         <Link to={url} className={classes.hoverCardTitle}>{title}</Link>
         {authorName && <div className={classes.hoverCardAuthor}>{authorName}</div>}
       </div>
-      <BookmarkButton documentId={documentId} collectionName={collectionName} />
+      <BookmarkButton documentId={documentId} collectionName={collectionName} initial={isBookmarked} />
     </div>
     <div className={classes.hoverCardDescription}>
       {description}
@@ -464,6 +465,10 @@ interface LibraryChecklistRow {
   key: string;
   label: string;
   read: boolean;
+  // How many posts the row stands for, for the "n more posts" arithmetic.
+  // Chapter/book/sequence rows set this; post rows (the default) stand for
+  // one post each.
+  postsCount?: number;
   // When set (post and sequence rows), the label links directly there.
   url?: string;
   // When set (post rows), the checkbox toggles the post's read status.
@@ -546,7 +551,10 @@ export const LibraryRowExpansionBody = ({description, rows, totalPostsCount, vie
   const [descriptionOverflows, setDescriptionOverflows] = useState(false);
 
   const shownRows = rows.slice(0, MAX_CHECKLIST_ROWS);
-  const morePostsCount = Math.max(0, totalPostsCount - shownRows.length);
+  // "More" counts posts, but rows may be chapters or books, so subtract the
+  // posts the shown rows stand for rather than the number of rows.
+  const shownPostsCount = shownRows.reduce((sum, row) => sum + (row.postsCount ?? 1), 0);
+  const morePostsCount = Math.max(0, totalPostsCount - shownPostsCount);
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -632,6 +640,7 @@ const LibrarySequenceRowBody = ({sequence}: {
         key: chapter._id,
         label: chapter.title ?? '',
         read: !!chapter.posts?.length && chapter.posts.every(post => post.isRead),
+        postsCount: chapter.posts?.length ?? 0,
       }))
     : allPosts.map(post => ({
         key: post._id,
@@ -656,7 +665,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
   onToggle: () => void,
 }) => {
   const classes = useStyles(libraryRowStyles);
-  const { icon: bookmarkIcon, hoverText: bookmarkHoverText, toggleBookmark } = useBookmark(sequence._id, "Sequences");
+  const { icon: bookmarkIcon, hoverText: bookmarkHoverText, toggleBookmark } = useBookmark(sequence._id, "Sequences", sequence.isBookmarked);
   // Collapsed rows show up to two core tags (stacked), falling back to the
   // first topic label for sequences with no core tag.
   const coreTags = sequence.libraryTags.filter(isCoreLibraryTag).slice(0, 2);
@@ -705,6 +714,7 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
           url={sequenceGetPageUrl(sequence)}
           documentId={sequence._id}
           collectionName="Sequences"
+          isBookmarked={sequence.isBookmarked}
         />}
       </div>
       <span className={classes.rightMeta}>
