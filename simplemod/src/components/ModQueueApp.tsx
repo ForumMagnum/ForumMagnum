@@ -276,7 +276,19 @@ const ModQueueApp = () => {
   if (!cards) {
     return (
       <main className="queue-shell">
-        <div className="queue-message">Loading queue…</div>
+        <header className="queue-hud">
+          <span className="queue-hud-title">SimpleMod</span>
+          <span className="queue-hud-counts"><span>loading queue…</span></span>
+        </header>
+        <div className="card-stage">
+          <div className="skeleton-card">
+            <div className="skeleton-line skeleton-line-half" />
+            <div className="skeleton-line skeleton-line-wide" />
+            <div className="skeleton-line" />
+            <div className="skeleton-line" />
+            <div className="skeleton-line skeleton-line-half" />
+          </div>
+        </div>
       </main>
     );
   }
@@ -309,6 +321,7 @@ const ModQueueApp = () => {
               key={topKey}
               onSwipe={handleSwipe}
               disabled={busy || !!composer}
+              busy={busy}
               leftStamp={stamps.left}
               rightStamp={stamps.right}
             >

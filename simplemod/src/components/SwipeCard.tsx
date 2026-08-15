@@ -18,10 +18,11 @@ export const cardVariants: Variants = {
   }),
 };
 
-const SwipeCard = ({ children, onSwipe, disabled = false, leftStamp, rightStamp }: {
+const SwipeCard = ({ children, onSwipe, disabled = false, busy = false, leftStamp, rightStamp }: {
   children: React.ReactNode;
   onSwipe: (direction: SwipeDirection) => void;
   disabled?: boolean;
+  busy?: boolean;
   leftStamp: string;
   rightStamp: string;
 }) => {
@@ -40,7 +41,7 @@ const SwipeCard = ({ children, onSwipe, disabled = false, leftStamp, rightStamp 
 
   return (
     <motion.div
-      className="swipe-card"
+      className={busy ? 'swipe-card swipe-card-busy' : 'swipe-card'}
       drag={disabled ? false : 'x'}
       dragSnapToOrigin
       dragElastic={0.9}

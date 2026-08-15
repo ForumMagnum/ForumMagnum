@@ -107,6 +107,17 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onCancel]);
+
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
@@ -153,19 +164,22 @@ const Composer = ({ mode, title, rejectionCount = 0, submitLabel, onSubmit, onCa
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      onCancel();
-    } else if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
       submit();
+    }
+  };
+
+  const handleBackdropMouseDown = (event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      onCancel();
     }
   };
 
   const loading = (needsRejection && !rejectionSection) || (needsMessage && !messageSection);
 
   return (
-    <div className="composer-overlay" onKeyDown={handleKeyDown}>
+    <div className="composer-overlay" onKeyDown={handleKeyDown} onMouseDown={handleBackdropMouseDown}>
       <div className="composer">
         <h2 className="composer-title">{title}</h2>
         {loadError && <div className="composer-error">{loadError}</div>}
