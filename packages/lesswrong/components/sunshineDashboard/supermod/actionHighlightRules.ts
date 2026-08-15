@@ -1,6 +1,6 @@
-import { FLAGGED_FOR_N_DMS, AUTO_BLOCKED_FROM_SENDING_DMS } from "@/lib/collections/moderatorActions/constants";
-import { areAllContentPermissionsDisabled } from "./helpers";
-import maxBy from "lodash/maxBy";
+import type { HighlightRule, HighlightRuleOverrides, ModeratorActionHighlightLevel } from "@/lib/moderatorHighlights/highlightRuleTypes";
+import { ALWAYS, booleanCondition, evaluateActionHighlightRule, numberCondition, resolveHighlightRules } from "./declarativeHighlightRules";
+import { HIGH_PANGRAM_SCORE } from "./highlightSignals";
 
 export const highlightableModeratorActions = ['approve', 'snoozeCustom', 'approveCurrentOnly', 'remove', 'purge', 'disablePermissions', 'disableMessages'] as const;
 
@@ -13,11 +13,13 @@ export type HighlightableModeratorAction = typeof highlightableModeratorActions[
  * - Level 2: the action's outline changes to a per-action color (see
  *   `moderatorActionHighlightColors`) in both the collapsed and expanded views.
  *
- * Highlights default to level 1; rules only return level 2 when there's particular evidence
+ * Highlights default to level 1; rules only reach level 2 when there's particular evidence
  * that the action should apply (e.g. actual rejections, or affirmatively human LLM scores),
  * rather than just a compatible absence of information.
+ *
+ * All of these rules are thresholds on signals (see highlightSignals.ts), so they're editable
+ * from /admin/supermodHighlights.
  */
-export type ModeratorActionHighlightLevel = 1 | 2;
 
 export type ModeratorActionHighlightColor = 'green' | 'gold' | 'black' | 'red';
 
@@ -34,77 +36,109 @@ export const moderatorActionHighlightColors: Record<HighlightableModeratorAction
   disableMessages: 'black',
 };
 
+export const moderatorActionHighlightLabels: Record<HighlightableModeratorAction, string> = {
+  approve: "Approve",
+  snoozeCustom: "Snooze",
+  approveCurrentOnly: "Approve current content only",
+  remove: "Remove from queue",
+  purge: "Purge",
+  disablePermissions: "Disable permissions",
+  disableMessages: "Disable messages",
+};
+
 export interface ActionHighlightContext {
   user: SunshineUsersList;
   moderatorActions: ModeratorActionDisplay[];
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  ruleOverrides?: HighlightRuleOverrides | null;
 }
 
-type ActionHighlightRule = (ctx: ActionHighlightContext) => ModeratorActionHighlightLevel | null;
-
-const LLM_SCORE_HIGHLIGHT_THRESHOLD = 0.2;
-
-const getLlmScore = (item: SunshinePostsList | SunshineCommentsList) => item.automatedContentEvaluations?.pangramScore ?? 0;
-
-const isUnapproved = (item: SunshinePostsList | SunshineCommentsList) => !item.rejected && item.authorIsUnreviewed;
+const APPROVE_MIN_APPROVED_CONTENTS = 2;
+const APPROVE_MIN_KARMA = 10;
 
 /**
  * The user has content awaiting review, and none of it looks LLM-written. Level 2 when every
- * unapproved content has actually been evaluated and scored human (particular evidence, rather
- * than just an absence of high scores).
+ * unapproved content has actually been scored (particular evidence, rather than just an
+ * absence of high scores).
  */
-const approveHighlightLevel: ActionHighlightRule = ({ posts, comments }) => {
-  const unapprovedContents = [...posts, ...comments].filter(isUnapproved);
-  if (unapprovedContents.length === 0) return null;
-  if (unapprovedContents.some(c => getLlmScore(c) > LLM_SCORE_HIGHLIGHT_THRESHOLD)) return null;
-  const allContentsEvaluatedAsHuman = unapprovedContents.every(c => c.automatedContentEvaluations?.pangramScore != null);
-  return allContentsEvaluatedAsHuman ? 2 : 1;
-};
+const hasCleanUnapprovedContent = [
+  numberCondition('unapprovedContentCount', 'gte', 1),
+  numberCondition('maxPangramScoreAmongUnapproved', 'lte', HIGH_PANGRAM_SCORE),
+];
 
-const ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction, ActionHighlightRule> = {
-  approve: approveHighlightLevel,
-  snoozeCustom: approveHighlightLevel,
-  approveCurrentOnly: approveHighlightLevel,
+const allUnapprovedContentScored = [[numberCondition('unapprovedContentMissingPangramScoreCount', 'eq', 0)]];
+
+/**
+ * Approving applies to the user's future content too, so it additionally requires some
+ * track record — either already-approved contents or a bit of karma — and no negative
+ * average score on either their posts or their comments.
+ */
+const hasTrackRecord = [
+  numberCondition('averagePostKarma', 'gte', 0),
+  numberCondition('averageCommentKarma', 'gte', 0),
+];
+
+export const DEFAULT_ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction, HighlightRule> = {
+  approve: {
+    enabled: true,
+    groups: [
+      [...hasTrackRecord, numberCondition('approvedContentCount', 'gte', APPROVE_MIN_APPROVED_CONTENTS), ...hasCleanUnapprovedContent],
+      [...hasTrackRecord, numberCondition('userKarma', 'gte', APPROVE_MIN_KARMA), ...hasCleanUnapprovedContent],
+    ],
+    level2Groups: allUnapprovedContentScored,
+  },
+  snoozeCustom: {
+    enabled: true,
+    groups: [hasCleanUnapprovedContent],
+    level2Groups: allUnapprovedContentScored,
+  },
+  approveCurrentOnly: {
+    enabled: true,
+    groups: [hasCleanUnapprovedContent],
+    level2Groups: allUnapprovedContentScored,
+  },
   // Everything the user has submitted has already been either approved or rejected.
   // Level 2 when that's the result of actual rejections rather than just having no pending content.
-  remove: ({ posts, comments }) => {
-    const allContents = [...posts, ...comments];
-    if (allContents.some(isUnapproved)) return null;
-    const rejectedContents = allContents.filter(c => c.rejected);
-    return rejectedContents.length >= 1 ? 2 : 1;
+  remove: {
+    enabled: true,
+    groups: [[numberCondition('unapprovedContentCount', 'eq', 0)]],
+    level2Groups: [[numberCondition('rejectedContentCount', 'gte', 1)]],
   },
   // The user has no approved content. Level 2 when multiple contents were actually rejected.
-  purge: ({ posts, comments }) => {
-    const allContents = [...posts, ...comments];
-    if (allContents.some(c => !c.rejected && !c.authorIsUnreviewed)) return null;
-    const rejectedContents = allContents.filter(c => c.rejected);
-    return rejectedContents.length >= 2 ? 2 : 1;
+  purge: {
+    enabled: true,
+    groups: [[numberCondition('approvedContentCount', 'eq', 0)]],
+    level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },
   // Level 2 when the user has at least two rejected contents; level 1 when just their most
   // recent content is rejected. (The button toggles to "Enable Permissions" once everything
   // is disabled, so don't suggest it then.)
-  disablePermissions: ({ user, posts, comments }) => {
-    if (areAllContentPermissionsDisabled(user)) return null;
-    const allContents = [...posts, ...comments];
-    const rejectedContents = allContents.filter(c => c.rejected);
-    if (rejectedContents.length >= 2) return 2;
-    const mostRecentContent = maxBy(allContents, c => new Date(c.postedAt).getTime());
-    return mostRecentContent?.rejected ? 1 : null;
+  disablePermissions: {
+    enabled: true,
+    groups: [
+      [booleanCondition('allContentPermissionsDisabled', false), numberCondition('rejectedContentCount', 'gte', 2)],
+      [booleanCondition('allContentPermissionsDisabled', false), booleanCondition('mostRecentContentIsRejected', true)],
+    ],
+    level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },
   // Same trigger as the "Lotsa DMs" message template; the flag itself is particular evidence.
-  disableMessages: ({ user, moderatorActions }) => {
-    if (user.conversationsDisabled) return null;
-    const flaggedForDMs = moderatorActions.some(a => a.active && (a.type === FLAGGED_FOR_N_DMS || a.type === AUTO_BLOCKED_FROM_SENDING_DMS));
-    return flaggedForDMs ? 2 : null;
+  disableMessages: {
+    enabled: true,
+    groups: [[booleanCondition('conversationsDisabled', false), numberCondition('activeDmFlagCount', 'gte', 1)]],
+    level2Groups: ALWAYS,
   },
 };
 
 export function getHighlightedModeratorActions(ctx: ActionHighlightContext): Map<HighlightableModeratorAction, ModeratorActionHighlightLevel> {
+  const rules = resolveHighlightRules(DEFAULT_ACTION_HIGHLIGHT_RULES, ctx.ruleOverrides, 'actions');
+  const signalContext = { ...ctx, focusedContent: null };
   const highlighted = new Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>();
   for (const action of highlightableModeratorActions) {
+    const rule = rules[action];
+    if (!rule) continue;
     try {
-      const level = ACTION_HIGHLIGHT_RULES[action](ctx);
+      const level = evaluateActionHighlightRule(rule, signalContext);
       if (level) highlighted.set(action, level);
     } catch (e) {
       // eslint-disable-next-line no-console

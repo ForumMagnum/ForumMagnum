@@ -6,7 +6,8 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
-import { getActionHighlightStyle, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
+import { getActionHighlightStyle, type HighlightableModeratorAction } from './actionHighlightRules';
+import type { ModeratorActionHighlightLevel } from '@/lib/moderatorHighlights/highlightRuleTypes';
 import { moderatorActionHighlightStyles } from './ModerationActionButton';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({

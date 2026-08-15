@@ -18,6 +18,7 @@ import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import { useHighlightRuleOverrides } from './supermod/useHighlightRuleOverrides';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
@@ -116,6 +117,13 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     alignItems: 'stretch',
     marginBottom: 8,
   },
+  // The Send DM section sits below the whole rejection section (composer,
+  // highlighted templates, and send button included)
+  dmSection: {
+    marginTop: 16,
+    paddingTop: 8,
+    borderTop: theme.palette.border.extraFaint,
+  },
   tab: {
     ...theme.typography.commentStyle,
     minWidth: 0,
@@ -148,11 +156,12 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
   dmTab: {
     flexShrink: 0,
+    paddingLeft: 0,
   },
   rejectTab: {
     flexShrink: 1,
-    // Pushed to the right edge so the tabs read as separate choices
-    marginLeft: 'auto',
+    // Flush with the sidebar's left edge (and the collapsed rejection templates below)
+    paddingLeft: 0,
   },
   activeTab: {
     color: theme.palette.grey[900],
@@ -185,20 +194,25 @@ interface SunshineUserMessagesProps {
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
+  const { overrides: ruleOverrides } = useHighlightRuleOverrides();
   const highlightedTemplateNames = useMemo(() => {
     if (!posts || !comments) return new Set<string>();
     return getHighlightedTemplateNames(
       {
         user,
         moderatorActions: user.moderatorActions ?? [],
+        ruleOverrides,
       },
       posts,
       comments
     );
-  }, [user, posts, comments]);
+  }, [user, posts, comments, ruleOverrides]);
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
+  // Templates whose text has been inserted into the draft message; drives the
+  // checkboxes in the template list. Cleared when the message is sent.
+  const [insertedMessageTemplateIds, setInsertedMessageTemplateIds] = useState<Set<string>>(new Set());
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [pendingComposerFocus, setPendingComposerFocus] = useState(false);
@@ -275,12 +289,15 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       if (!isEqual(newTemplateQueries, templateQueries)) {
         setTemplateQueries(newTemplateQueries);
       }
+      // Only the latest pre-conversation click gets prefilled into the new form
+      setInsertedMessageTemplateIds(new Set([template._id]));
     } else if (template.contents?.html) {
       const processedHtml = getDraftMessageHtml({
         html: template.contents.html,
         displayName: user.displayName,
       });
       appendToEditor(processedHtml);
+      setInsertedMessageTemplateIds(prev => new Set(prev).add(template._id));
     }
   };
 
@@ -313,6 +330,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     setSidebarTab(null);
   };
 
+  // The server sends the rejection PM within the rejection mutation, so refetching
+  // here makes it show up in the conversation list right away
+  const handleContentRejected = () => {
+    void refetch();
+  };
+
   const dmTabContents = <>
     {embeddedConversationId ? (
       <ComposerKeydownWrapper
@@ -326,6 +349,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           templateQueries={templateQueries}
           keystrokeSubmitButton
           successEvent={async (newMessage) => {
+            setInsertedMessageTemplateIds(new Set());
             await refetch();
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,
@@ -344,6 +368,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       collectionName="Messages"
       onTemplateClick={handleMessageTemplateClick}
       highlightedTemplateNames={highlightedTemplateNames}
+      insertedTemplateIds={insertedMessageTemplateIds}
       onFocusComposer={handleFocusComposer}
       focusSearchToken={templateSearchToken}
       active={dmTabActive}
@@ -384,16 +409,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       })}
     </div>}
 
-    <div className={classes.tabs}>
+    {showRejectTab && <div className={classes.tabs}>
       <div
-        className={classNames(classes.tab, classes.dmTab)}
-        onClick={handleSelectDmTab}
-      >
-        <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
-          Send DM
-        </span>
-      </div>
-      {showRejectTab && <div
         className={classNames(classes.tab, classes.rejectTab, { [classes.disabledTab]: !canReject })}
         onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
         title={canReject ? undefined : "This content can't be rejected"}
@@ -402,17 +419,45 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           <span className={classes.rejectTabTitle}>Reject “{getContentTitle(focusedContent)}”</span>
           <KeystrokeDisplay keystroke="R" withMargin />
         </span>
-      </div>}
-    </div>
-
-    <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
-      {dmTabContents}
-    </div>
-    {canReject && focusedContent && (
-      <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
       </div>
+    </div>}
+    {canReject && focusedContent && (
+      <RejectContentPanel
+        user={user}
+        focusedContent={focusedContent}
+        posts={posts ?? []}
+        comments={comments ?? []}
+        active={rejectTabActive}
+        onRejected={handleContentRejected}
+        onEscape={handleCloseSidebarTab}
+      />
     )}
+
+    <div className={classes.dmSection}>
+      <div className={classes.tabs}>
+        <div
+          className={classNames(classes.tab, classes.dmTab)}
+          onClick={handleSelectDmTab}
+        >
+          <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
+            Send DM
+          </span>
+        </div>
+      </div>
+      <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
+        {dmTabContents}
+      </div>
+      {!dmTabActive && (
+        <GroupedModerationTemplateList
+          collectionName="Messages"
+          onTemplateClick={handleMessageTemplateClick}
+          highlightedTemplateNames={highlightedTemplateNames}
+          insertedTemplateIds={insertedMessageTemplateIds}
+          onlyHighlighted
+          active={false}
+        />
+      )}
+    </div>
   </div>;
 }
 

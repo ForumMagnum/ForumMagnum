@@ -5,7 +5,8 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
-import { getActionHighlightStyle, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
+import { getActionHighlightStyle, type HighlightableModeratorAction } from './actionHighlightRules';
+import type { ModeratorActionHighlightLevel } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionsColumn: {
@@ -76,7 +77,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
         highlightKey: 'snoozeCustom',
       },
       {
-        label: 'Approve Current Only',
+        label: 'Approve, then Unapprove',
         keystroke: 'Shift+A',
         tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
         onClick: handleApproveCurrentOnly,
@@ -85,7 +86,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
     ],
     [
       {
-        label: 'Remove',
+        label: 'Unapprove',
         keystroke: 'Q',
         tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
         onClick: handleRemoveNeedsReview,

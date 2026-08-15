@@ -7,7 +7,9 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import { getHighlightedModeratorActions, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
+import { getHighlightedModeratorActions, type HighlightableModeratorAction } from './actionHighlightRules';
+import type { ModeratorActionHighlightLevel } from '@/lib/moderatorHighlights/highlightRuleTypes';
+import { useHighlightRuleOverrides } from './useHighlightRuleOverrides';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -79,6 +81,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
 
   // While the user's contents are still loading, the empty posts/comments lists would
   // spuriously satisfy the absence-based rules (e.g. Remove, Purge), so highlight nothing.
+  const { overrides: ruleOverrides } = useHighlightRuleOverrides();
   const highlightedActions = useMemo(() => contentsLoading
     ? new Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>()
     : getHighlightedModeratorActions({
@@ -86,7 +89,8 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
       moderatorActions: user.moderatorActions ?? [],
       posts,
       comments,
-    }), [user, posts, comments, contentsLoading]);
+      ruleOverrides,
+    }), [user, posts, comments, contentsLoading, ruleOverrides]);
 
   return (
     <div>
