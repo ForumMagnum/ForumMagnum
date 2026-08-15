@@ -45,7 +45,7 @@ const OffboardCard = ({ card, selection, onChangeSelection }: {
       <div className="section-label">
         {items.length > 0
           ? `Remaining unreviewed content — check items to reject on offboard (${selection.selectedIds.length}/${items.length} selected)`
-          : 'No unreviewed content remaining'}
+          : 'All content decided — choose what happens to this user'}
       </div>
       <div className="offboard-items">
         {items.map(item => (

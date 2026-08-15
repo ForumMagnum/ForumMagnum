@@ -98,4 +98,5 @@ export interface ModerationTemplateData {
 export interface NextItemResponse {
   nextItem: QueueItem | null;
   remainingCount: number;
+  offboardCard?: OffboardCardData | null;
 }

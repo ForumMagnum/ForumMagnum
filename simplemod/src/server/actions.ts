@@ -6,8 +6,9 @@ import { createMessage } from '@/server/collections/messages/mutations';
 import { createModeratorAction } from '@/server/collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
+import { getUserReviewGroup } from '@/lib/collections/users/newSchema';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
-import { getEarliestUnreviewedItem } from './queue';
+import { buildOffboardCard, getEarliestUnreviewedItem } from './queue';
 import type { NextItemResponse, QueueItem, ReviewCollectionName } from '../lib/types';
 
 /**
@@ -98,6 +99,12 @@ function itemDescription(collectionName: ReviewCollectionName, document: DbPost 
  * content is still created unreviewed. reviewedAt is set unconditionally
  * (matching approveUserCurrentContentOnly) so their next submission triggers
  * an "unreviewed content" action rather than a "first post" one.
+ *
+ * Offboard candidates are the exception: they stay queued and the response
+ * carries their user-level offboard decision card, so the moderator settles
+ * permissions/messaging explicitly. This is re-evaluated after every item
+ * decision, so a user who becomes an offboard candidate mid-review (e.g. via
+ * their second rejection) gets the offboard card too.
  */
 async function dequeueIfNoItemsRemain(context: ResolverContext, moderator: DbUser, userId: string): Promise<NextItemResponse> {
   const { item, remainingCount } = await getEarliestUnreviewedItem(userId);
@@ -105,19 +112,23 @@ async function dequeueIfNoItemsRemain(context: ResolverContext, moderator: DbUse
     return { nextItem: item, remainingCount };
   }
   const user = await context.Users.findOne(userId);
-  if (user?.needsReview) {
-    await updateUser({
-      data: {
-        needsReview: false,
-        reviewedByUserId: null,
-        reviewedAt: new Date(),
-        sunshineFlagged: false,
-        snoozedUntilContentCount: null,
-      },
-      selector: { _id: userId },
-    }, context);
-    await appendSunshineNote(moderator, userId, 'SimpleMod: reviewed all current content individually');
+  if (!user?.needsReview) {
+    return { nextItem: null, remainingCount: 0 };
   }
+  if (await getUserReviewGroup(context, user) === 'offboard') {
+    return { nextItem: null, remainingCount: 0, offboardCard: await buildOffboardCard(user) };
+  }
+  await updateUser({
+    data: {
+      needsReview: false,
+      reviewedByUserId: null,
+      reviewedAt: new Date(),
+      sunshineFlagged: false,
+      snoozedUntilContentCount: null,
+    },
+    selector: { _id: userId },
+  }, context);
+  await appendSunshineNote(moderator, userId, 'SimpleMod: reviewed all current content individually');
   return { nextItem: null, remainingCount: 0 };
 }
 

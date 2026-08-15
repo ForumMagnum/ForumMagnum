@@ -2,7 +2,7 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 import { getUserReviewGroup } from '@/lib/collections/users/newSchema';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import type { PangramWindowScore, QueueCard, QueueItem, QueueUser, ReviewCollectionName } from '../lib/types';
+import type { OffboardCardData, PangramWindowScore, QueueCard, QueueItem, QueueUser, ReviewCollectionName } from '../lib/types';
 
 export function getItemUrl(collectionName: ReviewCollectionName, documentId: string, postId: string | null): string {
   if (collectionName === 'Posts') {
@@ -208,6 +208,9 @@ export async function computeQueue(context: ResolverContext, options: ComputeQue
       entry.reviewGroup === 'newContent' || entry.reviewGroup === 'offboard'
     );
 
+  // User-level cards only ever appear once every item has been individually
+  // decided: offboard candidates with live unreviewed items get ordinary
+  // content cards first, and the offboard decision card comes at the end.
   const cards: QueueCard[] = [];
   for (const { user, reviewGroup } of queueUsers) {
     if (cardLimit !== undefined && cards.length >= cardLimit) {
@@ -215,22 +218,40 @@ export async function computeQueue(context: ResolverContext, options: ComputeQue
     }
     const queueUser = toQueueUser(user, user.simplemodHtmlBio, reviewGroup);
     const items = itemsByUser.get(user._id) ?? [];
-    if (reviewGroup === 'offboard') {
+    if (items.length > 0) {
+      cards.push({ type: 'content', user: queueUser, item: items[0], remainingCount: items.length });
+    } else if (reviewGroup === 'offboard') {
       const rejected = rejectedCounts.get(user._id) ?? { posts: 0, comments: 0 };
       cards.push({
         type: 'offboard',
         user: queueUser,
-        items,
+        items: [],
         rejectedPostCount: rejected.posts,
         rejectedCommentCount: rejected.comments,
       });
-    } else if (items.length > 0) {
-      cards.push({ type: 'content', user: queueUser, item: items[0], remainingCount: items.length });
     } else {
       cards.push({ type: 'wrapup', user: queueUser });
     }
   }
   return cards;
+}
+
+export async function buildOffboardCard(user: DbUser): Promise<OffboardCardData> {
+  const db = getSqlClientOrThrow();
+  const [bio, rejectedCounts] = await Promise.all([
+    user.biography_latest
+      ? db.oneOrNone<{ html: string | null }>(`SELECT "html" FROM "Revisions" WHERE "_id" = $(id)`, { id: user.biography_latest })
+      : null,
+    getRejectedContentCountsByCollection([user._id]),
+  ]);
+  const rejected = rejectedCounts.get(user._id) ?? { posts: 0, comments: 0 };
+  return {
+    type: 'offboard',
+    user: toQueueUser(user, bio?.html ?? null, 'offboard'),
+    items: [],
+    rejectedPostCount: rejected.posts,
+    rejectedCommentCount: rejected.comments,
+  };
 }
 
 async function getRejectedContentCountsByCollection(userIds: string[]): Promise<Map<string, { posts: number; comments: number }>> {

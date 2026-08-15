@@ -117,7 +117,7 @@ const ModQueueApp = () => {
         if (removedUsersRef.current.has(card.user._id)) continue;
         if (card.type === 'content' && decidedDocsRef.current.has(card.item.documentId)) {
           const localCard = localByUser.get(card.user._id);
-          if (localCard?.type === 'content') merged.push(localCard);
+          if (localCard) merged.push(localCard);
           continue;
         }
         merged.push(card);
@@ -275,7 +275,7 @@ const ModQueueApp = () => {
   const advanceContentCard = useCallback((card: ContentCardData, result: NextItemResponse) => {
     setDecidedCount(count => count + 1);
     decidedDocsRef.current.add(card.item.documentId);
-    if (!result.nextItem) {
+    if (!result.nextItem && !result.offboardCard) {
       removedUsersRef.current.add(card.user._id);
     }
     api.invalidateUserContext(card.user._id);
@@ -288,6 +288,10 @@ const ModQueueApp = () => {
           ? { ...card, item: nextItem, remainingCount: result.remainingCount }
           : entry
         );
+      }
+      if (result.offboardCard) {
+        const offboardCard = result.offboardCard;
+        return previous.map(entry => cardKey(entry) === key ? offboardCard : entry);
       }
       return previous.filter(entry => cardKey(entry) !== key);
     });
