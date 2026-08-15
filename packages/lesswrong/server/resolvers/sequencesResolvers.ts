@@ -18,7 +18,7 @@ export const sequencesResolversTypeDefs = gql`
 
   extend type Query {
     getSequenceStats(sequenceId: String!): SequenceStats
-    librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
+    librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
     libraryTopicCounts: [LibraryTopicCount!]!
   }
 `;
@@ -30,6 +30,7 @@ const MAX_LIBRARY_SEARCH_RESULTS = 1000;
 interface LibrarySequencesSearchArgs {
   query: string;
   libraryTopics?: string[] | null;
+  filterTagIds?: string[] | null;
   curatedOnly?: boolean | null;
   sortBy?: string | null;
   limit?: number | null;
@@ -47,6 +48,7 @@ export const sequencesResolversQueries = {
     // the chips. Fetch all candidates first, then filter and trim.
     const candidates = await context.repos.sequences.searchLibrarySequences({
       query: args.query,
+      filterTagIds: args.filterTagIds?.length ? args.filterTagIds : null,
       curatedOnly: !!args.curatedOnly,
       sortBy: args.sortBy ?? null,
       limit: topics ? MAX_LIBRARY_SEARCH_RESULTS : limit,

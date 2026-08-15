@@ -10,6 +10,8 @@ import { isLibraryRankingSort } from '@/lib/collections/sequences/librarySortOpt
 import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
 import LibraryFilterPopover, { LibraryFilterSettings, defaultLibraryFilterSettings } from './LibraryFilterPopover';
+import AddTagButton from '../tagging/AddTagButton';
+import LWTooltip from '../common/LWTooltip';
 import SequencesNewButton from './SequencesNewButton';
 import SettingsButton from '../icons/SettingsButton';
 import Loading from '../vulcan-core/Loading';
@@ -33,8 +35,8 @@ const LibraryAllSequencesQuery = gql(`
 `);
 
 const LibrarySequencesSearchQuery = gql(`
-  query LibrarySequencesSearch($query: String!, $libraryTopics: [String!], $curatedOnly: Boolean, $sortBy: String, $limit: Int) {
-    librarySequencesSearch(query: $query, libraryTopics: $libraryTopics, curatedOnly: $curatedOnly, sortBy: $sortBy, limit: $limit) {
+  query LibrarySequencesSearch($query: String!, $libraryTopics: [String!], $filterTagIds: [String!], $curatedOnly: Boolean, $sortBy: String, $limit: Int) {
+    librarySequencesSearch(query: $query, libraryTopics: $libraryTopics, filterTagIds: $filterTagIds, curatedOnly: $curatedOnly, sortBy: $sortBy, limit: $limit) {
       results {
         ...LibrarySequenceRowFragment
       }
@@ -151,6 +153,12 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     alignItems: 'center',
     gap: '2px',
   },
+  // Rendered inside AddTagButton's inline anchor rather than as a flex item,
+  // so it needs an explicit display for its padding to take effect.
+  addWikitagChip: {
+    display: 'inline-block',
+    fontWeight: 600,
+  },
   allTagsChipActive: {
     background: theme.palette.panelBackground.default,
     border: `1px solid ${theme.palette.primary.main}`,
@@ -224,12 +232,12 @@ const LibraryAllSequencesList = () => {
 
   const searchQueryText = debouncedSearchText.trim();
   const searchActive = searchQueryText.length > 0;
-  const { topics, curatedOnly, sortBy } = filterSettings;
-  // Sequence topics are derived from post tags via SQL joins the view
-  // selector can't express, so a topic filter routes through the search
+  const { topics, wikitags, curatedOnly, sortBy } = filterSettings;
+  // Sequence topics and wikitag filters are derived from post tags via SQL
+  // joins the view selector can't express, so they route through the search
   // resolver too (with an empty query when the user isn't searching), as do
   // the bake-off ranking sorts (computed scores, not sortable view columns).
-  const useSearchResolver = searchActive || topics.length > 0 || isLibraryRankingSort(sortBy);
+  const useSearchResolver = searchActive || topics.length > 0 || wikitags.length > 0 || isLibraryRankingSort(sortBy);
   const popoverFiltersActive = curatedOnly || sortBy !== 'recommended';
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(LibraryAllSequencesQuery, {
@@ -253,6 +261,7 @@ const LibraryAllSequencesList = () => {
     variables: {
       query: searchQueryText,
       libraryTopics: topics.length > 0 ? topics : null,
+      filterTagIds: wikitags.length > 0 ? wikitags.map(tag => tag.tagId) : null,
       curatedOnly,
       sortBy,
       limit: SEARCH_RESULTS_LIMIT,
@@ -273,12 +282,15 @@ const LibraryAllSequencesList = () => {
   // text and topic filter to them client-side. "Curated only" intentionally
   // keeps them visible: they're all editorially curated (the mock stars them).
   // Collections' manual libraryTopic still uses the curated topic names, so
-  // "AI Alignment" maps onto the core-tag "AI" filter chip.
+  // "AI Alignment" maps onto the core-tag "AI" filter chip. Ad-hoc wikitag
+  // filters hide collections: they only carry the single curated topic, not
+  // post-derived tags, so they can't match a wikitag.
   const collectionMatchesTopics = (libraryTopic: string | null) =>
     !!libraryTopic && (topics.includes(libraryTopic) || (libraryTopic === 'AI Alignment' && topics.includes('AI')));
   const collectionResults = collectionsData?.collections?.results?.filter(collection =>
     (!searchActive || (collection.title ?? '').toLowerCase().includes(searchQueryText.toLowerCase())) &&
-    (topics.length === 0 || collectionMatchesTopics(collection.libraryTopic))
+    (topics.length === 0 || collectionMatchesTopics(collection.libraryTopic)) &&
+    wikitags.length === 0
   );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,6 +309,26 @@ const LibraryAllSequencesList = () => {
   const selectTopicChip = (topic: string) => {
     const newTopics = topics.includes(topic) ? [] : [topic];
     applyFilterSettings({ ...filterSettings, topics: newTopics }, 'chip');
+  };
+
+  // Wikitags picked from the "+" picker accumulate as always-selected chips;
+  // clicking a wikitag chip removes it. Picking a wikitag that's already a
+  // core chip selects that chip instead, so the row never shows two
+  // same-named chips with different matching rules.
+  const addWikitagFilter = ({tagId, tagName}: {tagId: string, tagName: string}) => {
+    if (LIBRARY_CORE_TAG_NAMES.some(name => name === tagName)) {
+      if (!topics.includes(tagName)) {
+        applyFilterSettings({ ...filterSettings, topics: [...topics, tagName] }, 'wikitagPicker');
+      }
+      return;
+    }
+    if (!wikitags.some(tag => tag.tagId === tagId)) {
+      applyFilterSettings({ ...filterSettings, wikitags: [...wikitags, {tagId, tagName}] }, 'wikitagPicker');
+    }
+  };
+
+  const removeWikitagFilter = (tagId: string) => {
+    applyFilterSettings({ ...filterSettings, wikitags: wikitags.filter(tag => tag.tagId !== tagId) }, 'chip');
   };
 
   const toggleTagsExpanded = () => {
@@ -362,11 +394,18 @@ const LibraryAllSequencesList = () => {
     <div className={classNames(classes.filterRow, tagsExpanded && classes.filterRowExpanded)}>
       <div className={classNames(classes.chipRow, tagsExpanded && classes.chipRowExpanded)}>
         <span
-          className={classNames(classes.chip, topics.length === 0 && classes.chipSelected)}
-          onClick={() => applyFilterSettings({ ...filterSettings, topics: [] }, 'chip')}
+          className={classNames(classes.chip, topics.length === 0 && wikitags.length === 0 && classes.chipSelected)}
+          onClick={() => applyFilterSettings({ ...filterSettings, topics: [], wikitags: [] }, 'chip')}
         >
           All
         </span>
+        {wikitags.map(tag => <span
+          key={tag.tagId}
+          className={classNames(classes.chip, classes.chipSelected)}
+          onClick={() => removeWikitagFilter(tag.tagId)}
+        >
+          {tag.tagName}
+        </span>)}
         {orderedTopicChips.map(topic => <span
           key={topic}
           className={classNames(classes.chip, topics.includes(topic) && classes.chipSelected)}
@@ -374,6 +413,11 @@ const LibraryAllSequencesList = () => {
         >
           {topic}
         </span>)}
+        {tagsExpanded && <LWTooltip title="Add Wikitag Filter">
+          <AddTagButton hasTooltip={false} onTagSelected={addWikitagFilter}>
+            <span className={classNames(classes.chip, classes.addWikitagChip)}>+</span>
+          </AddTagButton>
+        </LWTooltip>}
       </div>
       <span
         className={classNames(classes.chip, classes.allTagsChip, tagsExpanded && classes.allTagsChipActive)}

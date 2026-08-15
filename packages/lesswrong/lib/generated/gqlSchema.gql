@@ -1517,7 +1517,7 @@ type LibrarySequencesSearchResult {
 
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
-  librarySequencesSearch(query: String!, libraryTopics: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
+  librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
   libraryTopicCounts: [LibraryTopicCount!]!
 }
 

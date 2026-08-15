@@ -231,9 +231,16 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
    * Title-substring search over the /library redesign's all-sequences list.
    * The WHERE conditions (other than the title match) must stay in sync with
    * the librarySequences view in lib/collections/sequences/views.ts.
+   *
+   * filterTagIds filters to sequences with at least one published post
+   * carrying any of the given wikitags (a tag applies to a post via TagRels
+   * under the same conditions as getDerivedTags) — deliberately the full
+   * union of the posts' tags, not the thresholded/capped derived-chip set,
+   * so niche wikitags picked from the chip row's "+" picker can match.
    */
-  async searchLibrarySequences({query, curatedOnly, sortBy, limit}: {
+  async searchLibrarySequences({query, filterTagIds, curatedOnly, sortBy, limit}: {
     query: string,
+    filterTagIds: string[] | null,
     curatedOnly: boolean,
     sortBy: string | null,
     limit: number,
@@ -259,9 +266,22 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         AND s."draft" IS NOT TRUE
         AND s."hidden" IS NOT TRUE
         AND ($(curatedOnly) IS NOT TRUE OR s."curatedOrder" IS NOT NULL)
+        AND ($(filterTagIds) IS NULL OR EXISTS (
+          SELECT 1
+          FROM "Chapters" c
+          JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+          JOIN "Posts" p ON p."_id" = pid.post_id
+            AND p."draft" IS NOT TRUE
+            AND p."status" = $(statusApproved)
+          JOIN "TagRels" tr ON tr."postId" = p."_id"
+            AND tr."deleted" IS NOT TRUE
+            AND tr."score" > 0
+            AND tr."tagId" = ANY($(filterTagIds)::TEXT[])
+          WHERE c."sequenceId" = s."_id"
+        ))
       ORDER BY ${orderBy}
       LIMIT $(limit)
-    `, {...rankingParams, pattern, curatedOnly, limit});
+    `, {...rankingParams, pattern, filterTagIds, curatedOnly, limit, statusApproved: postStatuses.STATUS_APPROVED});
   }
 
   /**

@@ -8173,6 +8173,7 @@ type QuerylatestGoogleDocMetadataArgs = {
 
 type QuerylibrarySequencesSearchArgs = {
   curatedOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  filterTagIds?: InputMaybe<Array<Scalars['String']['input']>>;
   libraryTopics?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
@@ -19789,6 +19790,7 @@ type LibrarySequencesSearchQuery_Query = { __typename?: 'Query', librarySequence
 type LibrarySequencesSearchQueryVariables = Exact<{
   query: Scalars['String']['input'];
   libraryTopics: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  filterTagIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   curatedOnly: InputMaybe<Scalars['Boolean']['input']>;
   sortBy: InputMaybe<Scalars['String']['input']>;
   limit: InputMaybe<Scalars['Int']['input']>;

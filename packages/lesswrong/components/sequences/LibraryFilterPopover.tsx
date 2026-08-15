@@ -18,14 +18,23 @@ const LibraryTopicCountsQuery = gql(`
   }
 `);
 
+// An ad-hoc wikitag filter added from the chip row's "+" picker; the name is
+// kept alongside the id so the chip can render without fetching the tag.
+export interface LibraryWikitagFilter {
+  tagId: string;
+  tagName: string;
+}
+
 export interface LibraryFilterSettings {
   topics: string[];
+  wikitags: LibraryWikitagFilter[];
   curatedOnly: boolean;
   sortBy: string;
 }
 
 export const defaultLibraryFilterSettings: LibraryFilterSettings = {
   topics: [],
+  wikitags: [],
   curatedOnly: false,
   sortBy: 'recommended',
 };
