@@ -1,4 +1,4 @@
-import { findPostByIdOrSlug } from "@/server/markdownApi/apiUtil";
+import { findAccessiblePostByIdOrSlug } from "@/server/markdownApi/apiUtil";
 import { markdownResponse } from "@/server/markdownApi/markdownResponse";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
@@ -93,7 +93,7 @@ export async function renderPostMarkdownByIdOrSlug(
   }
   const compactMode = parseBooleanParam(req.nextUrl.searchParams.get("compact"));
   const resolverContext = await getContextFromReqAndRes({ req });
-  const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
+  const rawPost = await findAccessiblePostByIdOrSlug(idOrSlug, resolverContext);
   if (!rawPost) {
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }
