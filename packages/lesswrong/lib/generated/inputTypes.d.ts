@@ -1228,8 +1228,12 @@ interface ModeratorIPAddressInfo {
 }
 
 interface PangramTextEvaluationResult {
+  pangramApiVersion: string | null;
   pangramScore: number;
   pangramMaxScore: number | null;
+  pangramFractionAi: number | null;
+  pangramFractionAiAssisted: number | null;
+  pangramFractionHuman: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
 }
@@ -1483,6 +1487,8 @@ interface PangramWindowScore {
   label: string | null;
   confidence: string | null;
   wordCount: number | null;
+  isHumanized: boolean | null;
+  humanizerScore: number | null;
 }
 
 interface Ban {

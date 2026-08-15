@@ -12,6 +12,13 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { escapeHtml } from "@/lib/utils/sanitize";
 import { scoreToColour } from "@/components/sunshineDashboard/helpers";
+import {
+  DEFAULT_PANGRAM_MODEL,
+  PANGRAM_MAX_CHARS,
+  PANGRAM_MODELS,
+  pangramModelLabels,
+  type PangramModel,
+} from "@/lib/collections/automatedContentEvaluations/constants";
 
 const styles = defineStyles("PangramPage", (theme: ThemeType) => ({
   root: {
@@ -43,6 +50,25 @@ const styles = defineStyles("PangramPage", (theme: ThemeType) => ({
     alignItems: "center",
     gap: 12,
   },
+  modelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 14,
+    color: theme.palette.text.normal,
+  },
+  modelSelect: {
+    border: theme.palette.border.faint,
+    background: theme.palette.background.paper,
+    color: theme.palette.text.normal,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    padding: "4px 6px",
+  },
+  modelNote: {
+    color: theme.palette.grey[600],
+    fontSize: 13,
+  },
   button: {
     background: "none",
     border: "none",
@@ -64,16 +90,22 @@ const styles = defineStyles("PangramPage", (theme: ThemeType) => ({
 }));
 
 const RUN_PANGRAM_ON_TEXT_MUTATION = gql(`
-  mutation RunPangramOnText($text: String!) {
-    runPangramOnText(text: $text) {
+  mutation RunPangramOnText($text: String!, $model: PangramModel) {
+    runPangramOnText(text: $text, model: $model) {
+      pangramApiVersion
       pangramScore
       pangramMaxScore
+      pangramFractionAi
+      pangramFractionAiAssisted
+      pangramFractionHuman
       pangramPrediction
       pangramWindowScores {
         text
         score
         startIndex
         endIndex
+        isHumanized
+        humanizerScore
       }
     }
   }
@@ -178,10 +210,36 @@ function buildHighlightedHtmlFromIndices(text: string, windows: PangramWindow[])
     .join("");
 }
 
+function formatFraction(fraction: number | null | undefined): string {
+  return fraction === null || fraction === undefined ? "n/a" : fraction.toFixed(2);
+}
+
+function parsePangramModel(value: string): PangramModel {
+  return PANGRAM_MODELS.find(pangramModel => pangramModel === value) ?? DEFAULT_PANGRAM_MODEL;
+}
+
+/**
+ * Pangram 4 reports, per window, whether the text looks like it was run
+ * through a "humanizer". Summarize that across the whole submission, or return
+ * null if the model we ran doesn't report it.
+ */
+function getHumanizerSummary(windows: { isHumanized?: boolean | null, humanizerScore?: number | null }[]): string | null {
+  const windowsWithHumanizerData = windows.filter(w => w.isHumanized !== null && w.isHumanized !== undefined);
+  if (!windowsWithHumanizerData.length) return null;
+  const humanizedCount = windowsWithHumanizerData.filter(w => w.isHumanized).length;
+  const humanizerScores = windowsWithHumanizerData
+    .map(w => w.humanizerScore)
+    .filter((score): score is number => score !== null && score !== undefined);
+  const maxHumanizerScore = humanizerScores.length ? Math.max(...humanizerScores) : null;
+  const maxScoreText = maxHumanizerScore !== null ? `, max humanizer score: ${maxHumanizerScore.toFixed(2)}` : "";
+  return `Humanized windows: ${humanizedCount}/${windowsWithHumanizerData.length}${maxScoreText}`;
+}
+
 const PangramPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [text, setText] = useState("");
+  const [model, setModel] = useState<PangramModel>(DEFAULT_PANGRAM_MODEL);
   const [submittedText, setSubmittedText] = useState<string | null>(null);
 
   const [runPangram, { data, loading, error, reset }] = useMutation(RUN_PANGRAM_ON_TEXT_MUTATION);
@@ -204,8 +262,10 @@ const PangramPage = () => {
     if (!canSubmit) return;
     reset();
     setSubmittedText(trimmed);
-    await runPangram({ variables: { text: trimmed } });
+    await runPangram({ variables: { text: trimmed, model } });
   };
+
+  const humanizerSummary = result ? getHumanizerSummary(result.pangramWindowScores ?? []) : null;
 
   return <SingleColumnSection>
     <div className={classes.root}>
@@ -214,7 +274,8 @@ const PangramPage = () => {
         <div className={classes.intro}>
           Paste text below to run it through Pangram's AI-detection API. Results show the
           average and max AI likelihood, the overall prediction, and the input text with
-          per-window scores highlighted.
+          per-window scores highlighted. Pangram 4 is more accurate (and reports whether
+          text looks like it's been through a humanizer), but costs substantially more.
         </div>
       </div>
 
@@ -225,6 +286,33 @@ const PangramPage = () => {
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste text to evaluate..."
       />
+
+      <div className={classes.modelRow}>
+        <label htmlFor="pangram-model">Model:</label>
+        <select
+          id="pangram-model"
+          className={classes.modelSelect}
+          value={model}
+          onChange={(e) => setModel(parsePangramModel(e.target.value))}
+        >
+          {PANGRAM_MODELS.map(pangramModel => (
+            <option key={pangramModel} value={pangramModel}>{pangramModelLabels[pangramModel]}</option>
+          ))}
+        </select>
+        {model === "pangram4"
+          ? <span className={classes.modelNote}>
+              Pangram 4 is billed per 100 words rather than per 1000, so it costs roughly
+              ten times as much. It also runs asynchronously, so submissions can take up
+              to about 90 seconds.
+            </span>
+          : null}
+      </div>
+
+      {trimmed.length > PANGRAM_MAX_CHARS
+        ? <div className={classes.modelNote}>
+            Only the first {PANGRAM_MAX_CHARS.toLocaleString()} characters will be checked.
+          </div>
+        : null}
 
       <div className={classes.submitRow}>
         <button
@@ -248,7 +336,16 @@ const PangramPage = () => {
           {result.pangramPrediction
             ? <>, prediction: <strong>{result.pangramPrediction}</strong></>
             : null}
+          {result.pangramApiVersion
+            ? <>, model: <strong>{result.pangramApiVersion}</strong></>
+            : null}
         </div>
+        <div className={classes.scoreLine}>
+          Fractions — AI: <strong>{formatFraction(result.pangramFractionAi)}</strong>,{' '}
+          AI-assisted: <strong>{formatFraction(result.pangramFractionAiAssisted)}</strong>,{' '}
+          human: <strong>{formatFraction(result.pangramFractionHuman)}</strong>
+        </div>
+        {humanizerSummary ? <div className={classes.scoreLine}>{humanizerSummary}</div> : null}
         <ContentStyles contentType="comment">
           <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
         </ContentStyles>

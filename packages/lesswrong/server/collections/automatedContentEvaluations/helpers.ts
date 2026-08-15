@@ -10,7 +10,8 @@ import { updateComment } from "@/server/collections/comments/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
-import { PANGRAM_AUTOREJECT_THRESHOLD } from "@/lib/collections/automatedContentEvaluations/constants";
+import { DEFAULT_PANGRAM_MODEL, PANGRAM_AUTOREJECT_THRESHOLD, PANGRAM_MAX_CHARS, type PangramModel } from "@/lib/collections/automatedContentEvaluations/constants";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -35,9 +36,34 @@ const pangramResponseSchema = z.object({
     label: z.string().optional(),
     confidence: z.string().optional(),
     word_count: z.number().optional(),
+    // Pangram 4 only: whether this window looks like it was run through a
+    // "humanizer" to disguise AI authorship.
+    is_humanized: z.boolean().optional(),
+    humanizer_score: z.number().optional(),
   })).optional(),
 });
 
+const pangramTaskSubmissionSchema = z.object({
+  task_id: z.string(),
+});
+
+const pangramTaskStageSchema = z.object({
+  stage: z.string().optional(),
+  error: z.string().optional(),
+});
+
+/** Cheap, synchronous endpoint serving Pangram 3. */
+const PANGRAM_V3_URL = 'https://text.api.pangram.com/v3';
+
+/** Asynchronous task endpoint, which is the only way to reach Pangram 4. */
+const PANGRAM_TASK_URL = 'https://text.external-api.pangram.com/task';
+
+const PANGRAM_TASK_POLL_INTERVAL_MS = 2000;
+
+// The graphql route's maxDuration is 120s, so give up on the task well before
+// that, to leave headroom for the rest of the request and to return a useful
+// error rather than having the whole invocation killed.
+const PANGRAM_TASK_TIMEOUT_MS = 90_000;
 
 export interface PangramEvaluationResult {
   pangramApiVersion: string | null;
@@ -55,26 +81,19 @@ export interface PangramEvaluationResult {
     label?: string;
     confidence?: string;
     wordCount?: number;
+    isHumanized?: boolean;
+    humanizerScore?: number;
   }[] | null;
 }
 
-export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
-  const key = process.env.PANGRAM_API_KEY;
-  if (!key) {
-    throw new Error("PANGRAM_API_KEY is not configured");
-  }
-
-  // Cap at 30k chars (roughly 4-5k words). Longer texts get truncated; checking
-  // an entire long post in one go isn't usually worth the extra $$$.
-  const textToCheck = text.slice(0, 30_000);
-
-  const response = await fetch('https://text.api.pangram.com/v3', {
-    method: 'POST',
+async function fetchPangramJson(url: string, key: string, body?: unknown): Promise<unknown> {
+  const response = await fetch(url, {
+    method: body === undefined ? 'GET' : 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key,
     },
-    body: JSON.stringify({ text: textToCheck }),
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
 
   if (!response.ok) {
@@ -84,15 +103,16 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     throw error;
   }
 
-  let pangramResponse;
   try {
-    pangramResponse = await response.json();
+    return await response.json();
   } catch (e) {
     const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : 'Unknown error'}`);
     captureException(error);
     throw error;
   }
+}
 
+function parsePangramResponse(pangramResponse: unknown, apiVersion: string): PangramEvaluationResult {
   const validatedResponse = pangramResponseSchema.safeParse(pangramResponse);
   if (!validatedResponse.success) {
     const error = new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
@@ -110,9 +130,11 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     ...(w.label ? { label: w.label } : {}),
     ...(w.confidence ? { confidence: w.confidence } : {}),
     ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
+    ...(w.is_humanized !== undefined ? { isHumanized: w.is_humanized } : {}),
+    ...(w.humanizer_score !== undefined ? { humanizerScore: w.humanizer_score } : {}),
   })) ?? null;
   return {
-    pangramApiVersion: "v3",
+    pangramApiVersion: apiVersion,
     pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
     pangramFractionAi: validatedResponse.data.fraction_ai,
     pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
@@ -123,6 +145,64 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     pangramPrediction: validatedResponse.data.prediction_short ?? null,
     pangramWindowScores,
   };
+}
+
+/**
+ * Poll an async Pangram inference task until it either succeeds or fails.
+ * Returns the raw response body of the successful poll, which has the same
+ * shape as a synchronous v3 response (plus some Pangram 4 extras).
+ */
+async function pollPangramTask(taskId: string, key: string): Promise<unknown> {
+  const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    await sleep(PANGRAM_TASK_POLL_INTERVAL_MS);
+    const taskResponse = await fetchPangramJson(`${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`, key);
+    const validatedStage = pangramTaskStageSchema.safeParse(taskResponse);
+    if (!validatedStage.success) {
+      const error = new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
+      captureException(error);
+      throw error;
+    }
+    if (validatedStage.data.stage === "STAGE_SUCCESS") {
+      return taskResponse;
+    }
+    if (validatedStage.data.stage === "STAGE_FAILED") {
+      const error = new Error(`Pangram task failed: ${validatedStage.data.error ?? "no error message given"}`);
+      captureException(error);
+      throw error;
+    }
+  }
+
+  const timeoutError = new Error(`Pangram task did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
+  captureException(timeoutError);
+  throw timeoutError;
+}
+
+export async function getPangramEvaluationForText(
+  text: string,
+  model: PangramModel = DEFAULT_PANGRAM_MODEL,
+): Promise<PangramEvaluationResult> {
+  const key = process.env.PANGRAM_API_KEY;
+  if (!key) {
+    throw new Error("PANGRAM_API_KEY is not configured");
+  }
+
+  const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
+
+  if (model === "pangram4") {
+    const submission = await fetchPangramJson(PANGRAM_TASK_URL, key, { text: textToCheck, model: "pangram-4" });
+    const validatedSubmission = pangramTaskSubmissionSchema.safeParse(submission);
+    if (!validatedSubmission.success) {
+      const error = new Error(`Invalid Pangram task submission response: ${validatedSubmission.error.message}`);
+      captureException(error);
+      throw error;
+    }
+    const taskResponse = await pollPangramTask(validatedSubmission.data.task_id, key);
+    return parsePangramResponse(taskResponse, "pangram-4");
+  }
+
+  const pangramResponse = await fetchPangramJson(PANGRAM_V3_URL, key, { text: textToCheck });
+  return parsePangramResponse(pangramResponse, "v3");
 }
 
 export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {

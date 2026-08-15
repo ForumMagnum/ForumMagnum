@@ -19,6 +19,8 @@ export const graphqlAutomatedContentEvaluationQueryTypeDefs = gql`
     label: String
     confidence: String
     wordCount: Int
+    isHumanized: Boolean
+    humanizerScore: Float
   }
 `;
 

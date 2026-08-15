@@ -162,7 +162,7 @@ const schema = {
     database: {
       type: "JSONB",
       nullable: true,
-      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[]",
+      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; isHumanized?: boolean; humanizerScore?: number; }[]",
     },
     graphql: {
       outputType: "[PangramWindowScore!]",
