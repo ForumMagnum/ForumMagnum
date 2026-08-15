@@ -1,10 +1,36 @@
 import type { VotingProps } from '@/components/votes/votingProps';
-import type { NamesAttachedReactionsList, EmojiReactName, NamesAttachedReactionsScore, UserReactInfo, NamesAttachedReactionsVote, UserVoteOnSingleReaction } from './namesAttachedReactions';
+import type { NamesAttachedReactionsList, EmojiReactName, NamesAttachedReactionsScore, UserReactInfo, NamesAttachedReactionsVote, UserVoteOnSingleReaction, QuoteLocator } from './namesAttachedReactions';
 import sumBy from 'lodash/sumBy';
 import some from 'lodash/some';
 import sortBy from 'lodash/sortBy';
 import mapValues from 'lodash/mapValues';
 import type { ContentReplacedSubstringComponentInfo } from '@/components/contents/contentBodyUtil';
+
+export function normalizeReactionQuote(quote: QuoteLocator): QuoteLocator {
+  // ContentItemBody applies this same normalization before locating a quote in
+  // the rendered document. Keep quote identity consistent with that lookup so
+  // whitespace variants don't create nested highlights on the same text.
+  return quote.trim().replace(/\r/g, '');
+}
+
+export function normalizeQuotedReactions<T extends { quotes?: QuoteLocator[] }>(reacts: T[] | undefined): T[] {
+  if (!reacts) return [];
+
+  const normalizedReacts: T[] = [];
+  for (const react of reacts) {
+    if (!react.quotes?.length) {
+      normalizedReacts.push(react);
+    } else {
+      for (const quote of react.quotes) {
+        normalizedReacts.push({
+          ...react,
+          quotes: [normalizeReactionQuote(quote)],
+        });
+      }
+    }
+  }
+  return normalizedReacts;
+}
 
 export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReactionsList | null, currentUserId: string | undefined): { react: EmojiReactName; numberShown: number; }[] {
   if (!reactions)
@@ -31,22 +57,8 @@ export function getNormalizedReactionsListFromVoteProps(voteProps: VotingProps<V
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore | undefined;
   if (!extendedScore) return undefined;
 
-  function normalizeReactsList(reacts: UserReactInfo[] | undefined): UserReactInfo[] {
-    if (!reacts) return [];
-    let normalizedReacts: UserReactInfo[] = [];
-    for (let react of reacts) {
-      if (!react.quotes || react.quotes.length <= 1) {
-        normalizedReacts.push(react);
-      } else {
-        for (let quote of react.quotes) {
-          normalizedReacts.push({ ...react, quotes: [quote] });
-        }
-      }
-    }
-    return normalizedReacts;
-  }
   let normalizedReacts: NamesAttachedReactionsList = mapValues(extendedScore.reacts,
-    reactsList => normalizeReactsList(reactsList)
+    reactsList => normalizeQuotedReactions<UserReactInfo>(reactsList)
   );
   return {
     ...extendedScore,
@@ -58,18 +70,7 @@ export function getNormalizedUserVoteFromVoteProps(voteProps: VotingProps<Voteab
   const extendedVote = (voteProps.document?.currentUserExtendedVote) as NamesAttachedReactionsVote | undefined;
   if (!extendedVote) return undefined;
 
-  let normalizedReacts: UserVoteOnSingleReaction[] = [];
-  if (extendedVote.reacts) {
-    for (let react of extendedVote.reacts) {
-      if (!react.quotes || react.quotes.length <= 1) {
-        normalizedReacts.push(react);
-      } else {
-        for (let quote of react.quotes) {
-          normalizedReacts.push({ ...react, quotes: [quote] });
-        }
-      }
-    }
-  }
+  const normalizedReacts = normalizeQuotedReactions<UserVoteOnSingleReaction>(extendedVote.reacts);
 
   return {
     ...extendedVote,
