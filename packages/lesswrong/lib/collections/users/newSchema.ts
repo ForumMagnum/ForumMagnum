@@ -94,6 +94,26 @@ const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId:
   return fieldChanges[0]?.createdAt ?? null;
 };
 
+export const getUserReviewGroup = async (context: ResolverContext, user: DbUser): Promise<ReviewGroup> => {
+  const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
+    getModeratorActionsForUser(context, user._id),
+    getLastRemovedFromReviewQueueAt(context, user._id),
+  ]);
+
+  const actionsWithActiveStatus = moderatorActions.map(action => ({
+    type: action.type,
+    active: isActionActive(action),
+    createdAt: action.createdAt,
+  }));
+  const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+
+  if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, user)) {
+    return 'offboard';
+  }
+
+  return baseGroup;
+};
+
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
 // 00.
@@ -3989,23 +4009,7 @@ const schema = {
       outputType: "ReviewGroup",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
-          getModeratorActionsForUser(context, doc._id),
-          getLastRemovedFromReviewQueueAt(context, doc._id),
-        ]);
-
-        const actionsWithActiveStatus = moderatorActions.map(action => ({
-          type: action.type,
-          active: isActionActive(action),
-          createdAt: action.createdAt,
-        }));
-        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
-          return 'offboard';
-        }
-
-        return baseGroup;
+        return await getUserReviewGroup(context, doc);
       },
     },
   },

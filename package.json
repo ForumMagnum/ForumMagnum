@@ -44,7 +44,8 @@
     "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js",
     "unused-graphql-fragments": "ts-node --swc -r tsconfig-paths/register scripts/unusedGraphqlFragments.ts",
     "unused-jss-classes": "ts-node --swc -r tsconfig-paths/register scripts/unusedJssClasses.ts",
-    "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
+    "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start",
+    "simplemod": "next dev simplemod --turbopack -p 3030"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.84",
@@ -200,6 +201,7 @@
     "esbuild": "^0.25.0",
     "feedparser-promised": "^1.2.2",
     "fp-ts": "^2.13.1",
+    "framer-motion": "^13.1.0",
     "geist": "^1.7.2",
     "google-auth-library": "^10.0.0",
     "gpt-3-encoder": "^1.1.3",
