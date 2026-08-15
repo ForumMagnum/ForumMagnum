@@ -1,5 +1,12 @@
 export type ReviewCollectionName = 'Posts' | 'Comments';
 
+export interface PangramWindowScore {
+  text: string;
+  score: number;
+  startIndex: number;
+  endIndex: number;
+}
+
 export interface QueueItem {
   documentId: string;
   collectionName: ReviewCollectionName;
@@ -11,8 +18,26 @@ export interface QueueItem {
   baseScore: number | null;
   pangramScore: number | null;
   pangramFractionAi: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: PangramWindowScore[] | null;
   aiChoice: string | null;
   rejected: boolean;
+}
+
+export interface UserContentItem extends QueueItem {
+  status: 'approved' | 'unreviewed' | 'rejected' | 'draft';
+}
+
+export interface UserContextResponse {
+  items: UserContentItem[];
+}
+
+export interface RunCheckResponse {
+  pangramScore: number | null;
+  pangramFractionAi: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: PangramWindowScore[] | null;
+  alreadyExisted: boolean;
 }
 
 export interface QueueUser {

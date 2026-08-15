@@ -1,4 +1,4 @@
-import type { ModerationTemplateData, NextItemResponse, QueueItem, QueueResponse, ReviewCollectionName } from './types';
+import type { ModerationTemplateData, NextItemResponse, QueueItem, QueueResponse, ReviewCollectionName, RunCheckResponse, UserContextResponse } from './types';
 
 export class ApiError extends Error {
   status: number;
@@ -45,6 +45,14 @@ export function fetchQueue(): Promise<QueueResponse> {
 
 export function fetchTemplates(collection: 'Rejections' | 'Messages'): Promise<{ templates: ModerationTemplateData[]; rejectionIntroHtml: string }> {
   return request(`/api/templates?collection=${collection}`);
+}
+
+export function fetchUserContext(userId: string): Promise<UserContextResponse> {
+  return request(`/api/user-context?userId=${encodeURIComponent(userId)}`);
+}
+
+export function runCheck(input: { collectionName: ReviewCollectionName; documentId: string }): Promise<RunCheckResponse> {
+  return post('/api/actions/run-check', { ...input });
 }
 
 export interface ItemActionInput {

@@ -1,7 +1,7 @@
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 import { getUserReviewGroup } from '@/lib/collections/users/newSchema';
-import type { QueueCard, QueueItem, QueueUser, ReviewCollectionName } from '../lib/types';
+import type { PangramWindowScore, QueueCard, QueueItem, QueueUser, ReviewCollectionName } from '../lib/types';
 
 const QUEUE_USER_LIMIT = 100;
 
@@ -17,6 +17,8 @@ interface QueueItemRow {
   baseScore: number | null;
   pangramScore: number | null;
   pangramFractionAi: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: PangramWindowScore[] | null;
   aiChoice: string | null;
   rejected: boolean | null;
 }
@@ -34,12 +36,14 @@ const liveUnreviewedItemsSql = `
     p."baseScore",
     ace."pangramScore",
     ace."pangramFractionAi",
+    ace."pangramPrediction",
+    ace."pangramWindowScores",
     ace."aiChoice",
     p."rejected"
   FROM "Posts" p
   LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
   LEFT JOIN LATERAL (
-    SELECT a."pangramScore", a."pangramFractionAi", a."aiChoice"
+    SELECT a."pangramScore", a."pangramFractionAi", a."pangramPrediction", a."pangramWindowScores", a."aiChoice"
     FROM "AutomatedContentEvaluations" a
     WHERE a."revisionId" = p."contents_latest"
     ORDER BY a."createdAt" DESC
@@ -64,13 +68,15 @@ const liveUnreviewedItemsSql = `
     c."baseScore",
     ace."pangramScore",
     ace."pangramFractionAi",
+    ace."pangramPrediction",
+    ace."pangramWindowScores",
     ace."aiChoice",
     c."rejected"
   FROM "Comments" c
   LEFT JOIN "Posts" post ON post."_id" = c."postId"
   LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
   LEFT JOIN LATERAL (
-    SELECT a."pangramScore", a."pangramFractionAi", a."aiChoice"
+    SELECT a."pangramScore", a."pangramFractionAi", a."pangramPrediction", a."pangramWindowScores", a."aiChoice"
     FROM "AutomatedContentEvaluations" a
     WHERE a."revisionId" = c."contents_latest"
     ORDER BY a."createdAt" DESC
@@ -96,6 +102,8 @@ function toQueueItem(row: QueueItemRow): QueueItem {
     baseScore: row.baseScore,
     pangramScore: row.pangramScore,
     pangramFractionAi: row.pangramFractionAi,
+    pangramPrediction: row.pangramPrediction,
+    pangramWindowScores: row.pangramWindowScores,
     aiChoice: row.aiChoice,
     rejected: row.rejected ?? false,
   };

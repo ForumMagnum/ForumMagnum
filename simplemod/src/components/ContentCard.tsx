@@ -3,6 +3,9 @@
 import React from 'react';
 import type { ContentCardData } from '../lib/types';
 import UserHeader from './UserHeader';
+import HighlightedHtml from './HighlightedHtml';
+
+export type CheckState = 'running' | 'failed' | null;
 
 export function formatPostedAt(postedAt: string): string {
   return new Date(postedAt).toLocaleString('en-US', {
@@ -24,7 +27,7 @@ export const PangramBadge = ({ pangramScore, aiChoice }: { pangramScore: number 
   );
 };
 
-const ContentCard = ({ card }: { card: ContentCardData }) => {
+const ContentCard = ({ card, checkState = null }: { card: ContentCardData; checkState?: CheckState }) => {
   const { user, item, remainingCount } = card;
   const positionLabel = remainingCount > 1 ? `1 of ${remainingCount} unreviewed` : 'last unreviewed item';
   return (
@@ -35,13 +38,16 @@ const ContentCard = ({ card }: { card: ContentCardData }) => {
         <span>{formatPostedAt(item.postedAt)}</span>
         {item.baseScore !== null && <span>{item.baseScore} karma</span>}
         <PangramBadge pangramScore={item.pangramScore} aiChoice={item.aiChoice} />
+        {item.pangramPrediction && <span className="chip">{item.pangramPrediction}</span>}
+        {checkState === 'running' && <span className="check-indicator">running AI check…</span>}
+        {checkState === 'failed' && item.pangramScore === null && <span className="check-indicator">AI check unavailable</span>}
       </div>
       {item.collectionName === 'Posts' ? (
         <h2 className="content-title">{item.title}</h2>
       ) : (
         item.postTitle && <div className="content-context">Comment on: {item.postTitle}</div>
       )}
-      <div className="content-html" dangerouslySetInnerHTML={{ __html: item.html ?? '<p><em>(no content)</em></p>' }} />
+      <HighlightedHtml className="content-html" html={item.html} windowScores={item.pangramWindowScores} />
     </div>
   );
 };

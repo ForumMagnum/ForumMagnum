@@ -35,7 +35,7 @@ function legendForCard(card: QueueCard): LegendEntry[] {
 const HotkeyLegend = ({ card }: { card: QueueCard }) => {
   return (
     <footer className="hotkey-legend">
-      {legendForCard(card).map(entry => (
+      {[...legendForCard(card), { keys: '⇥', label: 'Context' }].map(entry => (
         <span key={entry.keys} className="hotkey-legend-entry">
           <kbd>{entry.keys}</kbd> {entry.label}
         </span>

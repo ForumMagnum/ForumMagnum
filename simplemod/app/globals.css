@@ -112,12 +112,178 @@ kbd {
   font-size: 13px;
 }
 
+/* ---- Stage row & context panel ---- */
+
+.stage-row {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+  width: min(720px, 94vw);
+}
+
+.stage-row-with-panel {
+  width: min(1120px, 96vw);
+}
+
+.context-panel {
+  width: 380px;
+  flex-shrink: 0;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 8px 0 16px;
+  padding: 16px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.context-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.context-panel-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.context-panel-close {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.context-bio {
+  font-size: 13px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.context-panel-loading,
+.context-panel-error {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 6px 0;
+}
+
+.context-panel-error {
+  color: var(--reject);
+}
+
+.context-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.context-item-current {
+  border-color: var(--gold);
+}
+
+.context-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.context-item-header:hover {
+  background: var(--soft-bg);
+}
+
+.context-item-title {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.context-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.context-item-body {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.chip-status-rejected {
+  background: var(--reject-bg);
+  color: var(--reject);
+}
+
+.chip-status-approved {
+  background: var(--approve-bg);
+  color: var(--approve);
+}
+
+.chip-status-draft {
+  background: var(--soft-bg);
+  color: var(--text-muted);
+}
+
+.chip-status-unreviewed {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip-current {
+  background: var(--gold);
+  color: var(--card-bg);
+  font-weight: 700;
+}
+
+.hud-context-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.hud-context-toggle:hover {
+  background: var(--soft-bg);
+}
+
+.check-indicator {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ---- Card stage ---- */
 
 .card-stage {
   position: relative;
   flex: 1;
-  width: min(720px, 94vw);
+  min-width: 0;
   min-height: 0;
   display: flex;
   align-items: stretch;
@@ -627,6 +793,21 @@ kbd {
 }
 
 /* ---- Small screens ---- */
+
+@media (max-width: 900px) {
+  .stage-row-with-panel {
+    width: min(720px, 94vw);
+  }
+
+  .context-panel {
+    position: fixed;
+    inset: 0 25% 0 0;
+    min-width: 300px;
+    z-index: 9;
+    margin: 0;
+    border-radius: 0 16px 16px 0;
+  }
+}
 
 @media (max-width: 640px) {
   .queue-hud {

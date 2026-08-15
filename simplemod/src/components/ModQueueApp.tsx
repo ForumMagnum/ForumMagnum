@@ -1,17 +1,21 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import classNames from 'classnames';
 import { AnimatePresence } from 'framer-motion';
 import * as api from '../lib/api';
 import { ApiError, ConflictError } from '../lib/api';
 import type { ContentCardData, NextItemResponse, OffboardCardData, QueueCard } from '../lib/types';
 import SwipeCard, { type SwipeDirection } from './SwipeCard';
-import ContentCard from './ContentCard';
+import ContentCard, { type CheckState } from './ContentCard';
 import WrapupCard from './WrapupCard';
 import OffboardCard, { type OffboardSelection } from './OffboardCard';
 import Composer, { type ComposerResult } from './Composer';
 import HotkeyLegend from './HotkeyLegend';
+import ContextPanel from './ContextPanel';
+
+const PANEL_OPEN_STORAGE_KEY = 'simplemod_contextPanelOpen';
 
 type ComposerState =
   | { mode: 'reject'; card: ContentCardData }
@@ -42,9 +46,23 @@ const ModQueueApp = () => {
   const [composer, setComposer] = useState<ComposerState | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [offboardSelection, setOffboardSelection] = useState<OffboardSelection>({ selectedIds: [], removePermissions: true });
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [checkState, setCheckState] = useState<CheckState>(null);
+  const checkAttemptedRef = useRef<Set<string>>(new Set());
 
   const topCard = cards?.[0] ?? null;
   const topKey = topCard ? cardKey(topCard) : null;
+
+  useEffect(() => {
+    setPanelOpen(localStorage.getItem(PANEL_OPEN_STORAGE_KEY) === 'true');
+  }, []);
+
+  const togglePanel = useCallback(() => {
+    setPanelOpen(previous => {
+      localStorage.setItem(PANEL_OPEN_STORAGE_KEY, String(!previous));
+      return !previous;
+    });
+  }, []);
 
   const loadQueue = useCallback(async () => {
     try {
@@ -74,6 +92,42 @@ const ModQueueApp = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topKey]);
+
+  const topItemDocumentId = topCard?.type === 'content' ? topCard.item.documentId : null;
+  const topItemCollectionName = topCard?.type === 'content' ? topCard.item.collectionName : null;
+  const topItemHasScore = topCard?.type === 'content' ? topCard.item.pangramScore !== null : true;
+
+  useEffect(() => {
+    if (!topItemDocumentId || !topItemCollectionName || topItemHasScore) {
+      setCheckState(null);
+      return;
+    }
+    if (checkAttemptedRef.current.has(topItemDocumentId)) {
+      setCheckState('failed');
+      return;
+    }
+    checkAttemptedRef.current.add(topItemDocumentId);
+    setCheckState('running');
+    api.runCheck({ collectionName: topItemCollectionName, documentId: topItemDocumentId })
+      .then(result => {
+        setCheckState(result.pangramScore === null ? 'failed' : null);
+        setCards(previous => previous?.map(entry =>
+          entry.type === 'content' && entry.item.documentId === topItemDocumentId
+            ? {
+                ...entry,
+                item: {
+                  ...entry.item,
+                  pangramScore: result.pangramScore,
+                  pangramFractionAi: result.pangramFractionAi,
+                  pangramPrediction: result.pangramPrediction,
+                  pangramWindowScores: result.pangramWindowScores,
+                },
+              }
+            : entry
+        ) ?? previous);
+      })
+      .catch(() => setCheckState('failed'));
+  }, [topItemDocumentId, topItemCollectionName, topItemHasScore]);
 
   useEffect(() => {
     if (!toast) return;
@@ -210,6 +264,11 @@ const ModQueueApp = () => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        togglePanel();
+        return;
+      }
       switch (event.key.toLowerCase()) {
         case 'arrowright':
         case 'a':
@@ -239,7 +298,7 @@ const ModQueueApp = () => {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [composer, busy, topCard, handleSwipe, skipTop, approveUserTop]);
+  }, [composer, busy, topCard, handleSwipe, skipTop, approveUserTop, togglePanel]);
 
   const counts = useMemo(() => {
     const content = cards?.filter(card => card.type === 'content').length ?? 0;
@@ -280,13 +339,15 @@ const ModQueueApp = () => {
           <span className="queue-hud-title">SimpleMod</span>
           <span className="queue-hud-counts"><span>loading queue…</span></span>
         </header>
-        <div className="card-stage">
-          <div className="skeleton-card">
-            <div className="skeleton-line skeleton-line-half" />
-            <div className="skeleton-line skeleton-line-wide" />
-            <div className="skeleton-line" />
-            <div className="skeleton-line" />
-            <div className="skeleton-line skeleton-line-half" />
+        <div className="stage-row">
+          <div className="card-stage">
+            <div className="skeleton-card">
+              <div className="skeleton-line skeleton-line-half" />
+              <div className="skeleton-line skeleton-line-wide" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line skeleton-line-half" />
+            </div>
           </div>
         </div>
       </main>
@@ -305,45 +366,57 @@ const ModQueueApp = () => {
           {counts.wrapup > 0 && <span>{counts.wrapup} wrap-up</span>}
           {cards.length === 0 && <span>queue clear</span>}
         </span>
+        <button type="button" className="hud-context-toggle" onClick={togglePanel}>
+          {panelOpen ? 'Hide context' : 'Context'} <kbd>⇥</kbd>
+        </button>
         <span className="queue-hud-moderator">{moderatorName}</span>
       </header>
-      <div className="card-stage">
-        {cards.slice(1, 3).map((card, index) => (
-          <div
-            key={cardKey(card)}
-            className="peek-card"
-            style={{ transform: `scale(${0.96 - index * 0.03}) translateY(${(index + 1) * 14}px)` }}
+      <div className={classNames('stage-row', panelOpen && topCard && 'stage-row-with-panel')}>
+        {panelOpen && topCard && (
+          <ContextPanel
+            user={topCard.user}
+            currentDocumentId={topCard.type === 'content' ? topCard.item.documentId : null}
+            onClose={togglePanel}
           />
-        ))}
-        <AnimatePresence custom={exitDirection} initial={false}>
-          {topCard && stamps && (
-            <SwipeCard
-              key={topKey}
-              onSwipe={handleSwipe}
-              disabled={busy || !!composer}
-              busy={busy}
-              leftStamp={stamps.left}
-              rightStamp={stamps.right}
-            >
-              {topCard.type === 'content' && <ContentCard card={topCard} />}
-              {topCard.type === 'wrapup' && <WrapupCard card={topCard} />}
-              {topCard.type === 'offboard' && (
-                <OffboardCard
-                  card={topCard}
-                  selection={offboardSelection}
-                  onChangeSelection={setOffboardSelection}
-                />
-              )}
-            </SwipeCard>
-          )}
-        </AnimatePresence>
-        {cards.length === 0 && (
-          <div className="queue-message queue-done">
-            <h2>All clear 🎉</h2>
-            <p>No users waiting for review.</p>
-            <button className="button button-secondary" onClick={() => void loadQueue()}>Check again</button>
-          </div>
         )}
+        <div className="card-stage">
+          {cards.slice(1, 3).map((card, index) => (
+            <div
+              key={cardKey(card)}
+              className="peek-card"
+              style={{ transform: `scale(${0.96 - index * 0.03}) translateY(${(index + 1) * 14}px)` }}
+            />
+          ))}
+          <AnimatePresence custom={exitDirection} initial={false}>
+            {topCard && stamps && (
+              <SwipeCard
+                key={topKey}
+                onSwipe={handleSwipe}
+                disabled={busy || !!composer}
+                busy={busy}
+                leftStamp={stamps.left}
+                rightStamp={stamps.right}
+              >
+                {topCard.type === 'content' && <ContentCard card={topCard} checkState={checkState} />}
+                {topCard.type === 'wrapup' && <WrapupCard card={topCard} />}
+                {topCard.type === 'offboard' && (
+                  <OffboardCard
+                    card={topCard}
+                    selection={offboardSelection}
+                    onChangeSelection={setOffboardSelection}
+                  />
+                )}
+              </SwipeCard>
+            )}
+          </AnimatePresence>
+          {cards.length === 0 && (
+            <div className="queue-message queue-done">
+              <h2>All clear 🎉</h2>
+              <p>No users waiting for review.</p>
+              <button className="button button-secondary" onClick={() => void loadQueue()}>Check again</button>
+            </div>
+          )}
+        </div>
       </div>
       {topCard && <HotkeyLegend card={topCard} />}
       {composer && (
