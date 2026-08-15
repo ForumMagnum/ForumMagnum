@@ -39,8 +39,8 @@ function post<T>(path: string, body: Record<string, unknown>): Promise<T> {
   });
 }
 
-export function fetchQueue(): Promise<QueueResponse> {
-  return request<QueueResponse>('/api/queue');
+export function fetchQueue(quick = false): Promise<QueueResponse> {
+  return request<QueueResponse>(quick ? '/api/queue?quick=1' : '/api/queue');
 }
 
 interface TemplatesResponse {
@@ -61,8 +61,26 @@ export function fetchTemplates(collection: 'Rejections' | 'Messages'): Promise<T
   return fetched;
 }
 
+const userContextCache = new Map<string, Promise<UserContextResponse>>();
+
 export function fetchUserContext(userId: string): Promise<UserContextResponse> {
-  return request(`/api/user-context?userId=${encodeURIComponent(userId)}`);
+  const cached = userContextCache.get(userId);
+  if (cached) {
+    return cached;
+  }
+  const fetched = request<UserContextResponse>(`/api/user-context?userId=${encodeURIComponent(userId)}`);
+  userContextCache.set(userId, fetched);
+  fetched.catch(() => userContextCache.delete(userId));
+  return fetched;
+}
+
+export function invalidateUserContext(userId: string): void {
+  userContextCache.delete(userId);
+}
+
+export function prefetchComposerTemplates(): void {
+  fetchTemplates('Rejections').catch(() => {});
+  fetchTemplates('Messages').catch(() => {});
 }
 
 export function runCheck(input: { collectionName: ReviewCollectionName; documentId: string }): Promise<RunCheckResponse> {

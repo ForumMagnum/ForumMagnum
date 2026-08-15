@@ -88,6 +88,8 @@ const ModQueueApp = () => {
   const checkDocumentIdRef = useRef<string | null>(null);
   const busyRef = useRef(false);
   const flashNonceRef = useRef(0);
+  const removedUsersRef = useRef<Set<string>>(new Set());
+  const decidedDocsRef = useRef<Set<string>>(new Set());
 
   const topCard = cards?.[0] ?? null;
   const topKey = topCard ? cardKey(topCard) : null;
@@ -103,12 +105,39 @@ const ModQueueApp = () => {
     });
   }, []);
 
-  const loadQueue = useCallback(async () => {
+  // Full queue results merge over local state so decisions made while the
+  // request was in flight aren't resurrected: removed users stay gone and
+  // already-decided items keep the locally-advanced card.
+  const applyFullQueue = useCallback((fullCards: QueueCard[]) => {
+    setCards(local => {
+      if (!local) return fullCards;
+      const localByUser = new Map(local.map(card => [card.user._id, card] as const));
+      const merged: QueueCard[] = [];
+      for (const card of fullCards) {
+        if (removedUsersRef.current.has(card.user._id)) continue;
+        if (card.type === 'content' && decidedDocsRef.current.has(card.item.documentId)) {
+          const localCard = localByUser.get(card.user._id);
+          if (localCard?.type === 'content') merged.push(localCard);
+          continue;
+        }
+        merged.push(card);
+      }
+      return merged;
+    });
+  }, []);
+
+  const loadQueue = useCallback(async ({ merge = false }: { merge?: boolean } = {}) => {
     try {
       const response = await api.fetchQueue();
-      setCards(response.cards);
       setModeratorName(response.moderator.displayName);
       setLoadError(null);
+      if (merge) {
+        applyFullQueue(response.cards);
+      } else {
+        removedUsersRef.current.clear();
+        decidedDocsRef.current.clear();
+        setCards(response.cards);
+      }
     } catch (error) {
       if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
         router.push('/login');
@@ -116,11 +145,33 @@ const ModQueueApp = () => {
       }
       setLoadError(error instanceof Error ? error.message : String(error));
     }
-  }, [router]);
+  }, [router, applyFullQueue]);
 
   useEffect(() => {
-    void loadQueue();
+    let cancelled = false;
+    // Quick prefix (first ~3 cards) and full queue race in parallel; whichever
+    // lands first renders, and the full result merges in behind it.
+    api.fetchQueue(true)
+      .then(response => {
+        if (cancelled) return;
+        setModeratorName(response.moderator.displayName);
+        setCards(local => local ?? response.cards);
+      })
+      .catch(() => {});
+    void loadQueue({ merge: true });
+    return () => { cancelled = true; };
   }, [loadQueue]);
+
+  useEffect(() => {
+    api.prefetchComposerTemplates();
+  }, []);
+
+  const topUserId = topCard?.user._id ?? null;
+  useEffect(() => {
+    if (topUserId) {
+      api.fetchUserContext(topUserId).catch(() => {});
+    }
+  }, [topUserId]);
 
   useEffect(() => {
     if (topCard?.type === 'offboard') {
@@ -223,6 +274,11 @@ const ModQueueApp = () => {
 
   const advanceContentCard = useCallback((card: ContentCardData, result: NextItemResponse) => {
     setDecidedCount(count => count + 1);
+    decidedDocsRef.current.add(card.item.documentId);
+    if (!result.nextItem) {
+      removedUsersRef.current.add(card.user._id);
+    }
+    api.invalidateUserContext(card.user._id);
     setCards(previous => {
       if (!previous) return previous;
       const key = cardKey(card);
@@ -239,6 +295,8 @@ const ModQueueApp = () => {
 
   const removeUserCards = useCallback((userId: string) => {
     setDecidedCount(count => count + 1);
+    removedUsersRef.current.add(userId);
+    api.invalidateUserContext(userId);
     setCards(previous => previous?.filter(entry => entry.user._id !== userId) ?? previous);
   }, []);
 

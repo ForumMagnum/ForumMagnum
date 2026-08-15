@@ -17,8 +17,17 @@ export interface ModeratorSession {
 }
 
 export async function getModeratorSession(req: NextRequest): Promise<ModeratorSession | NextResponse> {
-  await ensureSettingsLoaded();
-  const context = await getContextFromReqAndRes({ req });
+  let context: ResolverContext;
+  try {
+    await ensureSettingsLoaded();
+    context = await getContextFromReqAndRes({ req });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('SimpleMod session setup failed:', error);
+    settingsLoaded = null;
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: `Session setup failed: ${message}` }, { status: 500 });
+  }
   const moderator = context.currentUser;
   if (!moderator) {
     return NextResponse.json({ error: 'Not logged in' }, { status: 401 });

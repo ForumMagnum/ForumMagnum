@@ -173,7 +173,13 @@ interface QueueUserRow extends DbUser {
   simplemodHtmlBio: string | null;
 }
 
-export async function computeQueue(context: ResolverContext): Promise<QueueCard[]> {
+export interface ComputeQueueOptions {
+  userLimit?: number;
+  cardLimit?: number;
+}
+
+export async function computeQueue(context: ResolverContext, options: ComputeQueueOptions = {}): Promise<QueueCard[]> {
+  const { userLimit = QUEUE_USER_LIMIT, cardLimit } = options;
   const db = getSqlClientOrThrow();
   const users = await db.any<QueueUserRow>(`
     SELECT u.*, bio."html" AS "simplemodHtmlBio"
@@ -185,23 +191,28 @@ export async function computeQueue(context: ResolverContext): Promise<QueueCard[
       AND (u."signUpReCaptchaRating" IS NULL OR u."signUpReCaptchaRating" > $(recaptchaThreshold))
     ORDER BY u."createdAt" ASC
     LIMIT $(limit)
-  `, { recaptchaThreshold: spamRiskScoreThreshold * 1.25, limit: QUEUE_USER_LIMIT });
+  `, { recaptchaThreshold: spamRiskScoreThreshold * 1.25, limit: userLimit });
 
-  const reviewGroups = await Promise.all(users.map(user => getUserReviewGroup(context, user)));
+  // Items and rejected counts don't depend on review groups, so all three
+  // computations run concurrently over the full candidate set.
+  const allUserIds = users.map(user => user._id);
+  const [reviewGroups, itemsByUser, rejectedCounts] = await Promise.all([
+    Promise.all(users.map(user => getUserReviewGroup(context, user))),
+    getLiveUnreviewedItems(allUserIds),
+    getRejectedContentCountsByCollection(allUserIds),
+  ]);
+
   const queueUsers = users
     .map((user, index) => ({ user, reviewGroup: reviewGroups[index] }))
     .filter((entry): entry is { user: QueueUserRow; reviewGroup: 'newContent' | 'offboard' } =>
       entry.reviewGroup === 'newContent' || entry.reviewGroup === 'offboard'
     );
 
-  const userIds = queueUsers.map(entry => entry.user._id);
-  const [itemsByUser, rejectedCounts] = await Promise.all([
-    getLiveUnreviewedItems(userIds),
-    getRejectedContentCountsByCollection(userIds),
-  ]);
-
   const cards: QueueCard[] = [];
   for (const { user, reviewGroup } of queueUsers) {
+    if (cardLimit !== undefined && cards.length >= cardLimit) {
+      break;
+    }
     const queueUser = toQueueUser(user, user.simplemodHtmlBio, reviewGroup);
     const items = itemsByUser.get(user._id) ?? [];
     if (reviewGroup === 'offboard') {
