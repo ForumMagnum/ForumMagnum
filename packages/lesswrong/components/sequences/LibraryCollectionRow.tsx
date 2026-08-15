@@ -43,11 +43,17 @@ const LibraryCollectionRowBody = ({collection}: {
 
   const books = sortBy(expansion.books ?? [], book => book.number ?? 0);
   const titledBooks = books.filter(book => book.tocTitle || book.title);
+  const totalBookPostsCount = books.reduce((sum, book) => sum + book.postsCount, 0);
+  const titledBookPostsCount = titledBooks.reduce((sum, book) => sum + book.postsCount, 0);
 
-  // Collections with titled books (e.g. Rationality: A-Z) show a book
-  // checklist; collections whose books are untitled containers (e.g. HPMOR's
-  // single anonymous book) fall back to a checklist of the books' sequences.
-  const checklistRows = titledBooks.length > 0
+  // Collections whose posts mostly live in titled books (e.g. Rationality:
+  // A-Z) show a book checklist; collections whose books are untitled
+  // containers (e.g. HPMOR's single anonymous book) fall back to a checklist
+  // of the books' sequences. Requiring a majority (not just one titled book)
+  // keeps collections whose real content is one untitled book plus a small
+  // titled "Further Reading" book (Highlights from the Sequences) on the
+  // sequence checklist.
+  const checklistRows = titledBookPostsCount * 2 >= totalBookPostsCount && titledBooks.length > 0
     ? titledBooks.map(book => ({
         key: book._id,
         label: book.tocTitle || book.title || '',
