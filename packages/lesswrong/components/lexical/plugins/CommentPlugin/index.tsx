@@ -227,14 +227,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     position: 'fixed',
     right: 86,
     width: 'min(480px, calc(100vw - 112px))',
-    [theme.breakpoints.down('md')]: {
-      right: 66,
-      width: 'min(420px, calc(100vw - 92px))',
-    },
-    [theme.breakpoints.down('sm')]: {
-      right: 6,
-      width: 'calc(100vw - 12px)',
-    },
     top: 'var(--editor-right-rail-top)',
     height: 'var(--editor-right-rail-height)',
     backgroundColor: theme.palette.panelBackground.default,
@@ -243,6 +235,18 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     zIndex: 25,
     overflow: 'hidden',
     transition: 'top 0.2s ease-in-out, height 0.2s ease-in-out',
+    [theme.breakpoints.down('md')]: {
+      right: 66,
+      width: 'min(420px, calc(100vw - 92px))',
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 'auto',
+      right: 0,
+      bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
+      width: '100vw',
+      height: 'min(48dvh, 460px)',
+      borderRadius: '12px 12px 0 0',
+    },
     ...theme.typography.commentStyle,
   },
   commentsPanelHeading: {
