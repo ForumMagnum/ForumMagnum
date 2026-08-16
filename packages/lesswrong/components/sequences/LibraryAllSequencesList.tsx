@@ -16,7 +16,6 @@ import SequencesNewButton from './SequencesNewButton';
 import SettingsButton from '../icons/SettingsButton';
 import Loading from '../vulcan-core/Loading';
 import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
-import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const LIST_ITEMS_PER_PAGE = 12;
@@ -108,10 +107,6 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     alignItems: 'center',
     marginBottom: 10,
   },
-  // Keep the "All tags" chip on the first line when the chip row wraps
-  filterRowExpanded: {
-    alignItems: 'flex-start',
-  },
   chipRow: {
     flex: 1,
     minWidth: 0,
@@ -123,9 +118,6 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     '&::-webkit-scrollbar': {
       display: 'none',
     },
-  },
-  chipRowExpanded: {
-    flexWrap: 'wrap',
   },
   chip: {
     flex: 'none',
@@ -148,32 +140,11 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
       background: theme.palette.primary.dark,
     },
   },
-  allTagsChip: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '2px',
-  },
   // Rendered inside AddTagButton's inline anchor rather than as a flex item,
   // so it needs an explicit display for its padding to take effect.
   addWikitagChip: {
     display: 'inline-block',
     fontWeight: 600,
-  },
-  allTagsChipActive: {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.primary.main}`,
-    color: theme.palette.primary.main,
-    padding: '3px 9px',
-    '&:hover': {
-      background: theme.palette.panelBackground.default,
-    },
-  },
-  allTagsChevron: {
-    fontSize: 15,
-    marginRight: -3,
-  },
-  allTagsChevronExpanded: {
-    transform: 'rotate(180deg)',
   },
   // Reserve a viewport's worth of height below the search bar so the document
   // can't get shorter than the scroll position while typing a search (which
@@ -212,7 +183,6 @@ const LibraryAllSequencesList = () => {
   const { captureEvent } = useTracking();
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
   const [filterSettings, setFilterSettings] = useState<LibraryFilterSettings>(defaultLibraryFilterSettings);
-  const [tagsExpanded, setTagsExpanded] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const settingsAnchorRef = useRef<HTMLSpanElement | null>(null);
 
@@ -331,11 +301,6 @@ const LibraryAllSequencesList = () => {
     applyFilterSettings({ ...filterSettings, wikitags: wikitags.filter(tag => tag.tagId !== tagId) }, 'chip');
   };
 
-  const toggleTagsExpanded = () => {
-    setTagsExpanded(!tagsExpanded);
-    captureEvent('libraryAllTagsToggled', { expanded: !tagsExpanded });
-  };
-
   const toggleRowExpanded = (rowId: string): boolean => {
     const nowExpanded = !expandedRowIds.has(rowId);
     const newExpandedRowIds = new Set(expandedRowIds);
@@ -391,8 +356,8 @@ const LibraryAllSequencesList = () => {
         onChange={handleSearchChange}
       />
     </div>
-    <div className={classNames(classes.filterRow, tagsExpanded && classes.filterRowExpanded)}>
-      <div className={classNames(classes.chipRow, tagsExpanded && classes.chipRowExpanded)}>
+    <div className={classes.filterRow}>
+      <div className={classes.chipRow}>
         <span
           className={classNames(classes.chip, topics.length === 0 && wikitags.length === 0 && classes.chipSelected)}
           onClick={() => applyFilterSettings({ ...filterSettings, topics: [], wikitags: [] }, 'chip')}
@@ -413,19 +378,12 @@ const LibraryAllSequencesList = () => {
         >
           {topic}
         </span>)}
-        {tagsExpanded && <LWTooltip title="Add Wikitag Filter">
-          <AddTagButton hasTooltip={false} onTagSelected={addWikitagFilter}>
-            <span className={classNames(classes.chip, classes.addWikitagChip)}>+</span>
-          </AddTagButton>
-        </LWTooltip>}
       </div>
-      <span
-        className={classNames(classes.chip, classes.allTagsChip, tagsExpanded && classes.allTagsChipActive)}
-        onClick={toggleTagsExpanded}
-      >
-        All tags
-        <ExpandMoreIcon className={classNames(classes.allTagsChevron, tagsExpanded && classes.allTagsChevronExpanded)} />
-      </span>
+      <LWTooltip title="Add Wikitag Filter">
+        <AddTagButton hasTooltip={false} onTagSelected={addWikitagFilter}>
+          <span className={classNames(classes.chip, classes.addWikitagChip)}>+</span>
+        </AddTagButton>
+      </LWTooltip>
     </div>
     <div className={classes.results}>
       <div className={classes.panel}>

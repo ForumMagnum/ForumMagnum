@@ -19858,6 +19858,42 @@ type LibraryTopicCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 type LibraryTopicCountsQuery = LibraryTopicCountsQuery_Query;
 
+type LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
+
+type LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection = { __typename?: 'Collection', _id: string, title: string, isBookmarked: boolean, user: LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection_user_User | null, contents: LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection_contents_Revision | null };
+
+type LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput = { __typename?: 'MultiCollectionOutput', results: Array<LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput_results_Collection> };
+
+type LibraryRecommendedCollectionsQuery_Query = { __typename?: 'Query', collections: LibraryRecommendedCollectionsQuery_collections_MultiCollectionOutput | null };
+
+
+type LibraryRecommendedCollectionsQueryVariables = Exact<{
+  collectionIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type LibraryRecommendedCollectionsQuery = LibraryRecommendedCollectionsQuery_Query;
+
+type LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_contents_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
+
+type LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence = { __typename?: 'Sequence', _id: string, title: string, isBookmarked: boolean, user: LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_user_User | null, contents: LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence_contents_Revision | null };
+
+type LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', results: Array<LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type LibraryRecommendedSequencesQuery_Query = { __typename?: 'Query', sequences: LibraryRecommendedSequencesQuery_sequences_MultiSequenceOutput | null };
+
+
+type LibraryRecommendedSequencesQueryVariables = Exact<{
+  sequenceIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type LibraryRecommendedSequencesQuery = LibraryRecommendedSequencesQuery_Query;
+
 type LibrarySequenceExpansionQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & LibrarySequenceExpansionFragment

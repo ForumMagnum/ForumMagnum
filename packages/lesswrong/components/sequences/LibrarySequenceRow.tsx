@@ -409,10 +409,7 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
   },
 }));
 
-// Collapsed-row description: two-line clamp, with a post-preview-style
-// hover-over card (title, author, save button, description, read-more).
-// Shared with LibraryCollectionRow.
-export const LibraryRowCollapsedDescription = ({title, authorName, description, url, documentId, collectionName, isBookmarked}: {
+interface LibraryRowHoverCardProps {
   title: string,
   authorName: string | null,
   description: string,
@@ -420,17 +417,23 @@ export const LibraryRowCollapsedDescription = ({title, authorName, description, 
   documentId: string,
   collectionName: 'Sequences' | 'Collections',
   isBookmarked: boolean,
-}) => {
+}
+
+// Post-preview-style hover card (title, author, save button, description,
+// read-more). Shown for collapsed row descriptions and the recommended-zone
+// boxes on the library page.
+export const LibraryRowHoverCard = ({title, authorName, description, url, documentId, collectionName, isBookmarked}: LibraryRowHoverCardProps) => {
   const classes = useStyles(libraryRowStyles);
 
   // The popper is portaled, but clicks inside it still bubble up the React
-  // tree to the collapsed row's expand handler; links in the card should
-  // navigate, not toggle the row.
+  // tree to the anchor's click handler (eg a collapsed row's expand toggle,
+  // or a recommended card's link); links in the card should navigate, not
+  // trigger the anchor.
   const handleCardClick = (event: MouseEvent) => {
     event.stopPropagation();
   };
 
-  const card = <div className={classes.descriptionHoverCard} onClick={handleCardClick}>
+  return <div className={classes.descriptionHoverCard} onClick={handleCardClick}>
     <div className={classes.hoverCardHeader}>
       <div>
         <Link to={url} className={classes.hoverCardTitle}>{title}</Link>
@@ -443,9 +446,17 @@ export const LibraryRowCollapsedDescription = ({title, authorName, description, 
     </div>
     <Link to={url} className={classes.hoverCardReadMore}>(read more)</Link>
   </div>;
+};
+
+// Collapsed-row description: two-line clamp, with a post-preview-style
+// hover-over card (title, author, save button, description, read-more).
+// Shared with LibraryCollectionRow.
+export const LibraryRowCollapsedDescription = (props: LibraryRowHoverCardProps) => {
+  const classes = useStyles(libraryRowStyles);
+  const { description } = props;
 
   return <HoverOver
-    title={card}
+    title={<LibraryRowHoverCard {...props} />}
     placement="bottom-end"
     tooltip={false}
     clickable
