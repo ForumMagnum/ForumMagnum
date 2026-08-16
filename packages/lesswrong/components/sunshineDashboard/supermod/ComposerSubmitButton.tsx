@@ -7,15 +7,16 @@ import KeystrokeDisplay from './KeystrokeDisplay';
  * a Ctrl+Enter badge matching the actual keyboard shortcut, and is greyed out
  * while the composer is empty.
  */
-const ComposerSubmitButton = ({ label, disabled, onClick, type = 'button' }: {
+const ComposerSubmitButton = ({ label, disabled, onClick, type = 'button', keystroke = 'Ctrl+Enter' }: {
   label: React.ReactNode,
   disabled: boolean,
   onClick?: () => void,
   type?: 'button' | 'submit',
+  keystroke?: string,
 }) => {
   return <Button type={type} onClick={onClick} disabled={disabled}>
     {label}
-    <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
+    <KeystrokeDisplay keystroke={keystroke} withMargin splitBeforeTranslation />
   </Button>;
 };
 

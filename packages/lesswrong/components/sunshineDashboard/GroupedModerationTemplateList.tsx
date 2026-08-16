@@ -377,7 +377,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, insertedTemplateIds, selectedTemplateId}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -388,6 +388,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
+  insertedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
 }) => {
   const classes = useStyles(styles);
@@ -452,7 +453,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           template={template}
           onTemplateClick={onTemplateClick}
           highlighted={!!highlightedTemplateNames?.has(template.name)}
-          selected={template._id === selectedTemplateId}
+          selected={template._id === selectedTemplateId || !!insertedTemplateIds?.has(template._id)}
           onHideTemplate={onHideTemplate}
         />
       ))}
@@ -502,10 +503,12 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, insertedTemplateIds, onlyHighlighted = false, onFocusComposer, focusSearchToken, active = true, onEscape }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
+  insertedTemplateIds?: Set<string>,
+  onlyHighlighted?: boolean,
   onFocusComposer?: () => void,
   focusSearchToken?: number,
   // False while the list's composer tab is hidden (but kept mounted to
@@ -559,6 +562,22 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const dndSensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
 
   const templates = data?.moderationTemplates?.results ?? [];
+
+  if (onlyHighlighted) {
+    const highlightedTemplates = templates.filter(template => highlightedTemplateNames?.has(template.name));
+    if (highlightedTemplates.length === 0) return null;
+    return <div className={classes.root}>
+      {highlightedTemplates.map(template => (
+        <ModerationTemplateSunshineItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted
+          selected={insertedTemplateIds?.has(template._id)}
+        />
+      ))}
+    </div>;
+  }
 
   const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
@@ -735,6 +754,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
             </div>
           )}
           highlightedTemplateNames={highlightedTemplateNames}
+          insertedTemplateIds={insertedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
         />
       ))}
