@@ -1,4 +1,5 @@
 import type { StyleDefinition } from "@/server/styleGeneration";
+import { addLightDarkFallbacks } from "@/lib/lightDarkFallbacks";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import jssCamelCase from "jss-plugin-camel-case";
 import jssDefaultUnit from "jss-plugin-default-unit";
@@ -115,5 +116,5 @@ export function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefini
     }
   );
   sheets.add(sheet);
-  return sheets.toString();
+  return addLightDarkFallbacks(sheets.toString());
 }
