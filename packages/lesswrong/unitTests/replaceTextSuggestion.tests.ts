@@ -220,10 +220,12 @@ describe("deleteBlock suggest-mode wrapping", () => {
     return wrapped;
   }
 
-  it("wraps a paragraph block and creates delete suggestions", async () => {
+  it("wraps the full paragraph text as a deletion suggestion", async () => {
     const editor = await setupEditorWithContent("First paragraph.\n\nSecond paragraph.");
     expect(await wrapBlockByPrefix(editor, "Second paragraph")).toBe(true);
-    expect(getAllSuggestions(editor).filter((s) => s.type === "delete").length).toBeGreaterThan(0);
+    const deleteSuggestions = getAllSuggestions(editor).filter((s) => s.type === "delete");
+    expect(deleteSuggestions).toHaveLength(1);
+    expect(deleteSuggestions[0].textContent).toBe("Second paragraph.");
   });
 
   it("wraps a table block via per-cell suggestion nodes", async () => {
