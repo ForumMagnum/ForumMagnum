@@ -22,7 +22,7 @@ type Styling = "comment"|"post"|"tag"|"messageRight"|"messageLeft";
 function getButtonOffsetLeft(styling: Styling, contentRef?: React.RefObject<ContentItemBodyImperative | null> | null): number {
   switch (styling) {
     case "comment":
-      return 12;
+      return clampButtonOffsetToViewport(12, contentRef);
     // messageLeft is for messages by the current user, and indicates the inline react button should be to the left of the message item (since the message is right-aligned)
     // messageRight is for messages by other users, and indicates the inline react button should be to the right of the message item (since the message is left-aligned)
     // The messageLeft and messageRight values were chosen empirically to avoid overlap between the button background and the message container.
@@ -33,8 +33,20 @@ function getButtonOffsetLeft(styling: Styling, contentRef?: React.RefObject<Cont
       return 0;
     case "post":
     case "tag":
-      return 30;
+      return clampButtonOffsetToViewport(30, contentRef);
   }
+}
+
+// The button is normally rendered `offset` px into the right margin of the
+// content (in addition to the 12px from the button class's `left`). On narrow
+// screens the content runs nearly to the viewport edge and there is no right
+// margin, so reduce the offset (possibly to a negative value, pulling the
+// button over the content) enough to keep the ~40px-wide button on-screen.
+// 56 = 12 (button class `left`) + 40 (button width) + 4 (gap to the edge).
+function clampButtonOffsetToViewport(offset: number, contentRef?: React.RefObject<ContentItemBodyImperative | null> | null): number {
+  const anchorRight = contentRef?.current?.getAnchorEl()?.getBoundingClientRect().right;
+  if (anchorRight === undefined) return offset;
+  return Math.min(offset, window.innerWidth - anchorRight - 56);
 }
 
 function getButtonOffsetTop(styling: Styling): number {

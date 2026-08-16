@@ -9,6 +9,8 @@ import ReactionsPalette from "../ReactionsPalette";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
+const PALETTE_WIDTH = 350;
+
 const styles = defineStyles('AddInlineReactionButton', (theme: ThemeType) => ({
   container: {
     position: "relative",
@@ -17,6 +19,7 @@ const styles = defineStyles('AddInlineReactionButton', (theme: ThemeType) => ({
     height: 38,
   },
   icon: {
+    color: theme.palette.grey[600],
     borderRadius: 8,
     padding: '7px 8px',
     "&:hover": {
@@ -35,10 +38,19 @@ const styles = defineStyles('AddInlineReactionButton', (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     boxShadow: theme.shadows[2],
     paddingTop: 12,
-    maxWidth: 350,
+    maxWidth: `min(${PALETTE_WIDTH}px, calc(100vw - 16px))`,
     position: "absolute",
     left: 0,
     top: -30,
+  },
+  // Used when there isn't room for the palette to extend rightwards from the
+  // button (e.g. on phones, where the button is clamped to the viewport
+  // edge). -40 (the icon width) aligns the palette's right edge with the
+  // icon's right edge; the container's own inline box ends at the icon's
+  // left edge.
+  paletteOpenToLeft: {
+    left: "auto",
+    right: -40,
   }
 }))
 
@@ -52,13 +64,16 @@ const AddInlineReactionButton = ({voteProps, quote, disabled, wrapperClassName, 
 }) => {
   const classes = useStyles(styles);
   const [open,setOpen] = useState(false);
+  const [openToLeft,setOpenToLeft] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
-  
+
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (!disabled) {
+      const buttonRect = buttonRef.current?.getBoundingClientRect();
+      setOpenToLeft(!!buttonRect && buttonRect.left + PALETTE_WIDTH > window.innerWidth)
       setOpen(true)
     }
   }
@@ -86,7 +101,7 @@ const AddInlineReactionButton = ({voteProps, quote, disabled, wrapperClassName, 
         {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled }, iconClassName)}/>}
       </span>
     </LWTooltip>
-    {open && <div className={classNames(classes.palette, paletteClassName)}>
+    {open && <div className={classNames(classes.palette, openToLeft && classes.paletteOpenToLeft, paletteClassName)}>
       <ReactionsPalette
         getCurrentUserReactionVote={getCurrentUserReactionVote}
         toggleReaction={handleToggleReaction}

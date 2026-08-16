@@ -28,6 +28,10 @@ export type LWTooltipProps = {
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
+  /** Keep the popper on-screen along both axes, not just its slide axis. See LWPopper. */
+  overflowAltAxis?: boolean,
+  /** Placements to try, in order, when `placement` doesn't fit in the viewport. See LWPopper. */
+  fallbackPlacements?: PopperPlacementType[],
   clickable?: boolean,
   inlineBlock?: boolean,
   As?: 'span' | 'div',
@@ -59,6 +63,8 @@ const LWTooltip = ({
   placement="bottom-start",
   tooltip=true,
   flip=true,
+  overflowAltAxis,
+  fallbackPlacements,
   clickable=false,
   inlineBlock=true,
   As="span",
@@ -143,6 +149,8 @@ const LWTooltip = ({
       anchorEl={anchorEl ?? defaultAnchorElRef.current}
       tooltip={tooltip}
       allowOverflow={!flip}
+      overflowAltAxis={overflowAltAxis}
+      fallbackPlacements={fallbackPlacements}
       distance={distance}
       clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}

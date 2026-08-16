@@ -38,7 +38,7 @@ const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    width: 350,
+    width: "min(350px, calc(100vw - 16px))",
     maxWidth: "unset",
     fontSize: 14,
     fontWeight: 450,

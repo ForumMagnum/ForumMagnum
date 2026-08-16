@@ -35,7 +35,7 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   },
   bannerCard: {
     width: 360,
-    maxWidth: "min(360, 90vw)",
+    maxWidth: "min(360px, 90vw)",
     padding: 0,
     position: "relative",
   },
