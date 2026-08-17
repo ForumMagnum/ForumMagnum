@@ -1230,6 +1230,7 @@ interface ModeratorIPAddressInfo {
 }
 
 interface PangramTextEvaluationResult {
+  analyzedText: string;
   pangramScore: number;
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
