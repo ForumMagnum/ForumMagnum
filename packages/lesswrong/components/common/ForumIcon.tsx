@@ -4,6 +4,7 @@ import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
+import TrophyIcon from "@heroicons/react/24/solid/TrophyIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
@@ -177,6 +178,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 export type ForumIconName =
   "VolumeUp" |
   "GivingHand" |
+  "Trophy" |
   "BookOpen" |
   "Bookmark" |
   "BookmarkBorder" |
@@ -310,6 +312,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
+    Trophy: TrophyIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -442,6 +445,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
+    Trophy: TrophyIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,

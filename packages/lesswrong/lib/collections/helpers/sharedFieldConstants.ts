@@ -12,7 +12,6 @@ export const DEFAULT_ID_FIELD = {
   },
 } satisfies CollectionFieldSpecification<CollectionNameString>;
 
-/** @deprecated There's no reason to add this field to new table schemas. */
 export const DEFAULT_SCHEMA_VERSION_FIELD = {
   database: {
     type: "DOUBLE PRECISION",

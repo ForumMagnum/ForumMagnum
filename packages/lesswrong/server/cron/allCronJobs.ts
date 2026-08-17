@@ -23,6 +23,7 @@ import { updateScoreActiveDocumentsCron, updateScoreInactiveDocumentsCron } from
 import { getAllPostgresViews } from "../postgresView";
 import { keywordAlertsCron } from "../keywordAlerts/keywordAlertsCron";
 import { pollNotificationsCron } from "../polls/pollNotificationsCron";
+import { commentAwardsCron } from "../collections/commentAwards/commentAwardsCron";
 
 export const allCronJobs: (CronJobSpec|null)[] = [
   cronClearOldCronHistories,
@@ -50,5 +51,6 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   updateScoreInactiveDocumentsCron,
   keywordAlertsCron,
   pollNotificationsCron,
+  commentAwardsCron,
   ...getAllPostgresViews().map((view) => view.getCronJob()),
 ];

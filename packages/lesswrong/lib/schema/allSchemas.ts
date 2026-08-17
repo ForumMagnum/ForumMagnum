@@ -20,6 +20,7 @@ import { default as ClientIds } from '../collections/clientIds/newSchema';
 import { default as Collections } from '../collections/collections/newSchema';
 import { default as CommentModeratorActions } from '../collections/commentModeratorActions/newSchema';
 import { default as Comments } from '../collections/comments/newSchema';
+import { default as CommentAwards } from '../collections/commentAwards/schema';
 import { default as Conversations } from '../collections/conversations/newSchema';
 import { default as CronHistories } from '../collections/cronHistories/newSchema';
 import { default as CurationEmails } from '../collections/curationEmails/newSchema';
@@ -110,7 +111,7 @@ if (isAnyTest || isCodegen) {
 
 export const allSchemas = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
-  CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
+  CommentModeratorActions, Comments, CommentAwards, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
   GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups,
   ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs,

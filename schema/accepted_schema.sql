@@ -238,6 +238,34 @@ CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USIN
 -- Index "idx_Collections_slug"
 CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");
 
+-- Table "CommentAwards"
+CREATE TABLE "CommentAwards" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "commentId" VARCHAR(27) NOT NULL,
+  "isDeleted" BOOL NOT NULL DEFAULT FALSE,
+  "notifiedAt" TIMESTAMPTZ,
+  "count" DOUBLE PRECISION NOT NULL DEFAULT 1
+);
+
+-- Index "idx_CommentAwards_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_schemaVersion" ON "CommentAwards" USING btree ("schemaVersion");
+
+-- Index "idx_CommentAwards_commentId"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_commentId" ON "CommentAwards" USING btree ("commentId");
+
+-- Index "idx_CommentAwards_commentId_isDeleted"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_commentId_isDeleted" ON "CommentAwards" USING btree ("commentId", "isDeleted");
+
+-- Index "idx_CommentAwards_userId"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_userId" ON "CommentAwards" USING btree ("userId");
+
+-- Index "idx_CommentAwards_userId_isDeleted"
+CREATE INDEX IF NOT EXISTS "idx_CommentAwards_userId_isDeleted" ON "CommentAwards" USING btree ("userId", "isDeleted");
+
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,

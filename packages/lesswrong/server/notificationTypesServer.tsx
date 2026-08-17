@@ -1068,6 +1068,42 @@ export const PollClosedNotification = createServerNotificationType({
   },
 });
 
+export const CommentAwardedNotification = createServerNotificationType({
+  name: "commentAwarded",
+  canCombineEmails: true,
+  emailSubject: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    if (notifications.length > 1) {
+      return `${notifications.length} of your comments have received awards`;
+    }
+    return "Your comment received an award";
+  },
+  emailBody: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    return (
+      <>
+        {notifications.map(({link, extraData}, i) => {
+          const amount = extraData?.count && extraData?.dollarsPerPrize
+            ? ` of $${extraData.count * extraData.dollarsPerPrize}`
+            : "";
+          return (
+            <p key={i}>
+              <a href={makeAbsolute(link || "#")}>Your comment</a>{" "}
+              has received an award{amount}
+            </p>
+          );
+        })}
+      </>
+    );
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -1108,6 +1144,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPingbackNotification,
   PollClosingSoonNotification,
   PollClosedNotification,
+  CommentAwardedNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 

@@ -7856,6 +7856,17 @@ fragment CollectionsPageFragment on Collection {
   noindex
 }
 
+fragment CommentAwardsDefaultFragment on CommentAward {
+  _id
+  schemaVersion
+  createdAt
+  legacyData
+  userId
+  commentId
+  isDeleted
+  count
+}
+
 fragment CommentEdit on Comment {
   ...CommentsList
   relevantTagIds

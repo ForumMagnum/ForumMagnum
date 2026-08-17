@@ -72,6 +72,7 @@ export const allViews = {
   CkEditorUserSessions: new CollectionViewSet('CkEditorUserSessions', {}),
   ClientIds: ClientIdsViews,
   Collections: CollectionsViews,
+  CommentAwards: new CollectionViewSet('CommentAwards', {}),
   Comments: CommentsViews,
   CommentModeratorActions: CommentModeratorActionsViews,
   Conversations: ConversationsViews,
