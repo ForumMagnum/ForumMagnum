@@ -14,6 +14,7 @@ import { escapeHtml } from "@/lib/utils/sanitize";
 import { scoreToColour } from "@/components/sunshineDashboard/helpers";
 import {
   DEFAULT_PANGRAM_MODEL,
+  PANGRAM_4_MIN_WORDS,
   PANGRAM_MAX_CHARS,
   PANGRAM_MODELS,
   pangramModelLabels,
@@ -53,6 +54,7 @@ const styles = defineStyles("PangramPage", (theme: ThemeType) => ({
   modelRow: {
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: 8,
     fontSize: 14,
     color: theme.palette.text.normal,
@@ -92,20 +94,15 @@ const styles = defineStyles("PangramPage", (theme: ThemeType) => ({
 const RUN_PANGRAM_ON_TEXT_MUTATION = gql(`
   mutation RunPangramOnText($text: String!, $model: PangramModel) {
     runPangramOnText(text: $text, model: $model) {
-      pangramApiVersion
+      analyzedText
       pangramScore
       pangramMaxScore
-      pangramFractionAi
-      pangramFractionAiAssisted
-      pangramFractionHuman
       pangramPrediction
       pangramWindowScores {
         text
         score
         startIndex
         endIndex
-        isHumanized
-        humanizerScore
       }
     }
   }
@@ -195,7 +192,7 @@ function renderParagraph(text: string, start: number, end: number, charScores: (
 }
 
 /**
- * Build highlighted HTML for the exact text we sent to Pangram, using the
+ * Build highlighted HTML for the normalized text returned by Pangram, using the
  * window `startIndex`/`endIndex` directly. This avoids the fuzzy word-based
  * matching that `highlightHtmlWithPangramWindowScores` has to do for posts
  * (where the markdown sent to Pangram doesn't line up cleanly with the
@@ -210,29 +207,13 @@ function buildHighlightedHtmlFromIndices(text: string, windows: PangramWindow[])
     .join("");
 }
 
-function formatFraction(fraction: number | null | undefined): string {
-  return fraction === null || fraction === undefined ? "n/a" : fraction.toFixed(2);
-}
-
 function parsePangramModel(value: string): PangramModel {
   return PANGRAM_MODELS.find(pangramModel => pangramModel === value) ?? DEFAULT_PANGRAM_MODEL;
 }
 
-/**
- * Pangram 4 reports, per window, whether the text looks like it was run
- * through a "humanizer". Summarize that across the whole submission, or return
- * null if the model we ran doesn't report it.
- */
-function getHumanizerSummary(windows: { isHumanized?: boolean | null, humanizerScore?: number | null }[]): string | null {
-  const windowsWithHumanizerData = windows.filter(w => w.isHumanized !== null && w.isHumanized !== undefined);
-  if (!windowsWithHumanizerData.length) return null;
-  const humanizedCount = windowsWithHumanizerData.filter(w => w.isHumanized).length;
-  const humanizerScores = windowsWithHumanizerData
-    .map(w => w.humanizerScore)
-    .filter((score): score is number => score !== null && score !== undefined);
-  const maxHumanizerScore = humanizerScores.length ? Math.max(...humanizerScores) : null;
-  const maxScoreText = maxHumanizerScore !== null ? `, max humanizer score: ${maxHumanizerScore.toFixed(2)}` : "";
-  return `Humanized windows: ${humanizedCount}/${windowsWithHumanizerData.length}${maxScoreText}`;
+function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
 const PangramPage = () => {
@@ -240,32 +221,30 @@ const PangramPage = () => {
   const currentUser = useCurrentUser();
   const [text, setText] = useState("");
   const [model, setModel] = useState<PangramModel>(DEFAULT_PANGRAM_MODEL);
-  const [submittedText, setSubmittedText] = useState<string | null>(null);
 
   const [runPangram, { data, loading, error, reset }] = useMutation(RUN_PANGRAM_ON_TEXT_MUTATION);
 
   const result = data?.runPangramOnText ?? null;
 
   const highlightedHtml = useMemo(() => {
-    if (!result || submittedText === null) return "";
-    return buildHighlightedHtmlFromIndices(submittedText, result.pangramWindowScores ?? []);
-  }, [result, submittedText]);
+    if (!result) return "";
+    return buildHighlightedHtmlFromIndices(result.analyzedText, result.pangramWindowScores ?? []);
+  }, [result]);
 
   if (!userIsAdminOrMod(currentUser)) {
     return <ErrorAccessDenied />;
   }
 
   const trimmed = text.trim();
-  const canSubmit = !!trimmed && !loading;
+  const analyzedWordCount = countWords(trimmed.slice(0, PANGRAM_MAX_CHARS));
+  const pangram4TextTooShort = model === "pangram4" && analyzedWordCount < PANGRAM_4_MIN_WORDS;
+  const canSubmit = !!trimmed && !loading && !pangram4TextTooShort;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     reset();
-    setSubmittedText(trimmed);
     await runPangram({ variables: { text: trimmed, model } });
   };
-
-  const humanizerSummary = result ? getHumanizerSummary(result.pangramWindowScores ?? []) : null;
 
   return <SingleColumnSection>
     <div className={classes.root}>
@@ -273,9 +252,9 @@ const PangramPage = () => {
         <h2 className={classes.header}>Pangram</h2>
         <div className={classes.intro}>
           Paste text below to run it through Pangram's AI-detection API. Results show the
-          average and max AI likelihood, the overall prediction, and the input text with
-          per-window scores highlighted. Pangram 4 is more accurate (and reports whether
-          text looks like it's been through a humanizer), but costs substantially more.
+          AI-involved fraction, max window score, overall prediction, and analyzed text with
+          per-window scores highlighted. Pangram 4 is more accurate, but costs substantially
+          more.
         </div>
       </div>
 
@@ -302,11 +281,17 @@ const PangramPage = () => {
         {model === "pangram4"
           ? <span className={classes.modelNote}>
               Pangram 4 is billed per 100 words rather than per 1000, so it costs roughly
-              ten times as much. It also runs asynchronously, so submissions can take up
-              to about 90 seconds.
+              ten times as much. It also runs asynchronously; this page stops waiting after
+              about 90 seconds.
             </span>
           : null}
       </div>
+
+      {pangram4TextTooShort
+        ? <div className={classes.modelNote}>
+            Pangram 4 requires at least {PANGRAM_4_MIN_WORDS} words; this text has {analyzedWordCount}.
+          </div>
+        : null}
 
       {trimmed.length > PANGRAM_MAX_CHARS
         ? <div className={classes.modelNote}>
@@ -329,23 +314,14 @@ const PangramPage = () => {
 
       {result ? <>
         <div className={classes.scoreLine}>
-          Pangram score average: <strong>{result.pangramScore.toFixed(2)}</strong>
+          AI-involved fraction: <strong>{result.pangramScore.toFixed(2)}</strong>
           {result.pangramMaxScore !== null && result.pangramMaxScore !== undefined
             ? <>, max: <strong>{result.pangramMaxScore.toFixed(2)}</strong></>
             : null}
           {result.pangramPrediction
             ? <>, prediction: <strong>{result.pangramPrediction}</strong></>
             : null}
-          {result.pangramApiVersion
-            ? <>, model: <strong>{result.pangramApiVersion}</strong></>
-            : null}
         </div>
-        <div className={classes.scoreLine}>
-          Fractions — AI: <strong>{formatFraction(result.pangramFractionAi)}</strong>,{' '}
-          AI-assisted: <strong>{formatFraction(result.pangramFractionAiAssisted)}</strong>,{' '}
-          human: <strong>{formatFraction(result.pangramFractionHuman)}</strong>
-        </div>
-        {humanizerSummary ? <div className={classes.scoreLine}>{humanizerSummary}</div> : null}
         <ContentStyles contentType="comment">
           <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
         </ContentStyles>

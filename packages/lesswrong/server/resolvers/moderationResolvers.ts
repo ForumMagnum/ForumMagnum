@@ -26,12 +26,9 @@ export const moderationGqlTypeDefs = gql`
   }
   
   type PangramTextEvaluationResult {
-    pangramApiVersion: String
+    analyzedText: String!
     pangramScore: Float!
     pangramMaxScore: Float
-    pangramFractionAi: Float
-    pangramFractionAiAssisted: Float
-    pangramFractionHuman: Float
     pangramPrediction: String
     pangramWindowScores: [PangramWindowScore!]
   }

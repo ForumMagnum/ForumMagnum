@@ -5076,10 +5076,7 @@ type PangramModel =
 
 type PangramTextEvaluationResult = {
   __typename?: 'PangramTextEvaluationResult';
-  pangramApiVersion?: Maybe<Scalars['String']['output']>;
-  pangramFractionAi?: Maybe<Scalars['Float']['output']>;
-  pangramFractionAiAssisted?: Maybe<Scalars['Float']['output']>;
-  pangramFractionHuman?: Maybe<Scalars['Float']['output']>;
+  analyzedText: Scalars['String']['output'];
   pangramMaxScore?: Maybe<Scalars['Float']['output']>;
   pangramPrediction?: Maybe<Scalars['String']['output']>;
   pangramScore: Scalars['Float']['output'];
@@ -5090,8 +5087,6 @@ type PangramWindowScore = {
   __typename?: 'PangramWindowScore';
   confidence?: Maybe<Scalars['String']['output']>;
   endIndex: Scalars['Int']['output'];
-  humanizerScore?: Maybe<Scalars['Float']['output']>;
-  isHumanized?: Maybe<Scalars['Boolean']['output']>;
   label?: Maybe<Scalars['String']['output']>;
   score: Scalars['Float']['output'];
   startIndex: Scalars['Int']['output'];
@@ -12352,9 +12347,9 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
-type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number, isHumanized: boolean | null, humanizerScore: number | null };
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
 
-type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', pangramApiVersion: string | null, pangramScore: number, pangramMaxScore: number | null, pangramFractionAi: number | null, pangramFractionAiAssisted: number | null, pangramFractionHuman: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', analyzedText: string, pangramScore: number, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
 
 type RunPangramOnTextMutation_Mutation = { __typename?: 'Mutation', runPangramOnText: RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult };
 

@@ -47,9 +47,9 @@ interface DbAutomatedContentEvaluation extends DbObject {
   pangramFractionAiAssisted: number | null
   pangramFractionHuman: number | null
   pangramMaxScore: number | null
-  pangramPrediction: "AI" | "Human" | "Mixed" | null
+  pangramPrediction: "AI" | "AI-Assisted" | "Human" | "Mixed" | null
   pangramScore: number | null
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; isHumanized?: boolean; humanizerScore?: number; }[] | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null

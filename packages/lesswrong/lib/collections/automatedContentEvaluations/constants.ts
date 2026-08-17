@@ -7,6 +7,9 @@ export const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
  */
 export const PANGRAM_MAX_CHARS = 30_000;
 
+// Pangram 4 is designed for natural-language prose of at least 50 words.
+export const PANGRAM_4_MIN_WORDS = 50;
+
 /**
  * Which Pangram model to run text through. `pangram3` is the cheap synchronous
  * v3 endpoint that all of our automated checks use; `pangram4` is the newer,
