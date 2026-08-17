@@ -26,6 +26,25 @@ export type ForumEventStickerData = {
   data: ForumEventSticker[]
 }
 
+/** An answer option for a multiple-choice poll. */
+export type McPollAnswer = { _id: string; text: string };
+
+/** A single user's vote in a multiple-choice poll (one or more answer ids). */
+export type McPollVote = { answerIds: string[] };
+
+/**
+ * The parsed contents of a multiple-choice poll's `publicData` (see
+ * `getMcPollPublicData`), stored with eventFormat "POLL" so no schema change is
+ * needed: `answers`/`multiSelect` are stored under those keys, and each user's
+ * vote is stored at the top level keyed by userId (exactly like the slider) —
+ * `votes` here is that per-user map, gathered for convenience.
+ */
+export type McPollPublicData = {
+  answers: McPollAnswer[];
+  multiSelect: boolean;
+  votes: Record<string, McPollVote>;
+}
+
 // Should match ForumEventCommentMetadataSchema
 export type ForumEventCommentMetadata = {
   eventFormat: ForumEventFormat
@@ -38,6 +57,15 @@ export type ForumEventCommentMetadata = {
     /** _id of the revision of the question when the comment was published */
     pollQuestionWhenPublished?: string | null
     /** The content that is prefilled into the comment box after voting */
+    commentPrompt?: string | null
+  } | null
+  mcPoll?: {
+    /** The answer ids the user had selected when the comment was published */
+    answerIdsWhenPublished: string[]
+    /** The user's latest selection, if it has changed since publishing */
+    latestAnswerIds?: string[] | null
+    /** The content that is prefilled into the comment box after voting. Read
+     * server-side to reject comments containing only the prefilled prompt. */
     commentPrompt?: string | null
   } | null
 }
@@ -90,6 +118,31 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
         type: String,
         optional: true,
         nullable: true
+      },
+      commentPrompt: {
+        type: String,
+        optional: true,
+        nullable: true
+      }
+    }),
+    optional: true,
+    nullable: true
+  },
+  mcPoll: {
+    type: new SimpleSchema({
+      answerIdsWhenPublished: {
+        type: Array,
+      },
+      'answerIdsWhenPublished.$': {
+        type: String,
+      },
+      latestAnswerIds: {
+        type: Array,
+        optional: true,
+        nullable: true,
+      },
+      'latestAnswerIds.$': {
+        type: String,
       },
       commentPrompt: {
         type: String,

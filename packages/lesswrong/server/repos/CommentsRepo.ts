@@ -431,6 +431,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [forumEventId, latestVote, userId]);
   }
 
+  async setLatestMcPollVote({ forumEventId, latestAnswerIds, userId }: { forumEventId: string; latestAnswerIds: string[] | null; userId: string; }): Promise<void> {
+    await this.getRawDb().none(`
+      -- CommentsRepo.setLatestMcPollVote
+      UPDATE "Comments"
+      SET "forumEventMetadata" = jsonb_set("forumEventMetadata", '{mcPoll,latestAnswerIds}',
+        CASE
+          WHEN $2 IS NULL THEN 'null'::jsonb
+          ELSE $2::jsonb
+        END)
+      WHERE "forumEventId" = $1 AND "userId" = $3
+    `, [forumEventId, latestAnswerIds === null ? null : JSON.stringify(latestAnswerIds), userId]);
+  }
+
   /**
    * Get comments for the UltraFeed
    */

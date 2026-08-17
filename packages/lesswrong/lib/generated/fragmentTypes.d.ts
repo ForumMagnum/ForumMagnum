@@ -358,6 +358,12 @@ interface CommentsDefaultFragment { // fragment on Comments
       pollQuestionWhenPublished: string | null,
       commentPrompt: string | null,
     } | null,
+    mcPoll: {
+      answerIdsWhenPublished: Array<string>,
+      latestAnswerIds: Array<string> | null,
+      pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
+    } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number|null,
@@ -553,6 +559,12 @@ interface CommentsList { // fragment on Comments
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
+    } | null,
+    mcPoll: {
+      answerIdsWhenPublished: Array<string>,
+      latestAnswerIds: Array<string> | null,
       pollQuestionWhenPublished: string | null,
       commentPrompt: string | null,
     } | null,

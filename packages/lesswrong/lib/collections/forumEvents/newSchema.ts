@@ -474,7 +474,14 @@ const schema = {
     graphql: {
       outputType: "Int!",
       canRead: ["guests"],
-      resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
+      resolver: ({ publicData }) => {
+        if (!publicData) return 0;
+        // Both poll formats store each user's vote at the top level of
+        // publicData keyed by userId; multiple-choice polls also keep their
+        // answer options and mode under these reserved keys, which aren't votes.
+        const reservedKeys = new Set(["answers", "multiSelect"]);
+        return Object.keys(publicData).filter((key) => !reservedKeys.has(key)).length;
+      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"ForumEvents">>;
