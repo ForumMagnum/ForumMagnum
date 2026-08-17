@@ -153,7 +153,7 @@ const schema = {
       outputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       validation: {
-        allowedValues: ["AI", "Human", "Mixed"],
+        allowedValues: ["AI", "AI-Assisted", "Human", "Mixed"],
       },
     },
   },
