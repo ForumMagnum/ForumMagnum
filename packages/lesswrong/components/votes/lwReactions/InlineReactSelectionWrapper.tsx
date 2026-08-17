@@ -58,17 +58,26 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelecti
 }) => {
   const classes = useStyles(styles);
   const commentTextRef = useRef<HTMLDivElement|null>(null);
-  const popupRef = useRef<HTMLDivElement|null>(null);
+  const popupRef = useRef<HTMLElement|null>(null);
   const [quote, setQuote] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const [yOffset, setYOffset] = useState<number>(0);
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
-  const detectSelection = useCallback((e: MouseEvent): void => {
+  const detectSelection = useCallback((event: Event): void => {
     function clearAll() {
       setAnchorEl(null);
       setQuote("")
       setDisabledButton(false)
       setSelection?.()
+    }
+
+    const popup = popupRef.current;
+    const selectionChangeStartedInPopup = event.target instanceof Node && popup?.contains(event.target);
+    const focusIsInPopup = popup?.contains(document.activeElement);
+    // Firefox fires selectionchange when the caret moves within text inputs. Keep
+    // the original page selection active while the reaction search box is used.
+    if (selectionChangeStartedInPopup || focusIsInPopup) {
+      return;
     }
   
     const selection = window.getSelection()
