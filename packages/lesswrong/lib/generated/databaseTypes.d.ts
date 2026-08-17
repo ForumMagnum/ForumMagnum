@@ -168,6 +168,19 @@ interface DbCollection extends DbObject {
   userId: string
 }
 
+type CommentAwardsCollection = CollectionBase<"CommentAwards">;
+
+interface DbCommentAward extends DbObject {
+  __collectionName?: "CommentAwards"
+  commentId: string
+  count: number
+  createdAt: Date
+  isDeleted: boolean
+  legacyData: any | null
+  notifiedAt: Date | null
+  userId: string
+}
+
 type CommentModeratorActionsCollection = CollectionBase<"CommentModeratorActions">;
 
 interface DbCommentModeratorAction extends DbObject {
@@ -2361,6 +2374,7 @@ interface CollectionsByName {
   CkEditorUserSessions: CkEditorUserSessionsCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentAwards: CommentAwardsCollection
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -2454,6 +2468,7 @@ interface ObjectsByCollectionName {
   CkEditorUserSessions: DbCkEditorUserSession
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentAwards: DbCommentAward
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
@@ -2547,6 +2562,7 @@ interface ObjectsByTypeName {
   CkEditorUserSession: DbCkEditorUserSession
   ClientId: DbClientId
   Collection: DbCollection
+  CommentAward: DbCommentAward
   CommentModeratorAction: DbCommentModeratorAction
   Comment: DbComment
   Conversation: DbConversation

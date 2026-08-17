@@ -250,6 +250,19 @@ export const CommentsDefaultFragment = `
   }
 `;
 
+export const CommentAwardsDefaultFragment = `
+  fragment CommentAwardsDefaultFragment on CommentAward {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    commentId
+    isDeleted
+    count
+  }
+`;
+
 export const ConversationsDefaultFragment = `
   fragment ConversationsDefaultFragment on Conversation {
     _id

@@ -7232,6 +7232,7 @@ interface CreateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentAwards: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;
@@ -7322,6 +7323,7 @@ interface UpdateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentAwards: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;

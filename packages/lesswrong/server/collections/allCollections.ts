@@ -19,6 +19,7 @@ import { ClientIds } from './clientIds/collection';
 import { Collections } from './collections/collection';
 import { CommentModeratorActions } from './commentModeratorActions/collection';
 import { Comments } from './comments/collection';
+import { CommentAwards } from './commentAwards/collection';
 import { Conversations } from './conversations/collection';
 import { CronHistories } from './cronHistories/collection';
 import { CurationEmails } from './curationEmails/collection';
@@ -115,7 +116,7 @@ function getTestCollectionsByTypeName() {
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
-  CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
+  CommentModeratorActions, Comments, CommentAwards, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
   GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups,
   ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs,

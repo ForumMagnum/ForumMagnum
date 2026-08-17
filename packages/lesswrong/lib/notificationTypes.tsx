@@ -1039,6 +1039,30 @@ export const PollClosedNotification = createNotificationType({
   },
 })
 
+export const CommentAwardedNotification = createNotificationType({
+  name: "commentAwarded",
+  userSettingField: "notificationRepliesToMyComments",
+  async getMessage({extraData}: GetMessageProps) {
+    const amount = extraData?.count && extraData?.dollarsPerPrize
+      ? ` of $${extraData.count * extraData.dollarsPerPrize}`
+      : "";
+    return `Your comment received an award${amount}`;
+  },
+  getIcon() {
+    return <ForumIcon icon="Trophy" style={iconStyles} />
+  },
+  Display: ({notification: {link, extraData}}) => {
+    const amount = extraData?.count && extraData?.dollarsPerPrize
+      ? ` of $${extraData.count * extraData.dollarsPerPrize}`
+      : "";
+    return (
+      <>
+        <Link to={link}>Your comment</Link> received an award{amount}
+      </>
+    );
+  },
+})
+
 const notificationTypesArray: NotificationType[] = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -1083,6 +1107,7 @@ const notificationTypesArray: NotificationType[] = [
   NewPingbackNotification,
   PollClosingSoonNotification,
   PollClosedNotification,
+  CommentAwardedNotification,
 ];
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 

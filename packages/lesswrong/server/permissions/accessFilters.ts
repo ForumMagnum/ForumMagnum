@@ -11,7 +11,7 @@ import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan
 import _ from "underscore";
 
 
-const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
+const denyAccess: CheckAccessFunction<CollectionNameString> = async () => false;
 
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 
@@ -389,6 +389,7 @@ const accessFilters = {
   CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
   Collections: allowAccess,
+  CommentAwards: denyAccess,
   Comments: commentCheckAccess,
   CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,
