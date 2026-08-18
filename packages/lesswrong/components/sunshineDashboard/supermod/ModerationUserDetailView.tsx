@@ -8,6 +8,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import { useAutoRescoreMissingLlmScores } from './useRerunLlmCheck';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -69,6 +70,8 @@ const ModerationUserDetailView = ({
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
+
+  useAutoRescoreMissingLlmScores(posts, dispatch);
 
   const setSidebarTab = useCallback(
     (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
