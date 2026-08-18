@@ -32,3 +32,25 @@ export const postCommentsThreadQuery = gql(`
   }
 `);
 
+export const linkedPostCommentQuery = gql(`
+  query linkedPostCommentQuery($documentId: String!) {
+    comment(selector: { _id: $documentId }) {
+      result {
+        _id
+        postId
+        topLevelCommentId
+      }
+    }
+  }
+`);
+
+export const linkedPostCommentThreadQuery = gql(`
+  query linkedPostCommentThreadQuery($topLevelCommentId: String!, $limit: Int) {
+    comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {
+      results {
+        ...CommentsList
+      }
+    }
+  }
+`);
+

@@ -16,7 +16,7 @@ import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
-import { unflattenComments } from '../../../lib/utils/unflatten';
+import { appendMissingComments, unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -73,10 +73,16 @@ import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
-import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
+import {
+  CommentsListMultiQuery,
+  linkedPostCommentQuery,
+  linkedPostCommentThreadQuery,
+  postCommentsThreadQuery,
+} from '../queries';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
+const MAX_LINKED_COMMENT_THREAD_QUERIED = 1000
 const emptyArray: readonly any[] = [];
 
 // Also used in PostsCompareRevisions
@@ -432,6 +438,21 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
+  const { data: linkedCommentData } = useQuery(linkedPostCommentQuery, {
+    variables: { documentId: linkedCommentId ?? "" },
+    skip: !linkedCommentId,
+  });
+  const linkedComment = linkedCommentData?.comment?.result;
+  const linkedTopLevelCommentId = linkedComment?.postId === post._id
+    ? (linkedComment.topLevelCommentId ?? linkedComment._id)
+    : undefined;
+  const { data: linkedCommentThreadData } = useQuery(linkedPostCommentThreadQuery, {
+    variables: {
+      topLevelCommentId: linkedTopLevelCommentId ?? "",
+      limit: MAX_LINKED_COMMENT_THREAD_QUERIED,
+    },
+    skip: !linkedTopLevelCommentId,
+  });
 
   const description = fullPost ? getPostDescription(fullPost) : null
 
@@ -469,7 +490,12 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   });
 
   const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
-  const rawComments = rawData?.comments?.results;
+  const pageComments = rawData?.comments?.results;
+  const linkedThreadComments = linkedCommentThreadData?.comments?.results;
+  const rawComments = useMemo(
+    () => appendMissingComments(pageComments ?? [], linkedThreadComments ?? []),
+    [linkedThreadComments, pageComments],
+  );
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them

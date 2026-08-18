@@ -66,3 +66,14 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
 export function flattenCommentBranch<T extends ThreadableCommentType>(branch: CommentTreeNode<T>): T[] {
   return [branch.item, ...branch.children.flatMap(flattenCommentBranch)];
 }
+
+export function appendMissingComments<T extends ThreadableCommentType>(
+  comments: readonly T[],
+  requiredComments: readonly T[],
+): T[] {
+  const commentIds = new Set(comments.map(comment => comment._id));
+  return [
+    ...comments,
+    ...requiredComments.filter(comment => !commentIds.has(comment._id)),
+  ];
+}

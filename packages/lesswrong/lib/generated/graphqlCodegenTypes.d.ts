@@ -17838,6 +17838,38 @@ type postCommentsThreadQueryQueryVariables = Exact<{
 
 type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
 
+type linkedPostCommentQueryQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, postId: string | null, topLevelCommentId: string | null };
+
+type linkedPostCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: linkedPostCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type linkedPostCommentQueryQuery_Query = { __typename?: 'Query', comment: linkedPostCommentQueryQuery_comment_SingleCommentOutput | null };
+
+
+type linkedPostCommentQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type linkedPostCommentQueryQuery = linkedPostCommentQueryQuery_Query;
+
+type linkedPostCommentThreadQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type linkedPostCommentThreadQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<linkedPostCommentThreadQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type linkedPostCommentThreadQueryQuery_Query = { __typename?: 'Query', comments: linkedPostCommentThreadQueryQuery_comments_MultiCommentOutput | null };
+
+
+type linkedPostCommentThreadQueryQueryVariables = Exact<{
+  topLevelCommentId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type linkedPostCommentThreadQueryQuery = linkedPostCommentThreadQueryQuery_Query;
+
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
