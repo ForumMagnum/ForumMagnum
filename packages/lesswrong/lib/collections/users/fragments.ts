@@ -352,6 +352,8 @@ export const SunshineUsersList = gql(`
     reviewedAt
     signUpReCaptchaRating
     mapLocation
+    mapMarkerText
+    htmlMapMarkerText
     needsReview
     sunshineNotes
     sunshineFlagged
