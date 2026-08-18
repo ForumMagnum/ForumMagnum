@@ -94,7 +94,7 @@ export function parseModeratorNoteTimestamp(timestamp: string | null, now: Date)
   const yearless = moment.tz(timestamp, YEARLESS_FORMATS, true, SIGNATURE_TIMEZONE);
   if (!yearless.isValid()) return null;
   yearless.year(moment.tz(now, SIGNATURE_TIMEZONE).year());
-  if (yearless.toDate().getTime() > now.getTime() + 24 * 60 * 60 * 1000) {
+  if (yearless.toDate().getTime() > now.getTime() + (24 * 60 * 60 * 1000)) {
     yearless.subtract(1, 'year');
   }
   return yearless.toDate();
