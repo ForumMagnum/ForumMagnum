@@ -8,6 +8,7 @@ import ModerationUserBioColumn from './ModerationUserBioColumn';
 import ModeratorNotes from './ModeratorNotes';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
+import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
   header: {
@@ -36,11 +37,13 @@ const ModerationUserInfoColumn = ({
   posts,
   comments,
   currentUser,
+  dispatch,
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
   comments: CommentsListWithParentMetadata[];
   currentUser: UsersCurrent;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
@@ -49,7 +52,7 @@ const ModerationUserInfoColumn = ({
   return (
     <div className={classes.header}>
       <ModerationUserIdentityColumn user={user} likelyReviewTrigger={likelyReviewTrigger} />
-      <ModeratorNotes user={user} currentUser={currentUser} />
+      <ModeratorNotes user={user} currentUser={currentUser} dispatch={dispatch} />
 
       <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
       <UserAutoRateLimitsDisplay user={user} showKarmaMeta={true} />
