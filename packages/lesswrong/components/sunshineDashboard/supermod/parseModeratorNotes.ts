@@ -1,12 +1,8 @@
 /**
- * Moderator notes (`user.sunshineNotes`) are a single freeform text field which
- * we and moderators have, by convention, written newest-entry-first, with each
- * entry starting with a signature line like `Aug 15, 3:42 PM, Raemon: `
- * (see `getSignatureWithNote`). This parses that text back into entries, so the
- * supermod UI can display the signature separately from the note body.
- *
- * Text before the first recognized signature (or notes written in some older
- * format) becomes a single entry with no timestamp/author.
+ * `user.sunshineNotes` is one freeform text field that every writer prepends to, so it
+ * reads newest-first, each entry opening with a signature like `Aug 15, 3:42 PM, Raemon:`
+ * (see `getSignatureWithNote`). This parses it back into entries for the supermod UI.
+ * Text before the first recognized signature becomes one entry with no timestamp/author.
  */
 
 import moment from '@/lib/moment-timezone';
@@ -14,7 +10,7 @@ import moment from '@/lib/moment-timezone';
 export interface ModeratorNoteEntry {
   /** eg "Aug 15, 3:42 PM"; null for text that had no recognizable signature */
   timestamp: string | null;
-  /** `timestamp` resolved to a Date, or null if it wasn't in a format we recognize */
+  /** null if `timestamp` wasn't in a format we recognize */
   date: Date | null;
   author: string | null;
   body: string;
@@ -26,21 +22,18 @@ interface ModeratorNoteEntryDraft {
   bodyLines: string[];
 }
 
-// Either "Aug 15" (optionally with a year) or "8/15/2025", optionally followed
-// by a time. Old notes were written by hand or by earlier signature formats, so
-// this is deliberately looser than what `getSignature` currently produces.
+// Looser than what `getSignature` writes, since older notes were signed by hand or
+// by earlier formats. Validity is left to the strict moment parse in `resolveTimestamp`.
 const DATE_PATTERN = String.raw`(?:[A-Z][a-z]{2}\s+\d{1,2}(?:,\s*\d{4})?|\d{1,2}\/\d{1,2}\/\d{2,4})(?:,?\s*\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?`;
+// The author cap is arbitrary; it stops a prose line opening with a date matching here.
 const SIGNATURE_LINE = new RegExp(String.raw`^(${DATE_PATTERN}),\s*([^:\n]{1,60}?)\s*:[ \t]*(.*)$`);
 
-// `getSignature` writes timestamps in Pacific time, and most legacy notes were
-// also written by moderators in that timezone, so that's our best guess for how
-// to interpret a signature that carries no timezone of its own.
+// Signatures carry no timezone of their own; `getSignature` stamps them in Pacific.
 const SIGNATURE_TIMEZONE = 'America/Los_Angeles';
 
 const TIME_FORMATS = ['h:mm A', 'h:mm:ss A', 'H:mm', 'H:mm:ss'];
 
-// Commas are stripped before parsing, so the formats only need to cover which
-// date and time formats we accept, not how they were punctuated.
+// Commas are stripped before parsing, so formats needn't cover every punctuation variant.
 function withTimes(dateFormats: string[]) {
   return dateFormats.flatMap(date => [date, ...TIME_FORMATS.map(time => `${date} ${time}`)]);
 }
@@ -59,11 +52,8 @@ function finishDraft(draft: ModeratorNoteEntryDraft | null): Omit<ModeratorNoteE
 }
 
 /**
- * Resolve a signature timestamp against an upper bound: notes are written
- * newest-first, so an entry can't be newer than the entry above it (or, for the
- * first entry, than now). Most signatures omit the year, in which case we pick
- * the most recent year that keeps the entry at or below that bound, so that
- * years-old notes don't render as if they were written this year.
+ * `getSignature` omits the year, so it has to be inferred: entries are newest-first, so
+ * an entry is no newer than the one above it. Pick the latest year that respects that.
  */
 function resolveTimestamp(timestamp: string | null, noLaterThan: Date): Date | null {
   if (!timestamp) return null;
@@ -101,8 +91,8 @@ export function parseModeratorNotes(notes: string | null | undefined, now: Date)
   const lastEntry = finishDraft(draft);
   if (lastEntry) parsedEntries.push(lastEntry);
 
-  // A day of slack, since a signature is written in Pacific time but might be
-  // read from a clock that's slightly behind, or in an earlier timezone.
+  // Generous slack for clock skew: this bounds only the newest entry, and guessing it
+  // too tight dates the note a whole year early.
   let noLaterThan = new Date(now.getTime() + (24 * 60 * 60 * 1000));
   return parsedEntries.map(entry => {
     const date = resolveTimestamp(entry.timestamp, noLaterThan);

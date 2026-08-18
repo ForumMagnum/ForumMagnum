@@ -110,7 +110,7 @@ const ModeratorNotes = ({
   }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, updateUser]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // A bare Escape blurs the composer, rather than closing the whole detail view and losing the draft
+    // Escape blurs the composer instead of closing the detail view and losing the draft
     if (blurEditorOnEscape(e)) return;
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
@@ -139,7 +139,7 @@ const ModeratorNotes = ({
           <React.Fragment key={index}>
             <div className={classes.entryBody}>{entry.body}</div>
             <div className={classes.entryAuthor}>{entry.author}</div>
-            {/* Entries with no recognizable date still need to occupy the column, to keep the grid aligned */}
+            {/* Rendered even when empty, to keep the grid columns aligned */}
             <div className={classes.entryDate}>
               {entry.date ? <FormatDate date={entry.date} /> : entry.timestamp}
             </div>
