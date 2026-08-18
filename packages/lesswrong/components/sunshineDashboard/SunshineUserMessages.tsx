@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -19,7 +19,7 @@ import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
-import GroupedModerationTemplateList from './GroupedModerationTemplateList';
+import GroupedModerationTemplateList, { getModerationTemplatesQueryVariables } from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
 import RejectContentPanel from './supermod/RejectContentPanel';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
@@ -33,6 +33,18 @@ const ConversationsListMultiQuery = gql(`
     conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...ConversationsList
+      }
+      totalCount
+    }
+  }
+`);
+
+// Same variables as the reject panel's list, so repeat opens are served from cache
+const RejectionTemplatesQuery = gql(`
+  query rejectionTemplatesSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
       }
       totalCount
     }
@@ -149,10 +161,12 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   dmTab: {
     flexShrink: 0,
   },
+  // Right-aligned when the Reject tab is present; a lone DM tab stays flush left
+  dmTabPushedRight: {
+    marginLeft: 'auto',
+  },
   rejectTab: {
     flexShrink: 1,
-    // Pushed to the right edge so the tabs read as separate choices
-    marginLeft: 'auto',
   },
   activeTab: {
     color: theme.palette.grey[900],
@@ -169,6 +183,26 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   // Deselected composers stay mounted (so drafts survive), just hidden
   hiddenTabContent: {
     display: 'none',
+  },
+  rejectShortcutsRow: {
+    ...theme.typography.commentStyle,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    marginBottom: 8,
+  },
+  rejectShortcut: {
+    fontSize: 13,
+    fontWeight: 600,
+    padding: '4px 8px',
+    borderRadius: 4,
+    // Matches the suggested-template outline in ModerationTemplateSunshineItem
+    outline: theme.palette.greyBorder("1px", 0.8),
+    outlineOffset: -1,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.05),
+    },
   },
 }));
 
@@ -235,6 +269,24 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const showRejectTab = !!focusedContent;
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
   const dmTabActive = sidebarTab === 'dm';
+
+  const { data: rejectionTemplatesData } = useQuery(RejectionTemplatesQuery, {
+    variables: getModerationTemplatesQueryVariables("Rejections"),
+    skip: !showRejectTab,
+  });
+  const highlightedRejectionTemplates = (rejectionTemplatesData?.moderationTemplates?.results ?? [])
+    .filter(template => highlightedTemplateNames.has(template.name));
+
+  const rejectToggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
+  const registerRejectToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
+    rejectToggleTemplateRef.current = fn;
+  }, []);
+
+  const handleRejectShortcutClick = (template: ModerationTemplateFragment) => {
+    setSidebarTab('reject');
+    // Works synchronously because the reject panel stays mounted while hidden
+    rejectToggleTemplateRef.current(template);
+  };
 
   // Start the conversation on tab click, not on a second click on the prompt.
   // Clicking the already-active tab closes the composer.
@@ -385,14 +437,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </div>}
 
     <div className={classes.tabs}>
-      <div
-        className={classNames(classes.tab, classes.dmTab)}
-        onClick={handleSelectDmTab}
-      >
-        <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
-          Send DM
-        </span>
-      </div>
       {showRejectTab && <div
         className={classNames(classes.tab, classes.rejectTab, { [classes.disabledTab]: !canReject })}
         onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
@@ -403,14 +447,45 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           <KeystrokeDisplay keystroke="R" withMargin />
         </span>
       </div>}
+      <div
+        className={classNames(classes.tab, classes.dmTab, { [classes.dmTabPushedRight]: showRejectTab })}
+        onClick={handleSelectDmTab}
+      >
+        <span className={classNames(classes.tabLabel, { [classes.activeTab]: dmTabActive })}>
+          Send DM
+        </span>
+      </div>
     </div>
+
+    {/* Rule-suggested rejection reasons stay visible while the reject tab is closed;
+        clicking one opens the tab with that reason already inserted */}
+    {showRejectTab && canReject && !rejectTabActive && highlightedRejectionTemplates.length > 0 && (
+      <div className={classes.rejectShortcutsRow}>
+        {highlightedRejectionTemplates.map(template => (
+          <div
+            key={template._id}
+            className={classes.rejectShortcut}
+            onClick={() => handleRejectShortcutClick(template)}
+          >
+            {template.name}
+          </div>
+        ))}
+      </div>
+    )}
 
     <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
       {dmTabContents}
     </div>
     {canReject && focusedContent && (
       <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
+        <RejectContentPanel
+          user={user}
+          focusedContent={focusedContent}
+          active={rejectTabActive}
+          onEscape={handleCloseSidebarTab}
+          highlightedTemplateNames={highlightedTemplateNames}
+          onRegisterToggleTemplate={registerRejectToggleTemplate}
+        />
       </div>
     )}
   </div>;

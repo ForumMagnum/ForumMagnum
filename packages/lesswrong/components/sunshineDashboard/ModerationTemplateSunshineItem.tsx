@@ -82,22 +82,18 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
-  // Defined before `suggested` so a selected-and-suggested row keeps the suggested
-  // background and only picks up the outline
+  // Defined before `suggested`, whose stronger outline wins when a row has both
   selected: {
     outline: theme.palette.greyBorder("1px", 0.3),
     backgroundColor: theme.palette.greyAlpha(0.1),
   },
   suggested: {
-    backgroundColor: theme.palette.grey[900],
-    color: theme.palette.grey[100],
+    outline: theme.palette.greyBorder("1px", 0.8),
+    outlineOffset: -1,
     fontWeight: 600,
     marginBottom: 1,
     marginTop: 1,
     borderRadius: 4,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[800],
-    },
   },
   hovercard: {
     padding: 16,
