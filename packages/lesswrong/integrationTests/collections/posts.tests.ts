@@ -3,11 +3,78 @@ import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
+  createDummyUserRateLimit,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
   waitUntilPgQueriesFinished,
 } from '../utils'
 import Posts from '../../server/collections/posts/collection';
+import UserRateLimits from '../../server/collections/userRateLimits/collection';
+import moment from 'moment';
+import { computeContextFromUser } from '../../server/vulcan-lib/apollo-server/context';
+import { rateLimitDateWhenUserNextAbleToPost } from '../../server/rateLimitUtils';
+
+const CreateRateLimitedPostMutation = `
+  mutation CreateRateLimitedPost($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        _id
+      }
+    }
+  }
+`;
+
+function createRateLimitedPost(user: DbUser, title: string) {
+  return runQuery(CreateRateLimitedPostMutation, {
+    data: {
+      title,
+      contents: {
+        originalContents: {
+          type: 'markdown',
+          data: 'Test post contents',
+        },
+      },
+    },
+  }, {currentUser: user});
+}
+
+describe('moderator-applied overlapping user post rate limits', () => {
+  const graphQLErrors = catchGraphQLErrors();
+
+  it('enforces all active limits and falls back to the continuing limit when the zero-action limit ends', async () => {
+    const user = await createDummyUser();
+    const zeroActionRateLimitEndsAt = moment().add(4, 'weeks').toDate();
+    const zeroActionRateLimit = await createDummyUserRateLimit(user, {
+      userId: user._id,
+      type: 'allPosts',
+      intervalUnit: 'weeks',
+      intervalLength: 1,
+      actionsPerInterval: 0,
+      endedAt: zeroActionRateLimitEndsAt,
+    });
+    await createDummyUserRateLimit(user, {
+      userId: user._id,
+      type: 'allPosts',
+      intervalUnit: 'weeks',
+      intervalLength: 4,
+      actionsPerInterval: 1,
+      endedAt: moment().add(16, 'weeks').toDate(),
+    });
+
+    const context = await computeContextFromUser({user, isSSR: false});
+    const activeRateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
+    expect(activeRateLimit?.nextEligible).toEqual(zeroActionRateLimitEndsAt);
+    await expect(createRateLimitedPost(user, 'Blocked by zero-action rate limit')).rejects.toThrow('Rate limit: You cannot post');
+
+    await UserRateLimits.rawUpdateOne(zeroActionRateLimit._id, {
+      $set: {endedAt: moment().subtract(1, 'second').toDate()},
+    });
+
+    await createRateLimitedPost(user, 'Allowed after zero-action rate limit');
+    await expect(createRateLimitedPost(user, 'Blocked by continuing rate limit')).rejects.toThrow('Rate limit: You cannot post');
+    graphQLErrors.getErrors();
+  });
+});
 
 describe('PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
