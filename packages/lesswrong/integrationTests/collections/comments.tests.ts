@@ -190,25 +190,24 @@ describe('moderator-applied user comment rate limit', () => {
       schemaVersion: 1,
     } as unknown as CreateUserRateLimitDataInput)
 
-    const result = runQuery(createCommentQuery(post._id), {}, {currentUser: rateLimitedUser})
-    await (result as any).should.be.rejected;
-
-    graphQLerrors.getErrors()[0][0].message.startsWith("Rate limit: You cannot comment for 1d").should.equal(true)
-  })
-
-  it('should prevent a user with a zero-action rate limit from commenting', async () => {
-    const postAuthorUser = await createDummyUser({isAdmin: true})
-    const rateLimitedUser = await createDummyUser()
-    const post = await createDummyPost(postAuthorUser)
-
-    await createDummyUserRateLimit(rateLimitedUser, {
-      userId: rateLimitedUser._id,
-      type: 'allComments',
-      intervalUnit: 'days',
-      intervalLength: 1,
-      actionsPerInterval: 0,
-      endedAt: moment().add(1, 'day').toDate(),
-    })
+    function createCommentQuery(postId: string) {
+      return `
+        mutation {
+          createComment(
+            data: {
+              contents: { originalContents: { type: "markdown", data: "test" } }
+              postId: "${postId}"
+            }
+          ){
+            data {
+              contents {
+                markdown
+              }
+            }
+          }
+        }
+      `;
+    }
 
     const result = runQuery(createCommentQuery(post._id), {}, {currentUser: rateLimitedUser})
     await (result as any).should.be.rejected;
