@@ -47,7 +47,7 @@ const pangramResponseSchema = z.object({
 });
 
 const pangramTaskSubmissionSchema = z.object({
-  task_id: z.string(),
+  task_id: z.string().min(1),
 });
 
 const pangramTaskStageSchema = z.object({
@@ -91,31 +91,25 @@ export interface PangramEvaluationResult {
   }[] | null;
 }
 
-async function fetchPangramJson(url: string, key: string, deadline: number, body?: unknown): Promise<unknown> {
+async function fetchPangramResponse(url: string, key: string, deadline: number, body?: unknown): Promise<Response> {
   const remainingTime = deadline - Date.now();
   if (remainingTime <= 0) {
     throw new Error("Pangram API request timed out");
   }
 
   const requestTimeout = Math.min(PANGRAM_REQUEST_TIMEOUT_MS, remainingTime);
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: body === undefined ? 'GET' : 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-      },
-      signal: AbortSignal.timeout(requestTimeout),
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
-  } catch (e) {
-    const parsedError = z.object({ message: z.string() }).safeParse(e);
-    const error = new Error(`Pangram API request failed: ${parsedError.success ? parsedError.data.message : 'Unknown error'}`);
-    captureException(error);
-    throw error;
-  }
+  return await fetch(url, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+    },
+    signal: AbortSignal.timeout(requestTimeout),
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+}
 
+async function readPangramJson(response: Response): Promise<unknown> {
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unable to read error response');
     const error = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
@@ -130,6 +124,19 @@ async function fetchPangramJson(url: string, key: string, deadline: number, body
     captureException(error);
     throw error;
   }
+}
+
+async function fetchPangramJson(url: string, key: string, deadline: number, body?: unknown): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await fetchPangramResponse(url, key, deadline, body);
+  } catch (e) {
+    const parsedError = z.object({ message: z.string() }).safeParse(e);
+    const error = new Error(`Pangram API request failed: ${parsedError.success ? parsedError.data.message : 'Unknown error'}`);
+    captureException(error);
+    throw error;
+  }
+  return await readPangramJson(response);
 }
 
 function parsePangramResponse(pangramResponse: unknown, apiVersion: string): PangramEvaluationResult {
@@ -166,6 +173,13 @@ function parsePangramResponse(pangramResponse: unknown, apiVersion: string): Pan
   };
 }
 
+async function waitForNextPangramPoll(deadline: number): Promise<void> {
+  const remainingTime = deadline - Date.now();
+  if (remainingTime > 0) {
+    await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
+  }
+}
+
 /**
  * Poll an async Pangram inference task until it either succeeds or fails.
  * Returns the raw response body of the successful poll, which has the same
@@ -173,7 +187,15 @@ function parsePangramResponse(pangramResponse: unknown, apiVersion: string): Pan
  */
 async function pollPangramTask(taskId: string, key: string, deadline: number): Promise<unknown> {
   while (Date.now() < deadline) {
-    const taskResponse = await fetchPangramJson(`${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`, key, deadline);
+    let response: Response;
+    try {
+      response = await fetchPangramResponse(`${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`, key, deadline);
+    } catch {
+      await waitForNextPangramPoll(deadline);
+      continue;
+    }
+
+    const taskResponse = await readPangramJson(response);
     const validatedStage = pangramTaskStageSchema.safeParse(taskResponse);
     if (!validatedStage.success) {
       const error = new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
@@ -193,13 +215,10 @@ async function pollPangramTask(taskId: string, key: string, deadline: number): P
       throw error;
     }
 
-    const remainingTime = deadline - Date.now();
-    if (remainingTime > 0) {
-      await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
-    }
+    await waitForNextPangramPoll(deadline);
   }
 
-  const timeoutError = new Error(`Pangram task did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
+  const timeoutError = new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
   captureException(timeoutError);
   throw timeoutError;
 }
