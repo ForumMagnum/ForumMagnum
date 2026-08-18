@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { getSignature } from '@/lib/collections/users/helpers';
-import { hideScrollBars } from '@/themes/styleUtils';
+import { getSignatureWithNote } from '@/lib/collections/users/helpers';
+import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
+import { parseModeratorNotes } from './parseModeratorNotes';
+import { blurEditorOnEscape } from '@/components/editor/focusLexicalEditor';
+import { useCurrentTime } from '@/lib/utils/TimeProvider';
+import FormatDate from '@/components/common/FormatDate';
+import ModerationSectionTitle from './ModerationSectionTitle';
+import ComposerSubmitButton from './ComposerSubmitButton';
+import type { InboxAction } from './inboxReducer';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorNotes($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -26,106 +33,119 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
     maxWidth: 400,
     width: '100%',
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    color: theme.palette.grey[600],
-    letterSpacing: '0.5px',
-  },
-  notes: {
+  composer: {
     border: theme.palette.border.faint,
     borderRadius: 4,
     padding: 8,
     backgroundColor: theme.palette.background.paper,
     '& textarea:not([aria-hidden])': {
-      minHeight: 100,
-      maxHeight: 300,
+      maxHeight: 150,
       ...hideScrollBars,
     },
+  },
+  submitButton: {
+    alignSelf: 'flex-end',
+  },
+  entries: {
+    display: 'grid',
+    gridTemplateColumns: '1fr minmax(0, max-content) minmax(0, max-content)',
+    alignItems: 'baseline',
+    columnGap: 8,
+    rowGap: 8,
+    maxHeight: 300,
+    overflowY: 'auto',
+    ...prettyScrollbars(theme),
+  },
+  entryDate: {
+    fontSize: 10,
+    lineHeight: 1.4,
+    color: theme.palette.grey[500],
+    textAlign: 'right',
+  },
+  entryAuthor: {
+    fontSize: 10,
+    lineHeight: 1.4,
+    color: theme.palette.grey[900],
+    maxWidth: 80,
+    textAlign: 'right',
+  },
+  entryBody: {
+    fontSize: 13,
+    lineHeight: 1.2,
+    color: theme.palette.grey[800],
+    whiteSpace: 'pre-wrap',
   },
 }));
 
 const ModeratorNotes = ({
   user,
   currentUser,
+  dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [notes, setNotes] = useState(user.sunshineNotes);
-  const notesRef = useRef(notes);
-  const userRef = useRef(user);
+  const now = useCurrentTime();
+  const [draft, setDraft] = useState('');
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
 
-  useEffect(() => {
-    notesRef.current = notes;
-  }, [notes]);
+  const entries = useMemo(() => parseModeratorNotes(user.sunshineNotes, now), [user.sunshineNotes, now]);
 
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+  const addNote = useCallback(() => {
+    const noteText = draft.trim();
+    if (!noteText) return;
 
-  useEffect(() => {
-    if (user.sunshineNotes) {
-      setNotes(user.sunshineNotes);
+    const newNotes = getSignatureWithNote(currentUser.displayName, noteText) + (user.sunshineNotes ?? '');
+    setDraft('');
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    void updateUser({
+      variables: {
+        selector: { _id: user._id },
+        data: { sunshineNotes: newNotes },
+      },
+    });
+  }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, updateUser]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // A bare Escape blurs the composer, rather than closing the whole detail view and losing the draft
+    if (blurEditorOnEscape(e)) return;
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      addNote();
     }
-  }, [user._id, user.sunshineNotes]);
-
-  const handleNotes = useCallback(() => {
-    if (notesRef.current !== userRef.current.sunshineNotes) {
-      void updateUser({
-        variables: {
-          selector: { _id: userRef.current._id },
-          data: {
-            sunshineNotes: notesRef.current,
-          },
-        },
-      });
-    }
-  }, [updateUser]);
-
-  const modNoteSignature = useMemo(() => getSignature(currentUser.displayName), [currentUser.displayName]);
-
-  const signAndDate = useCallback((sunshineNotes: string) => {
-    if (!sunshineNotes.match(modNoteSignature)) {
-      const padding = !sunshineNotes ? ": " : ": \n\n"
-      return modNoteSignature + padding + sunshineNotes
-    }
-    return sunshineNotes
-  }, [modNoteSignature]);
-
-  const addSignature = useCallback(() => {
-    const signedNotes = signAndDate(notes ?? '');
-    if (signedNotes !== notes) {
-      setNotes(signedNotes);
-    }
-  }, [notes, signAndDate]);
-
-  useEffect(() => {
-    return () => {
-      handleNotes();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [addNote]);
 
   return (
     <div className={classes.root}>
-      <div className={classes.sectionTitle}>Moderator Notes</div>
-      <div className={classes.notes}>
+      <ModerationSectionTitle>Moderator Notes</ModerationSectionTitle>
+      <div className={classes.composer} onKeyDown={handleKeyDown}>
         <Input
-          value={notes ?? ''}
+          value={draft}
           fullWidth
-          onChange={(e) => setNotes(e.target.value)}
-          onBlur={handleNotes}
-          onClick={addSignature}
+          onChange={(e) => setDraft(e.target.value)}
           disableUnderline
-          placeholder="Notes for other moderators"
+          placeholder="Add a note for other moderators"
           multiline
         />
       </div>
+      <div className={classes.submitButton}>
+        <ComposerSubmitButton label="Add note" disabled={!draft.trim()} onClick={addNote} />
+      </div>
+      {entries.length > 0 && <div className={classes.entries}>
+        {entries.map((entry, index) => (
+          <React.Fragment key={index}>
+            <div className={classes.entryBody}>{entry.body}</div>
+            <div className={classes.entryAuthor}>{entry.author}</div>
+            {/* Entries with no recognizable date still need to occupy the column, to keep the grid aligned */}
+            <div className={classes.entryDate}>
+              {entry.date ? <FormatDate date={entry.date} /> : entry.timestamp}
+            </div>
+          </React.Fragment>
+        ))}
+      </div>}
     </div>
   );
 };

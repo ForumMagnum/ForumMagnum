@@ -93,6 +93,7 @@ const ModerationUserDetailView = ({
             posts={posts}
             comments={comments}
             currentUser={currentUser}
+            dispatch={dispatch}
           />
           <div className={classes.undoQueueColumn}>
             <ModerationUndoHistory
