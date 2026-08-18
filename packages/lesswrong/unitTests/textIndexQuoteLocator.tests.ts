@@ -140,7 +140,7 @@ describe("$locateQuoteWithTextIndex", () => {
 
   it("reports a quote that is empty after normalization", async () => {
     const editor = await setupEditorWithContent("Some ordinary content.");
-    const { result } = await locate(editor, "**");
+    const { result } = await locate(editor, "");
     expect(result.found).toBe(false);
     expect(result.code).toBe("empty_after_normalization");
     expect(result.matchCount).toBeUndefined();

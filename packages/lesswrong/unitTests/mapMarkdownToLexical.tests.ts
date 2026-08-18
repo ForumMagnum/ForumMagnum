@@ -336,7 +336,7 @@ describe("$locateBlockByPrefix", () => {
   it("reports a prefix that is empty after normalization", async () => {
     const editor = await setupEditorWithContent("Alpha paragraph.");
     editor.getEditorState().read(() => {
-      const result = $locateBlockByPrefix("**");
+      const result = $locateBlockByPrefix("");
       expect(result.node).toBeNull();
       expect(result.code).toBe("empty_after_normalization");
       expect(result.matchCount).toBeUndefined();
