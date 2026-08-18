@@ -3,7 +3,7 @@ import { getFreshReviewTriggerActions } from '@/lib/collections/users/reviewGrou
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
 
-export interface MapPinContentItem {
+export interface ModerationMapPinItem {
   contentType: 'mapPin';
   _id: string;
   postedAt: string;
@@ -14,12 +14,12 @@ export interface MapPinContentItem {
   htmlMapMarkerText: string | null;
 }
 
-export type ModerationContentItem = ContentItem | MapPinContentItem;
+export type ModerationContentItem = ContentItem | ModerationMapPinItem;
 
-export interface MapPinUser extends Pick<
+type MapPinUserFields = Pick<
   SunshineUsersList,
   'mapLocation' | 'mapMarkerText' | 'htmlMapMarkerText' | 'moderatorActions' | 'lastRemovedFromReviewQueueAt'
-> {}
+>;
 
 export function areAllContentPermissionsDisabled(user: {
   postingDisabled?: boolean | null;
@@ -39,11 +39,11 @@ export function isPost(item: ContentItem): item is SunshinePostsList {
   return 'title' in item && item.title !== null;
 };
 
-export function isMapPin(item: ModerationContentItem): item is MapPinContentItem {
+export function isMapPin(item: ModerationContentItem): item is ModerationMapPinItem {
   return 'contentType' in item && item.contentType === 'mapPin';
 }
 
-export function getUnreviewedMapPin(user: MapPinUser): MapPinContentItem | null {
+export function getUnreviewedMapPin(user: MapPinUserFields): ModerationMapPinItem | null {
   if (!user.mapLocation) return null;
 
   const latestMapPinAction = getFreshReviewTriggerActions(
@@ -77,7 +77,7 @@ export function getUnreviewedMapPin(user: MapPinUser): MapPinContentItem | null 
 }
 
 export function getModerationContentItems(
-  user: MapPinUser,
+  user: MapPinUserFields,
   posts: SunshinePostsList[],
   comments: SunshineCommentsList[],
 ): ModerationContentItem[] {

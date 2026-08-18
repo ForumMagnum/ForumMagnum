@@ -7,7 +7,7 @@ import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
-import type { MapPinContentItem } from './helpers';
+import type { ModerationMapPinItem } from './helpers';
 
 const listItemStyles = defineStyles('ModerationMapPinListItem', (theme: ThemeType) => ({
   root: {
@@ -129,7 +129,7 @@ const detailStyles = defineStyles('ModerationMapPinDetail', (theme: ThemeType) =
   },
 }));
 
-function getMapPinPreview(item: MapPinContentItem): string {
+function getMapPinPreview(item: ModerationMapPinItem): string {
   const description = item.htmlMapMarkerText
     ? htmlToTextDefault(item.htmlMapMarkerText)
     : item.mapMarkerText;
@@ -141,7 +141,7 @@ function getMapPinPreview(item: MapPinContentItem): string {
 }
 
 export const ModerationMapPinListItem = ({ item, isFocused, onOpen }: {
-  item: MapPinContentItem;
+  item: ModerationMapPinItem;
   isFocused: boolean;
   onOpen: () => void;
 }) => {
@@ -158,7 +158,7 @@ export const ModerationMapPinListItem = ({ item, isFocused, onOpen }: {
   </div>;
 };
 
-export const ModerationMapPinDetail = ({ item }: { item: MapPinContentItem }) => {
+export const ModerationMapPinDetail = ({ item }: { item: ModerationMapPinItem }) => {
   const classes = useStyles(detailStyles);
   const coordinates = item.latitude !== null && item.longitude !== null
     ? `${item.latitude}, ${item.longitude}`
