@@ -11,7 +11,11 @@ import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
 import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
-import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
+import {
+  $locateQuoteWithTextIndex,
+  type AgentTextMatchFailureCode,
+  type LocatedQuoteRange,
+} from "../textIndexQuoteLocator";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -26,6 +30,8 @@ interface ReplaceResult {
   replaced: boolean
   quoteFoundInDocument: boolean
   note: string
+  code?: AgentTextMatchFailureCode
+  matchCount?: number
   suggestionId?: string
   /** True when a suggestion was applied but its review thread couldn't be created. */
   threadCreationFailed?: boolean
@@ -327,6 +333,8 @@ export async function replaceTextInMainDoc({
       let replaced = false;
       let quoteFoundInDocument = false;
       let locateFailureReason: string | undefined;
+      let locateFailureCode: AgentTextMatchFailureCode | undefined;
+      let matchCount: number | undefined;
       let suggestionId: string | undefined = undefined;
       let summaryQuote = quote;
       let summaryReplacement = replacement;
@@ -338,6 +346,8 @@ export async function replaceTextInMainDoc({
           quoteFoundInDocument = selectionResult.found;
           if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
             locateFailureReason = selectionResult.reason;
+            locateFailureCode = selectionResult.code;
+            matchCount = selectionResult.matchCount;
             return;
           }
 
@@ -411,6 +421,8 @@ export async function replaceTextInMainDoc({
           ? locateFailureReason
             ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
           : locateFailureReason ?? "Quote not found in document.",
+        code: locateFailureCode,
+        matchCount,
       };
     },
   });
@@ -476,6 +488,8 @@ export async function POST(req: NextRequest) {
       replaced: result.replaced,
       quoteFoundInDocument: result.quoteFoundInDocument,
       note: result.note,
+      code: result.code ?? null,
+      matchCount: result.matchCount ?? null,
       suggestionId: result.suggestionId ?? null,
       threadCreationFailed: result.threadCreationFailed ?? false,
     });

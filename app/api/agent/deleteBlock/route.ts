@@ -6,7 +6,7 @@ import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugi
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { $locateBlockByPrefix, type AgentTextMatchFailureCode } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -15,6 +15,8 @@ import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAna
 interface DeleteBlockResult {
   deleted: boolean
   note: string
+  code?: AgentTextMatchFailureCode
+  matchCount?: number
   deletionIndex?: number
   suggestionId?: string
   /** True when a suggestion was applied but its review thread couldn't be created. */
@@ -75,6 +77,8 @@ export async function deleteMarkdownBlock({
             result = {
               deleted: false,
               note: blockResult.reason ?? `No block starts with locator text: ${prefix}`,
+              code: blockResult.code,
+              matchCount: blockResult.matchCount,
             };
             return;
           }
@@ -187,6 +191,8 @@ export async function POST(req: NextRequest) {
       deleted: deleteResult.deleted,
       deletionIndex: deleteResult.deletionIndex ?? null,
       note: deleteResult.note,
+      code: deleteResult.code ?? null,
+      matchCount: deleteResult.matchCount ?? null,
       deletionMode: mode,
       suggestionId: deleteResult.suggestionId ?? null,
       threadCreationFailed: deleteResult.threadCreationFailed ?? false,
