@@ -365,7 +365,7 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context, oldDocument}: UpdateCallbackProperties<"Users">) {
-  const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
+  const reviewTriggerFields = ['biography', 'mapLocation', 'mapMarkerText', 'profileImageId'] as const;
 
   const updatedField = reviewTriggerFields.find(field => {
     if (!(field in data)) return false;
@@ -380,11 +380,10 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
       return !!fieldValue;
     }
 
-    // I don't want to figure out how to introspect on mapLocation objects;
-    // this come up infrequently enough that I think it's fine to trigger review
-    // if it ever changes for an unreviewed user.  (Note: I don't think we actually
-    // have a way to see the location that they set for themselves in the UI.)
-    if (field === 'mapLocation') {
+    // A map pin's location and public description are reviewed together. In
+    // particular, a description-only edit can contain the spam we're looking
+    // for even when the selected location is unchanged.
+    if (field === 'mapLocation' || field === 'mapMarkerText') {
       return true;
     }
 
@@ -396,7 +395,8 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
   });
 
   if (updatedField) {
-    backgroundTask(triggerReviewIfNeeded(newDocument._id, updatedField, context));
+    const reviewTrigger = updatedField === 'mapMarkerText' ? 'mapLocation' : updatedField;
+    backgroundTask(triggerReviewIfNeeded(newDocument._id, reviewTrigger, context));
   }
 }
 
