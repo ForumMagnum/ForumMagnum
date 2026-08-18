@@ -204,6 +204,8 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
+  backgroundTask(maybeCreateAutomatedContentEvaluation(documentWithId, null, context));
+
   return documentWithId;
 }
 

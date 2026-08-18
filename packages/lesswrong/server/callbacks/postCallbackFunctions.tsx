@@ -1147,8 +1147,8 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
-export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
+export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost | null, context: ResolverContext) {
+  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
       await createAutomatedContentEvaluation(revision, context, { autoreject: true });
@@ -1156,9 +1156,10 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   }
 }
 
-function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  //Only when undrafting
-  if (post.draft || !oldPost.draft) return false;
+function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost | null) {
+  // On create there's no oldPost; "being published" just means the post isn't a draft
+  const isBeingPublished = oldPost ? (!post.draft && oldPost.draft) : !post.draft;
+  if (!isBeingPublished) return false;
 
   // Skip for AF
   if (!isLW()) return false;
