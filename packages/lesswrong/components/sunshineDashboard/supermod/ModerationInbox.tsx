@@ -27,6 +27,9 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { DEFAULT_SIDEBAR_TAB } from './sidebarTabs';
+import { useMessages } from '@/components/common/withMessages';
+import { runQueuedModerationAction } from './runQueuedModerationAction';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -133,9 +136,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const navigate = useNavigate();
   const { query, location } = useLocation();
 
+  const { flash } = useMessages();
+
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: DEFAULT_SIDEBAR_TAB, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -149,7 +154,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: null,
           focusedContentIndex: 0,
-          sidebarTab: null,
+          sidebarTab: DEFAULT_SIDEBAR_TAB,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -167,7 +172,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
           focusedContentIndex: 0,
-          sidebarTab: null,
+          sidebarTab: DEFAULT_SIDEBAR_TAB,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -196,7 +201,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: curationPosts[0]?._id ?? null,
           focusedContentIndex: 0,
-          sidebarTab: null,
+          sidebarTab: DEFAULT_SIDEBAR_TAB,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -214,7 +219,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: posts[0]?._id ?? null,
           focusedContentIndex: 0,
-          sidebarTab: null,
+          sidebarTab: DEFAULT_SIDEBAR_TAB,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -232,7 +237,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: classifiedPosts[0]?._id ?? null,
           focusedContentIndex: 0,
-          sidebarTab: null,
+          sidebarTab: DEFAULT_SIDEBAR_TAB,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -252,7 +257,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         openedUserId: initialOpenedUserId,
         focusedPostId: null,
         focusedContentIndex: 0,
-        sidebarTab: null,
+        sidebarTab: DEFAULT_SIDEBAR_TAB,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -358,7 +363,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         // Create timeout that will execute the action and move to history
         const timeoutId = setTimeout(() => {
           dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: user._id });
-          void executeAction();
+          void runQueuedModerationAction(
+            { user, actionLabel, timestamp: now, executeAction },
+            dispatch,
+            flash,
+          );
         }, UNDO_QUEUE_DURATION);
         
         dispatch({
@@ -377,7 +386,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
       }
     }
-  }, [state.openedUserId, state.focusedUserId, state.activeTab, allOrderedUsers]);
+  }, [state.openedUserId, state.focusedUserId, state.activeTab, allOrderedUsers, flash]);
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';

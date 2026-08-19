@@ -19563,13 +19563,13 @@ export type setSupermodHighlightRuleOverridesMutationVariables = Exact<{
 
 export type setSupermodHighlightRuleOverridesMutation = { __typename?: 'Mutation', setSupermodHighlightRuleOverrides: any };
 
-export type moderationTemplateNamesForHighlightRulesQueryVariables = Exact<{
+export type moderationTemplatesForHighlightRulesQueryVariables = Exact<{
   selector?: InputMaybe<ModerationTemplateSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type moderationTemplateNamesForHighlightRulesQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', results: Array<{ __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType }> } | null };
+export type moderationTemplatesForHighlightRulesQuery = { __typename?: 'Query', moderationTemplates: { __typename?: 'MultiModerationTemplateOutput', results: Array<{ __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType }> } | null };
 
 export type ModerationInboxDataQueryQueryVariables = Exact<{
   userSelector?: InputMaybe<UserSelector>;
@@ -23439,7 +23439,7 @@ export const createUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_986,_
 export const createUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"createUserRateLimitUserRateLimitItem"),_1779,_o5(_7,[_o7(_8,_1780,_1145,_1778)])),_61,_662]) as unknown as DocumentNode<createUserRateLimitUserRateLimitItemMutation, createUserRateLimitUserRateLimitItemMutationVariables>;
 export const CurationPostViewQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"CurationPostViewQuery"),_1336,_o5(_7,[_o7(_8,_526,[_o8(_535,_1003,_o14(_1001,[_o8(_1002,_o3(_3,"curationNoticesPostView"),_o14(_1001,[_1398]))]))],_o5(_7,[_1153]))])),_61,_146,_158,_184,_23,_226,_270,_524]) as unknown as DocumentNode<CurationPostViewQueryQuery, CurationPostViewQueryQueryVariables>;
 export const setSupermodHighlightRuleOverridesDocument = _o1(_1,[_o11(_986,_987,_1781,[_o12(_988,_1783,_1527)],_o5(_7,[_o10(_8,_1781,[_o8(_535,_1782,_1783)])]))]) as unknown as DocumentNode<setSupermodHighlightRuleOverridesMutation, setSupermodHighlightRuleOverridesMutationVariables>;
-export const moderationTemplateNamesForHighlightRulesDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"moderationTemplateNamesForHighlightRules"),[_1433,_1051],_o5(_7,[_o7(_8,_1435,_1061,_o5(_7,[_o6(_8,_1025,_o5(_7,[_10,_123,_220]))]))]))]) as unknown as DocumentNode<moderationTemplateNamesForHighlightRulesQuery, moderationTemplateNamesForHighlightRulesQueryVariables>;
+export const moderationTemplatesForHighlightRulesDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"moderationTemplatesForHighlightRules"),[_1433,_1051],_o5(_7,[_o7(_8,_1435,_1061,_o5(_7,[_o6(_8,_1025,_o5(_7,[_10,_123,_220]))]))]))]) as unknown as DocumentNode<moderationTemplatesForHighlightRulesQuery, moderationTemplatesForHighlightRulesQueryVariables>;
 export const ModerationInboxDataQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"ModerationInboxDataQuery"),[_o12(_988,_1784,_1113),_o12(_988,_1785,_1057),_o12(_988,_1786,_1057),_o12(_988,_1787,_1012),_o12(_988,_1788,_1012),_o12(_988,_1789,_1012)],_o5(_7,[_o7(_8,_288,[_o8(_535,_1003,_1784),_o8(_535,_791,_1787)],_o5(_7,[_1759])),_o7(_8,_250,[_o8(_535,_1003,_1785),_1790],_1791),_o15(_8,_o3(_3,"classifiedPosts"),_250,[_o8(_535,_1003,_1786),_1790],_1791),_o7(_8,_o3(_3,"CurationCandidatePosts"),[_o8(_535,_791,_1789)],_o5(_7,[_o6(_8,_1025,_o5(_7,[_o4(_25,_529)]))])),_o6(_8,_o3(_3,"LastCuratedDate"),_o5(_7,[_o4(_8,_o3(_3,"lastCuratedDate"))]))])),_61,_621,_662,_23,_127,_136,_146,_158,_184,_192,_334,_226,_623,_628,_679,_638,_530]) as unknown as DocumentNode<ModerationInboxDataQueryQuery, ModerationInboxDataQueryQueryVariables>;
 export const singleUserSupermodQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"singleUserSupermodQuery"),_1180,_o5(_7,[_o7(_8,_30,_1220,_1774)])),_61,_621,_662,_679]) as unknown as DocumentNode<singleUserSupermodQueryQuery, singleUserSupermodQueryQueryVariables>;
 export const addOrUpvoteTagModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"addOrUpvoteTagModeratorCoreTagsChecklist"),_1792,_1795),_623,_146,_158,_628]) as unknown as DocumentNode<addOrUpvoteTagModeratorCoreTagsChecklistMutation, addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables>;

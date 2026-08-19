@@ -56,6 +56,7 @@ export interface ActionHighlightContext {
 
 const APPROVE_MIN_APPROVED_CONTENTS = 2;
 const APPROVE_MIN_KARMA = 10;
+const PURGE_MAX_CONTENTS = 3;
 
 /**
  * The user has content awaiting review, and none of it looks LLM-written. Level 2 when every
@@ -105,20 +106,24 @@ export const DEFAULT_ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction
     groups: [[numberCondition('unapprovedContentCount', 'eq', 0)]],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 1)]],
   },
-  // The user has no approved content. Level 2 when multiple contents were actually rejected.
+  // Purging is only appropriate for low-volume accounts with no approved content.
+  // Level 2 when multiple contents were actually rejected.
   purge: {
     enabled: true,
-    groups: [[numberCondition('approvedContentCount', 'eq', 0)]],
+    groups: [[
+      numberCondition('contentCount', 'lte', PURGE_MAX_CONTENTS),
+      numberCondition('approvedContentCount', 'eq', 0),
+    ]],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },
   // Level 2 when the user has at least two rejected contents; level 1 when just their most
-  // recent content is rejected. (The button toggles to "Enable Permissions" once everything
-  // is disabled, so don't suggest it then.)
+  // recent content is rejected. Keep the action highlighted after disabling permissions so
+  // its toggled "Enable Permissions" button remains available.
   disablePermissions: {
     enabled: true,
     groups: [
-      [booleanCondition('allContentPermissionsDisabled', false), numberCondition('rejectedContentCount', 'gte', 2)],
-      [booleanCondition('allContentPermissionsDisabled', false), booleanCondition('mostRecentContentIsRejected', true)],
+      [numberCondition('rejectedContentCount', 'gte', 2)],
+      [booleanCondition('mostRecentContentIsRejected', true)],
     ],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },

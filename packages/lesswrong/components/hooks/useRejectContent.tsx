@@ -69,13 +69,11 @@ export function useRejectContent() {
   // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
-  const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
+  const queueMutation = useCallback((mutationFn: () => Promise<unknown>) => {
     const currentQueue = mutationQueueRef.current;
-    const newMutation = currentQueue
-      .then(mutationFn)
-      .catch(_ => {});
-    mutationQueueRef.current = newMutation;
-    return newMutation;
+    const mutationResult = currentQueue.then(mutationFn);
+    mutationQueueRef.current = mutationResult.then(() => undefined, () => undefined);
+    return mutationResult.then(() => true, () => false);
   }, []);
   
   const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
@@ -126,5 +124,4 @@ export function useRejectContent() {
   
   return { rejectContent, unrejectContent, rejectionTemplates };
 }
-
 

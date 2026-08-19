@@ -15,13 +15,15 @@ import { useMutation } from '@apollo/client/react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
+import { CHECKBOX_SIZE, ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { isInTextInput } from './supermod/helpers';
+import { KEYSTROKE_GUTTER } from './supermod/constants';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
 
 const ModerationTemplatesListQuery = gql(`
@@ -109,11 +111,6 @@ function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQue
   return template.name.toLowerCase().includes(lowercaseQuery);
 }
 
-function isInTextInput(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-}
-
 function getGroupLabelUpdateOptions(template: ModerationTemplateFragment, newGroupLabel: string | null) {
   return {
     variables: {
@@ -145,6 +142,23 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     // Typing in the search box doesn't count as hovering, so keep the list lit while it has focus
     "&:focus-within": {
       opacity: 1,
+    },
+  },
+  // The collapsed (highlighted-only) list sits at the top of its sidebar section,
+  // so it drops the full list's margin and resting fade. Keep each row full-width
+  // so the whole line is hoverable and its action buttons stay right-aligned.
+  onlyHighlightedList: {
+    marginTop: 0,
+    opacity: 1,
+    '& .ModerationTemplateSunshineItem-templateItem': {
+      paddingLeft: 0,
+      gap: 8,
+    },
+    // Centre the checkbox in a keystroke-chip-sized gutter so these labels line up
+    // with the labels of the keystroke command rows above and below them.
+    '& .ModerationTemplateSunshineItem-checkbox': {
+      marginLeft: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
+      marginRight: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
     },
   },
   listHeader: {
@@ -334,11 +348,12 @@ const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose
   );
 };
 
-const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, onHideTemplate}: {
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, checked, onHideTemplate}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted: boolean,
   selected: boolean,
+  checked?: boolean,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
 }) => {
   const classes = useStyles(styles);
@@ -370,6 +385,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
         onTemplateClick={onTemplateClick}
         highlighted={highlighted}
         selected={selected}
+        checked={checked}
         dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
         onHide={onHideTemplate}
       />
@@ -377,7 +393,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateIds, insertedTemplateIds, selectedTemplateId}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -387,7 +403,8 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onHideTemplate: (template: ModerationTemplateFragment) => void,
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
-  highlightedTemplateNames?: Set<string>,
+  highlightedTemplateIds?: Set<string>,
+  insertedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
 }) => {
   const classes = useStyles(styles);
@@ -451,8 +468,9 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          highlighted={!!highlightedTemplateIds?.has(template._id)}
           selected={template._id === selectedTemplateId}
+          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
           onHideTemplate={onHideTemplate}
         />
       ))}
@@ -502,10 +520,16 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateIds, insertedTemplateIds, onlyHighlighted, onFocusComposer, focusSearchToken, active = true, onEscape }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
-  highlightedTemplateNames?: Set<string>,
+  highlightedTemplateIds?: Set<string>,
+  // Templates whose text is currently in the composer above the list; when provided,
+  // every row gets a checkbox reflecting membership
+  insertedTemplateIds?: Set<string>,
+  // Render just the highlighted templates as a flat list (no groups or search);
+  // used to keep them visible while the section containing the full list is collapsed
+  onlyHighlighted?: boolean,
   onFocusComposer?: () => void,
   focusSearchToken?: number,
   // False while the list's composer tab is hidden (but kept mounted to
@@ -625,6 +649,25 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
       });
   };
 
+  if (onlyHighlighted) {
+    // Ordered by the same groups as the full list, so templates from one group stay adjacent.
+    const highlightedTemplates = groupTemplatesByLabel(
+      templates.filter(template => highlightedTemplateIds?.has(template._id))
+    ).flatMap(([, templatesInGroup]) => templatesInGroup);
+    if (highlightedTemplates.length === 0) return null;
+    return <div className={classNames(classes.root, classes.onlyHighlightedList)}>
+      {highlightedTemplates.map(template => (
+        <ModerationTemplateSunshineItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted
+          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
+        />
+      ))}
+    </div>;
+  }
+
   const lowercaseQuery = searchQuery.trim().toLowerCase();
   const matchingTemplates = lowercaseQuery
     ? templates.filter(template => templateMatchesQuery(template, lowercaseQuery))
@@ -734,7 +777,8 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
               />
             </div>
           )}
-          highlightedTemplateNames={highlightedTemplateNames}
+          highlightedTemplateIds={highlightedTemplateIds}
+          insertedTemplateIds={insertedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
         />
       ))}

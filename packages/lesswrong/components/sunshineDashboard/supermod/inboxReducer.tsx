@@ -6,12 +6,16 @@ import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupi
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
-import type { SelectedSidebarTab } from './sidebarTabs';
+import { DEFAULT_SIDEBAR_TAB, type SelectedSidebarTab } from './sidebarTabs';
 
 export interface HistoryItem {
   user: SunshineUsersList;
   actionLabel: string;
   timestamp: number;
+  // Kept after the action leaves the undo queue so that a failed action can be retried
+  executeAction: () => Promise<void>;
+  // Set when the action's mutation rejected, so the UI can announce that it didn't save
+  error?: string;
 }
 
 export interface UndoHistoryItem {
@@ -46,7 +50,7 @@ export type InboxState = {
   focusedPostId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
-  // Which composer is open in the moderation sidebar, or null for neither
+  // Which right-panel section is expanded, or null when all are collapsed
   sidebarTab: SelectedSidebarTab;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
@@ -74,11 +78,15 @@ export type InboxAction =
   | { type: 'OPEN_CONTENT'; contentIndex: number; sidebarTab?: SelectedSidebarTab; }
   | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
+  | { type: 'ADJUST_USER_REJECTED_CONTENT_COUNT'; userId: string; delta: number; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'MARK_ACTION_FAILED'; userId: string; timestamp: number; error: string; }
+  | { type: 'CLEAR_ACTION_ERROR'; userId: string; timestamp: number; }
+  | { type: 'DISMISS_FAILED_ACTION'; userId: string; timestamp: number; };
 
 
 
@@ -118,10 +126,10 @@ export function getVisibleTabsInOrder(
 }
 
 /**
- * Actions that close the open composer, so an editor never silently holds
- * focus and swallows the moderation shortcuts. Mid-draft actions (permission
- * toggles, LLM checks, undo bookkeeping) are deliberately absent, as is
- * OPEN_CONTENT, which sets `sidebarTab` itself.
+ * Actions that leave a composer or user-specific section return the sidebar to
+ * its default User Messages section. Mid-draft actions (permission toggles,
+ * LLM checks, undo bookkeeping) are deliberately absent, as is OPEN_CONTENT,
+ * which sets `sidebarTab` itself.
  */
 const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
   'OPEN_USER', 'CLOSE_DETAIL', 'NEXT_CONTENT', 'PREV_CONTENT',
@@ -129,12 +137,16 @@ const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
   'REMOVE_USER', 'UNDO_ACTION',
 ]);
 
+function isSameHistoryItem(item: HistoryItem, action: { userId: string, timestamp: number }) {
+  return item.user._id === action.userId && item.timestamp === action.timestamp;
+}
+
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   const newState = reduceInboxAction(state, action);
-  if (newState.sidebarTab === null || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
+  if (newState === state || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
     return newState;
   }
-  return { ...newState, sidebarTab: null };
+  return { ...newState, sidebarTab: DEFAULT_SIDEBAR_TAB };
 }
 
 function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
@@ -170,11 +182,37 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       const item = state.undoQueue.find(item => item.user._id === action.userId);
       if (!item) return state;
 
-      // Note: The action execution itself happens in the component via the timeout callback
+      // Note: The action execution itself happens in the component via the timeout
+      // callback, which dispatches MARK_ACTION_FAILED if the mutation rejects.
       return {
         ...state,
         undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
         history: [...state.history, item],
+      };
+    }
+
+    case 'MARK_ACTION_FAILED': {
+      return {
+        ...state,
+        history: state.history.map(item => (
+          isSameHistoryItem(item, action) ? { ...item, error: action.error } : item
+        )),
+      };
+    }
+
+    case 'CLEAR_ACTION_ERROR': {
+      return {
+        ...state,
+        history: state.history.map(item => (
+          isSameHistoryItem(item, action) ? { ...item, error: undefined } : item
+        )),
+      };
+    }
+
+    case 'DISMISS_FAILED_ACTION': {
+      return {
+        ...state,
+        history: state.history.filter(item => !isSameHistoryItem(item, action)),
       };
     }
 
@@ -220,9 +258,9 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         focusedContentIndex: action.contentIndex,
-        // Closes the composer, unless the caller is opening one — the row's
-        // Reject button selects the row and opens the reject tab in one action
-        sidebarTab: action.sidebarTab ?? null,
+        // Returns to User Messages, unless the caller is opening another section —
+        // the row's Reject button selects the row and opens Rejections in one action
+        sidebarTab: action.sidebarTab ?? DEFAULT_SIDEBAR_TAB,
       };
     }
 
@@ -236,6 +274,17 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     case 'UPDATE_USER': {
       const updatedUsers = state.users.map(user => user._id === action.userId
         ? { ...user, ...action.fields }
+        : user
+      );
+      return {
+        ...state,
+        users: updatedUsers,
+      };
+    }
+
+    case 'ADJUST_USER_REJECTED_CONTENT_COUNT': {
+      const updatedUsers = state.users.map(user => user._id === action.userId
+        ? { ...user, rejectedContentCount: Math.max(0, (user.rejectedContentCount ?? 0) + action.delta) }
         : user
       );
       return {

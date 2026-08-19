@@ -6,11 +6,14 @@ import BasicFormStyles from '../form-components/BasicFormStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
-import DeferRender from '../common/DeferRender';
-import Row from '../common/Row';
+import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';
 import type { DragHandleProps } from '../form-components/sortableList';
+
+/** Side length of the row's checkbox. Exported so lists that align these rows against
+ * other controls can centre the checkbox within a wider gutter. */
+export const CHECKBOX_SIZE = 12;
 
 const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType) => ({
   templateItem: {
@@ -54,6 +57,24 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     flex: 1,
     minWidth: 0,
   },
+  checkbox: {
+    width: CHECKBOX_SIZE,
+    height: CHECKBOX_SIZE,
+    flexShrink: 0,
+    marginRight: 4,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    borderColor: theme.palette.grey[800],
+  },
+  checkboxIcon: {
+    fontSize: 11,
+    color: theme.palette.grey[800],
+  },
   actions: {
     display: "flex",
     alignItems: "center",
@@ -82,22 +103,11 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
-  // Defined before `suggested` so a selected-and-suggested row keeps the suggested
-  // background and only picks up the outline
   selected: {
-    outline: theme.palette.greyBorder("1px", 0.3),
     backgroundColor: theme.palette.greyAlpha(0.1),
   },
   suggested: {
-    backgroundColor: theme.palette.grey[900],
-    color: theme.palette.grey[100],
     fontWeight: 600,
-    marginBottom: 1,
-    marginTop: 1,
-    borderRadius: 4,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[800],
-    },
   },
   hovercard: {
     padding: 16,
@@ -133,11 +143,14 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, dragHandleProps, onHide, onUnhide}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, checked, dragHandleProps, onHide, onUnhide}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
   selected?: boolean,
+  // Renders a small checkbox before the name; checked while the template's text
+  // is in the composer this list sits under. Omit to hide the checkbox.
+  checked?: boolean,
   dragHandleProps?: DragHandleProps,
   onHide?: (template: ModerationTemplateFragment) => void,
   onUnhide?: (template: ModerationTemplateFragment) => void,
@@ -149,9 +162,6 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
   if (edit) {
     return (
         <div className={classNames(classes.editContainer, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
-          <Row>
-            <h3>{template.name}{template.deleted && <> [Deleted]</>}</h3>
-          </Row>
           <BasicFormStyles>
             <ModerationTemplatesForm
               initialData={template}
@@ -197,6 +207,11 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
             <ForumIcon icon="DragIndicator" className={classes.dragHandleIcon} />
           </span>
         )}
+        {checked !== undefined && (
+          <span className={classNames(classes.checkbox, { [classes.checkboxChecked]: checked })}>
+            {checked && <ForumIcon icon="Check" className={classes.checkboxIcon} />}
+          </span>
+        )}
         <span className={classes.templateName}>{template.name}</span>
         <span className={classes.actions}>
           {onHide && (
@@ -235,6 +250,17 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
             >
               <ForumIcon icon="Edit" className={classes.actionIcon} />
             </a>
+          </LWTooltip>
+          <LWTooltip title="Edit autosuggest rules" placement="top">
+            <Link
+              className={classes.actionButton}
+              to={`/admin/supermodHighlights#${template._id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ForumIcon icon="Settings" className={classes.actionIcon} />
+            </Link>
           </LWTooltip>
         </span>
       </div>

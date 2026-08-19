@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
@@ -8,6 +9,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import { getNextUnapprovedContentIndex, type ContentItem } from './helpers';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -20,6 +22,9 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   contentSection: {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 1fr 400px',
+  },
+  contentSectionWithoutContent: {
+    gridTemplateColumns: '300px 1fr',
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
@@ -86,15 +91,27 @@ const ModerationUserDetailView = ({
     [allContent, focusedContentIndex]
   );
 
+  const showContentColumns = contentsLoading || allContent.length > 0;
+
+  const handleContentRejectStart = useCallback((content: ContentItem) => {
+    const nextContentIndex = getNextUnapprovedContentIndex(allContent, content._id);
+    if (nextContentIndex !== null) {
+      dispatch({ type: 'OPEN_CONTENT', contentIndex: nextContentIndex });
+    }
+  }, [allContent, dispatch]);
+
   return (
     <div className={classes.root}>
-      <div className={classes.contentSection}>
+      <div className={classNames(classes.contentSection, {
+        [classes.contentSectionWithoutContent]: !showContentColumns,
+      })}>
         <div className={classes.userColumn}>
           <ModerationUserInfoColumn
             user={user}
             posts={posts}
             comments={comments}
             currentUser={currentUser}
+            dispatch={dispatch}
           />
           <div className={classes.undoQueueColumn}>
             <ModerationUndoHistory
@@ -104,18 +121,22 @@ const ModerationUserDetailView = ({
             />
           </div>
         </div>
-        <div className={classes.contentListColumn}>
-          <ModerationContentList
-            items={allContent}
-            title="Posts & Comments"
-            focusedItemId={allContent[focusedContentIndex]?._id ?? null}
-            runningLlmCheckId={runningLlmCheckId}
-            dispatch={dispatch}
-          />
-        </div>
-        <div className={classes.contentListColumn}>
-          <ModerationContentDetail item={focusedContent} />
-        </div>
+        {showContentColumns && (
+          <>
+            <div className={classes.contentListColumn}>
+              <ModerationContentList
+                items={allContent}
+                title="Posts & Comments"
+                focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+                runningLlmCheckId={runningLlmCheckId}
+                dispatch={dispatch}
+              />
+            </div>
+            <div className={classes.contentListColumn}>
+              <ModerationContentDetail item={focusedContent} />
+            </div>
+          </>
+        )}
         <div className={classes.sidebarColumn}>
           <ModerationSidebar
             user={user}
@@ -128,6 +149,7 @@ const ModerationUserDetailView = ({
             setSidebarTab={setSidebarTab}
             addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
+            onContentRejectStart={handleContentRejectStart}
           />
         </div>
       </div>

@@ -12,9 +12,9 @@ import classNames from 'classnames';
  */
 export const moderatorActionHighlightStyles = (theme: ThemeType) => ({
   subtleOutline: {
-    borderColor: theme.palette.grey[600],
+    boxShadow: `0 0 0 1px ${theme.palette.grey[600]}`,
     '&:hover': {
-      borderColor: theme.palette.grey[700],
+      boxShadow: `0 0 0 1px ${theme.palette.grey[700]}`,
     },
   },
   green: {
@@ -51,10 +51,10 @@ const styles = defineStyles('ModerationActionButton', (theme: ThemeType) => ({
   actionButton: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 4,
-    padding: '4px 4px 4px 6px',
-    border: `1px solid ${theme.palette.grey[300]}`,
+    justifyContent: 'flex-start',
+    gap: 8,
+    padding: '4px 6px 4px 4px',
+    border: 0,
     borderRadius: 4,
     backgroundColor: theme.palette.background.paper,
     cursor: 'pointer',
@@ -87,9 +87,16 @@ const ModerationActionButton = ({label, keystroke, tooltip, onClick, active=fals
   const classes = useStyles(styles);
   return (
     <LWTooltip title={tooltip} placement="left">
-      <div className={classNames(classes.actionButton, active && 'active', highlightStyle && classes[highlightStyle])} onClick={onClick}>
+      <div
+        className={classNames(
+          classes.actionButton,
+          active && 'active',
+          highlightStyle && classes[highlightStyle],
+        )}
+        onClick={onClick}
+      >
+        <KeystrokeDisplay keystroke={keystroke} activeContext={active} />
         <span>{label}</span>
-        <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation activeContext={active} />
       </div>
     </LWTooltip>
   );

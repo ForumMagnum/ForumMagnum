@@ -21143,20 +21143,20 @@ type setSupermodHighlightRuleOverridesMutationVariables = Exact<{
 
 type setSupermodHighlightRuleOverridesMutation = setSupermodHighlightRuleOverridesMutation_Mutation;
 
-type moderationTemplateNamesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType };
+type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType };
 
-type moderationTemplateNamesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<moderationTemplateNamesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
 
-type moderationTemplateNamesForHighlightRulesQuery_Query = { __typename?: 'Query', moderationTemplates: moderationTemplateNamesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+type moderationTemplatesForHighlightRulesQuery_Query = { __typename?: 'Query', moderationTemplates: moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput | null };
 
 
-type moderationTemplateNamesForHighlightRulesQueryVariables = Exact<{
+type moderationTemplatesForHighlightRulesQueryVariables = Exact<{
   selector: InputMaybe<ModerationTemplateSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type moderationTemplateNamesForHighlightRulesQuery = moderationTemplateNamesForHighlightRulesQuery_Query;
+type moderationTemplatesForHighlightRulesQuery = moderationTemplatesForHighlightRulesQuery_Query;
 
 type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }

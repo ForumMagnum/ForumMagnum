@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import {
   HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME,
+  migrateLegacyTemplateRuleOverrideKeys,
   parseHighlightRuleOverrides,
   serializeHighlightRuleOverrides,
   type HighlightRuleOverrides,
@@ -22,13 +23,30 @@ export const supermodHighlightRuleGqlTypeDefs = gql`
   }
 `;
 
+async function getModerationTemplateReferences(context: ResolverContext) {
+  return context.ModerationTemplates.find(
+    { collectionName: { $in: ['Messages', 'Rejections'] } },
+    {},
+    { _id: 1, name: 1, collectionName: 1 },
+  ).fetch();
+}
+
 export const supermodHighlightRuleGqlQueries = {
   async supermodHighlightRuleOverrides(_root: void, _args: {}, context: ResolverContext) {
     if (!userIsAdminOrMod(context.currentUser)) {
       throw new Error("You must be a moderator to read the supermod highlight rules");
     }
     const [row] = await context.repos.databaseMetadata.getByNames([HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME]);
-    return row?.value ?? null;
+    if (!row?.value) return null;
+    let parsed: HighlightRuleOverrides;
+    try {
+      parsed = parseHighlightRuleOverrides(row.value);
+    } catch {
+      // Preserve the previous behavior: clients ignore malformed stored rules and use defaults.
+      return row.value;
+    }
+    const templates = await getModerationTemplateReferences(context);
+    return serializeHighlightRuleOverrides(migrateLegacyTemplateRuleOverrideKeys(parsed, templates));
   },
 };
 
@@ -40,7 +58,9 @@ export const supermodHighlightRuleGqlMutations = {
     // Validating here (rather than trusting the editor) keeps a malformed write from breaking
     // highlights for the whole moderation team
     const validated: HighlightRuleOverrides = parseHighlightRuleOverrides(overrides);
-    const serialized = serializeHighlightRuleOverrides(validated);
+    const templates = await getModerationTemplateReferences(context);
+    const migrated = migrateLegacyTemplateRuleOverrideKeys(validated, templates);
+    const serialized = serializeHighlightRuleOverrides(migrated);
     await context.repos.databaseMetadata.upsertByName(HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME, serialized);
     return serialized;
   },

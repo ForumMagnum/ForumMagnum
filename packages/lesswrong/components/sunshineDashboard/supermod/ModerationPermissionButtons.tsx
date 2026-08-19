@@ -18,8 +18,9 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
   permissionButton: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '4px 4px 4px 8px',
+    justifyContent: 'flex-start',
+    gap: 8,
+    padding: '4px 8px 4px 4px',
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
     backgroundColor: theme.palette.background.paper,
@@ -40,6 +41,21 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
     },
   },
   ...moderatorActionHighlightStyles(theme),
+  barePermissionButton: {
+    padding: '2px 0',
+    border: 0,
+    borderRadius: 0,
+    boxShadow: 'none',
+    backgroundColor: 'transparent',
+    '&:hover': {
+      border: 0,
+      boxShadow: 'none',
+    },
+    '&.active': {
+      border: 0,
+      boxShadow: 'none',
+    },
+  },
   permissionButtonLabel: {
     flexGrow: 1,
   },
@@ -70,16 +86,16 @@ const ModerationPermissionButtons = ({
 
   const messageButton = (
     <div 
-      className={classNames(classes.permissionButton, user.conversationsDisabled && 'active', messageHighlightStyle && classes[messageHighlightStyle])}
+      className={classNames(classes.permissionButton, user.conversationsDisabled && 'active', messageHighlightStyle && classes[messageHighlightStyle], onlyHighlighted && classes.barePermissionButton)}
       onClick={toggleDisableMessaging}
     >
+      <KeystrokeDisplay keystroke="M" activeContext={!!user.conversationsDisabled} />
       <span className={classes.permissionButtonLabel}>Message</span>
-      <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
     </div>
   );
 
   // When showing only the highlighted buttons (i.e. while the section is collapsed),
-  // render the button bare so it flows together in the parent's wrapping row.
+  // render the button bare so it flows with the other keyboard-first command rows.
   if (onlyHighlighted) {
     return messagingHighlighted ? messageButton : null;
   }
@@ -90,23 +106,23 @@ const ModerationPermissionButtons = ({
         className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
         onClick={toggleDisablePosting}
       >
+        <KeystrokeDisplay keystroke="D" activeContext={!!user.postingDisabled} />
         <span className={classes.permissionButtonLabel}>Post</span>
-        <KeystrokeDisplay keystroke="D" withMargin activeContext={!!user.postingDisabled} />
       </div>
       <div 
         className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
         onClick={toggleDisableCommenting}
       >
+        <KeystrokeDisplay keystroke="C" activeContext={!!user.allCommentingDisabled} />
         <span className={classes.permissionButtonLabel}>Comment</span>
-        <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
       </div>
       {messageButton}
       <div 
         className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
         onClick={() => toggleDisableVoting()}
       >
+        <KeystrokeDisplay keystroke="V" activeContext={!!user.votingDisabled} />
         <span className={classes.permissionButtonLabel}>Vote</span>
-        <KeystrokeDisplay keystroke="V" withMargin activeContext={!!user.votingDisabled} />
       </div>
     </div>
   );

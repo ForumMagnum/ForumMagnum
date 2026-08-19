@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -113,15 +113,19 @@ const InnerMessagesNewForm = ({
   submitLabel = "Submit",
   sendEmail = true,
   keystrokeSubmitButton = false,
+  registerSubmit,
   prefilledProps,
   templateQueries,
   conversationId,
+  optimisticEvent,
+  failureEvent,
   onSuccess,
 }: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
   sendEmail?: boolean;
   keystrokeSubmitButton?: boolean;
+  registerSubmit?: (fn: () => void) => void;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -133,6 +137,8 @@ const InnerMessagesNewForm = ({
   };
   templateQueries?: TemplateQueryStrings;
   conversationId: string;
+  optimisticEvent?: () => void;
+  failureEvent?: () => void;
   onSuccess: (doc: messageListFragment) => void;
 }) => {
   const classes = useStyles(styles);
@@ -165,6 +171,7 @@ const InnerMessagesNewForm = ({
       await onSubmitCallback.current?.();
 
       try {
+        optimisticEvent?.();
         let result: messageListFragment;
 
         const submitData = userIsAdmin(currentUser) 
@@ -182,6 +189,7 @@ const InnerMessagesNewForm = ({
         onSuccess(result);
         setCaughtError(undefined);
       } catch (error) {
+        failureEvent?.();
         setCaughtError(error);
       }
     },
@@ -189,10 +197,18 @@ const InnerMessagesNewForm = ({
 
 
   const handleSubmit = useCallback(async () => {
-    if (keystrokeSubmitButton && editorIsBlank) return;
+    if (form.state.isSubmitting || (keystrokeSubmitButton && editorIsBlank)) return;
     await form.handleSubmit();
   }, [form, keystrokeSubmitButton, editorIsBlank]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+
+  // Lets the supermod sidebar submit the form from outside it (the collapsed
+  // Send Message button and its Cmd+M shortcut)
+  useEffect(() => {
+    if (!registerSubmit) return;
+    registerSubmit(() => void handleSubmit());
+    return () => registerSubmit(() => {});
+  }, [registerSubmit, handleSubmit]);
 
   return (
     <div>
@@ -233,7 +249,7 @@ const InnerMessagesNewForm = ({
                 ? <ComposerSubmitButton
                     type="submit"
                     label={isSubmitting ? <Loading /> : submitLabel}
-                    disabled={editorIsBlank}
+                    disabled={editorIsBlank || isSubmitting}
                   />
                 : <Button
                     type="submit"
@@ -257,6 +273,9 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   keystrokeSubmitButton,
+  registerSubmit,
+  optimisticEvent,
+  failureEvent,
   formStyle="default",
 }: {
   conversationId: string;
@@ -266,6 +285,12 @@ export const MessagesNewForm = ({
   sendEmail?: boolean;
   /** Supermod sidebar style: Ctrl+Enter badge on the submit button, disabled while empty */
   keystrokeSubmitButton?: boolean;
+  /** Hands the form's submit function to the parent so it can be triggered from outside (e.g. the supermod sidebar's Cmd+M shortcut) */
+  registerSubmit?: (fn: () => void) => void;
+  /** Called immediately before the mutation so a parent can update optimistically. */
+  optimisticEvent?: () => void;
+  /** Called if the mutation fails so the parent can roll back its optimistic update. */
+  failureEvent?: () => void;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -296,6 +321,9 @@ export const MessagesNewForm = ({
         submitLabel={submitLabel}
         sendEmail={sendEmail}
         keystrokeSubmitButton={keystrokeSubmitButton}
+        registerSubmit={registerSubmit}
+        optimisticEvent={optimisticEvent}
+        failureEvent={failureEvent}
         prefilledProps={{
           conversationId,
           contents: {

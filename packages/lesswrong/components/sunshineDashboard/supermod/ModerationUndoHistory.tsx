@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useMessages } from '@/components/common/withMessages';
+import { runQueuedModerationAction, runQueuedModerationActions } from './runQueuedModerationAction';
 
 const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
@@ -127,9 +129,41 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
       color: theme.palette.grey[800],
     },
   },
+  failedSectionTitle: {
+    color: theme.palette.error.main,
+  },
+  failedItem: {
+    border: `2px solid ${theme.palette.error.main}`,
+  },
+  errorMessage: {
+    padding: '0 8px 8px 8px',
+    fontSize: 11,
+    color: theme.palette.error.main,
+    wordBreak: 'break-word',
+  },
+  failedItemButton: {
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    cursor: 'pointer',
+    color: theme.palette.error.main,
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+  dismissButton: {
+    color: theme.palette.grey[500],
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
 }));
 
 const HISTORY_PAGE_SIZE = 2;
+
+function getHistoryItemKey(item: HistoryItem) {
+  return `${item.user._id}-${item.timestamp}`;
+}
 
 const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDuration: number }) => {
   const classes = useStyles(styles);
@@ -183,18 +217,28 @@ const ModerationUndoHistory = ({
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
+  const { flash } = useMessages();
   const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
+  const [retryingKeys, setRetryingKeys] = useState<string[]>([]);
 
-  // Warn user if they try to close the tab or navigate away while there are pending actions
+  const failedActions = history.filter(item => item.error);
+  const completedActions = history.filter(item => !item.error);
+
+  // Warn user if they try to close the tab or navigate away while there are pending
+  // actions, or actions that failed to save and haven't been retried or dismissed
   useEffect(() => {
-    if (undoQueue.length === 0) return;
+    if (undoQueue.length === 0 && failedActions.length === 0) return;
+
+    const warning = failedActions.length > 0
+      ? 'Some moderation actions failed to save!'
+      : 'Pending undo queue entries!';
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
       // Legacy browsers may still be relying on returnValue to be set
       // https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent/returnValue
-      event.returnValue = 'Pending undo queue entries!';
-      return 'Pending undo queue entries!';
+      event.returnValue = warning;
+      return warning;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -202,23 +246,75 @@ const ModerationUndoHistory = ({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [undoQueue.length]);
+  }, [undoQueue.length, failedActions.length]);
 
   const handleUndo = (userId: string) => {
     dispatch({ type: 'UNDO_ACTION', userId });
   };
 
   const handleMarkAllDone = () => {
-    for (const item of undoQueue) {
+    const itemsToRun = [...undoQueue];
+    for (const item of itemsToRun) {
       // Cancel the pending expiration timeout so the action doesn't run twice
       clearTimeout(item.timeoutId);
       dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: item.user._id });
-      void item.executeAction();
     }
+    // Runs after the items are in history, so failures can be marked there
+    void runQueuedModerationActions(itemsToRun, dispatch, flash);
+  };
+
+  const handleRetry = async (item: HistoryItem) => {
+    const itemKey = getHistoryItemKey(item);
+    if (retryingKeys.includes(itemKey)) return;
+
+    setRetryingKeys(keys => [...keys, itemKey]);
+    const succeeded = await runQueuedModerationAction(item, dispatch, flash);
+    setRetryingKeys(keys => keys.filter(key => key !== itemKey));
+
+    if (succeeded) {
+      flash({ messageString: `Saved: ${item.actionLabel} for ${item.user.displayName}` });
+    }
+  };
+
+  const handleDismissFailure = (item: HistoryItem) => {
+    dispatch({ type: 'DISMISS_FAILED_ACTION', userId: item.user._id, timestamp: item.timestamp });
   };
 
   return (
     <div className={classes.root}>
+      {failedActions.length > 0 && (
+        <div className={classes.section}>
+          <div className={classNames(classes.sectionTitle, classes.failedSectionTitle)}>
+            {failedActions.length} action{failedActions.length === 1 ? '' : 's'} failed to save
+          </div>
+          {[...failedActions].reverse().map((item) => {
+            const itemKey = getHistoryItemKey(item);
+            return (
+              <div key={itemKey} className={classNames(classes.item, classes.failedItem)}>
+                <div className={classes.itemContent}>
+                  <div className={classes.itemLeft}>
+                    <span className={classes.userName}>{item.user.displayName}</span>
+                    <span className={classes.actionLabel}>{item.actionLabel}</span>
+                  </div>
+                  <div className={classes.itemRight}>
+                    <span className={classes.failedItemButton} onClick={() => handleRetry(item)}>
+                      {retryingKeys.includes(itemKey) ? 'Retrying' : 'Retry'}
+                    </span>
+                    <span
+                      className={classNames(classes.failedItemButton, classes.dismissButton)}
+                      onClick={() => handleDismissFailure(item)}
+                    >
+                      Dismiss
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.errorMessage}>{item.error}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className={classes.section}>
         <div className={classes.sectionTitleRow}>
           <div className={classes.sectionTitle}>Undo Queue</div>
@@ -255,12 +351,12 @@ const ModerationUndoHistory = ({
 
       <div className={classes.section}>
         <div className={classes.sectionTitle}>History</div>
-        {history.length === 0 ? (
+        {completedActions.length === 0 ? (
           <div className={classes.empty}>No history</div>
         ) : (
           <>
-            {history.slice(-historyLimit).reverse().map((item) => (
-              <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
+            {completedActions.slice(-historyLimit).reverse().map((item) => (
+              <div key={getHistoryItemKey(item)} className={classNames(classes.item, classes.historyItem)}>
                 <div className={classes.itemContent}>
                   <div className={classes.itemLeft}>
                     <span className={classes.userName}>{item.user.displayName}</span>
@@ -269,7 +365,7 @@ const ModerationUndoHistory = ({
                 </div>
               </div>
             ))}
-            {history.length > historyLimit && (
+            {completedActions.length > historyLimit && (
               <div className={classes.loadMore} onClick={() => setHistoryLimit(historyLimit + HISTORY_PAGE_SIZE)}>
                 Load more
               </div>

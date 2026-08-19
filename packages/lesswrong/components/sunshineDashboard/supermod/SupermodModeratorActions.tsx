@@ -5,7 +5,6 @@ import ModerationActionButtons from './ModerationActionButtons';
 import ModerationSectionTitle from './ModerationSectionTitle';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
-import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import { getHighlightedModeratorActions, type HighlightableModeratorAction } from './actionHighlightRules';
 import type { ModeratorActionHighlightLevel } from '@/lib/moderatorHighlights/highlightRuleTypes';
@@ -13,6 +12,7 @@ import { useHighlightRuleOverrides } from './useHighlightRuleOverrides';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
+import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   sectionTitleRow: {
@@ -23,13 +23,41 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   collapseChevron: {
     fontSize: 16,
     color: theme.palette.grey[600],
+  },
+  collapseButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
+    border: 0,
+    background: 'none',
+    color: theme.palette.grey[600],
     cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
   },
   highlightedActionsRow: {
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: 4,
+    alignItems: 'flex-start',
+    gap: 8,
     marginTop: 8,
+  },
+  // Equal-width columns, so the right-hand column starts at the same x whatever
+  // the longest label in the left-hand one happens to be for this user
+  highlightedActionsColumn: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+    '&:empty': {
+      display: 'none',
+    },
+    '&:first-child': {
+      paddingLeft: 4,
+    },
   },
   modActionsColumn: {
     display: 'flex',
@@ -59,25 +87,24 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsLoading, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsLoading, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   posts: SunshinePostsList[],
   comments: SunshineCommentsList[],
   contentsLoading: boolean,
+  expanded: boolean,
+  // False while another sidebar section is expanded: the collapsed view drops
+  // its highlighted action buttons, leaving just the header
+  showCollapsedActions: boolean,
+  onToggle: () => void,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
-
-  const { moderatorActionsCollapsed, setModeratorActionsCollapsed } = useLocalStorageState(
-    'moderatorActionsCollapsed',
-    (key) => `supermod_${key}`,
-    'true'
-  );
-  const isCollapsed = moderatorActionsCollapsed === 'true';
+  const isCollapsed = !expanded;
 
   // While the user's contents are still loading, the empty posts/comments lists would
   // spuriously satisfy the absence-based rules (e.g. Remove, Purge), so highlight nothing.
@@ -93,19 +120,36 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
     }), [user, posts, comments, contentsLoading, ruleOverrides]);
 
   return (
-    <div>
+    <ModerationSidebarSection
+      fillsAvailableSpace={expanded}
+      hasHighlightedItems={highlightedActions.size > 0}
+      withDivider={false}
+    >
       <div className={classes.sectionTitleRow}>
         <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-        <ForumIcon
-          icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"}
-          className={classes.collapseChevron}
-          onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
-        />
+        <button
+          type="button"
+          className={classes.collapseButton}
+          onClick={onToggle}
+          title={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
+          aria-label={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
+          aria-expanded={expanded}
+        >
+          <ForumIcon
+            icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+            className={classes.collapseChevron}
+          />
+        </button>
       </div>
-      {isCollapsed && highlightedActions.size > 0 && (
+      {isCollapsed && showCollapsedActions && highlightedActions.size > 0 && (
         <div className={classes.highlightedActionsRow}>
-          <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
-          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+          <div className={classes.highlightedActionsColumn}>
+            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted column="restrictive" />
+            <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted />
+          </div>
+          <div className={classes.highlightedActionsColumn}>
+            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlighted column="approve" />
+          </div>
         </div>
       )}
       {!isCollapsed && <>
@@ -137,7 +181,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
           <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
         </div>
       </>}
-    </div>
+    </ModerationSidebarSection>
   );
 }
 
