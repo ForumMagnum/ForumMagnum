@@ -14,8 +14,6 @@ import {
 } from "@/lib/moderatorHighlights/highlightRuleTypes";
 import { HIGHLIGHT_SIGNALS, type HighlightSignalContext, type HighlightSignalName } from "./highlightSignals";
 
-/** Evaluation of the editable (threshold-shaped) highlight rules. */
-
 function compareNumbers(operator: NumericHighlightOperator, signalValue: number, target: number): boolean {
   switch (operator) {
     case 'gte': return signalValue >= target;
@@ -26,6 +24,9 @@ function compareNumbers(operator: NumericHighlightOperator, signalValue: number,
   }
 }
 
+// The RegExp is constructed per call on purpose: the distinct-match path uses the `g` flag, and
+// a cached global regex carries `lastIndex` between calls, which makes `.test()` alternate
+// true/false across the items of a list signal.
 function regexMatchesValue(
   operator: RegexHighlightOperator,
   pattern: string,
@@ -94,6 +95,10 @@ function evaluateCondition(condition: HighlightCondition, ctx: HighlightSignalCo
  * Groups are alternatives: the rule matches if any of them matches, and a group matches when
  * every condition in it passes. An empty list of groups never matches; a group with no
  * conditions always matches.
+ */
+/**
+ * An OR of ANDs, with two load-bearing edge cases: no groups never matches, and a group with no
+ * conditions always matches (which is what ALWAYS relies on). Don't "clean up" empty groups.
  */
 function anyGroupMatches(groups: HighlightCondition[][], ctx: HighlightSignalContext): boolean {
   return groups.some(group => group.every(condition => evaluateCondition(condition, ctx)));
@@ -177,4 +182,5 @@ export function distinctRegexMatchesCondition(
 }
 
 /** For rules that should always reach level 2 once they match at all */
+/** One empty group, i.e. always matches. See anyGroupMatches. */
 export const ALWAYS: HighlightCondition[][] = [[]];

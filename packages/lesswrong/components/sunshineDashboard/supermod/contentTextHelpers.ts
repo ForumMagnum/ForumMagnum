@@ -11,11 +11,15 @@ export const getTitleAndText = (content: ContentItem) => {
 };
 
 /** Paragraph text used by the formatting highlight rule, including fully unwrapped content. */
+/**
+ * Content with no <p> tags counts as a single paragraph, but only if it has no other block
+ * markup — a wall of text broken by <br>s or list items returns [], so the rules keyed on a
+ * paragraph count of exactly 1 (see formattingRejectionRule) never fire on it.
+ */
 export const getFormattingParagraphPlaintextsFromHtml = (html: string): string[] => {
   const paragraphs = [...html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
     .map(match => stripHtml(match[1]).replace(/\s+/g, ' ').trim());
   if (paragraphs.length > 0) return paragraphs;
-
   const hasOtherBlockBreaks = /<(br|li|h[1-6]|blockquote)\b/i.test(html);
   if (hasOtherBlockBreaks) return [];
   const plaintext = stripHtml(html).replace(/\s+/g, ' ').trim();
@@ -34,7 +38,6 @@ export const getRepeatedPunctuationRunCountFromHtml = (html: string): number => 
 export const getLongestFormattingSentenceLengthFromHtml = (html: string): number => {
   const paragraphs = getFormattingParagraphPlaintextsFromHtml(html);
   let longestSentenceLength = 0;
-
   for (const paragraph of paragraphs) {
     for (const sentence of paragraph.split(FORMATTING_SENTENCE_BOUNDARY)) {
       longestSentenceLength = Math.max(longestSentenceLength, sentence.trim().length);

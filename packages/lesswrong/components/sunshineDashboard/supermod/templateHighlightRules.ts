@@ -12,14 +12,10 @@ import {
 import type { HighlightSignalContext } from "./highlightSignals";
 
 /**
- * Highlight rules for message and rejection templates, keyed by template ID.
- *
- * The rules live in the DEFAULT_*_TEMPLATE_RULES maps below, in a serializable format that
- * can be edited from /admin/supermodHighlights. Their conditions refer to named signals in
- * highlightSignals.ts. Regular-expression patterns and their match thresholds live directly in
- * the rules; only specialized operations such as duplicate detection stay behind named signals.
+ * Production ModerationTemplates._ids. On a database that doesn't have these rows the defaults
+ * silently no-op and the rule editor shows "No template with this ID" — the rules are coupled to
+ * prod data rather than to schema.
  */
-
 export const MESSAGE_TEMPLATE_IDS = {
   badFitFirstPost: 'c9fBRe7pg4vAxxE8K',
   barelyApprovedAiContent: 'cqS4KAvpsRwop9bzE',
@@ -75,12 +71,8 @@ const TRACTION_MAX_BASE_SCORE = 2;
 
 const BAD_FIT_MIN_REJECTED_POSTS = 2;
 
-// The message version is for a pattern of AI research posts, at least one of which we already
-// rejected; a single such post is the rejection template's business instead.
 const AI_RESEARCH_MIN_POSTS = 2;
 
-// The patterns themselves live in the serializable default rules, rather than inside signal
-// computations, so moderators can understand and customize them in the rule editor.
 const ORG_USERNAME_PATTERN = '\\b(team|labs?|institute|foundation|research|official|inc|llc|ltd|ventures?|solutions|technologies|capital|group|systems|collective)\\b';
 const ORG_USERNAME_EXPLANATION = 'The display name contains a whole-word organization term such as team, lab, institute, research, or foundation.';
 const THREE_DIGITS_PATTERN = '\\d.*\\d.*\\d';
@@ -91,6 +83,9 @@ const LONG_UNBROKEN_USERNAME_PATTERN = '^[^ ]{24,}$';
 const LONG_UNBROKEN_USERNAME_EXPLANATION = 'The display name is at least 24 characters long and contains no spaces.';
 const POLITICAL_TERMS_PATTERN = '\\b(trump|biden|obama|kamala|democrats?|republicans?|left-wing|right-wing|elections?|presidential|congress|senate|immigration|abortion|transgender|woke|israel|gaza|palestine|palestinians?|culture war)\\b';
 const POLITICAL_TERMS_EXPLANATION = 'A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once.';
+// The next two patterns detect problems *by case*, so they must always be used with a
+// case-sensitive operator. Under the /i variants `[a-z]` also matches uppercase and they
+// degenerate into "has four sentences", i.e. they fire on nearly everything.
 const MULTIPLE_LOWERCASE_SENTENCE_STARTS_PATTERN = '^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}';
 const MULTIPLE_LOWERCASE_SENTENCE_STARTS_EXPLANATION = 'A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter.';
 const MULTIPLE_MISSING_SENTENCE_SPACES_PATTERN = '(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}';
@@ -112,8 +107,10 @@ const focusedAiResearchGroup = [
   focusedAiTopicCondition,
   regexCondition('focusedTitleAndText', AI_RESEARCH_PROCESS_PATTERN, 'matchesRegex', AI_RESEARCH_PROCESS_EXPLANATION),
 ];
-// Both halves of the AI-research test have to hold within a single post, so they are combined
-// into one pattern rather than two conditions that could each match a different post.
+
+// These two constants are interpolated into lookaheads below, so they have to stay fully
+// grouped: rewriting `\b(AI|AGI)\b` as `\bAI\b|\bAGI\b` changes the alternation's
+// precedence inside the lookahead and silently narrows what the combined pattern matches.
 const AI_RESEARCH_POST_PATTERN = `(?=[\\s\\S]*${AI_TOPIC_PATTERN})(?=[\\s\\S]*${AI_RESEARCH_PROCESS_PATTERN})`;
 const AI_RESEARCH_POSTS_EXPLANATION = `At least ${AI_RESEARCH_MIN_POSTS} posts each mention AI or a technical AI topic and present an AI research project, experiment, training process, evaluation, results, benchmark, or dataset.`;
 const REJECTED_AI_RESEARCH_POST_EXPLANATION = 'At least one of the user\'s rejected posts mentions AI or a technical AI topic and presents an AI research project, experiment, training process, evaluation, results, benchmark, or dataset.';
@@ -468,6 +465,7 @@ function addMatchingRules(
   }
 }
 
+/** No consumer yet; the rejection composer that calls this lands with the inbox UI PR. */
 export function getHighlightedRejectionTemplateIds(
   focusedContent: ContentItem | null | undefined,
   ctx: TemplateHighlightContext,

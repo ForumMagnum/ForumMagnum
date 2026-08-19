@@ -2,30 +2,25 @@ import type { HighlightRule, HighlightRuleOverrides, ModeratorActionHighlightLev
 import { ALWAYS, booleanCondition, evaluateActionHighlightRule, numberCondition, resolveHighlightRules } from "./declarativeHighlightRules";
 import { HIGH_PANGRAM_SCORE } from "./highlightSignals";
 
+/**
+ * Nothing consumes these rules yet. The action buttons that read
+ * getHighlightedModeratorActions/getActionHighlightStyle land with the inbox UI PR; until then
+ * they are editable at /admin/supermodHighlights but have no visible effect.
+ *
+ * Level 1 means the action shows up above the fold in the collapsed row, with a subtle outline
+ * once expanded. Level 2 additionally gives it the per-action color below. Rules reach level 2
+ * only on positive evidence (actual rejections, or content that really was scored), not on a
+ * merely compatible absence of information.
+ */
+
 export const highlightableModeratorActions = ['approve', 'snoozeCustom', 'approveCurrentOnly', 'remove', 'purge', 'disablePermissions', 'disableMessages'] as const;
 
 export type HighlightableModeratorAction = typeof highlightableModeratorActions[number];
-
-/**
- * Highlighted moderator actions come in two layers:
- * - Level 1: the action just shows up above the fold (while the section is collapsed) in its
- *   normal styling, and gets a somewhat darker outline in the expanded view.
- * - Level 2: the action's outline changes to a per-action color (see
- *   `moderatorActionHighlightColors`) in both the collapsed and expanded views.
- *
- * Highlights default to level 1; rules only reach level 2 when there's particular evidence
- * that the action should apply (e.g. actual rejections, or affirmatively human LLM scores),
- * rather than just a compatible absence of information.
- *
- * All of these rules are thresholds on signals (see highlightSignals.ts), so they're editable
- * from /admin/supermodHighlights.
- */
 
 export type ModeratorActionHighlightColor = 'green' | 'gold' | 'black' | 'red';
 
 export type ModeratorActionHighlightStyle = ModeratorActionHighlightColor | 'subtleOutline';
 
-/** Outline colors used when an action is highlighted at level 2 */
 export const moderatorActionHighlightColors: Record<HighlightableModeratorAction, ModeratorActionHighlightColor> = {
   approve: 'green',
   snoozeCustom: 'gold',
@@ -58,11 +53,6 @@ const APPROVE_MIN_APPROVED_CONTENTS = 2;
 const APPROVE_MIN_KARMA = 10;
 const PURGE_MAX_CONTENTS = 3;
 
-/**
- * The user has content awaiting review, and none of it looks LLM-written. Level 2 when every
- * unapproved content has actually been scored (particular evidence, rather than just an
- * absence of high scores).
- */
 const hasCleanUnapprovedContent = [
   numberCondition('unapprovedContentCount', 'gte', 1),
   numberCondition('maxPangramScoreAmongUnapproved', 'lte', HIGH_PANGRAM_SCORE),
@@ -70,11 +60,8 @@ const hasCleanUnapprovedContent = [
 
 const allUnapprovedContentScored = [[numberCondition('unapprovedContentMissingPangramScoreCount', 'eq', 0)]];
 
-/**
- * Approving applies to the user's future content too, so it additionally requires some
- * track record — either already-approved contents or a bit of karma — and no negative
- * average score on either their posts or their comments.
- */
+// averagePostKarma/averageCommentKarma are 0 for an empty set, so a user with no posts (or no
+// comments) passes that half vacuously; this only rules out an actually-negative track record.
 const hasTrackRecord = [
   numberCondition('averagePostKarma', 'gte', 0),
   numberCondition('averageCommentKarma', 'gte', 0),
@@ -99,15 +86,11 @@ export const DEFAULT_ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction
     groups: [hasCleanUnapprovedContent],
     level2Groups: allUnapprovedContentScored,
   },
-  // Everything the user has submitted has already been either approved or rejected.
-  // Level 2 when that's the result of actual rejections rather than just having no pending content.
   remove: {
     enabled: true,
     groups: [[numberCondition('unapprovedContentCount', 'eq', 0)]],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 1)]],
   },
-  // Purging is only appropriate for low-volume accounts with no approved content.
-  // Level 2 when multiple contents were actually rejected.
   purge: {
     enabled: true,
     groups: [[
@@ -116,9 +99,6 @@ export const DEFAULT_ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction
     ]],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },
-  // Level 2 when the user has at least two rejected contents; level 1 when just their most
-  // recent content is rejected. Keep the action highlighted after disabling permissions so
-  // its toggled "Enable Permissions" button remains available.
   disablePermissions: {
     enabled: true,
     groups: [
@@ -127,7 +107,6 @@ export const DEFAULT_ACTION_HIGHLIGHT_RULES: Record<HighlightableModeratorAction
     ],
     level2Groups: [[numberCondition('rejectedContentCount', 'gte', 2)]],
   },
-  // Same trigger as the "Lotsa DMs" message template; the flag itself is particular evidence.
   disableMessages: {
     enabled: true,
     groups: [[booleanCondition('conversationsDisabled', false), numberCondition('activeDmFlagCount', 'gte', 1)]],
@@ -153,12 +132,6 @@ export function getHighlightedModeratorActions(ctx: ActionHighlightContext): Map
   return highlighted;
 }
 
-/**
- * Resolves which visual treatment (if any) a highlighted action's button should get.
- * Level 1 actions look normal in the collapsed row (they're highlighted just by being
- * there) and get a somewhat darker outline in the expanded view; level 2 actions get
- * their per-action colored outline in both views.
- */
 export function getActionHighlightStyle(
   action: HighlightableModeratorAction,
   level: ModeratorActionHighlightLevel | undefined,
