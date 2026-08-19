@@ -103,8 +103,8 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
-  if (!$pointsShareBlock(anchor, focus)) {
-    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  if (!$pointsShareBlock(anchor, focus) || $containsBlockNode(inlineNodes)) {
+    return $applyEditWithRangeSelection({ anchor, focus, inlineNodes });
   }
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
@@ -117,6 +117,12 @@ export function $applyEditAtSelection({
     });
   }
   return $applyEditMultiNode({ anchor, focus, inlineNodes });
+}
+
+function $containsBlockNode(nodes: LexicalNode[]): boolean {
+  return nodes.some((node) =>
+    ($isElementNode(node) || $isDecoratorNode(node)) && !node.isInline()
+  );
 }
 
 /**
@@ -156,12 +162,11 @@ function $pointsShareBlock(
 }
 
 /**
- * Apply an edit whose range spans block boundaries, via Lexical's own
- * range-selection editing (the paste path): removing a cross-block range
- * merges the boundary blocks, and inserting nodes splits blocks as needed
- * when the replacement itself is multi-block.
+ * Apply an edit via Lexical's own range-selection editing (the paste path).
+ * This is required for cross-block ranges and for block-level replacements,
+ * where inserting nodes splits and merges blocks as needed.
  */
-function $applyEditAcrossBlocks({
+function $applyEditWithRangeSelection({
   anchor,
   focus,
   inlineNodes,

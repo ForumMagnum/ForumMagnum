@@ -338,6 +338,21 @@ describe("replaceText edit mode", () => {
     expect(text).not.toContain("**");
     expect(text).toContain("bold");
   });
+
+  it("replaces a single block with multiple complete blocks", async () => {
+    const editor = await setupEditorWithContent("Original paragraph.");
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Original paragraph.",
+      "Replacement first paragraph.\n\nReplacement second paragraph.",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(
+      "Replacement first paragraph.\n\nReplacement second paragraph.",
+    );
+  });
 });
 
 describe("replaceText edit mode when quote starts at beginning of text node", () => {
