@@ -36,7 +36,9 @@ export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>)
 
 export function getManualRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   if (!userRateLimit) return null
-  const nextEligible = getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
+  const nextEligible = userRateLimit.actionsPerInterval === 0
+    ? userRateLimit.endedAt
+    : getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
   if (!nextEligible) return null
   return {
     nextEligible,

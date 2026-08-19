@@ -9,11 +9,13 @@
  * format) becomes a single entry with no timestamp/author.
  */
 
-import moment from 'moment-timezone';
+import moment from '@/lib/moment-timezone';
 
 export interface ModeratorNoteEntry {
   /** eg "Aug 15, 3:42 PM"; null for text that had no recognizable signature */
   timestamp: string | null;
+  /** `timestamp` resolved to a Date, or null if it wasn't in a format we recognize */
+  date: Date | null;
   author: string | null;
   body: string;
 }
@@ -30,7 +32,23 @@ interface ModeratorNoteEntryDraft {
 const DATE_PATTERN = String.raw`(?:[A-Z][a-z]{2}\s+\d{1,2}(?:,\s*\d{4})?|\d{1,2}\/\d{1,2}\/\d{2,4})(?:,?\s*\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?`;
 const SIGNATURE_LINE = new RegExp(String.raw`^(${DATE_PATTERN}),\s*([^:\n]{1,60}?)\s*:[ \t]*(.*)$`);
 
-function finishDraft(draft: ModeratorNoteEntryDraft | null): ModeratorNoteEntry | null {
+// `getSignature` writes timestamps in Pacific time, and most legacy notes were
+// also written by moderators in that timezone, so that's our best guess for how
+// to interpret a signature that carries no timezone of its own.
+const SIGNATURE_TIMEZONE = 'America/Los_Angeles';
+
+const TIME_FORMATS = ['h:mm A', 'h:mm:ss A', 'H:mm', 'H:mm:ss'];
+
+// Commas are stripped before parsing, so the formats only need to cover which
+// date and time formats we accept, not how they were punctuated.
+function withTimes(dateFormats: string[]) {
+  return dateFormats.flatMap(date => [date, ...TIME_FORMATS.map(time => `${date} ${time}`)]);
+}
+
+const DATED_FORMATS = withTimes(['MMM D YYYY', 'M/D/YYYY', 'M/D/YY']);
+const YEARLESS_FORMATS = withTimes(['MMM D']);
+
+function finishDraft(draft: ModeratorNoteEntryDraft | null): Omit<ModeratorNoteEntry, 'date'> | null {
   if (!draft) return null;
   const bodyLines = [...draft.bodyLines];
   while (bodyLines.length && !bodyLines[bodyLines.length - 1].trim()) bodyLines.pop();
@@ -40,15 +58,39 @@ function finishDraft(draft: ModeratorNoteEntryDraft | null): ModeratorNoteEntry 
   return { timestamp: draft.timestamp, author: draft.author, body };
 }
 
-export function parseModeratorNotes(notes: string | null | undefined): ModeratorNoteEntry[] {
-  const entries: ModeratorNoteEntry[] = [];
+/**
+ * Resolve a signature timestamp against an upper bound: notes are written
+ * newest-first, so an entry can't be newer than the entry above it (or, for the
+ * first entry, than now). Most signatures omit the year, in which case we pick
+ * the most recent year that keeps the entry at or below that bound, so that
+ * years-old notes don't render as if they were written this year.
+ */
+function resolveTimestamp(timestamp: string | null, noLaterThan: Date): Date | null {
+  if (!timestamp) return null;
+  const normalized = timestamp.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const dated = moment.tz(normalized, DATED_FORMATS, true, SIGNATURE_TIMEZONE);
+  if (dated.isValid()) return dated.toDate();
+
+  const yearless = moment.tz(normalized, YEARLESS_FORMATS, true, SIGNATURE_TIMEZONE);
+  if (!yearless.isValid()) return null;
+
+  yearless.year(moment.tz(noLaterThan, SIGNATURE_TIMEZONE).year());
+  if (yearless.toDate().getTime() > noLaterThan.getTime()) {
+    yearless.subtract(1, 'year');
+  }
+  return yearless.toDate();
+}
+
+export function parseModeratorNotes(notes: string | null | undefined, now: Date): ModeratorNoteEntry[] {
+  const parsedEntries: Array<Omit<ModeratorNoteEntry, 'date'>> = [];
   let draft: ModeratorNoteEntryDraft | null = null;
 
   for (const line of (notes ?? '').split('\n')) {
     const signature = SIGNATURE_LINE.exec(line);
     if (signature) {
       const finished = finishDraft(draft);
-      if (finished) entries.push(finished);
+      if (finished) parsedEntries.push(finished);
       draft = { timestamp: signature[1], author: signature[2], bodyLines: [signature[3]] };
     } else {
       draft ??= { timestamp: null, author: null, bodyLines: [] };
@@ -57,45 +99,14 @@ export function parseModeratorNotes(notes: string | null | undefined): Moderator
   }
 
   const lastEntry = finishDraft(draft);
-  if (lastEntry) entries.push(lastEntry);
+  if (lastEntry) parsedEntries.push(lastEntry);
 
-  return entries;
-}
-
-// `getSignature` writes timestamps in Pacific time, and most legacy notes were
-// also written by moderators in that timezone, so that's our best guess for how
-// to interpret a signature that carries no timezone of its own.
-const SIGNATURE_TIMEZONE = 'America/Los_Angeles';
-
-const TIME_FORMATS = ['h:mm A', 'h:mm:ss A', 'H:mm', 'H:mm:ss'];
-
-function withTimes(dateFormats: string[]) {
-  return dateFormats.flatMap(date => [
-    date,
-    ...TIME_FORMATS.flatMap(time => [`${date}, ${time}`, `${date} ${time}`]),
-  ]);
-}
-
-const DATED_FORMATS = withTimes(['MMM D, YYYY', 'M/D/YYYY', 'M/D/YY']);
-const YEARLESS_FORMATS = withTimes(['MMM D']);
-
-/**
- * Turn a signature timestamp (see `ModeratorNoteEntry.timestamp`) into a Date,
- * or null if it isn't in a format we recognize. Most signatures omit the year,
- * in which case we assume the note is the most recent one that could have been
- * written that way, since notes are always about the past.
- */
-export function parseModeratorNoteTimestamp(timestamp: string | null, now: Date): Date | null {
-  if (!timestamp) return null;
-
-  const dated = moment.tz(timestamp, DATED_FORMATS, true, SIGNATURE_TIMEZONE);
-  if (dated.isValid()) return dated.toDate();
-
-  const yearless = moment.tz(timestamp, YEARLESS_FORMATS, true, SIGNATURE_TIMEZONE);
-  if (!yearless.isValid()) return null;
-  yearless.year(moment.tz(now, SIGNATURE_TIMEZONE).year());
-  if (yearless.toDate().getTime() > now.getTime() + (24 * 60 * 60 * 1000)) {
-    yearless.subtract(1, 'year');
-  }
-  return yearless.toDate();
+  // A day of slack, since a signature is written in Pacific time but might be
+  // read from a clock that's slightly behind, or in an earlier timezone.
+  let noLaterThan = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+  return parsedEntries.map(entry => {
+    const date = resolveTimestamp(entry.timestamp, noLaterThan);
+    if (date) noLaterThan = date;
+    return { ...entry, date };
+  });
 }

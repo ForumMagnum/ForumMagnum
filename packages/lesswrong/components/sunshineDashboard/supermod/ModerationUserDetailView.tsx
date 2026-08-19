@@ -9,7 +9,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import { getNextUnapprovedContentIndex, type ContentItem } from './helpers';
+import { getModerationContentItems, getNextUnapprovedContentIndex, isMapPin, type ContentItem } from './helpers';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -82,14 +82,16 @@ const ModerationUserDetailView = ({
     [dispatch]
   );
 
-  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) =>
-    new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-  ), [posts, comments]);
+  const allContent = useMemo(
+    () => getModerationContentItems(user, posts, comments),
+    [user, posts, comments],
+  );
 
-  const focusedContent = useMemo(() => 
+  const focusedItem = useMemo(() =>
     allContent[focusedContentIndex] || null,
     [allContent, focusedContentIndex]
   );
+  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
 
   const showContentColumns = contentsLoading || allContent.length > 0;
 
@@ -126,14 +128,14 @@ const ModerationUserDetailView = ({
             <div className={classes.contentListColumn}>
               <ModerationContentList
                 items={allContent}
-                title="Posts & Comments"
+                title="Content"
                 focusedItemId={allContent[focusedContentIndex]?._id ?? null}
                 runningLlmCheckId={runningLlmCheckId}
                 dispatch={dispatch}
               />
             </div>
             <div className={classes.contentListColumn}>
-              <ModerationContentDetail item={focusedContent} />
+              <ModerationContentDetail item={focusedItem} />
             </div>
           </>
         )}

@@ -7,9 +7,12 @@ import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
-import { parseModeratorNotes, parseModeratorNoteTimestamp } from './parseModeratorNotes';
+import { parseModeratorNotes } from './parseModeratorNotes';
+import { blurEditorOnEscape } from '@/components/editor/focusLexicalEditor';
 import { useCurrentTime } from '@/lib/utils/TimeProvider';
 import FormatDate from '@/components/common/FormatDate';
+import ModerationSectionTitle from './ModerationSectionTitle';
+import ComposerSubmitButton from './ComposerSubmitButton';
 import type { InboxAction } from './inboxReducer';
 
 const SunshineUsersListUpdateMutation = gql(`
@@ -30,13 +33,6 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
     maxWidth: 400,
     width: '100%',
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    color: theme.palette.grey[600],
-    letterSpacing: '0.5px',
-  },
   composer: {
     border: theme.palette.border.faint,
     borderRadius: 4,
@@ -47,10 +43,8 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
       ...hideScrollBars,
     },
   },
-  composerHint: {
-    fontSize: 10,
-    color: theme.palette.grey[500],
-    textAlign: 'right',
+  submitButton: {
+    alignSelf: 'flex-end',
   },
   entries: {
     display: 'grid',
@@ -83,17 +77,6 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
   },
 }));
 
-const ModeratorNoteDate = ({ timestamp }: { timestamp: string | null }) => {
-  const classes = useStyles(styles);
-  const now = useCurrentTime();
-  const date = useMemo(() => parseModeratorNoteTimestamp(timestamp, now), [timestamp, now]);
-
-  // Entries with no recognizable date still need to occupy the column, to keep the grid aligned
-  return <div className={classes.entryDate}>
-    {date ? <FormatDate date={date} /> : timestamp}
-  </div>;
-};
-
 const ModeratorNotes = ({
   user,
   currentUser,
@@ -104,11 +87,12 @@ const ModeratorNotes = ({
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
+  const now = useCurrentTime();
   const [draft, setDraft] = useState('');
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
 
-  const entries = useMemo(() => parseModeratorNotes(user.sunshineNotes), [user.sunshineNotes]);
+  const entries = useMemo(() => parseModeratorNotes(user.sunshineNotes, now), [user.sunshineNotes, now]);
 
   const addNote = useCallback(() => {
     const noteText = draft.trim();
@@ -126,6 +110,8 @@ const ModeratorNotes = ({
   }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, updateUser]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // A bare Escape blurs the composer, rather than closing the whole detail view and losing the draft
+    if (blurEditorOnEscape(e)) return;
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       addNote();
@@ -134,28 +120,32 @@ const ModeratorNotes = ({
 
   return (
     <div className={classes.root}>
-      <div className={classes.sectionTitle}>Moderator Notes</div>
-      <div className={classes.composer}>
+      <ModerationSectionTitle>Moderator Notes</ModerationSectionTitle>
+      <div className={classes.composer} onKeyDown={handleKeyDown}>
         <Input
           value={draft}
           fullWidth
           onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
           disableUnderline
           placeholder="Add a note for other moderators"
           multiline
         />
       </div>
-      {!!draft.trim() && <div className={classes.composerHint}>⌘/ctrl + enter to save</div>}
-      <div className={classes.entries}>
+      <div className={classes.submitButton}>
+        <ComposerSubmitButton label="Add note" disabled={!draft.trim()} onClick={addNote} />
+      </div>
+      {entries.length > 0 && <div className={classes.entries}>
         {entries.map((entry, index) => (
           <React.Fragment key={index}>
             <div className={classes.entryBody}>{entry.body}</div>
             <div className={classes.entryAuthor}>{entry.author}</div>
-            <ModeratorNoteDate timestamp={entry.timestamp} />
+            {/* Entries with no recognizable date still need to occupy the column, to keep the grid aligned */}
+            <div className={classes.entryDate}>
+              {entry.date ? <FormatDate date={entry.date} /> : entry.timestamp}
+            </div>
           </React.Fragment>
         ))}
-      </div>
+      </div>}
     </div>
   );
 };

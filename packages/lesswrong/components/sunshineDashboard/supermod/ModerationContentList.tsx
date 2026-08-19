@@ -2,6 +2,8 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
+import { isMapPin, type ModerationContentItem } from './helpers';
+import { ModerationMapPinListItem } from './ModerationMapPin';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   root: {
@@ -42,8 +44,6 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   },
 }));
 
-type ContentItem = SunshinePostsList | SunshineCommentsList;
-
 const ModerationContentList = ({
   items,
   title,
@@ -51,7 +51,7 @@ const ModerationContentList = ({
   runningLlmCheckId,
   dispatch,
 }: {
-  items: ContentItem[];
+  items: ModerationContentItem[];
   title: string;
   focusedItemId: string | null;
   runningLlmCheckId: string | null;
@@ -74,15 +74,22 @@ const ModerationContentList = ({
       ) : (
         <div className={classes.list}>
           {items.map((item, idx) => (
-            <ModerationUserContentItem
-              key={item._id}
-              item={item}
-              isFocused={item._id === focusedItemId}
-              isRunningLlmCheck={item._id === runningLlmCheckId}
-              onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
-              onReject={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx, sidebarTab: 'reject' })}
-              dispatch={dispatch}
-            />
+            isMapPin(item)
+              ? <ModerationMapPinListItem
+                key={item._id}
+                item={item}
+                isFocused={item._id === focusedItemId}
+                onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
+              />
+              : <ModerationUserContentItem
+                key={item._id}
+                item={item}
+                isFocused={item._id === focusedItemId}
+                isRunningLlmCheck={item._id === runningLlmCheckId}
+                onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
+                onReject={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx, sidebarTab: 'reject' })}
+                dispatch={dispatch}
+              />
           ))}
         </div>
       )}

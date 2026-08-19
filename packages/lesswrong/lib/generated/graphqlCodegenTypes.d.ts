@@ -4621,7 +4621,6 @@ type MutationrunLlmCheckForDocumentArgs = {
 
 
 type MutationrunPangramOnTextArgs = {
-  model?: InputMaybe<PangramModel>;
   text: Scalars['String']['input'];
 };
 
@@ -5076,13 +5075,8 @@ type OAuthClient = {
   createdAt: Scalars['Date']['output'];
 };
 
-type PangramModel =
-  | 'pangram3'
-  | 'pangram4';
-
 type PangramTextEvaluationResult = {
   __typename?: 'PangramTextEvaluationResult';
-  analyzedText: Scalars['String']['output'];
   pangramMaxScore?: Maybe<Scalars['Float']['output']>;
   pangramPrediction?: Maybe<Scalars['String']['output']>;
   pangramScore: Scalars['Float']['output'];
@@ -12356,14 +12350,13 @@ type YjsDocument = {
 
 type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
 
-type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', analyzedText: string, pangramScore: number, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', pangramScore: number, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
 
 type RunPangramOnTextMutation_Mutation = { __typename?: 'Mutation', runPangramOnText: RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult };
 
 
 type RunPangramOnTextMutationVariables = Exact<{
   text: Scalars['String']['input'];
-  model: InputMaybe<PangramModel>;
 }>;
 
 
@@ -25516,7 +25509,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

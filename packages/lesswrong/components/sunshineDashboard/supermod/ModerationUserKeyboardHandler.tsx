@@ -6,7 +6,7 @@ import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { useModerationUserActions } from './useModerationUserActions';
-import { areAllContentPermissionsDisabled, canRejectContent, ContentItem, isPost } from './helpers';
+import { areAllContentPermissionsDisabled, canRejectContent, getModerationContentItems, isMapPin, isPost, type ContentItem } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
 
@@ -77,13 +77,15 @@ const ModerationUserKeyboardHandler = ({
     toggleAllPermissions,
   } = useUserContentPermissions(selectedUser, dispatch);
   
-  const allContent = useMemo(() => {
-    return [...posts, ...comments].sort((a, b) => 
-      new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-    );
-  }, [posts, comments]);
+  const allContent = useMemo(
+    () => selectedUser ? getModerationContentItems(selectedUser, posts, comments) : [],
+    [selectedUser, posts, comments],
+  );
 
-  const selectedContent = useMemo<ContentItem | undefined>(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
+  const selectedContent = useMemo<ContentItem | undefined>(() => {
+    const selectedItem = allContent[selectedContentIndex];
+    return selectedItem && !isMapPin(selectedItem) ? selectedItem : undefined;
+  }, [allContent, selectedContentIndex]);
 
   const selectedContentId = selectedContent?._id ?? null;
   const selectedContentCollectionName = selectedContent ? (isPost(selectedContent) ? 'Posts' as const : 'Comments' as const) : 'Posts' as const;
