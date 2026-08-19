@@ -8,12 +8,6 @@ import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
 
-export interface HistoryItem {
-  user: SunshineUsersList;
-  actionLabel: string;
-  timestamp: number;
-}
-
 export interface UndoHistoryItem {
   user: SunshineUsersList;
   actionLabel: string;
@@ -50,8 +44,6 @@ export type InboxState = {
   sidebarTab: SelectedSidebarTab;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
-  // History - expired actions that can't be undone - only for users
-  history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
 };
@@ -167,14 +159,12 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     }
 
     case 'EXPIRE_UNDO_ITEM': {
-      const item = state.undoQueue.find(item => item.user._id === action.userId);
-      if (!item) return state;
+      if (!state.undoQueue.some(item => item.user._id === action.userId)) return state;
 
       // Note: The action execution itself happens in the component via the timeout callback
       return {
         ...state,
         undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
-        history: [...state.history, item],
       };
     }
 

@@ -26,7 +26,6 @@ import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardC
 import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
-import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUndoToast from './ModerationUndoToast';
 
 // All of the moderation inbox's initial data is fetched in a single query so
@@ -96,13 +95,6 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
   },
-  historySection: {
-    width: 300,
-    flexShrink: 0,
-    borderRight: theme.palette.border.normal,
-    height: '100%',
-    overflow: 'auto',
-  },
   inboxListContainer: {
     flex: 1,
     overflow: 'hidden',
@@ -136,7 +128,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -152,7 +144,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           focusedContentIndex: 0,
           sidebarTab: null,
           undoQueue: [],
-          history: [],
           runningLlmCheckId: null,
         };
       }
@@ -170,7 +161,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           focusedContentIndex: 0,
           sidebarTab: null,
           undoQueue: [],
-          history: [],
           runningLlmCheckId: null,
         };
       }
@@ -199,7 +189,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           focusedContentIndex: 0,
           sidebarTab: null,
           undoQueue: [],
-          history: [],
           runningLlmCheckId: null,
         };
       }
@@ -217,7 +206,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           focusedContentIndex: 0,
           sidebarTab: null,
           undoQueue: [],
-          history: [],
           runningLlmCheckId: null,
         };
       }
@@ -235,7 +223,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           focusedContentIndex: 0,
           sidebarTab: null,
           undoQueue: [],
-          history: [],
           runningLlmCheckId: null,
         };
       }
@@ -255,7 +242,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
-        history: [],
         runningLlmCheckId: null,
       };
     }
@@ -356,7 +342,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       if (user) {
         const now = Date.now();
         
-        // Create timeout that will execute the action and move to history
+        // Create timeout that will execute the action once the undo window closes
         const timeoutId = setTimeout(() => {
           dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: user._id });
           void executeAction();
@@ -382,7 +368,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
-  const isPostLikeTab = isPostsTab || isCurationTab;
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
@@ -451,29 +436,21 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               sidebarTab={state.sidebarTab}
               addToUndoQueue={addToUndoQueue}
               dispatch={dispatch}
-              state={state}
             />
           ) : (
-            <>
-              {!isPostLikeTab && state.history.length > 0 && (
-                <div className={classes.historySection}>
-                  <ModerationUndoHistory history={state.history} />
-                </div>
-              )}
-              <div className={classes.inboxListContainer}>
-                <ModerationInboxList
-                  userGroups={filteredGroups}
-                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
-                  curationPosts={state.curationPosts}
-                  focusedUserId={state.focusedUserId}
-                  focusedPostId={state.focusedPostId}
-                  onFocusUser={handleOpenUser}
-                  onOpenUser={handleOpenUser}
-                  onFocusPost={handleFocusPost}
-                  activeTab={state.activeTab}
-                />
-              </div>
-            </>
+            <div className={classes.inboxListContainer}>
+              <ModerationInboxList
+                userGroups={filteredGroups}
+                posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                curationPosts={state.curationPosts}
+                focusedUserId={state.focusedUserId}
+                focusedPostId={state.focusedPostId}
+                onFocusUser={handleOpenUser}
+                onOpenUser={handleOpenUser}
+                onFocusPost={handleFocusPost}
+                activeTab={state.activeTab}
+              />
+            </div>
           )}
         </div>
         {isPostsTab && !openedUser && (

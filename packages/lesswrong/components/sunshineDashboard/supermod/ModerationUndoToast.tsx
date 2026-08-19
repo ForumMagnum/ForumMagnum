@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { UndoHistoryItem, InboxAction } from './inboxReducer';
-import KeystrokeDisplay from './KeystrokeDisplay';
+import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
@@ -11,52 +11,41 @@ const styles = defineStyles('ModerationUndoToast', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     position: 'fixed',
-    bottom: 24,
-    right: 24,
+    bottom: 12,
+    left: 12,
     zIndex: theme.zIndexes.snackbar,
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
-    width: 360,
-    maxWidth: 'calc(100vw - 48px)',
+    alignItems: 'flex-start',
+    gap: 3,
+    maxWidth: 'calc(100vw - 24px)',
   },
-  toast: {
-    borderRadius: 4,
+  // Each pill is sized by its contents rather than by the stack, so a queue of
+  // them stays as narrow as its labels allow.
+  pill: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: '100%',
+    padding: '2px 8px 3px',
+    borderRadius: 10,
     border: theme.palette.border.faint,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    boxShadow: `0 2px 12px ${theme.palette.boxShadowColor(0.2)}`,
-    fontSize: 13,
+    boxShadow: `0 1px 4px ${theme.palette.boxShadowColor(0.15)}`,
+    fontSize: 11,
+    lineHeight: '15px',
     overflow: 'hidden',
   },
-  progressBarContainer: {
-    height: 2,
-    backgroundColor: theme.palette.grey[200],
-    position: 'relative',
-  },
+  // Hugs the bottom edge of the pill, clipped to its rounded corners, so time
+  // remaining costs no vertical space.
   progressBar: {
-    height: '100%',
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    height: 2,
     backgroundColor: theme.palette.primary.main,
     transition: 'width 0.1s linear',
-  },
-  toastContent: {
-    padding: 10,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  toastLeft: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: 6,
-    flex: 1,
-    minWidth: 0,
-  },
-  toastRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    flexShrink: 0,
   },
   actionLabel: {
     fontWeight: 600,
@@ -69,35 +58,46 @@ const styles = defineStyles('ModerationUndoToast', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
   },
   undoButton: {
+    flexShrink: 0,
+    marginLeft: 2,
     fontWeight: 600,
     textTransform: 'uppercase',
-    fontSize: 12,
-    letterSpacing: '0.5px',
+    fontSize: 10,
+    letterSpacing: '0.3px',
     color: theme.palette.primary.main,
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.8,
     },
   },
-  timer: {
-    fontSize: 11,
+  keystrokeHint: {
+    flexShrink: 0,
+    fontSize: 10,
     color: theme.palette.grey[500],
-    minWidth: 22,
-    textAlign: 'right',
+    whiteSpace: 'nowrap',
   },
+  // Carries the pill's background so it stays legible over whatever page
+  // content happens to sit behind the stack.
   markAllDone: {
-    alignSelf: 'flex-end',
-    fontSize: 11,
-    color: theme.palette.grey[500],
+    padding: '1px 8px 2px',
+    borderRadius: 10,
+    border: theme.palette.border.faint,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    boxShadow: `0 1px 4px ${theme.palette.boxShadowColor(0.15)}`,
+    fontSize: 10,
+    lineHeight: '13px',
+    color: theme.palette.grey[600],
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     '&:hover': {
-      color: theme.palette.grey[800],
+      color: theme.palette.grey[900],
     },
   },
 }));
 
 const COUNTDOWN_TICK_INTERVAL = 100;
+
+const UNDO_KEYSTROKE_TEXT = getEnvKeystrokeText('Ctrl+Z');
 
 /**
  * Milliseconds left before `expiresAt`, re-rendering on a fixed tick. Seeded
@@ -145,24 +145,14 @@ const ModerationUndoToastItem = ({ item, showKeystroke, dispatch }: {
   );
 
   const percentRemaining = Math.max(0, Math.min(100, (timeRemaining / UNDO_QUEUE_DURATION) * 100));
-  const secondsRemaining = Math.ceil(timeRemaining / 1000);
 
   return (
-    <div className={classes.toast}>
-      <div className={classes.progressBarContainer}>
-        <div className={classes.progressBar} style={{ width: `${percentRemaining}%` }} />
-      </div>
-      <div className={classes.toastContent}>
-        <div className={classes.toastLeft}>
-          <span className={classes.actionLabel}>{item.actionLabel}</span>
-          <span className={classes.userName}>{item.user.displayName}</span>
-        </div>
-        <div className={classes.toastRight}>
-          <span className={classes.undoButton} onClick={handleUndo}>Undo</span>
-          {showKeystroke && <KeystrokeDisplay keystroke="Ctrl+Z" />}
-          <span className={classes.timer}>{secondsRemaining}s</span>
-        </div>
-      </div>
+    <div className={classes.pill}>
+      <span className={classes.actionLabel}>{item.actionLabel}</span>
+      <span className={classes.userName}>{item.user.displayName}</span>
+      <span className={classes.undoButton} onClick={handleUndo}>Undo</span>
+      {showKeystroke && <span className={classes.keystrokeHint}>{UNDO_KEYSTROKE_TEXT}</span>}
+      <div className={classes.progressBar} style={{ width: `${percentRemaining}%` }} />
     </div>
   );
 };
@@ -207,10 +197,6 @@ const ModerationUndoToast = ({ undoQueue, dispatch }: {
     return null;
   }
 
-  // Rendered oldest-first, so the most recent action (the one Ctrl+Z undoes)
-  // sits nearest the bottom-right corner.
-  const mostRecentItem = undoQueue[undoQueue.length - 1];
-
   return (
     <div className={classes.root}>
       {undoQueue.length > 1 && (
@@ -218,11 +204,17 @@ const ModerationUndoToast = ({ undoQueue, dispatch }: {
           Mark all done
         </div>
       )}
-      {undoQueue.map((item) => (
+      {/*
+        Rendered oldest-first, so the most recent action (the one Ctrl+Z undoes)
+        sits nearest the bottom-left corner. Keyed and flagged by position
+        rather than by user, because rapid-fire keystrokes can enqueue the same
+        user more than once.
+      */}
+      {undoQueue.map((item, index) => (
         <ModerationUndoToastItem
-          key={item.user._id}
+          key={`${item.user._id}-${item.timestamp}`}
           item={item}
-          showKeystroke={item.user._id === mostRecentItem.user._id}
+          showKeystroke={index === undoQueue.length - 1}
           dispatch={dispatch}
         />
       ))}
