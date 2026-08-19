@@ -255,7 +255,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -394,7 +395,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -404,6 +406,10 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "end",
     justifyContent: "space-between",
+    gap: 8,
+    "& .EditableUsersList-listEditor": {
+      minWidth: 0,
+    },
   },
   sharingDivider: {
     height: 1,
