@@ -7,15 +7,19 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('EditableUsersList', theme => ({
   listEditor: {
-    display: "flex"
+    display: "flex",
+    minWidth: 0,
   },
   list: {
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    minWidth: 0,
   },
   item: {
     listStyle: "none",
-    fontFamily: theme.typography.fontFamily
+    fontFamily: theme.typography.fontFamily,
+    minWidth: 0,
+    maxWidth: "100%",
   },
 }));
 
