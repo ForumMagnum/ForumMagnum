@@ -509,6 +509,13 @@ export const UsersEdit = gql(`
 
     # Admin & Review
     reviewedByUserId
+    reviewedAt
+    sunshineFlagged
+    needsReview
+    sunshineSnoozed
+    snoozedUntilContentCount
+    signUpReCaptchaRating
+    defaultToCKEditor
 
     # Alignment Forum
     reviewForAlignmentForumUserId
