@@ -1265,6 +1265,14 @@ extend type Mutation {
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
+extend type Query {
+  supermodHighlightRuleOverrides: JSON
+}
+
+extend type Mutation {
+  setSupermodHighlightRuleOverrides(overrides: JSON!): JSON!
+}
+
 extend type Mutation {
   reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
 }

@@ -3981,6 +3981,7 @@ type Mutation = {
   setHomePageDesignVerified?: Maybe<HomePageDesign>;
   setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
+  setSupermodHighlightRuleOverrides: Scalars['JSON']['output'];
   setVoteComment?: Maybe<Comment>;
   setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
@@ -4661,6 +4662,11 @@ type MutationsetIsBookmarkedArgs = {
 type MutationsetIsHiddenArgs = {
   isHidden: Scalars['Boolean']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type MutationsetSupermodHighlightRuleOverridesArgs = {
+  overrides: Scalars['JSON']['input'];
 };
 
 
@@ -7425,6 +7431,7 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
+  supermodHighlightRuleOverrides?: Maybe<Scalars['JSON']['output']>;
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -21119,6 +21126,31 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
+type setSupermodHighlightRuleOverridesMutation_Mutation = { __typename?: 'Mutation', setSupermodHighlightRuleOverrides: any };
+
+
+type setSupermodHighlightRuleOverridesMutationVariables = Exact<{
+  overrides: Scalars['JSON']['input'];
+}>;
+
+
+type setSupermodHighlightRuleOverridesMutation = setSupermodHighlightRuleOverridesMutation_Mutation;
+
+type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType };
+
+type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type moderationTemplatesForHighlightRulesQuery_Query = { __typename?: 'Query', moderationTemplates: moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type moderationTemplatesForHighlightRulesQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type moderationTemplatesForHighlightRulesQuery = moderationTemplatesForHighlightRulesQuery_Query;
+
 type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21284,6 +21316,14 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type SupermodHighlightRuleOverridesQuery_Query = { __typename?: 'Query', supermodHighlightRuleOverrides: any | null };
+
+
+type SupermodHighlightRuleOverridesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type SupermodHighlightRuleOverridesQuery = SupermodHighlightRuleOverridesQuery_Query;
 
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

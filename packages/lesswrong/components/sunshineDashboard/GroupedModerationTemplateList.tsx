@@ -377,7 +377,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateIds, selectedTemplateId}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -387,7 +387,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onHideTemplate: (template: ModerationTemplateFragment) => void,
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
-  highlightedTemplateNames?: Set<string>,
+  highlightedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
 }) => {
   const classes = useStyles(styles);
@@ -451,7 +451,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          highlighted={!!highlightedTemplateIds?.has(template._id)}
           selected={template._id === selectedTemplateId}
           onHideTemplate={onHideTemplate}
         />
@@ -502,10 +502,10 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateIds, onFocusComposer, focusSearchToken, active = true, onEscape }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
-  highlightedTemplateNames?: Set<string>,
+  highlightedTemplateIds?: Set<string>,
   onFocusComposer?: () => void,
   focusSearchToken?: number,
   // False while the list's composer tab is hidden (but kept mounted to
@@ -734,7 +734,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
               />
             </div>
           )}
-          highlightedTemplateNames={highlightedTemplateNames}
+          highlightedTemplateIds={highlightedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
         />
       ))}

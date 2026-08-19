@@ -6,6 +6,7 @@ import BasicFormStyles from '../form-components/BasicFormStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 import Row from '../common/Row';
 import ContentStyles from '../common/ContentStyles';
@@ -235,6 +236,17 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
             >
               <ForumIcon icon="Edit" className={classes.actionIcon} />
             </a>
+          </LWTooltip>
+          <LWTooltip title="Edit autosuggest rules" placement="top">
+            <Link
+              className={classes.actionButton}
+              to={`/admin/supermodHighlights#${template._id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ForumIcon icon="Settings" className={classes.actionIcon} />
+            </Link>
           </LWTooltip>
         </span>
       </div>

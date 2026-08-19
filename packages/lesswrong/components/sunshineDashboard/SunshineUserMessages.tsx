@@ -17,7 +17,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
-import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import { getHighlightedTemplateIds } from './supermod/templateHighlightRules';
+import { useHighlightRuleOverrides } from './supermod/useHighlightRuleOverrides';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ModerationSectionTitle from './supermod/ModerationSectionTitle';
@@ -185,17 +186,19 @@ interface SunshineUserMessagesProps {
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
-  const highlightedTemplateNames = useMemo(() => {
+  const { overrides: ruleOverrides } = useHighlightRuleOverrides();
+  const highlightedTemplateIds = useMemo(() => {
     if (!posts || !comments) return new Set<string>();
-    return getHighlightedTemplateNames(
+    return getHighlightedTemplateIds(
       {
         user,
         moderatorActions: user.moderatorActions ?? [],
+        ruleOverrides,
       },
       posts,
       comments
     );
-  }, [user, posts, comments]);
+  }, [user, posts, comments, ruleOverrides]);
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
@@ -343,7 +346,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     <GroupedModerationTemplateList
       collectionName="Messages"
       onTemplateClick={handleMessageTemplateClick}
-      highlightedTemplateNames={highlightedTemplateNames}
+      highlightedTemplateIds={highlightedTemplateIds}
       onFocusComposer={handleFocusComposer}
       focusSearchToken={templateSearchToken}
       active={dmTabActive}

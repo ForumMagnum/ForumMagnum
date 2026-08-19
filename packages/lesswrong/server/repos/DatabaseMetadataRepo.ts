@@ -20,6 +20,23 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     return names.map(n => resultsByName[n] ?? null);
   }
 
+  async upsertByName(name: string, value: JsonRecord): Promise<null> {
+    return this.none(`
+      -- DatabaseMetadataRepo.upsertByName
+      INSERT INTO "DatabaseMetadata" (
+        "_id", "name", "value", "schemaVersion", "createdAt"
+      ) VALUES (
+        $(_id), $(name), $(value), $(schemaVersion), $(createdAt)
+      ) ON CONFLICT ("name") DO UPDATE SET "value" = $(value)
+    `, {
+      _id: randomId(),
+      name,
+      value,
+      schemaVersion: 1,
+      createdAt: new Date(),
+    });
+  }
+
   private electionNameToMetadataName(electionName: string): string {
     return `${electionName}Hearts`;
   }
