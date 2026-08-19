@@ -69,12 +69,7 @@ export function getDbIndexesOnComments() {
   // Will be used for experimental shortform display on AllPosts page
   indexSet.addIndex("Comments", { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
-  // Serves topShortform, the shortform section of each AllPosts time block.
-  // The {shortform, topLevelCommentId, ...} index above keeps postedAt too
-  // late in the key to restrict on a date range, so blocks from before
-  // shortform existed scanned every comment in range: 2013 took ~34s cold,
-  // which blocked the whole year from rendering. Partial because `shortform`
-  // is nullable, so an unfiltered index would cover every comment ever made.
+  // Serves topShortform; the 2013 AllPosts block took ~34s cold without it.
   indexSet.addIndex("Comments",
     augmentForDefaultView({ shortform:1, parentCommentId:1, deleted:1, postedAt:-1, baseScore:-1 }),
     { name: "comments.top_shortform", partialFilterExpression: { shortform: true }, concurrently: true }
