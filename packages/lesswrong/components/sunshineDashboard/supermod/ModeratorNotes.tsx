@@ -52,7 +52,7 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: 8,
     rowGap: 8,
-    maxHeight: 300,
+    maxHeight: 150,
     overflowY: 'auto',
     ...prettyScrollbars(theme),
   },
