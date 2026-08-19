@@ -69,17 +69,15 @@ export function getDbIndexesOnComments() {
   // Will be used for experimental shortform display on AllPosts page
   indexSet.addIndex("Comments", { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
-  // Serves the topShortform view, used by the shortform section of each time
-  // block on the AllPosts page. The shortform index above sorts by
-  // lastSubthreadActivity and so can't restrict on a postedAt range, which
-  // meant a time block covering a period with no shortform comments (ie
-  // anything before 2018) had to scan every comment posted in that range. That
-  // was slowest for the years with the most comments and no shortform at all:
-  // a 2013 time block took ~34s cold, which blocked the whole AllPosts year
-  // from rendering.
+  // Serves topShortform, the shortform section of each AllPosts time block.
+  // The {shortform, topLevelCommentId, ...} index above keeps postedAt too
+  // late in the key to restrict on a date range, so blocks from before
+  // shortform existed scanned every comment in range: 2013 took ~34s cold,
+  // which blocked the whole year from rendering. Partial because `shortform`
+  // is nullable, so an unfiltered index would cover every comment ever made.
   indexSet.addIndex("Comments",
-    augmentForDefaultView({ shortform: 1, parentCommentId: 1, deleted: 1, postedAt: -1, baseScore: -1 }),
-    { name: "comments.top_shortform" }
+    augmentForDefaultView({ shortform:1, parentCommentId:1, deleted:1, postedAt:-1, baseScore:-1 }),
+    { name: "comments.top_shortform", partialFilterExpression: { shortform: true }, concurrently: true }
   );
 
   // Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary

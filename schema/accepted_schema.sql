@@ -503,7 +503,9 @@ CREATE INDEX IF NOT EXISTS "idx_comments_top_shortform" ON "Comments" USING btre
   "userId",
   "af",
   "debateResponse"
-);
+)
+WHERE
+  "shortform" IS TRUE;
 
 -- Index "idx_comments_nominations2018"
 CREATE INDEX IF NOT EXISTS "idx_comments_nominations2018" ON "Comments" USING btree (
