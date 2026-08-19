@@ -330,7 +330,7 @@ const RestrictAndNotifyModal = ({
           disabled={!selectedTemplateId || !messageContent}
         >
           Restrict & Notify
-          <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
+          <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin />
         </Button>
       </DialogActions>
     </LWDialog>

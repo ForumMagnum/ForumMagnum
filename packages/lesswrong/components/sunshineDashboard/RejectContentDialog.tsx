@@ -641,7 +641,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
       {dialogContent}
       <Button onClick={handleClick} disabled={!hasRejectedReason}>
         Reject
-        <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
+        <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin />
       </Button>
       <Button onClick={() => setHideTextField(!hideTextField)}>
         {hideTextField ? 'Edit Message' : 'Hide Message'}

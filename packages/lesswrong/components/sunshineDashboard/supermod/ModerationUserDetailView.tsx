@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
@@ -8,7 +9,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import { getModerationContentItems, isMapPin } from './helpers';
+import { getModerationContentItems, getNextUnapprovedContentIndex, isMapPin, type ContentItem } from './helpers';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -21,6 +22,9 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   contentSection: {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 1fr 400px',
+  },
+  contentSectionWithoutContent: {
+    gridTemplateColumns: '300px 1fr',
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
@@ -50,6 +54,7 @@ const ModerationUserDetailView = ({
   user,
   posts,
   comments,
+  contentsLoading,
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
@@ -61,6 +66,7 @@ const ModerationUserDetailView = ({
   user: SunshineUsersList;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  contentsLoading: boolean;
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SelectedSidebarTab;
@@ -87,9 +93,20 @@ const ModerationUserDetailView = ({
   );
   const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
 
+  const showContentColumns = contentsLoading || allContent.length > 0;
+
+  const handleContentRejectStart = useCallback((content: ContentItem) => {
+    const nextContentIndex = getNextUnapprovedContentIndex(allContent, content._id);
+    if (nextContentIndex !== null) {
+      dispatch({ type: 'OPEN_CONTENT', contentIndex: nextContentIndex });
+    }
+  }, [allContent, dispatch]);
+
   return (
     <div className={classes.root}>
-      <div className={classes.contentSection}>
+      <div className={classNames(classes.contentSection, {
+        [classes.contentSectionWithoutContent]: !showContentColumns,
+      })}>
         <div className={classes.userColumn}>
           <ModerationUserInfoColumn
             user={user}
@@ -106,29 +123,35 @@ const ModerationUserDetailView = ({
             />
           </div>
         </div>
-        <div className={classes.contentListColumn}>
-          <ModerationContentList
-            items={allContent}
-            title="Content"
-            focusedItemId={allContent[focusedContentIndex]?._id ?? null}
-            runningLlmCheckId={runningLlmCheckId}
-            dispatch={dispatch}
-          />
-        </div>
-        <div className={classes.contentListColumn}>
-          <ModerationContentDetail item={focusedItem} />
-        </div>
+        {showContentColumns && (
+          <>
+            <div className={classes.contentListColumn}>
+              <ModerationContentList
+                items={allContent}
+                title="Content"
+                focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+                runningLlmCheckId={runningLlmCheckId}
+                dispatch={dispatch}
+              />
+            </div>
+            <div className={classes.contentListColumn}>
+              <ModerationContentDetail item={focusedItem} />
+            </div>
+          </>
+        )}
         <div className={classes.sidebarColumn}>
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            contentsLoading={contentsLoading}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
             setSidebarTab={setSidebarTab}
             addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
+            onContentRejectStart={handleContentRejectStart}
           />
         </div>
       </div>

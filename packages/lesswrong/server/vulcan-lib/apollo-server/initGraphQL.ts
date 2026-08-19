@@ -46,6 +46,7 @@ import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/serve
 import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
+import { supermodHighlightRuleGqlMutations, supermodHighlightRuleGqlQueries, supermodHighlightRuleGqlTypeDefs } from '@/server/resolvers/supermodHighlightRuleResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -287,6 +288,7 @@ export const getTypeDefs = () => gql`
   ${importUrlAsDraftPostTypeDefs}
   ${revisionResolversGraphQLTypeDefs}
   ${moderationGqlTypeDefs}
+  ${supermodHighlightRuleGqlTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
   ${bookmarkGqlTypeDefs}
@@ -477,6 +479,7 @@ const getResolvers = () => ({
     ...reviewWinnerGraphQLQueries,  
     ...revisionResolversGraphQLQueries,
     ...moderationGqlQueries,
+    ...supermodHighlightRuleGqlQueries,
     ...tagResolversGraphQLQueries,
     ...cronGraphQLQueries,
     ...siteAdminMetadataGraphQLQueries,
@@ -578,6 +581,7 @@ const getResolvers = () => ({
     ...importUrlAsDraftPostGqlMutation,
     ...revisionResolversGraphQLMutations,
     ...moderationGqlMutations,
+    ...supermodHighlightRuleGqlMutations,
     ...multiDocumentMutations,
     ...spotlightGqlMutations,
     ...tagResolversGraphQLMutations,

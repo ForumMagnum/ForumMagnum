@@ -72,6 +72,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  supermodHighlightRuleOverrides: any;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -278,6 +279,7 @@ interface Mutation {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
+  setSupermodHighlightRuleOverrides: any;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

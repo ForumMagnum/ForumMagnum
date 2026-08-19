@@ -3,6 +3,15 @@ import { getFreshReviewTriggerActions } from '@/lib/collections/users/reviewGrou
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
 
+export interface RejectableContent {
+  rejected?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+}
+
+export interface IndexedRejectableContent extends RejectableContent {
+  _id: string;
+}
+
 export interface ModerationMapPinItem {
   contentType: 'mapPin';
   _id: string;
@@ -89,8 +98,34 @@ export function getModerationContentItems(
   return items.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 }
 
-export function canRejectContent(item: ContentItem | null | undefined) {
-  return !!item && !item.rejected && item.authorIsUnreviewed;
+export function canRejectContent(item: RejectableContent | null | undefined) {
+  return !!item && !item.rejected && !!item.authorIsUnreviewed;
+}
+
+/**
+ * Finds the next rejectable item after `currentContentId`, wrapping around the
+ * list once. The current item is never returned, even before its optimistic
+ * rejection has reached the Apollo cache.
+ */
+export function getNextUnapprovedContentIndex(items: IndexedRejectableContent[], currentContentId: string) {
+  if (items.length === 0) return null;
+
+  const currentIndex = items.findIndex(item => item._id === currentContentId);
+  for (let offset = 1; offset <= items.length; offset++) {
+    const candidateIndex = (currentIndex + offset) % items.length;
+    const candidate = items[candidateIndex];
+    if (candidate._id !== currentContentId && canRejectContent(candidate)) {
+      return candidateIndex;
+    }
+  }
+
+  return null;
+}
+
+/** Whether a keyboard event target is a place the moderator is typing, so plain-letter shortcuts should be ignored */
+export function isInTextInput(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 }
 
 const CONTENT_TITLE_MAX_LENGTH = 25;

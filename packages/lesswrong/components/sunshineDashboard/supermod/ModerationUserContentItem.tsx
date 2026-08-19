@@ -31,6 +31,9 @@ const styles = defineStyles('ModerationUserContentItem', (theme: ThemeType) => (
     overflow: 'hidden',
     minWidth: 0,
   },
+  dimmed: {
+    opacity: 0.5,
+  },
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17,
@@ -101,6 +104,15 @@ const styles = defineStyles('ModerationUserContentItem', (theme: ThemeType) => (
   reviewed: {
     backgroundColor: theme.palette.primary.light,
     color: theme.palette.primary.dark,
+  },
+  inactive: {
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
+  },
+  approved: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.grey[700],
+    boxShadow: `0 0 0 1px ${theme.palette.greyAlpha(0.12)}`,
   },
   rejectedStatus: {
     backgroundColor: theme.palette.error.light,
@@ -218,6 +230,9 @@ const ModerationUserContentItem = ({
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 3 ? classes.karmaLow : classes.karmaPositive;
 
   const itemIsPost = isPost(item);
+  const isDeleted = itemIsPost ? !!item.deletedDraft : !!item.deleted;
+  const isDraft = !!item.draft;
+  const inactiveLabel = isDeleted ? 'Deleted' : isDraft ? 'Drafted' : null;
   const contentHtml = item.contents?.html ?? '';
   const contentText = htmlToTextDefault(contentHtml);
   const truncatedText = truncate(contentText, 100, 'characters');
@@ -273,6 +288,7 @@ const ModerationUserContentItem = ({
     <div
       className={classNames(classes.root, {
         [classes.focused]: isFocused,
+        [classes.dimmed]: !!inactiveLabel,
       })}
       onClick={onOpen}
     >
@@ -300,6 +316,18 @@ const ModerationUserContentItem = ({
       {item.reviewedByUserId && (
         <div className={classNames(classes.status, classes.reviewed)}>
           Reviewed
+        </div>
+      )}
+
+      {inactiveLabel && !item.rejected && !item.reviewedByUserId && (
+        <div className={classNames(classes.status, classes.inactive)}>
+          {inactiveLabel}
+        </div>
+      )}
+
+      {!inactiveLabel && !item.rejected && !item.reviewedByUserId && !item.authorIsUnreviewed && (
+        <div className={classNames(classes.status, classes.approved)}>
+          Approved
         </div>
       )}
       
