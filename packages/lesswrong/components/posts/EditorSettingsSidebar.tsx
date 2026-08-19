@@ -409,10 +409,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     gap: 8,
     "& .EditableUsersList-listEditor": {
       minWidth: 0,
-      flexGrow: 1,
-    },
-    "& $permissionRow": {
-      flexShrink: 0,
     },
   },
   sharingDivider: {

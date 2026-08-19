@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { Chip } from '@/components/widgets/Chip';
@@ -23,14 +22,20 @@ const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
     marginRight: 4,
     marginBottom: 4,
     maxWidth: '100%',
+    height: 'auto',
     backgroundColor: theme.palette.greyAlpha(.05),
+    '& .Chip-label': {
+      whiteSpace: 'normal',
+      overflowWrap: 'anywhere',
+      paddingTop: 3,
+      paddingBottom: 3,
+    },
   },
   wrapper: {
     display: 'flex',
     flexWrap: 'wrap',
-    minWidth: 0,
   },
-}));
+}), { stylePriority: 1 });
 
 const SingleUsersItem = ({userId, removeItem}: {
   userId: string,
@@ -43,12 +48,11 @@ const SingleUsersItem = ({userId, removeItem}: {
   const document = data?.user?.result;
 
   if (document && !loading) {
-    return <span className={classNames("search-results-users-item users-item", classes.wrapper)}>
+    return <span className="search-results-users-item users-item">
       <Chip
         onDelete={() => removeItem(document._id)}
         className={classes.chip}
         label={document.displayName}
-        wrapLabel
       />
     </span>
   } else {

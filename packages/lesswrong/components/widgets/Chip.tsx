@@ -104,21 +104,6 @@ export const styles = defineStyles("Chip", theme => {
       whiteSpace: 'nowrap',
       cursor: 'inherit',
     },
-    /* Styles applied to the root element if `wrapLabel` is set. */
-    wrappableRoot: {
-      height: 'auto',
-      minHeight: height,
-      maxWidth: '100%',
-      whiteSpace: 'normal',
-    },
-    /* Styles applied to the label element if `wrapLabel` is set. */
-    wrappableLabel: {
-      display: 'block',
-      whiteSpace: 'normal',
-      overflowWrap: 'anywhere',
-      paddingTop: 3,
-      paddingBottom: 3,
-    },
     /* Styles applied to the `deleteIcon` element. */
     deleteIcon: {
       // Remove grey highlight
@@ -143,8 +128,6 @@ export function Chip(props: {
   clickable?: boolean;
   deleteIcon?: React.ReactElement<any>;
   label?: React.ReactNode;
-  /** Let a long label wrap onto multiple lines instead of overflowing its container */
-  wrapLabel?: boolean;
   onDelete?: React.EventHandler<any>;
   variant?: 'default' | 'outlined';
 } & React.HTMLAttributes<HTMLDivElement>) {
@@ -204,7 +187,6 @@ export function Chip(props: {
     clickable=false,
     deleteIcon: deleteIconProp,
     label,
-    wrapLabel=false,
     onClick,
     onDelete,
     onKeyDown,
@@ -220,7 +202,6 @@ export function Chip(props: {
       [classes.clickable]: onClick || clickable,
       [classes.deletable]: onDelete,
       [classes.outlined]: variant === 'outlined',
-      [classes.wrappableRoot]: wrapLabel,
     },
     classNameProp,
   );
@@ -251,7 +232,7 @@ export function Chip(props: {
       ref={chipRef}
       {...other}
     >
-      <span className={classNames(classes.label, {[classes.wrappableLabel]: wrapLabel})}>{label}</span>
+      <span className={classes.label}>{label}</span>
       {deleteIcon}
     </div>
   );
