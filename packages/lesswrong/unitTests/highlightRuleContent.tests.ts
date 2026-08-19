@@ -6,20 +6,18 @@ import {
   stripHtml,
 } from '@/components/sunshineDashboard/supermod/contentTextHelpers';
 import { HIGHLIGHT_SIGNALS } from '@/components/sunshineDashboard/supermod/highlightSignals';
-import {
-  DEFAULT_MESSAGE_TEMPLATE_RULES,
-  DEFAULT_REJECTION_TEMPLATE_RULES,
-  MESSAGE_TEMPLATE_IDS,
-  REJECTION_TEMPLATE_IDS,
-} from '@/components/sunshineDashboard/supermod/templateHighlightRules';
+import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
 import {
   isCaseSensitiveRegexHighlightOperator,
   isItemCountRegexHighlightOperator,
   isNumericHighlightOperator,
   isRegexHighlightOperator,
+  parseHighlightRuleOverrides,
   type HighlightCondition,
   type HighlightRule,
 } from '@/lib/moderatorHighlights/highlightRuleTypes';
+
+const seed = parseHighlightRuleOverrides({ ...highlightRuleSeed, actions: {} });
 
 function allConditions(rules: Record<string, HighlightRule>): HighlightCondition[] {
   return Object.values(rules).flatMap(rule => [...rule.groups, ...(rule.level2Groups ?? [])].flat());
@@ -30,17 +28,19 @@ function conditionRegex(condition: HighlightCondition): RegExp {
   return new RegExp(condition.value, isCaseSensitiveRegexHighlightOperator(condition.operator) ? '' : 'i');
 }
 
-function findCondition(rule: HighlightRule, signal: string, predicate: (c: HighlightCondition) => boolean) {
-  const condition = allConditions({ rule }).find(c => c.signal === signal && predicate(c));
-  if (!condition) throw new Error(`No matching condition on ${signal}`);
-  return condition;
+function seededRule(category: 'messageTemplates' | 'rejectionTemplates', name: string): HighlightRule {
+  const rule = seed[category][name];
+  if (!rule) throw new Error(`No seeded rule named ${name}`);
+  return rule;
 }
 
-describe('default rules against the signal registry', () => {
+describe('shipped rules against the signal registry', () => {
+  const allRuleSets = [DEFAULT_ACTION_HIGHLIGHT_RULES, seed.messageTemplates, seed.rejectionTemplates];
+
   // A type mismatch compiles fine; the rule just never fires again.
   it('pairs every condition with an operator its signal type supports', () => {
     const mismatches: string[] = [];
-    for (const rules of [DEFAULT_ACTION_HIGHLIGHT_RULES, DEFAULT_MESSAGE_TEMPLATE_RULES, DEFAULT_REJECTION_TEMPLATE_RULES]) {
+    for (const rules of allRuleSets) {
       for (const condition of allConditions(rules)) {
         const signal = HIGHLIGHT_SIGNALS[condition.signal];
         if (!signal) {
@@ -63,7 +63,7 @@ describe('default rules against the signal registry', () => {
   // With focusedContent null, `isFalse` on a focused signal matches everyone.
   it('only uses user-scoped signals where there is no selected content', () => {
     const outOfScope: string[] = [];
-    for (const rules of [DEFAULT_ACTION_HIGHLIGHT_RULES, DEFAULT_MESSAGE_TEMPLATE_RULES]) {
+    for (const rules of [DEFAULT_ACTION_HIGHLIGHT_RULES, seed.messageTemplates]) {
       for (const condition of allConditions(rules)) {
         if (HIGHLIGHT_SIGNALS[condition.signal]?.scope !== 'user') outOfScope.push(condition.signal);
       }
@@ -74,7 +74,7 @@ describe('default rules against the signal registry', () => {
   // On a plain string signal the list has one element, so 2+ can't match.
   it('only counts matching items on list-valued signals', () => {
     const misdirected: string[] = [];
-    for (const rules of [DEFAULT_ACTION_HIGHLIGHT_RULES, DEFAULT_MESSAGE_TEMPLATE_RULES, DEFAULT_REJECTION_TEMPLATE_RULES]) {
+    for (const rules of allRuleSets) {
       for (const condition of allConditions(rules)) {
         if (!isItemCountRegexHighlightOperator(condition.operator)) continue;
         if (HIGHLIGHT_SIGNALS[condition.signal]?.type !== 'stringList') misdirected.push(condition.signal);
@@ -85,7 +85,7 @@ describe('default rules against the signal registry', () => {
 });
 
 describe('case-sensitive formatting patterns', () => {
-  const formattingRule = DEFAULT_MESSAGE_TEMPLATE_RULES[MESSAGE_TEMPLATE_IDS.formattingGrammar];
+  const formattingRule = seededRule('messageTemplates', 'Formatting / Grammar');
   const lowercaseStarts = conditionRegex(formattingRule.groups[0][0]);
   const missingSpaces = conditionRegex(formattingRule.groups[1][0]);
 
@@ -106,9 +106,11 @@ describe('case-sensitive formatting patterns', () => {
 });
 
 describe('the composed AI research pattern', () => {
-  const rule = DEFAULT_REJECTION_TEMPLATE_RULES[REJECTION_TEMPLATE_IDS.noUnmotivatedVibecodedAiResearch];
-  const messageRule = DEFAULT_MESSAGE_TEMPLATE_RULES[MESSAGE_TEMPLATE_IDS.noUnmotivatedVibecodedAiResearch];
-  const composed = conditionRegex(findCondition(messageRule, 'postTitlesAndTexts', c => isItemCountRegexHighlightOperator(c.operator)));
+  const messageRule = seededRule('messageTemplates', 'No Unmotivated Vibecoded AI Research');
+  const itemCountCondition = allConditions({ messageRule })
+    .find(condition => isItemCountRegexHighlightOperator(condition.operator));
+  if (!itemCountCondition) throw new Error('No item-count condition in the AI research rule');
+  const composed = conditionRegex(itemCountCondition);
 
   // Flattening either half's grouping breaks this order, not the obvious one.
   it('matches regardless of which half appears first', () => {
@@ -119,10 +121,6 @@ describe('the composed AI research pattern', () => {
   it('needs both halves', () => {
     expect(composed.test('a training run with careful methodology')).toBe(false);
     expect(composed.test('some thoughts about AGI')).toBe(false);
-  });
-
-  it('is also used for the rejection template', () => {
-    expect(rule.groups[0].some(condition => condition.signal === 'focusedTitleAndText')).toBe(true);
   });
 });
 

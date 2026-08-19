@@ -1,13 +1,6 @@
-import {
-  DEFAULT_ACTION_HIGHLIGHT_RULES,
-} from '@/components/sunshineDashboard/supermod/actionHighlightRules';
+import { DEFAULT_ACTION_HIGHLIGHT_RULES } from '@/components/sunshineDashboard/supermod/actionHighlightRules';
 import { ALWAYS } from '@/components/sunshineDashboard/supermod/declarativeHighlightRules';
-import {
-  DEFAULT_MESSAGE_TEMPLATE_RULES,
-  DEFAULT_REJECTION_TEMPLATE_RULES,
-  MESSAGE_TEMPLATE_IDS,
-  REJECTION_TEMPLATE_IDS,
-} from '@/components/sunshineDashboard/supermod/templateHighlightRules';
+import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
 import {
   isCaseSensitiveRegexHighlightOperator,
   isDistinctRegexHighlightOperator,
@@ -19,16 +12,20 @@ import {
   type HighlightRuleOverrides,
 } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
-const defaultsAsOverrides: HighlightRuleOverrides = {
-  actions: DEFAULT_ACTION_HIGHLIGHT_RULES,
-  messageTemplates: DEFAULT_MESSAGE_TEMPLATE_RULES,
-  rejectionTemplates: DEFAULT_REJECTION_TEMPLATE_RULES,
-};
-
 describe('highlight rule serialization format', () => {
-  // Defaults never pass through the validator, so bad ones fail silently.
-  it('accepts every rule shipped as a default', () => {
-    expect(() => parseHighlightRuleOverrides(serializeHighlightRuleOverrides(defaultsAsOverrides))).not.toThrow();
+  // Action defaults never pass through the validator, so bad ones fail silently.
+  it('accepts every rule shipped as an action default', () => {
+    const overrides = {
+      actions: DEFAULT_ACTION_HIGHLIGHT_RULES,
+      messageTemplates: {},
+      rejectionTemplates: {},
+    };
+    expect(() => parseHighlightRuleOverrides(serializeHighlightRuleOverrides(overrides))).not.toThrow();
+  });
+
+  // The seed is only read by a migration, so nothing else would reject a bad rule.
+  it('accepts every rule in the database seed', () => {
+    expect(() => parseHighlightRuleOverrides({ ...highlightRuleSeed, actions: {} })).not.toThrow();
   });
 
   // Both list fields explicitly, so a new one is dropped unless both change.
@@ -93,31 +90,15 @@ describe('regex operator classification', () => {
   });
 });
 
-describe('template id maps', () => {
-  // A duplicate computed key isn't a TS error; the second rule just wins.
-  it('has no duplicate ids', () => {
-    for (const ids of [MESSAGE_TEMPLATE_IDS, REJECTION_TEMPLATE_IDS]) {
-      const values = Object.values(ids);
-      expect(new Set(values).size).toBe(values.length);
-    }
-  });
-
-  it('defines a default rule per distinct template id', () => {
-    expect(Object.keys(DEFAULT_MESSAGE_TEMPLATE_RULES).length)
-      .toBe(new Set(Object.keys(DEFAULT_MESSAGE_TEMPLATE_RULES)).size);
-    expect(Object.keys(DEFAULT_REJECTION_TEMPLATE_RULES).length)
-      .toBe(new Set(Object.keys(DEFAULT_REJECTION_TEMPLATE_RULES)).size);
-  });
-});
-
-describe('legacy override key migration', () => {
+describe('seeding the database from template names', () => {
   const templates = [
     { _id: 'templateIdA', name: 'Lotsa DMs', collectionName: 'Messages' },
     { _id: 'templateIdB', name: 'No LLM', collectionName: 'Rejections' },
   ];
   const rule = { enabled: true, groups: [] };
 
-  it('re-keys a name-keyed override onto the template id', () => {
+  // This is how the seed migration turns name-keyed rules into id-keyed ones.
+  it('re-keys a name-keyed rule onto the template id', () => {
     const migrated = migrateLegacyTemplateRuleOverrideKeys({
       actions: {},
       messageTemplates: { 'Lotsa DMs': rule },
@@ -126,7 +107,8 @@ describe('legacy override key migration', () => {
     expect(Object.keys(migrated.messageTemplates)).toEqual(['templateIdA']);
   });
 
-  it('keeps an id-keyed override when a name-keyed one maps to the same template', () => {
+  // The migration must not overwrite a rule a moderator has already edited.
+  it('keeps an id-keyed rule when a name-keyed one maps to the same template', () => {
     const idKeyed = { enabled: false, groups: [] };
     const migrated = migrateLegacyTemplateRuleOverrideKeys({
       actions: {},
@@ -134,5 +116,15 @@ describe('legacy override key migration', () => {
       rejectionTemplates: {},
     }, templates);
     expect(migrated.messageTemplates.templateIdA).toEqual(idKeyed);
+  });
+
+  // A name that matches nothing stays put, and the migration drops it.
+  it('leaves an unmatched name alone', () => {
+    const migrated = migrateLegacyTemplateRuleOverrideKeys({
+      actions: {},
+      messageTemplates: { 'No Such Template': rule },
+      rejectionTemplates: {},
+    }, templates);
+    expect(Object.keys(migrated.messageTemplates)).toEqual(['No Such Template']);
   });
 });

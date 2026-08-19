@@ -1,0 +1,777 @@
+{
+  "messageTemplates": {
+    "No Org Usernames": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "userDisplayName",
+            "operator": "matchesRegex",
+            "value": "\\b(team|labs?|institute|foundation|research|official|inc|llc|ltd|ventures?|solutions|technologies|capital|group|systems|collective)\\b",
+            "explanation": "The display name contains a whole-word organization term such as team, lab, institute, research, or foundation."
+          }
+        ]
+      ]
+    },
+    "Make Username Pronounceable": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "userDisplayName",
+            "operator": "matchesRegex",
+            "value": "\\d.*\\d.*\\d",
+            "explanation": "The display name contains at least three digits, with any characters between them."
+          }
+        ],
+        [
+          {
+            "signal": "userDisplayName",
+            "operator": "matchesRegex",
+            "value": "[bcdfghjklmnpqrstvwxz]{5,}",
+            "explanation": "The display name contains a run of at least five consonants."
+          }
+        ],
+        [
+          {
+            "signal": "userDisplayName",
+            "operator": "matchesRegex",
+            "value": "^[^ ]{24,}$",
+            "explanation": "The display name is at least 24 characters long and contains no spaces."
+          }
+        ]
+      ]
+    },
+    "Politics": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "contentTitlesAndTexts",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(trump|biden|obama|kamala|democrats?|republicans?|left-wing|right-wing|elections?|presidential|congress|senate|immigration|abortion|transgender|woke|israel|gaza|palestine|palestinians?|culture war)\\b",
+            "minimumMatches": 2,
+            "explanation": "A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once."
+          }
+        ]
+      ]
+    },
+    "Formatting / Grammar": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "contentPlaintexts",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}",
+            "explanation": "A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter."
+          }
+        ],
+        [
+          {
+            "signal": "contentPlaintexts",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}",
+            "explanation": "A content item has at least two periods where the next capitalized word starts immediately, without a space."
+          }
+        ],
+        [
+          {
+            "signal": "contentFormattingParagraphs",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^[\\s\\S]{1501,}$",
+            "explanation": "A paragraph contains at least 1,501 plain-text characters."
+          }
+        ]
+      ]
+    },
+    "Lotsa DMs": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "activeDmFlagCount",
+            "operator": "gte",
+            "value": 1
+          }
+        ]
+      ]
+    },
+    "This isn't gonna work out": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "sentModeratorMessageCount",
+            "operator": "gte",
+            "value": 2
+          }
+        ]
+      ]
+    },
+    "Multiple LLM rejections": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "highPangramScoreContentCount",
+            "operator": "gte",
+            "value": 2
+          },
+          {
+            "signal": "sentModeratorMessageCount",
+            "operator": "gte",
+            "value": 2
+          }
+        ]
+      ]
+    },
+    "Barely approved AI content": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "contentTitlesAndTexts",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          }
+        ]
+      ]
+    },
+    "No Unmotivated Vibecoded AI Research": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "postTitlesAndTexts",
+            "operator": "matchesRegexInAtLeastItems",
+            "value": "(?=[\\s\\S]*\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b)(?=[\\s\\S]*\\b(research|projects?|experiments?|experimental|methodology|architectures?|train(?:ed|ing)?|fine[- ]tun(?:e|ed|ing)|evaluat(?:e|ed|ion)|results?|benchmarks?|datasets?)\\b)",
+            "minimumMatches": 2,
+            "explanation": "At least 2 posts each mention AI or a technical AI topic and present an AI research project, experiment, training process, evaluation, results, benchmark, or dataset."
+          },
+          {
+            "signal": "rejectedPostTitlesAndTexts",
+            "operator": "matchesRegex",
+            "value": "(?=[\\s\\S]*\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b)(?=[\\s\\S]*\\b(research|projects?|experiments?|experimental|methodology|architectures?|train(?:ed|ing)?|fine[- ]tun(?:e|ed|ing)|evaluat(?:e|ed|ion)|results?|benchmarks?|datasets?)\\b)",
+            "explanation": "At least one of the user's rejected posts mentions AI or a technical AI topic and presents an AI research project, experiment, training process, evaluation, results, benchmark, or dataset."
+          }
+        ]
+      ]
+    },
+    "Semi-automoderated quality warning (downvoted)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "hasActiveDownvotedContentAlert",
+            "operator": "isTrue",
+            "value": null
+          }
+        ]
+      ]
+    },
+    "Semi-Automated Quality (low average)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "hasActiveLowAverageKarmaAlert",
+            "operator": "isTrue",
+            "value": null
+          }
+        ]
+      ]
+    },
+    "Bad fit first post, unlikely to get better": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "rejectedPostCount",
+            "operator": "gte",
+            "value": 2
+          },
+          {
+            "signal": "approvedContentCount",
+            "operator": "eq",
+            "value": 0
+          }
+        ]
+      ]
+    },
+    "Your Submissions Aren't Finding Traction": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "contentCount",
+            "operator": "gte",
+            "value": 3
+          },
+          {
+            "signal": "rejectedContentCount",
+            "operator": "eq",
+            "value": 0
+          },
+          {
+            "signal": "minContentBaseScore",
+            "operator": "gte",
+            "value": 0
+          },
+          {
+            "signal": "maxContentBaseScore",
+            "operator": "lte",
+            "value": 2
+          }
+        ]
+      ]
+    }
+  },
+  "rejectionTemplates": {
+    "Probably Insufficient Quality for AI Post": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          }
+        ]
+      ]
+    },
+    "Insufficient Quality for AI Content (posts)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          }
+        ]
+      ]
+    },
+    "Insufficient Quality for AI Content (comments)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isFalse",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          }
+        ]
+      ]
+    },
+    "Insufficient quality": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}",
+            "explanation": "A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter."
+          }
+        ],
+        [
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}",
+            "explanation": "A content item has at least two periods where the next capitalized word starts immediately, without a space."
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphs",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^[\\s\\S]{1501,}$",
+            "explanation": "A paragraph contains at least 1,501 plain-text characters."
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphCount",
+            "operator": "eq",
+            "value": 1
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 500
+          },
+          {
+            "signal": "focusedRepeatedPunctuationRunCount",
+            "operator": "gte",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphCount",
+            "operator": "eq",
+            "value": 1
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 600
+          },
+          {
+            "signal": "focusedLongestFormattingSentenceLength",
+            "operator": "gte",
+            "value": 500
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedHasLinkpostUrl",
+            "operator": "isFalse",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 2000
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isFalse",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 200
+          }
+        ]
+      ]
+    },
+    "No Unmotivated Vibecoded AI Research": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(research|projects?|experiments?|experimental|methodology|architectures?|train(?:ed|ing)?|fine[- ]tun(?:e|ed|ing)|evaluat(?:e|ed|ion)|results?|benchmarks?|datasets?)\\b",
+            "explanation": "The selected content presents an AI research project, experiment, training process, evaluation, results, benchmark, or dataset."
+          }
+        ]
+      ]
+    },
+    "Missing some AI alignment basics": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          }
+        ]
+      ]
+    },
+    "Roko's Basilisk": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\broko'?s?\\b|\\bbasilisks?\\b|\\bacausal (extortion|blackmail|trade)\\b",
+            "explanation": "The selected content mentions Roko, basilisk or basilisks, or acausal extortion, blackmail, or trade."
+          }
+        ]
+      ]
+    },
+    "Duplicate": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedDuplicatesExistingContent",
+            "operator": "isTrue",
+            "value": null
+          }
+        ]
+      ]
+    },
+    "No, we won't answer followup questions": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "hasPriorRejection",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\breject(ed|ion)s?\\b|\\bmoderators?\\b|\\bmoderation\\b|\\bmod team\\b|\\bcensor(ed|ship|ing)?\\b",
+            "explanation": "The selected content mentions rejection, moderators or moderation, the mod team, or censorship."
+          }
+        ]
+      ]
+    },
+    "Political norm": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(trump|biden|obama|kamala|democrats?|republicans?|left-wing|right-wing|elections?|presidential|congress|senate|immigration|abortion|transgender|woke|israel|gaza|palestine|palestinians?|culture war)\\b",
+            "minimumMatches": 2,
+            "explanation": "A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once."
+          }
+        ]
+      ]
+    },
+    "No LLM Case Studies": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\b(conversations?|chats?|transcripts?|dialogues?|sessions?) with (an? |my )?(LLM|AI|ChatGPT|Claude|GPT[-\\w]*|Gemini|Grok)\\b|\\bI (asked|prompted|told) (ChatGPT|Claude|GPT[-\\w]*|Gemini|Grok|the (AI|model|LLM))\\b",
+            "explanation": "The selected content describes a conversation, chat, transcript, dialogue, or session with an AI model, or says the author asked, prompted, or told one."
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(recursive|recursion|emergent|emergence|resonance|resonant|spirals?|consciousness|sentient|sentience|awakening|glyphs?)\\b",
+            "minimumMatches": 1,
+            "explanation": "The selected content contains distinct speculative terms related to recursion, emergence, resonance, spirals, consciousness, sentience, awakening, or glyphs; repeated uses of one term count once."
+          }
+        ]
+      ]
+    },
+    "LLM sycophancy trap": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPangramScore",
+            "operator": "gt",
+            "value": 0
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(recursive|recursion|emergent|emergence|resonance|resonant|spirals?|consciousness|sentient|sentience|awakening|glyphs?)\\b",
+            "minimumMatches": 2,
+            "explanation": "The selected content contains distinct speculative terms related to recursion, emergence, resonance, spirals, consciousness, sentience, awakening, or glyphs; repeated uses of one term count once."
+          }
+        ]
+      ]
+    },
+    "Potentially / Partially LLM": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPangramScore",
+            "operator": "gt",
+            "value": 0.1
+          },
+          {
+            "signal": "focusedPangramScore",
+            "operator": "lt",
+            "value": 0.3
+          }
+        ]
+      ]
+    },
+    "No LLM": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPangramScore",
+            "operator": "gt",
+            "value": 0.3
+          }
+        ]
+      ]
+    },
+    "No LLM (autoreject)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPangramScore",
+            "operator": "gt",
+            "value": 0.3
+          }
+        ]
+      ]
+    },
+    "Difficult to evaluate (offsite content)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 600
+          },
+          {
+            "signal": "focusedLinkCount",
+            "operator": "eq",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 600
+          },
+          {
+            "signal": "focusedHasLinkpostUrl",
+            "operator": "isTrue",
+            "value": null
+          }
+        ]
+      ]
+    },
+    "Not obviously not spam": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 600
+          },
+          {
+            "signal": "focusedLinkCount",
+            "operator": "eq",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 600
+          },
+          {
+            "signal": "focusedHasLinkpostUrl",
+            "operator": "isTrue",
+            "value": null
+          }
+        ]
+      ]
+    },
+    "We only accept English-language content": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedLetterCount",
+            "operator": "gte",
+            "value": 20
+          },
+          {
+            "signal": "focusedNonLatinLetterRatio",
+            "operator": "gt",
+            "value": 0.25
+          }
+        ]
+      ]
+    },
+    "Submitted by Accident?": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "lt",
+            "value": 50
+          }
+        ]
+      ]
+    },
+    "Clearer intro": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 2500
+          },
+          {
+            "signal": "focusedLinkCount",
+            "operator": "eq",
+            "value": 0
+          },
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegex",
+            "value": "^(?![\\s\\S]{0,1000}(?:tl;?dr|summary|abstract|epistemic status|overview|in this (?:post|essay|article|piece)|this (?:post|essay|article|piece)|i (?:will |'ll |want to |am going to )?(?:argue|claim|show|propose|explain|explore|describe|examine|outline|summarize)|my (?:thesis|claim|argument|main point)|(?:argue|claim|contend|show) that|the (?:point|purpose|goal|aim) of this))",
+            "explanation": "The first 1000 characters contain no thesis-signposting phrase such as TL;DR, summary, abstract, epistemic status, \"in this post\", or \"I argue\"."
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 2500
+          },
+          {
+            "signal": "focusedPlaintext",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(?:manifesto|paradigm|framework|civilization|consciousness|humanity|harmony|transcend\\w*|awakening|emergence|emergent|resonance|recursive|recursion|spiral\\w*|sentien\\w*)\\b",
+            "minimumMatches": 3,
+            "explanation": "The selected content contains distinct grandiose terms such as manifesto, paradigm, framework, civilization, consciousness, harmony, transcendence, awakening, emergence, resonance, recursion, spiral, or sentience; repeated uses of one form count once."
+          }
+        ]
+      ]
+    },
+    "Too Chonky Abstract paragraph": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedFirstParagraphLength",
+            "operator": "gt",
+            "value": 1000
+          }
+        ]
+      ]
+    },
+    "Formatting": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}",
+            "explanation": "A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter."
+          }
+        ],
+        [
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}",
+            "explanation": "A content item has at least two periods where the next capitalized word starts immediately, without a space."
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphs",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "^[\\s\\S]{1501,}$",
+            "explanation": "A paragraph contains at least 1,501 plain-text characters."
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphCount",
+            "operator": "eq",
+            "value": 1
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 500
+          },
+          {
+            "signal": "focusedRepeatedPunctuationRunCount",
+            "operator": "gte",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "signal": "focusedFormattingParagraphCount",
+            "operator": "eq",
+            "value": 1
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 600
+          },
+          {
+            "signal": "focusedLongestFormattingSentenceLength",
+            "operator": "gte",
+            "value": 500
+          }
+        ]
+      ]
+    }
+  }
+}

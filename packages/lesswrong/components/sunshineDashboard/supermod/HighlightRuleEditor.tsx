@@ -476,7 +476,7 @@ export const HighlightRuleEditor = ({title, description, rule, scope, isCustomiz
         : <span className={classes.cardTitle}>{title}</span>}
       {warning && <span className={classNames(classes.badge, classes.warningBadge)}>{warning}</span>}
       {!hasRule && <span className={classes.badge}>No rule</span>}
-      {isCustomized && <span className={classNames(classes.badge, classes.customizedBadge)}>Customized</span>}
+      {isCustomized && hasDefault && <span className={classNames(classes.badge, classes.customizedBadge)}>Customized</span>}
       {hasRule && <label className={classes.enabledToggle}>
         <input
           type="checkbox"
