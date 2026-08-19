@@ -305,6 +305,9 @@ export const routeTrie = {
             },
             "replyToComment": {
               "hasRoute": true
+            },
+            "setPostFields": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
@@ -318,7 +321,8 @@ export const routeTrie = {
             "ping": "ping",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
-            "replytocomment": "replyToComment"
+            "replytocomment": "replyToComment",
+            "setpostfields": "setPostFields"
           }
         },
         "autocomplete": {

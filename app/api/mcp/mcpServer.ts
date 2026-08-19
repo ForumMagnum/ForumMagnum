@@ -10,6 +10,7 @@ import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
+import { setAgentPostFields } from "../agent/setPostFields/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { getHocuspocusToken } from "../agent/getHocuspocusToken";
 import { deriveAgentAuthor } from "../agent/editorAgentUtil";
@@ -20,6 +21,8 @@ import {
   insertBlockToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
+  setPostFieldsToolSchema,
+  validateSetPostFieldsInput,
   validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
 
@@ -44,6 +47,7 @@ const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
   insert_block: [REQUIRED_SCOPE],
+  set_post_fields: [REQUIRED_SCOPE],
 };
 
 function getBearerToken(authInfo: AuthInfo | undefined): string {
@@ -312,6 +316,44 @@ function createMcpServer(): McpServer {
         authorName,
         authorId,
       });
+
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "set_post_fields",
+    {
+      description: "Update the title or linkpost URL of a LessWrong post draft. URL updates are only supported for linkpost drafts.",
+      inputSchema: setPostFieldsToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async (args, extra) => {
+      assertToolScopes("set_post_fields", extra.authInfo);
+      const inputError = validateSetPostFieldsInput(args);
+      if (inputError) {
+        return toolError(inputError);
+      }
+
+      const context = await contextFromAuth(extra.authInfo);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const result = await setAgentPostFields({
+        postId: args.postId,
+        title: args.title,
+        url: args.url,
+        linkSharingKey: args.key,
+        context,
+      });
+      if (!result.updated) {
+        return toolError(result.error);
+      }
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },

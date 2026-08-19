@@ -100,3 +100,23 @@ export const deleteBlockToolSchema = z.object({
   prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
   mode: modeSchema,
 });
+
+export const setPostFieldsToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name of the agent making the update"),
+  title: z.string().trim().min(1).max(500).optional().describe("New post title"),
+  url: z.string().trim().max(500).nullable().optional().describe("New linkpost URL, or null to clear it"),
+});
+
+export function validateSetPostFieldsInput(value: { title?: string, url?: string | null }): string | null {
+  return value.title === undefined && value.url === undefined
+    ? "Provide at least one of title or url."
+    : null;
+}
+
+export const setPostFieldsRouteSchema = setPostFieldsToolSchema.refine((value) => {
+  return validateSetPostFieldsInput(value) === null;
+}, {
+  message: "Provide at least one of title or url",
+});

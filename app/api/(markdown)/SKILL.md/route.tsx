@@ -161,6 +161,14 @@ if there are any open comment or suggestion threads on the draft. Each thread
 shows its ID, type (comment or suggestion), the quoted anchor text (if any),
 and the conversation. You can use the thread ID to reply to existing threads.
 
+To update the draft's title or linkpost URL, make a request to:
+    POST /api/agent/setPostFields
+    with JSON body: { postId, key, agentName?, title?, url? }
+At least one of title or url is required. The url field is only available for
+linkpost drafts; set it to null to clear the linkpost URL. Metadata changes are
+applied directly and cannot be submitted as suggestions. This endpoint only
+updates drafts, even if an agent still has an edit link for a published post.
+
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
@@ -183,6 +191,7 @@ A few things to watch out for:
    fragment of one.
  * Only the post body is anchorable. The post title and other metadata fields are
    not part of the anchorable region — a quote matching those will always fail.
+   Use setPostFields for supported metadata changes.
  * Quote verbatim from what the markdown API returned to you. The server handles
    typographic punctuation folding (smart quotes vs. ASCII, en/em dashes, etc.)
    and markdown emphasis markers (**, _, \`, ~) automatically, so you do not need
