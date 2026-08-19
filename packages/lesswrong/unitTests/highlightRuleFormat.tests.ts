@@ -26,14 +26,12 @@ const defaultsAsOverrides: HighlightRuleOverrides = {
 };
 
 describe('highlight rule serialization format', () => {
-  // The defaults are plain object literals that never pass through the validator, so a typo'd
-  // regex or a missing minimumMatches in them fails silently at evaluation time instead.
+  // Defaults never pass through the validator, so bad ones fail silently.
   it('accepts every rule shipped as a default', () => {
     expect(() => parseHighlightRuleOverrides(serializeHighlightRuleOverrides(defaultsAsOverrides))).not.toThrow();
   });
 
-  // Both parse and serialize enumerate fields explicitly, so a new field added to
-  // HighlightCondition/HighlightRule is silently dropped on save unless both are updated.
+  // Both list fields explicitly, so a new one is dropped unless both change.
   it('round-trips every field of the format without dropping any', () => {
     const overrides: HighlightRuleOverrides = {
       actions: {
@@ -60,8 +58,7 @@ describe('highlight rule serialization format', () => {
     expect(parseHighlightRuleOverrides(serializeHighlightRuleOverrides(overrides))).toEqual(overrides);
   });
 
-  // ALWAYS is one empty group. Normalizing empty groups away anywhere in the pipeline would
-  // silently demote disableMessages from level 2 to level 1.
+  // Dropping empty groups would demote disableMessages from level 2 to 1.
   it('preserves an always-matching empty group', () => {
     const overrides: HighlightRuleOverrides = {
       actions: { disableMessages: { enabled: true, groups: [[]], level2Groups: ALWAYS } },
@@ -73,9 +70,7 @@ describe('highlight rule serialization format', () => {
 });
 
 describe('regex operator classification', () => {
-  // Four hand-maintained predicates classify these operators. A new operator that nobody adds to
-  // them falls through to "case-insensitive, plain .test()", which for e.g. a negation operator
-  // would invert its meaning.
+  // An unclassified operator falls through to case-insensitive .test().
   const expectedClassification: Record<string, { caseSensitive: boolean, distinct: boolean, itemCount: boolean }> = {
     matchesRegex: { caseSensitive: false, distinct: false, itemCount: false },
     matchesRegexCaseSensitive: { caseSensitive: true, distinct: false, itemCount: false },
@@ -99,8 +94,7 @@ describe('regex operator classification', () => {
 });
 
 describe('template id maps', () => {
-  // New template rules are added by pasting a DB _id next to an existing one. Duplicate ids are
-  // not a TypeScript error in a computed-key object literal — the second rule silently wins.
+  // A duplicate computed key isn't a TS error; the second rule just wins.
   it('has no duplicate ids', () => {
     for (const ids of [MESSAGE_TEMPLATE_IDS, REJECTION_TEMPLATE_IDS]) {
       const values = Object.values(ids);

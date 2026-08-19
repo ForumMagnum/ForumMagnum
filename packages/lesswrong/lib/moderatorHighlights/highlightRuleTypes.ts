@@ -49,10 +49,7 @@ export interface HighlightCondition {
   operator: HighlightConditionOperator;
   value: number | string | null;
   minimumMatches?: number;
-  /**
-   * Round-trips through the editor and the database but is not rendered anywhere yet; it's for
-   * the "why was this suggested?" tooltip that lands with the inbox UI PR.
-   */
+  /** Not rendered anywhere yet; for the inbox UI PR's "why?" tooltip. */
   explanation?: string;
 }
 
@@ -102,12 +99,7 @@ function migrateLegacyTemplateRuleCategory(
   return migrated;
 }
 
-/**
- * Overrides used to be keyed by template name; this re-keys them by template _id on every read
- * and write. There is no production data in this shape — the overrides row itself is new in this
- * PR — so this only rescues rows written by a dev running the earlier
- * `cursor/highlighted-moderator-actions-b4d9` branch, and can be deleted once those are gone.
- */
+/** Only rescues dev rows from the old name-keyed branch; safe to delete. */
 export function migrateLegacyTemplateRuleOverrideKeys(
   overrides: HighlightRuleOverrides,
   templates: HighlightRuleTemplateReference[],
@@ -226,7 +218,6 @@ function serializeRule(rule: HighlightRule): JsonRecord {
   };
 }
 
-/** Drops anything not part of the format, so only known fields reach the database */
 export function serializeHighlightRuleOverrides(overrides: HighlightRuleOverrides): JsonRecord {
   const serialized: JsonRecord = {};
   for (const category of highlightRuleCategories) {
@@ -239,7 +230,6 @@ export function serializeHighlightRuleOverrides(overrides: HighlightRuleOverride
   return serialized;
 }
 
-/** Throws on anything malformed; callers reading from the database should catch. */
 export function parseHighlightRuleOverrides(value: unknown): HighlightRuleOverrides {
   if (!isPlainObject(value)) throw new Error("Highlight rule overrides must be an object");
   const parsed = emptyHighlightRuleOverrides();

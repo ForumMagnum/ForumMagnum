@@ -125,7 +125,6 @@ function getActionEntries(): RuleSectionEntry[] {
   }));
 }
 
-/** Every current template, plus stale default or customized rules whose template was deleted */
 function getTemplateEntries(
   defaults: Record<string, HighlightRule>,
   categoryOverrides: Record<string, HighlightRule>,
@@ -232,7 +231,6 @@ const HighlightRuleEditorPage = () => {
   });
   const [saveOverrides, { loading: saving, error: saveError }] = useMutation(SetSupermodHighlightRuleOverridesMutation);
 
-  // `draft` is null until something is edited, so a save elsewhere shows up until then
   const [draft, setDraft] = useState<HighlightRuleOverrides | null>(null);
   const savedOverrides = useMemo(() => parseOverridesOrEmpty(data?.supermodHighlightRuleOverrides), [data]);
   const overrides = draft ?? savedOverrides;

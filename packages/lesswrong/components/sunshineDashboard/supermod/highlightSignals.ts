@@ -60,11 +60,7 @@ export interface StringListHighlightSignal extends HighlightSignalBase {
 
 export type HighlightSignal = NumericHighlightSignal | BooleanHighlightSignal | StringHighlightSignal | StringListHighlightSignal;
 
-/**
- * Inherited from master, where the "Multiple LLM rejections" rule used an inline `>= .2`.
- * Note the rejection templates use their own, higher cutoffs (see POTENTIALLY_LLM_SCORE_* in
- * templateHighlightRules.ts) — the two have never been reconciled.
- */
+// From master's inline `>= .2`. Rejection rules use their own cutoffs.
 export const HIGH_PANGRAM_SCORE = 0.2;
 
 const allContents = (ctx: HighlightSignalContext): ContentItem[] => [...ctx.posts, ...ctx.comments];
@@ -252,9 +248,7 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     type: 'number', scope: 'user', group: 'LLM detection',
     label: "Highest LLM score among unapproved content",
     description: "No value (so any condition on it fails) when there is no unapproved content",
-    // Unlike focusedPangramScore, unscored content counts as 0 rather than as no-value, so a
-    // `lte` condition passes on content that was never scored. The action rules compensate by
-    // gating level 2 on unapprovedContentMissingPangramScoreCount being 0.
+    // Unscored counts as 0 here; level 2 gates on nothing being unscored.
     compute: ctx => maxOrNull(allContents(ctx).filter(isUnapproved).map(content => getPangramScore(content) ?? 0)),
   },
   unapprovedContentMissingPangramScoreCount: {
@@ -394,7 +388,6 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
   },
 } satisfies Record<string, HighlightSignal>;
 
-/** Signal names, as a union, so that the rule defaults are checked against the registry */
 export type HighlightSignalName = keyof typeof HIGHLIGHT_SIGNAL_DEFINITIONS;
 
 export const HIGHLIGHT_SIGNALS: Record<string, HighlightSignal> = HIGHLIGHT_SIGNAL_DEFINITIONS;

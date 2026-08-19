@@ -438,10 +438,6 @@ const ConditionGroupsEditor = ({groups, scope, emptyNote, onChange}: {
   </div>;
 };
 
-/**
- * Editor for one rule: the conditions that make it highlight, plus (for moderator actions)
- * the conditions that promote it from level 1 to level 2.
- */
 export const HighlightRuleEditor = ({title, description, rule, scope, isCustomized, hasDefault, warning, supportsLevel2, collapsible, initiallyExpanded, onChange, onReset}: {
   title: string,
   description?: string,

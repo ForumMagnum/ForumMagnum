@@ -36,9 +36,7 @@ export const supermodHighlightRuleGqlQueries = {
     try {
       parsed = parseHighlightRuleOverrides(row.value);
     } catch {
-      // Hand the unparseable value back rather than throwing: the client falls back to the
-      // defaults either way, and this keeps the raw row readable through the API for debugging.
-      // Note the editor will then show an empty override set, so the next save overwrites it.
+      // Client falls back to defaults; the editor's next save overwrites this.
       return row.value;
     }
     const templates = await getModerationTemplateReferences(context);

@@ -11,11 +11,7 @@ import {
 } from "./declarativeHighlightRules";
 import type { HighlightSignalContext } from "./highlightSignals";
 
-/**
- * Production ModerationTemplates._ids. On a database that doesn't have these rows the defaults
- * silently no-op and the rule editor shows "No template with this ID" — the rules are coupled to
- * prod data rather than to schema.
- */
+// Production _ids: on other databases these rules silently never fire.
 export const MESSAGE_TEMPLATE_IDS = {
   badFitFirstPost: 'c9fBRe7pg4vAxxE8K',
   barelyApprovedAiContent: 'cqS4KAvpsRwop9bzE',
@@ -83,9 +79,7 @@ const LONG_UNBROKEN_USERNAME_PATTERN = '^[^ ]{24,}$';
 const LONG_UNBROKEN_USERNAME_EXPLANATION = 'The display name is at least 24 characters long and contains no spaces.';
 const POLITICAL_TERMS_PATTERN = '\\b(trump|biden|obama|kamala|democrats?|republicans?|left-wing|right-wing|elections?|presidential|congress|senate|immigration|abortion|transgender|woke|israel|gaza|palestine|palestinians?|culture war)\\b';
 const POLITICAL_TERMS_EXPLANATION = 'A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once.';
-// The next two patterns detect problems *by case*, so they must always be used with a
-// case-sensitive operator. Under the /i variants `[a-z]` also matches uppercase and they
-// degenerate into "has four sentences", i.e. they fire on nearly everything.
+// Must stay case-sensitive; under /i these match nearly any prose.
 const MULTIPLE_LOWERCASE_SENTENCE_STARTS_PATTERN = '^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}';
 const MULTIPLE_LOWERCASE_SENTENCE_STARTS_EXPLANATION = 'A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter.';
 const MULTIPLE_MISSING_SENTENCE_SPACES_PATTERN = '(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}';
@@ -108,9 +102,7 @@ const focusedAiResearchGroup = [
   regexCondition('focusedTitleAndText', AI_RESEARCH_PROCESS_PATTERN, 'matchesRegex', AI_RESEARCH_PROCESS_EXPLANATION),
 ];
 
-// These two constants are interpolated into lookaheads below, so they have to stay fully
-// grouped: rewriting `\b(AI|AGI)\b` as `\bAI\b|\bAGI\b` changes the alternation's
-// precedence inside the lookahead and silently narrows what the combined pattern matches.
+// Interpolated into lookaheads below; keep each alternation fully grouped.
 const AI_RESEARCH_POST_PATTERN = `(?=[\\s\\S]*${AI_TOPIC_PATTERN})(?=[\\s\\S]*${AI_RESEARCH_PROCESS_PATTERN})`;
 const AI_RESEARCH_POSTS_EXPLANATION = `At least ${AI_RESEARCH_MIN_POSTS} posts each mention AI or a technical AI topic and present an AI research project, experiment, training process, evaluation, results, benchmark, or dataset.`;
 const REJECTED_AI_RESEARCH_POST_EXPLANATION = 'At least one of the user\'s rejected posts mentions AI or a technical AI topic and presents an AI research project, experiment, training process, evaluation, results, benchmark, or dataset.';
@@ -187,8 +179,6 @@ export const DEFAULT_MESSAGE_TEMPLATE_RULES: Record<string, HighlightRule> = {
     enabled: true,
     groups: [[booleanCondition('hasActiveDownvotedContentAlert', true)]],
   },
-  // The template's own criterion: lots of contents averaging under 1 karma each,
-  // which is what these automod alerts fire on
   [MESSAGE_TEMPLATE_IDS.semiAutomatedQualityLowAverage]: {
     enabled: true,
     groups: [[booleanCondition('hasActiveLowAverageKarmaAlert', true)]],
@@ -200,8 +190,6 @@ export const DEFAULT_MESSAGE_TEMPLATE_RULES: Record<string, HighlightRule> = {
       numberCondition('approvedContentCount', 'eq', 0),
     ]],
   },
-  // A few submissions, none rejected, but nobody's engaging (scores hovering at
-  // the self-vote). Negative scores are the downvoted template's territory instead.
   [MESSAGE_TEMPLATE_IDS.submissionsArentFindingTraction]: {
     enabled: true,
     groups: [[
@@ -233,12 +221,11 @@ const UNSIGNPOSTED_INTRO_EXPLANATION = `The first ${CLEARER_INTRO_SIGNPOST_WINDO
 const GRANDIOSE_TERMS_PATTERN = '\\b(?:manifesto|paradigm|framework|civilization|consciousness|humanity|harmony|transcend\\w*|awakening|emergence|emergent|resonance|recursive|recursion|spiral\\w*|sentien\\w*)\\b';
 const GRANDIOSE_TERMS_EXPLANATION = 'The selected content contains distinct grandiose terms such as manifesto, paradigm, framework, civilization, consciousness, harmony, transcendence, awakening, emergence, resonance, recursion, spiral, or sentience; repeated uses of one form count once.';
 
-// Backtested against two years of rejections (Aug 2026), with events, shortform containers and
-// the emptied-out posts of purged spammers excluded from the approved side. Content below these
-// lengths accounts for ~47% of past insufficient-quality post rejections and ~40% of the comment
-// ones, while firing on ~13% of approved new-author posts and ~16% of their comments. Approved
-// new-author posts run far longer than rejected ones (median ~8900 characters), which is why the
-// post threshold can sit so much higher than the comment one.
+// Backtested on two years of rejections (Aug 2026), excluding events,
+// shortform containers and purged spammers' emptied posts. Catches ~47% of
+// past insufficient-quality post rejections and ~40% of comment ones, firing
+// on ~13% of approved new-author posts and ~16% of their comments. Approved
+// posts run much longer (median ~8900 chars), hence the gap in thresholds.
 const INSUFFICIENT_QUALITY_MAX_POST_LENGTH = 2000;
 const INSUFFICIENT_QUALITY_MAX_COMMENT_LENGTH = 200;
 
@@ -261,10 +248,6 @@ const probablyLlmWritten: HighlightRule = {
   groups: [[numberCondition('focusedPangramScore', 'gt', POTENTIALLY_LLM_SCORE_MAX)]],
 };
 
-/**
- * Content that is mostly just a pointer elsewhere: little text of its own, and
- * either a single link or (for posts) a linkpost url.
- */
 const probablyOffsiteContent: HighlightRule = {
   enabled: true,
   groups: [
@@ -311,7 +294,6 @@ export const DEFAULT_REJECTION_TEMPLATE_RULES: Record<string, HighlightRule> = {
       ...formattingRejectionRule.groups,
       [
         booleanCondition('focusedIsPost', true),
-        // Short linkposts are the offsite-content templates' business rather than this one's.
         booleanCondition('focusedHasLinkpostUrl', false),
         numberCondition('focusedTextLength', 'lt', INSUFFICIENT_QUALITY_MAX_POST_LENGTH),
       ],
@@ -406,8 +388,8 @@ export const DEFAULT_REJECTION_TEMPLATE_RULES: Record<string, HighlightRule> = {
       numberCondition('focusedTextLength', 'lt', ACCIDENT_MAX_PLAINTEXT_LENGTH),
     ]],
   },
-  // Tuned against past moderation decisions (Aug 2026): together the two groups catch
-  // ~49% of past clearer-intro rejections while firing on ~13% of approved new-author posts.
+  // Tuned on past decisions (Aug 2026): the two groups catch ~49% of past
+  // clearer-intro rejections, firing on ~13% of approved new-author posts.
   [REJECTION_TEMPLATE_IDS.clearerIntro]: {
     enabled: true,
     groups: [
@@ -465,7 +447,7 @@ function addMatchingRules(
   }
 }
 
-/** No consumer yet; the rejection composer that calls this lands with the inbox UI PR. */
+/** No consumer yet; the rejection composer lands with the inbox UI PR. */
 export function getHighlightedRejectionTemplateIds(
   focusedContent: ContentItem | null | undefined,
   ctx: TemplateHighlightContext,

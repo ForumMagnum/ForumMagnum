@@ -2,16 +2,7 @@ import type { HighlightRule, HighlightRuleOverrides, ModeratorActionHighlightLev
 import { ALWAYS, booleanCondition, evaluateActionHighlightRule, numberCondition, resolveHighlightRules } from "./declarativeHighlightRules";
 import { HIGH_PANGRAM_SCORE } from "./highlightSignals";
 
-/**
- * Nothing consumes these rules yet. The action buttons that read
- * getHighlightedModeratorActions/getActionHighlightStyle land with the inbox UI PR; until then
- * they are editable at /admin/supermodHighlights but have no visible effect.
- *
- * Level 1 means the action shows up above the fold in the collapsed row, with a subtle outline
- * once expanded. Level 2 additionally gives it the per-action color below. Rules reach level 2
- * only on positive evidence (actual rejections, or content that really was scored), not on a
- * merely compatible absence of information.
- */
+// No consumer yet; the action buttons land with the inbox UI PR.
 
 export const highlightableModeratorActions = ['approve', 'snoozeCustom', 'approveCurrentOnly', 'remove', 'purge', 'disablePermissions', 'disableMessages'] as const;
 
@@ -21,6 +12,7 @@ export type ModeratorActionHighlightColor = 'green' | 'gold' | 'black' | 'red';
 
 export type ModeratorActionHighlightStyle = ModeratorActionHighlightColor | 'subtleOutline';
 
+// Level 2 only; level 1 just puts the action above the fold when collapsed.
 export const moderatorActionHighlightColors: Record<HighlightableModeratorAction, ModeratorActionHighlightColor> = {
   approve: 'green',
   snoozeCustom: 'gold',
@@ -60,8 +52,7 @@ const hasCleanUnapprovedContent = [
 
 const allUnapprovedContentScored = [[numberCondition('unapprovedContentMissingPangramScoreCount', 'eq', 0)]];
 
-// averagePostKarma/averageCommentKarma are 0 for an empty set, so a user with no posts (or no
-// comments) passes that half vacuously; this only rules out an actually-negative track record.
+// Average karma is 0 for an empty set, so no posts passes vacuously.
 const hasTrackRecord = [
   numberCondition('averagePostKarma', 'gte', 0),
   numberCondition('averageCommentKarma', 'gte', 0),
