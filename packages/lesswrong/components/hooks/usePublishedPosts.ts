@@ -1,6 +1,7 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useMemo } from "react";
+import { skipPollWhenHidden } from "./usePageVisibility";
 
 const SunshinePostsListMultiQuery = gql(`
   query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,7 +19,7 @@ const SunshinePostsListMultiQuery = gql(`
  * To preserve user privacy, don't return drafts which have never been published.
  * This used to be implemented with LWEvents, but now we're just using the `wasEverUndrafted` field.
  */
-export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true) {
+export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true, pollInterval?: number) {
   const { data, loading } = useQuery(SunshinePostsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersPosts: { userId } },
@@ -27,6 +28,8 @@ export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true)
     },
     notifyOnNetworkStatusChange: true,
     ssr,
+    pollInterval: userId ? pollInterval : undefined,
+    skipPollAttempt: skipPollWhenHidden,
   });
 
   const posts = useMemo(() => [...(data?.posts?.results ?? [])], [data]);
