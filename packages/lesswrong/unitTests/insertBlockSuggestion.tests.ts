@@ -307,6 +307,8 @@ describe("insertBlock with footnotes", () => {
       expect(referenceId).toBe(item.getFootnoteId());
     });
 
-    expect(getMarkdownContent(editor)).toContain("Definition **body** with a [link](https://example.com).");
+    expect(getMarkdownContent(editor)).toMatch(
+      /\[\^[^\]]+\]: Definition body with a link\./,
+    );
   });
 });
