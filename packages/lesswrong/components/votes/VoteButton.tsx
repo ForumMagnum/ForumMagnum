@@ -111,10 +111,10 @@ type VoteButtonAnimationState =
 export type VoteButtonAnimationHandlers = {
   state: VoteButtonAnimationState
   eventHandlers: {
-    onMouseDown: React.MouseEventHandler<HTMLButtonElement>,
-    onMouseUp: React.MouseEventHandler<HTMLButtonElement>,
-    onMouseOut: React.MouseEventHandler<HTMLButtonElement>,
-    onClick: React.MouseEventHandler<HTMLButtonElement>,
+    onMouseDown: React.MouseEventHandler,
+    onMouseUp: React.MouseEventHandler,
+    onMouseOut: React.MouseEventHandler,
+    onClick: React.MouseEventHandler,
   }
 }
 
@@ -145,7 +145,7 @@ export const VoteButtonAnimation = ({
     }
   }, [currentStrength]);
 
-  const handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => { // This handler is only used on desktop
+  const handleMouseDown: React.MouseEventHandler = (event) => { // This handler is only used on desktop
     if(!isMobile()) {
       if (animationState.current.mode === "idle") {
         if (event.detail > 1) {
