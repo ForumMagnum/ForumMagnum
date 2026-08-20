@@ -1,4 +1,5 @@
 import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $isFootnoteBackLinkNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteBackLinkNode";
@@ -6,6 +7,8 @@ import { $isFootnoteContentNode } from "@/components/editor/lexicalPlugins/footn
 import { $isFootnoteItemNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode";
 import { $isFootnoteReferenceNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode";
 import { $isFootnoteSectionNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode";
+import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
@@ -60,6 +63,14 @@ function findFootnoteReferenceId(node: LexicalNode): string | null {
     }
   }
   return null;
+}
+
+function getMarkdownContent(editor: LexicalEditor): string {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
+  return htmlToMarkdown(html).trim();
 }
 
 describe("insertBlock suggest mode", () => {
@@ -295,5 +306,7 @@ describe("insertBlock with footnotes", () => {
         .find((footnoteId) => footnoteId !== null);
       expect(referenceId).toBe(item.getFootnoteId());
     });
+
+    expect(getMarkdownContent(editor)).toContain("Definition **body** with a [link](https://example.com).");
   });
 });
