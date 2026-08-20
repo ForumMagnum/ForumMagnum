@@ -1,4 +1,5 @@
 import {
+  $isElementNode,
   ElementNode,
   DOMConversionMap,
   DOMConversionOutput,
@@ -9,6 +10,8 @@ import {
   Spread,
 } from 'lexical';
 import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from './constants';
+import { $createFootnoteBackLinkNode, $isFootnoteBackLinkNode, type FootnoteBackLinkNode } from './FootnoteBackLinkNode';
+import { $createFootnoteContentNode, $isFootnoteContentNode } from './FootnoteContentNode';
 
 export type SerializedFootnoteItemNode = Spread<
   {
@@ -144,7 +147,42 @@ function convertFootnoteItemElement(domNode: HTMLElement): DOMConversionOutput |
   }
 
   const node = $createFootnoteItemNode(footnoteId, footnoteIndex);
-  return { node };
+  return {
+    node,
+    after: normalizeImportedFootnoteItemChildren.bind(null, footnoteId),
+  };
+}
+
+function findImportedFootnoteBackLink(nodes: LexicalNode[]): FootnoteBackLinkNode | null {
+  for (const node of nodes) {
+    if ($isFootnoteBackLinkNode(node)) {
+      return node;
+    }
+    if ($isElementNode(node)) {
+      const nestedBackLink = findImportedFootnoteBackLink(node.getChildren());
+      if (nestedBackLink) {
+        return nestedBackLink;
+      }
+    }
+  }
+  return null;
+}
+
+function normalizeImportedFootnoteItemChildren(footnoteId: string, children: LexicalNode[]): LexicalNode[] {
+  if (children.some($isFootnoteContentNode)) {
+    return children;
+  }
+
+  const importedBackLink = findImportedFootnoteBackLink(children);
+  importedBackLink?.remove();
+
+  const content = $createFootnoteContentNode();
+  content.append(...children.filter((child) => child !== importedBackLink));
+
+  return [
+    importedBackLink ?? $createFootnoteBackLinkNode(footnoteId),
+    content,
+  ];
 }
 
 export function $createFootnoteItemNode(

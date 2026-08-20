@@ -1,6 +1,11 @@
-import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
+import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $isFootnoteBackLinkNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteBackLinkNode";
+import { $isFootnoteContentNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode";
+import { $isFootnoteItemNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode";
+import { $isFootnoteReferenceNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode";
+import { $isFootnoteSectionNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
@@ -40,6 +45,21 @@ function countInsertedNodesWithSuggestions(editor: LexicalEditor): { total: numb
     }
   });
   return { total, withSuggestions };
+}
+
+function findFootnoteReferenceId(node: LexicalNode): string | null {
+  if ($isFootnoteReferenceNode(node)) {
+    return node.getFootnoteId();
+  }
+  if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      const footnoteId = findFootnoteReferenceId(child);
+      if (footnoteId) {
+        return footnoteId;
+      }
+    }
+  }
+  return null;
 }
 
 describe("insertBlock suggest mode", () => {
@@ -236,5 +256,44 @@ describe("LaTeX correctness regressions", () => {
     await insertBlock(editor, "text before $$x^2$$ text after", "end", "edit");
 
     expect(firstDisplayMathParentType(editor)).toBe("root");
+  });
+});
+
+describe("insertBlock with footnotes", () => {
+  it("preserves footnote definition content in the editor node structure", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    await insertBlock(
+      editor,
+      "Body with a footnote.[^note]\n\n[^note]: Definition **body** with a [link](https://example.com).",
+      "end",
+      "edit",
+    );
+
+    editor.getEditorState().read(() => {
+      const rootChildren = $getRoot().getChildren();
+      const section = rootChildren.find($isFootnoteSectionNode);
+      expect(section).toBeDefined();
+      if (!section) {
+        throw new Error("Expected imported footnote section");
+      }
+
+      const item = section.getFirstChild();
+      expect($isFootnoteItemNode(item)).toBe(true);
+      if (!$isFootnoteItemNode(item)) {
+        throw new Error("Expected imported footnote item");
+      }
+
+      const itemChildren = item.getChildren();
+      expect(itemChildren).toHaveLength(2);
+      expect($isFootnoteBackLinkNode(itemChildren[0])).toBe(true);
+      expect($isFootnoteContentNode(itemChildren[1])).toBe(true);
+      expect(itemChildren[1].getTextContent().replace(/\s+/g, " ").trim())
+        .toBe("Definition body with a link.");
+
+      const referenceId = rootChildren
+        .map(findFootnoteReferenceId)
+        .find((footnoteId) => footnoteId !== null);
+      expect(referenceId).toBe(item.getFootnoteId());
+    });
   });
 });
