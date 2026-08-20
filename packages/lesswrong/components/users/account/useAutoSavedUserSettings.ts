@@ -47,7 +47,7 @@ export function fieldUpdate<K extends keyof EditableUser>(name: K, value: Editab
 }
 
 export function toEditableUser(user: UsersEdit): EditableUser {
-  return withDateFields(user, ['banned', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent']);
+  return withDateFields(user, ['banned', 'karmaChangeLastOpened', 'reviewedAt', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent']);
 }
 
 interface PendingBatch {
