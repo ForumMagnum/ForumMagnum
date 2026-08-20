@@ -105,7 +105,7 @@ const PostsVoteDefault = ({
       [classes.voteBlockHorizontal]: useHorizontalLayout,
     })}>
       <TooltipRef
-        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
+        title={whyYouCantVote ?? "Click-and-hold or double-click for strong vote"}
         placement={tooltipPlacement}
         popperClassName={classes.tooltip}
       >
@@ -159,7 +159,7 @@ const PostsVoteDefault = ({
         }
       </div>
       <TooltipRef
-        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
+        title={whyYouCantVote ?? "Click-and-hold or double-click for strong vote"}
         placement={tooltipPlacement}
         popperClassName={classes.tooltip}
       >

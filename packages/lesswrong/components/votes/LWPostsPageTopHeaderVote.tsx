@@ -70,7 +70,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
   return (
     <div className={classes.voteBlockHorizontal}>
       <TooltipSpan
-        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
+        title={whyYouCantVote ?? "Click-and-hold or double-click for strong vote"}
         placement={tooltipPlacement}
         styling="tooltip"
         distance={16}
@@ -108,7 +108,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
         </TooltipSpan>
       </div>
       <TooltipSpan
-        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
+        title={whyYouCantVote ?? "Click-and-hold or double-click for strong vote"}
         placement={tooltipPlacement}
         styling="tooltip"
         distance={16}

@@ -111,10 +111,10 @@ type VoteButtonAnimationState =
 export type VoteButtonAnimationHandlers = {
   state: VoteButtonAnimationState
   eventHandlers: {
-    onMouseDown: any,
-    onMouseUp: any,
-    onMouseOut: any,
-    onClick: any
+    onMouseDown: React.MouseEventHandler<HTMLButtonElement>,
+    onMouseUp: React.MouseEventHandler<HTMLButtonElement>,
+    onMouseOut: React.MouseEventHandler<HTMLButtonElement>,
+    onClick: React.MouseEventHandler<HTMLButtonElement>,
   }
 }
 
@@ -133,6 +133,7 @@ export const VoteButtonAnimation = ({
     mode: "idle",
     vote: currentStrength
   });
+  const doubleClickCompleted = useRef(false);
   
   useEffect(() => {
     if (animationState.current.mode === "idle" && animationState.current.vote !== currentStrength) {
@@ -144,10 +145,17 @@ export const VoteButtonAnimation = ({
     }
   }, [currentStrength]);
 
-  const handleMouseDown = () => { // This handler is only used on desktop
+  const handleMouseDown: React.MouseEventHandler<HTMLButtonElement> = (event) => { // This handler is only used on desktop
     if(!isMobile()) {
       if (animationState.current.mode === "idle") {
-        if (animationState.current.vote === "big") {
+        if (event.detail > 1) {
+          vote("big");
+          animationState.current = {
+            mode: "idle",
+            vote: "big",
+          };
+          doubleClickCompleted.current = true;
+        } else if (animationState.current.vote === "big") {
           vote("small");
           animationState.current = {
             mode: "idle",
@@ -185,6 +193,10 @@ export const VoteButtonAnimation = ({
 
   const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
+      if (doubleClickCompleted.current) {
+        doubleClickCompleted.current = false;
+        return;
+      }
       if (animationState.current.mode === "completed") {
         vote("big");
         animationState.current = {

@@ -182,7 +182,7 @@ const OverallVoteAxis = ({
           [classes.verticalArrows]: verticalArrows,
         })}>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />{getKarmaQuestion()}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />{getKarmaQuestion()}<br /><em>For strong downvote, click-and-hold<br />or double-click</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
@@ -206,7 +206,7 @@ const OverallVoteAxis = ({
             }
           </TooltipIfEnabled>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />{getKarmaQuestion()}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />{getKarmaQuestion()}<br /><em>For strong upvote, click-and-hold<br />or double-click</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
