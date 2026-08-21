@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -14,19 +14,10 @@ import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
-import QuickTakesSection from "../quickTakes/QuickTakesSection";
-import LWHomePosts from "./LWHomePosts";
-import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
-import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ErrorBoundary from './ErrorBoundary';
-import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
-
-import dynamic from 'next/dynamic';
-import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
-const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
+import ClaudeFrontpageFeed from './ClaudeFrontpageFeed';
 
 const styles = defineStyles("LWHome", () => ({
   desktopSpotlight: {
@@ -104,37 +95,13 @@ const LWHome = () => {
             spotlightId={mobileSpotlightOverrideId}
           />
         </SingleColumnSection>}
-        <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
-          <IsReturningVisitorContextProvider>
-            <LWHomePosts>
-              <QuickTakesSection />
-
-              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
-                <SuspenseWrapper name="UltraFeed">
-                  <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
-                    <UltraFeedOrRecentDiscussion/>
-                  </ErrorBoundary>
-                </SuspenseWrapper>
-              </AnalyticsInViewTracker>
-            </LWHomePosts>
-          </IsReturningVisitorContextProvider>
-        </SuspenseWrapper>
+        <AnalyticsInViewTracker eventProps={{inViewType: "postsFeed"}} observerProps={{threshold:[0, 0.5, 1]}}>
+          <SingleColumnSection>
+            <ClaudeFrontpageFeed/>
+          </SingleColumnSection>
+        </AnalyticsInViewTracker>
       </AnalyticsContext>
   )
-}
-
-const UltraFeedOrRecentDiscussion = () => {
-  const ultraFeedEnabled = ultraFeedEnabledSetting.get()
-  
-  return ultraFeedEnabled
-    ? <UltraFeed />
-    : <DeferRender ssr={false}>
-        <RecentDiscussionFeed
-          af={false}
-          commentsLimit={4}
-          maxAgeHours={18}
-        />
-      </DeferRender>
 }
 
 const UpdateLastVisitCookie = () => {
@@ -152,5 +119,4 @@ const UpdateLastVisitCookie = () => {
 export default registerComponent('LWHome', LWHome, {
   areEqual: "auto",
 });
-
 

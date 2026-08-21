@@ -327,6 +327,12 @@ export const routeTrie = {
         "autocomplete405b": {
           "hasRoute": true
         },
+        "claude-frontpage-feed": {
+          "hasRoute": true
+        },
+        "claude-frontpage-profile": {
+          "hasRoute": true
+        },
         "cron": {
           "staticChildren": {
             "curation-status-to-slack": {
@@ -647,6 +653,8 @@ export const routeTrie = {
         "agent": "agent",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
+        "claude-frontpage-feed": "claude-frontpage-feed",
+        "claude-frontpage-profile": "claude-frontpage-profile",
         "cron": "cron",
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
