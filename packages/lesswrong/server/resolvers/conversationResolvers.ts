@@ -39,7 +39,7 @@ export const conversationGqlTypeDefs = gql`
   extend type Mutation {
     markConversationRead(conversationId: String!): Boolean!
     sendEventTriggeredDM(eventType: String!): Boolean!
-    initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+    initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean, forceNew: Boolean): Conversation
   }
 
 `
@@ -116,7 +116,12 @@ export const conversationGqlMutations = {
 
     return true;
   },
-  async initiateConversation (_: void, { participantIds, moderator }: { participantIds: string[], moderator: boolean | null }, context: ResolverContext): Promise<(Partial<DbConversation> & { [ACCESS_FILTERED]: true }) | null> {
+  /**
+   * Returns the existing conversation between exactly these participants if there is one,
+   * otherwise creates a new one. Pass `forceNew` to always create a fresh conversation,
+   * even when one with the same participants already exists.
+   */
+  async initiateConversation (_: void, { participantIds, moderator, forceNew }: { participantIds: string[], moderator: boolean | null, forceNew: boolean | null }, context: ResolverContext): Promise<(Partial<DbConversation> & { [ACCESS_FILTERED]: true }) | null> {
     const { currentUser, Conversations } = context;
 
     if (!currentUser) {
@@ -126,18 +131,20 @@ export const conversationGqlMutations = {
     const afField = isAF() ? { af: true } : {};
     const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
 
-    // This is basically the `userGroupUntitledConversations` view plus the default view
-    const selector = {
-      participantIds: participantIds?.length
-        ? { $size: participantIds.length, $all: participantIds }
-        : currentUser._id,
-        ...afField,
-        ...moderatorField,
-    };
+    if (!forceNew) {
+      // This is basically the `userGroupUntitledConversations` view plus the default view
+      const selector = {
+        participantIds: participantIds?.length
+          ? { $size: participantIds.length, $all: participantIds }
+          : currentUser._id,
+          ...afField,
+          ...moderatorField,
+      };
 
-    const existingConversation = await Conversations.findOne(selector, { sort: { moderator: 1 }});
-    if (existingConversation) {
-      return accessFilterSingle(currentUser, 'Conversations', existingConversation, context);
+      const existingConversation = await Conversations.findOne(selector, { sort: { moderator: 1 }});
+      if (existingConversation) {
+        return accessFilterSingle(currentUser, 'Conversations', existingConversation, context);
+      }
     }
 
     const conversationData = {

@@ -956,7 +956,7 @@ extend type Query {
 extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!
-  initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+  initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean, forceNew: Boolean): Conversation
 }
 
 enum ResearchEntrypointKind {
@@ -2735,12 +2735,19 @@ input ConversationsUserGroupUntitledConversationsInput {
   userId: String
 }
 
+input ConversationsUserGroupConversationsInput {
+  moderator: Boolean
+  participantIds: [String!]
+  userId: String
+}
+
 input ConversationSelector {
   default: EmptyViewInput
   moderatorConversations: ConversationsModeratorConversationsInput
   userConversations: ConversationsUserConversationsInput
   userConversationsAll: ConversationsUserConversationsAllInput
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
+  userGroupConversations: ConversationsUserGroupConversationsInput
 }
 
 input MultiConversationInput {

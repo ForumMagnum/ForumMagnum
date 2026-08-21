@@ -38,12 +38,19 @@ export const graphqlConversationQueryTypeDefs = gql`
     userId: String
   }
   
+  input ConversationsUserGroupConversationsInput {
+    moderator: Boolean
+    participantIds: [String!]
+    userId: String
+  }
+  
   input ConversationSelector {
     default: EmptyViewInput
     moderatorConversations: ConversationsModeratorConversationsInput
     userConversations: ConversationsUserConversationsInput
     userConversationsAll: ConversationsUserConversationsAllInput
     userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
+    userGroupConversations: ConversationsUserGroupConversationsInput
   }
   
   input MultiConversationInput {

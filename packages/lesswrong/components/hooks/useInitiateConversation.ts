@@ -5,9 +5,15 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
+export interface InitiateConversationOptions {
+  /** Always create a fresh conversation, even if one with the same participants already exists */
+  forceNew?: boolean;
+}
+
 /**
- * Hook to initiate a conversation with a user. This get's the existing conversation (first conversation
- * between these users with no title), or creates a new one if it doesn't exist.
+ * Hook to initiate a conversation with a user. By default this gets the existing conversation
+ * between these users, or creates a new one if it doesn't exist. Pass `{forceNew: true}` to
+ * the callback to always create a new conversation.
  *
  * Note: the initiateConversation callback doesn't return the created conversation, it is returned separately
  * by the hook
@@ -27,8 +33,8 @@ export const useInitiateConversation = (props?: {
 
 
   const [initateConversation, { data, loading }] = useMutation(gql(`
-    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {
-      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {
+    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean, $forceNew: Boolean) {
+      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator, forceNew: $forceNew) {
         ...ConversationsMinimumInfo
       }
     }
@@ -40,15 +46,16 @@ export const useInitiateConversation = (props?: {
 
   const conversation = data?.initiateConversation;
 
-  const wrappedInitiateConversation = useCallback((userIds: string[]) => {
+  const wrappedInitiateConversation = useCallback((userIds: string[], options?: InitiateConversationOptions) => {
     const moderatorField = includeModerators ? { moderator: true } : {};
+    const forceNewField = options?.forceNew ? { forceNew: true } : {};
     const participantIds = skip || !userIds.length ? [] : [currentUser._id, ...userIds];
   
     void initateConversation({
-      variables: { participantIds, ...moderatorField },
+      variables: { participantIds, ...moderatorField, ...forceNewField },
     });
 
-    captureEvent();
+    captureEvent(undefined, { forceNew: !!options?.forceNew });
   }, [captureEvent, currentUser?._id, includeModerators, initateConversation, skip]);
 
   return {

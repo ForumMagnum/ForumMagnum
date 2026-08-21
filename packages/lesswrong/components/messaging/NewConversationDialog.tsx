@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from "../search/useSearchAnalytics";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
@@ -15,8 +15,26 @@ import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversat
 import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
 import EAButton from "../ea-forum/EAButton";
+import FormatDate from "../common/FormatDate";
+import { Menu } from "@/components/widgets/Menu";
+import { MenuItem } from "../common/Menus";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { truncate } from "../../lib/editor/ellipsize";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+
+const ExistingConversationsQuery = gql(`
+  query NewConversationDialogExistingConversations($selector: ConversationSelector, $limit: Int) {
+    conversations(selector: $selector, limit: $limit) {
+      results {
+        ...ConversationsList
+      }
+    }
+  }
+`);
+
+const MAX_EXISTING_CONVERSATIONS = 20;
 
 const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   paper: {
@@ -154,9 +172,93 @@ const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
     borderTop: theme.palette.border.grey300,
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+    gap: "8px",
+    flexWrap: "wrap",
+  },
+  existingConversationsHint: {
+    flex: 1,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontSize: 13,
+  },
+  dropdownIcon: {
+    fontSize: 16,
+    marginLeft: 4,
+  },
+  existingConversationsMenu: {
+    width: 440,
+    maxWidth: "calc(100vw - 32px)",
+  },
+  existingConversationItem: {
+    height: "auto",
+    whiteSpace: "normal",
+    display: "block",
+    borderBottom: theme.palette.border.grey200,
+    "&:last-child": {
+      borderBottom: "none",
+    },
+  },
+  existingConversationTitleRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    gap: "12px",
+  },
+  existingConversationTitle: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+    fontSize: 14,
+    fontWeight: 600,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  existingConversationMeta: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontSize: 12,
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+    flex: "none",
+  },
+  existingConversationPreview: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    marginTop: 2,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 }));
+
+const getExistingConversationsCountLabel = (count: number): string => {
+  if (count === 1) {
+    return "a conversation";
+  }
+  const countLabel = count >= MAX_EXISTING_CONVERSATIONS ? `${MAX_EXISTING_CONVERSATIONS}+` : `${count}`;
+  return `${countLabel} conversations`;
+};
+
+const getExistingConversationTitle = (conversation: ConversationsList): string => {
+  if (conversation.title) {
+    return conversation.title;
+  }
+  const messageCount = conversation.messageCount ?? 0;
+  return `Untitled · ${messageCount} ${messageCount === 1 ? "message" : "messages"}`;
+};
+
+const getExistingConversationPreview = (conversation: ConversationsList): string => {
+  const latestMessage = conversation.latestMessage;
+  if (!latestMessage) {
+    return "";
+  }
+  const authorName = latestMessage.user?.displayName;
+  const plaintext = truncate(latestMessage.contents?.plaintextMainText ?? "", 200);
+  return authorName ? `${authorName}: ${plaintext}` : plaintext;
+};
 
 const NewConversationDialog = ({isModInbox = false, onClose}: {
   isModInbox?: boolean;
@@ -172,13 +274,47 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
 
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
   const [selectedUsers, setSelectedUsers] = useState<Hit<AnyBecauseTodo>[]>([])
+  const [existingMenuAnchorEl, setExistingMenuAnchorEl] = useState<HTMLElement|null>(null);
+
+  const participantIds = useMemo(
+    () => currentUser ? [currentUser._id, ...selectedUsers.map((u) => u._id)] : [],
+    [currentUser, selectedUsers],
+  );
+
+  const { data: existingConversationsData, loading: existingConversationsLoading } = useQuery(ExistingConversationsQuery, {
+    variables: {
+      selector: {
+        userGroupConversations: {
+          participantIds,
+          moderator: isModInbox,
+          userId: currentUser?._id,
+        },
+      },
+      limit: MAX_EXISTING_CONVERSATIONS,
+    },
+    skip: !currentUser || selectedUsers.length === 0,
+  });
+  const existingConversations = selectedUsers.length > 0
+    ? (existingConversationsData?.conversations?.results ?? [])
+    : [];
+
+  const goToConversation = useCallback((conversationId: string) => {
+    navigate({
+      pathname: isModInbox ? "/moderatorInbox" : "/inbox",
+      search: `?conversation=${conversationId}&from=new_conversation_dialog`,
+    });
+    onClose();
+  }, [navigate, isModInbox, onClose]);
 
   useEffect(() => {
     if (conversation) {
-      navigate({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
-      onClose();
+      goToConversation(conversation._id);
     }
-  }, [conversation, navigate, isModInbox, onClose]);
+  }, [conversation, goToConversation]);
+
+  const startNewConversation = useCallback(() => {
+    initiateConversation(selectedUsers.map((u) => u._id), { forceNew: true });
+  }, [initiateConversation, selectedUsers]);
 
   const toggleUserSelected = useCallback((user: Hit<AnyBecauseTodo>) => {
     const prevSelectedUserIds = selectedUsers.map(u => u._id)
@@ -275,8 +411,49 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
             </div>
           </InstantSearch>
           <div className={classes.submitRow}>
-            <EAButton onClick={() => initiateConversation(selectedUsers.map((u) => u._id))}>
-              Create conversation
+            {existingConversations.length > 0 && <>
+              <div className={classes.existingConversationsHint}>
+                You already have {getExistingConversationsCountLabel(existingConversations.length)} with {selectedUsers.length === 1 ? "this person" : "these people"}
+              </div>
+              <EAButton
+                style="grey"
+                onClick={(e) => setExistingMenuAnchorEl(e.currentTarget)}
+              >
+                Continue existing
+                <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} />
+              </EAButton>
+              <Menu
+                open={!!existingMenuAnchorEl}
+                anchorEl={existingMenuAnchorEl}
+                onClose={() => setExistingMenuAnchorEl(null)}
+                className={classes.existingConversationsMenu}
+              >
+                {existingConversations.map((existingConversation) => (
+                  <MenuItem
+                    key={existingConversation._id}
+                    className={classes.existingConversationItem}
+                    onClick={() => goToConversation(existingConversation._id)}
+                  >
+                    <div className={classes.existingConversationTitleRow}>
+                      <span className={classes.existingConversationTitle}>
+                        {getExistingConversationTitle(existingConversation)}
+                      </span>
+                      {existingConversation.latestActivity && <span className={classes.existingConversationMeta}>
+                        <FormatDate date={existingConversation.latestActivity} tooltip={false} />
+                      </span>}
+                    </div>
+                    <div className={classes.existingConversationPreview}>
+                      {getExistingConversationPreview(existingConversation)}
+                    </div>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>}
+            <EAButton
+              onClick={startNewConversation}
+              disabled={selectedUsers.length === 0 || existingConversationsLoading}
+            >
+              {existingConversations.length > 0 ? "Start new conversation" : "Create conversation"}
             </EAButton>
           </div>
         </div>

@@ -70,9 +70,28 @@ function userGroupUntitledConversations(terms: ConversationsViewTerms) {
   };
 }
 
+// Conversations (with at least one message) whose participant list is exactly
+// terms.participantIds, excluding ones the current user has archived. Used to
+// offer existing conversations when starting a new one with the same people.
+function userGroupConversations(terms: ConversationsViewTerms) {
+  const moderatorSelector = terms.moderator ? {moderator: true} : {moderator: {$ne: true}}
+  return {
+    selector: {
+      participantIds: terms.participantIds
+        ? { $size: terms.participantIds.length, $all: terms.participantIds }
+        : terms.userId,
+      messageCount: {$gt: 0},
+      archivedByIds: { $ne: terms.userId },
+      ...moderatorSelector,
+    },
+    options: { sort: { latestActivity: -1 } },
+  };
+}
+
 export const ConversationsViews = new CollectionViewSet('Conversations', {
   moderatorConversations,
   userConversations,
   userConversationsAll,
-  userGroupUntitledConversations
+  userGroupUntitledConversations,
+  userGroupConversations,
 }, defaultView);

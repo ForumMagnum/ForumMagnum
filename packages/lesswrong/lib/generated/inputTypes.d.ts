@@ -2474,12 +2474,19 @@ interface ConversationsUserGroupUntitledConversationsInput {
   userId?: string | null;
 }
 
+interface ConversationsUserGroupConversationsInput {
+  moderator?: boolean | null;
+  participantIds?: Array<string> | null;
+  userId?: string | null;
+}
+
 interface ConversationSelector {
   default: EmptyViewInput | null;
   moderatorConversations: ConversationsModeratorConversationsInput | null;
   userConversations: ConversationsUserConversationsInput | null;
   userConversationsAll: ConversationsUserConversationsAllInput | null;
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput | null;
+  userGroupConversations: ConversationsUserGroupConversationsInput | null;
 }
 
 interface MultiConversationInput {
@@ -9525,6 +9532,7 @@ interface GraphQLTypeMap {
   ConversationsUserConversationsInput: ConversationsUserConversationsInput;
   ConversationsUserConversationsAllInput: ConversationsUserConversationsAllInput;
   ConversationsUserGroupUntitledConversationsInput: ConversationsUserGroupUntitledConversationsInput;
+  ConversationsUserGroupConversationsInput: ConversationsUserGroupConversationsInput;
   ConversationSelector: ConversationSelector;
   MultiConversationInput: MultiConversationInput;
   MultiConversationOutput: MultiConversationOutput;

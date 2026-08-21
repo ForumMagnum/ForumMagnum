@@ -1118,6 +1118,7 @@ type ConversationSelector = {
   moderatorConversations?: InputMaybe<ConversationsModeratorConversationsInput>;
   userConversations?: InputMaybe<ConversationsUserConversationsInput>;
   userConversationsAll?: InputMaybe<ConversationsUserConversationsAllInput>;
+  userGroupConversations?: InputMaybe<ConversationsUserGroupConversationsInput>;
   userGroupUntitledConversations?: InputMaybe<ConversationsUserGroupUntitledConversationsInput>;
 };
 
@@ -1133,6 +1134,12 @@ type ConversationsUserConversationsAllInput = {
 
 type ConversationsUserConversationsInput = {
   showArchive?: InputMaybe<Scalars['Boolean']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ConversationsUserGroupConversationsInput = {
+  moderator?: InputMaybe<Scalars['Boolean']['input']>;
+  participantIds?: InputMaybe<Array<Scalars['String']['input']>>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4419,6 +4426,7 @@ type MutationincreasePostViewCountArgs = {
 
 type MutationinitiateConversationArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
+  forceNew?: InputMaybe<Scalars['Boolean']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds: Array<Scalars['String']['input']>;
 };
@@ -15402,6 +15410,7 @@ type initiateConversationMutationVariables = Exact<{
   participantIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
   af: InputMaybe<Scalars['Boolean']['input']>;
   moderator: InputMaybe<Scalars['Boolean']['input']>;
+  forceNew: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -16571,6 +16580,24 @@ type MessagesNewFormQueryVariables = Exact<{
 
 
 type MessagesNewFormQuery = MessagesNewFormQuery_Query;
+
+type NewConversationDialogExistingConversationsQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsList
+);
+
+type NewConversationDialogExistingConversationsQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', results: Array<NewConversationDialogExistingConversationsQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type NewConversationDialogExistingConversationsQuery_Query = { __typename?: 'Query', conversations: NewConversationDialogExistingConversationsQuery_conversations_MultiConversationOutput | null };
+
+
+type NewConversationDialogExistingConversationsQueryVariables = Exact<{
+  selector: InputMaybe<ConversationSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type NewConversationDialogExistingConversationsQuery = NewConversationDialogExistingConversationsQuery_Query;
 
 type updateModerationTemplateModerationTemplateFormMutation_updateModerationTemplate_ModerationTemplateOutput_data_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
