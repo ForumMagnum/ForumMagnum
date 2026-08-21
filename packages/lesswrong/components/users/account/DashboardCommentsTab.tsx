@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import CommentsDraftList from '../../comments/CommentsDraftList';
 import RecentComments from '../../comments/RecentComments';
+import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { dashboardTabStyles } from './dashboardTabStyles';
+import DashboardSortDropdown, { parseDashboardSortMode, type DashboardSortMode } from './DashboardSortDropdown';
 
 const styles = defineStyles('DashboardCommentsTab', (theme: ThemeType) => ({
   filterRow: {
     display: 'flex',
+    alignItems: 'center',
     gap: 12,
     marginBottom: 12,
   },
@@ -29,15 +32,19 @@ const styles = defineStyles('DashboardCommentsTab', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     fontWeight: 600,
   },
+  sortDropdown: {
+    marginLeft: 'auto',
+  },
 }));
 
 type CommentFilter = 'all' | 'quickTakes' | 'regular';
 
-function getCommentSelector(userId: string, filter: CommentFilter): CommentSelector {
+function getCommentSelector(userId: string, filter: CommentFilter, sortBy: DashboardSortMode): CommentSelector {
   const base = {
     authorIsUnreviewed: null,
     includeRejected: true,
     userId,
+    sortBy,
   };
 
   switch (filter) {
@@ -55,6 +62,8 @@ const DashboardCommentsTab = ({userId}: {userId: string}) => {
   const shared = useStyles(dashboardTabStyles);
   const classes = useStyles(styles);
   const [filter, setFilter] = useState<CommentFilter>('all');
+  const { query } = useLocation();
+  const sortBy = parseDashboardSortMode(query.commentsSortBy);
 
   return (
     <AnalyticsContext pageElementContext="dashboardCommentsTab">
@@ -88,9 +97,14 @@ const DashboardCommentsTab = ({userId}: {userId: string}) => {
               {f === 'all' ? 'All' : f === 'quickTakes' ? 'Quick Takes' : 'Comments'}
             </button>
           ))}
+          <DashboardSortDropdown
+            value={sortBy}
+            queryParam="commentsSortBy"
+            className={classes.sortDropdown}
+          />
         </div>
         <RecentComments
-          selector={getCommentSelector(userId, filter)}
+          selector={getCommentSelector(userId, filter, sortBy)}
           limit={10}
         />
       </div>
