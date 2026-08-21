@@ -231,11 +231,10 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
+          scrollToNotificationTarget(notificationLink);
           navigate(notificationLink)
 
           setClicked(true);
-
-          scrollToNotificationTarget(notificationLink);
         }}
       >
         {notification.type ? getNotificationIconByNotificationName(notification.type) : null}

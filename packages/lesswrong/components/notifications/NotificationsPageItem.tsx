@@ -315,10 +315,9 @@ const NotificationsPageItem = ({notification, lastNotificationsCheck}: {
             });
 
             ev.preventDefault();
+            scrollToNotificationTarget(notificationLink);
             navigate(notificationLink);
             setClicked(true);
-
-            scrollToNotificationTarget(notificationLink);
           }}
         >
           <span className={classes.iconWrapper}>

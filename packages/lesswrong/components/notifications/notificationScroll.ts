@@ -1,27 +1,21 @@
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 
-/**
- * Scroll to the comment a notification points at, in the cases where following
- * the link doesn't do it by itself: clicking a notification for the page you're
- * already on is a no-op navigation, and a `#hash` link doesn't scroll on its own
- * either. On a real navigation to a different page, the page-load scripts in
- * `scrollUtils` handle the scrolling instead.
- */
+// Call before navigating. Handles the cases where navigating won't scroll by itself:
+// a #hash link, or re-clicking a notification for the page you're already on
+// (navigate() no-ops when the URL is unchanged, so nothing else would react).
 export function scrollToNotificationTarget(notificationLink: string) {
-  const UrlClass = getUrlClass();
-  const url = new UrlClass(notificationLink, getSiteUrl());
+  const url = new URL(notificationLink, getSiteUrl());
   const targetId = url.hash ? url.hash.substring(1) : url.searchParams.get("commentId");
   if (!targetId) return;
 
-  const currentTargetId = window.location.hash
-    ? window.location.hash.substring(1)
-    : new UrlClass(window.location.href).searchParams.get("commentId");
-  const alreadyOnTargetLocation =
-    url.pathname === window.location.pathname && currentTargetId === targetId;
+  const currentLocation = new URL(window.location.href);
+  const wasAlreadyOnTarget = url.pathname === currentLocation.pathname && (
+    currentLocation.hash.substring(1) === targetId ||
+    currentLocation.searchParams.get("commentId") === targetId
+  );
 
-  if (url.hash || alreadyOnTargetLocation) {
+  if (url.hash || wasAlreadyOnTarget) {
     scrollFocusOnElement({ id: targetId, options: { behavior: "smooth" } });
   }
 }
