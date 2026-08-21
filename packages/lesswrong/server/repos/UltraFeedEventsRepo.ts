@@ -169,6 +169,55 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   }
 
   /**
+   * Returns comments for which we have affirmative evidence that the user has
+   * read them. A post's comments-read timestamp covers comments that existed at
+   * that time; direct feed views, votes, and authorship cover individual
+   * comments independently.
+   */
+  async getReadCommentIds(
+    userId: string,
+    commentIds: string[],
+  ): Promise<Set<string>> {
+    if (commentIds.length === 0) {
+      return new Set();
+    }
+
+    const readComments = await this.getRawDb().manyOrNone<{ commentId: string }>(`
+      -- UltraFeedEventsRepo.getReadCommentIds
+      SELECT c."_id" AS "commentId"
+      FROM "Comments" c
+      LEFT JOIN "ReadStatuses" rs
+        ON rs."postId" = c."postId"
+        AND rs."userId" = $(userId)
+      WHERE c."_id" = ANY($(commentIds)::text[])
+        AND (
+          c."userId" = $(userId)
+          OR (rs."lastUpdated" IS NOT NULL AND c."postedAt" <= rs."lastUpdated")
+          OR EXISTS (
+            SELECT 1
+            FROM "UltraFeedEvents" ue
+            WHERE ue."userId" = $(userId)
+              AND ue."collectionName" = 'Comments'
+              AND ue."documentId" = c."_id"
+              AND ue."eventType" = 'viewed'
+          )
+          OR EXISTS (
+            SELECT 1
+            FROM "Votes" v
+            WHERE v."userId" = $(userId)
+              AND v."collectionName" = 'Comments'
+              AND v."documentId" = c."_id"
+          )
+        )
+    `, {
+      userId,
+      commentIds,
+    });
+
+    return new Set(readComments.map((row) => row.commentId));
+  }
+
+  /**
    * Fetch a chronological feed of items that were served to the user, grouped as:
    * - Posts: grouped by post ID (latest serve time)
    * - Spotlights: grouped by spotlight ID (latest serve time)

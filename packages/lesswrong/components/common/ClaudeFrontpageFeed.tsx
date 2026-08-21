@@ -1,18 +1,32 @@
 'use client';
 
-import React, { FormEvent, KeyboardEvent, useMemo, useState } from 'react';
+import React, { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward';
 import {
   ClaudeFeedItem,
   ClaudeFeedItemType,
+  ClaudeFeedModelId,
+  ClaudeFeedStoredRun,
+  ClaudeFeedUsage,
+  claudeFeedModelConfigs,
+  claudeFeedModelIds,
+  claudeFeedProfileResponseSchema,
   claudeFeedResponseSchema,
+  claudeFeedStoredHistorySchema,
+  defaultClaudeFeedModel,
 } from '@/lib/claudeFeed';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useTracking } from '@/lib/analyticsEvents';
 import { ClaudeSparkIcon } from '@/components/icons/claudeSparkIcon';
 import FormatDate from '@/components/common/FormatDate';
 import LWTooltip from '@/components/common/LWTooltip';
+import { useCurrentUser } from '@/components/common/withUser';
+import {
+  getBrowserLocalStorage,
+  safeStorageGetItem,
+  safeStorageSetItem,
+} from '@/components/editor/localStorageHandlers';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 type FeedFilter = 'all' | ClaudeFeedItemType;
@@ -21,6 +35,25 @@ interface FilterOption {
   value: FeedFilter;
   label: string;
 }
+
+interface ClaudeFeedApiResponse {
+  items: ClaudeFeedItem[];
+  model: ClaudeFeedModelId;
+  usage: ClaudeFeedUsage;
+  costUsd: number;
+  costIsEstimated: boolean;
+}
+
+interface ClaudeProfileApiResponse {
+  profile: string;
+  model: ClaudeFeedModelId;
+  usage: ClaudeFeedUsage;
+  costUsd: number;
+  costIsEstimated: boolean;
+}
+
+const RUN_HISTORY_STORAGE_VERSION = 1;
+const MAX_STORED_RUNS = 50;
 
 const filterOptions: FilterOption[] = [
   { value: 'all', label: 'All' },
@@ -112,6 +145,180 @@ const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
   },
   submitIconLoading: {
     animation: '$claudeFeedTurn 900ms linear infinite',
+  },
+  controls: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 10,
+    padding: '0 2px',
+    [theme.breakpoints.down('xs')]: {
+      alignItems: 'stretch',
+      flexDirection: 'column',
+    },
+  },
+  primaryControls: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  controlButton: {
+    minHeight: 32,
+    padding: '6px 11px',
+    border: theme.palette.greyBorder('1px', 0.18),
+    borderRadius: 6,
+    background: 'transparent',
+    color: theme.palette.text.slightlyDim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.78rem',
+    lineHeight: 1.2,
+    cursor: 'pointer',
+    transition: 'border-color 120ms ease, color 120ms ease, background 120ms ease',
+    '&:hover': {
+      borderColor: theme.palette.lwTertiary.main,
+      color: theme.palette.text.normal,
+      background: theme.palette.greyAlpha(0.025),
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.lwTertiary.main}`,
+      outlineOffset: 2,
+    },
+    '&:disabled': {
+      cursor: 'default',
+      opacity: 0.48,
+    },
+  },
+  modelSelect: {
+    minHeight: 32,
+    maxWidth: 220,
+    padding: '5px 28px 5px 9px',
+    border: theme.palette.greyBorder('1px', 0.18),
+    borderRadius: 6,
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.text.slightlyDim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.78rem',
+    cursor: 'pointer',
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.lwTertiary.main}`,
+      outlineOffset: 2,
+    },
+  },
+  spendButton: {
+    whiteSpace: 'nowrap',
+    fontVariantNumeric: 'tabular-nums',
+    [theme.breakpoints.down('xs')]: {
+      alignSelf: 'flex-start',
+    },
+  },
+  profilePanel: {
+    marginTop: 10,
+    padding: '11px 13px 10px',
+    borderLeft: `3px solid ${theme.palette.lwTertiary.main}`,
+    borderRadius: '0 7px 7px 0',
+    background: theme.palette.greyAlpha(0.028),
+  },
+  profileHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 5,
+    color: theme.palette.text.dim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.68rem',
+    fontWeight: 600,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+  },
+  profileInput: {
+    width: '100%',
+    minHeight: 64,
+    padding: 0,
+    border: 0,
+    outline: 0,
+    resize: 'vertical',
+    background: 'transparent',
+    color: theme.palette.text.normal,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.86rem',
+    lineHeight: 1.45,
+  },
+  profileStatus: {
+    marginTop: 8,
+    color: theme.palette.error.main,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.8rem',
+  },
+  historyTooltip: {
+    background: 'transparent',
+    boxShadow: 'none',
+  },
+  historyPanel: {
+    width: 350,
+    maxWidth: 'calc(100vw - 24px)',
+    maxHeight: 420,
+    overflowY: 'auto',
+    border: theme.palette.greyBorder('1px', 0.16),
+    borderRadius: 8,
+    background: theme.palette.panelBackground.default,
+    boxShadow: `0 12px 34px ${theme.palette.boxShadowColor(0.18)}`,
+  },
+  historyHeader: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+    padding: '11px 12px 9px',
+    borderBottom: theme.palette.greyBorder('1px', 0.1),
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.text.dim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+  },
+  historyRun: {
+    width: '100%',
+    display: 'block',
+    padding: '10px 12px',
+    border: 0,
+    borderBottom: theme.palette.greyBorder('1px', 0.08),
+    background: 'transparent',
+    color: theme.palette.text.normal,
+    textAlign: 'left',
+    cursor: 'pointer',
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.035),
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.lwTertiary.main}`,
+      outlineOffset: -2,
+    },
+  },
+  historyRunTitle: {
+    display: 'block',
+    overflow: 'hidden',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.82rem',
+    lineHeight: 1.3,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  historyRunMeta: {
+    display: 'block',
+    marginTop: 3,
+    color: theme.palette.text.dim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.7rem',
+    fontVariantNumeric: 'tabular-nums',
+  },
+  historyEmpty: {
+    padding: 14,
+    color: theme.palette.text.dim,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '0.8rem',
   },
   filterRail: {
     display: 'flex',
@@ -346,26 +553,130 @@ function getTypeLabel(type: ClaudeFeedItemType): string {
   return 'Wiki';
 }
 
-async function fetchClaudeFeed(prompt: string): Promise<ClaudeFeedItem[]> {
+function getErrorMessage(body: unknown, fallback: string): string {
+  return (
+    typeof body === 'object' &&
+    body !== null &&
+    'error' in body &&
+    typeof body.error === 'string'
+  ) ? body.error : fallback;
+}
+
+function getRunHistoryStorageKey(userId: string | undefined): string {
+  return `claudeFrontpageFeedRuns:${userId ?? 'guest'}`;
+}
+
+function readStoredRuns(storageKey: string): ClaudeFeedStoredRun[] {
+  const storage = getBrowserLocalStorage();
+  const storedValue = safeStorageGetItem(storage, storageKey);
+  if (!storedValue) {
+    return [];
+  }
+  try {
+    const parsedHistory = claudeFeedStoredHistorySchema.safeParse(JSON.parse(storedValue));
+    return parsedHistory.success ? parsedHistory.data.runs : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredRuns(storageKey: string, runs: ClaudeFeedStoredRun[]): void {
+  safeStorageSetItem(getBrowserLocalStorage(), storageKey, JSON.stringify({
+    version: RUN_HISTORY_STORAGE_VERSION,
+    runs,
+  }));
+}
+
+function createRunId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function formatUsd(value: number): string {
+  if (value === 0) {
+    return '$0.0000';
+  }
+  if (value < 0.01) {
+    return `$${value.toFixed(4)}`;
+  }
+  return `$${value.toFixed(2)}`;
+}
+
+function formatRunDate(createdAt: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(createdAt));
+}
+
+function getRunTitle(run: ClaudeFeedStoredRun): string {
+  return run.kind === 'feed' ? run.prompt : 'Taste profile from LW history';
+}
+
+async function fetchClaudeFeed(
+  prompt: string,
+  profile: string,
+  model: ClaudeFeedModelId,
+): Promise<ClaudeFeedApiResponse> {
   const response = await fetch('/api/claude-frontpage-feed', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({
+      prompt,
+      profile: profile.trim() || undefined,
+      model,
+    }),
   });
   const body: unknown = await response.json();
   if (!response.ok) {
-    const errorMessage = (
-      typeof body === 'object' &&
-      body !== null &&
-      'error' in body &&
-      typeof body.error === 'string'
-    ) ? body.error : 'Claude couldn’t build this feed.';
-    throw new Error(errorMessage);
+    throw new Error(getErrorMessage(body, 'Claude couldn’t build this feed.'));
   }
-  return claudeFeedResponseSchema.parse(body).items;
+  return claudeFeedResponseSchema.parse(body);
 }
+
+async function fetchClaudeProfile(model: ClaudeFeedModelId): Promise<ClaudeProfileApiResponse> {
+  const response = await fetch('/api/claude-frontpage-profile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ model }),
+  });
+  const body: unknown = await response.json();
+  if (!response.ok) {
+    throw new Error(getErrorMessage(body, 'Claude couldn’t build your taste profile.'));
+  }
+  return claudeFeedProfileResponseSchema.parse(body);
+}
+
+const RunHistoryMenu = ({
+  runs,
+  onSelect,
+}: {
+  runs: ClaudeFeedStoredRun[];
+  onSelect: (run: ClaudeFeedStoredRun) => void;
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.historyPanel} role="menu" aria-label="Claude feed run history">
+    <div className={classes.historyHeader}>Saved in this browser</div>
+    {runs.length === 0 && <div className={classes.historyEmpty}>Your generated feeds and profiles will appear here.</div>}
+    {runs.map((run) => <button
+      type="button"
+      role="menuitem"
+      className={classes.historyRun}
+      onClick={() => onSelect(run)}
+      key={run.id}
+    >
+      <span className={classes.historyRunTitle}>{getRunTitle(run)}</span>
+      <span className={classes.historyRunMeta}>
+        {formatRunDate(run.createdAt)} · {claudeFeedModelConfigs[run.model].shortLabel} · {formatUsd(run.costUsd)}{run.costIsEstimated ? ' est.' : ''}
+      </span>
+    </button>)}
+  </div>;
+};
 
 const ClaudeFeedLoading = () => {
   const classes = useStyles(styles);
@@ -411,35 +722,136 @@ const ClaudeFeedResult = ({ item }: { item: ClaudeFeedItem }) => {
 
 const ClaudeFrontpageFeed = () => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   const [prompt, setPrompt] = useState('');
+  const [profile, setProfile] = useState('');
+  const [model, setModel] = useState<ClaudeFeedModelId>(defaultClaudeFeedModel);
   const [items, setItems] = useState<ClaudeFeedItem[]>([]);
+  const [runs, setRuns] = useState<ClaudeFeedStoredRun[]>([]);
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const storageKey = useMemo(() => getRunHistoryStorageKey(currentUser?._id), [currentUser?._id]);
 
+  useEffect(() => {
+    setRuns(readStoredRuns(storageKey));
+  }, [storageKey]);
+
+  const saveRun = useCallback((run: ClaudeFeedStoredRun) => {
+    setRuns((previousRuns) => {
+      const nextRuns = [run, ...previousRuns].slice(0, MAX_STORED_RUNS);
+      writeStoredRuns(storageKey, nextRuns);
+      return nextRuns;
+    });
+  }, [storageKey]);
+
+  const totalSpend = useMemo(
+    () => runs.reduce((total, run) => total + run.costUsd, 0),
+    [runs],
+  );
   const visibleItems = useMemo(
     () => filter === 'all' ? items : items.filter((item) => item.type === filter),
     [filter, items],
   );
 
+  const selectStoredRun = useCallback((run: ClaudeFeedStoredRun) => {
+    if (loading || profileLoading) {
+      return;
+    }
+    setModel(run.model);
+    setError(null);
+    setProfileError(null);
+    if (run.kind === 'feed') {
+      setPrompt(run.prompt);
+      setProfile(run.profile ?? '');
+      setItems(run.items);
+      setFilter('all');
+    } else {
+      setProfile(run.profile);
+    }
+    captureEvent('claudeFrontpageStoredRunSelected', { kind: run.kind });
+  }, [captureEvent, loading, profileLoading]);
+
   const submitPrompt = async () => {
     const trimmedPrompt = prompt.trim();
-    if (trimmedPrompt.length < 3 || loading) {
+    const trimmedProfile = profile.trim();
+    if (trimmedPrompt.length < 3 || loading || profileLoading) {
       return;
     }
     setLoading(true);
     setError(null);
-    captureEvent('claudeFrontpageFeedRequested', { promptLength: trimmedPrompt.length });
+    captureEvent('claudeFrontpageFeedRequested', {
+      promptLength: trimmedPrompt.length,
+      profileLength: trimmedProfile.length,
+      model,
+    });
     try {
-      const nextItems = await fetchClaudeFeed(trimmedPrompt);
-      setItems(nextItems);
-      captureEvent('claudeFrontpageFeedReceived', { resultCount: nextItems.length });
+      const response = await fetchClaudeFeed(trimmedPrompt, trimmedProfile, model);
+      setItems(response.items);
+      setModel(response.model);
+      const run: ClaudeFeedStoredRun = {
+        id: createRunId(),
+        kind: 'feed',
+        createdAt: new Date().toISOString(),
+        prompt: trimmedPrompt,
+        profile: trimmedProfile || undefined,
+        items: response.items,
+        model: response.model,
+        usage: response.usage,
+        costUsd: response.costUsd,
+        costIsEstimated: response.costIsEstimated,
+      };
+      saveRun(run);
+      captureEvent('claudeFrontpageFeedReceived', {
+        resultCount: response.items.length,
+        model: response.model,
+        costUsd: response.costUsd,
+        costIsEstimated: response.costIsEstimated,
+      });
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : 'Claude couldn’t build this feed.';
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const buildProfile = async () => {
+    if (!currentUser || loading || profileLoading) {
+      return;
+    }
+    setProfileLoading(true);
+    setProfileError(null);
+    captureEvent('claudeFrontpageProfileRequested', { model });
+    try {
+      const response = await fetchClaudeProfile(model);
+      setProfile(response.profile);
+      setModel(response.model);
+      const run: ClaudeFeedStoredRun = {
+        id: createRunId(),
+        kind: 'profile',
+        createdAt: new Date().toISOString(),
+        profile: response.profile,
+        model: response.model,
+        usage: response.usage,
+        costUsd: response.costUsd,
+        costIsEstimated: response.costIsEstimated,
+      };
+      saveRun(run);
+      captureEvent('claudeFrontpageProfileReceived', {
+        profileLength: response.profile.length,
+        model: response.model,
+        costUsd: response.costUsd,
+        costIsEstimated: response.costIsEstimated,
+      });
+    } catch (requestError) {
+      const message = requestError instanceof Error ? requestError.message : 'Claude couldn’t build your taste profile.';
+      setProfileError(message);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -454,6 +866,22 @@ const ClaudeFrontpageFeed = () => {
       void submitPrompt();
     }
   };
+
+  const handleModelChange = (value: string) => {
+    const nextModel = claudeFeedModelIds.find((modelId) => modelId === value);
+    if (nextModel) {
+      setModel(nextModel);
+    }
+  };
+
+  const profileButton = <button
+    type="button"
+    className={classes.controlButton}
+    onClick={() => void buildProfile()}
+    disabled={!currentUser || loading || profileLoading}
+  >
+    {profileLoading ? 'Reading your history…' : profile ? 'Rebuild profile from LW history' : 'Build profile from LW history'}
+  </button>;
 
   return <div className={classes.root}>
     <form className={classes.promptForm} onSubmit={handleSubmit}>
@@ -471,12 +899,61 @@ const ClaudeFrontpageFeed = () => {
       <button
         type="submit"
         className={classes.submitButton}
-        disabled={prompt.trim().length < 3 || loading}
+        disabled={prompt.trim().length < 3 || loading || profileLoading}
         aria-label="Build feed"
       >
         <ArrowUpwardIcon className={classNames(classes.submitIcon, { [classes.submitIconLoading]: loading })}/>
       </button>
     </form>
+
+    <div className={classes.controls}>
+      <div className={classes.primaryControls}>
+        {currentUser ? profileButton : <LWTooltip title="Log in to build a profile from your LessWrong history.">
+          <span>{profileButton}</span>
+        </LWTooltip>}
+        <select
+          className={classes.modelSelect}
+          value={model}
+          onChange={(event) => handleModelChange(event.target.value)}
+          disabled={loading || profileLoading}
+          aria-label="Claude model"
+        >
+          {claudeFeedModelIds.map((modelId) => <option value={modelId} key={modelId}>
+            {claudeFeedModelConfigs[modelId].label}
+          </option>)}
+        </select>
+      </div>
+      <LWTooltip
+        title={<RunHistoryMenu runs={runs} onSelect={selectStoredRun}/>}
+        placement="bottom-end"
+        popperClassName={classes.historyTooltip}
+        tooltip={false}
+        clickable
+      >
+        <button
+          type="button"
+          className={classNames(classes.controlButton, classes.spendButton)}
+          aria-label={`${formatUsd(totalSpend)} spent on Claude feed API tokens; show run history`}
+        >
+          {formatUsd(totalSpend)} spent
+        </button>
+      </LWTooltip>
+    </div>
+
+    {profile && <div className={classes.profilePanel}>
+      <div className={classes.profileHeader}>
+        <span>Reader profile</span>
+        <span>{profile.length}/800</span>
+      </div>
+      <textarea
+        className={classes.profileInput}
+        value={profile}
+        onChange={(event) => setProfile(event.target.value)}
+        maxLength={800}
+        aria-label="Claude reader profile"
+      />
+    </div>}
+    {profileError && <div className={classes.profileStatus}>{profileError}</div>}
 
     <nav className={classes.filterRail} aria-label="Filter feed results">
       {filterOptions.map((option) => <button
