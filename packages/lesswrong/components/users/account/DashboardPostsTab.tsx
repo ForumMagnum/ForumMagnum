@@ -12,7 +12,10 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { dashboardTabStyles } from './dashboardTabStyles';
-import DashboardSortDropdown, { parseDashboardSortMode } from './DashboardSortDropdown';
+import PostsListSortDropdown from '../../posts/PostsListSortDropdown';
+
+/** The dashboard offers a deliberately small subset of the post sort orders */
+const DASHBOARD_SORT_ORDERS = ['new', 'top', 'old'];
 
 const styles = defineStyles('DashboardPostsTab', (theme: ThemeType) => ({
   sortControls: {
@@ -46,7 +49,10 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const currentPostSortingMode = parseDashboardSortMode(query.sortedBy);
+  const sortedByQuery = query.sortedBy;
+  const currentPostSortingMode: PostSortingMode = (sortedByQuery === 'top' || sortedByQuery === 'old')
+    ? sortedByQuery
+    : 'new';
   const includeEvents = query.includeEvents === 'true';
 
   const postTerms: PostsViewTerms = useMemo(() => ({
@@ -95,7 +101,7 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
               <Checkbox classes={{root: localClasses.checkbox}} checked={includeEvents} />
               Include events
             </QueryLink>
-            <DashboardSortDropdown value={currentPostSortingMode} queryParam="sortedBy" />
+            <PostsListSortDropdown value={currentPostSortingMode} options={DASHBOARD_SORT_ORDERS} />
           </div>
         </div>
         <PostsList2
