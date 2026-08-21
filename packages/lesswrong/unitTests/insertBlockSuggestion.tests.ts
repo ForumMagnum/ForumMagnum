@@ -174,7 +174,7 @@ describe("insertBlock with fenced code", () => {
     await insertBlock(editor, codeMarkdown, "end", "edit");
 
     let codeBlockCount = 0;
-    let codeLanguage: string | undefined;
+    let codeLanguage: string | null | undefined;
     let html = "";
     editor.getEditorState().read(() => {
       walkLexicalNodes($getRoot(), (node) => {
