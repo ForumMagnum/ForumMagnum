@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
@@ -8,7 +7,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "../messaging/ConversationPreview";
@@ -16,6 +14,7 @@ import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 import { getNotificationIconByNotificationName } from './notificationIcons';
+import { scrollToNotificationTarget } from './notificationScroll';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -232,18 +231,10 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
+          scrollToNotificationTarget(notificationLink);
           navigate(notificationLink)
 
           setClicked(true);
-          
-          // we also check whether it's a relative link, and if so, scroll to the item
-          const UrlClass = getUrlClass()
-          const url = new UrlClass(notificationLink, getSiteUrl())
-          const hash = url.hash
-          if (hash) {
-            const element = document.getElementById(hash.substr(1))
-            if (element) element.scrollIntoView({behavior: "smooth"});
-          }
         }}
       >
         {notification.type ? getNotificationIconByNotificationName(notification.type) : null}
