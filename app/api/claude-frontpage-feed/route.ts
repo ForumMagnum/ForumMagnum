@@ -475,14 +475,7 @@ export async function POST(req: NextRequest) {
         id: candidate.id,
         type: candidate.type,
         rank: index + 1,
-        title: candidate.title,
-        url: candidate.url,
         reason,
-        byline: candidate.byline,
-        context: candidate.context,
-        snippet: candidate.snippet,
-        karma: candidate.karma,
-        publishedAt: candidate.publishedAt,
       }));
 
     serverCaptureEvent("claudeFrontpageFeedGenerated", {

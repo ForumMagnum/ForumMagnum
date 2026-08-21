@@ -74,14 +74,7 @@ export const claudeFeedItemSchema = z.object({
   id: z.string(),
   type: z.enum(claudeFeedItemTypes),
   rank: z.number().int().positive(),
-  title: z.string(),
-  url: z.string(),
   reason: z.string(),
-  byline: z.string().optional(),
-  context: z.string().optional(),
-  snippet: z.string().optional(),
-  karma: z.number().optional(),
-  publishedAt: z.string().optional(),
 });
 
 export const claudeFeedUsageSchema = z.object({

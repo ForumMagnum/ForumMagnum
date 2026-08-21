@@ -16,10 +16,8 @@ import {
   claudeFeedStoredHistorySchema,
   defaultClaudeFeedModel,
 } from '@/lib/claudeFeed';
-import { Link } from '@/lib/reactRouterWrapper';
 import { useTracking } from '@/lib/analyticsEvents';
 import { ClaudeSparkIcon } from '@/components/icons/claudeSparkIcon';
-import FormatDate from '@/components/common/FormatDate';
 import LWTooltip from '@/components/common/LWTooltip';
 import { useCurrentUser } from '@/components/common/withUser';
 import {
@@ -28,6 +26,20 @@ import {
   safeStorageSetItem,
 } from '@/components/editor/localStorageHandlers';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+import FeedItemWrapper from '@/components/ultraFeed/FeedItemWrapper';
+import UltraFeedPostItem from '@/components/ultraFeed/UltraFeedPostItem';
+import UltraFeedThreadItem from '@/components/ultraFeed/UltraFeedThreadItem';
+import UltraFeedWrappers from '@/components/ultraFeed/UltraFeedWrappers';
+import { useUltraFeedSettings } from '@/components/hooks/useUltraFeedSettings';
+import TagPreview from '@/components/tagging/TagPreview';
+import type {
+  DisplayFeedCommentThread,
+  FeedCommentMetaInfo,
+  FeedPostMetaInfo,
+} from '@/components/ultraFeed/ultraFeedTypes';
+import type { UltraFeedSettingsType } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 
 type FeedFilter = 'all' | ClaudeFeedItemType;
 
@@ -61,6 +73,26 @@ const filterOptions: FilterOption[] = [
   { value: 'comment', label: 'Comments' },
   { value: 'wiki', label: 'Wiki' },
 ];
+
+const ClaudeFrontpageFeedDocumentsQuery = gql(`
+  query ClaudeFrontpageFeedDocuments($postIds: [String!], $commentIds: [String!], $tagIds: [String!]!, $limit: Int) {
+    posts(selector: { default: { exactPostIds: $postIds } }, limit: $limit) {
+      results {
+        ...PostsListWithVotes
+      }
+    }
+    comments(selector: { default: { commentIds: $commentIds } }, limit: $limit) {
+      results {
+        ...UltraFeedComment
+      }
+    }
+    tags(selector: { tagsByTagIds: { tagIds: $tagIds } }, limit: $limit) {
+      results {
+        ...TagPreviewFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
   root: {
@@ -364,97 +396,22 @@ const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
   results: {
     marginTop: 2,
   },
-  item: {
-    display: 'grid',
-    gridTemplateColumns: '34px minmax(0, 1fr) 28px',
-    gap: 12,
-    padding: '22px 4px 23px 0',
-    borderBottom: theme.palette.greyBorder('1px', 0.1),
-    transition: 'background 120ms ease',
-    '&:hover': {
-      background: theme.palette.greyAlpha(0.018),
-    },
-    [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: '22px minmax(0, 1fr) 26px',
-      gap: 8,
-      paddingTop: 18,
-      paddingBottom: 19,
-    },
+  nativeItem: {
+    position: 'relative',
   },
-  rank: {
-    paddingTop: 3,
-    color: theme.palette.text.dim,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: '0.76rem',
-    fontVariantNumeric: 'tabular-nums',
-    opacity: 0.62,
-  },
-  itemLink: {
-    minWidth: 0,
-    color: 'inherit',
-    textDecoration: 'none',
-    '&:hover': {
-      color: 'inherit',
-      textDecoration: 'none',
-    },
-    '&:focus-visible': {
-      outline: `2px solid ${theme.palette.lwTertiary.main}`,
-      outlineOffset: 4,
-    },
-  },
-  itemTopline: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: 9,
-    marginBottom: 4,
-  },
-  typeLabel: {
-    flex: 'none',
-    color: theme.palette.lwTertiary.main,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: '0.67rem',
-    fontWeight: 600,
-    letterSpacing: '0.075em',
-    lineHeight: 1,
-    textTransform: 'uppercase',
-  },
-  itemTitle: {
-    ...theme.typography.postStyle,
-    margin: 0,
-    color: theme.palette.text.normal,
-    fontSize: '1.31rem',
-    fontWeight: 500,
-    lineHeight: 1.26,
-    overflowWrap: 'break-word',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: '1.18rem',
-    },
-  },
-  itemMeta: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 7,
-    marginTop: 7,
-    color: theme.palette.text.dim,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: '0.78rem',
-    lineHeight: 1.25,
-  },
-  metaDivider: {
-    opacity: 0.42,
-  },
-  snippet: {
-    display: '-webkit-box',
-    marginTop: 9,
+  wikiItem: {
     overflow: 'hidden',
-    color: theme.palette.text.slightlyDim2,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: '0.91rem',
-    lineHeight: 1.46,
-    WebkitBoxOrient: 'vertical',
-    WebkitLineClamp: 2,
+    borderRadius: 4,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+    '& .TagPreview-root': {
+      width: '100%',
+    },
   },
   reasonButton: {
+    position: 'absolute',
+    zIndex: 2,
+    top: 12,
+    right: -30,
     width: 22,
     height: 22,
     display: 'flex',
@@ -478,6 +435,11 @@ const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
     '&:focus-visible': {
       outline: `2px solid ${theme.palette.lwTertiary.main}`,
       outlineOffset: 2,
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 8,
+      right: 42,
+      background: theme.palette.panelBackground.default,
     },
   },
   status: {
@@ -691,38 +653,102 @@ const ClaudeFeedLoading = () => {
   </div>;
 };
 
-const ClaudeFeedResult = ({ item }: { item: ClaudeFeedItem }) => {
+function getPostMetaInfo(): FeedPostMetaInfo {
+  return {
+    sources: [],
+    displayStatus: 'expanded',
+    highlight: false,
+    isRead: false,
+  };
+}
+
+function getCommentThread(comment: UltraFeedComment): DisplayFeedCommentThread {
+  const commentMetaInfo: FeedCommentMetaInfo = {
+    sources: [],
+    descendentCount: comment.descendentCount,
+    displayStatus: 'expanded',
+    postedAt: comment.postedAt ? new Date(comment.postedAt) : null,
+    isRead: false,
+    isParentPostRead: true,
+  };
+  return {
+    _id: `claude-comment-${comment._id}`,
+    comments: [comment],
+    commentMetaInfos: {
+      [comment._id]: commentMetaInfo,
+    },
+    post: comment.post,
+  };
+}
+
+const ClaudeFeedResultShell = ({
+  item,
+  children,
+}: {
+  item: ClaudeFeedItem;
+  children: React.ReactNode;
+}) => {
   const classes = useStyles(styles);
-  return <article className={classes.item}>
-    <div className={classes.rank}>{String(item.rank).padStart(2, '0')}</div>
-    <Link to={item.url} className={classes.itemLink}>
-      <div className={classes.itemTopline}>
-        <span className={classes.typeLabel}>{getTypeLabel(item.type)}</span>
-      </div>
-      <h2 className={classes.itemTitle}>{item.title}</h2>
-      <div className={classes.itemMeta}>
-        {item.byline && <span>{item.byline}</span>}
-        {item.byline && item.karma !== undefined && <span className={classes.metaDivider}>·</span>}
-        {item.karma !== undefined && <span>{item.karma} karma</span>}
-        {(item.byline || item.karma !== undefined) && item.publishedAt && <span className={classes.metaDivider}>·</span>}
-        {item.publishedAt && <FormatDate date={item.publishedAt}/>}
-        {!item.byline && item.karma === undefined && !item.publishedAt && item.context && <span>{item.context}</span>}
-      </div>
-      {item.snippet && <div className={classes.snippet}>{item.snippet}</div>}
-    </Link>
+  return <div className={classes.nativeItem}>
+    <FeedItemWrapper>{children}</FeedItemWrapper>
     <LWTooltip title={item.reason} placement="left" distance={8}>
       <button
         type="button"
         className={classes.reasonButton}
-        aria-label={`Why ${item.title} is in this queue`}
+        aria-label={`Why this ${getTypeLabel(item.type).toLowerCase()} is in this queue`}
       >?</button>
     </LWTooltip>
-  </article>;
+  </div>;
+};
+
+const ClaudeFeedResult = ({
+  item,
+  post,
+  comment,
+  tag,
+  settings,
+}: {
+  item: ClaudeFeedItem;
+  post?: PostsListWithVotes;
+  comment?: UltraFeedComment;
+  tag?: TagPreviewFragment;
+  settings: UltraFeedSettingsType;
+}) => {
+  const classes = useStyles(styles);
+  if (item.type === 'post' && post) {
+    return <ClaudeFeedResultShell item={item}>
+      <UltraFeedPostItem
+        post={post}
+        postMetaInfo={getPostMetaInfo()}
+        index={item.rank - 1}
+        settings={settings}
+      />
+    </ClaudeFeedResultShell>;
+  }
+  if (item.type === 'comment' && comment) {
+    return <ClaudeFeedResultShell item={item}>
+      <UltraFeedThreadItem
+        thread={getCommentThread(comment)}
+        index={item.rank - 1}
+        settings={settings}
+        forceParentPostCollapsed
+      />
+    </ClaudeFeedResultShell>;
+  }
+  if (item.type === 'wiki' && tag) {
+    return <ClaudeFeedResultShell item={item}>
+      <div className={classes.wikiItem}>
+        <TagPreview tag={tag} showCount={false} postCount={0}/>
+      </div>
+    </ClaudeFeedResultShell>;
+  }
+  return null;
 };
 
 const ClaudeFrontpageFeed = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { settings } = useUltraFeedSettings();
   const { captureEvent } = useTracking();
   const [prompt, setPrompt] = useState('');
   const [profile, setProfile] = useState('');
@@ -756,6 +782,38 @@ const ClaudeFrontpageFeed = () => {
     () => filter === 'all' ? items : items.filter((item) => item.type === filter),
     [filter, items],
   );
+  const documentIds = useMemo(() => ({
+    postIds: items.filter(({ type }) => type === 'post').map(({ id }) => id),
+    commentIds: items.filter(({ type }) => type === 'comment').map(({ id }) => id),
+    tagIds: items.filter(({ type }) => type === 'wiki').map(({ id }) => id),
+  }), [items]);
+  const {
+    data: documentsData,
+    loading: documentsLoading,
+    error: documentsError,
+  } = useQuery(ClaudeFrontpageFeedDocumentsQuery, {
+    variables: {
+      ...documentIds,
+      limit: 18,
+    },
+    skip: items.length === 0,
+    fetchPolicy: 'cache-first',
+    errorPolicy: 'all',
+  });
+  const postsById = useMemo(
+    () => new Map((documentsData?.posts?.results ?? []).map((post) => [post._id, post])),
+    [documentsData?.posts?.results],
+  );
+  const commentsById = useMemo(
+    () => new Map((documentsData?.comments?.results ?? []).map((comment) => [comment._id, comment])),
+    [documentsData?.comments?.results],
+  );
+  const tagsById = useMemo(
+    () => new Map((documentsData?.tags?.results ?? []).map((tag) => [tag._id, tag])),
+    [documentsData?.tags?.results],
+  );
+  const resultsLoading = loading || (items.length > 0 && documentsLoading);
+  const documentsUnavailable = !!documentsError && postsById.size + commentsById.size + tagsById.size === 0;
 
   const selectStoredRun = useCallback((run: ClaudeFeedStoredRun) => {
     if (loading || profileLoading) {
@@ -968,12 +1026,24 @@ const ClaudeFrontpageFeed = () => {
     </nav>
 
     <div className={classes.results} aria-live="polite">
-      {loading && <ClaudeFeedLoading/>}
-      {!loading && error && <div className={classNames(classes.status, classes.error)}>{error}</div>}
-      {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
+      {resultsLoading && <ClaudeFeedLoading/>}
+      {!resultsLoading && error && <div className={classNames(classes.status, classes.error)}>{error}</div>}
+      {!resultsLoading && !error && documentsUnavailable && (
+        <div className={classNames(classes.status, classes.error)}>The selected LessWrong items couldn’t be loaded.</div>
+      )}
+      {!resultsLoading && !error && !documentsUnavailable && items.length > 0 && visibleItems.length === 0 && (
         <div className={classes.status}>No {filterOptions.find(({ value }) => value === filter)?.label.toLowerCase()} in this queue.</div>
       )}
-      {!loading && visibleItems.map((item) => <ClaudeFeedResult item={item} key={`${item.type}:${item.id}`}/>)}
+      {!resultsLoading && !error && !documentsUnavailable && <UltraFeedWrappers incognitoMode={false} feedType="ultraFeed">
+        {visibleItems.map((item) => <ClaudeFeedResult
+          item={item}
+          post={postsById.get(item.id)}
+          comment={commentsById.get(item.id)}
+          tag={tagsById.get(item.id)}
+          settings={settings}
+          key={`${item.type}:${item.id}`}
+        />)}
+      </UltraFeedWrappers>}
     </div>
   </div>;
 };

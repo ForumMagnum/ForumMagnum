@@ -13844,6 +13844,40 @@ type multiCommentuseCommentQueryQueryVariables = Exact<{
 
 type multiCommentuseCommentQueryQuery = multiCommentuseCommentQueryQuery_Query;
 
+type ClaudeFrontpageFeedDocumentsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type ClaudeFrontpageFeedDocumentsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ClaudeFrontpageFeedDocumentsQuery_posts_MultiPostOutput_results_Post> };
+
+type ClaudeFrontpageFeedDocumentsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type ClaudeFrontpageFeedDocumentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<ClaudeFrontpageFeedDocumentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type ClaudeFrontpageFeedDocumentsQuery_tags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & TagPreviewFragment
+);
+
+type ClaudeFrontpageFeedDocumentsQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<ClaudeFrontpageFeedDocumentsQuery_tags_MultiTagOutput_results_Tag> };
+
+type ClaudeFrontpageFeedDocumentsQuery_Query = { __typename?: 'Query', posts: ClaudeFrontpageFeedDocumentsQuery_posts_MultiPostOutput | null, comments: ClaudeFrontpageFeedDocumentsQuery_comments_MultiCommentOutput | null, tags: ClaudeFrontpageFeedDocumentsQuery_tags_MultiTagOutput | null };
+
+
+type ClaudeFrontpageFeedDocumentsQueryVariables = Exact<{
+  postIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  commentIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  tagIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ClaudeFrontpageFeedDocumentsQuery = ClaudeFrontpageFeedDocumentsQuery_Query;
+
 type multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & ShortformComments
