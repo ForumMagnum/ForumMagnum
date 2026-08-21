@@ -131,8 +131,9 @@ export const conversationGqlMutations = {
       participantIds: participantIds?.length
         ? { $size: participantIds.length, $all: participantIds }
         : currentUser._id,
-        ...afField,
-        ...moderatorField,
+      $or: [{ title: null }, { title: "" }],
+      ...afField,
+      ...moderatorField,
     };
 
     const existingConversation = await Conversations.findOne(selector, { sort: { moderator: 1 }});
