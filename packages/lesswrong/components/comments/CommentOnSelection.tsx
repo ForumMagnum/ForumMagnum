@@ -12,16 +12,17 @@ const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: 
 const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
+    zIndex: theme.zIndexes.lwPopper,
   },
   toolbar: {
     display: "flex",
     borderRadius: 8,
     color: theme.palette.icon.dim,
-    zIndex: theme.zIndexes.lwPopper,
     padding: 8,
     paddingBottom: 6,
     cursor: "pointer",
-    
+    userSelect: "none",
+
     "&:hover": {
       background: theme.palette.panelBackground.darken08,
     },
@@ -33,9 +34,13 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
   },
 }));
 
+type CommentOnSelectionHandler = (html: string) => void;
+
+const commentOnSelectionHandlers = new WeakMap<HTMLElement, CommentOnSelectionHandler>();
+
 type SelectedTextToolbarState =
     {open: false}
-  | {open: true, x: number, y: number}
+  | {open: true, x: number, y: number, wrapper: HTMLElement, ranges: Range[]}
 
 /**
  * CommentOnSelectionPageWrapper: Wrapper around the entire page (used in
@@ -48,7 +53,7 @@ type SelectedTextToolbarState =
  * opens a floating comment editor prepopulated with the blockquote.)
  *
  * The CommentOnSelectionWrapper is found by walking up the DOM until we find
- * an HTML element with onClickComment monkeypatched onto it. Placement of the
+ * an HTML element registered in commentOnSelectionHandlers. Placement of the
  * toolbar button is done with coordinate-math.
  *
  * Positioning might be brittle if the element that supports selection is nested
@@ -62,80 +67,80 @@ export const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
 }) => {
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
-  
+
   const closeToolbar = useCallback(() => {
     // When changing toolbarState, do it in a way where if this is {open: false}, we reuse the previous value to avoid triggering a rerender.
     setToolbarState((prevState) => prevState.open ? {open: false} : prevState);
   }, []);
- 
+
   useEffect(() => {
     const selectionChangedHandler = () => {
       const selection = document.getSelection();
       const selectionText = selection+"";
-      
+
       // Is this selection non-empty?
       if (!selection || !selectionText?.length) {
         closeToolbar();
         return;
       }
-      
+
       // Determine whether this selection is fully wrapped in a single CommentOnSelectionContentWrapper
       let commonWrapper: HTMLElement|null = null;
       let hasCommonWrapper = true;
+      const ranges: Range[] = [];
       for (let i=0; i<selection.rangeCount; i++) {
         const range = selection.getRangeAt(i);
-        const container = range.commonAncestorContainer;
-        const wrapper = findAncestorElementWithCommentOnSelectionWrapper(container);
+        ranges.push(range.cloneRange());
+        const wrapper = findAncestorElementWithCommentOnSelectionWrapper(range.commonAncestorContainer);
         if (commonWrapper) {
-          if (container !== commonWrapper) {
+          if (wrapper !== commonWrapper) {
             hasCommonWrapper = false;
           }
         } else {
           commonWrapper = wrapper;
         }
       }
-      
+
       if (!commonWrapper || !hasCommonWrapper) {
         closeToolbar();
         return;
       }
-      
+
       // Get the bounding box of the selection
-      const selectionBoundingRect = selection.getRangeAt(0).getBoundingClientRect();
+      const selectionBoundingRect = ranges[0].getBoundingClientRect();
       const wrapperBoundingRect = commonWrapper.getBoundingClientRect();
-      
+
       // Place the toolbar
       const x = window.scrollX + Math.max(
         selectionBoundingRect.x + selectionBoundingRect.width,
         wrapperBoundingRect.x + wrapperBoundingRect.width);
       const y = selectionBoundingRect.y + window.scrollY;
-      setToolbarState({open: true, x,y});
+      setToolbarState({open: true, x, y, wrapper: commonWrapper, ranges});
     };
     document.addEventListener('selectionchange', selectionChangedHandler);
-    
+
     return () => {
       document.removeEventListener('selectionchange', selectionChangedHandler);
     };
   }, [closeToolbar]);
-  
+
   useOnNavigate(() => {
     closeToolbar();
   });
-  
+
   const onClickComment = () => {
-    const firstSelectedNode = document.getSelection()?.anchorNode;
-    if (!firstSelectedNode) {
+    if (!toolbarState.open) {
       return;
     }
-    const contentWrapper = findAncestorElementWithCommentOnSelectionWrapper(firstSelectedNode);
-    if (!contentWrapper) {
+    const handler = commentOnSelectionHandlers.get(toolbarState.wrapper);
+    if (!handler) {
       return;
     }
-    const selectionHtml = selectionToBlockquoteHTML(document.getSelection());
     // This HTML is XSS-safe because it's copied from somewhere that was already in the page as HTML, and is copied in a way that is syntax-aware throughout.
-    (contentWrapper as any).onClickComment(selectionHtml);
+    handler(rangesToBlockquoteHTML(toolbarState.ranges));
+    closeToolbar();
   }
-  
+
   return <>
     {children}
     {toolbarState.open && <SelectedTextToolbar
@@ -150,12 +155,16 @@ export const CommentOnSelectionPageWrapper = ({children}: {
  * a post. Consists of just a comment button, which opens a floating comment
  * editor. Created as a dialog by CommentOnSelectionPageWrapper.
  *
- * onClickComment: Called when the comment button is clicked
+ * onClickComment: Called when the comment button is pressed. This fires on
+ *   mousedown (with the default prevented) rather than on click, because
+ *   pressing the mouse outside a text selection collapses the selection in
+ *   some browsers, and the resulting selectionchange would unmount this
+ *   toolbar before a click event could be delivered to it.
  * x, y: In the page coordinate system, ie, relative to the top-left corner when
  *   the page is scrolled to the top.
  */
 const SelectedTextToolbar = ({onClickComment, x, y}: {
-  onClickComment: (ev: React.MouseEvent) => void,
+  onClickComment: () => void,
   x: number, y: number,
 }) => {
   const classes = useStyles(selectedTextToolbarStyles);
@@ -163,12 +172,17 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
-      <div className={classes.toolbar}>
+      <div
+        className={classes.toolbar}
+        onMouseDown={(ev: React.MouseEvent) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          captureEvent("commentOnSelectionClicked");
+          onClickComment();
+        }}
+      >
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={(ev: React.MouseEvent) => {
-            captureEvent("commentOnSelectionClicked");
-            onClickComment(ev);
-          }}/>
+          <CommentIcon/>
         </AnalyticsContext>
       </div>
     </LWTooltip>
@@ -190,7 +204,7 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
 }) => {
   const { openDialog } = useDialog();
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
-  
+
   const onClickComment = useCallback((html: string) => {
     openDialog({
       name: "ReplyCommentDialog",
@@ -205,16 +219,16 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
   }, [openDialog, post]);
 
   useEffect(() => {
-    if (wrapperDivRef.current) {
-      let modifiedDiv = (wrapperDivRef.current as any)
-      modifiedDiv.onClickComment = onClickComment;
-      
+    const wrapperDiv = wrapperDivRef.current;
+    if (wrapperDiv) {
+      commentOnSelectionHandlers.set(wrapperDiv, onClickComment);
+
       return () => {
-        modifiedDiv.onClickComment = null;
+        commentOnSelectionHandlers.delete(wrapperDiv);
       }
     }
   }, [onClickComment]);
-  
+
   return <div className="commentOnSelection" ref={wrapperDivRef}>
     {children}
   </div>
@@ -230,7 +244,7 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
 function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement) => boolean): HTMLElement|null {
   if (!start)
     return null;
-  
+
   let pos: HTMLElement|null = start.parentElement;
   while(pos && !fn(pos)) {
     pos = pos.parentElement;
@@ -240,35 +254,34 @@ function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement) =>
 
 /**
  * Starting from an HTML node, climb the tree until one is found which
- * corresponds to a CommentOnSelectionContentWrapper component, ie, one with an
- * onClickComment function attached.
+ * corresponds to a CommentOnSelectionContentWrapper component, ie, one with a
+ * registered comment handler.
  *
  * Client-side only.
  */
 function findAncestorElementWithCommentOnSelectionWrapper(start: Node): HTMLElement|null {
   return nearestAncestorElementWith(
     start,
-    n=>!!((n as any).onClickComment)
+    n => commentOnSelectionHandlers.has(n)
   );
 }
 
 /**
- * selectionToBlockquoteHTML: Given a selection (this is a browser API, returned
- * from document.getSelection()), return the selected content, wrapped in a
- * blockquote. The resulting HTML is XSS-safe because it was already present in
- * the document as HTML.
+ * rangesToBlockquoteHTML: Given the ranges of a selection (cloned from
+ * document.getSelection() at the time the toolbar was shown), return the
+ * selected content, wrapped in a blockquote. The resulting HTML is XSS-safe
+ * because it was already present in the document as HTML.
  *
  * Client-side only.
  */
-function selectionToBlockquoteHTML(selection: Selection|null): string {
-  if (!selection || !selection.rangeCount)
+function rangesToBlockquoteHTML(ranges: Range[]): string {
+  if (!ranges.length)
     return "";
-  
-  var container = document.createElement("div");
-  for (let i=0; i<selection.rangeCount; i++) {
-    container.appendChild(selection.getRangeAt(i).cloneContents());
+
+  const container = document.createElement("div");
+  for (const range of ranges) {
+    container.appendChild(range.cloneContents());
   }
   const selectedHTML = container.innerHTML;
   return `<blockquote>${selectedHTML}</blockquote><p></p>`;
 }
-
