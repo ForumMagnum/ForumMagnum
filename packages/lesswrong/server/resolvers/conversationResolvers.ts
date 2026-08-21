@@ -116,11 +116,6 @@ export const conversationGqlMutations = {
 
     return true;
   },
-  /**
-   * Returns the existing *untitled* conversation between exactly these participants if there
-   * is one, otherwise creates a new conversation. Titled conversations are never reused, so
-   * starting a conversation with someone you only have titled threads with gives you a fresh one.
-   */
   async initiateConversation (_: void, { participantIds, moderator }: { participantIds: string[], moderator: boolean | null }, context: ResolverContext): Promise<(Partial<DbConversation> & { [ACCESS_FILTERED]: true }) | null> {
     const { currentUser, Conversations } = context;
 
