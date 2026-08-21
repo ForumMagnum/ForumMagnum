@@ -1,9 +1,13 @@
 import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { $isCodeNode } from "@lexical/code";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
-import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { agentMarkdownFromEditorHtml } from "../../../app/api/agent/agentMarkdownView";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, walkLexicalNodes } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 
 async function insertBlock(
   editor: LexicalEditor,
@@ -154,6 +158,37 @@ describe("insertBlock suggest mode", () => {
     expect(suggestionTexts.length).toBe(2);
     expect(suggestionTexts[0]).toBe("First inserted.");
     expect(suggestionTexts[1]).toBe("Second inserted.");
+  });
+});
+
+describe("insertBlock with fenced code", () => {
+  it("preserves code structure and language through agent read-back", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    const codeMarkdown = [
+      "```python",
+      "import foo_bar as fb",
+      "x = a_b * 2",
+      "```",
+    ].join("\n");
+
+    await insertBlock(editor, codeMarkdown, "end", "edit");
+
+    let codeBlockCount = 0;
+    let codeLanguage: string | undefined;
+    let html = "";
+    editor.getEditorState().read(() => {
+      walkLexicalNodes($getRoot(), (node) => {
+        if ($isCodeNode(node)) {
+          codeBlockCount++;
+          codeLanguage = node.getLanguage();
+        }
+      });
+      html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+    });
+
+    expect(codeBlockCount).toBe(1);
+    expect(codeLanguage).toBe("python");
+    expect(agentMarkdownFromEditorHtml(html)).toBe(`Existing paragraph.\n\n${codeMarkdown}`);
   });
 });
 

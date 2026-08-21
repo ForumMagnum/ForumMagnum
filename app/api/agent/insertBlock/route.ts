@@ -77,6 +77,32 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
   return { widgetId, widgetMarkup };
 }
 
+function getCodeLanguageFromClassName(className: string): string {
+  return className.match(/\blanguage-([a-z0-9_+#.-]+)\b/i)?.[1] ?? "";
+}
+
+function annotateMarkdownItCodeBlockLanguages(document: Document): void {
+  for (const codeElement of Array.from(document.querySelectorAll("pre > code"))) {
+    const language = getCodeLanguageFromClassName(codeElement.getAttribute("class") ?? "");
+    if (!language) {
+      continue;
+    }
+    codeElement.setAttribute("data-language", language);
+    codeElement.parentElement?.setAttribute("data-language", language);
+  }
+}
+
+function renderMarkdownForBlockImport(markdownIt: MarkdownIt, markdown: string): string {
+  const rawHtml = markdownIt.render(markdown, { docId: randomId() });
+  const dom = new JSDOM(rawHtml);
+  try {
+    annotateMarkdownItCodeBlockLanguages(dom.window.document);
+    return sanitize(dom.window.document.body.innerHTML);
+  } finally {
+    dom.window.close();
+  }
+}
+
 /**
  * Wraps already-inserted top-level nodes in suggestion markup. Must be called
  * inside a Lexical editor.update() callback, after the nodes have been spliced
@@ -119,11 +145,14 @@ export function $markdownToNodes(
   markdown: string,
   options: { markdownIt: MarkdownIt },
 ): LexicalNode[] {
-  const id = randomId();
-  const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
+  const html = renderMarkdownForBlockImport(options.markdownIt, markdown);
   const dom = new JSDOM(html);
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-  return normalizeImportedTopLevelNodes(importedNodes);
+  try {
+    const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+    return normalizeImportedTopLevelNodes(importedNodes);
+  } finally {
+    dom.window.close();
+  }
 }
 
 export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
