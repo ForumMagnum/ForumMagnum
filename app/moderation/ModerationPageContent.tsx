@@ -665,6 +665,8 @@ interface Props {
   deletedComments: ModerationComment[];
   deletedCommentsCount: number;
   deletedCommentsOffset: number;
+  hideAdminDeletions: boolean;
+  hideSelfDeletions: boolean;
   rejectedPosts: ModerationPost[];
   rejectedPostsCount: number;
   rejectedPostsOffset: number;
@@ -698,6 +700,8 @@ export default function ModerationPageContent(props: Props) {
     deletedComments,
     deletedCommentsCount,
     deletedCommentsOffset,
+    hideAdminDeletions,
+    hideSelfDeletions,
     rejectedPosts,
     rejectedPostsCount,
     rejectedPostsOffset,
@@ -1074,9 +1078,30 @@ export default function ModerationPageContent(props: Props) {
       </div>
 
       {/* Deleted Comments Table */}
-      {deletedComments.length > 0 && (
+      {(deletedComments.length > 0 || hideAdminDeletions || hideSelfDeletions) && (
         <div className={classes.section}>
-          <div className={classes.sectionHeader}>Deleted Comments ({deletedCommentsCount})</div>
+          <div className={`${classes.sectionHeader} ${classes.sectionHeaderFlex}`}>
+            <span>Deleted Comments ({deletedCommentsCount})</span>
+            <div className={classes.filterGroup}>
+              <Link to={buildToggleUrl('hideAdminDeletions', hideAdminDeletions, 'deletedCommentsOffset')} className={classes.filterCheckbox} scroll={false}>
+                <input
+                  type="checkbox"
+                  checked={hideAdminDeletions}
+                  readOnly
+                />{' '}
+                Hide admin deletions
+              </Link>
+              <Link to={buildToggleUrl('hideSelfDeletions', hideSelfDeletions, 'deletedCommentsOffset')} className={classes.filterCheckbox} scroll={false}>
+                <input
+                  type="checkbox"
+                  checked={hideSelfDeletions}
+                  readOnly
+                />{' '}
+                Hide self-deletions
+              </Link>
+            </div>
+          </div>
+          {deletedComments.length > 0 ? (
           <table className={classes.table}>
             <thead>
               <tr>
@@ -1132,6 +1157,9 @@ export default function ModerationPageContent(props: Props) {
               ))}
             </tbody>
           </table>
+          ) : (
+            <div className={classes.empty}>No deleted comments match the current filters</div>
+          )}
           {renderPagination('deletedComments', deletedCommentsCount, deletedCommentsOffset)}
         </div>
       )}
