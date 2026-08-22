@@ -33,6 +33,30 @@ const ApproveCurrentContentOnlyMutation = gql(`
   }
 `);
 
+const CreateUserRateLimitMutation = gql(`
+  mutation createUserRateLimitModerationUserActions($data: CreateUserRateLimitDataInput!) {
+    createUserRateLimit(data: $data) {
+      data {
+        _id
+      }
+    }
+  }
+`);
+
+// The hard and tapered limits overlap, so the taper ends 6 months out, not 9.
+function getBanAndRateLimitInputs(userId: string): CreateUserRateLimitDataInput[] {
+  const hardEndedAt = moment().add(3, 'months').toDate();
+  const taperedEndedAt = moment().add(6, 'months').toDate();
+  // 0 actions per interval blocks outright until endedAt, so the interval is only filler
+  // for the non-null columns (the taper rows are what size the lookback window).
+  return [
+    { userId, type: 'allPosts', intervalUnit: 'weeks', intervalLength: 1, actionsPerInterval: 0, endedAt: hardEndedAt },
+    { userId, type: 'allComments', intervalUnit: 'weeks', intervalLength: 1, actionsPerInterval: 0, endedAt: hardEndedAt },
+    { userId, type: 'allPosts', intervalUnit: 'weeks', intervalLength: 4, actionsPerInterval: 1, endedAt: taperedEndedAt },
+    { userId, type: 'allComments', intervalUnit: 'weeks', intervalLength: 4, actionsPerInterval: 3, endedAt: taperedEndedAt },
+  ];
+}
+
 function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
   const allContent = [
     ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
@@ -69,6 +93,7 @@ export function useModerationUserActions({
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
+  const [createUserRateLimit] = useMutation(CreateUserRateLimitMutation);
 
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
@@ -179,6 +204,34 @@ export function useModerationUserActions({
     }, 'Purged');
   }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
+  const handleBanAndRateLimit = useCallback(() => {
+    if (!selectedUser) return;
+    if (!confirm(`Ban ${selectedUser.displayName} for 3 months and rate limit them for 6 months?`)) return;
+
+    const notes = selectedUser.sunshineNotes || '';
+    const newNotes = getModSignatureWithNote('3 month ban, 6 month rate limit') + notes;
+    const rateLimits = getBanAndRateLimitInputs(selectedUser._id);
+    // Anchored to the click, like the rate limits, rather than to the end of the undo window.
+    const bannedUntil = moment().add(3, 'months').toDate();
+
+    handleAction('Banned 3mo & rate limited 6mo', async () => {
+      await Promise.all(rateLimits.map(data => createUserRateLimit({ variables: { data } })));
+      await updateUser({
+        variables: {
+          selector: { _id: selectedUser._id },
+          data: {
+            sunshineFlagged: false,
+            reviewedByUserId: currentUser._id,
+            needsReview: false,
+            reviewedAt: new Date(),
+            banned: bannedUntil,
+            sunshineNotes: newNotes,
+          },
+        },
+      });
+    });
+  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, createUserRateLimit, updateUser]);
+
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
     
@@ -268,6 +321,7 @@ export function useModerationUserActions({
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
     handlePurge,
+    handleBanAndRateLimit,
     updateUserWith,
     getModSignatureWithNote,
     posts,
