@@ -533,6 +533,7 @@ type Documents = {
     "\n  mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.updateUserModerationKeyboardDocument,
     "\n  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {\n    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)\n  }\n": typeof types.rejectContentAndRemoveFromQueueModerationKeyboardDocument,
     "\n  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {\n    approveUserCurrentContentOnly(userId: $userId)\n  }\n": typeof types.approveCurrentContentOnlyModerationKeyboardDocument,
+    "\n  mutation createUserRateLimitModerationUserActions($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.createUserRateLimitModerationUserActionsDocument,
     "\n  mutation updatePostPostReviewActions($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostPostReviewActionsDocument,
     "\n  mutation createModeratorActionPostReviewActions($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.createModeratorActionPostReviewActionsDocument,
     "\n  mutation RerunLlmCheckHook($documentId: String!, $collectionName: ContentCollectionName!) {\n    rerunLlmCheck(documentId: $documentId, collectionName: $collectionName) {\n      ...AutomatedContentEvaluationsFragment\n    }\n  }\n": typeof types.RerunLlmCheckHookDocument,
@@ -1420,6 +1421,7 @@ const documents: Documents = {
     "\n  mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.updateUserModerationKeyboardDocument,
     "\n  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {\n    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)\n  }\n": types.rejectContentAndRemoveFromQueueModerationKeyboardDocument,
     "\n  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {\n    approveUserCurrentContentOnly(userId: $userId)\n  }\n": types.approveCurrentContentOnlyModerationKeyboardDocument,
+    "\n  mutation createUserRateLimitModerationUserActions($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.createUserRateLimitModerationUserActionsDocument,
     "\n  mutation updatePostPostReviewActions($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostPostReviewActionsDocument,
     "\n  mutation createModeratorActionPostReviewActions($data: CreateModeratorActionDataInput!) {\n    createModeratorAction(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.createModeratorActionPostReviewActionsDocument,
     "\n  mutation RerunLlmCheckHook($documentId: String!, $collectionName: ContentCollectionName!) {\n    rerunLlmCheck(documentId: $documentId, collectionName: $collectionName) {\n      ...AutomatedContentEvaluationsFragment\n    }\n  }\n": types.RerunLlmCheckHookDocument,
@@ -3878,6 +3880,10 @@ export function gql(source: "\n  mutation rejectContentAndRemoveFromQueueModerat
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {\n    approveUserCurrentContentOnly(userId: $userId)\n  }\n"): (typeof documents)["\n  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {\n    approveUserCurrentContentOnly(userId: $userId)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation createUserRateLimitModerationUserActions($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createUserRateLimitModerationUserActions($data: CreateUserRateLimitDataInput!) {\n    createUserRateLimit(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

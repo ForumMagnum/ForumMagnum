@@ -21334,6 +21334,20 @@ type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
 
 type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
 
+type createUserRateLimitModerationUserActionsMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit = { __typename?: 'UserRateLimit', _id: string };
+
+type createUserRateLimitModerationUserActionsMutation_createUserRateLimit_UserRateLimitOutput = { __typename?: 'UserRateLimitOutput', data: createUserRateLimitModerationUserActionsMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit | null };
+
+type createUserRateLimitModerationUserActionsMutation_Mutation = { __typename?: 'Mutation', createUserRateLimit: createUserRateLimitModerationUserActionsMutation_createUserRateLimit_UserRateLimitOutput | null };
+
+
+type createUserRateLimitModerationUserActionsMutationVariables = Exact<{
+  data: CreateUserRateLimitDataInput;
+}>;
+
+
+type createUserRateLimitModerationUserActionsMutation = createUserRateLimitModerationUserActionsMutation_Mutation;
+
 type updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList
