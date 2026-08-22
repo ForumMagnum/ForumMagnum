@@ -56,13 +56,11 @@ function getCommentSelector(userId: string, filter: CommentFilter, sortBy: strin
     sortBy,
   };
 
-  // "Quick Takes" means top-level shortform comments only; replies within a quick
-  // take thread are listed under "Comments" along with everything else.
   switch (filter) {
     case 'quickTakes':
-      return { profileComments: { ...base, topLevelShortform: true } };
+      return { profileComments: { ...base, quickTakes: "only" } };
     case 'regular':
-      return { profileComments: { ...base, topLevelShortform: false } };
+      return { profileComments: { ...base, quickTakes: "exclude" } };
     case 'all':
     default:
       return { profileComments: base };

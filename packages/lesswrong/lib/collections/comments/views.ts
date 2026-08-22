@@ -28,13 +28,7 @@ declare global {
     postId?: string,
     userId?: string,
     shortform?: boolean,
-    /**
-     * `true`: only quick takes (top-level comments on shortform posts).
-     * `false`: everything except quick takes, which includes replies within
-     * quick take threads (those have `shortform: true` denormalized from the
-     * post, but count as ordinary comments on profile/dashboard pages).
-     */
-    topLevelShortform?: boolean,
+    quickTakes?: "only" | "exclude",
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
     relevantTagId?: string,
@@ -57,23 +51,10 @@ declare global {
   }
 }
 
-export const topLevelShortformSelector = {
+const quickTakeSelector = {
   shortform: true,
   parentCommentId: viewFieldNullOrMissing,
 };
-
-export const notTopLevelShortformSelector = {
-  $or: [
-    { shortform: { $ne: true } },
-    { parentCommentId: { $ne: null } },
-  ],
-};
-
-function getTopLevelShortformSelector(topLevelShortform: boolean | undefined) {
-  if (topLevelShortform === true) return topLevelShortformSelector;
-  if (topLevelShortform === false) return notTopLevelShortformSelector;
-  return {};
-}
 
 // Spread into a view to remove the part of the default view selector that hides deleted and
 // unreviewed comments.
@@ -349,7 +330,9 @@ function profileComments(terms: CommentsViewTerms) {
   return {
     selector: {
       deletedPublic: false,
-      ...getTopLevelShortformSelector(terms.topLevelShortform),
+      ...(terms.quickTakes === "only" && quickTakeSelector),
+      // Replies in quick take threads also have shortform=true (copied from the post)
+      ...(terms.quickTakes === "exclude" && {$or: [{shortform: {$ne: true}}, {parentCommentId: {$ne: null}}]}),
     },
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
@@ -545,8 +528,7 @@ function topShortform(terms: CommentsViewTerms) {
 
   return {
     selector: {
-      shortform: true,
-      parentCommentId: viewFieldNullOrMissing,
+      ...quickTakeSelector,
       deleted: false,
       ...getPostedAtTimeRange(terms),
       ...shortformFrontpage,
@@ -558,9 +540,8 @@ function topShortform(terms: CommentsViewTerms) {
 function shortform(terms: CommentsViewTerms) {
   return {
     selector: {
-      shortform: true,
+      ...quickTakeSelector,
       deleted: false,
-      parentCommentId: viewFieldNullOrMissing,
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
@@ -573,11 +554,10 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
   const hidePersonalShortforms = !context?.currentUser || context.currentUser.frontpageFilterSettings?.personalBlog === "Hidden";
   return {
     selector: {
-      shortform: true,
+      ...quickTakeSelector,
       ...(hidePersonalShortforms ? { shortformFrontpage: true } : {}),
       deleted: false,
       rejected: {$ne: true},
-      parentCommentId: viewFieldNullOrMissing,
       postedAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
         !!terms.relevantTagId

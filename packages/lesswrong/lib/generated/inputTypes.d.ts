@@ -2063,7 +2063,7 @@ interface CommentsProfileCommentsInput {
   includeRejected?: boolean | null;
   sortBy?: string | null;
   shortform?: boolean | null;
-  topLevelShortform?: boolean | null;
+  quickTakes?: string | null;
   drafts?: string | null;
   limit?: string | null;
 }

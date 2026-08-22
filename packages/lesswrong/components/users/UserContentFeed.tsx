@@ -28,12 +28,9 @@ const USER_POSTS_QUERY = gql(`
   }
 `);
 
-// Everything except quick takes (top-level shortform comments), which come from
-// the separate shortform query below. Replies within quick take threads are
-// included here, since they count as ordinary comments.
 const USER_COMMENTS_QUERY = gql(`
   query UserContentFeedComments($userId: String!, $limit: Int!, $sortBy: String!) {
-    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy, topLevelShortform: false } }, limit: $limit, enableTotal: true) {
+    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy, quickTakes: "exclude" } }, limit: $limit, enableTotal: true) {
       results {
         ...CommentsList
         post {
@@ -408,7 +405,7 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
 
   const skipPosts = filter === 'comments' || filter === 'wikiEdits';
   const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
-  const skipShortformComments = filter === 'posts' || filter === 'wikiEdits';
+  const skipShortformComments = filter === 'posts' || filter === 'comments' || filter === 'wikiEdits';
   const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
   const {
@@ -471,14 +468,13 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     const items: FeedItem[] = [];
 
     const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
-    const profileComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
-    const shortformComments = skipShortformComments
+    const nonQuickTakeComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
+    const quickTakeComments = skipShortformComments
       ? []
       : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
     const wikiEdits = skipWikiEdits ? [] : (wikiEditsData?.revisions?.results ?? []);
-    // The two comment queries are disjoint (profile comments exclude top-level
-    // shortform comments), so no deduplication is needed when merging them.
-    const comments: CommentItem[] = [...profileComments, ...shortformComments];
+    // Disjoint: USER_COMMENTS_QUERY excludes quick takes; topShortform returns only them
+    const comments: CommentItem[] = [...nonQuickTakeComments, ...quickTakeComments];
 
     posts.forEach(post => {
       if (!post?.postedAt) return;

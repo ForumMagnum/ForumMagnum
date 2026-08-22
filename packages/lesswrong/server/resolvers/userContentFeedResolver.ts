@@ -3,7 +3,7 @@ import { mergeFeedQueries, viewBasedSubquery } from '../utils/feedUtil';
 import { Posts } from '../collections/posts/collection';
 import { Comments } from '../collections/comments/collection';
 import { Revisions } from '../collections/revisions/collection';
-import { notTopLevelShortformSelector, topLevelShortformSelector } from '@/lib/collections/comments/views';
+import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 export const userContentFeedGraphQLTypeDefs = gql`
   type UserContentFeedQueryResults {
@@ -42,7 +42,7 @@ export const userContentFeedGraphQLQueries = {
 
     const skipPosts = filter === 'comments' || filter === 'wikiEdits' || filter === 'quickTakes';
     const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
-    const skipShortform = filter === 'posts' || filter === 'wikiEdits';
+    const skipShortform = filter === 'posts' || filter === 'comments' || filter === 'wikiEdits';
     const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
     const result = await mergeFeedQueries<Date>({
@@ -84,7 +84,10 @@ export const userContentFeedGraphQLQueries = {
             userId,
             deletedPublic: false,
             // Exclude top-level shortform comments (they come from the shortform subquery)
-            ...notTopLevelShortformSelector,
+            $or: [
+              { shortform: { $ne: true } },
+              { parentCommentId: { $ne: null } },
+            ],
           },
         }) : null,
 
@@ -97,8 +100,9 @@ export const userContentFeedGraphQLQueries = {
           includeDefaultSelector: true,
           selector: {
             userId,
+            shortform: true,
             deleted: false,
-            ...topLevelShortformSelector,
+            parentCommentId: viewFieldNullOrMissing,
           },
         }) : null,
 
