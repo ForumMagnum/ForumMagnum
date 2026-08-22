@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
@@ -8,7 +7,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "../messaging/ConversationPreview";
@@ -18,6 +16,7 @@ import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 import { getNotificationIconByNotificationName } from './notificationIcons';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { scrollToNotificationTarget } from './notificationClick';
 
 const styles = defineStyles('NotificationsItem', (theme: ThemeType) => ({
   root: {
@@ -235,15 +234,12 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
           navigate(notificationLink)
 
           setClicked(true);
-          
-          // we also check whether it's a relative link, and if so, scroll to the item
-          const UrlClass = getUrlClass()
-          const url = new UrlClass(notificationLink, getSiteUrl())
-          const hash = url.hash
-          if (hash) {
-            const element = document.getElementById(hash.substr(1))
-            if (element) element.scrollIntoView({behavior: "smooth"});
-          }
+
+          scrollToNotificationTarget({
+            notificationLink,
+            documentType: notification.documentType,
+            documentId: notification.documentId,
+          });
         }}
       >
         {notification.type ? getNotificationIconByNotificationName(notification.type) : null}
