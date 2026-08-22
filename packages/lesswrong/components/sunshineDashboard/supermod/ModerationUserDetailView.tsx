@@ -50,6 +50,7 @@ const ModerationUserDetailView = ({
   user,
   posts,
   comments,
+  contentsLoading,
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
@@ -61,6 +62,7 @@ const ModerationUserDetailView = ({
   user: SunshineUsersList;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  contentsLoading: boolean;
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SelectedSidebarTab;
@@ -124,6 +126,7 @@ const ModerationUserDetailView = ({
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            contentsLoading={contentsLoading}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
             setSidebarTab={setSidebarTab}
