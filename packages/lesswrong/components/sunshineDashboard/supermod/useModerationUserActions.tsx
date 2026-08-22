@@ -43,10 +43,10 @@ const CreateUserRateLimitMutation = gql(`
   }
 `);
 
-// The hard and tapered limits overlap, so the taper ends 12 weeks out, not 16.
+// The hard and tapered limits overlap, so the taper ends 6 months out, not 9.
 function getBanAndRateLimitInputs(userId: string): CreateUserRateLimitDataInput[] {
-  const hardEndedAt = moment().add(4, 'weeks').toDate();
-  const taperedEndedAt = moment().add(12, 'weeks').toDate();
+  const hardEndedAt = moment().add(3, 'months').toDate();
+  const taperedEndedAt = moment().add(6, 'months').toDate();
   // 0 actions per interval blocks outright until endedAt, so the interval is only filler
   // for the non-null columns (the taper rows are what size the lookback window).
   return [
@@ -206,15 +206,15 @@ export function useModerationUserActions({
 
   const handleBanAndRateLimit = useCallback(() => {
     if (!selectedUser) return;
-    if (!confirm(`Ban ${selectedUser.displayName} for 1 month and rate limit them for 3 months?`)) return;
+    if (!confirm(`Ban ${selectedUser.displayName} for 3 months and rate limit them for 6 months?`)) return;
 
     const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('1 month ban, 3 month rate limit') + notes;
+    const newNotes = getModSignatureWithNote('3 month ban, 6 month rate limit') + notes;
     const rateLimits = getBanAndRateLimitInputs(selectedUser._id);
     // Anchored to the click, like the rate limits, rather than to the end of the undo window.
-    const bannedUntil = moment().add(1, 'months').toDate();
+    const bannedUntil = moment().add(3, 'months').toDate();
 
-    handleAction('Banned 1mo & rate limited 3mo', async () => {
+    handleAction('Banned 3mo & rate limited 6mo', async () => {
       await Promise.all(rateLimits.map(data => createUserRateLimit({ variables: { data } })));
       await updateUser({
         variables: {

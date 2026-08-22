@@ -210,7 +210,7 @@ const ModerationUserKeyboardHandler = ({
   }), [selectedUser, handleBan]);
 
   const banAndRateLimitCommand: CommandPaletteItem = useMemo(() => ({
-    label: '1 Month Ban, 3 Month Rate Limit',
+    label: '~Ban for ~6 months',
     keystroke: 'Shift+B',
     isDisabled: () => !selectedUser,
     execute: handleBanAndRateLimit,

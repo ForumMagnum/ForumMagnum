@@ -118,9 +118,9 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         onClick: handlePurge,
       },
       {
-        label: '1 Month Ban, 3 Month Rate Limit',
+        label: '~Ban for ~6 months',
         keystroke: 'Shift+B',
-        tooltip: "Bans this user for 1 month, blocks posting and commenting on other people's posts for 4 weeks, then allows 1 post and 3 comments per 4 weeks until week 12. Removes them from the review queue.",
+        tooltip: "Roughly a 6 month ban: bans this user for 3 months, then rate limits them to 1 post and 3 comments (on other people's posts) per 4 weeks until 6 months out. Removes them from the review queue. Asks for confirmation first, and signs a '3 month ban, 6 month rate limit' note in their moderator notes.",
         onClick: handleBanAndRateLimit,
       },
       {
