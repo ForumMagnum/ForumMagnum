@@ -882,6 +882,7 @@ type CommentsProfileCommentsInput = {
   includeRejected?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  quickTakes?: InputMaybe<Scalars['String']['input']>;
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;

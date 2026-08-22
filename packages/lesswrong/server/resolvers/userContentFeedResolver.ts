@@ -42,7 +42,7 @@ export const userContentFeedGraphQLQueries = {
 
     const skipPosts = filter === 'comments' || filter === 'wikiEdits' || filter === 'quickTakes';
     const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
-    const skipShortform = filter === 'posts' || filter === 'wikiEdits';
+    const skipShortform = filter === 'posts' || filter === 'comments' || filter === 'wikiEdits';
     const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
     const result = await mergeFeedQueries<Date>({

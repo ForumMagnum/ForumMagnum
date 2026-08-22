@@ -58,9 +58,9 @@ function getCommentSelector(userId: string, filter: CommentFilter, sortBy: strin
 
   switch (filter) {
     case 'quickTakes':
-      return { profileComments: { ...base, shortform: true } };
+      return { profileComments: { ...base, quickTakes: "only" } };
     case 'regular':
-      return { profileComments: { ...base, shortform: false } };
+      return { profileComments: { ...base, quickTakes: "exclude" } };
     case 'all':
     default:
       return { profileComments: base };
