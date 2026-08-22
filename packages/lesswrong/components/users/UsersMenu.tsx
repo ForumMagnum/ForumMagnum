@@ -249,6 +249,12 @@ const UsersMenu = () => {
                 iconClassName={classes.icon}
               />}
               <DropdownItem
+                title="Dashboard"
+                to="/account"
+                icon="BarChart"
+                iconClassName={classes.icon}
+              />
+              <DropdownItem
                 title={"My Drafts"}
                 to="/drafts"
                 icon="Edit"
