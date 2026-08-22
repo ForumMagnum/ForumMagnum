@@ -22,6 +22,11 @@ const styles = defineStyles('DashboardPostsTab', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     gap: 12,
+    // Drop the dropdown button's trailing padding so the control lines up with
+    // the right edge of the post rows below it
+    '& button': {
+      paddingRight: 0,
+    },
   },
   includeEvents: {
     display: 'flex',

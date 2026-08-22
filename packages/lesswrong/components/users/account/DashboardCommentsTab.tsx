@@ -37,6 +37,12 @@ const styles = defineStyles('DashboardCommentsTab', (theme: ThemeType) => ({
   },
   sortDropdown: {
     marginLeft: 'auto',
+    // RecentComments indents its list 32px from the right, so match that (and drop
+    // the dropdown button's own trailing padding) to line the control up with the cards
+    marginRight: 32,
+    '& button': {
+      paddingRight: 0,
+    },
   },
 }));
 
