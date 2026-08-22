@@ -28,9 +28,12 @@ const USER_POSTS_QUERY = gql(`
   }
 `);
 
+// Everything except quick takes (top-level shortform comments), which come from
+// the separate shortform query below. Replies within quick take threads are
+// included here, since they count as ordinary comments.
 const USER_COMMENTS_QUERY = gql(`
   query UserContentFeedComments($userId: String!, $limit: Int!, $sortBy: String!) {
-    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy } }, limit: $limit, enableTotal: true) {
+    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy, topLevelShortform: false } }, limit: $limit, enableTotal: true) {
       results {
         ...CommentsList
         post {
@@ -472,24 +475,10 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     const shortformComments = skipShortformComments
       ? []
       : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
-    const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
     const wikiEdits = skipWikiEdits ? [] : (wikiEditsData?.revisions?.results ?? []);
-    const comments: CommentItem[] = (() => {
-      if (filter === 'quickTakes') {
-        return shortformComments;
-      }
-      if (filter === 'comments') {
-        return profileComments.filter((comment) => !shortformCommentIds.has(comment._id));
-      }
-      const merged: CommentItem[] = [];
-      const seenCommentIds = new Set<string>();
-      [...profileComments, ...shortformComments].forEach((comment) => {
-        if (seenCommentIds.has(comment._id)) return;
-        seenCommentIds.add(comment._id);
-        merged.push(comment);
-      });
-      return merged;
-    })();
+    // The two comment queries are disjoint (profile comments exclude top-level
+    // shortform comments), so no deduplication is needed when merging them.
+    const comments: CommentItem[] = [...profileComments, ...shortformComments];
 
     posts.forEach(post => {
       if (!post?.postedAt) return;

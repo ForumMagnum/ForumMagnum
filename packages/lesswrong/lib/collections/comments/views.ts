@@ -28,6 +28,13 @@ declare global {
     postId?: string,
     userId?: string,
     shortform?: boolean,
+    /**
+     * `true`: only quick takes (top-level comments on shortform posts).
+     * `false`: everything except quick takes, which includes replies within
+     * quick take threads (those have `shortform: true` denormalized from the
+     * post, but count as ordinary comments on profile/dashboard pages).
+     */
+    topLevelShortform?: boolean,
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
     relevantTagId?: string,
@@ -48,6 +55,24 @@ declare global {
     commentIds?: string[],
     minimumKarma?: number,
   }
+}
+
+export const topLevelShortformSelector = {
+  shortform: true,
+  parentCommentId: viewFieldNullOrMissing,
+};
+
+export const notTopLevelShortformSelector = {
+  $or: [
+    { shortform: { $ne: true } },
+    { parentCommentId: { $ne: null } },
+  ],
+};
+
+function getTopLevelShortformSelector(topLevelShortform: boolean | undefined) {
+  if (topLevelShortform === true) return topLevelShortformSelector;
+  if (topLevelShortform === false) return notTopLevelShortformSelector;
+  return {};
 }
 
 // Spread into a view to remove the part of the default view selector that hides deleted and
@@ -322,7 +347,10 @@ function profileComments(terms: CommentsViewTerms) {
   const sortBy = terms.sortBy ?? "new"
   
   return {
-    selector: {deletedPublic: false},
+    selector: {
+      deletedPublic: false,
+      ...getTopLevelShortformSelector(terms.topLevelShortform),
+    },
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
 }

@@ -884,6 +884,7 @@ type CommentsProfileCommentsInput = {
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
+  topLevelShortform?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
