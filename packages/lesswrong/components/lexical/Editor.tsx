@@ -495,6 +495,13 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       margin: '0em auto',
     },
   },
+  // Post headings intentionally ignore bold formatting when rendered.
+  // Mirror that behavior in the post editor so formatting is not misleading.
+  postEditorContainer: {
+    '& h1 .text-bold, & h2 .text-bold, & h3 .text-bold, & h4 .text-bold, & h5 .text-bold, & h6 .text-bold': {
+      fontWeight: 'inherit',
+    },
+  },
   editorContainerComment: {
     background: 'transparent',
     borderBottomLeftRadius: 0,
@@ -855,6 +862,7 @@ export default function Editor({
       <div
         className={classNames(
           classes.editorContainer,
+          isPostEditor && classes.postEditorContainer,
           isCommentEditor && classes.editorContainerComment,
           // showTreeView && classes.treeView,
           !isRichText && classes.plainText
