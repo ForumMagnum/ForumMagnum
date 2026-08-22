@@ -48,6 +48,65 @@ export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
+ * Tags which, when they appear as the first thing inside a block, mean that
+ * block's contents are laid out as blocks rather than as inline content.
+ */
+const blockLevelTagNames = new Set([
+  "address", "article", "aside", "blockquote", "details", "dialog", "div", "dd",
+  "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2",
+  "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "li", "main", "nav", "ol",
+  "p", "pre", "section", "table", "ul",
+]);
+
+/**
+ * Block-level tags which we can't put an id-insertion inside of, either because
+ * they can't have children at all, or because their content model doesn't allow
+ * arbitrary inline content.
+ */
+const dontDescendIntoTagNames = new Set([
+  "hr", "table", "thead", "tbody", "tfoot", "tr",
+]);
+
+/**
+ * Given the children of an element which is the target of an id-insertion,
+ * return the index of the child that the insertion should be moved into, or
+ * null if the insertion should just go at the start of this element.
+ *
+ * Id-insertions (used for side-comment indicators) are inline elements which
+ * are inserted at the start of the block they're attached to. If that block's
+ * contents are themselves blocks (as in `<li><p>...</p></li>`, which is how
+ * list items in posts are usually structured), then inserting an inline element
+ * at the start displaces the first block from matching `:first-child`. Content
+ * styles use that selector to suppress the top margin of the first paragraph in
+ * a block, so the result is a spurious blank line at the start of the list item.
+ * Recursing into the first block child instead avoids this (and the anonymous
+ * block box that an inline element in a block-formatting context would
+ * otherwise generate).
+ */
+function getIdInsertionDescendIndex(childNodes: DomHandlerChildNode[]): number|null {
+  for (let i=0; i<childNodes.length; i++) {
+    const child = childNodes[i];
+    if (child.type === htmlparser2.ElementType.Text) {
+      // Whitespace between tags doesn't count as inline content
+      if (child.data.trim() === "") continue;
+      return null;
+    }
+    if (child.type === htmlparser2.ElementType.Comment) {
+      continue;
+    }
+    if (child.type !== htmlparser2.ElementType.Tag) {
+      return null;
+    }
+    const tagName = child.tagName.toLowerCase();
+    if (!blockLevelTagNames.has(tagName) || dontDescendIntoTagNames.has(tagName)) {
+      return null;
+    }
+    return i;
+  }
+  return null;
+}
+
+/**
  * Renders user-generated HTML, with progressive enhancements. Replaces
  * ContentItemBody, by parsing and recursing through an HTML parse tree rather
  * than doing post-mount modifications.
@@ -157,10 +216,17 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
+
+  /**
+   * An id-insertion which was targeted at an ancestor of this element, but which
+   * was moved down into this element because that ancestor's contents are blocks
+   * rather than inline content. See `getIdInsertionDescendIndex`.
+   */
+  insertedAtStart?: React.ReactNode,
 }) => {
   const { replacedSubstrings, themeName } = passedThroughProps;
   const { captureEvent } = useTracking();
@@ -198,10 +264,25 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
 
+      const ownIdInsertion = (id && passedThroughProps.idInsertions?.[id])
+        ? passedThroughProps.idInsertions[id]
+        : null;
+      const idInsertion: React.ReactNode = (insertedAtStart && ownIdInsertion)
+        ? <>{insertedAtStart}{ownIdInsertion}</>
+        : (insertedAtStart ?? ownIdInsertion);
+
+      // If this element has an insertion but its contents are blocks rather
+      // than inline content, put the insertion inside the first of those
+      // blocks, rather than at the start of this element.
+      const descendIndex = idInsertion
+        ? getIdInsertionDescendIndex(parsedHtml.childNodes)
+        : null;
+
       let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
+        insertedAtStart={i===descendIndex ? idInsertion : undefined}
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
@@ -226,8 +307,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       }
 
       let result: React.ReactNode|React.ReactNode[] = mappedChildren;
-      if (id && passedThroughProps.idInsertions?.[id]) {
-        const idInsertion = passedThroughProps.idInsertions[id];
+      if (idInsertion && descendIndex===null) {
         result = [
           <React.Fragment key="inserted">{idInsertion}</React.Fragment>,
            ...result
