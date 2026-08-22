@@ -466,9 +466,7 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
       WITH paginated_comments AS (
         SELECT
           c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
-          c."deletedPublic", c."deletedByUserId",
-          -- Comments deleted without trace are listed in the log, but their contents stay hidden
-          CASE WHEN c."deletedPublic" THEN c.contents END AS contents
+          c."deletedPublic", c.contents, c."deletedByUserId"
         FROM "Comments" c
         WHERE c.deleted IS TRUE
         ORDER BY c."deletedDate" DESC NULLS LAST

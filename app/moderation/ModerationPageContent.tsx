@@ -373,14 +373,6 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
       }
     }
   },
-  hiddenContentNote: {
-    padding: '12px',
-    background: theme.palette.panelBackground.default,
-    borderTop: `1px solid ${theme.palette.border.grey300}`,
-    fontSize: '12px',
-    fontStyle: 'italic',
-    color: theme.palette.text.dim,
-  },
   userList: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -1133,11 +1125,7 @@ export default function ModerationPageContent(props: Props) {
                   </tr>
                   {expandedRows.has(comment._id) && (
                     <tr>
-                      <td colSpan={6}>
-                        {comment.deletedPublic
-                          ? renderContent(comment.contents)
-                          : <div className={classes.hiddenContentNote}>Contents are not shown for comments deleted without trace.</div>}
-                      </td>
+                      <td colSpan={6}>{renderContent(comment.contents)}</td>
                     </tr>
                   )}
                 </React.Fragment>
