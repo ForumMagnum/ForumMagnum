@@ -99,7 +99,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     borderRadius: 6
   },
   reactionPaletteScrollRegion: {
-    width: 350,
+    width: "min(350px, calc(100vw - 16px))",
     maxHeight: 305,
     overflowY: "scroll",
     marginTop: 12,

@@ -46,7 +46,9 @@ const LWPopper = ({
   tooltip=false,
   allowOverflow,
   overflowPadding,
+  overflowAltAxis,
   flip,
+  fallbackPlacements,
   open,
   anchorEl,
   distance=0,
@@ -59,7 +61,15 @@ const LWPopper = ({
   tooltip?: boolean,
   allowOverflow?: boolean,
   overflowPadding?: number,
+  // By default, popper's preventOverflow only keeps the popper in the viewport
+  // along its slide axis (e.g. only vertically for left/right placements).
+  // This enables it on the other axis too, which can cause the popper to
+  // overlap its anchor rather than go off-screen.
+  overflowAltAxis?: boolean,
   flip?: boolean,
+  // Placements to try, in order, when the preferred placement doesn't fit in
+  // the viewport. Overrides popper's default of just the opposite placement.
+  fallbackPlacements?: PopperPlacementType[],
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
@@ -77,13 +87,18 @@ const LWPopper = ({
       name: 'flip',
       enabled: false,
     }
-  ] : [];
+  ] : (fallbackPlacements ? [
+    {
+      name: 'flip',
+      options: {fallbackPlacements},
+    }
+  ] : []);
 
   const preventOverflowModifier = [
     {
       name: 'preventOverflow',
       enabled: !allowOverflow,
-      options: {padding: overflowPadding},
+      options: {padding: overflowPadding, altAxis: overflowAltAxis},
     }
   ];
 

@@ -439,7 +439,7 @@ const defaultPreviewStyles = defineStyles('DefaultPreview', (theme: ThemeType) =
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    maxWidth: 500,
+    maxWidth: "min(500px, calc(100vw - 16px))",
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
@@ -714,7 +714,7 @@ const arbitalStyles = defineStyles('ArbitalPreview', (theme: ThemeType) => ({
     padding: 8,
     paddingLeft: 12,
     paddingRight: 12,
-    maxWidth: 500,
+    maxWidth: "min(500px, calc(100vw - 16px))",
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     '& h2': {

@@ -29,7 +29,7 @@ const ChaptersFragmentMultiQuery = gql(`
 const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: 450,
+    width: "min(450px, calc(100vw - 16px))",
   },
   title: {
     ...theme.typography.body1,
