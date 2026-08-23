@@ -55,7 +55,7 @@ describe('useDebouncedCallback', () => {
     expect(fn).toHaveBeenLastCalledWith({arg:"z"});
   });
 
-  it('calls the callback on unmount if pending', () => {
+  it('calls the callback with the latest pending arguments on unmount', () => {
     const container = document.createElement("div");
     const root = createRoot(container);
     document.body.appendChild(container);
@@ -77,18 +77,23 @@ describe('useDebouncedCallback', () => {
     expect(fn).toHaveBeenCalledTimes(0);
     
     // Should not call immediately because callOnLeadingEdge was false
-    debouncedFnRef.debouncedFn!({});
+    debouncedFnRef.debouncedFn!({contents: "draft"});
     expect(fn).toHaveBeenCalledTimes(0);
     
     // 500ms is not long enough to trigger
     jest.advanceTimersByTime(500);
     expect(fn).toHaveBeenCalledTimes(0);
+
+    // A later call should replace the pending arguments. Editor forms use
+    // this to replace an unsaved backup with blank contents after submission.
+    debouncedFnRef.debouncedFn!({contents: ""});
     
     // Unmount. Should cause it to be called.
     act(() => {
       root.unmount();
     });
     expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenLastCalledWith({contents: ""});
     
     // Attempt to call it. Should be blocked because allowExplicitCallAfterUnmount is false.
     debouncedFnRef.debouncedFn!({});

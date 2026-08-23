@@ -237,7 +237,10 @@ function InnerEditorFormComponent<S, R>({
   const throttledSaveBackup = useDebouncedCallback(saveBackup, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: false,
-    onUnmount: "cancelPending",
+    // Reply forms can unmount before the debounce finishes (for example when
+    // the user closes and reopens one). Flush the latest edit so it remains
+    // available through "Restore Autosave".
+    onUnmount: "callIfScheduled",
     allowExplicitCallAfterUnmount: false,
   });
 
@@ -355,6 +358,9 @@ function InnerEditorFormComponent<S, R>({
       });
       const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => {
         getLocalStorageHandlers(currentEditorType).reset();
+        // Replace any pending pre-submit backup before a successful submit
+        // unmounts the form, so the unmount flush cannot restore submitted text.
+        throttledSaveBackup(getBlankEditorContents(initialEditorType));
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
 
