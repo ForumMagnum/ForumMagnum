@@ -466,7 +466,6 @@ const UsersProfileFn = ({terms, slug}: {
               <RecentComments
                 selector={{ profileComments: { sortBy: currentCommentSortBy, authorIsUnreviewed: null, userId: user._id } }}
                 limit={10}
-                showPinnedOnProfile
               />
             </SingleColumnSection>
           </AnalyticsContext>

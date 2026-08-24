@@ -71,7 +71,6 @@ export const CommentsList = gql(`
     }
     directChildrenCount
     votingSystem
-    isPinnedOnProfile
     debateResponse
     rejected
     rejectedReason

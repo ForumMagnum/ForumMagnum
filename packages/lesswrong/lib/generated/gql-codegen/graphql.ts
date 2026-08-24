@@ -199,7 +199,7 @@ const _180=_o4(_8,_o3(_3,"isBookmarked"))
 const _181=_o4(_8,_o3(_3,"lastSubthreadActivity"))
 const _182=_o3(_3,"rejectedReason")
 const _183=_o4(_8,_182)
-const _184=_o2(_2,_159,_160,_o5(_7,[_10,_162,_164,_167,_168,_170,_171,_172,_o4(_8,_173),_o4(_8,_o3(_3,"descendentCount")),_14,_o6(_8,_36,_o5(_7,[_10,_174,_175,_70])),_28,_o4(_8,_o3(_3,"lastEditedAt")),_o4(_8,_o3(_3,"repliesBlockedUntil")),_20,_15,_54,_177,_o4(_8,_o3(_3,"deletedByUserId")),_179,_29,_112,_68,_144,_145,_180,_27,_86,_87,_85,_18,_113,_o4(_8,_o3(_3,"moveToAlignmentUserId")),_116,_117,_114,_115,_140,_o4(_8,_o3(_3,"answer")),_o4(_8,_o3(_3,"parentAnswerId")),_o4(_8,_o3(_3,"retracted")),_o4(_8,_o3(_3,"postVersion")),_60,_16,_o4(_8,_o3(_3,"shortformFrontpage")),_181,_o4(_8,_o3(_3,"moderatorHat")),_o4(_8,_o3(_3,"hideModeratorHat")),_o4(_8,_o3(_3,"nominatedForReview")),_o4(_8,_o3(_3,"reviewingForReview")),_o4(_8,_o3(_3,"promoted")),_o6(_8,_o3(_3,"promotedByUser"),_67),_o4(_8,_o3(_3,"directChildrenCount")),_126,_o4(_8,_o3(_3,"isPinnedOnProfile")),_o4(_8,_o3(_3,"debateResponse")),_22,_183,_o4(_8,_o3(_3,"originalDialogueId"))]))
+const _184=_o2(_2,_159,_160,_o5(_7,[_10,_162,_164,_167,_168,_170,_171,_172,_o4(_8,_173),_o4(_8,_o3(_3,"descendentCount")),_14,_o6(_8,_36,_o5(_7,[_10,_174,_175,_70])),_28,_o4(_8,_o3(_3,"lastEditedAt")),_o4(_8,_o3(_3,"repliesBlockedUntil")),_20,_15,_54,_177,_o4(_8,_o3(_3,"deletedByUserId")),_179,_29,_112,_68,_144,_145,_180,_27,_86,_87,_85,_18,_113,_o4(_8,_o3(_3,"moveToAlignmentUserId")),_116,_117,_114,_115,_140,_o4(_8,_o3(_3,"answer")),_o4(_8,_o3(_3,"parentAnswerId")),_o4(_8,_o3(_3,"retracted")),_o4(_8,_o3(_3,"postVersion")),_60,_16,_o4(_8,_o3(_3,"shortformFrontpage")),_181,_o4(_8,_o3(_3,"moderatorHat")),_o4(_8,_o3(_3,"hideModeratorHat")),_o4(_8,_o3(_3,"nominatedForReview")),_o4(_8,_o3(_3,"reviewingForReview")),_o4(_8,_o3(_3,"promoted")),_o6(_8,_o3(_3,"promotedByUser"),_67),_o4(_8,_o3(_3,"directChildrenCount")),_126,_o4(_8,_o3(_3,"debateResponse")),_22,_183,_o4(_8,_o3(_3,"originalDialogueId"))]))
 const _185=_o3(_3,"PostsListBase")
 const _186=_o4(_25,_76)
 const _187=_o3(_3,"customHighlight")
@@ -15519,17 +15519,6 @@ export type updateCommentMoveToAnswersDropdownItemMutation = { __typename?: 'Mut
       & CommentsList
     ) | null } | null };
 
-export type updateCommentPinToProfileDropdownItemMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateCommentDataInput;
-}>;
-
-
-export type updateCommentPinToProfileDropdownItemMutation = { __typename?: 'Mutation', updateComment: { __typename?: 'CommentOutput', data: (
-      { __typename?: 'Comment' }
-      & CommentsList
-    ) | null } | null };
-
 export type updateCommentRetractCommentDropdownItemMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateCommentDataInput;
@@ -21183,7 +21172,7 @@ export type CollectionsEditFragment = (
   & CollectionsPageFragment
 );
 
-export type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: { __typename?: 'Tag', _id: string, slug: string } | null, relevantTags: Array<(
+export type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: { __typename?: 'Tag', _id: string, slug: string } | null, relevantTags: Array<(
     { __typename?: 'Tag' }
     & TagPreviewFragment
   )>, contents: { __typename?: 'Revision', _id: string, html: string | null, plaintextMainText: string, wordCount: number } | null, user: (
@@ -23017,7 +23006,6 @@ export const lockThreadDocument = _o1(_1,[_o11(_987,_988,_1326,[_1042,_o12(_989,
 export const unlockThreadDocument = _o1(_1,[_o11(_987,_988,_1329,_1043,_o5(_7,[_o10(_8,_1329,[_1208])]))]) as unknown as DocumentNode<unlockThreadMutation, unlockThreadMutationVariables>;
 export const updateCommentMoveToAlignmentCommentDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentMoveToAlignmentCommentDropdownItem"),_1172,_1211),_146,_158,_61,_184]) as unknown as DocumentNode<updateCommentMoveToAlignmentCommentDropdownItemMutation, updateCommentMoveToAlignmentCommentDropdownItemMutationVariables>;
 export const updateCommentMoveToAnswersDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentMoveToAnswersDropdownItem"),_1172,_1211),_146,_158,_61,_184]) as unknown as DocumentNode<updateCommentMoveToAnswersDropdownItemMutation, updateCommentMoveToAnswersDropdownItemMutationVariables>;
-export const updateCommentPinToProfileDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentPinToProfileDropdownItem"),_1172,_1211),_146,_158,_61,_184]) as unknown as DocumentNode<updateCommentPinToProfileDropdownItemMutation, updateCommentPinToProfileDropdownItemMutationVariables>;
 export const updateCommentRetractCommentDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentRetractCommentDropdownItem"),_1172,_1211),_146,_158,_61,_184]) as unknown as DocumentNode<updateCommentRetractCommentDropdownItemMutation, updateCommentRetractCommentDropdownItemMutationVariables>;
 export const updateCommentShortformFrontpageDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentShortformFrontpageDropdownItem"),_1172,_1211),_146,_158,_61,_184]) as unknown as DocumentNode<updateCommentShortformFrontpageDropdownItemMutation, updateCommentShortformFrontpageDropdownItemMutationVariables>;
 export const updateCommentSuggestAlignmentCommentDropdownItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateCommentSuggestAlignmentCommentDropdownItem"),_1172,_1330),_146,_158,_61,_184,_23,_357]) as unknown as DocumentNode<updateCommentSuggestAlignmentCommentDropdownItemMutation, updateCommentSuggestAlignmentCommentDropdownItemMutationVariables>;

@@ -20,11 +20,10 @@ const styles = defineStyles("RecentComments", (theme: ThemeType) =>  ({
   },
 }))
 
-const RecentComments = ({selector, limit, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
+const RecentComments = ({selector, limit, truncated=false, noResultsMessage="No Comments Found"}: {
   selector: CommentSelector,
   limit?: number,
   truncated?: boolean,
-  showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
   const classes = useStyles(styles);
@@ -64,7 +63,6 @@ const RecentComments = ({selector, limit, truncated=false, showPinnedOnProfile=f
           }}
           comment={comment}
           startThreadTruncated={truncated}
-          showPinnedOnProfile={showPinnedOnProfile}
         />
       </div>
     )}

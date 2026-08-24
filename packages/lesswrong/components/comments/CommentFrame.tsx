@@ -121,7 +121,6 @@ const CommentFrame = ({
   isReplyToAnswer,
   hoverPreview,
   shortform,
-  showPinnedOnProfile,
   children,
   className,
 }: {
@@ -139,7 +138,6 @@ const CommentFrame = ({
   isReplyToAnswer?: boolean,
   hoverPreview?: boolean,
   shortform?: boolean,
-  showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
   className?: string,

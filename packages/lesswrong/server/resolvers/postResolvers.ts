@@ -310,7 +310,7 @@ async function getProfileDiamondComments(userId: string, limit: number): Promise
     Comments.find(
       selector,
       {
-        sort: { isPinnedOnProfile: -1, postedAt: -1 },
+        sort: { postedAt: -1 },
         limit,
       },
       {

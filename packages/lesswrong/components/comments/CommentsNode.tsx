@@ -74,7 +74,6 @@ export interface CommentsNodeProps {
   childComments?: Array<CommentTreeNode<CommentsList>>,
   loadChildrenSeparately?: boolean,
   loadDirectReplies?: boolean,
-  showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
   /**
    * Determines the karma threshold used to decide whether to collapse a comment.
@@ -98,7 +97,7 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
   const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
@@ -226,7 +225,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   })();
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
+  const passedThroughItemProps = { comment, collapsed, enableGuidelines, showParentDefault }
 
   
   const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
@@ -296,7 +295,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       isReplyToAnswer={!!parentAnswerId}
       hoverPreview={hoverPreview}
       shortform={shortform}
-      showPinnedOnProfile={showPinnedOnProfile}
       className={className}
     >
       {comment._id && <div ref={scrollTargetRef}>

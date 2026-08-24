@@ -303,7 +303,7 @@ function postLWComments(terms: CommentsViewTerms) {
 }
 
 export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
-  "new" :  { isPinnedOnProfile: -1, postedAt: -1},
+  "new" :  { postedAt: -1},
   "magic": { score: -1 },
   "top" : { baseScore: -1},
   "old": {postedAt: 1},
@@ -314,7 +314,7 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
 function profileRecentComments(terms: CommentsViewTerms) {
   return {
     selector: {deletedPublic: false},
-    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 }
 
