@@ -5,7 +5,7 @@ import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
-import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
@@ -844,7 +844,7 @@ export async function validateDeleteOperations(data: UpdateCommentDataInput, pro
       if (
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
-        !userCanDo(properties.currentUser, 'comment.remove.all')
+        !userIsAdmin(properties.currentUser)
       ) {
         throw new Error("You cannot delete a comment that has children")
       }

@@ -194,6 +194,10 @@ export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|nu
   if (!user || !comment) {
     return false;
   }
+  // Deleting a parent without trace breaks the visible comment threading.
+  if (comment.directChildrenCount && !userIsAdmin(user)) {
+    return false;
+  }
   if (post) {
     if (userCanModeratePost(user, post)) return true 
     if (userOwns(user, comment) && !comment.directChildrenCount) return true 

@@ -16,6 +16,7 @@ import {
   userIsBannedFromPost,
   userIsBannedFromAllPosts,
   userIsAllowedToComment,
+  userCanModerateComment,
   userCanModeratePost,
   userCanEditUsersBannedUserIds,
 } from '../lib/collections/users/helpers';
@@ -464,6 +465,34 @@ describe('userCanModeratePost --', ()=> {
   })
 })
 
+describe('userCanModerateComment --', () => {
+  it("returns false for a post moderator deleting a comment with replies", async () => {
+    const postAuthor = await createDummyUser({groups: ["trustLevel1"], moderationStyle: "easy"})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(postAuthor, {
+      moderationGuidelines_latest: randomId(),
+    });
+    const comment = await createDummyComment(commentAuthor, {postId: post._id})
+
+    expect(userCanModerateComment(postAuthor, post, null, {
+      ...comment,
+      directChildrenCount: 1,
+    })).to.be.false;
+  })
+
+  it("returns true for an admin deleting a comment with replies", async () => {
+    const admin = await createDummyUser({isAdmin: true})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(commentAuthor)
+    const comment = await createDummyComment(commentAuthor, {postId: post._id})
+
+    expect(userCanModerateComment(admin, post, null, {
+      ...comment,
+      directChildrenCount: 1,
+    })).to.be.true;
+  })
+})
+
 describe('userCanEditUsersBannedUserIds --', ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
@@ -532,7 +561,27 @@ describe('Comments deleted permissions --', function() {
     `;
     const response = runQuery(query, {}, {currentUser:user})
     const expectedOutput = { data: { moderateComment: { deleted: true } } }
-    return (response as any).should.eventually.deep.equal(expectedOutput);
+    expect(await response).to.deep.equal(expectedOutput);
+  })
+  it("moderateComment set deleted should succeed for an admin when the comment has replies", async () => {
+    const user = await createDummyUser({isAdmin: true})
+    const commentAuthor = await createDummyUser()
+    const post = await createDummyPost(commentAuthor)
+    const comment = await createDummyComment(commentAuthor, {postId:post._id})
+    await createDummyComment(commentAuthor, {
+      postId: post._id,
+      parentCommentId: comment._id,
+    })
+    const query = `
+      mutation {
+        moderateComment(commentId:"${comment._id}",deleted:true) {
+          deleted
+        }
+      }
+    `;
+    const response = runQuery(query, {}, {currentUser:user})
+    const expectedOutput = { data: { moderateComment: { deleted: true } } }
+    expect(await response).to.deep.equal(expectedOutput);
   })
   it("set deleted should succeed if user in trustLevel1, has set moderationGuidelines and owns post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
