@@ -45,6 +45,7 @@ import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
 import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import classNames from 'classnames';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -81,19 +82,45 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
       verticalAlign: '-0.25em',
     },
   },
-  linkInput: {
-    display: 'block',
-    width: 'calc(100% - 24px)',
+  // A labelled input row: the pill that used to be the <input> itself is now a
+  // <label> wrapping a persistent field name and a borderless input, so the
+  // name stays visible once the field has content. Clicking anywhere in the
+  // pill focuses the input.
+  fieldRow: {
+    display: 'flex',
+    alignItems: 'center',
     boxSizing: 'border-box',
     margin: '8px 12px',
     padding: '8px 12px',
     borderRadius: 15,
     backgroundColor: theme.palette.grey[200],
-    fontSize: 15,
-    color: theme.palette.grey[700],
+    cursor: 'text',
+  },
+  urlFieldRow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  fieldLabel: {
+    flexShrink: 0,
+    minWidth: 34,
+    marginRight: 8,
+    paddingRight: 8,
+    borderRight: `1px solid ${theme.palette.greyAlpha(0.15)}`,
+    fontSize: 13,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    userSelect: 'none',
+  },
+  linkInput: {
+    flex: 1,
+    minWidth: 0,
+    margin: 0,
+    padding: 0,
     border: 0,
     outline: 0,
-    position: 'relative',
+    backgroundColor: 'transparent',
+    fontSize: 15,
+    color: theme.palette.grey[700],
     fontFamily: 'inherit',
   },
   linkView: {
@@ -140,20 +167,6 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
   editUrlRow: {
     display: 'flex',
     alignItems: 'center',
-  },
-  linkUrlInput: {
-    flex: 1,
-    minWidth: 0,
-    boxSizing: 'border-box',
-    margin: '8px 12px',
-    padding: '8px 12px',
-    borderRadius: 15,
-    backgroundColor: theme.palette.grey[200],
-    fontSize: 15,
-    color: theme.palette.grey[700],
-    border: 0,
-    outline: 0,
-    fontFamily: 'inherit',
   },
 }));
 
@@ -495,28 +508,35 @@ function FloatingLinkEditor({
     <div ref={editorRef} className={classes.linkEditor}>
       {!isLink && !isLinkEditMode ? null : isLinkEditMode ? (
         <div className={classes.editContainer}>
-          <input
-            className={classes.linkInput}
-            placeholder="Link text"
-            value={editedLinkText}
-            onChange={(event) => {
-              setEditedLinkText(event.target.value);
-            }}
-            onKeyDown={handleTextInputKeyDown}
-          />
-          <div className={classes.editUrlRow}>
+          <label className={classes.fieldRow}>
+            <span className={classes.fieldLabel}>Text</span>
             <input
-              ref={inputRef}
-              className={classes.linkUrlInput}
-              placeholder="Link URL"
-              value={editedLinkUrl}
+              className={classes.linkInput}
+              aria-label="Link text"
+              value={editedLinkText}
               onChange={(event) => {
-                setEditedLinkUrl(event.target.value);
+                setEditedLinkText(event.target.value);
               }}
-              onKeyDown={(event) => {
-                monitorInputInteraction(event);
-              }}
+              onKeyDown={handleTextInputKeyDown}
             />
+          </label>
+          <div className={classes.editUrlRow}>
+            <label className={classNames(classes.fieldRow, classes.urlFieldRow)}>
+              <span className={classes.fieldLabel}>URL</span>
+              <input
+                ref={inputRef}
+                className={classes.linkInput}
+                aria-label="Link URL"
+                placeholder="https://example.com"
+                value={editedLinkUrl}
+                onChange={(event) => {
+                  setEditedLinkUrl(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  monitorInputInteraction(event);
+                }}
+              />
+            </label>
             <button
               className={classes.linkAction}
               type="button"
