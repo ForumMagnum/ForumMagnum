@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LIBRARY_CORE_TAG_NAMES } from '@/lib/collections/sequences/libraryTopics';
-import { LibraryFilterSettings, LibraryStatusFilter } from './LibraryFilterPopover';
+import { LIBRARY_STATUS_FILTERS, LibraryFilterSettings, LibraryStatusFilter } from './LibraryFilterPopover';
 import { useCurrentUser } from '../common/withUser';
 import AddTagButton from '../tagging/AddTagButton';
 import SequencesNewButton from './SequencesNewButton';
@@ -40,12 +40,6 @@ const LibrarySequencesTotalCountQuery = gql(`
     }
   }
 `);
-
-const STATUS_FILTERS: { value: LibraryStatusFilter, label: string }[] = [
-  { value: 'unread', label: 'Unread' },
-  { value: 'inProgress', label: 'In progress' },
-  { value: 'finished', label: 'Finished' },
-];
 
 const styles = defineStyles('LibraryFilterSidebar', (theme: ThemeType) => ({
   root: {
@@ -316,7 +310,7 @@ const LibraryFilterSidebar = ({settings, onSettingsChange, onClearAll}: {
     {currentUser && <div>
       <div className={classes.sectionLabel}>Your status</div>
       <div className={classes.chipRow}>
-        {STATUS_FILTERS.map(({value, label}) => {
+        {LIBRARY_STATUS_FILTERS.map(({value, label}) => {
           const count = statusCountByValue[value];
           return <span
             key={value}

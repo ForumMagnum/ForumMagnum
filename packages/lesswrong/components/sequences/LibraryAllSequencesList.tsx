@@ -16,6 +16,7 @@ import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
 import LibraryFilterPopover, { LibraryFilterSettings, LibraryStatusFilter, defaultLibraryFilterSettings } from './LibraryFilterPopover';
 import LibraryFilterSidebar from './LibraryFilterSidebar';
+import SequencesNewButton from './SequencesNewButton';
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
 import LWPopper from '../common/LWPopper';
 import LWClickAwayListener from '../common/LWClickAwayListener';
@@ -256,6 +257,13 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.primary.main,
     cursor: 'pointer',
+  },
+  // Fallback create-sequence affordance for widths where the gutter sidebar
+  // (which holds the primary one) is hidden.
+  newSequenceFallback: {
+    [`@media (min-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT + 1}px)`]: {
+      display: 'none',
+    },
   },
 }));
 
@@ -552,18 +560,23 @@ const LibraryAllSequencesList = () => {
         </div>}
       </div>
       <div className={classes.bottomRow}>
-        {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
-          className={classes.loadMore}
-          onClick={() => loadMoreProps.loadMore()}
-        >
-          Load More ({loadMoreProps.count}/{totalCount})
-        </a>}
-        {useSearchResolver && !searchLoadMoreProps.hidden && <a
-          className={classes.loadMore}
-          onClick={() => searchLoadMoreProps.loadMore()}
-        >
-          Load More
-        </a>}
+        <span>
+          {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
+            className={classes.loadMore}
+            onClick={() => loadMoreProps.loadMore()}
+          >
+            Load More ({loadMoreProps.count}/{totalCount})
+          </a>}
+          {useSearchResolver && !searchLoadMoreProps.hidden && <a
+            className={classes.loadMore}
+            onClick={() => searchLoadMoreProps.loadMore()}
+          >
+            Load More
+          </a>}
+        </span>
+        <span className={classes.newSequenceFallback}>
+          <SequencesNewButton />
+        </span>
       </div>
     </div>
   </div>;

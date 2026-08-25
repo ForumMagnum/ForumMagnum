@@ -54,8 +54,11 @@ const LIBRARY_STATUS_CONDITIONS = {
 
 export type LibraryReadStatus = keyof typeof LIBRARY_STATUS_CONDITIONS;
 
+// Own-keys check, NOT `value in ...`: statuses is a public GraphQL string
+// argument and the accepted values are interpolated into SQL, so inherited
+// keys like "toString" must not pass.
 export const isLibraryReadStatus = (value: string): value is LibraryReadStatus =>
-  value in LIBRARY_STATUS_CONDITIONS;
+  Object.keys(LIBRARY_STATUS_CONDITIONS).includes(value);
 
 interface SequencePostTagRow {
   postId: string;

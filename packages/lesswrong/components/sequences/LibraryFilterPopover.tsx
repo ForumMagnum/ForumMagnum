@@ -4,6 +4,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LIBRARY_CORE_TAG_NAMES } from '@/lib/collections/sequences/libraryTopics';
 import { LIBRARY_BASE_SORT_OPTIONS, LIBRARY_RANKING_SORT_OPTIONS } from '@/lib/collections/sequences/librarySortOptions';
+import { useCurrentUser } from '../common/withUser';
 import LWPopper from '../common/LWPopper';
 import LWClickAwayListener from '../common/LWClickAwayListener';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
@@ -26,8 +27,15 @@ export interface LibraryWikitagFilter {
 }
 
 // Per-user read-status buckets, filtered via the gutter sidebar's "Your
-// status" chips (LibraryFilterSidebar).
+// status" chips (LibraryFilterSidebar) or, at widths where the sidebar is
+// hidden, this popover's status checkboxes.
 export type LibraryStatusFilter = 'unread' | 'inProgress' | 'finished';
+
+export const LIBRARY_STATUS_FILTERS: { value: LibraryStatusFilter, label: string }[] = [
+  { value: 'unread', label: 'Unread' },
+  { value: 'inProgress', label: 'In progress' },
+  { value: 'finished', label: 'Finished' },
+];
 
 export interface LibraryFilterSettings {
   topics: string[];
@@ -187,6 +195,7 @@ const LibraryFilterPopover = ({anchorEl, settings, onApply, onClose}: {
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const [staged, setStaged] = useState(settings);
 
   // Static per-topic totals (not narrowed by the other active filters)
@@ -199,6 +208,15 @@ const LibraryFilterPopover = ({anchorEl, settings, onApply, onClose}: {
       topics: prev.topics.includes(topic)
         ? prev.topics.filter(t => t !== topic)
         : [...prev.topics, topic],
+    }));
+  };
+
+  const toggleStatus = (status: LibraryStatusFilter) => {
+    setStaged(prev => ({
+      ...prev,
+      statuses: prev.statuses.includes(status)
+        ? prev.statuses.filter(s => s !== status)
+        : [...prev.statuses, status],
     }));
   };
 
@@ -245,6 +263,23 @@ const LibraryFilterPopover = ({anchorEl, settings, onApply, onClose}: {
                 {count !== undefined && <span className={classes.tagCount}>{count}</span>}
               </div>;
             })}
+            {currentUser && <>
+              <div className={classes.columnHeader}>Your status</div>
+              {LIBRARY_STATUS_FILTERS.map(({value, label}) => {
+                const checked = staged.statuses.includes(value);
+                return <div key={value} className={classes.tagRow} onClick={() => toggleStatus(value)}>
+                  <span
+                    className={classNames(classes.checkbox, checked && classes.checkboxChecked)}
+                    role="checkbox"
+                    aria-checked={checked}
+                    aria-label={label}
+                  >
+                    {checked && <CheckIcon className={classes.checkIcon} />}
+                  </span>
+                  <span className={classes.tagName}>{label}</span>
+                </div>;
+              })}
+            </>}
           </div>
         </div>
         <div className={classes.footer}>
