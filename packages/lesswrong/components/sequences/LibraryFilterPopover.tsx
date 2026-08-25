@@ -25,10 +25,15 @@ export interface LibraryWikitagFilter {
   tagName: string;
 }
 
+// Per-user read-status buckets, filtered via the gutter sidebar's "Your
+// status" chips (LibraryFilterSidebar).
+export type LibraryStatusFilter = 'unread' | 'inProgress' | 'finished';
+
 export interface LibraryFilterSettings {
   topics: string[];
   wikitags: LibraryWikitagFilter[];
   curatedOnly: boolean;
+  statuses: LibraryStatusFilter[];
   sortBy: string;
 }
 
@@ -36,6 +41,7 @@ export const defaultLibraryFilterSettings: LibraryFilterSettings = {
   topics: [],
   wikitags: [],
   curatedOnly: false,
+  statuses: [],
   sortBy: 'recommended',
 };
 

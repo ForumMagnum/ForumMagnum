@@ -6,13 +6,21 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { LIBRARY_CORE_TAG_NAMES } from '@/lib/collections/sequences/libraryTopics';
-import { isLibraryRankingSort } from '@/lib/collections/sequences/librarySortOptions';
+import {
+  LIBRARY_BASE_SORT_OPTIONS,
+  LIBRARY_RANKING_SORT_OPTIONS,
+  getLibrarySortLabel,
+  librarySortRequiresSearchResolver,
+} from '@/lib/collections/sequences/librarySortOptions';
 import LibrarySequenceRow from './LibrarySequenceRow';
 import LibraryCollectionRow from './LibraryCollectionRow';
-import LibraryFilterPopover, { LibraryFilterSettings, defaultLibraryFilterSettings } from './LibraryFilterPopover';
+import LibraryFilterPopover, { LibraryFilterSettings, LibraryStatusFilter, defaultLibraryFilterSettings } from './LibraryFilterPopover';
+import LibraryFilterSidebar from './LibraryFilterSidebar';
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
+import LWPopper from '../common/LWPopper';
+import LWClickAwayListener from '../common/LWClickAwayListener';
 import AddTagButton from '../tagging/AddTagButton';
 import LWTooltip from '../common/LWTooltip';
-import SequencesNewButton from './SequencesNewButton';
 import SettingsButton from '../icons/SettingsButton';
 import Loading from '../vulcan-core/Loading';
 import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
@@ -34,8 +42,8 @@ const LibraryAllSequencesQuery = gql(`
 `);
 
 const LibrarySequencesSearchQuery = gql(`
-  query LibrarySequencesSearch($query: String!, $libraryTopics: [String!], $filterTagIds: [String!], $curatedOnly: Boolean, $sortBy: String, $limit: Int) {
-    librarySequencesSearch(query: $query, libraryTopics: $libraryTopics, filterTagIds: $filterTagIds, curatedOnly: $curatedOnly, sortBy: $sortBy, limit: $limit) {
+  query LibrarySequencesSearch($query: String!, $libraryTopics: [String!], $filterTagIds: [String!], $curatedOnly: Boolean, $statuses: [String!], $sortBy: String, $limit: Int) {
+    librarySequencesSearch(query: $query, libraryTopics: $libraryTopics, filterTagIds: $filterTagIds, curatedOnly: $curatedOnly, statuses: $statuses, sortBy: $sortBy, limit: $limit) {
       results {
         ...LibrarySequenceRowFragment
       }
@@ -54,6 +62,33 @@ const LibraryCollectionsQuery = gql(`
 `);
 
 const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
+  root: {
+    position: 'relative',
+  },
+  // Floats the filter sidebar in the site nav-menu column beside the list
+  // (design artboard 5a's sidebar, moved to the "overflow area": the static
+  // nav has scrolled away by the time this section is on screen). The offset
+  // lands the sidebar ~40px from the viewport's left edge: the content
+  // column sits at TAB_NAVIGATION_MENU_WIDTH (250px) plus 1/8 of the
+  // leftover viewport (LeftAndRightSidebarsWrapper's grid fr split), counted
+  // back from this section's left edge.
+  sidebarGutter: {
+    position: 'absolute',
+    top: 40,
+    bottom: 0,
+    width: 200,
+    left: 'calc(-210px - (100vw - 1055px) / 8)',
+    // Below the icon-only-navigation breakpoint the nav shrinks to a 64px
+    // rail and the gutter geometry no longer has room for the sidebar; the
+    // in-column search/chips/popover cover filtering there.
+    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: 'none',
+    },
+  },
+  sidebarSticky: {
+    position: 'sticky',
+    top: 90,
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -67,6 +102,52 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
     letterSpacing: '.6px',
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
+  },
+  headerControls: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  sortControl: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  },
+  sortValue: {
+    color: theme.palette.text.normal,
+  },
+  sortMenu: {
+    width: 200,
+    marginTop: 4,
+    padding: '8px 0',
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.faint,
+    borderRadius: 3,
+    boxShadow: `0 0 20px ${theme.palette.boxShadowColor(0.2)}`,
+    fontFamily: theme.typography.fontFamily,
+  },
+  sortMenuHeader: {
+    padding: '6px 14px',
+    fontSize: 11,
+    fontWeight: 500,
+    textTransform: 'uppercase',
+    letterSpacing: '.6px',
+    color: theme.palette.grey[600],
+  },
+  sortOption: {
+    padding: '6px 14px',
+    fontSize: 13.5,
+    color: theme.palette.text.normal,
+    cursor: 'pointer',
+    '&:hover': {
+      background: theme.palette.background.hover,
+    },
+  },
+  sortOptionSelected: {
+    background: theme.palette.background.hover,
+    fontWeight: 500,
   },
   // Flags filters that are only visible inside the popover (curated-only,
   // non-default sort), which otherwise silently filter/reorder the list.
@@ -178,13 +259,23 @@ const styles = defineStyles('LibraryAllSequencesList', (theme: ThemeType) => ({
   },
 }));
 
+// Collections carry their read progress on the row fragment, so the status
+// filter applies to them client-side, bucketed the same way as the server's
+// sequence buckets (SequencesRepo LIBRARY_STATUS_CONDITIONS).
+const collectionStatus = (collection: LibraryCollectionRowFragment): LibraryStatusFilter =>
+  collection.readPostsCount > 0
+    ? (collection.readPostsCount >= collection.postsCount ? 'finished' : 'inProgress')
+    : 'unread';
+
 const LibraryAllSequencesList = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
   const [filterSettings, setFilterSettings] = useState<LibraryFilterSettings>(defaultLibraryFilterSettings);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const settingsAnchorRef = useRef<HTMLSpanElement | null>(null);
+  const sortAnchorRef = useRef<HTMLSpanElement | null>(null);
 
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
@@ -202,12 +293,13 @@ const LibraryAllSequencesList = () => {
 
   const searchQueryText = debouncedSearchText.trim();
   const searchActive = searchQueryText.length > 0;
-  const { topics, wikitags, curatedOnly, sortBy } = filterSettings;
-  // Sequence topics and wikitag filters are derived from post tags via SQL
+  const { topics, wikitags, curatedOnly, statuses, sortBy } = filterSettings;
+  // Sequence topics, wikitag filters and read statuses are derived via SQL
   // joins the view selector can't express, so they route through the search
   // resolver too (with an empty query when the user isn't searching), as do
-  // the bake-off ranking sorts (computed scores, not sortable view columns).
-  const useSearchResolver = searchActive || topics.length > 0 || wikitags.length > 0 || isLibraryRankingSort(sortBy);
+  // the computed-score sorts (karma and the bake-off rankings).
+  const useSearchResolver = searchActive || topics.length > 0 || wikitags.length > 0
+    || statuses.length > 0 || librarySortRequiresSearchResolver(sortBy);
   const popoverFiltersActive = curatedOnly || sortBy !== 'recommended';
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(LibraryAllSequencesQuery, {
@@ -233,6 +325,7 @@ const LibraryAllSequencesList = () => {
       libraryTopics: topics.length > 0 ? topics : null,
       filterTagIds: wikitags.length > 0 ? wikitags.map(tag => tag.tagId) : null,
       curatedOnly,
+      statuses: statuses.length > 0 ? statuses : null,
       sortBy,
       limit: SEARCH_RESULTS_LIMIT,
     },
@@ -249,17 +342,18 @@ const LibraryAllSequencesList = () => {
   const totalCount = data?.sequences?.totalCount ?? undefined;
 
   // Collections are a handful of rows fetched unfiltered; apply the search
-  // text and topic filter to them client-side. "Curated only" intentionally
-  // keeps them visible: they're all editorially curated (the mock stars them).
-  // Collections' manual libraryTopic still uses the curated topic names, so
-  // "AI Alignment" maps onto the core-tag "AI" filter chip. Ad-hoc wikitag
-  // filters hide collections: they only carry the single curated topic, not
-  // post-derived tags, so they can't match a wikitag.
+  // text, topic and status filters to them client-side. "Curated only"
+  // intentionally keeps them visible: they're all editorially curated (the
+  // mock stars them). Collections' manual libraryTopic still uses the curated
+  // topic names, so "AI Alignment" maps onto the core-tag "AI" filter chip.
+  // Ad-hoc wikitag filters hide collections: they only carry the single
+  // curated topic, not post-derived tags, so they can't match a wikitag.
   const collectionMatchesTopics = (libraryTopic: string | null) =>
     !!libraryTopic && (topics.includes(libraryTopic) || (libraryTopic === 'AI Alignment' && topics.includes('AI')));
   const collectionResults = collectionsData?.collections?.results?.filter(collection =>
     (!searchActive || (collection.title ?? '').toLowerCase().includes(searchQueryText.toLowerCase())) &&
     (topics.length === 0 || collectionMatchesTopics(collection.libraryTopic)) &&
+    (statuses.length === 0 || statuses.includes(collectionStatus(collection))) &&
     wikitags.length === 0
   );
 
@@ -330,16 +424,69 @@ const LibraryAllSequencesList = () => {
   const orderedTopicChips = [...LIBRARY_CORE_TAG_NAMES].sort((a, b) =>
     Number(topics.includes(b)) - Number(topics.includes(a)));
 
-  return <div>
+  const selectSort = (value: string) => {
+    applyFilterSettings({ ...filterSettings, sortBy: value }, 'sortBar');
+    setSortMenuOpen(false);
+  };
+
+  // The sidebar's clear-all resets search/topic/curated/status but keeps the
+  // sort, per the Reading Room handoff.
+  const clearAllFilters = () => {
+    setSearchText('');
+    setDebouncedSearchText('');
+    updateDebouncedSearch('');
+    applyFilterSettings({ ...filterSettings, topics: [], wikitags: [], curatedOnly: false, statuses: [] }, 'clearAll');
+  };
+
+  return <div className={classes.root}>
+    <div className={classes.sidebarGutter}>
+      <div className={classes.sidebarSticky}>
+        <LibraryFilterSidebar
+          settings={filterSettings}
+          onSettingsChange={applyFilterSettings}
+          onClearAll={clearAllFilters}
+        />
+      </div>
+    </div>
     <div className={classes.header}>
       <span className={classes.headerLabel}>All Sequences</span>
-      <span ref={settingsAnchorRef}>
-        <SettingsButton
-          className={classNames(popoverFiltersActive && classes.settingsButtonActive)}
-          onClick={() => setPopoverOpen(!popoverOpen)}
-        />
+      <span className={classes.headerControls}>
+        <span
+          ref={sortAnchorRef}
+          className={classes.sortControl}
+          onClick={() => setSortMenuOpen(!sortMenuOpen)}
+        >
+          sort: <span className={classes.sortValue}>{getLibrarySortLabel(sortBy)}</span> ▾
+        </span>
+        <span ref={settingsAnchorRef}>
+          <SettingsButton
+            className={classNames(popoverFiltersActive && classes.settingsButtonActive)}
+            onClick={() => setPopoverOpen(!popoverOpen)}
+          />
+        </span>
       </span>
     </div>
+    {sortMenuOpen && <LWPopper open={true} anchorEl={sortAnchorRef.current} placement="bottom-end">
+      <LWClickAwayListener onClickAway={() => setSortMenuOpen(false)}>
+        <div className={classes.sortMenu}>
+          {LIBRARY_BASE_SORT_OPTIONS.map(({value, label}) => <div
+            key={value}
+            className={classNames(classes.sortOption, sortBy === value && classes.sortOptionSelected)}
+            onClick={() => selectSort(value)}
+          >
+            {label}
+          </div>)}
+          <div className={classes.sortMenuHeader}>Bake-off</div>
+          {LIBRARY_RANKING_SORT_OPTIONS.map(({value, label}) => <div
+            key={value}
+            className={classNames(classes.sortOption, sortBy === value && classes.sortOptionSelected)}
+            onClick={() => selectSort(value)}
+          >
+            {label}
+          </div>)}
+        </div>
+      </LWClickAwayListener>
+    </LWPopper>}
     {popoverOpen && <LibraryFilterPopover
       anchorEl={settingsAnchorRef.current}
       settings={filterSettings}
@@ -405,21 +552,18 @@ const LibraryAllSequencesList = () => {
         </div>}
       </div>
       <div className={classes.bottomRow}>
-        <span>
-          {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
-            className={classes.loadMore}
-            onClick={() => loadMoreProps.loadMore()}
-          >
-            Load More ({loadMoreProps.count}/{totalCount})
-          </a>}
-          {useSearchResolver && !searchLoadMoreProps.hidden && <a
-            className={classes.loadMore}
-            onClick={() => searchLoadMoreProps.loadMore()}
-          >
-            Load More
-          </a>}
-        </span>
-        <SequencesNewButton />
+        {!useSearchResolver && totalCount !== undefined && loadMoreProps.count < totalCount && <a
+          className={classes.loadMore}
+          onClick={() => loadMoreProps.loadMore()}
+        >
+          Load More ({loadMoreProps.count}/{totalCount})
+        </a>}
+        {useSearchResolver && !searchLoadMoreProps.hidden && <a
+          className={classes.loadMore}
+          onClick={() => searchLoadMoreProps.loadMore()}
+        >
+          Load More
+        </a>}
       </div>
     </div>
   </div>;

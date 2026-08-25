@@ -133,6 +133,8 @@ const LibraryCollectionRow = ({collection, expanded, onToggle}: {
           documentId={collection._id}
           collectionName="Collections"
           isBookmarked={collection.isBookmarked}
+          postsCount={collection.postsCount}
+          readPostsCount={collection.readPostsCount}
         />}
       </div>
       <span className={classes.rightMeta}>

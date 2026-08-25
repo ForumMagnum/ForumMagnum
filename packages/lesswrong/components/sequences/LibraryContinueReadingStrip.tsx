@@ -160,10 +160,11 @@ const LibraryContinueReadingStrip = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const labelRowRef = useRef<HTMLDivElement | null>(null);
 
-  // Guests never have a bookshelf: don't render getResumeSequences' hardcoded
-  // logged-out defaults (they carry no read progress and would show broken 0%
-  // bars), and myBookmarks errors when logged out.
-  const { continueReading, loading } = useContinueReading({skip: !currentUser});
+  // Logged-out users get getResumeSequences' hardcoded starter books (HPMOR,
+  // Codex, R:A-Z), rendered in the zero-progress "Start reading" state. The
+  // bookshelf stays logged-in only (myBookmarks errors when logged out), as
+  // do the dismiss affordances.
+  const { continueReading, loading } = useContinueReading();
   const { data: savedData, loading: savedLoading } = useQuery(LibraryBookshelfBookmarksQuery, {
     variables: {
       selector: { myBookmarks: { collectionNames: ["Sequences", "Collections"] } },
@@ -172,7 +173,7 @@ const LibraryContinueReadingStrip = () => {
     skip: !currentUser,
   });
 
-  if (!currentUser || loading || savedLoading) {
+  if (loading || (currentUser && savedLoading)) {
     return null;
   }
 
@@ -221,7 +222,7 @@ const LibraryContinueReadingStrip = () => {
     <div className={classes.root}>
       <div className={classes.labelRow} ref={labelRowRef}>
         <span className={classes.label}>Continue Reading</span>
-        <span
+        {currentUser && <span
           className={classes.trigger}
           onClick={toggleDropdown}
           onKeyDown={handleTriggerKeyDown}
@@ -230,7 +231,7 @@ const LibraryContinueReadingStrip = () => {
           aria-expanded={dropdownOpen}
         >
           {moreCount > 0 ? `${moreCount} more >` : 'Your bookshelf ›'}
-        </span>
+        </span>}
       </div>
       {shownEntries.length > 0 && <div className={classes.strip}>
         {shownEntries.map((entry) => {
@@ -254,14 +255,14 @@ const LibraryContinueReadingStrip = () => {
               height={COVER_HEIGHT}
               className={classes.cover}
             />
-            <span
+            {currentUser && <span
               className={classes.coverDismiss}
               onClick={(event) => handleCoverDismiss(event, entry.nextPost._id)}
             >
               <LWTooltip title={dismissRecommendationTooltip} placement="right">
                 <CloseIcon className={classes.coverDismissIcon} />
               </LWTooltip>
-            </span>
+            </span>}
             {(entry.numRead ?? 0) > 0
               ? <div className={classes.progressRow}>
                   <div className={classes.progressTrack}>

@@ -313,6 +313,22 @@ export const getLibraryRankingSql = (sortBy: string | null): LibraryRankingSql |
   sortBy ? LIBRARY_RANKING_SQL[sortBy] ?? null : null;
 
 /**
+ * Total post karma, for the Reading Room table's user-facing "Karma" column
+ * sort (not a bake-off candidate: it's the same number the rows display,
+ * postsKarma). Uses the same shared CTE/scores-join plumbing as the ranking
+ * mechanisms.
+ */
+export const LIBRARY_TOTAL_KARMA_SQL: LibraryRankingSql = {
+  ctes: `scores AS (
+  SELECT sp."sequenceId", sum(p."baseScore") AS score
+  FROM seq_posts sp
+  JOIN "Posts" p ON p._id = sp."postId"
+  GROUP BY sp."sequenceId"
+)`,
+  orderBy: `scores.score DESC NULLS LAST`,
+};
+
+/**
  * Query params a ranking mechanism's SQL needs beyond the shared ones.
  * karma5Adj gets the cached karmaInflationSeries (per-28-day-window
  * multipliers, reciprocal of the window's mean post karma).

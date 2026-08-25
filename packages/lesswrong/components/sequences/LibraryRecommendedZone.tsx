@@ -76,11 +76,9 @@ const RECOMMENDED_CARDS: LibraryRecommendedCard[] = [
 ];
 
 const RATIONALITY_COLLECTION_ID = "oneQyj4pw77ynzwAF";
-const HIGHLIGHTS_COLLECTION_ID = "62bf5f5dc581cd211cc67d49";
 
 const RECOMMENDED_COLLECTION_IDS = [
   RATIONALITY_COLLECTION_ID,
-  HIGHLIGHTS_COLLECTION_ID,
   ...RECOMMENDED_CARDS.flatMap(card => card.collectionId ? [card.collectionId] : []),
 ];
 const RECOMMENDED_SEQUENCE_IDS = RECOMMENDED_CARDS.flatMap(card => card.sequenceId ? [card.sequenceId] : []);
@@ -92,6 +90,8 @@ const LibraryRecommendedCollectionsQuery = gql(`
         _id
         title
         isBookmarked
+        postsCount
+        readPostsCount
         user {
           _id
           displayName
@@ -112,6 +112,8 @@ const LibraryRecommendedSequencesQuery = gql(`
         _id
         title
         isBookmarked
+        postsCount
+        readPostsCount
         user {
           _id
           displayName
@@ -130,6 +132,8 @@ interface RecommendedItemInfo {
   authorName: string | null,
   description: string | null,
   isBookmarked: boolean,
+  postsCount: number,
+  readPostsCount: number,
 }
 
 // Wraps a recommended-zone box with the shared library hover-preview card,
@@ -154,6 +158,8 @@ const RecommendedHoverOver = ({info, fallbackTitle, fallbackDescription, url, do
       documentId={documentId}
       collectionName={collectionName}
       isBookmarked={info?.isBookmarked ?? false}
+      postsCount={info?.postsCount ?? 0}
+      readPostsCount={info?.readPostsCount ?? 0}
     />}
     placement="bottom-start"
     tooltip={false}
@@ -169,8 +175,6 @@ const RecommendedHoverOver = ({info, fallbackTitle, fallbackDescription, url, do
 };
 
 const RATIONALITY_DESCRIPTION = "How can we think better on purpose? Why should we think better on purpose? For two years Eliezer Yudkowsky wrote a blogpost a day, braindumping thoughts on rationality, ambition and artificial intelligence. Those posts were edited into this introductory collection, recommended reading for all LessWrong users.";
-
-const HIGHLIGHTS_DESCRIPTION = "LessWrong can be kind of intimidating - there's a lot of concepts to learn. We recommend getting started with the Highlights, a collection of 50 top posts from Eliezer's Sequences.";
 
 const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
   label: {
@@ -191,26 +195,36 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
   },
   heroRow: {
     display: 'flex',
-    gap: '20px',
+    gap: '12px',
     alignItems: 'center',
     minHeight: 215,
     [theme.breakpoints.down('xs')]: {
       flexWrap: 'wrap',
     },
   },
-  // Stretch to the full row height so the art is always flush with the
-  // panel edges, even when the text column is the taller element.
+  // Stretches to the full row height, with the art's right side dissolving
+  // into the panel background via a long alpha-mask fade, so the image melts
+  // into the text bar instead of ending at a hard edge. The star stays small
+  // and centered within the mask's solid zone.
   coverWrapper: {
     display: 'flex',
     flex: 'none',
     alignSelf: 'stretch',
+    width: 230,
+    maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 98%)',
+    '-webkit-mask-image': 'linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 98%)',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
   },
   coverImage: {
     height: '100%',
+    width: '100%',
   },
   heroText: {
     flex: 1,
     padding: '16px 0',
+    position: 'relative',
   },
   heroTitle: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -250,43 +264,17 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
       background: 'light-dark(#e7e7e7, #3d3d3d)',
     },
   },
-  // Inset box nested within the Rationality: A–Z panel, to show that the
-  // Highlights are a subset of the Sequences rather than a separate work.
-  highlightsBox: {
-    margin: '12px 20px 20px',
-    border: theme.palette.border.faint,
-    background: theme.palette.panelBackground.darken03,
-  },
-  highlightsRow: {
-    display: 'flex',
-    gap: '16px',
-    alignItems: 'center',
-    minHeight: 96,
-    '&:hover': {
-      background: theme.palette.background.hover,
-    },
-    [theme.breakpoints.down('xs')]: {
-      flexWrap: 'wrap',
-    },
-  },
-  highlightsText: {
-    flex: 1,
-    padding: '12px 0',
-  },
-  highlightsTitle: {
-    fontFamily: theme.typography.postStyle.fontFamily,
-    ...theme.typography.smallCaps,
-    fontSize: 18,
-    fontWeight: 500,
-    margin: '2px 0',
-    color: theme.palette.text.normal,
-  },
-  highlightsBody: {
+  // Single-line pointer to the Highlights under the Rationality: A–Z
+  // description, presenting them as a lighter entry into the same work.
+  highlightsLine: {
+    display: 'inline-block',
+    marginTop: 10,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 13.5,
-    lineHeight: '19px',
-    color: theme.palette.text.secondary,
-    maxWidth: 460,
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    },
   },
   cardGrid: {
     display: 'grid',
@@ -360,6 +348,8 @@ const LibraryRecommendedZone = () => {
       authorName: result.user?.displayName ?? null,
       description: result.contents?.plaintextDescription ?? null,
       isBookmarked: result.isBookmarked ?? false,
+      postsCount: result.postsCount ?? 0,
+      readPostsCount: result.readPostsCount ?? 0,
     };
   }
 
@@ -378,8 +368,10 @@ const LibraryRecommendedZone = () => {
           <div className={classes.heroRow}>
             <CloudinaryImage2
               publicId="mississippi-compass_gwqjvs"
-              width={170}
-              imgProps={{w: "340", h: "430"}}
+              width={230}
+              // c_fill (rather than the default scale) keeps the compass star
+              // centered instead of squashing the art to the requested aspect.
+              imgProps={{c: "fill", g: "center", w: "460", h: "490"}}
               objectFit="cover"
               className={classes.coverImage}
               wrapperClassName={classes.coverWrapper}
@@ -388,34 +380,12 @@ const LibraryRecommendedZone = () => {
               <div className={classes.heroTitle}>Rationality: A–Z</div>
               <div className={classes.heroSubtitle}>Also known as “The Sequences”</div>
               <div className={classes.heroBody}>{RATIONALITY_DESCRIPTION}</div>
+              <Link to="/highlights" className={classes.highlightsLine}>
+                or read the highlights of the sequences here
+              </Link>
             </div>
             <Link to="/rationality" className={classes.startButton}>Start</Link>
           </div>
-        </RecommendedHoverOver>
-        <RecommendedHoverOver
-          info={infoById[HIGHLIGHTS_COLLECTION_ID]}
-          fallbackTitle="Highlights of The Sequences"
-          fallbackDescription={HIGHLIGHTS_DESCRIPTION}
-          url="/highlights"
-          documentId={HIGHLIGHTS_COLLECTION_ID}
-          collectionName="Collections"
-          className={classes.highlightsBox}
-        >
-          <Link to="/highlights" className={classes.highlightsRow}>
-            <CloudinaryImage2
-              publicId="sequences/rdl8pwokejuqyxipg6vx"
-              width={72}
-              imgProps={{w: "144", h: "192"}}
-              objectFit="cover"
-              className={classes.coverImage}
-              wrapperClassName={classes.coverWrapper}
-            />
-            <div className={classes.highlightsText}>
-              <div className={classes.highlightsTitle}>Highlights of The Sequences</div>
-              <div className={classes.highlightsBody}>{HIGHLIGHTS_DESCRIPTION}</div>
-            </div>
-            <span className={classes.startButton}>Start</span>
-          </Link>
         </RecommendedHoverOver>
       </div>
       <div className={classes.cardGrid}>

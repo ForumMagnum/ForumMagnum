@@ -1515,10 +1515,17 @@ type LibrarySequencesSearchResult {
   results: [Sequence!]!
 }
 
+type LibraryStatusCounts {
+  unread: Int!
+  inProgress: Int!
+  finished: Int!
+}
+
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
-  librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
+  librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, statuses: [String!], sortBy: String, limit: Int): LibrarySequencesSearchResult!
   libraryTopicCounts: [LibraryTopicCount!]!
+  libraryStatusCounts: LibraryStatusCounts
 }
 
 extend type Query {

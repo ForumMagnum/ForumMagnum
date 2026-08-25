@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 import { SwrCache } from "@/lib/utils/swrCache";
+import { isLibraryReadStatus } from "@/server/repos/SequencesRepo";
 
 export const sequencesResolversTypeDefs = gql`
   type SequenceStats {
@@ -17,10 +18,17 @@ export const sequencesResolversTypeDefs = gql`
     results: [Sequence!]!
   }
 
+  type LibraryStatusCounts {
+    unread: Int!
+    inProgress: Int!
+    finished: Int!
+  }
+
   extend type Query {
     getSequenceStats(sequenceId: String!): SequenceStats
-    librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, sortBy: String, limit: Int): LibrarySequencesSearchResult!
+    librarySequencesSearch(query: String!, libraryTopics: [String!], filterTagIds: [String!], curatedOnly: Boolean, statuses: [String!], sortBy: String, limit: Int): LibrarySequencesSearchResult!
     libraryTopicCounts: [LibraryTopicCount!]!
+    libraryStatusCounts: LibraryStatusCounts
   }
 `;
 
@@ -42,6 +50,7 @@ interface LibrarySequencesSearchArgs {
   libraryTopics?: string[] | null;
   filterTagIds?: string[] | null;
   curatedOnly?: boolean | null;
+  statuses?: string[] | null;
   sortBy?: string | null;
   limit?: number | null;
 }
@@ -53,6 +62,13 @@ export const sequencesResolversQueries = {
   librarySequencesSearch: async (root: void, args: LibrarySequencesSearchArgs, context: ResolverContext) => {
     const limit = Math.min(args.limit ?? 50, MAX_LIBRARY_SEARCH_RESULTS);
     const topics = args.libraryTopics?.length ? args.libraryTopics : null;
+    const statuses = args.statuses?.filter(isLibraryReadStatus) ?? [];
+    // Read-status filtering is per-user; for logged-out users everything is
+    // unread, so an unread filter is a no-op and any other selection matches
+    // nothing.
+    if (statuses.length > 0 && !context.currentUser && !statuses.includes('unread')) {
+      return { results: [] };
+    }
     // Topic filtering matches against the derived tags shown as row chips
     // (SequencesRepo.getDerivedTags), so the filter can never disagree with
     // the chips. Fetch all candidates first, then filter and trim.
@@ -60,6 +76,8 @@ export const sequencesResolversQueries = {
       query: args.query,
       filterTagIds: args.filterTagIds?.length ? args.filterTagIds : null,
       curatedOnly: !!args.curatedOnly,
+      statuses: statuses.length > 0 ? statuses : null,
+      statusUserId: context.currentUser?._id ?? null,
       sortBy: args.sortBy ?? null,
       limit: topics ? MAX_LIBRARY_SEARCH_RESULTS : limit,
     });
@@ -74,5 +92,11 @@ export const sequencesResolversQueries = {
   },
   libraryTopicCounts: async (root: void, args: {}, context: ResolverContext) => {
     return await libraryTopicCountsCache.get(context);
+  },
+  libraryStatusCounts: async (root: void, args: {}, context: ResolverContext) => {
+    if (!context.currentUser) {
+      return null;
+    }
+    return await context.repos.sequences.libraryStatusCounts(context.currentUser._id);
   },
 };

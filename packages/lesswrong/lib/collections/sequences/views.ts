@@ -147,7 +147,9 @@ function librarySequences(terms: SequencesViewTerms) {
     options: {
       sort: terms.sortBy === 'newest'
         ? {createdAt: -1}
-        : {curatedOrder: -1, createdAt: -1},
+        : terms.sortBy === 'alphabetical'
+          ? {title: 1, createdAt: -1}
+          : {curatedOrder: -1, createdAt: -1},
     },
   };
 }

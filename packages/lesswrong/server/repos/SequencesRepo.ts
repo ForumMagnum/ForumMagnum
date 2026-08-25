@@ -7,7 +7,7 @@ import { getViewablePostsSelector, getViewableSequencesSelector } from "./helper
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { READ_WORDS_PER_MINUTE, postStatuses } from "@/lib/collections/posts/constants";
 import { LIBRARY_CORE_TAG_NAMES, FICTION_TAG_SLUG } from "@/lib/collections/sequences/libraryTopics";
-import { LIBRARY_RANKING_SHARED_CTES, getLibraryRankingSql, getLibraryRankingParams } from "./librarySequenceRankingSql";
+import { LIBRARY_RANKING_SHARED_CTES, LIBRARY_TOTAL_KARMA_SQL, getLibraryRankingSql, getLibraryRankingParams } from "./librarySequenceRankingSql";
 
 // Derived sequence tags (getDerivedTags), per the "Sequence tags resolved
 // from post tags" handoff, amended so Fiction is simply an eighth core tag
@@ -27,6 +27,35 @@ const CORE_FALLBACK_MIN_SUPPORT_SMALL_SEQUENCE = 4;
 const MAX_CORE_TAGS = 3;
 const LABEL_COVERAGE_THRESHOLD = 0.6;
 const MAX_LABEL_TAGS = 2;
+
+// Per-sequence viewable-post totals and how many of them $(statusUserId) has
+// read, for the /library "Your status" filter and its chip counts. "A
+// sequence's posts" matches postsCount/readPostsCount: distinct viewable
+// posts across its chapters.
+const libraryReadCountsCte = () => `library_read_counts AS (
+  SELECT c."sequenceId",
+    count(DISTINCT pid.post_id) AS total_posts,
+    count(DISTINCT pid.post_id) FILTER (WHERE rs."isRead" IS TRUE) AS read_posts
+  FROM "Chapters" c
+  JOIN LATERAL UNNEST(c."postIds") AS pid(post_id) ON TRUE
+  JOIN "Posts" p ON p._id = pid.post_id AND (${getViewablePostsSelector("p")})
+  LEFT JOIN "ReadStatuses" rs ON rs."postId" = p._id AND rs."userId" = $(statusUserId) AND rs."isRead" IS TRUE
+  GROUP BY c."sequenceId"
+)`;
+
+// The WHERE-clause bucketing for the "Your status" filter, over the joined
+// library_read_counts row (src). Statuses are disjoint and cover everything:
+// unread (nothing read), inProgress (some but not all), finished (all read).
+const LIBRARY_STATUS_CONDITIONS = {
+  unread: `COALESCE(src.read_posts, 0) = 0`,
+  inProgress: `src.read_posts > 0 AND src.read_posts < src.total_posts`,
+  finished: `src.total_posts > 0 AND src.read_posts >= src.total_posts`,
+} as const;
+
+export type LibraryReadStatus = keyof typeof LIBRARY_STATUS_CONDITIONS;
+
+export const isLibraryReadStatus = (value: string): value is LibraryReadStatus =>
+  value in LIBRARY_STATUS_CONDITIONS;
 
 interface SequencePostTagRow {
   postId: string;
@@ -233,30 +262,42 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
    * union of the posts' tags, not the thresholded/capped derived-chip set,
    * so niche wikitags picked from the chip row's "+" picker can match.
    */
-  async searchLibrarySequences({query, filterTagIds, curatedOnly, sortBy, limit}: {
+  async searchLibrarySequences({query, filterTagIds, curatedOnly, statuses, statusUserId, sortBy, limit}: {
     query: string,
     filterTagIds: string[] | null,
     curatedOnly: boolean,
+    statuses: LibraryReadStatus[] | null,
+    statusUserId: string | null,
     sortBy: string | null,
     limit: number,
   }): Promise<DbSequence[]> {
     const pattern = `%${query.replace(/[\\%_]/g, "\\$&")}%`;
-    // Bake-off ranking sorts (librarySortOptions.ts) join a computed
-    // scores CTE; the two base sorts order on Sequences columns directly.
-    const ranking = getLibraryRankingSql(sortBy);
+    // Computed sorts (total karma, the bake-off ranking mechanisms in
+    // librarySortOptions.ts) join a computed scores CTE; the other base
+    // sorts order on Sequences columns directly.
+    const ranking = sortBy === "karma" ? LIBRARY_TOTAL_KARMA_SQL : getLibraryRankingSql(sortBy);
     const rankingParams = ranking ? await getLibraryRankingParams(sortBy) : {};
+    const statusFilter = !!statuses?.length && !!statusUserId;
     const orderBy = ranking
       ? `${ranking.orderBy}, s."createdAt" DESC`
       : sortBy === "newest"
         ? `s."createdAt" DESC`
-        : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
+        : sortBy === "alphabetical"
+          ? `s."title" ASC, s."createdAt" DESC`
+          : `s."curatedOrder" DESC NULLS LAST, s."createdAt" DESC`;
+    const withClauses = [
+      ...(ranking ? [LIBRARY_RANKING_SHARED_CTES, ranking.ctes] : []),
+      ...(statusFilter ? [libraryReadCountsCte()] : []),
+    ];
     return this.any(`
       -- SequencesRepo.searchLibrarySequences
-      ${ranking ? `WITH ${LIBRARY_RANKING_SHARED_CTES}, ${ranking.ctes}` : ""}
+      ${withClauses.length ? `WITH ${withClauses.join(", ")}` : ""}
       SELECT s.*
       FROM "Sequences" s
       ${ranking ? `LEFT JOIN scores ON scores."sequenceId" = s."_id"` : ""}
+      ${statusFilter ? `LEFT JOIN library_read_counts src ON src."sequenceId" = s."_id"` : ""}
       WHERE s."title" ILIKE $(pattern)
+        ${statusFilter ? `AND (${statuses.map(status => `(${LIBRARY_STATUS_CONDITIONS[status]})`).join(" OR ")})` : ""}
         AND s."isDeleted" IS NOT TRUE
         AND s."draft" IS NOT TRUE
         AND s."hidden" IS NOT TRUE
@@ -276,7 +317,34 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         ))
       ORDER BY ${orderBy}
       LIMIT $(limit)
-    `, {...rankingParams, pattern, filterTagIds, curatedOnly, limit, statusApproved: postStatuses.STATUS_APPROVED});
+    `, {...rankingParams, pattern, filterTagIds, curatedOnly, statusUserId, limit, statusApproved: postStatuses.STATUS_APPROVED});
+  }
+
+  /**
+   * Per-user counts for the /library "Your status" filter chips, bucketing
+   * the same sequence universe as the librarySequences view. Scans every
+   * sequence's chapter posts against the user's ReadStatuses; prototype-grade
+   * like the bake-off ranking sorts, called once per page load.
+   */
+  async libraryStatusCounts(userId: string): Promise<{unread: number, inProgress: number, finished: number}> {
+    const result = await this.getRawDb().one<{unread: string, in_progress: string, finished: string}>(`
+      -- SequencesRepo.libraryStatusCounts
+      WITH ${libraryReadCountsCte()}
+      SELECT
+        count(*) FILTER (WHERE ${LIBRARY_STATUS_CONDITIONS.unread}) AS unread,
+        count(*) FILTER (WHERE ${LIBRARY_STATUS_CONDITIONS.inProgress}) AS in_progress,
+        count(*) FILTER (WHERE ${LIBRARY_STATUS_CONDITIONS.finished}) AS finished
+      FROM "Sequences" s
+      LEFT JOIN library_read_counts src ON src."sequenceId" = s."_id"
+      WHERE s."isDeleted" IS NOT TRUE
+        AND s."draft" IS NOT TRUE
+        AND s."hidden" IS NOT TRUE
+    `, { statusUserId: userId });
+    return {
+      unread: parseInt(result.unread, 10),
+      inProgress: parseInt(result.in_progress, 10),
+      finished: parseInt(result.finished, 10),
+    };
   }
 
   /**

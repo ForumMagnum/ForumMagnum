@@ -17,6 +17,8 @@ export interface LibrarySortOption {
 export const LIBRARY_BASE_SORT_OPTIONS: LibrarySortOption[] = [
   {value: "recommended", label: "Recommended"},
   {value: "newest", label: "Newest"},
+  {value: "karma", label: "Karma"},
+  {value: "alphabetical", label: "Title A–Z"},
 ];
 
 export const LIBRARY_RANKING_SORT_OPTIONS: LibrarySortOption[] = [
@@ -33,3 +35,13 @@ export const LIBRARY_RANKING_SORT_OPTIONS: LibrarySortOption[] = [
 
 export const isLibraryRankingSort = (sortBy: string): boolean =>
   LIBRARY_RANKING_SORT_OPTIONS.some(option => option.value === sortBy);
+
+// Sorts on computed scores (total post karma, the bake-off mechanisms) can't
+// be expressed as librarySequences view sort columns, so the client must
+// route them through the librarySequencesSearch resolver.
+export const librarySortRequiresSearchResolver = (sortBy: string): boolean =>
+  sortBy === "karma" || isLibraryRankingSort(sortBy);
+
+export const getLibrarySortLabel = (sortBy: string): string =>
+  [...LIBRARY_BASE_SORT_OPTIONS, ...LIBRARY_RANKING_SORT_OPTIONS]
+    .find(option => option.value === sortBy)?.label ?? sortBy;

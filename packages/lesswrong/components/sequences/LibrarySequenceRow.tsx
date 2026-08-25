@@ -290,6 +290,14 @@ export const libraryRowStyles = defineStyles('LibrarySequenceRow', (theme: Theme
     color: theme.palette.grey[600],
     marginTop: 2,
   },
+  // Same "N% read" + track line as the expanded row header's metaLine.
+  hoverCardProgress: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    lineHeight: '17px',
+    color: theme.palette.text.dim,
+    marginTop: 8,
+  },
   hoverCardDescription: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 15,
@@ -417,13 +425,16 @@ interface LibraryRowHoverCardProps {
   documentId: string,
   collectionName: 'Sequences' | 'Collections',
   isBookmarked: boolean,
+  postsCount: number,
+  readPostsCount: number,
 }
 
-// Post-preview-style hover card (title, author, save button, description,
-// read-more). Shown for collapsed row descriptions and the recommended-zone
-// boxes on the library page.
-export const LibraryRowHoverCard = ({title, authorName, description, url, documentId, collectionName, isBookmarked}: LibraryRowHoverCardProps) => {
+// Post-preview-style hover card (title, author, save button, reading
+// progress, description, read-more). Shown for collapsed row descriptions
+// and the recommended-zone boxes on the library page.
+export const LibraryRowHoverCard = ({title, authorName, description, url, documentId, collectionName, isBookmarked, postsCount, readPostsCount}: LibraryRowHoverCardProps) => {
   const classes = useStyles(libraryRowStyles);
+  const progressPercent = postsCount > 0 ? Math.round((readPostsCount / postsCount) * 100) : 0;
 
   // The popper is portaled, but clicks inside it still bubble up the React
   // tree to the anchor's click handler (eg a collapsed row's expand toggle,
@@ -441,6 +452,18 @@ export const LibraryRowHoverCard = ({title, authorName, description, url, docume
       </div>
       <BookmarkButton documentId={documentId} collectionName={collectionName} initial={isBookmarked} />
     </div>
+    {postsCount > 0 && <div className={classes.hoverCardProgress}>
+      <LWTooltip
+        title={`${readPostsCount} / ${postsCount} read`}
+        placement="bottom-start"
+        distance={6}
+      >
+        <span className={classes.progressCaption}>{progressPercent}% read</span>
+      </LWTooltip>
+      {progressPercent > 0 && <span className={classes.progressTrack}>
+        <span className={classes.progressFill} style={{width: `${progressPercent}%`}} />
+      </span>}
+    </div>}
     <div className={classes.hoverCardDescription}>
       {description}
     </div>
@@ -729,6 +752,8 @@ const LibrarySequenceRow = ({sequence, expanded, onToggle}: {
           documentId={sequence._id}
           collectionName="Sequences"
           isBookmarked={sequence.isBookmarked}
+          postsCount={sequence.postsCount ?? 0}
+          readPostsCount={sequence.readPostsCount ?? 0}
         />}
       </div>
       <span className={classes.rightMeta}>

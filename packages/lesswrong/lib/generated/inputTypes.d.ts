@@ -86,6 +86,7 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   librarySequencesSearch: LibrarySequencesSearchResult;
   libraryTopicCounts: Array<LibraryTopicCount>;
+  libraryStatusCounts: LibraryStatusCounts | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -1349,6 +1350,12 @@ interface LibraryTopicCount {
 
 interface LibrarySequencesSearchResult {
   results: Array<Sequence>;
+}
+
+interface LibraryStatusCounts {
+  unread: number;
+  inProgress: number;
+  finished: number;
 }
 
 interface AdminEmailAudienceFilterInput {
@@ -9434,6 +9441,7 @@ interface GraphQLTypeMap {
   SequenceStats: SequenceStats;
   LibraryTopicCount: LibraryTopicCount;
   LibrarySequencesSearchResult: LibrarySequencesSearchResult;
+  LibraryStatusCounts: LibraryStatusCounts;
   AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
   AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
   AdminSendTestEmailInput: AdminSendTestEmailInput;

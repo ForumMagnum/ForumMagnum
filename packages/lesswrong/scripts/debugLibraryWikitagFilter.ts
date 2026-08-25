@@ -15,10 +15,10 @@ export async function debugLibraryWikitagFilter(tagSlug: string) {
   }
   const repo = new SequencesRepo();
   const unfiltered = await repo.searchLibrarySequences({
-    query: '', filterTagIds: null, curatedOnly: false, sortBy: null, limit: 1000,
+    query: '', filterTagIds: null, curatedOnly: false, statuses: null, statusUserId: null, sortBy: null, limit: 1000,
   });
   const filtered = await repo.searchLibrarySequences({
-    query: '', filterTagIds: [tag._id], curatedOnly: false, sortBy: null, limit: 1000,
+    query: '', filterTagIds: [tag._id], curatedOnly: false, statuses: null, statusUserId: null, sortBy: null, limit: 1000,
   });
   console.log(`Tag ${tag.name} [${tag._id}]: ${filtered.length}/${unfiltered.length} sequences match`);
   for (const sequence of filtered.slice(0, 15)) {
