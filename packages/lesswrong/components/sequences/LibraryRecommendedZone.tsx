@@ -32,9 +32,7 @@ const RECOMMENDED_CARDS: LibraryRecommendedCard[] = [
     title: "The Codex",
     description: "Scott Alexander on science, medicine, philosophy, futurism and politics.",
     collectionId: "2izXHCrmJ684AnZ5X",
-    // codex_u7ptgt (also used by LWCoreReading) rather than the collection's
-    // grid image, which is a huge gradient with a tiny icon in the middle.
-    imageId: "codex_u7ptgt",
+    imageId: "sequences/okpfwqjpdam8czvradbx",
     url: "/codex",
   },
   {
@@ -55,7 +53,7 @@ const RECOMMENDED_CARDS: LibraryRecommendedCard[] = [
     title: "Replacing Guilt",
     description: "Guilt-based motivation, replaced with something that lasts.",
     sequenceId: "pFatcKW3JJhTSxqAF",
-    imageId: "sequences/bj5eolzptpnu9fi9gi1a",
+    imageId: "sequences/ojux53txivllnxot2xok",
     url: "/s/pFatcKW3JJhTSxqAF",
   },
   {
@@ -252,21 +250,28 @@ const styles = defineStyles('LibraryRecommendedZone', (theme: ThemeType) => ({
       background: 'light-dark(#e7e7e7, #3d3d3d)',
     },
   },
-  heroDivider: {
-    borderTop: theme.palette.border.faint,
-    margin: '0 20px',
+  // Inset box nested within the Rationality: A–Z panel, to show that the
+  // Highlights are a subset of the Sequences rather than a separate work.
+  highlightsBox: {
+    margin: '12px 20px 20px',
+    border: theme.palette.border.faint,
+    background: theme.palette.panelBackground.darken03,
   },
   highlightsRow: {
     display: 'flex',
-    gap: '20px',
+    gap: '16px',
     alignItems: 'center',
-    minHeight: 150,
+    minHeight: 96,
     '&:hover': {
       background: theme.palette.background.hover,
     },
     [theme.breakpoints.down('xs')]: {
       flexWrap: 'wrap',
     },
+  },
+  highlightsText: {
+    flex: 1,
+    padding: '12px 0',
   },
   highlightsTitle: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -387,7 +392,6 @@ const LibraryRecommendedZone = () => {
             <Link to="/rationality" className={classes.startButton}>Start</Link>
           </div>
         </RecommendedHoverOver>
-        <div className={classes.heroDivider} />
         <RecommendedHoverOver
           info={infoById[HIGHLIGHTS_COLLECTION_ID]}
           fallbackTitle="Highlights of The Sequences"
@@ -395,17 +399,18 @@ const LibraryRecommendedZone = () => {
           url="/highlights"
           documentId={HIGHLIGHTS_COLLECTION_ID}
           collectionName="Collections"
+          className={classes.highlightsBox}
         >
           <Link to="/highlights" className={classes.highlightsRow}>
             <CloudinaryImage2
               publicId="sequences/rdl8pwokejuqyxipg6vx"
-              width={120}
-              imgProps={{w: "240", h: "300"}}
+              width={72}
+              imgProps={{w: "144", h: "192"}}
               objectFit="cover"
               className={classes.coverImage}
               wrapperClassName={classes.coverWrapper}
             />
-            <div className={classes.heroText}>
+            <div className={classes.highlightsText}>
               <div className={classes.highlightsTitle}>Highlights of The Sequences</div>
               <div className={classes.highlightsBody}>{HIGHLIGHTS_DESCRIPTION}</div>
             </div>
