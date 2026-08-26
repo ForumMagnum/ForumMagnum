@@ -306,6 +306,48 @@ describe("$locateBlockByPrefix", () => {
     expect(matched?.type).toBe("table");
   });
 
+  it("matches a standalone image block by markdown", async () => {
+    const editor = await setupEditorWithContent(
+      "Before.\n\n![Example](https://example.com/image.png)\n\nAfter."
+    );
+
+    const matched = findFor(editor, "![Example](https://example.com/image.png)");
+    expect(matched).not.toBeNull();
+    expect(matched?.text).toBe("");
+  });
+
+  it("matches a standalone image block by its source URL", async () => {
+    const editor = await setupEditorWithContent(
+      "Before.\n\n![Example](https://example.com/image.png)\n\nAfter."
+    );
+
+    const matched = findFor(editor, "https://example.com/image.png");
+    expect(matched).not.toBeNull();
+    expect(matched?.text).toBe("");
+  });
+
+  it("does not delete surrounding text when an image is inline", async () => {
+    const editor = await setupEditorWithContent(
+      "Before.\n\nKeep this text beside ![Example](https://example.com/image.png)\n\nAfter."
+    );
+
+    expect(findFor(editor, "https://example.com/image.png")).toBeNull();
+  });
+
+  it("reports ambiguity when standalone images share a source URL", async () => {
+    const editor = await setupEditorWithContent(
+      "![First](https://example.com/image.png)\n\n![Second](https://example.com/image.png)"
+    );
+    let reason: string | undefined;
+    editor.getEditorState().read(() => {
+      const result = $locateBlockByPrefix("https://example.com/image.png");
+      expect(result.node).toBeNull();
+      reason = result.reason;
+    });
+
+    expect(reason).toContain("Ambiguous prefix: 2 blocks");
+  });
+
   it("returns null when no block starts with the prefix", async () => {
     const editor = await setupEditorWithContent(
       "Alpha paragraph.\n\nBravo paragraph."

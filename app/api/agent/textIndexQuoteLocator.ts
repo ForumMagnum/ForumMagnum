@@ -2,6 +2,9 @@ import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical
 import { $isListItemNode } from "@lexical/list";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
+import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
+import { markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
+import { JSDOM } from "jsdom";
 import {
   markdownQuoteToRenderedPlainText,
   type MarkdownQuoteSelectionResult,
@@ -525,6 +528,76 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
   return blocks;
 }
 
+function getImageSourcesFromLocator(locator: string): Set<string> {
+  const trimmedLocator = locator.trim();
+  if (!trimmedLocator) {
+    return new Set();
+  }
+
+  const dom = new JSDOM(markdownToHtmlNoMath(trimmedLocator));
+  const sources = new Set<string>();
+  try {
+    for (const image of dom.window.document.querySelectorAll("img[src]")) {
+      const source = image.getAttribute("src");
+      if (source) {
+        sources.add(source);
+      }
+    }
+  } finally {
+    dom.window.close();
+  }
+
+  if (sources.size === 0) {
+    try {
+      const url = new URL(trimmedLocator);
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        sources.add(trimmedLocator);
+      }
+    } catch {
+      // A non-URL locator has no image-source fallback.
+    }
+  }
+  return sources;
+}
+
+function $findImageOnlyBlocksBySource(sources: Set<string>): LexicalNode[] {
+  if (sources.size === 0) {
+    return [];
+  }
+
+  const matchedBlocks = new Map<string, LexicalNode>();
+  const visit = (node: LexicalNode): void => {
+    if ($isImageNode(node) && sources.has(node.getSrc())) {
+      const block = node.getTopLevelElement() ?? node;
+      if (block.getTextContent().trim() === "") {
+        matchedBlocks.set(block.getKey(), block);
+      }
+    }
+    if ($isElementNode(node)) {
+      for (const child of node.getChildren()) {
+        visit(child);
+      }
+    }
+  };
+  visit($getRoot());
+  return Array.from(matchedBlocks.values());
+}
+
+function $locateImageOnlyBlock(locator: string): BlockPrefixResult | null {
+  const matchedBlocks = $findImageOnlyBlocksBySource(getImageSourcesFromLocator(locator));
+  if (matchedBlocks.length === 1) {
+    return { node: matchedBlocks[0] };
+  }
+  if (matchedBlocks.length > 1) {
+    return {
+      node: null,
+      reason: `Ambiguous prefix: ${matchedBlocks.length} blocks start with it. `
+        + `Provide a longer prefix to disambiguate.`,
+    };
+  }
+  return null;
+}
+
 /**
  * Locate the block (top-level node or list item) whose rendered text starts
  * with the given markdown prefix, via the text index. Replaces the legacy
@@ -539,7 +612,8 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {
-    return { node: null, reason: "Prefix was empty after normalization." };
+    return $locateImageOnlyBlock(prefix)
+      ?? { node: null, reason: "Prefix was empty after normalization." };
   }
 
   // A match counts only when it begins at a block's first content character
@@ -566,7 +640,8 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     return { node: matchedBlocks[0] };
   }
   if (matchedBlocks.length === 0) {
-    return { node: null, reason: "No block starts with the given prefix." };
+    return $locateImageOnlyBlock(prefix)
+      ?? { node: null, reason: "No block starts with the given prefix." };
   }
   return {
     node: null,

@@ -132,13 +132,13 @@ export function $wrapSelectionInSuggestionNode(
     } else if ($isImageNode(node)) {
       logger?.info('Node is image node')
       targetNode = node
-      suggestionType = 'insert-image'
+      suggestionType = type === 'delete' ? 'delete-image' : 'insert-image'
     } else if ($isImageRenderNode(node) || $isImageCaptionNode(node)) {
       const imageParent = $findMatchingParent(node, $isImageNode)
       if (imageParent) {
         logger?.info('Node is image child, targeting image node')
         targetNode = imageParent
-        suggestionType = 'insert-image'
+        suggestionType = type === 'delete' ? 'delete-image' : 'insert-image'
       }
     }
     if (!targetNode) {
@@ -146,7 +146,7 @@ export function $wrapSelectionInSuggestionNode(
       if (imageParent) {
         logger?.info('Node is inside image, targeting image node')
         targetNode = imageParent
-        suggestionType = 'insert-image'
+        suggestionType = type === 'delete' ? 'delete-image' : 'insert-image'
       }
     }
     if (!targetNode && $isTableNode(node)) {

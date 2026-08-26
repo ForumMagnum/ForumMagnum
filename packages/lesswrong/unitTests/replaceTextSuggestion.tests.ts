@@ -233,6 +233,14 @@ describe("deleteBlock suggest-mode wrapping", () => {
     expect(await wrapBlockByPrefix(editor, "h1")).toBe(true);
   });
 
+  it("wraps a standalone image as a deletion suggestion", async () => {
+    const editor = await setupEditorWithContent(
+      "Before.\n\n![Example](https://example.com/image.png)\n\nAfter.",
+    );
+    expect(await wrapBlockByPrefix(editor, "![Example](https://example.com/image.png)")).toBe(true);
+    expect(getAllSuggestions(editor).map((suggestion) => suggestion.type)).toContain("delete-image");
+  });
+
   it("reports failure for a top-level display equation it cannot wrap", async () => {
     // $wrapSelectionInSuggestionNode has no case for block-level decorators
     // and silently creates nothing; the route must not report success.
