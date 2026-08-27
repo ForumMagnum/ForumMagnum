@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import { unstable_cache } from "next/cache";
-import { FALLBACK_LLM_MODEL_OPTIONS } from "@/lib/llmModelOptions";
+import { z } from "zod";
 
 export const llmModelGraphQLTypeDefs = gql`
   extend type Query {
@@ -16,30 +16,15 @@ export const llmModelGraphQLTypeDefs = gql`
  */
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 
-/** Providers we suggest, in the order they're offered. */
-const SUGGESTED_PROVIDERS = ["anthropic", "openai", "google", "x-ai", "deepseek", "moonshotai", "meta-llama", "qwen", "mistralai"];
+const modelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  architecture: z.object({ output_modalities: z.array(z.string()) }),
+});
 
-const MODELS_PER_PROVIDER = 8;
+const modelsResponseSchema = z.object({ data: z.array(modelSchema) });
 
-const REVALIDATE_SECONDS = 60 * 60 * 12;
-
-const FETCH_TIMEOUT_MS = 5000;
-
-interface OpenRouterModel {
-  id: string
-  name: string
-  created: number
-  architecture: { output_modalities: string[] }
-}
-
-function isOpenRouterModel(model: unknown): model is OpenRouterModel {
-  if (typeof model !== "object" || model === null) return false;
-  const { id, name, created, architecture } = model as Record<string, unknown>;
-  if (typeof id !== "string" || typeof name !== "string" || typeof created !== "number") return false;
-  if (typeof architecture !== "object" || architecture === null) return false;
-  const { output_modalities } = architecture as Record<string, unknown>;
-  return Array.isArray(output_modalities) && output_modalities.every((modality) => typeof modality === "string");
-}
+type OpenRouterModel = z.infer<typeof modelSchema>;
 
 /**
  * OpenRouter names models as "Anthropic: Claude Opus 4.5"; we want just the
@@ -50,10 +35,6 @@ function getDisplayName(model: OpenRouterModel): string {
   return separatorIndex >= 0 ? model.name.slice(separatorIndex + 2) : model.name;
 }
 
-function getProvider(model: OpenRouterModel): string {
-  return model.id.split("/")[0];
-}
-
 function isSuggestableModel(model: OpenRouterModel): boolean {
   // Ids like "anthropic/claude-opus-4.5:thinking" are variants of a model
   // that's already listed under its base id. Models that emit images or audio
@@ -62,40 +43,36 @@ function isSuggestableModel(model: OpenRouterModel): boolean {
   return !model.id.includes(":") && output_modalities.length === 1 && output_modalities[0] === "text";
 }
 
-function selectModelOptions(models: OpenRouterModel[]): string[] {
-  const options = SUGGESTED_PROVIDERS.flatMap((provider) => models
-    .filter((model) => isSuggestableModel(model) && getProvider(model) === provider)
-    .sort((a, b) => b.created - a.created)
-    .slice(0, MODELS_PER_PROVIDER)
-    .map(getDisplayName)
-  );
-  return [...new Set(options)];
-}
-
+/**
+ * Returns an empty list rather than throwing, so that a failed fetch gets
+ * cached too; otherwise every request during an OpenRouter outage would make
+ * its own outbound fetch. The list is only autocomplete for a free-text field,
+ * so having none of it for a while is survivable.
+ */
 async function fetchLlmModelOptions(): Promise<string[]> {
-  const response = await fetch(OPENROUTER_MODELS_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
-  if (!response.ok) {
-    throw new Error(`OpenRouter models API responded with status ${response.status} - ${response.statusText}`);
+  try {
+    const response = await fetch(OPENROUTER_MODELS_URL, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) {
+      throw new Error(`OpenRouter models API responded with status ${response.status} - ${response.statusText}`);
+    }
+    const { data } = modelsResponseSchema.parse(await response.json());
+    return [...new Set(data.filter(isSuggestableModel).map(getDisplayName))];
+  } catch (error) {
+    console.error("Failed to fetch LLM model options from OpenRouter", error);
+    return [];
   }
-  const body: unknown = await response.json();
-  const models = (typeof body === "object" && body !== null && "data" in body && Array.isArray(body.data))
-    ? body.data.filter(isOpenRouterModel)
-    : [];
-  if (!models.length) {
-    throw new Error("OpenRouter models API returned no usable models");
-  }
-  return selectModelOptions(models);
 }
 
-const fetchCachedLlmModelOptions = unstable_cache(fetchLlmModelOptions, undefined, { revalidate: REVALIDATE_SECONDS });
+const fetchCachedLlmModelOptions = unstable_cache(fetchLlmModelOptions, undefined, { revalidate: 60 * 60 * 12 });
 
 export const llmModelGraphQLQueries = {
   async LlmModelOptions(root: void, args: void, context: ResolverContext) {
     try {
       return await fetchCachedLlmModelOptions();
     } catch (error) {
-      console.error("Failed to fetch LLM model options from OpenRouter", error);
-      return FALLBACK_LLM_MODEL_OPTIONS;
+      // unstable_cache throws if called outside of a request scope, eg from a script.
+      console.error("Failed to read cached LLM model options", error);
+      return [];
     }
   },
 };

@@ -9,7 +9,6 @@ import { useStopLexicalEventPropagation } from '../useStopLexicalEventPropagatio
 import { isEditorInSuggestionMode } from './LLMContentBlockPlugin';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import { FALLBACK_LLM_MODEL_OPTIONS } from '@/lib/llmModelOptions';
 
 const LlmModelOptionsQuery = gql(`
   query LlmModelOptions {
@@ -37,7 +36,7 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   const measureRef = useRef<HTMLSpanElement>(null);
   const isSuggestionMode = isEditorInSuggestionMode(editor);
   const { data } = useQuery(LlmModelOptionsQuery, { ssr: false });
-  const modelOptions = data?.LlmModelOptions ?? FALLBACK_LLM_MODEL_OPTIONS;
+  const modelOptions = data?.LlmModelOptions ?? [];
 
   // Writing to the Lexical node (via editor.update → setModelName) triggers
   // an async decorate() cycle that re-renders this component with the new
