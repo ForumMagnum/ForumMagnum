@@ -63,6 +63,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     handleSnoozeCustom,
     handleRemoveNeedsReview,
     handlePurge,
+    handleBanAndRateLimit,
   } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
 
   const { toggleAllPermissions } = useUserContentPermissions(user, dispatch);
@@ -115,6 +116,12 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'P',
         tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
         onClick: handlePurge,
+      },
+      {
+        label: '~Ban for ~6 months',
+        keystroke: 'Shift+B',
+        tooltip: "Roughly a 6 month ban: bans this user for 3 months, then rate limits them to 1 post and 3 comments (on other people's posts) per 4 weeks until 6 months out. Removes them from the review queue. Asks for confirmation first, and signs a '3 month ban, 6 month rate limit' note in their moderator notes.",
+        onClick: handleBanAndRateLimit,
       },
       {
         label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',

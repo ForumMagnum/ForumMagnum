@@ -19675,6 +19675,13 @@ export type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact
 
 export type approveCurrentContentOnlyModerationKeyboardMutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
 
+export type createUserRateLimitModerationUserActionsMutationVariables = Exact<{
+  data: CreateUserRateLimitDataInput;
+}>;
+
+
+export type createUserRateLimitModerationUserActionsMutation = { __typename?: 'Mutation', createUserRateLimit: { __typename?: 'UserRateLimitOutput', data: { __typename?: 'UserRateLimit', _id: string } | null } | null };
+
 export type updatePostPostReviewActionsMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdatePostDataInput;
@@ -23418,6 +23425,7 @@ export const updateModeratorActionSupermodDocument = _o1(_1,[_o11(_987,_988,_o3(
 export const updateUserModerationKeyboardDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateUserModerationKeyboard"),_1196,_1746),_61,_622,_663,_682]) as unknown as DocumentNode<updateUserModerationKeyboardMutation, updateUserModerationKeyboardMutationVariables>;
 export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"rejectContentAndRemoveFromQueueModerationKeyboard"),[_1077,_998,_1747,_1798],_o5(_7,[_o10(_8,_1801,[_1111,_1093,_1092,_1802])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
 export const approveCurrentContentOnlyModerationKeyboardDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"approveCurrentContentOnlyModerationKeyboard"),_1641,_o5(_7,[_o10(_8,_o3(_3,"approveUserCurrentContentOnly"),_1803)]))]) as unknown as DocumentNode<approveCurrentContentOnlyModerationKeyboardMutation, approveCurrentContentOnlyModerationKeyboardMutationVariables>;
+export const createUserRateLimitModerationUserActionsDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"createUserRateLimitModerationUserActions"),_1777,_o5(_7,[_o7(_8,_1778,_1146,_1766)]))]) as unknown as DocumentNode<createUserRateLimitModerationUserActionsMutation, createUserRateLimitModerationUserActionsMutationVariables>;
 export const updatePostPostReviewActionsDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updatePostPostReviewActions"),_1147,_1149),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<updatePostPostReviewActionsMutation, updatePostPostReviewActionsMutationVariables>;
 export const createModeratorActionPostReviewActionsDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"createModeratorActionPostReviewActions"),_1754,_1767)]) as unknown as DocumentNode<createModeratorActionPostReviewActionsMutation, createModeratorActionPostReviewActionsMutationVariables>;
 export const RerunLlmCheckHookDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"RerunLlmCheckHook"),_1748,_o5(_7,[_o7(_8,_o3(_3,"rerunLlmCheck"),_1749,_338)])),_335]) as unknown as DocumentNode<RerunLlmCheckHookMutation, RerunLlmCheckHookMutationVariables>;
