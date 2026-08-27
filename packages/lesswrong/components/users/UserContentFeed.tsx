@@ -30,7 +30,7 @@ const USER_POSTS_QUERY = gql(`
 
 const USER_COMMENTS_QUERY = gql(`
   query UserContentFeedComments($userId: String!, $limit: Int!, $sortBy: String!) {
-    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy } }, limit: $limit, enableTotal: true) {
+    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy, quickTakes: "exclude" } }, limit: $limit, enableTotal: true) {
       results {
         ...CommentsList
         post {
@@ -405,7 +405,7 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
 
   const skipPosts = filter === 'comments' || filter === 'wikiEdits';
   const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
-  const skipShortformComments = filter === 'posts' || filter === 'wikiEdits';
+  const skipShortformComments = filter === 'posts' || filter === 'comments' || filter === 'wikiEdits';
   const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
   const {
@@ -468,28 +468,13 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     const items: FeedItem[] = [];
 
     const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
-    const profileComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
-    const shortformComments = skipShortformComments
+    const nonQuickTakeComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
+    const quickTakeComments = skipShortformComments
       ? []
       : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
-    const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
     const wikiEdits = skipWikiEdits ? [] : (wikiEditsData?.revisions?.results ?? []);
-    const comments: CommentItem[] = (() => {
-      if (filter === 'quickTakes') {
-        return shortformComments;
-      }
-      if (filter === 'comments') {
-        return profileComments.filter((comment) => !shortformCommentIds.has(comment._id));
-      }
-      const merged: CommentItem[] = [];
-      const seenCommentIds = new Set<string>();
-      [...profileComments, ...shortformComments].forEach((comment) => {
-        if (seenCommentIds.has(comment._id)) return;
-        seenCommentIds.add(comment._id);
-        merged.push(comment);
-      });
-      return merged;
-    })();
+    // Disjoint: USER_COMMENTS_QUERY excludes quick takes; topShortform returns only them
+    const comments: CommentItem[] = [...nonQuickTakeComments, ...quickTakeComments];
 
     posts.forEach(post => {
       if (!post?.postedAt) return;

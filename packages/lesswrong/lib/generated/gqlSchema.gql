@@ -2319,6 +2319,7 @@ input CommentsProfileCommentsInput {
   includeRejected: Boolean
   sortBy: String
   shortform: Boolean
+  quickTakes: String
   drafts: String
   limit: String
 }

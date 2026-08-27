@@ -144,6 +144,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     includeRejected: Boolean
     sortBy: String
     shortform: Boolean
+    quickTakes: String
     drafts: String
     limit: String
   }
