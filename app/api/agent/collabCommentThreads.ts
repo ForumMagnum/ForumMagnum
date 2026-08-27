@@ -6,7 +6,7 @@ import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
   normalizeText,
-  waitForProviderFlush,
+  waitForProviderAcknowledgement,
   withCommentsDocSession,
   withMainDocEditorSession,
 } from "./editorAgentUtil";
@@ -115,7 +115,7 @@ async function getMainDocQuoteMatchResult({
       });
 
       if (createdMarkId) {
-        await waitForProviderFlush(mainDocProvider);
+        await waitForProviderAcknowledgement(mainDocProvider);
       }
 
       return { quoteFoundInDocument, createdMarkId, locateFailureReason };
@@ -151,9 +151,9 @@ export async function insertCollabCommentThread({
   const threadId = randomId();
   const hasQuote = !!normalizeText(quote);
 
-  // Persist and receive a server acknowledgement for the thread before
-  // mutating the main document. Otherwise a comments-doc write failure can
-  // leave a permanently orphaned highlight mark with no thread.
+  // Receive a server acknowledgement for the thread before mutating the main
+  // document. Otherwise teardown can race the comments-doc update and leave a
+  // permanently orphaned highlight mark with no thread.
   return withCommentsDocSession({
     collectionName,
     documentId,
@@ -165,7 +165,7 @@ export async function insertCollabCommentThread({
       doc.transact(() => {
         comments.insert(comments.length, [threadMap]);
       }, "agent-comment-on-draft");
-      await waitForProviderFlush(provider);
+      await waitForProviderAcknowledgement(provider);
 
       let anchorStatus: CommentAnchorStatus;
       let anchorNote: string;
