@@ -151,15 +151,22 @@ export async function insertCollabCommentThread({
   const threadId = randomId();
   const hasQuote = !!normalizeText(quote);
 
-  // The comments-doc session wraps the whole operation so that its
-  // connect/sync (the failure-prone part) happens BEFORE the quote-match
-  // session mutates the main document. Otherwise a comments-doc failure
-  // would leave a permanently orphaned highlight mark with no thread.
+  // Persist and receive a server acknowledgement for the thread before
+  // mutating the main document. Otherwise a comments-doc write failure can
+  // leave a permanently orphaned highlight mark with no thread.
   return withCommentsDocSession({
     collectionName,
     documentId,
     token,
-    callback: async ({ doc }) => {
+    callback: async ({ doc, provider }) => {
+      const comments = doc.get("comments", YArray<unknown>);
+      const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
+      const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
+      doc.transact(() => {
+        comments.insert(comments.length, [threadMap]);
+      }, "agent-comment-on-draft");
+      await waitForProviderFlush(provider);
+
       let anchorStatus: CommentAnchorStatus;
       let anchorNote: string;
 
@@ -186,13 +193,6 @@ export async function insertCollabCommentThread({
           anchorNote = `${locateFailureReason ?? fallbackNote} Created top-level comment thread.`;
         }
       }
-
-      const comments = doc.get("comments", YArray<unknown>);
-      const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
-      const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
-      doc.transact(() => {
-        comments.insert(comments.length, [threadMap]);
-      }, "agent-comment-on-draft");
 
       return { threadId, commentId, anchorStatus, anchorNote };
     },

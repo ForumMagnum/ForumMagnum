@@ -6,6 +6,7 @@ import {
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
 import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
+import { waitForProviderFlush } from "../../../app/api/agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -357,6 +358,52 @@ describe("commentOnDraft quote matching", () => {
     expect(quoteFoundInDocument).toBe(true);
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
+  });
+});
+
+describe("commentOnDraft persistence", () => {
+  it("waits for the server acknowledgement after the WebSocket buffer drains", async () => {
+    const provider = {
+      hasUnsyncedChanges: true,
+      configuration: {
+        websocketProvider: {
+          webSocket: { bufferedAmount: 0 },
+        },
+      },
+    };
+
+    let resolved = false;
+    const flushPromise = waitForProviderFlush(provider).then(() => {
+      resolved = true;
+    });
+    await Promise.resolve();
+
+    expect(resolved).toBe(false);
+    provider.hasUnsyncedChanges = false;
+    await flushPromise;
+    expect(resolved).toBe(true);
+  });
+
+  it("fails loudly when the server does not acknowledge pending changes", async () => {
+    const provider = {
+      hasUnsyncedChanges: true,
+      configuration: {
+        websocketProvider: {
+          webSocket: { bufferedAmount: 0 },
+        },
+      },
+    };
+    const nowSpy = jest.spyOn(Date, "now")
+      .mockReturnValueOnce(0)
+      .mockReturnValue(2_000);
+
+    try {
+      await expect(waitForProviderFlush(provider)).rejects.toThrow(
+        "Timed out waiting for Hocuspocus to acknowledge pending changes",
+      );
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });
 

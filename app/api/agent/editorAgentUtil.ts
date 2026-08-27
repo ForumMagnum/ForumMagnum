@@ -100,25 +100,43 @@ const INITIAL_SYNC_SETTLE_MS = 25;
 const FLUSH_POLL_INTERVAL_MS = 5;
 const FLUSH_TIMEOUT_MS = 2_000;
 
+interface ProviderFlushState {
+  readonly hasUnsyncedChanges: boolean;
+  readonly configuration: {
+    readonly websocketProvider: {
+      readonly webSocket: {
+        readonly bufferedAmount: number;
+      } | null;
+    };
+  };
+}
+
 /**
- * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
- * that all pending updates have been handed off to the OS network layer.
+ * Wait for a HocuspocusProvider's WebSocket send buffer to drain and for the
+ * server to acknowledge every pending Yjs update.
  *
- * The provider sends Yjs updates synchronously during `doc.transact()` via
- * `ws.send()`, which buffers data immediately. We just need to wait for
- * `bufferedAmount` to reach 0 before destroying the provider so that the
- * close handshake doesn't race with pending data frames.
+ * `bufferedAmount === 0` only means that the local OS accepted the frame. The
+ * server may not have applied it yet, so destroying the provider at that point
+ * can race the update. Hocuspocus tracks server SyncStatus acknowledgements in
+ * `hasUnsyncedChanges`; both signals must be clear before teardown.
  *
- * Returns immediately if the WebSocket isn't accessible or the buffer is
- * already empty.
+ * Throws on timeout so callers never report a write as successful when the
+ * server did not acknowledge it.
  */
-export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
-  const ws = provider.configuration.websocketProvider.webSocket;
-  if (!ws || ws.bufferedAmount === 0) return;
+export async function waitForProviderFlush(provider: ProviderFlushState): Promise<void> {
+  const isFlushed = () => {
+    const ws = provider.configuration.websocketProvider.webSocket;
+    return !provider.hasUnsyncedChanges && (!ws || ws.bufferedAmount === 0);
+  };
+  if (isFlushed()) return;
 
   const deadline = Date.now() + FLUSH_TIMEOUT_MS;
-  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
+  while (!isFlushed() && Date.now() < deadline) {
     await sleep(FLUSH_POLL_INTERVAL_MS);
+  }
+
+  if (!isFlushed()) {
+    throw new Error("Timed out waiting for Hocuspocus to acknowledge pending changes");
   }
 }
 
