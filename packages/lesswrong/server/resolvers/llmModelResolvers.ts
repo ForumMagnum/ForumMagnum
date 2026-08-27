@@ -35,6 +35,29 @@ function getDisplayName(model: OpenRouterModel): string {
   return separatorIndex >= 0 ? model.name.slice(separatorIndex + 2) : model.name;
 }
 
+function getProvider(model: OpenRouterModel): string {
+  return model.id.split("/")[0];
+}
+
+/**
+ * The labs whose models get cited most often here. OpenRouter returns models
+ * newest-first, so interleaving these three puts the latest Claude, GPT and
+ * Grok at the top of the suggestions, with everything else below them.
+ */
+const FEATURED_PROVIDERS = ["anthropic", "openai", "x-ai"];
+
+function featuredModelsFirst(models: OpenRouterModel[]): OpenRouterModel[] {
+  const featuredByProvider = FEATURED_PROVIDERS.map(
+    (provider) => models.filter((model) => getProvider(model) === provider)
+  );
+  const longestProviderLength = Math.max(...featuredByProvider.map((provider) => provider.length));
+  const featured = Array.from(
+    { length: longestProviderLength },
+    (_, index) => featuredByProvider.map((provider) => provider[index]).filter((model) => !!model)
+  ).flat();
+  return [...featured, ...models.filter((model) => !FEATURED_PROVIDERS.includes(getProvider(model)))];
+}
+
 function isSuggestableModel(model: OpenRouterModel): boolean {
   // Ids like "anthropic/claude-opus-4.5:thinking" are variants of a model
   // that's already listed under its base id. Models that emit images or audio
@@ -56,7 +79,7 @@ async function fetchLlmModelOptions(): Promise<string[]> {
       throw new Error(`OpenRouter models API responded with status ${response.status} - ${response.statusText}`);
     }
     const { data } = modelsResponseSchema.parse(await response.json());
-    return [...new Set(data.filter(isSuggestableModel).map(getDisplayName))];
+    return [...new Set(featuredModelsFirst(data.filter(isSuggestableModel)).map(getDisplayName))];
   } catch (error) {
     console.error("Failed to fetch LLM model options from OpenRouter", error);
     return [];
