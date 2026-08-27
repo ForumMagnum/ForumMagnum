@@ -33,6 +33,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
@@ -257,6 +258,18 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
   return useMemo(() => ({ view, limit }), [view, limit]);
 }
 
+function getHashTargetId(hash: string): string | null {
+  if (!hash.startsWith("#") || hash.length === 1) {
+    return null;
+  }
+
+  const encodedId = hash.slice(1);
+  try {
+    return decodeURIComponent(encodedId);
+  } catch {
+    return encodedId;
+  }
+}
 
 const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
   sequenceIdFromUrl: string|null,
@@ -282,6 +295,15 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
   const isCommentPermalink = !!query.commentId;
+  const hashTargetId = getHashTargetId(location.hash);
+
+  useEffect(() => {
+    if (!hashTargetId) {
+      return;
+    }
+
+    return scrollFocusOnElement({ id: hashTargetId });
+  }, [hashTargetId, post._id]);
 
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
   const voteProps = useVote(post, 'Posts', votingSystem);

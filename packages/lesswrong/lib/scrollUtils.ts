@@ -95,24 +95,11 @@ let currentScrollFocus: {
 export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
   window.killPreloadScroll?.();
 
-  const element = document.getElementById(id);
-
-  if (!element) {
-    return;
-  }
-
   // Clean up any existing scroll focus
   if (currentScrollFocus) {
     currentScrollFocus.cleanup();
     currentScrollFocus = null;
   }
-
-  let targetScrollTop = calculateCommentScrollTop(element);
-
-  // Initial scroll
-  // Note: Currently this is calibrated for comments, although the default offset for comments is a good
-  // first guess for any element
-  window.scrollTo({ top: targetScrollTop, ...options });
 
   // Local ref required because functions using cleanup need to
   // be defined before cleanup is instantiated
@@ -120,25 +107,41 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     cleanup: () => {},
   };
 
-  const observer = new MutationObserver(() => {
-    // Check if the element is still in the DOM
-    if (!element.isConnected) {
-      ref.cleanup();
+  let targetElement: HTMLElement | null = null;
+  let targetScrollTop: number | null = null;
+
+  const scrollToTarget = () => {
+    const element = document.getElementById(id);
+    if (!element) {
+      // Keep waiting if the target has not rendered yet, but stop if a target
+      // that was previously present has been removed.
+      if (targetElement) {
+        ref.cleanup();
+      }
       return;
     }
 
     const newScrollTop = calculateCommentScrollTop(element);
+    const isInitialScroll = targetScrollTop === null;
 
-    if (Math.abs(newScrollTop - targetScrollTop) <= 40) {
+    if (targetScrollTop !== null && Math.abs(newScrollTop - targetScrollTop) <= 40) {
+      targetElement = element;
       return;
     }
 
+    targetElement = element;
     targetScrollTop = newScrollTop;
 
-    // Override initial behaviour and just scroll instantly if re-scrolling, to avoid intertia resetting
-    window.scrollTo({ top: targetScrollTop, ...options, behavior: "auto"});
-  });
+    // The initial scroll respects the requested behavior. Re-scrolls after
+    // layout shifts are instant to avoid resetting smooth-scroll inertia.
+    window.scrollTo({
+      top: targetScrollTop,
+      ...options,
+      ...(isInitialScroll ? {} : { behavior: "auto" }),
+    });
+  };
 
+  const observer = new MutationObserver(scrollToTarget);
   observer.observe(document.body, {
     attributes: true,
     childList: true,
@@ -154,8 +157,13 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     window.addEventListener(eventType, userEventListener, { passive: true });
   });
 
+  const cleanupTimer = setTimeout(() => {
+    ref.cleanup();
+  }, 5000);
+
   ref.cleanup = () => {
     observer.disconnect();
+    clearTimeout(cleanupTimer);
     ["mousedown", "keydown", "wheel", "touchstart"].forEach((eventType) => {
       window.removeEventListener(eventType, userEventListener);
     });
@@ -166,11 +174,15 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     }
   };
 
-  setTimeout(ref.cleanup, 5000);
-
   currentScrollFocus = {
     cleanup: ref.cleanup,
   };
+
+  // Note: This is calibrated for comments, although the default offset for
+  // comments is a good first guess for any element.
+  scrollToTarget();
+
+  return ref.cleanup;
 }
 
 /**
