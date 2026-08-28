@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { TooltipTimingProvider } from './TooltipTiming';
 
 const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   popper: {
@@ -161,12 +162,12 @@ export const PopperPortalProvider = ({children}: {
   children: React.ReactNode
 }) => {
   const popperContainerRef = useRef<HTMLDivElement|null>(null);
-  return <>
+  return <TooltipTimingProvider>
     <PopperPortalContainerContext.Provider value={popperContainerRef}>
       {children}
     </PopperPortalContainerContext.Provider>
     <div ref={popperContainerRef}/>
-  </>
+  </TooltipTimingProvider>
 }
 
 export default LWPopper;

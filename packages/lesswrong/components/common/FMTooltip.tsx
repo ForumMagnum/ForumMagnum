@@ -5,6 +5,7 @@ import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import LWPopper from "./LWPopper";
+import { useTooltipOpenDelay } from './TooltipTiming';
 
 const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({
   tooltip: {
@@ -83,6 +84,7 @@ export const TooltipRef = <T extends HTMLElement>({
       setDelayedClickable(false);
     },
   });
+  const delayedOpen = useTooltipOpenDelay(hover, styling === "tooltip" && !disabled && !forceOpen);
   // For the clickable case, we want to delay the opening of the tooltip by 200ms
   // so that users aren't interrupted when moving their mouse rapidly over
   // clickable elements
@@ -117,7 +119,7 @@ export const TooltipRef = <T extends HTMLElement>({
     
     {(hover || (everHovered && preserve)) && <LWPopper
       placement={placement}
-      open={forceOpen || (hover && !disabled)}
+      open={forceOpen || (delayedOpen && !disabled)}
       anchorEl={anchorEl}
       tooltip={styling==="tooltip"}
       allowOverflow={!flip}

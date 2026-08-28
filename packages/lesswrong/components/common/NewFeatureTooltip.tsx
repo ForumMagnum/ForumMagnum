@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import LWPopper from "./LWPopper";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useTooltipOpenDelay } from './TooltipTiming';
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
@@ -117,12 +118,13 @@ const NewFeatureTooltip = ({children, title = 'New feature!', placement = 'left'
       title,
     },
   });
+  const delayedOpen = useTooltipOpenDelay(hover, true);
   return (
     <span className={classes.container}>
       {everHovered &&
         <LWPopper
           placement={placement}
-          open={hover}
+          open={delayedOpen}
           anchorEl={anchorEl}
           tooltip
           allowOverflow={false}

@@ -6,6 +6,7 @@ import { AnalyticsProps } from '../../lib/analyticsEvents';
 import LWPopper from "./LWPopper";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { useTooltipOpenDelay } from './TooltipTiming';
 
 const styles = defineStyles("LWTooltip", (_theme: ThemeType) => ({
   root: {
@@ -109,6 +110,7 @@ const LWTooltip = ({
       setDelayedClickable(false);
     },
   });
+  const delayedOpen = useTooltipOpenDelay(hover, tooltip && !disabled && !forceOpen);
 
   // For the clickable case, we want to delay the opening of the tooltip by 200ms
   // so that users aren't interrupted when moving their mouse rapidly over
@@ -139,7 +141,7 @@ const LWTooltip = ({
          can have a closing animation if applicable. */ }
     {(everHovered || renderWithoutHover) && <LWPopper
       placement={placement}
-      open={forceOpen || (hover && !disabled)}
+      open={forceOpen || (delayedOpen && !disabled)}
       anchorEl={anchorEl ?? defaultAnchorElRef.current}
       tooltip={tooltip}
       allowOverflow={!flip}
