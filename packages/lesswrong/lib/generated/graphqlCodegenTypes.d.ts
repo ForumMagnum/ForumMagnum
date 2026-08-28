@@ -7271,6 +7271,7 @@ type Query = {
   LastCuratedDate: LastCuratedDateResult;
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
   Lightcone2025FundraiserAirtableAmounts: Scalars['Int']['output'];
+  LlmModelOptions: Array<Scalars['String']['output']>;
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues?: Maybe<MyDialoguesResult>;
@@ -15080,6 +15081,14 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
+
+type LlmModelOptionsQuery_Query = { __typename?: 'Query', LlmModelOptions: Array<string> };
+
+
+type LlmModelOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type LlmModelOptionsQuery = LlmModelOptionsQuery_Query;
 
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 

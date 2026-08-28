@@ -25,6 +25,7 @@ interface Query {
   NotificationDisplays: NotificationDisplaysResult | null;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
+  LlmModelOptions: Array<string>;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;

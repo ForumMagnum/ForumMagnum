@@ -611,6 +611,10 @@ extend type Query {
   Lightcone2025FundraiserAirtableAmounts: Int!
 }
 
+extend type Query {
+  LlmModelOptions: [String!]!
+}
+
 type PetrovDay2024CheckNumberOfIncomingData {
   count: Int
 }
