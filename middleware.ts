@@ -273,7 +273,7 @@ function shouldProxyForStatusCode(req: NextRequest) {
   return true;
 }
 
-export function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
+function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
   const cookies = headers.get("Cookie")?.split("; ") ?? [];
   const cookiesByName: Record<string, string> = {};
   for (const cookie of cookies) {
