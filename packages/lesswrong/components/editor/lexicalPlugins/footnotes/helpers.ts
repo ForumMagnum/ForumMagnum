@@ -1,8 +1,22 @@
-import { $getRoot, LexicalNode, $isElementNode, $getNodeByKey, $getSelection } from "lexical";
-import { $isFootnoteContentNode } from "./FootnoteContentNode";
-import { FootnoteItemNode, $isFootnoteItemNode } from "./FootnoteItemNode";
+import { $getRoot, LexicalNode, $isElementNode, $getNodeByKey, $getSelection, $createParagraphNode } from "lexical";
+import { $unwrapMarkNode } from "@lexical/mark";
+import { $createFootnoteBackLinkNode } from "./FootnoteBackLinkNode";
+import { $createFootnoteContentNode, $isFootnoteContentNode } from "./FootnoteContentNode";
+import { FootnoteItemNode, $createFootnoteItemNode, $isFootnoteItemNode } from "./FootnoteItemNode";
 import { FootnoteReferenceNode, $isFootnoteReferenceNode } from "./FootnoteReferenceNode";
-import { FootnoteSectionNode, $isFootnoteSectionNode } from "./FootnoteSectionNode";
+import { FootnoteSectionNode, $createFootnoteSectionNode, $isFootnoteSectionNode } from "./FootnoteSectionNode";
+import { HovernoteNode, $isHovernoteNode } from "../hovernotes/HovernoteNode";
+
+/**
+ * The two kinds of inline anchor that can point at a footnote item: a
+ * superscript [n] reference, or a hovernote (a highlighted stretch of text
+ * whose footnote content shows on hover).
+ */
+export type FootnoteAnchorNode = FootnoteReferenceNode | HovernoteNode;
+
+function $isFootnoteAnchorNode(node: LexicalNode | null | undefined): node is FootnoteAnchorNode {
+  return $isFootnoteReferenceNode(node) || $isHovernoteNode(node);
+}
 
 /**
  * Find the footnote section in the document, or return null if it doesn't exist
@@ -42,15 +56,16 @@ export function $getFootnoteItems(): FootnoteItemNode[] {
 }
 
 /**
- * Get all footnote references in the document
+ * Get all footnote anchors (references and hovernotes) in the document, in
+ * document order
  */
-export function $getFootnoteReferences(): FootnoteReferenceNode[] {
+export function $getFootnoteAnchors(): FootnoteAnchorNode[] {
   const root = $getRoot();
-  const references: FootnoteReferenceNode[] = [];
-  
+  const anchors: FootnoteAnchorNode[] = [];
+
   function traverse(node: LexicalNode) {
-    if ($isFootnoteReferenceNode(node)) {
-      references.push(node);
+    if ($isFootnoteAnchorNode(node)) {
+      anchors.push(node);
     }
     if ($isElementNode(node) && !$isFootnoteSectionNode(node)) {
       const children = node.getChildren();
@@ -59,13 +74,20 @@ export function $getFootnoteReferences(): FootnoteReferenceNode[] {
       }
     }
   }
-  
+
   const children = root.getChildren();
   for (const child of children) {
     traverse(child);
   }
-  
-  return references;
+
+  return anchors;
+}
+
+/**
+ * Get all footnote references in the document
+ */
+export function $getFootnoteReferences(): FootnoteReferenceNode[] {
+  return $getFootnoteAnchors().filter((anchor) => $isFootnoteReferenceNode(anchor));
 }
 
 /**
@@ -77,14 +99,50 @@ export function $getNextFootnoteIndex(): number {
 }
 
 /**
- * Remove all references to a specific footnote
+ * Create a new footnote item (back-link + empty content) with the given id and
+ * append it to the footnote section, creating the section if necessary.
+ */
+export function $appendNewFootnoteItem(footnoteId: string): FootnoteItemNode {
+  let section = $getFootnoteSection();
+  if (!section) {
+    section = $createFootnoteSectionNode();
+    $getRoot().append(section);
+  }
+
+  const footnoteItem = $createFootnoteItemNode(footnoteId, $getNextFootnoteIndex());
+  const footnoteBackLink = $createFootnoteBackLinkNode(footnoteId);
+  const footnoteContent = $createFootnoteContentNode();
+  const paragraph = $createParagraphNode();
+
+  footnoteContent.append(paragraph);
+  footnoteItem.append(footnoteBackLink);
+  footnoteItem.append(footnoteContent);
+  section.append(footnoteItem);
+  return footnoteItem;
+}
+
+/**
+ * Remove all anchors pointing at a specific footnote. References are deleted
+ * outright; hovernotes are unwrapped so the highlighted text survives.
  */
 export function $removeReferencesById(footnoteId: string): void {
-  const references = $getFootnoteReferences();
-  for (const ref of references) {
-    if (ref.getFootnoteId() === footnoteId) {
-      ref.remove();
+  const anchors = $getFootnoteAnchors();
+  for (const anchor of anchors) {
+    if (anchor.getFootnoteId() === footnoteId) {
+      $removeFootnoteAnchor(anchor);
     }
+  }
+}
+
+/**
+ * Remove a single footnote anchor: delete a [n] reference, unwrap a hovernote
+ * (keeping its text).
+ */
+export function $removeFootnoteAnchor(anchor: FootnoteAnchorNode): void {
+  if ($isHovernoteNode(anchor)) {
+    $unwrapMarkNode(anchor);
+  } else {
+    anchor.remove();
   }
 }
 
@@ -109,12 +167,12 @@ export function $reorderFootnotes(): void {
     return;
   }
 
-  const references = $getFootnoteReferences();
+  const anchors = $getFootnoteAnchors();
   const seenIds = new Set<string>();
   const orderedIds: string[] = [];
-  
-  // Build ordered list of unique footnote IDs based on reference order
-  for (const ref of references) {
+
+  // Build ordered list of unique footnote IDs based on anchor order
+  for (const ref of anchors) {
     const id = ref.getFootnoteId();
     if (!seenIds.has(id)) {
       seenIds.add(id);
@@ -199,7 +257,7 @@ export function $isFootnoteEmpty(footnoteItem: FootnoteItemNode): boolean {
 }
 
 export function $hasFootnoteReferenceInNode(node: LexicalNode): boolean {
-  if ($isFootnoteReferenceNode(node)) {
+  if ($isFootnoteAnchorNode(node)) {
     return true;
   }
   if ($isElementNode(node)) {

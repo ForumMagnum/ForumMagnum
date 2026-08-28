@@ -615,6 +615,10 @@ extend type Query {
   LlmModelOptions: [String!]!
 }
 
+extend type Mutation {
+  generateHovernoteSuggestion(phrase: String!, surroundingText: String, documentHtml: String!, postId: String): String!
+}
+
 type PetrovDay2024CheckNumberOfIncomingData {
   count: Int
 }

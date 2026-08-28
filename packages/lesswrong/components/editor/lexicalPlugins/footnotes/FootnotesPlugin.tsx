@@ -31,12 +31,11 @@ import { mergeRegister } from '@lexical/utils';
 
 import { generateFootnoteId } from './constants';
 import { FootnoteReferenceNode, $createFootnoteReferenceNode, $isFootnoteReferenceNode } from './FootnoteReferenceNode';
-import { $createFootnoteSectionNode, $isFootnoteSectionNode } from './FootnoteSectionNode';
-import { FootnoteItemNode, $createFootnoteItemNode, $isFootnoteItemNode } from './FootnoteItemNode';
-import { $createFootnoteContentNode, $isFootnoteContentNode } from './FootnoteContentNode';
-import { $createFootnoteBackLinkNode } from './FootnoteBackLinkNode';
+import { $isFootnoteSectionNode } from './FootnoteSectionNode';
+import { FootnoteItemNode, $isFootnoteItemNode } from './FootnoteItemNode';
+import { $isFootnoteContentNode } from './FootnoteContentNode';
 
-import { $getFootnoteItems, $getNextFootnoteIndex, $getFootnoteSection, $reorderFootnotes, $getSelectedFootnoteItem, $removeFootnote, $isFootnoteEmpty, $getFootnoteReferences, $shouldCheckForFootnoteReorder } from './helpers';
+import { $getFootnoteItems, $getNextFootnoteIndex, $appendNewFootnoteItem, $reorderFootnotes, $getSelectedFootnoteItem, $removeFootnote, $isFootnoteEmpty, $getFootnoteAnchors, $removeFootnoteAnchor, $shouldCheckForFootnoteReorder } from './helpers';
 import { insertGoogleDocsFootnotesOnPaste } from './googleDocsFootnoteNormalizer';
 
 export const INSERT_FOOTNOTE_COMMAND: LexicalCommand<{ footnoteIndex?: number }> = createCommand(
@@ -59,7 +58,7 @@ function reorderFootnotesWhenReferenceOrderChanges(
     if (!$shouldCheckForFootnoteReorder(dirtyElements, dirtyLeaves)) {
       return;
     }
-    const references = $getFootnoteReferences();
+    const references = $getFootnoteAnchors();
     const referenceOrder = references.map((ref) => ref.getFootnoteId()).join('|');
     if (referenceOrder === lastReferenceOrderRef.current) {
       return;
@@ -106,25 +105,7 @@ function insertFootnoteReferenceAtSelection(
     } else {
       id = generateFootnoteId();
       index = $getNextFootnoteIndex();
-
-      // Create the footnote section if it doesn't exist
-      let section = $getFootnoteSection();
-      if (!section) {
-        section = $createFootnoteSectionNode();
-        const root = $getRoot();
-        root.append(section);
-      }
-
-      // Create the footnote item
-      const footnoteItem = $createFootnoteItemNode(id, index);
-      const footnoteBackLink = $createFootnoteBackLinkNode(id);
-      const footnoteContent = $createFootnoteContentNode();
-      const paragraph = $createParagraphNode();
-
-      footnoteContent.append(paragraph);
-      footnoteItem.append(footnoteBackLink);
-      footnoteItem.append(footnoteContent);
-      section.append(footnoteItem);
+      $appendNewFootnoteItem(id);
     }
 
     if (!selection.isCollapsed()) {
@@ -226,10 +207,10 @@ function deleteFootnoteItemOrSectionOnDelete(
   for (const node of nodes) {
     if ($isFootnoteSectionNode(node)) {
       editor.update(() => {
-        // Remove all references when section is deleted
-        const references = $getFootnoteReferences();
-        for (const ref of references) {
-          ref.remove();
+        // Remove all anchors when section is deleted (hovernotes keep their text)
+        const anchors = $getFootnoteAnchors();
+        for (const anchor of anchors) {
+          $removeFootnoteAnchor(anchor);
         }
         node.remove();
       });

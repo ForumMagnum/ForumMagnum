@@ -237,7 +237,17 @@ const hrStyles = (theme: ThemeType) => ({
   }
 });
 
-const footnoteStyles = (_theme: ThemeType) => ({
+const footnoteStyles = (theme: ThemeType) => ({
+  // Hovernotes: a stretch of highlighted text whose footnote content shows on
+  // hover (see @/components/editor/lexicalPlugins/hovernotes)
+  '& .hovernote': {
+    textDecoration: "underline",
+    textDecorationStyle: "dotted",
+    textDecorationColor: theme.palette.greyAlpha(0.55),
+    textDecorationThickness: "1px",
+    textUnderlineOffset: "3px",
+    cursor: "pointer",
+  },
   '& .footnote-item > *': {
     verticalAlign: "text-top",
   },

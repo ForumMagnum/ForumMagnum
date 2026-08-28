@@ -3935,6 +3935,7 @@ type Mutation = {
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
   generateCoverImagesForPost?: Maybe<Array<Maybe<ReviewWinnerArt>>>;
+  generateHovernoteSuggestion: Scalars['String']['output'];
   getClaudeAccessLink?: Maybe<Scalars['String']['output']>;
   getNewJargonTerms?: Maybe<Array<Maybe<JargonTerm>>>;
   importUrlAsDraftPost: ExternalPostImportData;
@@ -4394,6 +4395,14 @@ type MutationflipSplashArtImageArgs = {
 type MutationgenerateCoverImagesForPostArgs = {
   postId: Scalars['String']['input'];
   prompt?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationgenerateHovernoteSuggestionArgs = {
+  documentHtml: Scalars['String']['input'];
+  phrase: Scalars['String']['input'];
+  postId?: InputMaybe<Scalars['String']['input']>;
+  surroundingText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -15081,6 +15090,19 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
+
+type generateHovernoteSuggestionMutation_Mutation = { __typename?: 'Mutation', generateHovernoteSuggestion: string };
+
+
+type generateHovernoteSuggestionMutationVariables = Exact<{
+  phrase: Scalars['String']['input'];
+  surroundingText: InputMaybe<Scalars['String']['input']>;
+  documentHtml: Scalars['String']['input'];
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type generateHovernoteSuggestionMutation = generateHovernoteSuggestionMutation_Mutation;
 
 type LlmModelOptionsQuery_Query = { __typename?: 'Query', LlmModelOptions: Array<string> };
 

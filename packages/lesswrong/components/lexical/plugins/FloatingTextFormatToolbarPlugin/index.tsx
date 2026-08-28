@@ -27,7 +27,7 @@ import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { CkMathIcon } from '../../icons/CkMathIcon';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {mergeRegister} from '@lexical/utils';
+import {mergeRegister, $getNearestNodeOfType} from '@lexical/utils';
 import {
   $getSelection,
   $isParagraphNode,
@@ -57,6 +57,9 @@ import {
 } from '../ToolbarPlugin/utils';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { INSERT_HOVERNOTE_COMMAND } from '@/components/editor/lexicalPlugins/hovernotes/HovernotesPlugin';
+import { $isHovernoteNode, HovernoteNode } from '@/components/editor/lexicalPlugins/hovernotes/HovernoteNode';
+import { HighlighterIcon } from '../../icons/HighlighterIcon';
 import {
   $isSelectionInCollapsibleSection,
   WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND,
@@ -210,6 +213,7 @@ function TextFormatFloatingToolbar({
   isBold,
   isItalic,
   isStrikethrough,
+  isHovernote,
   setIsLinkEditMode,
   blockType,
   isInCollapsibleSection,
@@ -223,6 +227,7 @@ function TextFormatFloatingToolbar({
   isItalic: boolean;
   isLink: boolean;
   isStrikethrough: boolean;
+  isHovernote: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   blockType: string;
   isInCollapsibleSection: boolean;
@@ -519,6 +524,22 @@ function TextFormatFloatingToolbar({
     </button>
   );
 
+  const hovernoteButton = (
+    <button
+      key="hovernote"
+      type="button"
+      onClick={() => {
+        editor.dispatchCommand(INSERT_HOVERNOTE_COMMAND, undefined);
+      }}
+      className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isHovernote })}
+      title={isHovernote
+        ? 'Edit hovernote'
+        : 'Hovernote: footnote shown when hovering the selected text'}
+      aria-label="Insert hovernote">
+      <HighlighterIcon className={classes.format} />
+    </button>
+  );
+
   const commentButton = (
     <button
       key="comment"
@@ -570,7 +591,7 @@ function TextFormatFloatingToolbar({
     [linkButton],
     [quoteButton, bulletListButton, numberedListButton],
     ...(variant === 'post' ? [[codeButton]] : []),
-    [mathButton, footnoteButton, collapsibleSectionButton],
+    [mathButton, footnoteButton, hovernoteButton, collapsibleSectionButton],
   ];
 
   const visibleGroups = groups.filter((group) => group.length > 0);
@@ -600,6 +621,7 @@ function useFloatingTextFormatToolbar(
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isHovernote, setIsHovernote] = useState(false);
   const [isInCollapsibleSection, setIsInCollapsibleSection] = useState(false);
   const { toolbarState } = useToolbarState();
 
@@ -642,6 +664,8 @@ function useFloatingTextFormatToolbar(
       } else {
         setIsLink(false);
       }
+
+      setIsHovernote($isHovernoteNode(node) || !!$getNearestNodeOfType(node, HovernoteNode));
 
       const anchorNode = selection.anchor.getNode();
       const anchorParent = anchorNode.getParent();
@@ -694,6 +718,7 @@ function useFloatingTextFormatToolbar(
       isBold={isBold}
       isItalic={isItalic}
       isStrikethrough={isStrikethrough}
+      isHovernote={isHovernote}
       blockType={toolbarState.blockType}
       isInCollapsibleSection={isInCollapsibleSection}
       setIsLinkEditMode={setIsLinkEditMode}

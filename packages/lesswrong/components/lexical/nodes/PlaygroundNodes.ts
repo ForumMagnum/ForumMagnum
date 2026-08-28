@@ -58,6 +58,7 @@ import { FootnoteContentNode } from '@/components/editor/lexicalPlugins/footnote
 import { FootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
 import { FootnoteReferenceNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode';
 import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import { HovernoteNode } from '@/components/editor/lexicalPlugins/hovernotes/HovernoteNode';
 import { ProtonNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
 import { ReviewResultsTableNode } from '../embeds/ReviewResultsEmbed/ReviewResultsTableNode';
 import { IframeWidgetNode } from '../embeds/IframeWidgetEmbed/IframeWidgetNode';
@@ -134,6 +135,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   FootnoteItemNode,
   FootnoteContentNode,
   FootnoteBackLinkNode,
+  HovernoteNode,
   SpoilerNode,
   ClaimNode,
   ProtonNode,

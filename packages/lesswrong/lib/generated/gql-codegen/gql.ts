@@ -164,6 +164,7 @@ type Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": typeof types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": typeof types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": typeof types.createElicitQuestionCreateClaimDialogDocument,
+    "\n  mutation generateHovernoteSuggestion($phrase: String!, $surroundingText: String, $documentHtml: String!, $postId: String) {\n    generateHovernoteSuggestion(phrase: $phrase, surroundingText: $surroundingText, documentHtml: $documentHtml, postId: $postId)\n  }\n": typeof types.generateHovernoteSuggestionDocument,
     "\n  query LlmModelOptions {\n    LlmModelOptions\n  }\n": typeof types.LlmModelOptionsDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": typeof types.FMCrosspostControlDocument,
@@ -1052,6 +1053,7 @@ const documents: Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": types.createElicitQuestionCreateClaimDialogDocument,
+    "\n  mutation generateHovernoteSuggestion($phrase: String!, $surroundingText: String, $documentHtml: String!, $postId: String) {\n    generateHovernoteSuggestion(phrase: $phrase, surroundingText: $surroundingText, documentHtml: $documentHtml, postId: $postId)\n  }\n": types.generateHovernoteSuggestionDocument,
     "\n  query LlmModelOptions {\n    LlmModelOptions\n  }\n": types.LlmModelOptionsDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": types.FMCrosspostControlDocument,
@@ -2404,6 +2406,10 @@ export function gql(source: "\n    mutation revertToRevision($tagId: String!, $r
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation generateHovernoteSuggestion($phrase: String!, $surroundingText: String, $documentHtml: String!, $postId: String) {\n    generateHovernoteSuggestion(phrase: $phrase, surroundingText: $surroundingText, documentHtml: $documentHtml, postId: $postId)\n  }\n"): (typeof documents)["\n  mutation generateHovernoteSuggestion($phrase: String!, $surroundingText: String, $documentHtml: String!, $postId: String) {\n    generateHovernoteSuggestion(phrase: $phrase, surroundingText: $surroundingText, documentHtml: $documentHtml, postId: $postId)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
