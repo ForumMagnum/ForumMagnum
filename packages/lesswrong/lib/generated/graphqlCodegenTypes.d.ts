@@ -19691,6 +19691,25 @@ type GetSequenceStatsQueryVariables = Exact<{
 
 type GetSequenceStatsQuery = GetSequenceStatsQuery_Query;
 
+type multiSequenceLibrarySequencesGridQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequencesPageFragment
+);
+
+type multiSequenceLibrarySequencesGridQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<multiSequenceLibrarySequencesGridQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type multiSequenceLibrarySequencesGridQueryQuery_Query = { __typename?: 'Query', sequences: multiSequenceLibrarySequencesGridQueryQuery_sequences_MultiSequenceOutput | null };
+
+
+type multiSequenceLibrarySequencesGridQueryQueryVariables = Exact<{
+  selector: InputMaybe<SequenceSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiSequenceLibrarySequencesGridQueryQuery = multiSequenceLibrarySequencesGridQueryQuery_Query;
+
 type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList

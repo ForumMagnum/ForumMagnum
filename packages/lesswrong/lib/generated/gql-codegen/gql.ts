@@ -441,6 +441,7 @@ type Documents = {
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": typeof types.CollectionsEditDocument,
     "\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n": typeof types.GetSequenceStatsDocument,
+    "\n  query multiSequenceLibrarySequencesGridQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSequenceLibrarySequencesGridQueryDocument,
     "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostSequenceDraftsListQueryDocument,
     "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.updateSequenceSequencesFormDocument,
     "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.createSequenceSequencesFormDocument,
@@ -1328,6 +1329,7 @@ const documents: Documents = {
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": types.CollectionsEditDocument,
     "\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n": types.GetSequenceStatsDocument,
+    "\n  query multiSequenceLibrarySequencesGridQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n": types.multiSequenceLibrarySequencesGridQueryDocument,
     "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostSequenceDraftsListQueryDocument,
     "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.updateSequenceSequencesFormDocument,
     "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.createSequenceSequencesFormDocument,
@@ -3510,6 +3512,10 @@ export function gql(source: "\n  query CollectionsEdit($documentId: String) {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n"): (typeof documents)["\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query multiSequenceLibrarySequencesGridQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiSequenceLibrarySequencesGridQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
