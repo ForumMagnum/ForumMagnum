@@ -8,9 +8,9 @@ import {
 } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { parseDocumentFromString } from '@/lib/domParser';
-import { FOOTNOTE_CLASSES } from '../footnotes/constants';
-import { $getFootnoteItems } from '../footnotes/helpers';
+import { $appendNewFootnoteItem, $getFootnoteItems } from '../footnotes/helpers';
 import { $isFootnoteContentNode, FootnoteContentNode } from '../footnotes/FootnoteContentNode';
+import { getFootnoteContentElement } from '../footnotes/FootnoteSidenotesPlugin';
 
 /**
  * Read the current HTML of a footnote's content, straight from the editor's
@@ -21,19 +21,14 @@ export function getFootnoteContentHtml(editor: LexicalEditor, footnoteId: string
   if (!rootElement) {
     return '';
   }
-  const footnoteElement = rootElement.ownerDocument.getElementById(`fn${footnoteId}`);
-  if (!(footnoteElement instanceof HTMLElement) || !rootElement.contains(footnoteElement)) {
-    return '';
-  }
-  const contentElement = footnoteElement.querySelector(`.${FOOTNOTE_CLASSES.footnoteContent}`);
-  return contentElement instanceof HTMLElement ? contentElement.innerHTML : '';
+  return getFootnoteContentElement(rootElement, footnoteId)?.innerHTML ?? '';
 }
 
-function $findFootnoteContentNode(footnoteId: string): FootnoteContentNode | null {
-  const item = $getFootnoteItems().find((i) => i.getFootnoteId() === footnoteId);
-  if (!item) {
-    return null;
-  }
+function $findOrCreateFootnoteContentNode(footnoteId: string): FootnoteContentNode | null {
+  // An orphaned hovernote (e.g. pasted from another document) has no item
+  // yet; create one so the edit isn't silently dropped.
+  const item = $getFootnoteItems().find((i) => i.getFootnoteId() === footnoteId)
+    ?? $appendNewFootnoteItem(footnoteId);
   return item.getChildren().find((child) => $isFootnoteContentNode(child)) ?? null;
 }
 
@@ -81,7 +76,7 @@ export function isBlankHtml(html: string): boolean {
  */
 export function writeFootnoteContentHtml(editor: LexicalEditor, footnoteId: string, html: string): void {
   editor.update(() => {
-    const content = $findFootnoteContentNode(footnoteId);
+    const content = $findOrCreateFootnoteContentNode(footnoteId);
     if (!content) {
       return;
     }

@@ -46,7 +46,7 @@ function isFootnoteContentsNonempty(footnoteContentsElement: Element): boolean {
     .trim();
 }
 
-function getFootnoteContentElement(rootElement: HTMLElement, footnoteId: string): HTMLElement|null {
+export function getFootnoteContentElement(rootElement: HTMLElement, footnoteId: string): HTMLElement|null {
   const footnoteElement = rootElement.ownerDocument.getElementById(`fn${footnoteId}`);
   if (!(footnoteElement instanceof HTMLElement) || !rootElement.contains(footnoteElement)) {
     return null;

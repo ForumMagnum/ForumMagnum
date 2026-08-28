@@ -6,6 +6,7 @@ import {
   EditorConfig,
   LexicalNode,
   NodeKey,
+  RangeSelection,
   Spread,
 } from 'lexical';
 import { MarkNode, SerializedMarkNode } from '@lexical/mark';
@@ -95,6 +96,16 @@ export class HovernoteNode extends MarkNode {
   excludeFromCopy(): boolean {
     return false;
   }
+
+  // MarkNode's insertNewAfter creates a plain MarkNode, which would strip the
+  // hovernote behavior from the second half when Enter is pressed inside one.
+  // Two spans with the same footnoteId is the normal multi-span shape that
+  // $wrapSelectionInMarkNode already produces for multi-run selections.
+  insertNewAfter(_selection: RangeSelection, restoreSelection = true): HovernoteNode {
+    const node = $createHovernoteNode(this.getFootnoteId());
+    this.insertAfter(node, restoreSelection);
+    return node;
+  }
 }
 
 function createHovernoteElement(footnoteId: string): HTMLElement {
@@ -104,7 +115,10 @@ function createHovernoteElement(footnoteId: string): HTMLElement {
   span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteId, footnoteId);
   span.setAttribute('role', 'doc-noteref');
   // The back-link in the footnote section points at #fnref{id}, same as for
-  // regular footnote references.
+  // regular footnote references. A hovernote spanning multiple runs (e.g.
+  // across a paragraph break) is several spans sharing a footnoteId, so this
+  // id can appear more than once; the back-link then scrolls to the first
+  // fragment, which is the right destination anyway.
   span.id = `fnref${footnoteId}`;
   return span;
 }

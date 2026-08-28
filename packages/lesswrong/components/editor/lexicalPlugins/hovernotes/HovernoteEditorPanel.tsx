@@ -21,6 +21,9 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { HeadingNode } from '@lexical/rich-text';
+import { CodeHighlightNode, CodeNode } from '@lexical/code';
+import { ContainerQuoteNode } from '../quote/ContainerQuoteNode';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
@@ -29,6 +32,7 @@ import { CheckSmallIcon } from '@/components/icons/CheckSmallIcon';
 import { TrashIcon } from '@/components/lexical/icons/TrashIcon';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import LinkPlugin from '@/components/lexical/plugins/LinkPlugin';
+import { footnotePreviewStyles } from '@/components/linkPreview/FootnotePreview';
 import { $appendHtmlAsBlocks } from './hovernoteContentSync';
 
 const styles = defineStyles('HovernoteEditorPanel', (theme: ThemeType) => ({
@@ -44,18 +48,11 @@ const styles = defineStyles('HovernoteEditorPanel', (theme: ThemeType) => ({
     width: 420,
     maxWidth: 'calc(100vw - 24px)',
   },
-  // Match the hover card a reader sees (FootnotePreview's hovercard styles),
-  // so the popup renders the note the way it will look on hover.
+  // The popup body wears footnotePreviewStyles.hovercard (so it renders the
+  // note the way it will look on hover); this only tightens the bottom
+  // spacing above the button row.
   body: {
-    padding: 16,
     paddingBottom: 8,
-    ...theme.typography.body2,
-    fontSize: '1.1rem',
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[800],
-    '& a': {
-      color: theme.palette.primary.main,
-    },
   },
   contentEditable: {
     outline: 'none',
@@ -67,10 +64,8 @@ const styles = defineStyles('HovernoteEditorPanel', (theme: ThemeType) => ({
       marginBottom: 0,
     },
   },
+  // Font comes from the hovercard styles on the containing ContentStyles.
   placeholder: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    fontSize: '1.1rem',
     color: theme.palette.grey[550],
     position: 'absolute',
     top: 16,
@@ -167,7 +162,21 @@ function EscapeCancelPlugin({ onCancel }: { onCancel: () => void }): null {
   return null;
 }
 
-const HOVERNOTE_EDITOR_NODES = [ListNode, ListItemNode, LinkNode, AutoLinkNode];
+// The nested editor parses the footnote's existing content, so this set should
+// cover what footnote items actually hold; content in node types outside it
+// (images, math, footnote references) is degraded at parse time. That only
+// gets written back if the user actually edits (see onHtmlChange), and the
+// section's full editor remains available for anything the popup can't hold.
+const HOVERNOTE_EDITOR_NODES = [
+  ListNode,
+  ListItemNode,
+  LinkNode,
+  AutoLinkNode,
+  HeadingNode,
+  ContainerQuoteNode,
+  CodeNode,
+  CodeHighlightNode,
+];
 
 /**
  * The popup for creating/editing a hovernote: a small rich-text editor that
@@ -187,6 +196,7 @@ const HovernoteEditorPanel = ({
   onAutogenerate,
 }: HovernoteEditorPanelProps) => {
   const classes = useStyles(styles);
+  const previewClasses = useStyles(footnotePreviewStyles);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Apply when the user starts a pointer interaction outside the panel
@@ -235,7 +245,7 @@ const HovernoteEditorPanel = ({
             },
           }}
         >
-          <ContentStyles contentType="postHighlight" className={classes.body}>
+          <ContentStyles contentType="postHighlight" className={classNames(previewClasses.hovercard, classes.body)}>
             <div className={classes.editorWrapper}>
               <RichTextPlugin
                 contentEditable={<ContentEditable className={classes.contentEditable} />}
@@ -244,7 +254,10 @@ const HovernoteEditorPanel = ({
               />
             </div>
           </ContentStyles>
-          <OnChangePlugin onChange={handleChange} />
+          {/* ignoreSelectionChange keeps the initial autofocus from reporting a
+              "change": onHtmlChange only fires for real edits, so closing an
+              untouched popup never rewrites (and never degrades) the footnote. */}
+          <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
           <HistoryPlugin />
           <ListPlugin />
           <LinkPlugin />

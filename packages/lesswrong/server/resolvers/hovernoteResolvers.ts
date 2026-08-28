@@ -87,7 +87,12 @@ async function generateCard(client: Anthropic, prompt: string): Promise<string> 
       messages,
     });
 
-    text += `${text ? '\n' : ''}${textOf(response.content)}`;
+    if (response.stop_reason === 'refusal') {
+      throw new Error('The model declined to write this note');
+    }
+    // Concatenated with no separator: a resume continues the same output, and
+    // an inserted newline could land mid-tag.
+    text += textOf(response.content);
     if (response.stop_reason !== 'pause_turn' || resume >= MAX_RESUMES) {
       return text;
     }
@@ -133,6 +138,10 @@ export const hovernoteGqlMutations = {
     if (!currentUser) {
       throw new Error('You need to be logged in to autogenerate hovernotes');
     }
+    // TODO: this is an expensive endpoint (Opus + web search over up to 80K
+    // chars) gated only on login, matching who can use the editor. Before any
+    // broad rollout it should get a per-user rate limit and/or the same kind
+    // of capability gate as jargon generation.
     const trimmedPhrase = phrase.trim();
     if (!trimmedPhrase || !documentHtml.trim()) {
       throw new Error('Missing phrase or document');

@@ -9,6 +9,7 @@
 import type {
   LexicalCommand,
   LexicalEditor,
+  LexicalNode,
   NodeKey,
   RangeSelection,
 } from 'lexical';
@@ -23,7 +24,7 @@ import {
 } from '@lexical/mark';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {createDOMRange} from '@lexical/selection';
-import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
+import {mergeRegister} from '@lexical/utils';
 import {
   $addUpdateTag,
   $createRangeSelection,
@@ -471,6 +472,72 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     },
   },
 }));
+
+/**
+ * Plain comment marks only — MarkNode subclasses (hovernotes) are not comment
+ * marks, and the library's registerNestedElementResolver matches ancestors
+ * with `instanceof`, which would dismantle a hovernote when a comment is
+ * created inside it (moving the comment mark out, splitting the hovernote's
+ * trailing text into a plain MarkNode, and merging the footnoteId into the
+ * comment's ids).
+ */
+const $isPlainMarkNode = (node: LexicalNode | null): node is MarkNode =>
+  $isMarkNode(node) && node.getType() === 'mark';
+
+/**
+ * A copy of @lexical/utils' registerNestedElementResolver specialized to
+ * plain comment MarkNodes — see $isPlainMarkNode for why the library helper
+ * can't be used directly. Un-nests a comment mark created inside another
+ * comment mark, merging their ids.
+ */
+function registerCommentMarkResolver(editor: LexicalEditor): () => void {
+  const $findMatch = (node: MarkNode): {child: LexicalNode; parent: MarkNode} | null => {
+    // First validate we don't have any children that are of the target,
+    // as we need to handle them first.
+    for (const child of node.getChildren()) {
+      if ($isPlainMarkNode(child)) {
+        return null;
+      }
+    }
+    let parentNode: LexicalNode | null = node;
+    let childNode: LexicalNode = node;
+    while (parentNode !== null) {
+      childNode = parentNode;
+      parentNode = parentNode.getParent();
+      if ($isPlainMarkNode(parentNode)) {
+        return {child: childNode, parent: parentNode};
+      }
+    }
+    return null;
+  };
+  const $commentMarkTransform = (node: MarkNode) => {
+    const match = $findMatch(node);
+    if (match === null) {
+      return;
+    }
+    const {child, parent} = match;
+    // Simple path, we can move child out and siblings into a new parent.
+    if (child.is(node)) {
+      // Merge the IDs
+      for (const id of parent.getIDs()) {
+        node.addID(id);
+      }
+      const nextSiblings = child.getNextSiblings();
+      parent.insertAfter(child);
+      if (nextSiblings.length !== 0) {
+        const newParent = $createMarkNode(parent.getIDs());
+        child.insertAfter(newParent);
+        for (const sibling of nextSiblings) {
+          newParent.append(sibling);
+        }
+      }
+      if (!parent.canBeEmpty() && parent.getChildrenSize() === 0) {
+        parent.remove();
+      }
+    }
+  };
+  return editor.registerNodeTransform(MarkNode, $commentMarkTransform);
+}
 
 const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 'suggestion';
 
@@ -1248,20 +1315,7 @@ export default function CommentPlugin(): JSX.Element {
         isRedoOperationRef.current = true;
         return false;
       }, COMMAND_PRIORITY_CRITICAL),
-      registerNestedElementResolver<MarkNode>(
-        editor,
-        MarkNode,
-        (from: MarkNode) => {
-          return $createMarkNode(from.getIDs());
-        },
-        (from: MarkNode, to: MarkNode) => {
-          // Merge the IDs
-          const ids = from.getIDs();
-          ids.forEach((id) => {
-            to.addID(id);
-          });
-        },
-      ),
+      registerCommentMarkResolver(editor),
       editor.registerMutationListener(
         MarkNode,
         (mutations, { updateTags }) => {

@@ -27,12 +27,15 @@ import { Card } from '@/components/widgets/Paper';
 import { PencilFillIcon } from '@/components/lexical/icons/PencilFillIcon';
 import { generateFootnoteId } from '../footnotes/constants';
 import { FootnoteItemNode } from '../footnotes/FootnoteItemNode';
+import { $isFootnoteReferenceNode } from '../footnotes/FootnoteReferenceNode';
 import {
   $appendNewFootnoteItem,
   $getFootnoteItems,
   $removeFootnote,
+  $removeReferencesById,
   $reorderFootnotes,
 } from '../footnotes/helpers';
+import { footnotePreviewStyles } from '@/components/linkPreview/FootnotePreview';
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { HovernoteNode, $createHovernoteNode, $isHovernoteNode, HOVERNOTE_CLASS } from './HovernoteNode';
 import { getFootnoteContentHtml, isBlankHtml, writeFootnoteContentHtml } from './hovernoteContentSync';
@@ -49,22 +52,6 @@ const generateHovernoteSuggestionMutation = gql(`
 `);
 
 const styles = defineStyles('HovernoteHoverCard', (theme: ThemeType) => ({
-  // Mirrors FootnotePreview's hovercard, so the editor hover matches the
-  // reader-facing one.
-  hovercard: {
-    padding: 16,
-    ...theme.typography.body2,
-    fontSize: '1.1rem',
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[800],
-    maxWidth: 500,
-    '& a': {
-      color: theme.palette.primary.main,
-    },
-    '& .footnote-back-link': {
-      display: 'none',
-    },
-  },
   editButton: {
     border: 0,
     display: 'flex',
@@ -129,30 +116,31 @@ function $selectionIntersectsFootnoteSection(selection: RangeSelection): boolean
   return selection.getNodes().some((node) => !!$getNearestNodeOfType(node, FootnoteItemNode));
 }
 
-function findHovernoteElement(editor: LexicalEditor, footnoteId: string): HTMLElement | null {
+/**
+ * All spans of a hovernote (a multi-run selection produces several spans
+ * sharing a footnoteId), in document order. The id is CSS-escaped because
+ * imported/pasted documents can carry arbitrary data-footnote-id values.
+ */
+function findHovernoteElements(editor: LexicalEditor, footnoteId: string): HTMLElement[] {
   const rootElement = editor.getRootElement();
   if (!rootElement) {
-    return null;
+    return [];
   }
-  return rootElement.querySelector<HTMLElement>(
-    `.${HOVERNOTE_CLASS}[data-footnote-id="${footnoteId}"]`
-  );
+  return Array.from(rootElement.querySelectorAll<HTMLElement>(
+    `.${HOVERNOTE_CLASS}[data-footnote-id="${CSS.escape(footnoteId)}"]`
+  ));
 }
 
 /** The full highlighted phrase for a hovernote (across split spans, if any). */
 function getHovernotePhrase(editor: LexicalEditor, footnoteId: string): string {
-  const rootElement = editor.getRootElement();
-  if (!rootElement) {
-    return '';
-  }
-  const spans = Array.from(rootElement.querySelectorAll<HTMLElement>(
-    `.${HOVERNOTE_CLASS}[data-footnote-id="${footnoteId}"]`
-  ));
-  return spans.map((span) => span.textContent ?? '').join(' ').trim();
+  return findHovernoteElements(editor, footnoteId)
+    .map((span) => span.textContent ?? '')
+    .join(' ')
+    .trim();
 }
 
 function getSurroundingText(editor: LexicalEditor, footnoteId: string): string {
-  const spanEl = findHovernoteElement(editor, footnoteId);
+  const spanEl = findHovernoteElements(editor, footnoteId)[0];
   const blockEl = spanEl?.closest('p, li, blockquote, h1, h2, h3, h4, h5, h6') ?? spanEl?.parentElement;
   return blockEl?.textContent?.trim() ?? '';
 }
@@ -171,14 +159,18 @@ function hovernoteElementFromEventTarget(editor: LexicalEditor, target: EventTar
 
 export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: boolean }): React.ReactElement | null {
   const classes = useStyles(styles);
+  // The editor hover card reuses the reader-facing hovercard styles, so the
+  // two renderings can't drift apart.
+  const previewClasses = useStyles(footnotePreviewStyles);
   const [editor] = useLexicalComposerContext();
   const { flash } = useMessages();
   const { isPostEditor, documentId } = useLexicalEditorContext();
   const [panel, setPanel] = useState<PanelState | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
   const [job, setJob] = useState<SuggestionJob | null>(null);
-  // The latest HTML typed into the popup editor, applied on close.
-  const latestHtmlRef = useRef<string>('');
+  // The latest HTML edited into the popup editor, written back on apply.
+  // null = no edit was made, so closing the popup must not rewrite anything.
+  const latestHtmlRef = useRef<string | null>(null);
   const panelRef = useRef<PanelState | null>(null);
   panelRef.current = panel;
 
@@ -200,13 +192,15 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
   useEffect(() => cancelHoverClear, [cancelHoverClear]);
 
   const openPanelForId = useCallback((footnoteId: string) => {
-    const spanEl = findHovernoteElement(editor, footnoteId);
+    const spanEl = findHovernoteElements(editor, footnoteId)[0];
     if (!spanEl) {
       return;
     }
     const rect = spanEl.getBoundingClientRect();
     const initialHtml = getFootnoteContentHtml(editor, footnoteId);
-    latestHtmlRef.current = initialHtml;
+    // null = the popup hasn't produced any edit yet, so closing it must not
+    // rewrite the footnote (the popup's parse of exotic content can be lossy).
+    latestHtmlRef.current = null;
     setHover(null);
     setPanel((prev) => ({
       footnoteId,
@@ -230,8 +224,13 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
         // Removes the footnote item and unwraps the hovernote span(s),
         // keeping the highlighted text.
         $removeFootnote(item);
+      } else {
+        // Orphaned hovernote (e.g. pasted from another document without its
+        // footnote item): unwrap the span(s) directly.
+        $removeReferencesById(currentPanel.footnoteId);
       }
     });
+    setJob((prev) => (prev?.state === 'error' ? null : prev));
     setPanel(null);
     editor.focus();
   }, [editor]);
@@ -244,6 +243,7 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
       removeHovernote();
       return;
     }
+    setJob((prev) => (prev?.state === 'error' ? null : prev));
     setPanel(null);
     editor.focus();
   }, [editor, removeHovernote]);
@@ -253,19 +253,27 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
     if (!currentPanel) {
       return;
     }
+    const html = latestHtmlRef.current;
+    // Nothing was edited in the popup: don't rewrite the footnote at all
+    // (closePanel still discards a hovernote that has no content yet).
+    if (html === null) {
+      closePanel();
+      return;
+    }
     // Applying an empty note removes the hovernote instead of keeping a blank one.
-    if (isBlankHtml(latestHtmlRef.current)) {
+    if (isBlankHtml(html)) {
       removeHovernote();
       return;
     }
-    writeFootnoteContentHtml(editor, currentPanel.footnoteId, latestHtmlRef.current);
+    writeFootnoteContentHtml(editor, currentPanel.footnoteId, html);
+    setJob((prev) => (prev?.state === 'error' ? null : prev));
     setPanel(null);
     editor.focus();
-  }, [editor, removeHovernote]);
+  }, [editor, closePanel, removeHovernote]);
 
   const startAutogenerate = useCallback(() => {
     const currentPanel = panelRef.current;
-    if (!currentPanel || job?.state === 'pending') {
+    if (!currentPanel || (job?.state === 'pending' && job.footnoteId === currentPanel.footnoteId)) {
       return;
     }
     const { footnoteId } = currentPanel;
@@ -288,7 +296,7 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
       if (!html) {
         throw new Error('Empty suggestion');
       }
-      setJob(null);
+      setJob((prev) => (prev?.footnoteId === footnoteId ? null : prev));
       const openPanel = panelRef.current;
       if (openPanel && openPanel.footnoteId === footnoteId) {
         // Land the suggestion in the still-open popup, so Apply commits it.
@@ -298,12 +306,19 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
           initialHtml: html,
           contentVersion: openPanel.contentVersion + 1,
         });
-      } else {
-        // The popup was closed in the meantime; land it on the footnote directly.
+      } else if (findHovernoteElements(editor, footnoteId).length > 0) {
+        // The popup was closed in the meantime; land it on the footnote
+        // directly — unless the hovernote itself was removed while the
+        // request was in flight.
         writeFootnoteContentHtml(editor, footnoteId, html);
       }
     }).catch((error: Error) => {
-      setJob({ footnoteId, state: 'error', error: error.message });
+      // Don't clobber a newer job started for a different hovernote.
+      setJob((prev) => (
+        prev && prev.footnoteId !== footnoteId
+          ? prev
+          : { footnoteId, state: 'error', error: error.message }
+      ));
     });
   }, [editor, generateSuggestion, isPostEditor, documentId, job]);
 
@@ -336,6 +351,12 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
             }
             if ($selectionIntersectsFootnoteSection(selection)) {
               blockedMessage = 'Hovernotes cannot be created inside footnotes';
+              return;
+            }
+            if (selection.getNodes().some((node) => $isFootnoteReferenceNode(node))) {
+              // A [n] reference inside a hovernote would nest one hover
+              // target inside another on the read side.
+              blockedMessage = 'Hovernotes cannot contain footnote references';
               return;
             }
             const id = generateFootnoteId();
@@ -420,7 +441,7 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
             onMouseLeave={scheduleHoverClear}
           >
             <Card>
-              <ContentStyles contentType="postHighlight" className={classes.hovercard}>
+              <ContentStyles contentType="postHighlight" className={previewClasses.hovercard}>
                 <ContentItemBody dangerouslySetInnerHTML={{ __html: hover.html }} />
                 {editor.isEditable() && !isSuggestionMode && (
                   <button
@@ -439,7 +460,7 @@ export function HovernotesPlugin({ isSuggestionMode }: { isSuggestionMode?: bool
       )}
       {panel && (
         <HovernoteEditorPanel
-          key={`${panel.footnoteId}`}
+          key={panel.footnoteId}
           anchor={panel.anchor}
           initialHtml={panel.initialHtml}
           contentVersion={panel.contentVersion}

@@ -1,8 +1,9 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import { isMobile } from '@/lib/utils/isMobile';
+import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import ContentStyles from '../common/ContentStyles';
 import FootnoteDialog from "./FootnoteDialog";
 import LWPopper from "../common/LWPopper";
@@ -12,18 +13,15 @@ import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { useDialog } from '../common/withDialog';
 import { useTheme } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
-import { FootnoteAncestorsContext, footnotePreviewStyles } from './FootnotePreview';
+import { FootnoteAncestorsContext, footnotePreviewStyles, useFootnoteHTML } from './FootnotePreview';
 
 /**
  * A hovernote: a stretch of highlighted text whose footnote content shows in
  * a hover card. The content also appears (numbered) in the footnotes section
  * at the bottom of the post, but unlike a regular footnote reference there is
  * no [n] marker and no sidenote in the margin — the highlighted text itself is
- * the hover target.
- *
- * The extraction of the footnote's HTML from the rendered page works the same
- * way as FootnotePreview's: the footnote section is in the same document, so
- * we look up `#fn{id}` in the DOM.
+ * the hover target. Clicking scrolls to the footnote item on desktop and opens
+ * the footnote dialog on mobile.
  */
 const HovernotePreview = ({footnoteId, id, contentStyleType="postHighlight", children}: {
   footnoteId: string,
@@ -47,27 +45,12 @@ const HovernotePreview = ({footnoteId, id, contentStyleType="postHighlight", chi
       return !isMobile() && window.innerWidth >= minScreenWidthForTooltips;
     },
   });
-  const [footnoteHTML, setFootnoteHTML] = useState<string|null>(null);
-  const memoizedEmptyArray = useMemo(() => [], []);
-  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
-  const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href]);
-
-  useEffect(() => {
-    if (footnoteAncestors.includes(href)) {
-      return;
-    }
-    const footnoteContentsElement = document.getElementById(`fn${footnoteId}`);
-    if (!footnoteContentsElement) {
-      return;
-    }
-    const isNonempty = !!Array.from(footnoteContentsElement.querySelectorAll("p, li"))
-      .reduce((acc, p) => acc + p.textContent, "").trim();
-    if (isNonempty) {
-      setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? footnoteContentsElement.innerHTML);
-    }
-  }, [footnoteId, href, footnoteAncestors]);
+  const { footnoteHTML, newFootnoteAncestors } = useFootnoteHTML(href);
 
   const onClick = useCallback((ev: React.MouseEvent) => {
+    if (!isRegularClick(ev)) {
+      return;
+    }
     const isWideEnoughForTooltips = window.innerWidth >= minScreenWidthForTooltips;
     const openModalOnClick = isMobile() || !isWideEnoughForTooltips;
     if (openModalOnClick && footnoteHTML !== null) {
@@ -80,8 +63,10 @@ const HovernotePreview = ({footnoteId, id, contentStyleType="postHighlight", chi
         />
       });
       ev.preventDefault();
+    } else {
+      document.getElementById(`fn${footnoteId}`)?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [footnoteHTML, openDialog, minScreenWidthForTooltips]);
+  }, [footnoteId, footnoteHTML, openDialog, minScreenWidthForTooltips]);
 
   return (
     <span
