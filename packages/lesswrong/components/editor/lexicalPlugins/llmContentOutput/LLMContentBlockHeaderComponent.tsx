@@ -47,14 +47,11 @@ const headerStyles = defineStyles('LLMContentBlockHeader', (theme: ThemeType) =>
       background: theme.palette.greyAlpha(0.05),
     },
   },
-  loadMore: {
-    color: theme.palette.grey[600],
-  },
 }));
 
 const PLACEHOLDER = 'Unknown Model';
 
-const OPTIONS_PAGE_SIZE = 10;
+const MAX_VISIBLE_SUGGESTIONS = 10;
 
 function filterModelOptions(options: readonly string[], query: string): string[] {
   const trimmedQuery = query.trim().toLowerCase();
@@ -93,13 +90,11 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   const [localValue, setLocalValue] = useState(modelName);
   const [inputWidth, setInputWidth] = useState<number | undefined>(undefined);
   const [isShowingSuggestions, setIsShowingSuggestions] = useState(false);
-  const [visibleSuggestionCount, setVisibleSuggestionCount] = useState(OPTIONS_PAGE_SIZE);
 
-  const matchingOptions = useMemo(
-    () => filterModelOptions(modelOptions, localValue),
+  const visibleOptions = useMemo(
+    () => filterModelOptions(modelOptions, localValue).slice(0, MAX_VISIBLE_SUGGESTIONS),
     [modelOptions, localValue],
   );
-  const visibleOptions = matchingOptions.slice(0, visibleSuggestionCount);
 
   // Re-sync when the Lexical node is updated by something other than this
   // input (e.g. undo/redo, collaboration).
@@ -122,7 +117,6 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setLocalValue(e.target.value);
-      setVisibleSuggestionCount(OPTIONS_PAGE_SIZE);
       setIsShowingSuggestions(true);
       setNodeModelName(editor, containerNodeKey, e.target.value);
     },
@@ -130,7 +124,6 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   );
 
   const handleFocus = useCallback(() => {
-    setVisibleSuggestionCount(OPTIONS_PAGE_SIZE);
     setIsShowingSuggestions(true);
   }, []);
 
@@ -150,10 +143,6 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
     },
     [editor, containerNodeKey],
   );
-
-  const handleLoadMoreClick = useCallback(() => {
-    setVisibleSuggestionCount((count) => count + OPTIONS_PAGE_SIZE);
-  }, []);
 
   // Without this the input loses focus before a suggestion's click handler
   // runs, and the blur closes the list out from under the click.
@@ -194,14 +183,6 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
                 {option}
               </div>
             ))}
-            {matchingOptions.length > visibleOptions.length && (
-              <div
-                className={classNames(classes.suggestion, classes.loadMore)}
-                onClick={handleLoadMoreClick}
-              >
-                Load more
-              </div>
-            )}
           </div>
         )}
       </span>
