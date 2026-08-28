@@ -37,7 +37,7 @@ import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
 import ErrorPage from "../common/ErrorPage";
 import RedlinkTagPage from "./RedlinkTagPage";
-import { SideItem, SideItemsContainer } from "../contents/SideItems";
+import { SideItem, SideItemsContainer, SideItemsScope } from "../contents/SideItems";
 import { ParentsAndChildrenSmallScreen, ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
 import TagAudioPlayerWrapper from "./TagAudioPlayerWrapper";
 import { LensTabBar } from "./lenses/LensTab";
@@ -808,7 +808,9 @@ const LWTagPage = ({slug}: {slug: string}) => {
         </div>}
         {/* <TagEditorProvider> */}
         <DeferRender ssr={false}>
-          {editForm}
+          <SideItemsScope enabled={editing}>
+            {editForm}
+          </SideItemsScope>
         </DeferRender>
         {/* </TagEditorProvider> */}
         <div
