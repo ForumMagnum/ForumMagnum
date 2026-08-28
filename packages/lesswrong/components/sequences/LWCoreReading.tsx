@@ -1,19 +1,20 @@
 import React from 'react';
-import SingleColumnSection from "../common/SingleColumnSection";
-import CollectionsItem from "./CollectionsItem";
+import LibraryCollectionCard from "./LibraryCollectionCard";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("LWCoreReading", (theme: ThemeType) => ({
-  root: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "space-between"
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "16px",
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: "minmax(0, 1fr)",
+    },
   },
-  text: {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle
-  }
+  featured: {
+    gridColumn: "1 / -1",
+  },
 }));
 
 export interface CoreReadingCollection {
@@ -37,7 +38,7 @@ export interface CoreReadingCollection {
   }
 }
 
-const coreReadingCollections: Array<CoreReadingCollection> = 
+const coreReadingCollections: Array<CoreReadingCollection> =
   [
     {
       title: "Rationality: A-Z",
@@ -70,7 +71,6 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       title: "Harry Potter and the Methods of Rationality",
       id: "dummyId3",
       userId: "nmk3nLpQE89dMRzzN",
-      // subtitle: "Fiction by Eliezer Yudkowsky",
       summary: `<div>
         <p>What if Harry Potter was a scientist? What would you do if the universe had magic in it? <br/>A story that conveys many rationality concepts, making them more visceral and emotionally compelling.</div>`,
       imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657774172/DALL_E_2022-07-13_21.49.04_-_11_year_old_wizard_boy_with_short_messy_black_hair_and_glasses_standing_upright_looking_intently_at_the_camera_casting_a_question_spell_glowing_wh_l1ls1k.png",
@@ -79,7 +79,6 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     },
     {
       title: "The Codex",
-      // subtitle: "Collected writings of Scott Alexander",
       id: "dummyId2",
       userId: "XgYW5s8njaYrtyP7q",
       summary: "<div>Essays by Scott Alexander exploring science, medicine, philosophy, futurism, and politics. (There's also one about hallucinatory cactus people but it's not representative).</div>",
@@ -89,27 +88,28 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     },
     {
       title: "Best of LessWrong",
-      // subtitle: "Assorted authors",
       id: "dummyId5",
       userId: "nmk3nLpQE89dMRzzN",
       summary: "<div>Each December, the LessWrong community reviews the best posts from the previous year, and votes on which ones have stood the tests of time.</div>",
-      // summary: "<div>Each December, the LessWrong community reviews the best posts from the previous year, and votes on which of them have stood the tests of time.</div>",
       imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657778273/DALL_E_2022-07-13_22.57.43_-_Books_and_emerald_compass_displayed_on_a_pedastal_aquarelle_painting_by_da_vinci_and_thomas_shaler_magic_the_gathering_concept_art_as_digital_art_ayufzo.png",
       color: "#757AA7",
       url: "/bestoflesswrong",
     }
   ]
 
-const LWCoreReading = ({minimal}: {
-  minimal?: boolean,
-}) => {
+const LWCoreReading = () => {
   const classes = useStyles(styles);
 
-  return <SingleColumnSection className={classes.root}>
-    {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
-  </SingleColumnSection>
+  const [featured, ...rest] = coreReadingCollections;
+
+  return <div className={classes.grid}>
+    <div className={classes.featured}>
+      <LibraryCollectionCard collection={featured} large/>
+    </div>
+    {rest.map(collection =>
+      <LibraryCollectionCard key={collection.id} collection={collection}/>
+    )}
+  </div>;
 }
 
 export default LWCoreReading
-
-
