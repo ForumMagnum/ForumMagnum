@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
+import { captureException } from "@/lib/sentryWrapper";
 
 export const llmModelGraphQLTypeDefs = gql`
   extend type Query {
@@ -69,6 +70,7 @@ async function fetchLlmModelOptions(): Promise<string[]> {
     const models = data.flatMap((model) => model && isSuggestableModel(model) ? [model] : []);
     return [...new Set(featuredModelsFirst(models).map(getDisplayName))];
   } catch (error) {
+    captureException(error);
     console.error("Failed to fetch LLM model options from OpenRouter", error);
     return [];
   }
