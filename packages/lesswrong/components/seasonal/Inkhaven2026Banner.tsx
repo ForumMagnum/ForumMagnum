@@ -7,7 +7,7 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 export const INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID = 'SbqCm443KuNuxoZKt';
 export const INKHAVEN_RESIDENCY_3_START = new Date('2026-08-28T00:00:00-07:00');
 export const INKHAVEN_RESIDENCY_3_END = new Date('2026-09-07T00:00:00-07:00');
-const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'inkhaven-residency-3-banner-2';
+const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_34_19_AM_gfs7ot';
 
 const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
   root: {
