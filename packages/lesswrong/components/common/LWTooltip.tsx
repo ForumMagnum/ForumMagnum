@@ -7,6 +7,14 @@ import LWPopper from "./LWPopper";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
+const TOOLTIP_ANCHOR_ATTRIBUTE = "data-lw-tooltip-anchor";
+
+function isMouseOverNestedTooltip(event: React.MouseEvent<HTMLElement>): boolean {
+  const target = event.target;
+  return target instanceof Element
+    && target.closest(`[${TOOLTIP_ANCHOR_ATTRIBUTE}]`) !== event.currentTarget;
+}
+
 const styles = defineStyles("LWTooltip", (_theme: ThemeType) => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
@@ -94,7 +102,7 @@ const LWTooltip = ({
     }
   }, []);
 
-  const { hover, everHovered, anchorEl, eventHandlers } = useHover({
+  const { hover, everHovered, anchorEl, eventHandlers, forceUnHover } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,
@@ -109,6 +117,14 @@ const LWTooltip = ({
       setDelayedClickable(false);
     },
   });
+
+  const handleMouseOver = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (isMouseOverNestedTooltip(event)) {
+      forceUnHover();
+      return;
+    }
+    eventHandlers.onMouseOver(event);
+  }, [eventHandlers, forceUnHover]);
 
   // For the clickable case, we want to delay the opening of the tooltip by 200ms
   // so that users aren't interrupted when moving their mouse rapidly over
@@ -133,7 +149,12 @@ const LWTooltip = ({
   return <As className={classNames(
     inlineBlock && classes.root,
     className
-  )} {...eventHandlers} ref={defaultAnchorElRef}>
+  )}
+    {...eventHandlers}
+    onMouseOver={handleMouseOver}
+    ref={defaultAnchorElRef}
+    data-lw-tooltip-anchor={disabled ? undefined : true}
+  >
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
