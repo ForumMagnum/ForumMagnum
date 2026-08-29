@@ -57,7 +57,14 @@ import {
   ImageNode,
   ImagePayload,
 } from '../../nodes/ImageNode';
-import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
+import {
+  $canDropImage,
+  $getImageNodeInSelection,
+  getDragImageData,
+  getDragSelection,
+  getUniqueImageFiles,
+  isImageFile,
+} from './ImageUtils';
 import { preloadImage } from '../../nodes/imageCache';
 
 import {
@@ -378,6 +385,27 @@ function flashUploadError(
   flash({ messageString: errorMessage, type: 'error' });
 }
 
+function uploadImageFiles(
+  editor: LexicalEditor,
+  imageFiles: readonly File[],
+  flash: (message: WithMessagesMessage) => void,
+): void {
+  for (const file of imageFiles) {
+    uploadToCloudinary(file)
+      .then((result) => {
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+          altText: file.name || 'Pasted image',
+          src: result.secure_url,
+          width: result.width,
+          height: result.height,
+        });
+      })
+      .catch((error) => {
+        flashUploadError(flash, error);
+      });
+  }
+}
+
 export default function ImagesPlugin({
   captionsEnabled,
 }: {
@@ -445,26 +473,18 @@ export default function ImagesPlugin({
           if (!clipboardData) {
             return false;
           }
-          const files = Array.from(clipboardData.files);
-          const imageFiles = files.filter(isImageFile);
+          const imageFiles = Array.from(clipboardData.files).filter(isImageFile);
           if (imageFiles.length === 0) {
             return false;
           }
           event.preventDefault();
-          for (const file of imageFiles) {
-            uploadToCloudinary(file)
-              .then((result) => {
-                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                  altText: file.name || 'Pasted image',
-                  src: result.secure_url,
-                  width: result.width,
-                  height: result.height,
-                });
-              })
-              .catch((error) => {
-                flashUploadError(flash, error);
-              });
-          }
+          getUniqueImageFiles(imageFiles)
+            .then((uniqueImageFiles) => {
+              uploadImageFiles(editor, uniqueImageFiles, flash);
+            })
+            .catch(() => {
+              uploadImageFiles(editor, imageFiles, flash);
+            });
           return true;
         },
         COMMAND_PRIORITY_NORMAL,

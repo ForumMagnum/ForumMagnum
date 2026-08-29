@@ -39,7 +39,6 @@ import {
 import { $generateNodesFromDOM } from '@lexical/html'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
-import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties, SuggestionType } from './Types'
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
 import type { ListItemNode, ListType } from '@lexical/list'
@@ -63,6 +62,7 @@ export function $handleBeforeInputEvent(
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
   createNotification: (message: WithMessagesMessage) => void,
+  insertImageFilesAsSuggestions: (files: readonly File[]) => void,
 ): boolean {
   const inputType = event.inputType
 
@@ -100,7 +100,16 @@ export function $handleBeforeInputEvent(
   }
 
   if (InsertionInputTypes.includes(inputType)) {
-    return $handleInsertInput(editor, event, inputType, selection, suggestionID, onSuggestionCreation, logger)
+    return $handleInsertInput(
+      editor,
+      event,
+      inputType,
+      selection,
+      suggestionID,
+      onSuggestionCreation,
+      logger,
+      insertImageFilesAsSuggestions,
+    )
   }
 
   return true
@@ -314,6 +323,7 @@ function $handleInsertInput(
   suggestionID: string,
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
+  insertImageFilesAsSuggestions: (files: readonly File[]) => void,
 ): boolean {
   const focusNode = selection.focus.getNode()
   const existingParentSuggestion = $findMatchingParent(focusNode, $isSuggestionNode)
@@ -374,7 +384,12 @@ function $handleInsertInput(
   if (data === null && dataTransfer !== null) {
     const types = dataTransfer.types
     logger.info('Inserting data transfer', types)
-    $insertDataTransferAsSuggestion(dataTransfer, latestSelection, editor)
+    $insertDataTransferAsSuggestion(
+      dataTransfer,
+      latestSelection,
+      editor,
+      insertImageFilesAsSuggestions,
+    )
     return true
   }
 
@@ -784,7 +799,12 @@ function $handleListShortcutOnSpace(
  * since the original function doesn't trigger the aforementioned command when the data transfer
  * only has plaintext data.
  */
-function $insertDataTransferAsSuggestion(dataTransfer: DataTransfer, selection: RangeSelection, editor: LexicalEditor) {
+function $insertDataTransferAsSuggestion(
+  dataTransfer: DataTransfer,
+  selection: RangeSelection,
+  editor: LexicalEditor,
+  insertImageFilesAsSuggestions: (files: readonly File[]) => void,
+) {
   const types = dataTransfer.types
 
   const lexicalString = dataTransfer.getData('application/x-lexical-editor')
@@ -813,9 +833,7 @@ function $insertDataTransferAsSuggestion(dataTransfer: DataTransfer, selection: 
   }
 
   if (types.includes('Files')) {
-    for (const file of Array.from(dataTransfer.files)) {
-      editor.dispatchCommand(INSERT_FILE_COMMAND, file)
-    }
+    insertImageFilesAsSuggestions(Array.from(dataTransfer.files))
     return true
   }
 

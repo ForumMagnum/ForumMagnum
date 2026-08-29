@@ -93,7 +93,7 @@ import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggest
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
 import { $createImageNode } from '@/components/lexical/nodes/ImageNode'
-import { isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
+import { getUniqueImageFiles, isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
 import { ImageUploadError, uploadToCloudinary } from '@/components/lexical/utils/cloudinaryUpload'
 import { useMessages } from '@/components/common/withMessages'
 
@@ -131,6 +131,26 @@ function insertImageFileAsSuggestion(
       reportError(error)
     })
   return true
+}
+
+function insertImageFilesAsSuggestions(
+  editor: LexicalEditor,
+  files: readonly File[],
+  onSuggestionCreation: (id: string) => void,
+  logger: ConsoleLogger,
+): void {
+  const imageFiles = files.filter(isImageFile)
+  getUniqueImageFiles(imageFiles)
+    .then((uniqueImageFiles) => {
+      for (const file of uniqueImageFiles) {
+        insertImageFileAsSuggestion(editor, file, onSuggestionCreation, logger)
+      }
+    })
+    .catch(() => {
+      for (const file of imageFiles) {
+        insertImageFileAsSuggestion(editor, file, onSuggestionCreation, logger)
+      }
+    })
 }
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
@@ -576,6 +596,14 @@ export function SuggestionModePlugin({
       createdSuggestionIDsRef.current.add(id)
       suggestionModeLogger.info('Created suggestion node with ID: ', id)
     }
+    const insertFilesAsSuggestions = (files: readonly File[]) => {
+      insertImageFilesAsSuggestions(
+        editor,
+        files,
+        addCreatedIDtoSet,
+        suggestionModeLogger,
+      )
+    }
 
     return mergeRegister(
       editor.registerCommand(
@@ -689,7 +717,14 @@ export function SuggestionModePlugin({
       editor.registerCommand(
         BEFOREINPUT_EVENT_COMMAND,
         (event) => {
-          return $handleBeforeInputEvent(editor, event, addCreatedIDtoSet, suggestionModeLogger, createNotification)
+          return $handleBeforeInputEvent(
+            editor,
+            event,
+            addCreatedIDtoSet,
+            suggestionModeLogger,
+            createNotification,
+            insertFilesAsSuggestions,
+          )
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -702,9 +737,7 @@ export function SuggestionModePlugin({
             if (imageFiles.length === 0) {
               return false
             }
-            for (const file of imageFiles) {
-              editor.dispatchCommand(INSERT_FILE_COMMAND, file)
-            }
+            insertFilesAsSuggestions(imageFiles)
             return true
           }
           return false
