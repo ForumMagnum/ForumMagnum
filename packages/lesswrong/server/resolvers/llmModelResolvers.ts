@@ -71,7 +71,6 @@ async function fetchLlmModelOptions(): Promise<string[]> {
     return [...new Set(featuredModelsFirst(models).map(getDisplayName))];
   } catch (error) {
     captureException(error);
-    console.error("Failed to fetch LLM model options from OpenRouter", error);
     return [];
   }
 }

@@ -26,6 +26,7 @@ import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
+import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const styles = defineStyles("LWHome", () => ({
@@ -41,14 +42,11 @@ const styles = defineStyles("LWHome", () => ({
   },
 }));
 
-const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'j4q2gcjowKqfpdjsR';
-const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-26T00:00:00Z');
-
-const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
-  now.getTime() < LESSONLINE_MOBILE_SPOTLIGHT_UNTIL.getTime()
-    ? LESSONLINE_MOBILE_SPOTLIGHT_ID
-    : null
-);
+const getMobileSpotlightOverrideId = (now: Date = new Date()): string | null => {
+  return now >= INKHAVEN_RESIDENCY_3_START && now < INKHAVEN_RESIDENCY_3_END
+    ? INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID
+    : null;
+};
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -80,7 +78,7 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const classes = useStyles(styles);
-  const mobileSpotlightOverrideId = getLessOnlineMobileSpotlightOverrideId();
+  const mobileSpotlightOverrideId = getMobileSpotlightOverrideId();
 
   return (
       <AnalyticsContext pageContext="homePage">
