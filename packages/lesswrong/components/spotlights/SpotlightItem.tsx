@@ -33,6 +33,7 @@ import range from 'lodash/range';
 import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
 import { descriptionStyles } from './SpotlightDescriptionStyles';
+import { INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID } from '../seasonal/Inkhaven2026Banner';
 
 import dynamic from 'next/dynamic';
 const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
@@ -309,6 +310,19 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
     filter: "brightness(1.2)",
   },
+  splashImageFlush: {
+    transform: "none",
+    filter: "none",
+    [theme.breakpoints.down('xs')]: {
+      // Mobile cards drop the body, so the splash is otherwise a thin strip.
+      // Zoom into the typewriter (lower-right of this splash).
+      height: "240%",
+      width: "auto",
+      top: "auto",
+      bottom: "calc(-42% + 8px)",
+      right: "-6%",
+    },
+  },
   splashImageContainer: {
     position: "absolute",
     top: 0,
@@ -530,7 +544,9 @@ export const SpotlightItem = ({
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
+              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage, {
+                [classes.splashImageFlush]: spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID,
+              })}/>
             </div>}
             {spotlight.spotlightImageId && <CloudinaryImage2
               publicId={spotlight.spotlightImageId}
