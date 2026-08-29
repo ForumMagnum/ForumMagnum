@@ -54,6 +54,46 @@ export function isImageFile(payload: Blob): boolean {
   return payload.type.startsWith('image/');
 }
 
+export interface ImagePasteEventMarker {
+  source: 'beforeinput' | 'paste';
+  timeStamp: number;
+  fileSignature: string;
+}
+
+const IMAGE_PASTE_EVENT_PAIR_WINDOW_MS = 100;
+
+function getImageFileSignature(files: readonly File[]): string {
+  return files
+    .map(file => `${file.type}\0${file.size}`)
+    .join('\u0001');
+}
+
+export function createImagePasteEventMarker(
+  source: ImagePasteEventMarker['source'],
+  timeStamp: number,
+  files: readonly File[],
+): ImagePasteEventMarker {
+  return {
+    source,
+    timeStamp,
+    fileSignature: getImageFileSignature(files),
+  };
+}
+
+export function isPairedImagePasteEvent(
+  marker: ImagePasteEventMarker | null,
+  source: ImagePasteEventMarker['source'],
+  timeStamp: number,
+  files: readonly File[],
+): boolean {
+  return (
+    marker !== null &&
+    marker.source !== source &&
+    Math.abs(marker.timeStamp - timeStamp) <= IMAGE_PASTE_EVENT_PAIR_WINDOW_MS &&
+    marker.fileSignature === getImageFileSignature(files)
+  );
+}
+
 interface FileWithContents {
   file: File;
   contents: Uint8Array | null;

@@ -11,12 +11,17 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $canShowPlaceholderCurry } from '@lexical/text';
 import { mergeRegister } from '@lexical/utils';
 import { KEY_DOWN_COMMAND, PASTE_COMMAND } from 'lexical';
-import { eventFiles } from '@lexical/rich-text';
 import {
   BEFOREINPUT_EVENT_COMMAND,
   COMPOSITION_START_EVENT_COMMAND,
   INPUT_EVENT_COMMAND,
 } from '@/components/editor/lexicalPlugins/suggestions/Events';
+import {
+  createImagePasteEventMarker,
+  isImageFile,
+  isPairedImagePasteEvent,
+  type ImagePasteEventMarker,
+} from '@/components/lexical/plugins/ImagesPlugin/ImageUtils';
 
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -64,6 +69,22 @@ type Props = {
   isSuggestionMode?: boolean;
 };
 
+function getImageOnlyPasteFiles(dataTransfer: DataTransfer | null): File[] | null {
+  if (!dataTransfer) {
+    return null;
+  }
+
+  const hasTextContent =
+    dataTransfer.types.includes('text/html') ||
+    dataTransfer.types.includes('text/plain');
+  if (hasTextContent) {
+    return null;
+  }
+
+  const imageFiles = Array.from(dataTransfer.files).filter(isImageFile);
+  return imageFiles.length > 0 ? imageFiles : null;
+}
+
 export default function LexicalContentEditable({
   className,
   placeholder,
@@ -79,6 +100,7 @@ export default function LexicalContentEditable({
   });
   const isSuggestionModeRef = useRef(isSuggestionMode);
   const cleanupRef = useRef<null | (() => void)>(null);
+  const imagePasteEventMarkerRef = useRef<ImagePasteEventMarker | null>(null);
 
   useEffect(() => {
     isSuggestionModeRef.current = isSuggestionMode;
@@ -113,14 +135,56 @@ export default function LexicalContentEditable({
           if (isSuggestionModeRef.current) {
             event.preventDefault();
             event.stopImmediatePropagation();
+
+            const isPasteInput =
+              event.inputType === 'insertFromPaste' ||
+              event.inputType === 'insertFromPasteAsQuotation';
+            const imageFiles = isPasteInput
+              ? getImageOnlyPasteFiles(event.dataTransfer)
+              : null;
+            if (imageFiles) {
+              if (
+                isPairedImagePasteEvent(
+                  imagePasteEventMarkerRef.current,
+                  'beforeinput',
+                  event.timeStamp,
+                  imageFiles,
+                )
+              ) {
+                imagePasteEventMarkerRef.current = null;
+                return;
+              }
+              imagePasteEventMarkerRef.current = createImagePasteEventMarker(
+                'beforeinput',
+                event.timeStamp,
+                imageFiles,
+              );
+            }
+
             editor.dispatchCommand(BEFOREINPUT_EVENT_COMMAND, event);
           }
         };
         const handlePaste = (event: ClipboardEvent) => {
-          const [, files, hasTextContent] = eventFiles(event);
-          if (isSuggestionModeRef.current && files.length > 0 && !hasTextContent) {
+          const imageFiles = getImageOnlyPasteFiles(event.clipboardData);
+          if (isSuggestionModeRef.current && imageFiles) {
             event.preventDefault();
             event.stopImmediatePropagation();
+            if (
+              isPairedImagePasteEvent(
+                imagePasteEventMarkerRef.current,
+                'paste',
+                event.timeStamp,
+                imageFiles,
+              )
+            ) {
+              imagePasteEventMarkerRef.current = null;
+              return;
+            }
+            imagePasteEventMarkerRef.current = createImagePasteEventMarker(
+              'paste',
+              event.timeStamp,
+              imageFiles,
+            );
             editor.dispatchCommand(PASTE_COMMAND, event);
           }
         };
