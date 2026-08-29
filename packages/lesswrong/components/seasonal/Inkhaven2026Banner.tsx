@@ -7,7 +7,7 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 export const INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID = 'SbqCm443KuNuxoZKt';
 export const INKHAVEN_RESIDENCY_3_START = new Date('2026-08-28T00:00:00-07:00');
 export const INKHAVEN_RESIDENCY_3_END = new Date('2026-09-07T00:00:00-07:00');
-const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_34_19_AM_gfs7ot';
+const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_46_57_AM_uynuti';
 
 const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
   root: {
@@ -25,11 +25,13 @@ const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
   image: {
     width: '100%',
     height: 'auto',
-    maxHeight: '92vh',
+    maxHeight: '96vh',
     objectFit: 'contain',
     objectPosition: 'right top',
     display: 'block',
-    transform: 'translate(-56px, calc(-4vh - 10px)) scale(0.85)',
+    // Wider/shorter asset than the previous plume; keep origin top-right and
+    // scale up so the typewriter scene stays a similar size in the gutter.
+    transform: 'translate(calc(-38px + (0.6 * clamp(2.5rem, 3vw, 4rem) * 1.2)), calc(-2vh - 10px - (1.4 * clamp(2.5rem, 3vw, 4rem) * 1.2)))',
     transformOrigin: 'top right',
   },
   imageColumn: {
@@ -37,7 +39,7 @@ const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
     top: 0,
     right: 0,
     height: '100vh',
-    width: '480px',
+    width: '560px',
     [theme.breakpoints.down(1200)]: {
       display: 'none'
     },
