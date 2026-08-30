@@ -2,9 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
-import type { InboxAction, InboxState } from './inboxReducer';
+import type { InboxAction } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
-import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -38,12 +37,6 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     height: 'calc(100vh - 64px)',
     ...prettyScrollbars(theme),
   },
-  // Sits flush against the bottom of the column, taking only the height its
-  // contents need, so the rest goes to the user info above it.
-  undoQueueColumn: {
-    marginTop: 'auto',
-    flexShrink: 0,
-  }
 }));
 
 const ModerationUserDetailView = ({ 
@@ -55,7 +48,6 @@ const ModerationUserDetailView = ({
   sidebarTab,
   addToUndoQueue,
   dispatch,
-  state,
   currentUser,
 }: {
   user: SunshineUsersList;
@@ -66,7 +58,6 @@ const ModerationUserDetailView = ({
   sidebarTab: SelectedSidebarTab;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
-  state: InboxState;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
@@ -98,13 +89,6 @@ const ModerationUserDetailView = ({
             currentUser={currentUser}
             dispatch={dispatch}
           />
-          <div className={classes.undoQueueColumn}>
-            <ModerationUndoHistory
-              undoQueue={state.undoQueue}
-              history={state.history}
-              dispatch={dispatch}
-            />
-          </div>
         </div>
         <div className={classes.contentListColumn}>
           <ModerationContentList
