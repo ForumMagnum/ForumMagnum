@@ -24,12 +24,153 @@ import {
   type LocatedQuoteRange,
 } from "./textIndexQuoteLocator";
 import type MarkdownIt from "markdown-it";
+import { $isFootnoteItemNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode";
+import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 
 export interface FinalSelection {
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   narrowedQuote: string
   narrowedReplacement: string
+}
+
+interface ExistingFootnote {
+  id: string
+  index: number
+}
+
+interface ResolvedFootnoteMarker {
+  marker: string
+  offset: number
+  footnote: ExistingFootnote
+}
+
+interface AtomicMarkdownSpan {
+  start: number
+  end: number
+}
+
+function findFootnoteMarkerSpans(markdown: string): AtomicMarkdownSpan[] {
+  const spans: AtomicMarkdownSpan[] = [];
+  for (const match of markdown.matchAll(/\[\^[^\]\s]+\]/g)) {
+    spans.push({
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+  return spans;
+}
+
+export function markdownContainsFootnoteReference(markdown: string): boolean {
+  return findFootnoteMarkerSpans(markdown).length > 0;
+}
+
+function findAtomicMarkdownSpans(markdown: string): AtomicMarkdownSpan[] {
+  return [
+    ...findMathSpansInMarkdown(markdown),
+    ...findFootnoteMarkerSpans(markdown),
+  ];
+}
+
+function $collectExistingFootnotes(
+  node: LexicalNode,
+  footnotes: Map<string, ExistingFootnote>,
+): void {
+  if ($isFootnoteItemNode(node)) {
+    const footnote = {
+      id: node.getFootnoteId(),
+      index: node.getFootnoteIndex(),
+    };
+    footnotes.set(footnote.id, footnote);
+  }
+  if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      $collectExistingFootnotes(child, footnotes);
+    }
+  }
+}
+
+function $getExistingFootnotesByLabel(): Map<string, ExistingFootnote> {
+  const footnotes = new Map<string, ExistingFootnote>();
+  $collectExistingFootnotes($getRoot(), footnotes);
+  return footnotes;
+}
+
+function createFootnoteReferenceElement(
+  document: Document,
+  footnote: ExistingFootnote,
+): HTMLElement {
+  const span = document.createElement("span");
+  span.className = FOOTNOTE_CLASSES.footnoteReference;
+  span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteReference, "");
+  span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteId, footnote.id);
+  span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex, String(footnote.index));
+  span.setAttribute("role", "doc-noteref");
+  span.id = `fnref${footnote.id}`;
+
+  const sup = document.createElement("sup");
+  const anchor = document.createElement("a");
+  anchor.href = `#fn${footnote.id}`;
+  anchor.textContent = `[${footnote.index}]`;
+  sup.appendChild(anchor);
+  span.appendChild(sup);
+  return span;
+}
+
+/**
+ * markdown-it only recognizes a footnote reference when its definition is in
+ * the same markdown fragment. replaceText usually receives just an inline
+ * marker copied from the read API, so resolve those markers against footnotes
+ * already present in the live document before importing the fragment.
+ */
+function $resolveExistingFootnoteReferences(document: Document, nodeFilter: typeof NodeFilter): void {
+  const footnotes = $getExistingFootnotesByLabel();
+  const defaultView = document.defaultView;
+  if (footnotes.size === 0 || !defaultView) return;
+
+  const walker = document.createTreeWalker(document.body, nodeFilter.SHOW_TEXT);
+  const textNodes: Text[] = [];
+  let current = walker.nextNode();
+  while (current) {
+    if (current instanceof defaultView.Text) {
+      textNodes.push(current);
+    }
+    current = walker.nextNode();
+  }
+
+  for (const textNode of textNodes) {
+    if (textNode.parentElement?.closest(`code, [${FOOTNOTE_ATTRIBUTES.footnoteReference}]`)) {
+      continue;
+    }
+
+    const text = textNode.data;
+    const matches: ResolvedFootnoteMarker[] = [];
+    for (const match of text.matchAll(/\[\^([^\]\s]+)\]/g)) {
+      const footnote = footnotes.get(match[1]);
+      if (footnote) {
+        matches.push({
+          marker: match[0],
+          offset: match.index,
+          footnote,
+        });
+      }
+    }
+    if (matches.length === 0) continue;
+
+    const fragment = document.createDocumentFragment();
+    let offset = 0;
+    for (const match of matches) {
+      if (match.offset > offset) {
+        fragment.append(text.slice(offset, match.offset));
+      }
+      fragment.append(createFootnoteReferenceElement(document, match.footnote));
+      offset = match.offset + match.marker.length;
+    }
+    if (offset < text.length) {
+      fragment.append(text.slice(offset));
+    }
+    textNode.replaceWith(fragment);
+  }
 }
 
 /**
@@ -74,6 +215,7 @@ export function $computeFinalSelection(
 export function $htmlToInlineNodes(editor: LexicalEditor, html: string): LexicalNode[] {
   const dom = new JSDOM(html);
   try {
+    $resolveExistingFootnoteReferences(dom.window.document, dom.window.NodeFilter);
     const nodes = $generateNodesFromDOM(editor, dom.window.document);
     if (nodes.length === 1 && $isElementNode(nodes[0])) {
       return nodes[0].getChildren();
@@ -303,14 +445,14 @@ function $splitAndCollectSelectedNodes(
 }
 
 /**
- * Pull a common-prefix boundary back out of any math token. A boundary that
- * falls strictly inside a `$…$` / `\(…\)` token of either string would split
- * an equation; snap it to that token's start instead.
+ * Pull a common-prefix boundary back out of any atomic markdown token. A
+ * boundary that falls inside math or a footnote marker would split the
+ * construct and make it import as literal text.
  */
-function snapPrefixOutOfMathTokens(quote: string, replacement: string, prefixLen: number): number {
+function snapPrefixOutOfAtomicTokens(quote: string, replacement: string, prefixLen: number): number {
   let result = prefixLen;
   for (const text of [quote, replacement]) {
-    for (const span of findMathSpansInMarkdown(text)) {
+    for (const span of findAtomicMarkdownSpans(text)) {
       if (result > span.start && result < span.end) {
         result = span.start;
       }
@@ -320,14 +462,14 @@ function snapPrefixOutOfMathTokens(quote: string, replacement: string, prefixLen
 }
 
 /**
- * Pull a common-suffix boundary forward out of any math token. The boundary
- * sits at `text.length - suffixLen`; if it falls strictly inside a math token,
- * snap it to that token's end, shrinking the suffix.
+ * Pull a common-suffix boundary forward out of any atomic markdown token.
+ * The boundary sits at `text.length - suffixLen`; if it falls inside math or
+ * a footnote marker, snap it to that token's end.
  */
-function snapSuffixOutOfMathTokens(quote: string, replacement: string, suffixLen: number): number {
+function snapSuffixOutOfAtomicTokens(quote: string, replacement: string, suffixLen: number): number {
   let result = suffixLen;
   for (const text of [quote, replacement]) {
-    for (const span of findMathSpansInMarkdown(text)) {
+    for (const span of findAtomicMarkdownSpans(text)) {
       const boundary = text.length - result;
       if (boundary > span.start && boundary < span.end) {
         result = text.length - span.end;
@@ -380,8 +522,8 @@ export function $computeNarrowing(
   // token, so narrowing never splits a `$…$` into a fragment that can't be
   // located against the document's atomic MathNode.
   const rawAffixes = computeCommonPrefixSuffix(quote, replacement);
-  const mdPrefixLen = snapPrefixOutOfMathTokens(quote, replacement, rawAffixes.prefixLen);
-  const mdSuffixLen = snapSuffixOutOfMathTokens(quote, replacement, rawAffixes.suffixLen);
+  const mdPrefixLen = snapPrefixOutOfAtomicTokens(quote, replacement, rawAffixes.prefixLen);
+  const mdSuffixLen = snapSuffixOutOfAtomicTokens(quote, replacement, rawAffixes.suffixLen);
 
   // Convert markdown offsets to plain-text character counts using the
   // quote's mapping (which has full regex context for links, math, etc.)

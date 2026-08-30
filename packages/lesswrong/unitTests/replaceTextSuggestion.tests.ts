@@ -10,8 +10,10 @@ import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs, walkLexicalNodes } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
+import { $isFootnoteReferenceNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode";
+import { $isFootnoteItemNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode";
 
 async function replaceTextAsSuggestion(
   editor: LexicalEditor,
@@ -75,6 +77,33 @@ function getPlainTextContent(editor: LexicalEditor): string {
     text = $getRoot().getTextContent();
   });
   return text;
+}
+
+function countFootnoteReferences(editor: LexicalEditor): number {
+  let count = 0;
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node) => {
+      if ($isFootnoteReferenceNode(node)) {
+        count++;
+      }
+    });
+  });
+  return count;
+}
+
+function getFirstFootnoteId(editor: LexicalEditor): string {
+  let footnoteId: string | null = null;
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node) => {
+      if (footnoteId === null && $isFootnoteItemNode(node)) {
+        footnoteId = node.getFootnoteId();
+      }
+    });
+  });
+  if (footnoteId === null) {
+    throw new Error("Expected editor fixture to contain a footnote");
+  }
+  return footnoteId;
 }
 
 describe("replaceText across block boundaries", () => {
@@ -337,6 +366,55 @@ describe("replaceText edit mode", () => {
     const text = getPlainTextContent(editor);
     expect(text).not.toContain("**");
     expect(text).toContain("bold");
+  });
+});
+
+describe("replaceText with existing footnotes", () => {
+  const markdown = "Citation placeholder [1]. Existing note[^note].\n\n[^note]: Source details.";
+
+  it("turns an exported footnote marker into a reference in edit mode", async () => {
+    const editor = await setupEditorWithContent(markdown);
+    const footnoteId = getFirstFootnoteId(editor);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Citation placeholder [1].",
+      `Citation placeholder [^${footnoteId}].`,
+    );
+
+    expect(replaced).toBe(true);
+    expect(countFootnoteReferences(editor)).toBe(2);
+    expect(getMarkdownContent(editor)).toMatch(/Citation placeholder \[\^[^\]]+\]\./);
+  });
+
+  it("turns an exported footnote marker into a reference in suggest mode", async () => {
+    const editor = await setupEditorWithContent(markdown);
+    const footnoteId = getFirstFootnoteId(editor);
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "Citation placeholder [1].",
+      `Citation placeholder [^${footnoteId}].`,
+    );
+
+    expect(replaced).toBe(true);
+    expect(getAllSuggestions(editor).find((suggestion) => suggestion.type === "insert")?.textContent).toBe("[1]");
+    expect(countFootnoteReferences(editor)).toBe(2);
+  });
+
+  it("keeps a footnote marker literal inside inline code", async () => {
+    const editor = await setupEditorWithContent(markdown);
+    const footnoteId = getFirstFootnoteId(editor);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Citation placeholder [1].",
+      `Citation placeholder \`[^${footnoteId}]\`.`,
+    );
+
+    expect(replaced).toBe(true);
+    expect(countFootnoteReferences(editor)).toBe(1);
+    expect(getPlainTextContent(editor)).toContain(`[^${footnoteId}]`);
   });
 });
 

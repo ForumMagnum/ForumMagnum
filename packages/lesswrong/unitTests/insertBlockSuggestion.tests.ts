@@ -2,8 +2,12 @@ import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
-import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, walkLexicalNodes } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
+import { $isFootnoteContentNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
+import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 
 async function insertBlock(
   editor: LexicalEditor,
@@ -40,6 +44,14 @@ function countInsertedNodesWithSuggestions(editor: LexicalEditor): { total: numb
     }
   });
   return { total, withSuggestions };
+}
+
+function getMarkdownContent(editor: LexicalEditor): string {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
+  return htmlToMarkdown(html).trim();
 }
 
 describe("insertBlock suggest mode", () => {
@@ -185,6 +197,30 @@ describe("insertBlock with LaTeX", () => {
     );
 
     expect(findMathEquations(editor)).toEqual(["a^2 + b^2 = c^2"]);
+  });
+});
+
+describe("insertBlock with footnotes", () => {
+  it("preserves footnote definition content in the agent markdown export", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(
+      editor,
+      "Claim with a footnote.[^source]\n\n[^source]: Source details with **context**.",
+      "end",
+      "edit",
+    );
+
+    let footnoteContent = "";
+    editor.getEditorState().read(() => {
+      walkLexicalNodes($getRoot(), (node) => {
+        if ($isFootnoteContentNode(node)) {
+          footnoteContent = node.getTextContent();
+        }
+      });
+    });
+    expect(footnoteContent).toBe("Source details with context.");
+    expect(getMarkdownContent(editor)).toMatch(/\[\^[^\]]+\]: Source details with context\./);
   });
 });
 

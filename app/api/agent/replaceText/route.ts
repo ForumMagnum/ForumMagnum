@@ -20,6 +20,7 @@ import {
   $applyEditModeReplacement,
   $computeNarrowing,
   $htmlToInlineNodes,
+  markdownContainsFootnoteReference,
 } from "../applyEditAtSelection";
 
 interface ReplaceResult {
@@ -65,7 +66,7 @@ function $narrowedReplacementToNodes(
   if (replacement.length === 0) return [];
 
   const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
-  if (replacement === plainText) {
+  if (replacement === plainText && !markdownContainsFootnoteReference(replacement)) {
     return [$createTextNode(replacement)];
   }
 
