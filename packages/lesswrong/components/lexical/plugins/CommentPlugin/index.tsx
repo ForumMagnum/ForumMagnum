@@ -72,6 +72,7 @@ import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/sugg
 import { useCurrentCollaboratorId } from '@/components/lexical/collaboration';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { $removeCommentMarkIds, getActiveCommentThreadIds } from './commentMarkCleanup';
 
 /**
  * Replacement for @lexical/selection's createRectsFromDOMRange.
@@ -1134,6 +1135,10 @@ export default function CommentPlugin(): JSX.Element {
   );
   const { showComments, setShowComments, setCommentCount, panelPortalEl } = useContext(InlineCommentsPanelContext);
   const hasSideComments = useHasSideComments();
+  const activeCommentThreadIds = useMemo(
+    () => getActiveCommentThreadIds(activeIDs, comments),
+    [activeIDs, comments],
+  );
   const panelRef = useRef<HTMLDivElement>(null);
   const replyActivatedRef = useRef(false);
   const cancelAddComment = useCallback(() => {
@@ -1212,10 +1217,35 @@ export default function CommentPlugin(): JSX.Element {
   );
 
   useEffect(() => {
-    if (activeIDs.length > 0 && !hasSideComments) {
+    if (activeCommentThreadIds.length > 0 && !hasSideComments) {
       setShowComments(true);
     }
-  }, [activeIDs, setShowComments, hasSideComments]);
+  }, [activeCommentThreadIds, setShowComments, hasSideComments]);
+
+  useEffect(() => {
+    if (!commentStore.isCollaborative() || !commentStore.isSynced()) return;
+
+    const activeCommentThreadIdSet = new Set(activeCommentThreadIds);
+    const orphanedActiveIds = activeIDs.filter(
+      (id) => !activeCommentThreadIdSet.has(id),
+    );
+    if (orphanedActiveIds.length === 0) return;
+
+    editor.update(
+      () => {
+        $addUpdateTag(HISTORY_MERGE_TAG);
+        $addUpdateTag('fmDerivedUi');
+        $removeCommentMarkIds(markNodeMap, orphanedActiveIds);
+      },
+      { tag: HISTORY_MERGE_TAG },
+    );
+  }, [
+    activeCommentThreadIds,
+    activeIDs,
+    commentStore,
+    editor,
+    markNodeMap,
+  ]);
 
   useEffect(() => {
     if (!showComments) {
