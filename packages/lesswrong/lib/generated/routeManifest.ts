@@ -347,6 +347,9 @@ export const routeTrie = {
             "every-ten-minutes": {
               "hasRoute": true
             },
+            "public-data-dump": {
+              "hasRoute": true
+            },
             "run-twitter-bot": {
               "hasRoute": true
             },
@@ -373,6 +376,7 @@ export const routeTrie = {
             "every-midnight": "every-midnight",
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
+            "public-data-dump": "public-data-dump",
             "run-twitter-bot": "run-twitter-bot",
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
@@ -415,6 +419,9 @@ export const routeTrie = {
           "hasRoute": true
         },
         "notificationEvents": {
+          "hasRoute": true
+        },
+        "public-dump": {
           "hasRoute": true
         },
         "quit": {
@@ -656,6 +663,7 @@ export const routeTrie = {
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
+        "public-dump": "public-dump",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "research": "research",

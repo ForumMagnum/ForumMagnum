@@ -1,6 +1,6 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
-import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { getPublicDumpPostsSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
@@ -15,6 +15,27 @@ type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 type MeanPostKarma = {
   _id: number,
   meanKarma: number,
+}
+
+export interface PublicDumpPostRow {
+  _id: string,
+  title: string,
+  slug: string,
+  postedAt: Date,
+  userId: string | null,
+  author: string | null,
+  authorSlug: string | null,
+  url: string | null,
+  question: boolean,
+  isEvent: boolean,
+  shortform: boolean,
+  af: boolean,
+  baseScore: number,
+  voteCount: number,
+  commentCount: number | null,
+  curatedDate: Date | null,
+  frontpageDate: Date | null,
+  html: string | null,
 }
 
 const constructFilters = (
@@ -1068,6 +1089,33 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT 1
     `);
     return row?.curatedDate ?? null;
+  }
+
+  /**
+   * One keyset-paginated batch of publicly-visible posts for the public data
+   * dump, with the latest revision's html and the author's public identity.
+   * Ordered by _id; pass the last _id of the previous batch as `after` (empty
+   * string for the first batch).
+   */
+  async getPublicPostsForDump(after: string, limit: number): Promise<PublicDumpPostRow[]> {
+    return this.getRawDb().manyOrNone(`
+      -- PostsRepo.getPublicPostsForDump
+      SELECT
+        p."_id", p."title", p."slug", p."postedAt", p."userId",
+        CASE WHEN u."deleted" THEN NULL ELSE u."displayName" END AS "author",
+        CASE WHEN u."deleted" THEN NULL ELSE u."slug" END AS "authorSlug",
+        p."url", p."question", p."isEvent", p."shortform", p."af",
+        p."baseScore", p."voteCount", p."commentCount",
+        p."curatedDate", p."frontpageDate",
+        r."html"
+      FROM "Posts" p
+      LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      WHERE p."_id" > $(after)
+      AND ${getPublicDumpPostsSelector("p")}
+      ORDER BY p."_id"
+      LIMIT $(limit)
+    `, { after, limit });
   }
 }
 
