@@ -20,6 +20,17 @@ export function getActiveCommentThreadIds(
   return activeIds.filter((id) => threadMarkIds.has(id));
 }
 
+export function $filterMarkNodeIds(
+  markNodeMap: Map<string, Set<NodeKey>>,
+  ids: string[],
+): string[] {
+  return ids.filter((id) => {
+    const nodeKeys = markNodeMap.get(id);
+    if (!nodeKeys) return false;
+    return Array.from(nodeKeys).some((key) => $isMarkNode($getNodeByKey(key)));
+  });
+}
+
 export function $removeCommentMarkIds(
   markNodeMap: Map<string, Set<NodeKey>>,
   ids: string[],

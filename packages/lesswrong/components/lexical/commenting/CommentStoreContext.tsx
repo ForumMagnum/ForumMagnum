@@ -56,7 +56,7 @@ export function useCommentStore(commentStore: CommentStore): Comments {
 
   useEffect(() => {
     return commentStore.registerOnChange(() => {
-      setComments(commentStore.getComments());
+      setComments(Array.from(commentStore.getComments()));
     });
   }, [commentStore]);
 

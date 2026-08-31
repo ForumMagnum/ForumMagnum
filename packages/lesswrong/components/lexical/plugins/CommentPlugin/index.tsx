@@ -72,7 +72,7 @@ import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/sugg
 import { useCurrentCollaboratorId } from '@/components/lexical/collaboration';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { $removeCommentMarkIds, getActiveCommentThreadIds } from './commentMarkCleanup';
+import { $filterMarkNodeIds, $removeCommentMarkIds, getActiveCommentThreadIds } from './commentMarkCleanup';
 
 /**
  * Replacement for @lexical/selection's createRectsFromDOMRange.
@@ -284,6 +284,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 0,
     padding: 0,
     width: '100%',
+  },
+  removeOrphanedMarkButton: {
+    marginTop: 12,
   },
   commentsPanelList: {
     padding: 0,
@@ -536,6 +539,7 @@ export const HIDE_THREAD_COMMAND: LexicalCommand<HideThreadPayload> = createComm
   'HIDE_THREAD_COMMAND',
 );
 
+const ORPHANED_MARK_GRACE_MS = 5000;
 
 function CommentInputBox({
   editor,
@@ -1069,20 +1073,26 @@ function CommentsPanelList({
 function CommentsPanel({
   panelRef,
   activeIDs,
+  canRemoveOrphanedMarks,
   deleteCommentOrThread,
   comments,
+  hasOrphanedSelection,
+  removeOrphanedMarks,
   submitAddComment,
   markNodeMap,
   docked,
 }: {
   panelRef: React.RefObject<HTMLDivElement | null>;
   activeIDs: Array<string>;
+  canRemoveOrphanedMarks: boolean;
   comments: Comments;
   deleteCommentOrThread: (
     commentOrThread: Comment | Thread,
     thread?: Thread,
   ) => void;
+  hasOrphanedSelection: boolean;
   markNodeMap: Map<string, Set<NodeKey>>;
+  removeOrphanedMarks: () => void;
   submitAddComment: (
     commentOrThread: Comment | Thread,
     isInlineComment: boolean,
@@ -1103,7 +1113,23 @@ function CommentsPanel({
           <ForumIcon icon="Close" className={classes.commentsPanelCloseButtonIcon} />
         </Button>
       </h2>}
-      {isEmpty ? (
+      {hasOrphanedSelection ? (
+        <div className={classes.commentsPanelEmpty}>
+          <div>
+            {canRemoveOrphanedMarks
+              ? 'This highlight contains comment data that is no longer available.'
+              : 'Checking for this comment…'}
+          </div>
+          {canRemoveOrphanedMarks && (
+            <Button
+              className={classes.removeOrphanedMarkButton}
+              onClick={removeOrphanedMarks}
+            >
+              Remove stale highlight
+            </Button>
+          )}
+        </div>
+      ) : isEmpty ? (
         <div className={classes.commentsPanelEmpty}>No Comments</div>
       ) : (
         <CommentsPanelList
@@ -1139,6 +1165,27 @@ export default function CommentPlugin(): JSX.Element {
     () => getActiveCommentThreadIds(activeIDs, comments),
     [activeIDs, comments],
   );
+  const orphanedActiveIds = useMemo(() => {
+    const activeCommentThreadIdSet = new Set(activeCommentThreadIds);
+    return activeIDs.filter((id) => !activeCommentThreadIdSet.has(id));
+  }, [activeCommentThreadIds, activeIDs]);
+  const orphanedActiveMarkIds = useMemo(
+    () => editor.getEditorState().read(
+      () => $filterMarkNodeIds(markNodeMap, orphanedActiveIds),
+    ),
+    [editor, markNodeMap, orphanedActiveIds],
+  );
+  const [stableOrphanedMarkIds, setStableOrphanedMarkIds] = useState<string[]>([]);
+  const stableOrphanedMarkIdSet = useMemo(
+    () => new Set(stableOrphanedMarkIds),
+    [stableOrphanedMarkIds],
+  );
+  const removableOrphanedMarkIds = useMemo(
+    () => orphanedActiveMarkIds.filter((id) => stableOrphanedMarkIdSet.has(id)),
+    [orphanedActiveMarkIds, stableOrphanedMarkIdSet],
+  );
+  const hasOrphanedSelection = orphanedActiveMarkIds.length > 0;
+  const canRemoveOrphanedMarks = removableOrphanedMarkIds.length > 0;
   const panelRef = useRef<HTMLDivElement>(null);
   const replyActivatedRef = useRef(false);
   const cancelAddComment = useCallback(() => {
@@ -1217,35 +1264,39 @@ export default function CommentPlugin(): JSX.Element {
   );
 
   useEffect(() => {
-    if (activeCommentThreadIds.length > 0 && !hasSideComments) {
-      setShowComments(true);
+    if (
+      !commentStore.isCollaborative() ||
+      !commentStore.isSynced() ||
+      orphanedActiveMarkIds.length === 0
+    ) {
+      return;
     }
-  }, [activeCommentThreadIds, setShowComments, hasSideComments]);
+    const timeout = setTimeout(() => {
+      setStableOrphanedMarkIds(orphanedActiveMarkIds);
+    }, ORPHANED_MARK_GRACE_MS);
+    return () => clearTimeout(timeout);
+  }, [commentStore, comments, orphanedActiveMarkIds]);
 
   useEffect(() => {
-    if (!commentStore.isCollaborative() || !commentStore.isSynced()) return;
-
-    const activeCommentThreadIdSet = new Set(activeCommentThreadIds);
-    const orphanedActiveIds = activeIDs.filter(
-      (id) => !activeCommentThreadIdSet.has(id),
-    );
-    if (orphanedActiveIds.length === 0) return;
-
-    editor.update(
-      () => {
-        $addUpdateTag(HISTORY_MERGE_TAG);
-        $addUpdateTag('fmDerivedUi');
-        $removeCommentMarkIds(markNodeMap, orphanedActiveIds);
-      },
-      { tag: HISTORY_MERGE_TAG },
-    );
+    if (
+      hasOrphanedSelection ||
+      (activeCommentThreadIds.length > 0 && !hasSideComments)
+    ) {
+      setShowComments(true);
+    }
   }, [
     activeCommentThreadIds,
-    activeIDs,
-    commentStore,
-    editor,
-    markNodeMap,
+    hasOrphanedSelection,
+    hasSideComments,
+    setShowComments,
   ]);
+
+  const removeOrphanedMarks = useCallback(() => {
+    editor.update(() => {
+      $removeCommentMarkIds(markNodeMap, removableOrphanedMarkIds);
+    });
+    setShowComments(false);
+  }, [editor, markNodeMap, removableOrphanedMarkIds, setShowComments]);
 
   useEffect(() => {
     if (!showComments) {
@@ -1587,7 +1638,10 @@ export default function CommentPlugin(): JSX.Element {
             submitAddComment={submitAddComment}
             deleteCommentOrThread={deleteCommentOrThread}
             activeIDs={activeIDs}
+            canRemoveOrphanedMarks={canRemoveOrphanedMarks}
+            hasOrphanedSelection={hasOrphanedSelection}
             markNodeMap={markNodeMap}
+            removeOrphanedMarks={removeOrphanedMarks}
             docked
           />,
           panelPortalEl,
@@ -1605,7 +1659,10 @@ export default function CommentPlugin(): JSX.Element {
               submitAddComment={submitAddComment}
               deleteCommentOrThread={deleteCommentOrThread}
               activeIDs={activeIDs}
+              canRemoveOrphanedMarks={canRemoveOrphanedMarks}
+              hasOrphanedSelection={hasOrphanedSelection}
               markNodeMap={markNodeMap}
+              removeOrphanedMarks={removeOrphanedMarks}
             />
           </LWClickAwayListener>,
           document.body,

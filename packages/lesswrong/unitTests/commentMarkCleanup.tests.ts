@@ -8,6 +8,7 @@ import {
   type NodeKey,
 } from 'lexical';
 import {
+  $filterMarkNodeIds,
   $removeCommentMarkIds,
   getActiveCommentThreadIds,
 } from '@/components/lexical/plugins/CommentPlugin/commentMarkCleanup';
@@ -61,6 +62,18 @@ function getAllMarkIds(editor: LexicalEditor): string[] {
   return ids;
 }
 
+function getMarkNodeCount(editor: LexicalEditor): number {
+  let count = 0;
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node: LexicalNode) => {
+      if ($isMarkNode(node)) {
+        count++;
+      }
+    });
+  });
+  return count;
+}
+
 describe('comment mark cleanup', () => {
   it('recognizes active comment and suggestion thread marks', () => {
     const commentThread = createThread(
@@ -109,6 +122,27 @@ describe('comment mark cleanup', () => {
       .toBe('Highlighted text');
   });
 
+  it('only offers cleanup for MarkNodes', async () => {
+    const { editor, markNodeMap } = await setupMarkedEditor([
+      'orphaned-thread',
+    ]);
+
+    await runEditorUpdate(editor, () => {
+      const textNode = $getRoot().getFirstDescendant();
+      if (!textNode) {
+        throw new Error('Expected marked text');
+      }
+      markNodeMap.set('orphaned-suggestion', new Set([textNode.getKey()]));
+
+      expect(
+        $filterMarkNodeIds(
+          markNodeMap,
+          ['orphaned-thread', 'orphaned-suggestion'],
+        ),
+      ).toEqual(['orphaned-thread']);
+    });
+  });
+
   it('unwraps a mark after removing its only orphaned ID', async () => {
     const { editor, markNodeMap } = await setupMarkedEditor([
       'orphaned-thread',
@@ -119,6 +153,7 @@ describe('comment mark cleanup', () => {
     });
 
     expect(getAllMarkIds(editor)).toEqual([]);
+    expect(getMarkNodeCount(editor)).toBe(0);
     expect(editor.getEditorState().read(() => $getRoot().getTextContent()))
       .toBe('Highlighted text');
   });
