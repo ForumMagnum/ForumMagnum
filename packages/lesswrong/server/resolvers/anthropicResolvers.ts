@@ -200,7 +200,7 @@ async function getConversationTitle(args: BasePromptArgs) {
 
   const client = getAnthropicClientOrThrow()
   const titleResult = await client.messages.create({
-    model: "claude-3-haiku-20240307",
+    model: "claude-haiku-4-5",
     max_tokens: 50,
     messages: [{role: "user", content: titleGenerationPrompt}]
   })
