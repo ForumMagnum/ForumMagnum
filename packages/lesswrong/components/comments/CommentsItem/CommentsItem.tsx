@@ -23,7 +23,6 @@ import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
 import CommentsNewForm from "../CommentsNewForm";
 import ParentCommentSingle from "../ParentCommentSingle";
-import ForumIcon from "../../common/ForumIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import LWTooltip from "../../common/LWTooltip";
 import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
@@ -98,14 +97,6 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   metaNotice: {
     ...metaNoticeStyles(theme),
   },
-  pinnedIconWrapper: {
-    color: theme.palette.grey[400],
-    paddingTop: 10,
-    marginBottom: '-3px',
-  },
-  pinnedIcon: {
-    "--icon-size": "12px",
-  },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
@@ -170,7 +161,6 @@ export const CommentsItem = ({
   toggleCollapse,
   setSingleLine,
   truncated,
-  showPinnedOnProfile,
   parentAnswerId,
   enableGuidelines=true,
   showParentDefault=false,
@@ -189,7 +179,6 @@ export const CommentsItem = ({
   toggleCollapse?: () => void,
   setSingleLine?: (singleLine: boolean) => void,
   truncated: boolean,
-  showPinnedOnProfile?: boolean,
   parentAnswerId?: string,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
@@ -355,7 +344,7 @@ export const CommentsItem = ({
           </div> 
         )}
         
-        <CommentTitleRow comment={comment} treeOptions={treeOptions} isChild={isChild} showPinnedOnProfile={showPinnedOnProfile} />
+        <CommentTitleRow comment={comment} treeOptions={treeOptions} isChild={isChild} />
         <div className={classNames(classes.body)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
@@ -413,18 +402,16 @@ export const CommentsItem = ({
   )
 }
 
-const CommentTitleRow = ({comment, treeOptions, isChild, showPinnedOnProfile}: {
+const CommentTitleRow = ({comment, treeOptions, isChild}: {
   comment: CommentsList|CommentsListWithParentMetadata,
   treeOptions: CommentTreeOptions,
   isChild?: boolean,
-  showPinnedOnProfile?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { showPostTitle, moderatedCommentId } = treeOptions;
 
   const visible = (
-    (showPinnedOnProfile && comment.isPinnedOnProfile)
-    || (moderatedCommentId === comment._id)
+    (moderatedCommentId === comment._id)
     || (showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post)
     || (showPostTitle && !isChild && hasTagField(comment) && comment.tag)
   );
@@ -432,9 +419,6 @@ const CommentTitleRow = ({comment, treeOptions, isChild, showPinnedOnProfile}: {
   if (!visible) return null;
 
   return <div className={classes.postTitleRow}>
-    {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-      <ForumIcon icon="Pin" className={classes.pinnedIcon} />
-    </div>}
     {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
     {showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
         <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>

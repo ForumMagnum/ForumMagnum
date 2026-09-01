@@ -13,7 +13,6 @@ import SuggestAlignmentCommentDropdownItem from "./SuggestAlignmentCommentDropdo
 import BanUserFromAllPersonalPostsDropdownItem from "./BanUserFromAllPersonalPostsDropdownItem";
 import MoveToAnswersDropdownItem from "./MoveToAnswersDropdownItem";
 import ToggleIsModeratorCommentDropdownItem from "./ToggleIsModeratorCommentDropdownItem";
-import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
@@ -61,7 +60,6 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   return (
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
-      <PinToProfileDropdownItem comment={comment} post={post} />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}
       <ReportCommentDropdownItem comment={comment} post={post} />
