@@ -172,7 +172,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-footnote-formatting';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -312,6 +312,10 @@ function getTurndown(): TurndownService {
         return `[^${id}]`
       }
     })
+    turndownService.addRule('footnote-back-link', {
+      filter: (node) => node.classList?.contains('footnote-back-link'),
+      replacement: () => '',
+    })
     
     turndownService.addRule('footnote', {
       filter: (node, options) => node.classList?.contains('footnote-item'),
@@ -319,16 +323,11 @@ function getTurndown(): TurndownService {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
-        return `[^${id}]: ${text} \n\n`
+        // Keep Turndown's converted child content so inline formatting and
+        // links survive. Collapse block separators to spaces to preserve the
+        // existing single-line footnote-definition output.
+        const markdown = content.replace(/\s*\n+\s*/g, ' ').trim()
+        return `[^${id}]: ${markdown} \n\n`
       }
     })
     // CommonMark link text cannot contain blank lines, but an anchor wrapping
