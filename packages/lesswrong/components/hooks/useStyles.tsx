@@ -13,6 +13,7 @@ import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
 import { ThemeContext, ThemeContextType, useTheme } from '../themes/useTheme';
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
+import { addLightDarkFallbacks } from "@/lib/lightDarkFallbacks";
 import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
 import { classNameProxy, defineStyles } from "./defineStyles";
@@ -310,7 +311,9 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
     }
   );
   sheets.add(sheet);
-  return maybeMinifyCSS(sheets.toString());
+  // Fallbacks must be added after minification: csso's restructuring would
+  // remove the "overridden" fallback declarations.
+  return addLightDarkFallbacks(maybeMinifyCSS(sheets.toString()));
 }
 
 
