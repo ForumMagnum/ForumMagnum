@@ -34,6 +34,8 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
+      overflowAltAxis
+      fallbackPlacements={["bottom-start", "top-start"]}
       clickable
       disabled={disabled}
     >
