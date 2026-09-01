@@ -244,3 +244,44 @@ describe("LaTeX correctness regressions", () => {
     expect(findMathSpansInMarkdown(md).length).toBe(1);
   });
 });
+
+describe("footnote HTML to Markdown", () => {
+  it("serializes published Lexical footnotes with direct paragraph children", () => {
+    const md = htmlToMarkdown(
+      '<p>Body<span class="footnote-reference" data-footnote-id="note-1">[1]</span></p>' +
+      '<ol class="footnote-section">' +
+      '<li class="footnote-item" data-footnote-id="note-1">' +
+      '<p>Footnote with <strong>formatting</strong> and ' +
+      '<a href="https://example.com/source">a source</a>. ' +
+      '<a href="#fnrefnote-1">↩︎</a></p>' +
+      '</li>' +
+      '</ol>'
+    );
+
+    expect(md).toContain("Body[^note-1]");
+    expect(md).toContain(
+      "[^note-1]: Footnote with **formatting** and [a source](https://example.com/source)."
+    );
+    expect(md).not.toContain("fnrefnote-1");
+    expect(md).not.toContain("↩");
+  });
+
+  it("serializes editor-exported footnotes with a content wrapper", () => {
+    const md = htmlToMarkdown(
+      '<ol class="footnote-section">' +
+      '<li class="footnote-item" data-footnote-id="note-2">' +
+      '<span class="footnote-back-link"><sup><strong>' +
+      '<a href="#fnrefnote-2">^</a>' +
+      '</strong></sup></span>' +
+      '<div class="footnote-content">' +
+      '<p>First paragraph.</p><p>Second paragraph with <em>emphasis</em>.</p>' +
+      '</div>' +
+      '</li>' +
+      '</ol>'
+    );
+
+    expect(md).toContain("[^note-2]: First paragraph.");
+    expect(md).toContain("    Second paragraph with *emphasis*.");
+    expect(md).not.toContain("fnrefnote-2");
+  });
+});
