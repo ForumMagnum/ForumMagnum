@@ -1,7 +1,9 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
+  $createParagraphNode,
   $createRangeSelection,
+  $createTextNode,
   $getRoot,
   $getSelection,
   $isRangeSelection,
@@ -23,6 +25,7 @@ import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
+import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
@@ -324,6 +327,38 @@ describe("$locateBlockByPrefix", () => {
       reason = result.reason;
     });
     expect(reason).toContain("Ambiguous");
+  });
+
+  it("ignores pending insertion blocks when matching accepted content", async () => {
+    const editor = await setupEditorWithContent("Repeated start, original paragraph.");
+    await runEditorUpdate(editor, () => {
+      const pendingParagraph = $createParagraphNode();
+      pendingParagraph.append(
+        $createSuggestionNode("pending-insert", "insert").append(
+          $createTextNode("Repeated start, revised paragraph."),
+        ),
+      );
+      $getRoot().append(pendingParagraph);
+    });
+
+    const matched = findFor(editor, "Repeated start");
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.text).toBe("Repeated start, original paragraph.");
+  });
+
+  it("does not match a block containing only pending inserted text", async () => {
+    const editor = await setupEditorWithContent("Accepted paragraph.");
+    await runEditorUpdate(editor, () => {
+      const pendingParagraph = $createParagraphNode();
+      pendingParagraph.append(
+        $createSuggestionNode("pending-insert", "insert").append(
+          $createTextNode("Pending paragraph."),
+        ),
+      );
+      $getRoot().append(pendingParagraph);
+    });
+
+    expect(findFor(editor, "Pending paragraph")).toBeNull();
   });
 
   it("does not return the list when only a non-first item matches the prefix", async () => {
