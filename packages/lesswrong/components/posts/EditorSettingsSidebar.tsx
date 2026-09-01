@@ -24,7 +24,6 @@ import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { EditableUsersList } from "../editor/EditableUsersList";
 import { MenuItem } from "../common/Menus";
 import Select from "@/lib/vendor/@material-ui/core/src/Select";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import FooterTagList from "../tagging/FooterTagList";
 import LWTooltip from "../common/LWTooltip";
 import { PostSubmit } from "./PostSubmit";
@@ -881,11 +880,12 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
   );
 }
 
-function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: {
+function ShareWithClaudeButton({ form, postId, currentUser, panel, awaitPendingSaves, className }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   postId: string;
   currentUser: UsersCurrent | null;
   panel: "sharing" | "publish";
+  awaitPendingSaves: () => Promise<boolean>;
   className?: string;
 }) {
   const classes = useStyles(styles);
@@ -916,14 +916,26 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
       target="_blank"
       rel="noopener noreferrer"
       className={classNames(classes.openInClaudeButton, className)}
-      onClick={() => {
+      onClick={async (event) => {
         captureEvent("shareWithClaudeClicked", { postId, panel });
+        event.preventDefault();
+        const claudeWindow = window.open("about:blank", "_blank");
+        if (claudeWindow) {
+          claudeWindow.opener = null;
+        }
+
         const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
-        if (settings.anyoneWithLinkCan === 'none') {
+        if (settings.anyoneWithLinkCan !== "edit") {
           form.setFieldValue('sharingSettings', {
             ...settings,
             anyoneWithLinkCan: "edit",
           });
+        }
+        const saved = await awaitPendingSaves();
+        if (saved) {
+          claudeWindow?.location.assign(claudeUrl);
+        } else {
+          claudeWindow?.close();
         }
       }}
     >
@@ -965,12 +977,13 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser, awaitPendingSaves }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
   canEditCoauthors: boolean;
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
+  awaitPendingSaves: () => Promise<boolean>;
 }) {
   const classes = useStyles(styles);
 
@@ -998,18 +1011,28 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               }
 
               const shareWithClaudeButton = (
-                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
+                <ShareWithClaudeButton
+                  form={form}
+                  postId={postId}
+                  currentUser={currentUser}
+                  panel="sharing"
+                  awaitPendingSaves={awaitPendingSaves}
+                />
               );
 
               const shareLinkButton = (
                 <button
                   type="button"
                   className={classes.shareLinkButton}
-                  onClick={() => {
+                  onClick={async () => {
                     field.handleChange({
                       ...settings,
                       anyoneWithLinkCan: "edit",
                     });
+                    const saved = await awaitPendingSaves();
+                    if (!saved) {
+                      return;
+                    }
                     // Copy link after enabling
                     const url = postGetEditUrl(postId, true, linkSharingKey);
                     void navigator.clipboard.writeText(url)
@@ -1030,15 +1053,23 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               }
 
               const copyLinkButton = (
-                <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
-                  onCopy={() => flash("Link copied")}
+                <button
+                  type="button"
+                  className={classes.shareLinkButton}
+                  onClick={async () => {
+                    const saved = await awaitPendingSaves();
+                    if (!saved) {
+                      return;
+                    }
+                    const url = postGetEditUrl(postId, true, linkSharingKey);
+                    void navigator.clipboard.writeText(url)
+                      .then(() => flash("Link copied"))
+                      .catch(() => flash("Failed to copy link"));
+                  }}
                 >
-                  <button type="button" className={classes.shareLinkButton}>
-                    <ForumIcon icon="Link" className={classes.copyLinkIcon} />
-                    Copy link
-                  </button>
-                </CopyToClipboard>
+                  <ForumIcon icon="Link" className={classes.copyLinkIcon} />
+                  Copy link
+                </button>
               );
 
               return <>
@@ -1285,6 +1316,7 @@ interface EditorSettingsSidebarProps {
   mode: "publish" | "settings" | "sharing";
   currentUser: UsersCurrent | null;
   isSaving?: boolean;
+  awaitPendingSaves: () => Promise<boolean>;
   onClose?: () => void;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
@@ -1299,6 +1331,7 @@ const EditorSettingsSidebar = ({
   mode,
   currentUser,
   isSaving = false,
+  awaitPendingSaves,
   onClose,
   addOnSubmitCallbackCustom,
   addOnSuccessCallbackCustom,
@@ -1348,7 +1381,14 @@ const EditorSettingsSidebar = ({
   }, [captureEvent, initialData, openDialog, postId]);
 
   const publishClaudeButton = postId ? (
-    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="publish" className={classes.publishClaudeButton} />
+    <ShareWithClaudeButton
+      form={form}
+      postId={postId}
+      currentUser={currentUser}
+      panel="publish"
+      awaitPendingSaves={awaitPendingSaves}
+      className={classes.publishClaudeButton}
+    />
   ) : undefined;
 
   const content = (
@@ -1413,6 +1453,7 @@ const EditorSettingsSidebar = ({
           canEditCoauthors={canEditCoauthors}
           flash={flash}
           currentUser={currentUser}
+          awaitPendingSaves={awaitPendingSaves}
         />
       )}
 

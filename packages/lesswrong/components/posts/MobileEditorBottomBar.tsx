@@ -294,6 +294,7 @@ interface MobileEditorBottomBarProps {
   formType: "new" | "edit";
   currentUser: UsersCurrent | null;
   isSaving?: boolean;
+  awaitPendingSaves: () => Promise<boolean>;
   editorType?: string;
   sidebarPanel: SidebarMode | null;
   setSidebarPanel: React.Dispatch<React.SetStateAction<SidebarMode | null>>;
@@ -309,6 +310,7 @@ const MobileEditorBottomBar = ({
   formType,
   currentUser,
   isSaving = false,
+  awaitPendingSaves,
   editorType,
   sidebarPanel,
   setSidebarPanel,
@@ -505,6 +507,7 @@ const MobileEditorBottomBar = ({
             mode={activeTab}
             currentUser={currentUser}
             isSaving={isSaving}
+            awaitPendingSaves={awaitPendingSaves}
             addOnSubmitCallbackCustom={addOnSubmitCallbackCustom}
             addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}
             addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}

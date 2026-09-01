@@ -1147,6 +1147,7 @@ const PostForm = ({
           mode={sidebarPanel}
           currentUser={currentUser}
           isSaving={isSaving}
+          awaitPendingSaves={awaitPendingSaves}
           onClose={() => setSidebarPanel(null)}
           addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
@@ -1168,6 +1169,7 @@ const PostForm = ({
         formType={formType}
         currentUser={currentUser}
         isSaving={isSaving}
+        awaitPendingSaves={awaitPendingSaves}
         editorType={editorType}
         sidebarPanel={sidebarPanel}
         setSidebarPanel={setSidebarPanel}
