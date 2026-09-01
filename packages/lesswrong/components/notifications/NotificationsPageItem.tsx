@@ -1,4 +1,3 @@
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
@@ -6,7 +5,6 @@ import { getNotificationTypeByName, isNotificationTypeName } from '../../lib/not
 import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "../messaging/ConversationPreview";
@@ -26,6 +24,7 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import ForumIcon from '@/components/common/ForumIcon';
 import { GiftIcon } from '../icons/giftIcon';
+import { scrollToNotificationTarget } from './notificationClick';
 
 const styles = defineStyles('NotificationsPageItem', (theme: ThemeType) => ({
   root: {
@@ -319,13 +318,11 @@ const NotificationsPageItem = ({notification, lastNotificationsCheck}: {
             navigate(notificationLink);
             setClicked(true);
 
-            const UrlClass = getUrlClass();
-            const url = new UrlClass(notificationLink, getSiteUrl());
-            const hash = url.hash;
-            if (hash) {
-              const element = document.getElementById(hash.substring(1));
-              if (element) element.scrollIntoView({ behavior: "smooth" });
-            }
+            scrollToNotificationTarget({
+              notificationLink,
+              documentType: notification.documentType,
+              documentId: notification.documentId,
+            });
           }}
         >
           <span className={classes.iconWrapper}>
