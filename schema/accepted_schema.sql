@@ -490,6 +490,15 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_shortform_topLevelCommentId_lastSubthre
 -- Index "idx_Comments_topLevelCommentId_postedAt_baseScore"
 CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments" USING btree ("topLevelCommentId", "postedAt", "baseScore");
 
+-- Index "idx_comments_top_shortform"
+CREATE INDEX IF NOT EXISTS "idx_comments_top_shortform" ON "Comments" USING btree ("baseScore", "postedAt")
+WHERE
+  (
+    "shortform" IS TRUE AND
+    "parentCommentId" IS NULL AND
+    "deleted" IS FALSE
+  );
+
 -- Index "idx_comments_nominations2018"
 CREATE INDEX IF NOT EXISTS "idx_comments_nominations2018" ON "Comments" USING btree (
   "nominatedForReview",
