@@ -199,7 +199,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
                       </li>
                     ) : null}
                   </ul>
-                  <MarkdownNode markdown={getCommentBodyMarkdown(comment)} indentLevel={1} />
+                  <MarkdownNode markdown={getCommentBodyMarkdown(comment)} />
                 </div>
               );
             })}
