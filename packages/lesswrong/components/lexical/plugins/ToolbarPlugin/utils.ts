@@ -274,7 +274,23 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     return a.isBefore(b) ? -1 : 1;
   });
 
-  $wrapInQuote(sortedElements);
+  // Only wrap elements whose direct parent is not already a ContainerQuoteNode
+  // (i.e. not inside an existing shadow root). A selection that straddles a
+  // quote boundary produces topLevelElements from two different root contexts:
+  // root-level blocks AND paragraphs inside the existing ContainerQuoteNode.
+  // Passing both to $wrapInQuote would move nodes across shadow-root
+  // boundaries and create nested shadow roots, which Lexical's reconciler does
+  // not support — causing the editor to freeze.
+  const wrapTargets = sortedElements.filter((el) => {
+    const parent = el.getParent();
+    return parent !== null && !$isContainerQuoteNode(parent);
+  });
+
+  if (wrapTargets.length === 0) {
+    return;
+  }
+
+  $wrapInQuote(wrapTargets);
 }
 
 export const formatParagraph = (editor: LexicalEditor) => {
