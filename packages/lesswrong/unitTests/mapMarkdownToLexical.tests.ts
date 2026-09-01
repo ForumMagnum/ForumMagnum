@@ -411,6 +411,19 @@ describe("resolveInsertionIndex with nested structures", () => {
     // root position derived from inner-list indices.
     expect(result.index).toBe(2);
   });
+
+  it("rejects a list-item location inside a collapsible section", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n+++ Resources\n*   nested needle item\n*   another item\n+++\n\nClosing paragraph."
+    );
+    let result: { index: number | null, reason?: string } = { index: null };
+    editor.getEditorState().read(() => {
+      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+    });
+
+    expect(result.index).toBeNull();
+    expect(result.reason).toContain("nested inside another block");
+  });
 });
 
 describe("findRenderedQuoteInMarkdown with literal dollar text", () => {
