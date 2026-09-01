@@ -55,6 +55,28 @@ export const getViewableTagsSelector = (tagsTableAlias?: string) => {
   `;
 }
 
+/**
+ * Posts included in the public data dump: everything a logged-out user could
+ * read via a direct link (mirroring `postCheckAccess`), including events and
+ * shortform containers, but excluding unlisted posts (which are deliberately
+ * de-discoverable) and rejected posts. Unlike `getViewablePostsSelector`,
+ * which encodes what appears in listings, this encodes what is public.
+ */
+export const getPublicDumpPostsSelector = (postsTableAlias?: string) => {
+  const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
+  return `
+    ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
+    ${aliasPrefix}"draft" IS NOT TRUE AND
+    ${aliasPrefix}"deletedDraft" IS NOT TRUE AND
+    ${aliasPrefix}"isFuture" IS NOT TRUE AND
+    ${aliasPrefix}"rejected" IS NOT TRUE AND
+    ${aliasPrefix}"authorIsUnreviewed" IS NOT TRUE AND
+    ${aliasPrefix}"unlisted" IS NOT TRUE AND
+    ${aliasPrefix}"onlyVisibleToLoggedIn" IS NOT TRUE AND
+    ${aliasPrefix}"postedAt" IS NOT NULL
+  `;
+};
+
 export const getViewableCommentsSelector = (commentsTableAlias?: string) => {
   const aliasPrefix = commentsTableAlias ? `${commentsTableAlias}.` : "";
   return `
