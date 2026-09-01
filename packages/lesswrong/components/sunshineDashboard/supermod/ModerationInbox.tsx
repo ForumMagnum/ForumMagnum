@@ -458,7 +458,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
-                    history={state.history}
                     dispatch={dispatch}
                   />
                 </div>
