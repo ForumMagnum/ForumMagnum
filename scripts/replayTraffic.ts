@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { canonicalizePath } from '../packages/lesswrong/lib/generated/routeManifest'
+import { canonicalizePath } from '../packages/lesswrong/lib/routeChecks/nextRouteMatching'
 
 type LogEntry = {
   time_local?: string
