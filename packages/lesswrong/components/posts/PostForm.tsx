@@ -1,4 +1,6 @@
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import { Link } from "@/lib/reactRouterWrapper";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
@@ -713,7 +715,9 @@ const PostForm = ({
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
               by{" "}
-              <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
+              <Link to={userGetProfileUrl(initialData.user ?? currentUser)} className={classes.metaAuthorName}>
+                {initialData.user?.displayName ?? currentUser?.displayName}
+              </Link>
               <form.Field name="coauthorUserIds">
                 {(field) => <>
                   {(field.state.value ?? []).map((userId) => (
