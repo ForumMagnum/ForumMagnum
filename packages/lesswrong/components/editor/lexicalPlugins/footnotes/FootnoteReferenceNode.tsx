@@ -11,6 +11,7 @@ import {
   TextNode,
 } from 'lexical';
 import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from './constants';
+import { hovernoteSpanConversion } from '../hovernotes/HovernoteNode';
 
 export type SerializedFootnoteReferenceNode = Spread<
   {
@@ -131,7 +132,10 @@ export class FootnoteReferenceNode extends TextNode {
     return {
       span: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute(FOOTNOTE_ATTRIBUTES.footnoteReference)) {
-          return null;
+          // Hovernote spans are also imported through this map: their own
+          // node class extends MarkNode, whose static importDOM is typed to
+          // return null, so it can't register a conversion itself.
+          return hovernoteSpanConversion(domNode);
         }
         return {
           conversion: convertFootnoteReferenceElement,

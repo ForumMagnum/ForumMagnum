@@ -238,6 +238,7 @@ interface Mutation {
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
   sendNewDialogueMessageNotification: boolean;
+  generateHovernoteSuggestion: string;
   PetrovDayLaunchMissile: PetrovDayLaunchMissileData | null;
   submitReviewVote: Post | null;
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;

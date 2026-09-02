@@ -144,6 +144,41 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
  */
 export const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
 
+/**
+ * Extract the linked footnote's HTML from the rendered page (the footnote
+ * section is in the same document), guarded by FootnoteAncestorsContext so a
+ * footnote that contains itself can't recurse. Returns the extracted HTML
+ * (null until found) and the ancestors list to provide when rendering it.
+ *
+ * TODO: Getting the footnote content from the DOM doesn't necessarily work;
+ * for example if the page is only showing an excerpt (with the rest hidden
+ * behind a Read More), it won't be available, and might require a separate
+ * network request to get the rest of the post/comment. Unfortunately in this
+ * context, figuring out what that network request *is* is pretty complicated;
+ * it could be anything with a content-editable field in it, and that
+ * information isn't wired to pass through the hover-preview system.
+ */
+export function useFootnoteHTML(href: string): {
+  footnoteHTML: string | null,
+  newFootnoteAncestors: string[],
+} {
+  const [footnoteHTML, setFootnoteHTML] = useState<string|null>(null);
+  const memoizedEmptyArray = useMemo(() => [], []);
+  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
+  const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href]);
+
+  useEffect(() => {
+    const extractedFootnoteHTML = footnoteAncestors.includes(href)
+      ? null
+      : extractFootnoteHTML(href);
+    if (extractedFootnoteHTML) {
+      setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
+    }
+  }, [href, footnoteAncestors]);
+
+  return { footnoteHTML, newFootnoteAncestors };
+}
+
 const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", children}: {
   href: string,
   id?: string,
@@ -168,27 +203,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
   const eitherHovered = anchorHovered || sidenoteHovered;
-  const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
-  const memoizedEmptyArray = useMemo(() => [], []);
-  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
-  const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href])
-
-  useEffect(() => {
-    const extractedFootnoteHTML = footnoteAncestors.includes(href)
-      ? null
-      : extractFootnoteHTML(href);
-    if (extractedFootnoteHTML) {
-      setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
-    }
-  }, [href, footnoteAncestors]);
-  
-  // TODO: Getting the footnote content from the DOM didn't necessarily work;
-  // for example if the page was only showing an excerpt (with the rest hidden
-  // behind a Read More), it won't be available, and might require a separate
-  // network request to get the rest of the post/comment. Unfortunately in this
-  // context, figuring out what that network request *is* is pretty complicated;
-  // it could be anything with a content-editable field in it, and that
-  // information isn't wired to pass through the hover-preview system.
+  const { footnoteHTML, newFootnoteAncestors } = useFootnoteHTML(href);
 
   const onClick = useCallback((ev: React.MouseEvent) => {
     const isWideEnoughForTooltips = window.innerWidth >= minScreenWidthForTooltips;

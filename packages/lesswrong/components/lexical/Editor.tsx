@@ -114,6 +114,7 @@ import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import { FootnoteSidenotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnoteSidenotesPlugin';
+import { HovernotesPlugin } from '../editor/lexicalPlugins/hovernotes/HovernotesPlugin';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
@@ -998,6 +999,7 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <FootnoteSidenotesPlugin contentStyleType={isCommentEditor ? 'comment' : 'postHighlight'} />
+            <HovernotesPlugin isSuggestionMode={isSuggestionMode} />
             {!disableMentions && <MentionsPlugin />}
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />

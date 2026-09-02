@@ -5,6 +5,7 @@ import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Ele
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
+import HovernotePreview from '../linkPreview/HovernotePreview';
 import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -393,6 +394,16 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         } else {
           attribs.id = attribs['data-internal-id'];
         }
+      }
+
+      if (TagName === 'span' && classNames.includes('hovernote') && attribs['data-footnote-id']) {
+        return <HovernotePreview
+          footnoteId={attribs['data-footnote-id']}
+          id={id}
+          contentStyleType={passedThroughProps.contentStyleType}
+        >
+          {result}
+        </HovernotePreview>
       }
 
       if (TagName === 'pre' && classNames.includes('code-block')) {
