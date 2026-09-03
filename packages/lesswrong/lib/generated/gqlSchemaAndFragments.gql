@@ -7861,10 +7861,6 @@ fragment CommentAwardsDefaultFragment on CommentAward {
   schemaVersion
   createdAt
   legacyData
-  userId
-  commentId
-  isDeleted
-  count
 }
 
 fragment CommentEdit on Comment {

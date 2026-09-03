@@ -256,10 +256,6 @@ export const CommentAwardsDefaultFragment = `
     schemaVersion
     createdAt
     legacyData
-    userId
-    commentId
-    isDeleted
-    count
   }
 `;
 
