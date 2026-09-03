@@ -290,10 +290,6 @@ interface CommentAwardsDefaultFragment { // fragment on CommentAwards
   readonly schemaVersion: number,
   readonly createdAt: Date,
   readonly legacyData: any,
-  readonly userId: string,
-  readonly commentId: string,
-  readonly isDeleted: boolean,
-  readonly count: number|null,
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments

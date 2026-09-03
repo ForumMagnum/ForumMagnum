@@ -3899,6 +3899,11 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
+-- CustomIndex "idx_ClientIds_lastSeenAt_emptyUserIds"
+CREATE INDEX IF NOT EXISTS "idx_ClientIds_lastSeenAt_emptyUserIds" ON "ClientIds" ("lastSeenAt")
+WHERE
+  CARDINALITY("userIds") = 0;
+
 -- CustomIndex "idx_DatabaseMetadata_name"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);
 
