@@ -1,8 +1,5 @@
-import { ClientIds } from "../collections/clientIds/collection";
-import { updateIndexes } from "./meta/utils";
+import { updateCustomIndexes } from "./meta/utils";
 
-export const up = async () => {
-  await updateIndexes(ClientIds);
-}
+export const up = async ({db}: MigrationContext) => void updateCustomIndexes(db);
 
 export const down = up;
