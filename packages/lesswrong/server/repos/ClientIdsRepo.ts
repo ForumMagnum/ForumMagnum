@@ -34,6 +34,21 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
       `, [randomId(), clientId, referrer, landingPage, [userId]]);
     }
   }
+
+  /**
+   * Client ids is the fastest growing table in the DB. To prevent it becoming
+   * unmanageably large we periodically clear useless data. That is, all client
+   * ids from logged-out users, that haven't visited in the last month. We
+   * always keep all historical client ids for logged-in users.
+   */
+  async clearOldClientIds() {
+    await this.none(`
+      DELETE FROM "ClientIds"
+      WHERE
+        "lastSeenAt" < NOW() - INTERVAL '1 month'
+        AND CARDINALITY("userIds") = 0
+    `);
+  }
 }
 
 recordPerfMetrics(ClientIdsRepo, { excludeMethods: ['ensureClientId'] });
