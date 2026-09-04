@@ -277,6 +277,17 @@ function tagIsWholeParagraph({ element, window }: { element: HTMLElement; window
     throw new Error("element must be HTMLElement");
   }
 
+  const para = element.closest('p');
+  if (!para) {
+    return false;
+  }
+
+  // Lexical bold text can be serialized as nested <b><strong> tags. Only the
+  // outermost bold element should represent the paragraph in the ToC.
+  if (element.parentElement?.closest('b, strong')) {
+    return false;
+  }
+
   const parent = element.parentNode;
   if (!parent) {
     return false;
@@ -313,8 +324,7 @@ function tagIsWholeParagraph({ element, window }: { element: HTMLElement; window
   }
 
   // Ensure that all the text in the paragraph is within elements of the same type as our element
-  const para = element.closest('p');
-  return !!para && para.textContent?.trim() === element.textContent?.trim();
+  return para.textContent?.trim() === element.textContent?.trim();
 };
 
 /**

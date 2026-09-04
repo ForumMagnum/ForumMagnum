@@ -115,6 +115,23 @@ describe("extractTableOfContents", () => {
     });
   });
 
+  it("counts nested bold tags as one heading", () => {
+    const html = normalizeHtml(`
+      <p><b><strong>Nested bold heading</strong></b></p>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <p><b id="Nested_bold_heading"><strong>Nested bold heading</strong></b></p>
+      `),
+      sections: [
+        { title: "Nested bold heading", anchor: "Nested_bold_heading", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
+
   it("Regression: Trailing whitespace counts towards anchor", () => {
     const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
