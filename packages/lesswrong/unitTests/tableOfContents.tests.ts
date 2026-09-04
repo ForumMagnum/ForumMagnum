@@ -115,6 +115,28 @@ describe("extractTableOfContents", () => {
     });
   });
 
+  it("Regression: <b> nested inside <strong> counts as a single heading", () => {
+    const html = normalizeHtml(`
+      <p><strong><b>Doubly bold</b></strong></p>
+      <p>Some content</p>
+      <p><b><strong>Bold twice again</strong></b></p>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <p><strong id="Doubly_bold"><b>Doubly bold</b></strong></p>
+        <p>Some content</p>
+        <p><b id="Bold_twice_again"><strong>Bold twice again</strong></b></p>
+      `),
+      sections: [
+        { title: "Doubly bold", anchor: "Doubly_bold", level: 1 },
+        { title: "Bold twice again", anchor: "Bold_twice_again", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
+
   it("Regression: Trailing whitespace counts towards anchor", () => {
     const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
