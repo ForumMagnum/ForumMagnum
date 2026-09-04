@@ -106,6 +106,10 @@ export function extractTableOfContents({
 
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string, boolean> = {};
+  // Elements that have already been accepted as headings. Used to avoid
+  // counting a heading twice when heading tags are nested, eg
+  // <p><strong><b>Heading</b></strong></p>.
+  const acceptedHeadingElements: HTMLElement[] = [];
 
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
@@ -117,6 +121,12 @@ export function extractTableOfContents({
     // Skip headings inside spoiler/collapsible content or code blocks; those
     // are hidden or literal content and should not appear in the ToC.
     if (element.closest('.spoilers, .spoiler, .detailsBlockContent, pre, code')) {
+      continue;
+    }
+    // Skip elements nested inside an element that was already counted as a
+    // heading; querySelectorAll returns ancestors before descendants, so the
+    // outer element is always the one that's kept.
+    if (isInsideAcceptedHeading(element, acceptedHeadingElements)) {
       continue;
     }
     let tagName = element.tagName.toLowerCase();
@@ -135,6 +145,7 @@ export function extractTableOfContents({
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
       element.id = anchor;
+      acceptedHeadingElements.push(element);
       headings.push({
         title: title,
         anchor: anchor,
@@ -183,6 +194,10 @@ export function extractTableOfContents({
     html: document.body.innerHTML,
     sections: headings,
   };
+}
+
+function isInsideAcceptedHeading(element: HTMLElement, acceptedHeadingElements: HTMLElement[]): boolean {
+  return acceptedHeadingElements.some(heading => heading !== element && heading.contains(element));
 }
 
 /**
