@@ -6,6 +6,13 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
+interface PostsPodcastPlayerProps {
+  podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>
+  postId: string
+  hideIconList?: boolean
+  onLoadError?: (episodeLink: string) => void
+}
+
 const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
@@ -21,11 +28,7 @@ const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   }
 }));
 
-const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
-  podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>,
-  postId: string,
-  hideIconList?: boolean,
-}) => {
+const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false, onLoadError}: PostsPodcastPlayerProps) => {
   const classes = useStyles(styles);
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -38,12 +41,16 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
     const newScript = document.createElement('script');
     newScript.async=true;
     newScript.src=podcastEpisode.episodeLink;
+    newScript.onerror = () => {
+      onLoadError?.(podcastEpisode.episodeLink);
+    };
     document.head.appendChild(newScript);
     
     return () => {
+      newScript.onerror = null;
       newScript.parentNode?.removeChild(newScript);
     }
-  }, [podcastEpisode.episodeLink]);
+  }, [onLoadError, podcastEpisode.episodeLink]);
 
   const setMouseOverDiv = (isMouseOver: boolean) => {
     mouseOverDiv.current = isMouseOver;
