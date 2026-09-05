@@ -1,7 +1,6 @@
 "use client";
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback, useContext } from 'react';
 import qs from 'qs';
-import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -22,6 +21,7 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/searchUtil';
+import { resetSearchPage, type ExpandedSearchState } from '../../lib/search/searchPageState';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from "../../lib/reactRouterWrapper";
@@ -242,13 +242,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   },
 }));
 
-export type ExpandedSearchState = SearchState & {
-  contentType?: SearchIndexCollectionName,
-  refinementList?: {
-    tags: Array<string>|''
-  }
-}
-
 // shows total # of results
 const Stats = ({ nbHits, className }: {
   nbHits: number,
@@ -317,11 +310,13 @@ const SearchPageTabbed = () => {
     if (!isValidElasticSorting(newSorting)) {
       throw new Error("Invalid search sorting: " + newSorting);
     }
+    const updatedSearchState = resetSearchPage(searchState);
+    setSearchState(updatedSearchState);
     setSorting(newSorting);
     navigate({
       ...location,
       search: qs.stringify({
-        ...searchState,
+        ...updatedSearchState,
         sort: elasticSortingToUrlParam(newSorting),
       }),
     }, {
@@ -350,7 +345,7 @@ const SearchPageTabbed = () => {
   const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
     setSorting(defaultElasticSorting);
-    setSearchState({...searchState, contentType: value, page: 1});
+    setSearchState(resetSearchPage({...searchState, contentType: value}));
   }
   // filters that we want to persist when changing content type tabs need to be handled separately
   // (currently that's just the tags filter)
@@ -379,8 +374,7 @@ const SearchPageTabbed = () => {
   useEffect(() => {
     if (query.query !== searchState?.query) {
       setSearchState((current) => ({
-        ...current,
-        page: "1",
+        ...resetSearchPage(current),
         query: query.query,
       }));
     }
