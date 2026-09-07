@@ -528,37 +528,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
-      "ReadStatusViews" AS (
-        -- Generate implied view events from ReadStatuses table
-        SELECT
-          c._id AS "documentId",
-          rs."lastUpdated" AS "createdAt",
-          'viewed' AS "eventType"
-        FROM "AllRelevantComments" c
-        JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
-        WHERE rs."userId" = $(userIdOrClientId)
-          AND rs."isRead" IS TRUE
-          AND c."postedAt" < rs."lastUpdated"
-      ),
       "UsersEvents" AS (
-        -- Select from the combined and ordered events
-        SELECT * FROM (
-          -- Combine both real events and implied events from read statuses
-          SELECT
-            ue."documentId",
-            ue."createdAt",
-            ue."eventType"
-          FROM "UltraFeedEvents" ue
-          WHERE ue."collectionName" = 'Comments'
-            AND "userId" = $(userIdOrClientId)
-            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
-            AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
-          
-          UNION ALL
-          
-          -- Add the implied view events from ReadStatuses
-          SELECT * FROM "ReadStatusViews"
-        ) AS CombinedEvents -- Treat the UNION result as a derived table
+        -- A post visit is not evidence that any of its comments were seen.
+        -- Only comment-specific feed events determine comment read state.
+        SELECT
+          ue."documentId",
+          ue."createdAt",
+          ue."eventType"
+        FROM "UltraFeedEvents" ue
+        WHERE ue."collectionName" = 'Comments'
+          AND ue."userId" = $(userIdOrClientId)
+          AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
+          AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
         ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
         LIMIT 5000
       ),
