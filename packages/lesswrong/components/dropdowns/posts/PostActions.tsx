@@ -16,6 +16,8 @@ import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
 import ShortformDropdownItem from "./ShortformDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
+import CitePostDropdownItem from "./CitePostDropdownItem";
+import SaveAsPdfDropdownItem from "./SaveAsPdfDropdownItem";
 import EditTagsDropdownItem from "./EditTagsDropdownItem";
 import EditPostDropdownItem from "./EditPostDropdownItem";
 import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
@@ -78,6 +80,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
+      <SaveAsPdfDropdownItem post={post} closeMenu={closeMenu} />
+      <CitePostDropdownItem postId={post._id} closeMenu={closeMenu} />
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
       {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}

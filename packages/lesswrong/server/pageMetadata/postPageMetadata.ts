@@ -5,18 +5,14 @@ import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { formatIsoDate, getPostCitation } from "@/lib/collections/posts/citations";
 import { runQuery } from "../vulcan-lib/query";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
     post(selector: { _id: $postId }) {
       result {
-        _id
-        title
-        slug
-        isEvent
-        groupId
+        ...PostsCitationInfo
         canonicalSource
         socialPreviewData {
           _id
@@ -29,21 +25,12 @@ const PostMetadataQuery = gql(`
         contents {
           plaintextDescription
         }
-        user {
-          _id
-          displayName
-        }
-        coauthors {
-          _id
-          displayName
-        }
         coauthorUserIds
         shortform
         eventImageId
         noIndex
         rejected
         baseScore
-        createdAt
       }
     }
   }
@@ -56,21 +43,29 @@ function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_
   return post.socialPreviewData?.imageUrl ?? "";
 }
 
-function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
-  let formattedDate = post.createdAt;
-  if (formattedDate) {
-    formattedDate = new Date(formattedDate).toISOString();
-    formattedDate = formattedDate.slice(0, formattedDate.indexOf("T")).replace(/-/g, "/");
-  }
-  
-  const authors: string[] = [
-    ...(post.user?.displayName ? [post.user.displayName] : []),
-    ...filterNonnull(post.coauthors?.map(coauthor => coauthor.displayName) ?? [])
-  ];
+/**
+ * Highwire Press citation_* meta tags, which Google Scholar (and reference
+ * managers such as Zotero) use to index and import the post as a citable work.
+ * See https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+ */
+function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post, canonicalUrl: string) {
+  const citation = getPostCitation(post);
+  const publicationDate = citation.publishedAt
+    ? formatIsoDate(citation.publishedAt, citation.timezone).replace(/-/g, "/")
+    : null;
+
   return {
-    citation_title: post.title,
-    citation_author: authors,
-    ...(formattedDate && { citation_publication_date: formattedDate }),
+    citation_title: citation.title,
+    citation_author: citation.authors,
+    ...(publicationDate && {
+      citation_publication_date: publicationDate,
+      citation_online_date: publicationDate,
+    }),
+    citation_publisher: citation.siteName,
+    citation_public_url: canonicalUrl,
+    citation_fulltext_html_url: canonicalUrl,
+    citation_abstract_html_url: canonicalUrl,
+    citation_language: "en",
   } satisfies Metadata['other'];
 }
 
@@ -116,6 +111,9 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
       const noIndex = postNoIndex || commentId || options?.noIndex;
+      // Don't advertise unlisted posts, or non-canonical views of a post such
+      // as old revisions, as citable works
+      const includeCitationTags = !postNoIndex && !options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);
       const descriptionFields = getMetadataDescriptionFields(description);
@@ -128,9 +126,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         alternates: {
           canonical: canonicalUrl,
         },
-        other: {
-          ...getCitationTags(post),
-        },
+        ...(includeCitationTags ? { other: getCitationTags(post, canonicalUrl) } : {}),
         ...(noIndex ? noIndexMetadata : {}),
       } satisfies Metadata;
   

@@ -12,12 +12,16 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { RecommendationsAlgorithm } from "@/lib/collections/users/recommendationSettings";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { printPostOnlySelector } from "../posts/printPostOnly";
 import { isAF } from "@/lib/instanceSettings";
 
 const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
     background: 'transparent',
     padding: "60px 0 80px 0",
+    "@media print": {
+      [printPostOnlySelector]: { display: "none" },
+    },
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {
       // make the background flush with the sides of the screen on mobile

@@ -12,6 +12,7 @@ import DropdownDivider from "../DropdownDivider";
 import SocialMediaIcon from "../../icons/SocialMediaIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import CitePostDropdownItem from "./CitePostDropdownItem";
 
 const styles = defineStyles("SharePostActions", (_theme: ThemeType) => ({
   icon: {
@@ -67,6 +68,7 @@ const SharePostActions = ({post, onClick}: {
         icon="Link"
         onClick={copyLink}
       />
+      <CitePostDropdownItem postId={post._id} closeMenu={onClick} />
       <DropdownDivider/>
       <DropdownItem
         title={isFriendlyUI() ? "Share on Twitter" : "Twitter"}
