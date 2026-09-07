@@ -1,9 +1,9 @@
-import { FeedFullPost, FeedItemSourceType, FeedPostStub } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
-import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 // Configuration for unviewed items optimization
 const UNVIEWED_RECOMBEE_CONFIG = {
@@ -31,113 +31,62 @@ export async function getRecommendedPostsForUltraFeed(
     return [];
   }
 
-  let unviewedRecombeePostIds: string[] = [];
-  let adjustedLimit = limit;
-  
-  if (userIdOrClientId) {
-    unviewedRecombeePostIds = await repos.ultraFeedEvents.getUnviewedRecombeePostIds(
-      userIdOrClientId,
-      scenarioId,
-      UNVIEWED_RECOMBEE_CONFIG.lookbackDays,
-      limit
-    );
-    
-    const unviewedRatio = unviewedRecombeePostIds.length / limit;
-    
-    if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
-      // We have enough cached items, return them directly
-      const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
-      
-      return posts
-        .filter((post): post is DbPost => !(post instanceof Error))
-        .slice(0, limit)
-        .map((post): FeedFullPost => ({
-          post,
-          postMetaInfo: {
-            sources: [scenarioId as FeedItemSourceType],
-            displayStatus: 'expanded',
-            highlight: true, // May be overridden by getViewedPostIds (these are unviewed from recent lookback period but concievably were viewed in the past)
-          },
-        }));
-    } else if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold) {
-      adjustedLimit = Math.ceil(limit * 0.5);
-    }
-  }
-
-  let exclusionFilterString: string | undefined = undefined;
-  const allExcludedIds = [
+  if (limit <= 0) return [];
+  const excluded = new Set([
     ...(currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? []),
     ...additionalExcludedIds,
-    ...unviewedRecombeePostIds
-  ];
-  
-  if (allExcludedIds.length > 0) {
-    const exclusionFilter = allExcludedIds.map(id => `"${id}"`).join(',');
-    exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
-  }
-
-  const lwAlgoSettings: RecombeeRecommendationArgs = {
-    scenario: scenarioId,
-    filterSettings: currentUser?.frontpageFilterSettings,
-    skipTopOfListPosts: true,
-    rotationRate: 0.5,
-    rotationTime: 24 * 30, // 30 days
-    ...(exclusionFilterString && { filter: exclusionFilterString }),
+  ]);
+  const filters: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+  const eligible = (post: Partial<DbPost>) => {
+    if (!post._id || excluded.has(post._id) || post.draft || post.rejected || post.deletedDraft) return false;
+    if (filters.personalBlog === 'Hidden' && !post.frontpageDate) return false;
+    return filters.tags.every(tag => {
+      const relevance = post.tagRelevance?.[tag.tagId] ?? 0;
+      return (tag.filterMode !== 'Hidden' || relevance < 1)
+        && (tag.filterMode !== 'Required' || relevance >= 1);
+    });
   };
 
-  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
-  
-  const allPostIds = [
-    ...unviewedRecombeePostIds.slice(0, limit),
-    ...recommendedResults.map(item => item.post?._id).filter((id): id is string => !!id)
-  ];
-  
-  let viewedPostIds = new Set<string>();
-  if (userIdOrClientId && allPostIds.length > 0) {
-    viewedPostIds = await repos.ultraFeedEvents.getViewedPostIds(userIdOrClientId, allPostIds);
-  }
-  
-  const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
-    if (!item.post?._id) return null;
-    const { post, recommId, scenario, generatedAt } = item;
-
-    const recommInfo = (recommId && generatedAt) ? {
-      recommId,
-      scenario: scenario || scenarioId,
-      generatedAt,
-    } : undefined;
-
-    return {
-      post,
+  const cachedIds = userIdOrClientId
+    ? await repos.ultraFeedEvents.getUnviewedRecombeePostIds(userIdOrClientId, scenarioId, UNVIEWED_RECOMBEE_CONFIG.lookbackDays, limit)
+    : [];
+  const loaded = await context.loaders.Posts.loadMany(cachedIds);
+  const cachedPosts = await accessFilterMultiple(currentUser, 'Posts',
+    loaded.filter((post): post is DbPost => !!post && !(post instanceof Error) && eligible(post)), context);
+  const cachedItems: FeedFullPost[] = cachedPosts.map(post => ({
+    post, postMetaInfo: { sources: [scenarioId as FeedItemSourceType], displayStatus: 'expanded', highlight: false },
+  }));
+  const ratio = cachedItems.length / limit;
+  let freshItems: FeedFullPost[] = [];
+  if (ratio < UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
+    const fetchLimit = ratio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold ? Math.ceil(limit * 0.5) : limit;
+    const allExcludedIds = [...excluded, ...cachedPosts.map(post => post._id!)];
+    const filter = allExcludedIds.length
+      ? `'itemId' NOT IN {${allExcludedIds.map(id => JSON.stringify(id)).join(',')}}`
+      : undefined;
+    const recommended = await recombeeApi.getRecommendationsForUser(recombeeUser, fetchLimit, {
+      scenario: scenarioId, filterSettings: filters, skipTopOfListPosts: true,
+      rotationRate: 0.5, rotationTime: 24 * 30, ...(filter && { filter }),
+    }, context);
+    freshItems = recommended.filter(item => item.post && eligible(item.post)).map(item => ({
+      post: item.post,
       postMetaInfo: {
-        sources: [scenario as FeedItemSourceType],
-        displayStatus: 'expanded',
-        recommInfo: recommInfo,
-        highlight: post._id ? !viewedPostIds.has(post._id) : true,
+        sources: [(item.scenario || scenarioId) as FeedItemSourceType], displayStatus: 'expanded', highlight: false,
+        recommInfo: item.recommId && item.generatedAt ? {
+          recommId: item.recommId, scenario: item.scenario || scenarioId, generatedAt: item.generatedAt,
+        } : undefined,
       },
-    };
-  }).filter((p) => !!p);
-
-  if (adjustedLimit < limit && unviewedRecombeePostIds.length > 0) {
-    const postsToReuse = limit - displayPosts.length;
-    const reusedPostIds = unviewedRecombeePostIds.slice(0, postsToReuse);
-    const reusedPosts = await context.loaders.Posts.loadMany(reusedPostIds);
-    
-    const reusedDisplayPosts = reusedPosts
-      .filter((post): post is DbPost => !(post instanceof Error))
-      .map((post): FeedFullPost => ({
-        post,
-        postMetaInfo: {
-          sources: [scenarioId as FeedItemSourceType],
-          displayStatus: 'expanded',
-          highlight: !viewedPostIds.has(post._id),
-        },
-      }));
-    
-    return [...reusedDisplayPosts, ...displayPosts].slice(0, limit);
+    }));
   }
 
-  return displayPosts;
+  // Every path, including a cache-only response, gets current read highlighting.
+  const items = [...new Map([...cachedItems, ...freshItems].map(item => [item.post._id, item])).values()].slice(0, limit);
+  const viewed = userIdOrClientId
+    ? await repos.ultraFeedEvents.getViewedPostIds(userIdOrClientId, items.map(item => item.post._id!))
+    : new Set<string>();
+  return items.map(item => ({ ...item, postMetaInfo: {
+    ...item.postMetaInfo, highlight: !viewed.has(item.post._id!), isRead: viewed.has(item.post._id!),
+  } }));
 }
 
 /**
