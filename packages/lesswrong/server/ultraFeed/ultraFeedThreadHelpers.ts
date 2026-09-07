@@ -1,3 +1,4 @@
+import { explainThreadPreselection } from "./ultraFeedThreadPreselection";
 /**
  * Helpers for UltraFeed thread prioritization and preparation.
  * 
@@ -630,58 +631,15 @@ export async function getUltraFeedCommentThreads(
   // --- Select Best Threads --- 
   const finalRankedThreads = selectBestThreads(allScoredThreads); 
 
-  // --- Filter out non-viable threads ---
-  const nonViableReasons = {
-    zeroOrNegativeScore: 0,
-    allCommentsViewed: 0,
-    allCommentsServedInSession: 0,
-  };
-  
-  const viableThreads = finalRankedThreads.filter(rankedThreadInfo => {
-    const thread = rankedThreadInfo.thread;
-    
-    // Exclude threads with zero or negative scores
-    if (rankedThreadInfo.score <= 0) {
-      nonViableReasons.zeroOrNegativeScore++;
-      return false;
-    }
-    
-    // Exclude threads where ALL comments have been viewed or interacted with
-    const hasUnviewedComment = thread.some(comment => 
-      !comment.lastViewed && !comment.lastInteracted
-    );
-    if (!hasUnviewedComment) {
-      nonViableReasons.allCommentsViewed++;
-      return false;
-    }
-    
-    // Exclude threads where ALL comments have already been served in this session
-    if (sessionId && servedCommentIdsInSession.size > 0) {
-      const hasUnservedComment = thread.some(comment => 
-        !servedCommentIdsInSession.has(comment.commentId)
-      );
-      if (!hasUnservedComment) {
-        nonViableReasons.allCommentsServedInSession++;
-        return false;
-      }
-    }
-    
-    return true;
+  const explanations = explainThreadPreselection(finalRankedThreads, limit, servedCommentIdsInSession);
+  const displayThreads = finalRankedThreads.flatMap((rankedThreadInfo, index) => {
+    const preselection = explanations[index];
+    if (!settings.debugMode && !preselection.selected) return [];
+    const prepared = prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap);
+    return prepared ? [{ ...prepared, preselection }] : [];
   });
 
-  const totalThreads = finalRankedThreads.length;
-  const nonViableCount = totalThreads - viableThreads.length;
-  ultraFeedLog(
-    `Comment threads - total: ${totalThreads}, viable: ${viableThreads.length}, ` +
-    `non-viable: ${nonViableCount} (score≤0: ${nonViableReasons.zeroOrNegativeScore}, ` +
-    `viewed: ${nonViableReasons.allCommentsViewed}, served: ${nonViableReasons.allCommentsServedInSession}), ` +
-    `limit: ${limit}`
-  );
-  
-  const displayThreads = viableThreads
-    .slice(0, limit) 
-    .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap))
-    .filter(rankedThreadInfo => !!rankedThreadInfo);
+  ultraFeedLog(`Comment threads: ${finalRankedThreads.length} candidates, ${explanations.filter(info => info.selected).length} selected, limit ${limit}`);
 
   const returnedCommentIds = displayThreads.flatMap(thread => 
     thread.comments.map(comment => comment.commentId.substring(0, 3))

@@ -101,6 +101,7 @@ export function toThreadRankable(
   const userSubscribedToAuthor = perComment.some(c => c.userSubscribedToAuthor);
 
   const rankable: ThreadRankableItem = {
+    preselection: thread.preselection,
     id: threadId,
     itemType: 'commentThread',
     threadId,
@@ -502,6 +503,7 @@ function scoredItemToMetadata(
   if (scoredItem.itemType === 'commentThread') {
     return {
       rankedItemType: 'commentThread',
+      preselection: scoredItem.item.preselection,
       scoreBreakdown: scoredItem.breakdown,
       selectionConstraints,
       position,
@@ -555,5 +557,4 @@ export function rankUltraFeedItems(
     };
   });
 }
-
 

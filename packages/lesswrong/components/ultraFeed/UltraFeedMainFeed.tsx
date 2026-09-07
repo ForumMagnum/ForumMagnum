@@ -75,6 +75,8 @@ const UltraFeedMainFeed = ({
     settings: JSON.stringify({ ...settings.resolverSettings, debugMode, diversityContext: buildUltraFeedDiversityContext(results) }),
   }), [settings, debugMode]);
   const debugHeader = useMemo(() => debugMode ? (
+    <>
+    <p>Thread candidates show their preselection score and exclusion reasons. This shows the best path per root from the initial candidate pool, including threads excluded before final ranking. Earlier database filters and discarded alternative paths are not shown. Topic affinity, replies-to-you, and own-post bonuses are not implemented.</p>
     <UltraFeedDebugHeader
       sortField={debugSortField}
       sortDirection={debugSortDirection}
@@ -83,6 +85,7 @@ const UltraFeedMainFeed = ({
         setDebugSortDirection(direction);
       }}
     />
+    </>
   ) : undefined, [debugMode, debugSortField, debugSortDirection]);
   const debugSortResults = useMemo(() => debugMode
     ? (a: UltraFeedDebugResult, b: UltraFeedDebugResult) => compareUltraFeedDebugResults(a, b, debugSortField, debugSortDirection)
@@ -114,4 +117,3 @@ const UltraFeedMainFeed = ({
 };
 
 export default UltraFeedMainFeed;
-

@@ -52,6 +52,7 @@ export type RankedItemMetadata =
     }
   | {
       rankedItemType: 'commentThread';
+      preselection?: ThreadPreselectionInfo;
       scoreBreakdown: ThreadScoreBreakdown;
       selectionConstraints: string[];
       position: number;
@@ -154,10 +155,19 @@ export interface PreDisplayFeedComment {
 export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
+  preselection?: ThreadPreselectionInfo;
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
   postSources?: FeedItemSourceType[];
   rankingMetadata?: RankedItemMetadata;
+}
+
+export interface ThreadPreselectionInfo {
+  score: number;
+  rank: number;
+  candidateLimit: number;
+  selected: boolean;
+  reasons: string[];
 }
 
 export interface FeedPostStub {

@@ -198,7 +198,7 @@ function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
 const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
 
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
-  let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS;
+  let parsedSettings: UltraFeedResolverSettings = cloneDeep(DEFAULT_RESOLVER_SETTINGS);
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
@@ -506,6 +506,7 @@ export const ultraFeedGraphQLQueries = {
     }
 
     const parsedSettings = parseUltraFeedSettings(settingsJson);
+    parsedSettings.debugMode = !!parsedSettings.debugMode && userIsAdminOrMod(currentUser);
     const sourceWeights = parsedSettings.sourceWeights;
     const incognitoMode = parsedSettings.incognitoMode;
 
