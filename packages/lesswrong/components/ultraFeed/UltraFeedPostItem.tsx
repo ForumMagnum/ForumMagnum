@@ -402,7 +402,7 @@ const UltraFeedPostItem = ({
   isHighlightAnimating?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openInNewTab, feedType } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
@@ -448,7 +448,8 @@ const UltraFeedPostItem = ({
         feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId, index]);
+    return () => { if (currentElement) unobserve(currentElement); };
+  }, [observe, unobserve, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
