@@ -57,7 +57,6 @@ async function getIsBookmarked(documentId: string, context: ResolverContext): Pr
     { userId: currentUser._id, collectionName: "Comments", active: true },
     "documentId",
     documentId,
-    { limit: 1 }
   );
 
   return bookmarks.length > 0;
