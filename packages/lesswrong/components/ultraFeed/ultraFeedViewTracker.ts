@@ -5,6 +5,7 @@ export interface ObserveData {
   servedEventId?: string;
   feedCardIndex?: number;
   feedCommentIndex?: number;
+  feedType?: string;
 }
 
 const viewKey = (data: ObserveData) => data.servedEventId || `${data.documentType}:${data.documentId}`;
@@ -17,6 +18,7 @@ export class UltraFeedViewTracker {
   private viewed = new Set<string>();
   private longViewed = new Set<string>();
   private enabled = true;
+  private activeFeedType?: string;
 
   constructor(private logView: (data: ObserveData, durationMs: number) => void) {}
 
@@ -24,7 +26,7 @@ export class UltraFeedViewTracker {
     this.observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         this.cancelTimers(entry.target);
-        if (entry.isIntersecting && this.enabled) this.startTimers(entry.target);
+        if (entry.isIntersecting && this.canTrack(entry.target)) this.startTimers(entry.target);
       }
     }, { root: null, rootMargin: '-100px 0px -100px 0px', threshold: 0 });
     if (this.enabled) this.targets.forEach((_, element) => this.observer?.observe(element));
@@ -41,6 +43,17 @@ export class UltraFeedViewTracker {
     this.timers.forEach((_, element) => this.cancelTimers(element));
     this.observer?.disconnect();
     if (enabled) this.targets.forEach((_, element) => this.observer?.observe(element));
+  }
+
+  setActiveFeedType(feedType?: string) {
+    this.activeFeedType = feedType;
+    // Resubscribe so switching feeds starts a fresh continuous visibility interval.
+    this.setEnabled(this.enabled);
+  }
+
+  private canTrack(element: Element) {
+    const data = this.targets.get(element);
+    return this.enabled && !!data && (!this.activeFeedType || data.feedType === this.activeFeedType);
   }
 
   observe(element: Element, data: ObserveData) {
@@ -65,7 +78,7 @@ export class UltraFeedViewTracker {
     if (!data || this.longViewed.has(viewKey(data))) return;
     const timers = [1000, 10000].map(duration => setTimeout(() => {
       const current = this.targets.get(element);
-      if (!this.enabled || !current || current !== data) return;
+      if (!this.canTrack(element) || !current || current !== data) return;
       const seen = duration === 1000 ? this.viewed : this.longViewed;
       if (seen.has(viewKey(data))) return;
       seen.add(viewKey(data));

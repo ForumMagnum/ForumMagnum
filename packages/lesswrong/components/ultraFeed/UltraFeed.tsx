@@ -206,7 +206,7 @@ const UltraFeedContent = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
-  const { openDialog } = useDialog();
+  const { openDialog, isDialogOpen } = useDialog();
   const { captureEvent } = useTracking();
   const [sessionId] = useState<string>(randomId);
   const refetchForYouRef = useRef<null | ObservableQuery['refetch']>(null);
@@ -255,7 +255,7 @@ const UltraFeedContent = ({
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
       <div className={classes.root} ref={feedContainerRef}>
-        <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
+        <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode} activeFeedType={activeTab} paused={isDialogOpen}>
         <OverflowNavObserverProvider>
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
