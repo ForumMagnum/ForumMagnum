@@ -19,7 +19,9 @@ export function parseUltraFeedDiversityContext(value: unknown): UltraFeedDiversi
 }
 
 /** Only ranking summaries are sent back; no read logging is needed, including in incognito. */
-export function buildUltraFeedDiversityContext(results: Array<{ type: string; [key: string]: unknown }>): UltraFeedDiversityContext {
+export function buildUltraFeedDiversityContext(displayedResults: Array<{ type: string; [key: string]: unknown }>): UltraFeedDiversityContext {
+  // Suggestions and markers are appended outside ranking and must not consume guaranteed slots.
+  const results = displayedResults.filter(result => result.type !== 'feedSubscriptionSuggestions' && result.type !== 'feedMarker');
   return { offset: results.length, history: results.slice(-20).map((result, index) => {
     const position = results.length - Math.min(20, results.length) + index;
     if (result.type === 'feedCommentThread') {
