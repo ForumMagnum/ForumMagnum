@@ -1,3 +1,4 @@
+import { ultraFeedReadIsCurrentSql } from "../ultraFeed/ultraFeedReadState";
 import Comments from "../../server/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "@/server/sql/SelectQuery";
@@ -748,6 +749,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             WHERE ufe_posts."userId" = $(userIdOrClientId)
               AND ufe_posts."collectionName" = 'Posts'
               AND ufe_posts."eventType" != 'served'
+              AND ufe_posts.event->>'action' IS DISTINCT FROM 'markUnread'
+              AND ${ultraFeedReadIsCurrentSql('$(userIdOrClientId)', 'ufe_posts."documentId"', 'ufe_posts."createdAt"')}
               AND ufe_posts."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
           ) "readPosts_subquery" ON c_read."postId" = "readPosts_subquery"."postId"
           WHERE c_read."postedAt" > (NOW() - INTERVAL $(lookbackInterval))

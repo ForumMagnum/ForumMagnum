@@ -1,3 +1,4 @@
+import { ultraFeedReadIsCurrentSql } from "../ultraFeed/ultraFeedReadState";
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
@@ -888,10 +889,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ),
       ufe_limited AS (
         SELECT "documentId", "createdAt", "eventType"
-        FROM "UltraFeedEvents"
+        FROM "UltraFeedEvents" ue
         WHERE 
           "userId" = $(userId)
           AND "collectionName" = 'Posts'
+          AND event->>'action' IS DISTINCT FROM 'markUnread'
+          AND ${ultraFeedReadIsCurrentSql('$(userId)', 'ue."documentId"', 'ue."createdAt"')}
           AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
         ORDER BY "createdAt" DESC
         LIMIT 2000
@@ -907,6 +910,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           SELECT rs."postId" AS "documentId", rs."lastUpdated" AS "createdAt", 'viewed' AS "eventType"
           FROM "ReadStatuses" rs
           WHERE rs."userId" = $(userId)
+            AND rs."isRead" IS TRUE
             AND rs."lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
         ) ce
         GROUP BY ce."documentId"
@@ -1004,11 +1008,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           "documentId",
           MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" ELSE NULL END) as "lastViewed",
           MAX(CASE WHEN "eventType" IN ('upvote', 'downvote', 'strongUpvote', 'strongDownvote', 'comment') THEN "createdAt" ELSE NULL END) as "lastInteracted"
-        FROM "UltraFeedEvents"
+        FROM "UltraFeedEvents" events
         WHERE 
           "userId" = $2
           AND "documentId" = ANY($1::text[])
           AND "collectionName" = 'Posts'
+          AND ${ultraFeedReadIsCurrentSql('$2', 'events."documentId"', 'events."createdAt"')}
         GROUP BY "documentId"
       ) ue ON ue."documentId" = p._id
     `, [postIds, userId]);
