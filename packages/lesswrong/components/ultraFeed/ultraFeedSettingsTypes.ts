@@ -20,6 +20,7 @@ export type UltraFeedAlgorithm = 'scoring' | 'sampling';
 export interface UnifiedScoringSettings {
   subscribedBonusSetting: number;
   quicktakeBonus: number;
+  /** Persisted legacy name: scales karma bonuses, not the relative decay rate or half-life. */
   timeDecayHalfLifeHours: number;
   postsMultiplier: number;
   threadsMultiplier: number;
