@@ -46,6 +46,12 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
       whiteSpace: 'nowrap',
       boxSizing: 'border-box',
       fontSize: 14,
+      // The search input inherits this font-size. iOS Safari auto-zooms the
+      // viewport when a focused input's font-size is below 16px, so bump it on
+      // touch devices to suppress the zoom (matches MUI's InputBase root).
+      '@media (pointer: coarse)': {
+        fontSize: 16,
+      },
     },
     "& .ais-SearchBox-form": {
       height: '100%'
