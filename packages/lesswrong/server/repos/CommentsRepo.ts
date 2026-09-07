@@ -541,8 +541,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           AND ue."userId" = $(userIdOrClientId)
           AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
           AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
-        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
-        LIMIT 5000
+        -- Bound work by candidate IDs, not by event count: truncation loses seen state.
       ),
       "CommentEvents" AS (
           -- Aggregate the user's latest events for each comment

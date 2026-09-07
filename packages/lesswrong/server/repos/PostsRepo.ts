@@ -887,7 +887,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND s."collectionName" = 'Users'
           AND s."type" IN ('newActivityForFeed', 'newPosts')
       ),
-      ufe_limited AS (
+      candidate_events AS (
         SELECT "documentId", "createdAt", "eventType"
         FROM "UltraFeedEvents" ue
         WHERE 
@@ -896,8 +896,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND event->>'action' IS DISTINCT FROM 'markUnread'
           AND ${ultraFeedReadIsCurrentSql('$(userId)', 'ue."documentId"', 'ue."createdAt"')}
           AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-        ORDER BY "createdAt" DESC
-        LIMIT 2000
+          AND "eventType" <> 'served'
+          AND "documentId" IN (
+            SELECT _id FROM "Posts" WHERE "postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+          )
       ),
       read_state AS (
         SELECT
@@ -905,7 +907,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
           MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted"
         FROM (
-          SELECT "documentId", "createdAt", "eventType" FROM ufe_limited
+          SELECT "documentId", "createdAt", "eventType" FROM candidate_events
           UNION ALL
           SELECT rs."postId" AS "documentId", rs."lastUpdated" AS "createdAt", 'viewed' AS "eventType"
           FROM "ReadStatuses" rs
