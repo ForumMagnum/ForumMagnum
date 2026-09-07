@@ -77,12 +77,14 @@ export const convertFetchedItemsToRankable = (
     }
   });
 
-  return [
-    ...rankablePosts,
-    ...rankableThreads,
-    ...rankableSpotlights,
-    ...rankableBookmarks,
-  ];
+  // One candidate can arrive through several sources. Keep its content score and
+  // union its sources before selection, so a selected post can satisfy bookmark variety.
+  const byId = new Map<string, RankableItem>();
+  for (const item of [...rankablePosts, ...rankableThreads, ...rankableSpotlights, ...rankableBookmarks]) {
+    const existing = byId.get(item.id);
+    byId.set(item.id, existing ? { ...existing, sources: [...new Set([...existing.sources, ...item.sources])] } : item);
+  }
+  return [...byId.values()];
 };
 
 const attachMetadataToPost = (
@@ -197,7 +199,9 @@ export const mapRankedIdsToSampledItems = (
     if (post) {
       return {
         type: "feedPostWithContents" as const,
-        feedPost: attachMetadataToPost(post, metadata),
+        feedPost: attachMetadataToPost(bookmarkIdToOriginal.has(id) ? {
+          ...post, postMetaInfo: { ...post.postMetaInfo, sources: [...new Set<FeedItemSourceType>([...post.postMetaInfo.sources, 'bookmarks'])] },
+        } : post, metadata),
       };
     }
     
@@ -205,7 +209,11 @@ export const mapRankedIdsToSampledItems = (
     if (thread) {
       return {
         type: "feedCommentThread" as const,
-        feedCommentThread: attachMetadataToThread(thread, metadata),
+        feedCommentThread: attachMetadataToThread(bookmarkIdToOriginal.has(id) ? {
+          ...thread, comments: thread.comments.map(comment => comment.metaInfo ? ({
+            ...comment, metaInfo: { ...comment.metaInfo, sources: [...new Set<FeedItemSourceType>([...comment.metaInfo.sources, 'bookmarks'])] },
+          }) : comment),
+        } : thread, metadata),
       };
     }
     
