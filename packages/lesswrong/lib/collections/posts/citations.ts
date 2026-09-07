@@ -1,6 +1,5 @@
 import moment from '../../moment-timezone';
 import { forumTitleSetting } from '../../instanceSettings';
-import { DEFAULT_TIMEZONE } from '../../utils/timeUtil';
 import { filterNonnull } from '../../utils/typeGuardUtils';
 import { postGetPageUrl, PostsMinimumForGetPageUrl } from './helpers';
 
@@ -44,6 +43,13 @@ export interface PostCitation {
   timezone: string
 }
 
+/**
+ * Timezone for citations rendered without a reader (page metadata, the .bib
+ * endpoint). Matches DEFAULT_TIMEZONE in lib/utils/timeUtil, which can't be
+ * imported here because that module is client-only.
+ */
+export const DEFAULT_CITATION_TIMEZONE = "GMT";
+
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
@@ -86,7 +92,7 @@ function getAuthorDisplayName(author: PostCitationAuthor | null | undefined): st
   return author.displayName;
 }
 
-export function getPostCitation(post: PostCitationSource, timezone: string = DEFAULT_TIMEZONE): PostCitation {
+export function getPostCitation(post: PostCitationSource, timezone: string = DEFAULT_CITATION_TIMEZONE): PostCitation {
   const creditedAuthors: Array<PostCitationAuthor | null | undefined> = [
     ...(post.hideAuthor ? [] : [post.user]),
     ...(post.coauthors ?? []),

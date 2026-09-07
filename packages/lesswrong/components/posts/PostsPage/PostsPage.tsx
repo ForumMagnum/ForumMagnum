@@ -118,9 +118,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
-    "@media print": {
-      [printPostOnlySelector]: { display: "none" },
-    },
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',

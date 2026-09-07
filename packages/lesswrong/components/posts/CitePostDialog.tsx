@@ -72,8 +72,8 @@ const styles = defineStyles("CitePostDialog", (theme: ThemeType) => ({
     margin: 0,
     background: theme.palette.grey[100],
     borderRadius: theme.borderRadius.small,
-    overflowX: "auto",
-    whiteSpace: "pre",
+    whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere",
     userSelect: "all",
   },
   linkList: {
