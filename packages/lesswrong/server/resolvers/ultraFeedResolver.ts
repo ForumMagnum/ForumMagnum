@@ -1,11 +1,10 @@
+import { calculateFetchLimits } from "../ultraFeed/ultraFeedFetchLimits";
 import {
   FeedItemSourceType, UltraFeedResolverType,
   FeedSpotlight, FeedFullPost, FeedCommentMetaInfo,
   PreDisplayFeedComment,
   FeedCommentsThread,
   FeedCommentsThreadResolverType,
-  feedCommentSourceTypesArray,
-  feedSpotlightSourceTypesArray,
   FeedPostStub,
   UserOrClientId,
   ThreadEngagementStats,
@@ -481,52 +480,6 @@ interface UltraFeedArgs {
   settings: string;
 }
 
-const calculateFetchLimits = (
-  sourceWeights: Record<string, number>,
-  totalLimit: number,
-  offset: number = 0,
-  bufferMultiplier = 3.6,
-  latestAndSubscribedPostMultiplier = 3.0,
-  recombeeMultiplier = 3.6,
-): {
-  totalWeight: number;
-  recombeePostFetchLimit: number;
-  hackerNewsPostFetchLimit: number;
-  subscribedPostFetchLimit: number;
-  commentFetchLimit: number;
-  spotlightFetchLimit: number;
-  bookmarkFetchLimit: number;
-  bufferMultiplier: number;
-} => {
-  const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
-  
-  const recombeePostWeight = sourceWeights['recombee-lesswrong-ultrafeed'] ?? 0;
-  const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
-  const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
-  const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
-  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
-  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
-
-  const baseCommentFetchLimit = Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier);
-  
-  // Scale up comment fetch limit based on offset to reduce repetition in subsequent calls: grows incrementally with each call, capped at 200
-  const commentFetchLimit = Math.min(baseCommentFetchLimit + Math.round(offset / 2), 200);
-  
-  if (offset > 0 && commentFetchLimit > baseCommentFetchLimit) {
-    ultraFeedLog(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
-  }
-
-  return {
-    totalWeight,
-    recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * recombeeMultiplier),
-    hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
-    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
-    commentFetchLimit,
-    spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
-    bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
-    bufferMultiplier
-  };
-};
 
 /**
  * UltraFeed resolver

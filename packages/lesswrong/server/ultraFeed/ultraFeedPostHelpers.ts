@@ -183,7 +183,7 @@ export async function getUltraFeedPostThreads(
       ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
     (latestAndSubscribedPostsLimit > 0)
-      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays)
+      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays, settings.sourceWeights['hacker-news'] <= 0)
       : Promise.resolve([]),
   ]);
 

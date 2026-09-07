@@ -9,7 +9,7 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
-import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import { feedCommentSourceTypesArray, FeedItemSourceType, FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
@@ -453,6 +453,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     initialCandidateLookbackDays: number,
     commentServedEventRecencyHours: number,
     restrictCandidatesToSubscribed = false,
+    enabledSources: FeedItemSourceType[] = [...feedCommentSourceTypesArray],
   ): Promise<FeedCommentFromDb[]> {
     const initialCandidateLimit = 500;
 
@@ -491,6 +492,11 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."userId" != $(userIdOrClientId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
+              AND (CASE
+                WHEN c.shortform IS TRUE THEN 'quicktakes'
+                WHEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") THEN 'subscriptionsComments'
+                ELSE 'recentComments'
+              END) = ANY($(enabledSources)::text[])
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY 
               (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
@@ -583,6 +589,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
       restrictCandidatesToSubscribed,
+      enabledSources,
       reviewYear: REVIEW_YEAR.toString(),
     });
 

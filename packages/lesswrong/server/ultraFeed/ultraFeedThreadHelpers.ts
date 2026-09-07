@@ -23,6 +23,7 @@ import {
   FeedCommentMetaInfo, 
   FeedCommentFromDb,
   FeedItemSourceType,
+  feedCommentSourceTypesArray,
   FeedItemDisplayStatus,
   ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
@@ -577,7 +578,9 @@ export async function getUltraFeedCommentThreads(
     userIdOrClientId, 
     1000, 
     initialCandidateLookbackDays, 
-    commentServedEventRecencyHours
+    commentServedEventRecencyHours,
+    false,
+    feedCommentSourceTypesArray.filter(source => settings.sourceWeights[source] > 0),
   );
   const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
     userIdOrClientId,
