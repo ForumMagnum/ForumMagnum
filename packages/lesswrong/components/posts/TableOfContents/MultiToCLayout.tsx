@@ -21,6 +21,10 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   tableOfContents: {
     position: "relative",
     display: "grid",
+    // When printing, collapse to a single column containing just the post
+    "@media print": {
+      display: "block",
+    },
     [theme.breakpoints.down('sm')]: {
       paddingTop: 12,
     },
@@ -73,6 +77,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     position: 'unset',
     width: 'unset',
     marginTop: -50,
+    "@media print": {
+      display: "none",
+    },
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
@@ -128,9 +135,16 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     height: "100%",
   },
   content: {},
-  rhs: {},
+  rhs: {
+    "@media print": {
+      display: "none",
+    },
+  },
   hideTocButton: {
     position: "fixed",
+    "@media print": {
+      display: "none",
+    },
     top: 0,
     left: 0,
     fontSize: 14,
@@ -152,6 +166,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   },
   tocFooter: {
     position: 'fixed',
+    "@media print": {
+      display: "none",
+    },
     paddingLeft: 12,
     paddingTop: 12,
     paddingBottom: 20,

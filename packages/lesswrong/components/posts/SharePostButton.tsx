@@ -27,7 +27,7 @@ const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
 }))
 
 const SharePostButton = ({post, className}: {
-  post: PostsBase,
+  post: PostsListBase,
   className?: string,
 }) => {
   const classes = useStyles(styles);

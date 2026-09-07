@@ -22497,6 +22497,13 @@ export type multiCommentsForAutocompleteWithParentsQueryQuery = { __typename?: '
       & CommentsForAutocompleteWithParents
     )> } | null };
 
+export type PostCitationQueryVariables = Exact<{
+  postId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PostCitationQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, isEvent: boolean, groupId: string | null, hideAuthor: boolean, user: { __typename?: 'User', _id: string, displayName: string } | null, coauthors: Array<{ __typename?: 'User', _id: string, displayName: string }> | null } | null } | null };
+
 export type EmailComment2QueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -22609,7 +22616,7 @@ export type PostMetadataQueryVariables = Exact<{
 }>;
 
 
-export type PostMetadataQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, coauthorUserIds: Array<string>, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, createdAt: string | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null }, customHighlight: { __typename?: 'Revision', plaintextDescription: string } | null, contents: { __typename?: 'Revision', plaintextDescription: string } | null, user: { __typename?: 'User', _id: string, displayName: string } | null, coauthors: Array<{ __typename?: 'User', _id: string, displayName: string }> | null } | null } | null };
+export type PostMetadataQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, coauthorUserIds: Array<string>, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, postedAt: string, hideAuthor: boolean, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null }, customHighlight: { __typename?: 'Revision', plaintextDescription: string } | null, contents: { __typename?: 'Revision', plaintextDescription: string } | null, user: { __typename?: 'User', _id: string, displayName: string } | null, coauthors: Array<{ __typename?: 'User', _id: string, displayName: string }> | null } | null } | null };
 
 export type SequenceMetadataQueryVariables = Exact<{
   sequenceId?: InputMaybe<Scalars['String']['input']>;
@@ -23565,6 +23572,7 @@ export const Lightcone2025FundraiserAirtableAmountsDocument = _o1(_1,[_o17(_987,
 export const multiPostsForAutocompleteQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiPostsForAutocompleteQuery"),_1905,_o5(_7,[_o7(_8,_250,_1156,_o5(_7,[_o6(_8,_1026,_349)]))])),_61,_347]) as unknown as DocumentNode<multiPostsForAutocompleteQueryQuery, multiPostsForAutocompleteQueryQueryVariables>;
 export const multiCommentsForAutocompleteQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiCommentsForAutocompleteQuery"),_1906,_o5(_7,[_o7(_8,_872,_1156,_o5(_7,[_o6(_8,_1026,_353)]))])),_61,_347,_350]) as unknown as DocumentNode<multiCommentsForAutocompleteQueryQuery, multiCommentsForAutocompleteQueryQueryVariables>;
 export const multiCommentsForAutocompleteWithParentsQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiCommentsForAutocompleteWithParentsQuery"),_1906,_o5(_7,[_o7(_8,_872,_1156,_o5(_7,[_o6(_8,_1026,_o5(_7,[_o4(_25,_351)]))]))])),_61,_347,_350,_354]) as unknown as DocumentNode<multiCommentsForAutocompleteWithParentsQueryQuery, multiCommentsForAutocompleteWithParentsQueryQueryVariables>;
+export const PostCitationDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostCitation"),_1432,_o5(_7,[_o7(_8,_210,_1338,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_12,_14,_28,_104,_109,_29,_33,_35]))]))]))]) as unknown as DocumentNode<PostCitationQuery, PostCitationQueryVariables>;
 export const EmailComment2Document = _o1(_1,[_o11(_987,_996,_o3(_3,"EmailComment2"),_1181,_1237),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<EmailComment2Query, EmailComment2QueryVariables>;
 export const EmailComment1Document = _o1(_1,[_o11(_987,_996,_o3(_3,"EmailComment1"),_1181,_1811),_146,_158]) as unknown as DocumentNode<EmailComment1Query, EmailComment1QueryVariables>;
 export const EmailCommentDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"EmailComment"),_1181,_1428),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<EmailCommentQuery, EmailCommentQueryVariables>;
@@ -23575,7 +23583,7 @@ export const NewDialogueMessagesEmail1Document = _o1(_1,[_o11(_987,_996,_o3(_3,"
 export const NewDialogueMessagesEmailDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"NewDialogueMessagesEmail"),_1544,_1902),_23,_127,_61,_136,_146,_158,_184,_192,_499,_198,_203,_207,_506,_226,_550,_558]) as unknown as DocumentNode<NewDialogueMessagesEmailQuery, NewDialogueMessagesEmailQueryVariables>;
 export const PostNominatedEmailDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostNominatedEmail"),_1544,_1902),_23,_127,_61,_136,_146,_158,_184,_192,_499,_198,_203,_207,_506,_226,_550,_558]) as unknown as DocumentNode<PostNominatedEmailQuery, PostNominatedEmailQueryVariables>;
 export const multiPostPostsEmailQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiPostPostsEmailQuery"),_1457,_o5(_7,[_o7(_8,_250,_1119,_o5(_7,[_o6(_8,_1026,_o5(_7,[_578,_206])),_797]))])),_23,_127,_61,_136,_146,_158,_184,_192,_499,_198,_203,_207,_506,_226,_550,_558]) as unknown as DocumentNode<multiPostPostsEmailQueryQuery, multiPostPostsEmailQueryQueryVariables>;
-export const PostMetadataDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostMetadata"),_1432,_o5(_7,[_o7(_8,_210,_1338,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_14,_12,_104,_109,_501,_o6(_8,_42,_o5(_7,[_10,_43,_330])),_o6(_8,_187,_38),_39,_33,_35,_21,_16,_105,_502,_22,_27,_47]))]))]))]) as unknown as DocumentNode<PostMetadataQuery, PostMetadataQueryVariables>;
+export const PostMetadataDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostMetadata"),_1432,_o5(_7,[_o7(_8,_210,_1338,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_14,_12,_104,_109,_501,_o6(_8,_42,_o5(_7,[_10,_43,_330])),_o6(_8,_187,_38),_39,_33,_35,_21,_16,_105,_502,_22,_27,_28,_29]))]))]))]) as unknown as DocumentNode<PostMetadataQuery, PostMetadataQueryVariables>;
 export const SequenceMetadataDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"SequenceMetadata"),[_1538],_o5(_7,[_o7(_8,_560,[_o8(_536,_1004,_o14(_1002,[_o8(_1003,_9,_561)]))],_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_14,_237,_236,_142,_39]))]))]))]) as unknown as DocumentNode<SequenceMetadataQuery, SequenceMetadataQueryVariables>;
 export const CommentPermalinkMetadataDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"CommentPermalinkMetadata"),[_1332],_o5(_7,[_o7(_8,_221,_1045,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_o6(_8,_30,_o5(_7,[_31])),_o6(_8,_36,_o5(_7,[_175])),_54]))]))]))]) as unknown as DocumentNode<CommentPermalinkMetadataQuery, CommentPermalinkMetadataQueryVariables>;
 export const TagMetadataDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"TagMetadata"),[_o12(_989,_1907,_992)],_o5(_7,[_o7(_8,_191,[_o8(_536,_1004,_o14(_1002,[_o8(_1003,_1071,_o14(_1002,[_o8(_1003,_11,_1907)]))]))],_o5(_7,[_o6(_8,_1026,_o5(_7,[_10,_123,_12,_142,_o6(_8,_154,_547)]))]))]))]) as unknown as DocumentNode<TagMetadataQuery, TagMetadataQueryVariables>;

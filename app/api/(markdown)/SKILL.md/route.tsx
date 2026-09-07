@@ -42,6 +42,7 @@ Reading posts:
  * /api/faq
  * /api/contact
  * Add ?compact=1 on post route to omit some heavy media/math/table content
+ * /api/post/[id]/cite.bib (BibTeX citation for the post)
 Post comments:
  * /api/post/[id]/comments
  * /api/post/[id]/comments/[commentId]

@@ -217,6 +217,16 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
+/**
+ * Query parameter which, when present on a post page, opens the browser's
+ * print dialog once the post has loaded (used by "Save as PDF").
+ */
+export const POST_PRINT_QUERY_PARAM = "print";
+
+export const postGetPrintUrl = (post: PostsMinimumForGetPageUrl): string => {
+  return `${postGetPageUrl(post)}?${POST_PRINT_QUERY_PARAM}=1`;
+}
+
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
   isAbsolute = false,

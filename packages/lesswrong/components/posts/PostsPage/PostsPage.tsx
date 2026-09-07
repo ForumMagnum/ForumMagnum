@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant, POST_PRINT_QUERY_PARAM } from '../../../lib/collections/posts/helpers';
+import { usePrintOnLoad } from '../../hooks/usePrintOnLoad';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -109,13 +110,16 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   betweenPostAndComments: {
     minHeight: 24,
+    "@media print": { display: "none" },
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
+    "@media print": { display: "none" },
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
+    "@media print": { display: "none" },
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -175,6 +179,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   welcomeBox: {
     marginTop: LW_POST_PAGE_PADDING,
     maxWidth: 220,
+    "@media print": { display: "none" },
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -182,6 +187,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
+    "@media print": { display: "none" },
     border: theme.palette.border.commentBorder,
     borderRadius: 5,
     display: "flex",
@@ -229,7 +235,8 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   reviewVoting: {
     marginTop: 60,
-    marginBottom: -20 // to account or voting UI padding
+    marginBottom: -20, // to account or voting UI padding
+    "@media print": { display: "none" },
   },
 }));
 
@@ -429,6 +436,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     answers,
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
+  usePrintOnLoad(!!query[POST_PRINT_QUERY_PARAM] && !!fullPost && !!htmlWithAnchors);
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId

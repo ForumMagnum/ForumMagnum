@@ -5,7 +5,7 @@ import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { formatIsoDate, getPostCitation } from "@/lib/collections/posts/citations";
 import { runQuery } from "../vulcan-lib/query";
 
 const PostMetadataQuery = gql(`
@@ -43,7 +43,8 @@ const PostMetadataQuery = gql(`
         noIndex
         rejected
         baseScore
-        createdAt
+        postedAt
+        hideAuthor
       }
     }
   }
@@ -56,21 +57,29 @@ function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_
   return post.socialPreviewData?.imageUrl ?? "";
 }
 
+/**
+ * Highwire Press citation_* meta tags, which Google Scholar (and reference
+ * managers such as Zotero) use to index and import the post as a citable work.
+ * See https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+ */
 function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
-  let formattedDate = post.createdAt;
-  if (formattedDate) {
-    formattedDate = new Date(formattedDate).toISOString();
-    formattedDate = formattedDate.slice(0, formattedDate.indexOf("T")).replace(/-/g, "/");
-  }
-  
-  const authors: string[] = [
-    ...(post.user?.displayName ? [post.user.displayName] : []),
-    ...filterNonnull(post.coauthors?.map(coauthor => coauthor.displayName) ?? [])
-  ];
+  const citation = getPostCitation(post);
+  const publicationDate = citation.publishedAt
+    ? formatIsoDate(citation.publishedAt).replace(/-/g, "/")
+    : null;
+
   return {
-    citation_title: post.title,
-    citation_author: authors,
-    ...(formattedDate && { citation_publication_date: formattedDate }),
+    citation_title: citation.title,
+    citation_author: citation.authors,
+    ...(publicationDate && {
+      citation_publication_date: publicationDate,
+      citation_online_date: publicationDate,
+    }),
+    citation_publisher: citation.siteName,
+    citation_public_url: citation.url,
+    citation_fulltext_html_url: citation.url,
+    citation_abstract_html_url: citation.url,
+    citation_language: "en",
   } satisfies Metadata['other'];
 }
 
