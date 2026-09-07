@@ -24318,6 +24318,12 @@ type PostsModerationGuidelines = (
   & PostsMinimumInfo
 );
 
+type PostsCitationInfo_Post_user_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
+
+type PostsCitationInfo_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
+
+type PostsCitationInfo = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, isEvent: boolean, groupId: string | null, hideAuthor: boolean, user: PostsCitationInfo_Post_user_User | null, coauthors: Array<PostsCitationInfo_Post_coauthors_User> | null };
+
 type PostsAuthors_Post_user_User = (
   { __typename?: 'User', profileImageId: string | null, moderationStyle: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderatorAssistance: boolean | null, groups: Array<string> | null, banned: string | null, allCommentingDisabled: boolean | null }
   & UsersMinimumInfo
@@ -25723,11 +25729,10 @@ type multiCommentsForAutocompleteWithParentsQueryQueryVariables = Exact<{
 
 type multiCommentsForAutocompleteWithParentsQueryQuery = multiCommentsForAutocompleteWithParentsQueryQuery_Query;
 
-type PostCitationQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
-
-type PostCitationQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
-
-type PostCitationQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, isEvent: boolean, groupId: string | null, hideAuthor: boolean, user: PostCitationQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostCitationQuery_post_SinglePostOutput_result_Post_coauthors_User> | null };
+type PostCitationQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsCitationInfo
+);
 
 type PostCitationQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostCitationQuery_post_SinglePostOutput_result_Post | null };
 
@@ -25922,11 +25927,10 @@ type PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revisio
 
 type PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
-type PostMetadataQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
-
-type PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string, deleted: boolean };
-
-type PostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, coauthorUserIds: Array<string>, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, postedAt: string, hideAuthor: boolean, socialPreviewData: PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType, customHighlight: PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision | null, contents: PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: PostMetadataQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User> | null };
+type PostMetadataQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post', canonicalSource: string | null, coauthorUserIds: Array<string>, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, socialPreviewData: PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType, customHighlight: PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision | null, contents: PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision | null }
+  & PostsCitationInfo
+);
 
 type PostMetadataQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataQuery_post_SinglePostOutput_result_Post | null };
 

@@ -252,6 +252,29 @@ export const PostsModerationGuidelines = gql(`
   }
 `)
 
+/** The fields needed to cite a post; see lib/collections/posts/citations.ts */
+export const PostsCitationInfo = gql(`
+  fragment PostsCitationInfo on Post {
+    _id
+    slug
+    title
+    postedAt
+    isEvent
+    groupId
+    hideAuthor
+    user {
+      _id
+      displayName
+      deleted
+    }
+    coauthors {
+      _id
+      displayName
+      deleted
+    }
+  }
+`)
+
 export const PostsAuthors = gql(`
   fragment PostsAuthors on Post {
     user {

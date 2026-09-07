@@ -12,11 +12,7 @@ const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
     post(selector: { _id: $postId }) {
       result {
-        _id
-        title
-        slug
-        isEvent
-        groupId
+        ...PostsCitationInfo
         canonicalSource
         socialPreviewData {
           _id
@@ -29,24 +25,12 @@ const PostMetadataQuery = gql(`
         contents {
           plaintextDescription
         }
-        user {
-          _id
-          displayName
-          deleted
-        }
-        coauthors {
-          _id
-          displayName
-          deleted
-        }
         coauthorUserIds
         shortform
         eventImageId
         noIndex
         rejected
         baseScore
-        postedAt
-        hideAuthor
       }
     }
   }

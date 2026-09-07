@@ -297,6 +297,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
   const isCommentPermalink = !!query.commentId;
+  // "Save as PDF" opens the page with ?print=1; render only the post, since
+  // the comments and recommendations would be hidden from the printout anyway
+  const isPrintView = !!query[POST_PRINT_QUERY_PARAM];
 
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
   const voteProps = useVote(post, 'Posts', votingSystem);
@@ -362,7 +365,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       enableTotal: false,
     },
-    skip: !post.question,
+    skip: !post.question || isPrintView,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
@@ -450,7 +453,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     const newQuery = {...query, [POST_PRINT_QUERY_PARAM]: undefined};
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, {replace: true});
   }, [navigate, location.location, query]);
-  usePrintOnLoad(!!query[POST_PRINT_QUERY_PARAM] && !!fullPost, clearPrintQueryParam);
+  usePrintOnLoad(isPrintView && !!fullPost, clearPrintQueryParam);
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
@@ -488,6 +491,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
     ssr: !isCommentPermalink,
+    skip: isPrintView,
   });
 
   const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
@@ -753,19 +757,21 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
           centralColumn: postBodySection,
           rightColumn: rightColumnChildren
         },
-        {centralColumn: betweenPostAndCommentsSection},
-        {
-          toc: commentsToC,
-          centralColumn: commentsSection,
-          isCommentToC: true
-        },
-        {
-          centralColumn: <Suspense>
-            <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
-          </Suspense>
-        }
+        ...(isPrintView ? [] : [
+          {centralColumn: betweenPostAndCommentsSection},
+          {
+            toc: commentsToC,
+            centralColumn: commentsSection,
+            isCommentToC: true
+          },
+          {
+            centralColumn: <Suspense>
+              <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+            </Suspense>
+          },
+        ]),
       ]}
-      tocRowMap={[0, 0, 2, 2]}
+      tocRowMap={isPrintView ? [0] : [0, 0, 2, 2]}
       showSplashPageHeader={showSplashPageHeader}
       sharedToCFooter={<LWCommentCount
         answerCount={answerCount}

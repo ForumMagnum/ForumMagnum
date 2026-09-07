@@ -9,29 +9,13 @@ const PostCitationQuery = gql(`
   query PostCitation($postId: String) {
     post(selector: { _id: $postId }) {
       result {
-        _id
-        slug
-        title
-        postedAt
-        isEvent
-        groupId
-        hideAuthor
-        user {
-          _id
-          displayName
-          deleted
-        }
-        coauthors {
-          _id
-          displayName
-          deleted
-        }
+        ...PostsCitationInfo
       }
     }
   }
 `);
 
-async function loadCitablePost(req: NextRequest, idOrSlug: string): Promise<PostCitationQuery_post_SinglePostOutput_result_Post | null> {
+async function loadCitablePost(req: NextRequest, idOrSlug: string): Promise<PostsCitationInfo | null> {
   const resolverContext = await getContextFromReqAndRes({ req });
   const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
   if (!rawPost) {
