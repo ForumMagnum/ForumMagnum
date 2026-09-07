@@ -473,7 +473,9 @@ const UltraFeedPostItem = ({
       wordCount,
     });
 
-    if (!hasRecordedViewOnExpand) {
+    // Standard expansion analytics above remain enabled, but incognito must not
+    // write post read state or send a Recombee detail view through recordPostView.
+    if (expanded && !settings.resolverSettings.incognitoMode && !hasRecordedViewOnExpand) {
       void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
       setHasRecordedViewOnExpand(true);
     }
@@ -483,7 +485,8 @@ const UltraFeedPostItem = ({
     post, 
     captureEvent, 
     recordPostView, 
-    hasRecordedViewOnExpand, 
+    hasRecordedViewOnExpand,
+    settings.resolverSettings.incognitoMode,
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
