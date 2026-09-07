@@ -1,24 +1,34 @@
+import moment from '../../moment-timezone';
 import { forumTitleSetting } from '../../instanceSettings';
+import { DEFAULT_TIMEZONE } from '../../utils/timeUtil';
 import { filterNonnull } from '../../utils/typeGuardUtils';
 import { postGetPageUrl, PostsMinimumForGetPageUrl } from './helpers';
 
+interface PostCitationAuthor {
+  displayName: string | null
+  deleted?: boolean | null
+}
+
 /**
  * The subset of post fields needed to build a citation. Satisfied by any post
- * fragment that includes PostsListBase (or by a DbPost with its author joined
- * in), so the same helpers can be used from the client, from page metadata,
- * and from API routes.
+ * fragment that includes PostsListBase, so the same helpers can be used from
+ * the client, from page metadata, and from API routes.
  */
 export interface PostCitationSource extends PostsMinimumForGetPageUrl {
   title: string | null
   postedAt?: Date | string | null
   hideAuthor?: boolean | null
-  user?: { displayName: string | null } | null
-  coauthors?: Array<{ displayName: string | null }> | null
+  user?: PostCitationAuthor | null
+  coauthors?: PostCitationAuthor[] | null
 }
 
 export interface PostCitation {
   title: string
-  /** Display names of the author and coauthors, in order. Empty if the author is hidden. */
+  /**
+   * Display names of the credited authors, in order, matching the byline shown
+   * on the post page: the primary author is omitted if the post hides its
+   * author, and deleted accounts are omitted.
+   */
   authors: string[]
   /** When the post was published. Null for posts that have never been published. */
   publishedAt: Date | null
@@ -26,6 +36,12 @@ export interface PostCitation {
   url: string
   /** Name of the site the post was published on (e.g. "LessWrong"). */
   siteName: string
+  /**
+   * Timezone used to render dates, so that the citation names the same day as
+   * the date shown on the page. Defaults to the site default timezone when
+   * there is no reader (e.g. in page metadata or API responses).
+   */
+  timezone: string
 }
 
 const MONTH_NAMES = [
@@ -44,31 +60,47 @@ function toDate(date: Date | string | null | undefined): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-/** YYYY-MM-DD, in UTC. */
-export function formatIsoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+interface DateParts {
+  year: number
+  /** 0-based, like Date.getMonth() */
+  monthIndex: number
+  day: number
 }
 
-export function getPostCitation(post: PostCitationSource): PostCitation {
-  const authors = post.hideAuthor
-    ? []
-    : filterNonnull([
-      post.user?.displayName ?? null,
-      ...(post.coauthors ?? []).map(coauthor => coauthor.displayName),
-    ]);
+function getDateParts(date: Date, timezone: string): DateParts {
+  const localized = moment(date).tz(timezone);
   return {
-    title: post.title ?? "",
-    authors,
-    publishedAt: toDate(post.postedAt),
-    url: postGetPageUrl(post, true),
-    siteName: forumTitleSetting.get(),
+    year: localized.year(),
+    monthIndex: localized.month(),
+    day: localized.date(),
   };
 }
 
-/**
- * Escape the characters that are special in BibTeX/LaTeX so that arbitrary
- * post titles and display names can be embedded in a field value.
- */
+/** YYYY-MM-DD in the given timezone. */
+export function formatIsoDate(date: Date, timezone: string): string {
+  return moment(date).tz(timezone).format("YYYY-MM-DD");
+}
+
+function getAuthorDisplayName(author: PostCitationAuthor | null | undefined): string | null {
+  if (!author || author.deleted) return null;
+  return author.displayName;
+}
+
+export function getPostCitation(post: PostCitationSource, timezone: string = DEFAULT_TIMEZONE): PostCitation {
+  const creditedAuthors: Array<PostCitationAuthor | null | undefined> = [
+    ...(post.hideAuthor ? [] : [post.user]),
+    ...(post.coauthors ?? []),
+  ];
+  return {
+    title: post.title ?? "",
+    authors: filterNonnull(creditedAuthors.map(getAuthorDisplayName)),
+    publishedAt: toDate(post.postedAt),
+    url: postGetPageUrl(post, true),
+    siteName: forumTitleSetting.get(),
+    timezone,
+  };
+}
+
 const BIBTEX_ESCAPES: Record<string, string> = {
   "\\": "\\textbackslash{}",
   "{": "\\{",
@@ -82,6 +114,10 @@ const BIBTEX_ESCAPES: Record<string, string> = {
   "^": "\\textasciicircum{}",
 };
 
+/**
+ * Escape the characters that are special in BibTeX/LaTeX so that arbitrary
+ * post titles and display names can be embedded in a field value.
+ */
 export function escapeBibtex(text: string): string {
   // Single pass, so that the braces in replacements like \textbackslash{} are
   // not themselves escaped.
@@ -105,14 +141,15 @@ function getFirstSignificantTitleWord(title: string): string {
 
 /**
  * A citation key like `yudkowsky2007affect`: the first author's last name (or
- * the site name if the author is hidden), the year, and the first significant
- * word of the title. Falls back to the post ID if that would be empty.
+ * the site name if there is no credited author), the year, and the first
+ * significant word of the title. Falls back to the post ID if that would be
+ * empty.
  */
 export function getBibtexKey(citation: PostCitation, postId: string): string {
   const firstAuthor = citation.authors[0] ?? citation.siteName;
   const authorWords = firstAuthor.split(/\s+/).map(toKeyFragment).filter(word => word.length > 0);
   const authorFragment = authorWords[authorWords.length - 1] ?? "";
-  const year = citation.publishedAt ? String(citation.publishedAt.getUTCFullYear()) : "";
+  const year = citation.publishedAt ? String(getDateParts(citation.publishedAt, citation.timezone).year) : "";
   const key = `${authorFragment}${year}${getFirstSignificantTitleWord(citation.title)}`;
   return key.length > 0 ? key : toKeyFragment(postId);
 }
@@ -130,13 +167,15 @@ export function getPostBibtex(citation: PostCitation, postId: string, accessedAt
   }
   fields.push(["title", `{${escapeBibtex(citation.title)}}`]);
   if (citation.publishedAt) {
-    fields.push(["year", String(citation.publishedAt.getUTCFullYear())]);
-    fields.push(["month", BIBTEX_MONTH_MACROS[citation.publishedAt.getUTCMonth()]]);
+    const { year, monthIndex } = getDateParts(citation.publishedAt, citation.timezone);
+    fields.push(["year", String(year)]);
+    fields.push(["month", BIBTEX_MONTH_MACROS[monthIndex]]);
   }
+  const accessedDate = formatIsoDate(accessedAt, citation.timezone);
   fields.push(["publisher", escapeBibtex(citation.siteName)]);
   fields.push(["howpublished", `\\url{${citation.url}}`]);
-  fields.push(["urldate", formatIsoDate(accessedAt)]);
-  fields.push(["note", `Accessed ${formatIsoDate(accessedAt)}`]);
+  fields.push(["urldate", accessedDate]);
+  fields.push(["note", `Accessed ${accessedDate}`]);
 
   const renderedFields = fields.map(([name, value]) => {
     // Month macros (jan, feb, ...) are conventionally written without braces.
@@ -162,9 +201,11 @@ export function getPostPlainTextCitation(citation: PostCitation): string {
   const authorPart = citation.authors.length > 0
     ? formatAuthorList(citation.authors)
     : citation.siteName;
-  const datePart = citation.publishedAt
-    ? `${citation.publishedAt.getUTCFullYear()}, ${MONTH_NAMES[citation.publishedAt.getUTCMonth()]} ${citation.publishedAt.getUTCDate()}`
-    : "n.d.";
+  let datePart = "n.d.";
+  if (citation.publishedAt) {
+    const { year, monthIndex, day } = getDateParts(citation.publishedAt, citation.timezone);
+    datePart = `${year}, ${MONTH_NAMES[monthIndex]} ${day}`;
+  }
   const publisherPart = citation.authors.length > 0 ? ` ${citation.siteName}.` : "";
   return `${authorPart}. (${datePart}). ${citation.title}.${publisherPart} ${citation.url}`;
 }
@@ -181,5 +222,7 @@ export function getWaybackSaveUrl(url: string): string {
 
 /** A Google Scholar search for the post by exact title. */
 export function getGoogleScholarSearchUrl(citation: PostCitation): string {
-  return `https://scholar.google.com/scholar?q=${encodeURIComponent(`"${citation.title}"`)}`;
+  // Double quotes inside the title would terminate the phrase search early
+  const phrase = citation.title.replace(/"/g, "");
+  return `https://scholar.google.com/scholar?q=${encodeURIComponent(`"${phrase}"`)}`;
 }

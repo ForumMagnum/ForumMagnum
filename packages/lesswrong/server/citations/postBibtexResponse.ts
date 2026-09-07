@@ -19,32 +19,44 @@ const PostCitationQuery = gql(`
         user {
           _id
           displayName
+          deleted
         }
         coauthors {
           _id
           displayName
+          deleted
         }
       }
     }
   }
 `);
 
+async function loadCitablePost(req: NextRequest, idOrSlug: string): Promise<PostCitationQuery_post_SinglePostOutput_result_Post | null> {
+  const resolverContext = await getContextFromReqAndRes({ req });
+  const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
+  if (!rawPost) {
+    return null;
+  }
+  try {
+    // Going through the GraphQL layer applies the usual post visibility
+    // permissions; the single-post resolver throws for posts the requester
+    // may not see.
+    const { data } = await runQuery(PostCitationQuery, { postId: rawPost._id }, resolverContext);
+    return data?.post?.result ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Serves a post's citation as a downloadable BibTeX file. Goes through the
- * GraphQL layer so that the usual post visibility permissions apply.
+ * Serves a post's citation as a downloadable BibTeX file. Posts that don't
+ * exist and posts the requester isn't allowed to see both return 404.
  */
 export async function getPostBibtexResponse(req: NextRequest, idOrSlug: string): Promise<Response> {
   if (!idOrSlug) {
     return new Response("No ID or slug provided", { status: 400 });
   }
-  const resolverContext = await getContextFromReqAndRes({ req });
-  const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
-  if (!rawPost) {
-    return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
-  }
-
-  const { data } = await runQuery(PostCitationQuery, { postId: rawPost._id }, resolverContext);
-  const post = data?.post?.result;
+  const post = await loadCitablePost(req, idOrSlug);
   if (!post) {
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }

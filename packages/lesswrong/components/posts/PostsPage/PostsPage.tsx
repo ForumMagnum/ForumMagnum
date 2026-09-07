@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'reac
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant, POST_PRINT_QUERY_PARAM } from '../../../lib/collections/posts/helpers';
 import { usePrintOnLoad } from '../../hooks/usePrintOnLoad';
+import { printPostOnlySelector } from '../printPostOnly';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -110,16 +111,24 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   betweenPostAndComments: {
     minHeight: 24,
-    "@media print": { display: "none" },
+    "@media print": {
+      [printPostOnlySelector]: { display: "none" },
+    },
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
-    "@media print": { display: "none" },
+    "@media print": {
+      [printPostOnlySelector]: { display: "none" },
+    },
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
-    "@media print": { display: "none" },
+    // Comments are kept when printing the page normally, and only dropped
+    // when saving the post itself as a PDF
+    "@media print": {
+      [printPostOnlySelector]: { display: "none" },
+    },
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -179,7 +188,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   welcomeBox: {
     marginTop: LW_POST_PAGE_PADDING,
     maxWidth: 220,
-    "@media print": { display: "none" },
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -436,7 +444,13 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     answers,
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
-  usePrintOnLoad(!!query[POST_PRINT_QUERY_PARAM] && !!fullPost && !!htmlWithAnchors);
+  // "Save as PDF" from elsewhere opens the post page with ?print=1; print once
+  // loaded, then drop the parameter so reloads and shared links don't reprint
+  const clearPrintQueryParam = useCallback(() => {
+    const newQuery = {...query, [POST_PRINT_QUERY_PARAM]: undefined};
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, {replace: true});
+  }, [navigate, location.location, query]);
+  usePrintOnLoad(!!query[POST_PRINT_QUERY_PARAM] && !!fullPost, clearPrintQueryParam);
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId

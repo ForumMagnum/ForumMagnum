@@ -5,6 +5,7 @@ import { DialogTitle } from "../widgets/DialogTitle";
 import { DialogContent } from "../widgets/DialogContent";
 import { DialogActions } from "../widgets/DialogActions";
 import { useMessages } from "../common/withMessages";
+import { useTimezone } from "../common/withTimezone";
 import { useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import {
@@ -103,19 +104,23 @@ const CitePostDialog = ({post, onClose}: {
   const classes = useStyles(styles);
   const {flash} = useMessages();
   const {captureEvent} = useTracking();
+  const {timezone} = useTimezone();
   // Fixed at the moment the dialog opens so that the "accessed" date does not
   // change underneath the user while the dialog is open.
   const [accessedAt] = useState(() => new Date());
 
-  const citation = getPostCitation(post);
+  // Use the reader's timezone so the cited date matches the date shown on the page
+  const citation = getPostCitation(post, timezone);
   const plainText = getPostPlainTextCitation(citation);
   const bibtex = getPostBibtex(citation, post._id, accessedAt);
   const bibtexDownloadUrl = `/api/post/${post._id}/cite.bib`;
 
   const copy = (format: string, text: string) => {
     captureEvent("citePostCopied", {postId: post._id, format});
-    void navigator.clipboard.writeText(text);
-    flash("Copied to clipboard");
+    navigator.clipboard.writeText(text).then(
+      () => flash("Copied to clipboard"),
+      () => flash("Failed to copy to clipboard"),
+    );
   };
 
   const trackLink = (destination: string) => {

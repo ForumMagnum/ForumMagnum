@@ -25,6 +25,7 @@ const sampleCitation: PostCitation = {
   publishedAt: new Date("2007-11-27T22:07:00.000Z"),
   url: "https://www.lesswrong.com/posts/abc123/the-affect-heuristic",
   siteName: "LessWrong",
+  timezone: "GMT",
 };
 
 const accessedAt = new Date("2026-09-06T12:00:00.000Z");
@@ -41,9 +42,25 @@ describe('getPostCitation', () => {
     expect(citation.url).toMatch(/\/posts\/abc123\/the-affect-heuristic$/);
   });
 
-  it('omits the author when the post hides its author', () => {
+  it('omits only the primary author when the post hides its author', () => {
     const citation = getPostCitation({ ...samplePost, hideAuthor: true });
     expect(citation.authors).toEqual([]);
+    const withCoauthor = getPostCitation({ ...samplePost, hideAuthor: true, coauthors: [{ displayName: "Coauthor" }] });
+    expect(withCoauthor.authors).toEqual(["Coauthor"]);
+  });
+
+  it('omits deleted accounts, matching the byline', () => {
+    const citation = getPostCitation({
+      ...samplePost,
+      user: { displayName: "Gone", deleted: true },
+      coauthors: [{ displayName: "Still Here", deleted: false }, { displayName: "Also Gone", deleted: true }],
+    });
+    expect(citation.authors).toEqual(["Still Here"]);
+  });
+
+  it('defaults to the site timezone and accepts a reader timezone', () => {
+    expect(getPostCitation(samplePost).timezone).toBe("GMT");
+    expect(getPostCitation(samplePost, "America/Los_Angeles").timezone).toBe("America/Los_Angeles");
   });
 
   it('handles posts that have never been published', () => {
@@ -99,6 +116,28 @@ describe('getPostBibtex', () => {
   });
 });
 
+describe('citation dates', () => {
+  // 2007-12-31 23:30 Pacific is 2008-01-01 07:30 UTC
+  const newYearsEvePacific: PostCitation = {
+    ...sampleCitation,
+    publishedAt: new Date("2008-01-01T07:30:00.000Z"),
+    timezone: "America/Los_Angeles",
+  };
+
+  it('renders the date in the citation timezone, matching the page', () => {
+    expect(getPostPlainTextCitation(newYearsEvePacific)).toContain("(2007, December 31)");
+    expect(getPostPlainTextCitation({ ...newYearsEvePacific, timezone: "GMT" })).toContain("(2008, January 1)");
+    const bibtex = getPostBibtex(newYearsEvePacific, "abc123", new Date("2026-09-06T22:00:00.000Z"));
+    expect(bibtex).toContain("@misc{yudkowsky2007affect,");
+    expect(bibtex).toContain("year = {2007}");
+    expect(bibtex).toContain("month = dec");
+    // 22:00 UTC on Sep 6 is still Sep 6 in Los Angeles
+    expect(bibtex).toContain("urldate = {2026-09-06}");
+    expect(getPostBibtex({ ...newYearsEvePacific, timezone: "Australia/Sydney" }, "abc123", new Date("2026-09-06T22:00:00.000Z")))
+      .toContain("urldate = {2026-09-07}");
+  });
+});
+
 describe('getPostPlainTextCitation', () => {
   it('formats a single-author citation', () => {
     expect(getPostPlainTextCitation(sampleCitation)).toBe(
@@ -123,5 +162,10 @@ describe('external citation links', () => {
     expect(getWaybackArchiveUrl(sampleCitation.url)).toBe("https://web.archive.org/web/https://www.lesswrong.com/posts/abc123/the-affect-heuristic");
     expect(getWaybackSaveUrl(sampleCitation.url)).toBe("https://web.archive.org/save/https://www.lesswrong.com/posts/abc123/the-affect-heuristic");
     expect(getGoogleScholarSearchUrl(sampleCitation)).toBe("https://scholar.google.com/scholar?q=%22The%20Affect%20Heuristic%22");
+  });
+
+  it('drops double quotes from the title so the phrase search stays intact', () => {
+    expect(getGoogleScholarSearchUrl({ ...sampleCitation, title: 'Why "Rationality" Matters' }))
+      .toBe("https://scholar.google.com/scholar?q=%22Why%20Rationality%20Matters%22");
   });
 });

@@ -32,10 +32,12 @@ const PostMetadataQuery = gql(`
         user {
           _id
           displayName
+          deleted
         }
         coauthors {
           _id
           displayName
+          deleted
         }
         coauthorUserIds
         shortform
@@ -62,10 +64,10 @@ function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_
  * managers such as Zotero) use to index and import the post as a citable work.
  * See https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
  */
-function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
+function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post, canonicalUrl: string) {
   const citation = getPostCitation(post);
   const publicationDate = citation.publishedAt
-    ? formatIsoDate(citation.publishedAt).replace(/-/g, "/")
+    ? formatIsoDate(citation.publishedAt, citation.timezone).replace(/-/g, "/")
     : null;
 
   return {
@@ -76,9 +78,9 @@ function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Po
       citation_online_date: publicationDate,
     }),
     citation_publisher: citation.siteName,
-    citation_public_url: citation.url,
-    citation_fulltext_html_url: citation.url,
-    citation_abstract_html_url: citation.url,
+    citation_public_url: canonicalUrl,
+    citation_fulltext_html_url: canonicalUrl,
+    citation_abstract_html_url: canonicalUrl,
     citation_language: "en",
   } satisfies Metadata['other'];
 }
@@ -125,6 +127,9 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
       const noIndex = postNoIndex || commentId || options?.noIndex;
+      // Don't advertise unlisted posts, or non-canonical views of a post such
+      // as old revisions, as citable works
+      const includeCitationTags = !postNoIndex && !options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);
       const descriptionFields = getMetadataDescriptionFields(description);
@@ -137,9 +142,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         alternates: {
           canonical: canonicalUrl,
         },
-        other: {
-          ...getCitationTags(post),
-        },
+        ...(includeCitationTags ? { other: getCitationTags(post, canonicalUrl) } : {}),
         ...(noIndex ? noIndexMetadata : {}),
       } satisfies Metadata;
   
