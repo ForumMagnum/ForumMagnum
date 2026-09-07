@@ -30,6 +30,7 @@ export const MixedTypeFeed = <
   
   // Variables for the query (excluding pagination variables which are managed internally)
   variables: Omit<VariablesOf<TQuery>, 'cutoff' | 'offset' | 'limit'>,
+  getPaginationVariables?: (results: Array<{ type: string; [key: string]: unknown }>) => Record<string, unknown>,
   
   // Renderers to convert results into React nodes.
   renderers: ExtractRenderers<TQuery>,
@@ -74,6 +75,7 @@ export const MixedTypeFeed = <
   const {
     query,
     variables,
+    getPaginationVariables,
     renderers,
     firstPageSize=20,
     pageSize=20,
@@ -141,6 +143,7 @@ export const MixedTypeFeed = <
         void fetchMore({
           variables: {
             ...variables,
+            ...getPaginationVariables?.(data[resolverName].results ?? []),
             cutoff: data[resolverName].cutoff,
             offset: data[resolverName].endOffset,
             limit: pageSize,
@@ -235,5 +238,4 @@ function elementIsNearVisible(element: HTMLElement|null, distance: number) {
   const windowHeight = window.innerHeight;
   return (top-distance) <= windowHeight;
 }
-
 

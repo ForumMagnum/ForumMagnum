@@ -670,7 +670,7 @@ export const ultraFeedGraphQLQueries = {
       const sampledItems = insertSubscriptionSuggestions(sampledItemsDeduped, (): SampledItem => ({
         type: "feedSubscriptionSuggestions",
         feedSubscriptionSuggestions: { suggestedUserIds: [] }
-      }), 0.2, 4);
+      }), 0.2, sampledItemsDeduped.length);
       
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 

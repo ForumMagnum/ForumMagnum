@@ -7,6 +7,7 @@ import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import type { FeedType } from './ultraFeedTypes';
 import type { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { randomId } from '../../lib/random';
+import { buildUltraFeedDiversityContext } from '@/lib/ultraFeedDiversity';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import {
   compareUltraFeedDebugResults,
@@ -70,6 +71,9 @@ const UltraFeedMainFeed = ({
   }), [actualSessionId, settings, debugMode]);
 
   const renderers = useMemo(() => createUltraFeedRenderers({ settings, debugMode }), [settings, debugMode]);
+  const getPaginationVariables = useCallback((results: Array<{ type: string; [key: string]: unknown }>) => ({
+    settings: JSON.stringify({ ...settings.resolverSettings, debugMode, diversityContext: buildUltraFeedDiversityContext(results) }),
+  }), [settings, debugMode]);
   const debugHeader = useMemo(() => debugMode ? (
     <UltraFeedDebugHeader
       sortField={debugSortField}
@@ -91,6 +95,7 @@ const UltraFeedMainFeed = ({
       <MixedTypeFeed
         query={UltraFeedQuery}
         variables={variables}
+        getPaginationVariables={getPaginationVariables}
         firstPageSize={firstPageSize}
         pageSize={pageSize}
         refetchRef={refetchRef}
@@ -109,5 +114,4 @@ const UltraFeedMainFeed = ({
 };
 
 export default UltraFeedMainFeed;
-
 

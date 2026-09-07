@@ -4,6 +4,7 @@
  */
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { ZodFormattedError } from 'zod';
+import type { UltraFeedDiversityContext } from '@/lib/ultraFeedDiversity';
 
 
 export interface UltraFeedDisplaySettings {
@@ -27,6 +28,8 @@ export interface UnifiedScoringSettings {
 }
 
 export interface UltraFeedResolverSettings {
+  /** Per-request pagination context, supplied by the feed rather than persisted settings. */
+  diversityContext?: UltraFeedDiversityContext;
   incognitoMode: boolean;
   enableDebug: boolean;
   debugMode?: boolean;
