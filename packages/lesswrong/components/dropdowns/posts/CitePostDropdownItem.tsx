@@ -1,31 +1,32 @@
 import React from "react";
-import { useDialog } from "../../common/withDialog";
 import { useTracking } from "../../../lib/analyticsEvents";
-import type { PostCitationSource } from "../../../lib/collections/posts/citations";
-import CitePostDialog from "../../posts/CitePostDialog";
+import { useOpenCitePopover } from "../../posts/CitePostPopoverContext";
 import DropdownItem from "../DropdownItem";
 
-const CitePostDropdownItem = ({post, closeMenu}: {
-  post: PostCitationSource,
+/**
+ * Opens the citation popover (see CitePostPopover) anchored to the button
+ * that hosts this menu. Renders nothing if the menu isn't hosted by a button
+ * that provides the popover.
+ */
+const CitePostDropdownItem = ({postId, closeMenu}: {
+  postId: string,
   closeMenu?: () => void,
 }) => {
-  const {openDialog} = useDialog();
   const {captureEvent} = useTracking();
+  const openCitePopover = useOpenCitePopover();
+  if (!openCitePopover) return null;
 
-  const showCiteDialog = () => {
-    captureEvent("citePostClicked", {postId: post._id});
+  const showCitePopover = () => {
+    captureEvent("citePostClicked", {postId});
     closeMenu?.();
-    openDialog({
-      name: "CitePostDialog",
-      contents: ({onClose}) => <CitePostDialog post={post} onClose={onClose} />,
-    });
+    openCitePopover();
   };
 
   return (
     <DropdownItem
       title="Cite"
       icon="Document"
-      onClick={showCiteDialog}
+      onClick={showCitePopover}
     />
   );
 };

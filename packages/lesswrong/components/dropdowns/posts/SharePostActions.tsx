@@ -22,7 +22,7 @@ const styles = defineStyles("SharePostActions", (_theme: ThemeType) => ({
 }))
 
 const SharePostActions = ({post, onClick}: {
-  post: PostsListBase,
+  post: PostsBase,
   onClick?: () => void,
 }) => {
   const classes = useStyles(styles);
@@ -68,7 +68,7 @@ const SharePostActions = ({post, onClick}: {
         icon="Link"
         onClick={copyLink}
       />
-      <CitePostDropdownItem post={post} closeMenu={onClick} />
+      <CitePostDropdownItem postId={post._id} closeMenu={onClick} />
       <DropdownDivider/>
       <DropdownItem
         title={isFriendlyUI() ? "Share on Twitter" : "Twitter"}

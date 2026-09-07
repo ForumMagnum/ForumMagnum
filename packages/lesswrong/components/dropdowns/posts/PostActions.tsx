@@ -81,7 +81,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
       <SaveAsPdfDropdownItem post={post} closeMenu={closeMenu} />
-      <CitePostDropdownItem post={post} closeMenu={closeMenu} />
+      <CitePostDropdownItem postId={post._id} closeMenu={closeMenu} />
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
       {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
