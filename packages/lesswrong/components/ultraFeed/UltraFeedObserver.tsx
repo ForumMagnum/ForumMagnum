@@ -42,7 +42,7 @@ const documentTypeToCollectionName = {
   post: "Posts",
   comment: "Comments",
   spotlight: "Spotlights"
-} satisfies Record<DocumentType, "Posts" | "Comments" | "Spotlights">;
+} satisfies Record<ObserveData['documentType'], "Posts" | "Comments" | "Spotlights">;
 
 export const UltraFeedObserverProvider = ({ children, incognitoMode, activeFeedType, paused = false }: {
   children: ReactNode;
