@@ -275,6 +275,7 @@ export interface ThreadEngagementStats {
 }
 
 export interface ServedEventData {
+  exposureId?: string; // Shared by all comments in one served card
   sessionId: string;    // The session ID for the feed load
   itemIndex: number;    // The index of the item in the served results array
   commentIndex?: number; // The index of the comment within a thread, if applicable

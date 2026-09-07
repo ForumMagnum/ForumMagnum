@@ -763,38 +763,63 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             )
         ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
       LEFT JOIN
-        ( -- get repeated thread exposures to calculate repetition penalty
+        ( -- Count a card exposure once, not once per comment or duration milestone.
           SELECT
-            COALESCE(c_repetition."topLevelCommentId", c_repetition._id) AS "threadTopLevelId",
-            COUNT(DISTINCT ufe_repetition."createdAt") AS "recentServingCount",
+            exposures."threadTopLevelId",
+            COUNT(*) AS "recentServingCount",
             ARRAY_AGG(
-              EXTRACT(EPOCH FROM (NOW() - ufe_repetition."createdAt")) / 3600 
-              ORDER BY ufe_repetition."createdAt" DESC
+              EXTRACT(EPOCH FROM (NOW() - exposures."exposedAt")) / 3600
+              ORDER BY exposures."exposedAt" DESC
             ) AS "servingHoursAgo"
-          FROM "UltraFeedEvents" ufe_repetition
-          JOIN "Comments" c_repetition ON ufe_repetition."documentId" = c_repetition._id
-          WHERE ufe_repetition."userId" = $(userIdOrClientId)
-            AND ufe_repetition."collectionName" = 'Comments'
-            AND ufe_repetition."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
-            AND (
-              (
-                ufe_repetition."eventType" = 'served'
-                AND $(sessionId) IS NOT NULL
-                AND ufe_repetition.event->>'sessionId' = $(sessionId)
+          FROM (
+            SELECT
+              COALESCE(c_repetition."topLevelCommentId", c_repetition._id) AS "threadTopLevelId",
+              CASE
+                WHEN served.event->>'exposureId' IS NOT NULL
+                  THEN jsonb_build_array('exposure', served.event->>'exposureId')
+                -- Compatibility with For You events written before exposureId existed.
+                WHEN served.event->>'sessionId' IS NOT NULL AND served.event->>'itemIndex' IS NOT NULL
+                  THEN jsonb_build_array('card', served.event->>'sessionId', served.event->>'itemIndex')
+                -- For older events without card metadata, at least merge a comment's
+                -- short/long views. Unlinked events remain separate observations.
+                ELSE jsonb_build_array('event', COALESCE(ufe_repetition."feedItemId", ufe_repetition._id))
+              END AS "exposureKey",
+              COALESCE(
+                MIN(ufe_repetition."createdAt") FILTER (WHERE ufe_repetition."eventType" = 'viewed'),
+                MIN(ufe_repetition."createdAt")
+              ) AS "exposedAt"
+            FROM "UltraFeedEvents" ufe_repetition
+            JOIN "Comments" c_repetition ON ufe_repetition."documentId" = c_repetition._id
+            LEFT JOIN "UltraFeedEvents" served
+              ON served._id = COALESCE(ufe_repetition."feedItemId", ufe_repetition._id)
+              AND served."eventType" = 'served'
+              AND served."userId" = ufe_repetition."userId"
+              AND served."collectionName" = 'Comments'
+              AND served."documentId" = ufe_repetition."documentId"
+            WHERE ufe_repetition."userId" = $(userIdOrClientId)
+              AND ufe_repetition."collectionName" = 'Comments'
+              AND ufe_repetition."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
+              AND (
+                (
+                  ufe_repetition."eventType" = 'served'
+                  AND $(sessionId) IS NOT NULL
+                  AND ufe_repetition.event->>'sessionId' = $(sessionId)
+                )
+                OR ufe_repetition."eventType" = 'viewed'
               )
-              OR ufe_repetition."eventType" = 'viewed'
-            )
-            AND COALESCE(c_repetition."topLevelCommentId", c_repetition._id) IN (
-                SELECT "threadTopLevelId_inner_rat" FROM (
-                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
-                    FROM "Comments" c_inner
-                    WHERE ${getViewableCommentsFilter('c_inner')}
-                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
-                    ORDER BY "lastCommentActivity_inner" DESC
-                    LIMIT $(threadCandidateLimit)
-                ) recent_threads_filter_for_servings
-            )
-          GROUP BY COALESCE(c_repetition."topLevelCommentId", c_repetition._id)
+              AND COALESCE(c_repetition."topLevelCommentId", c_repetition._id) IN (
+                  SELECT "threadTopLevelId_inner_rat" FROM (
+                      SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                      FROM "Comments" c_inner
+                      WHERE ${getViewableCommentsFilter('c_inner')}
+                      GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                      ORDER BY "lastCommentActivity_inner" DESC
+                      LIMIT $(threadCandidateLimit)
+                  ) recent_threads_filter_for_servings
+              )
+            GROUP BY COALESCE(c_repetition."topLevelCommentId", c_repetition._id), "exposureKey"
+          ) exposures
+          GROUP BY exposures."threadTopLevelId"
         ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
       userIdOrClientId,

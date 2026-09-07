@@ -429,6 +429,7 @@ export const ultraFeedSubscriptionsQueries = {
         }
       } else if (item.type === 'feedCommentThread') {
         const commentsList: DbComment[] = item.data.comments ?? [];
+        const exposureId = randomId();
         commentsList.forEach((c: DbComment, commentIndex: number) => {
           const servedEventId = item.data.commentMetaInfos?.[c._id]?.servedEventId ?? randomId();
           eventsToCreate.push({
@@ -437,7 +438,7 @@ export const ultraFeedSubscriptionsQueries = {
             eventType: 'served',
             collectionName: 'Comments',
             documentId: c._id,
-            event: { feedType: 'following', itemIndex, commentIndex, sources: ['subscriptionsComments'] },
+            event: { feedType: 'following', exposureId, itemIndex, commentIndex, sources: ['subscriptionsComments'] },
           });
         });
       }
