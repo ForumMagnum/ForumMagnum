@@ -23,7 +23,7 @@ export const calculateFetchLimits = (
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
   const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
-  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const totalCommentWeight = feedCommentSourceTypesArray.filter(type => type !== 'bookmarks').reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
 
   const baseCommentFetchLimit = Math.ceil(totalLimit * (totalCommentWeight / (totalWeight || 1)) * bufferMultiplier);
