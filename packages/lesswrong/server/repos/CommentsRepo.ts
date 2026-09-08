@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
-import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import { getPublicDumpPostsSelector, getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
@@ -15,6 +15,23 @@ type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
   theirVote?: string,
   userVote?: string,
+}
+
+export interface PublicDumpCommentRow {
+  _id: string,
+  postId: string,
+  parentCommentId: string | null,
+  topLevelCommentId: string | null,
+  userId: string | null,
+  author: string | null,
+  authorSlug: string | null,
+  postedAt: Date,
+  baseScore: number | null,
+  voteCount: number | null,
+  answer: boolean,
+  shortform: boolean,
+  af: boolean,
+  html: string | null,
 }
 
 class CommentsRepo extends AbstractRepo<"Comments"> {
@@ -823,6 +840,42 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     });
 
     return engagementStats;
+  }
+
+  /**
+   * One keyset-paginated batch of publicly-visible comments for the public
+   * data dump. Includes shortform and debate-response comments; requires the
+   * parent post to itself be publicly dumped, so comments on drafts, unlisted
+   * posts, etc. are excluded (as are tag-discussion comments, which have no
+   * postId). Older comments predating the Revisions table store their content
+   * inline in "contents", hence the COALESCE. Ordered by _id; pass the last
+   * _id of the previous batch as `after` (empty string for the first batch).
+   */
+  async getPublicCommentsForDump(after: string, limit: number): Promise<PublicDumpCommentRow[]> {
+    return this.getRawDb().manyOrNone(`
+      -- CommentsRepo.getPublicCommentsForDump
+      SELECT
+        c."_id", c."postId", c."parentCommentId", c."topLevelCommentId", c."userId",
+        CASE WHEN u."deleted" THEN NULL ELSE u."displayName" END AS "author",
+        CASE WHEN u."deleted" THEN NULL ELSE u."slug" END AS "authorSlug",
+        c."postedAt",
+        CASE WHEN c."hideKarma" THEN NULL ELSE c."baseScore" END AS "baseScore",
+        CASE WHEN c."hideKarma" THEN NULL ELSE c."voteCount" END AS "voteCount",
+        c."answer", c."shortform", c."af",
+        COALESCE(r."html", c."contents"->>'html') AS "html"
+      FROM "Comments" c
+      JOIN "Posts" p ON p."_id" = c."postId"
+      LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = c."userId"
+      WHERE c."_id" > $(after)
+      AND c."deleted" IS NOT TRUE
+      AND c."rejected" IS NOT TRUE
+      AND c."draft" IS NOT TRUE
+      AND c."authorIsUnreviewed" IS NOT TRUE
+      AND ${getPublicDumpPostsSelector("p")}
+      ORDER BY c."_id"
+      LIMIT $(limit)
+    `, { after, limit });
   }
 }
 
