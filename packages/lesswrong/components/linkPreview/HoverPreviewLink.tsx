@@ -14,6 +14,7 @@ import { NoSideItems } from '../contents/SideItems';
 
 import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
 import { parseRouteWithErrors } from '../../lib/routeChecks/parseRouteWithErrors';
+import { rewriteLegacyExternalUrl } from '@/lib/legacyExternalUrls';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links
@@ -49,6 +50,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
       {children}
     </a>
   }
+  href = rewriteLegacyExternalUrl(href);
 
   // Within-page relative link?
   if (href.startsWith("#")) {
