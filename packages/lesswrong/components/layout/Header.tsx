@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -576,11 +577,12 @@ const Header = ({
 }
 
 export const HeaderHeightProvider = ({ children }: { children: React.ReactNode }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
   const hideFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] === "true";
   const pathname = usePrerenderablePathname();
-  const isFrontPage = isHomeRoute(pathname);
+  const isFrontPage = isHomeRoute(pathname, forumType);
   const showFundraiserBanner = false; // !hideFundraiserBanner && isFrontPage;
   const value = useMemo<HeaderHeightContextValue>(() => ({ showFundraiserBanner, }), [showFundraiserBanner]);
 

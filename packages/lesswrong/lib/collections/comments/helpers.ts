@@ -1,4 +1,4 @@
-import { isAF, type ForumTypeString, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { type ForumTypeString, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -71,8 +71,8 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
 
-export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (isAF()) { return true }
+export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, forumType: ForumTypeString, comment?: CommentsList): boolean => {
+  if (forumType === 'AlignmentForum') { return true }
   if (comment) {
     return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {

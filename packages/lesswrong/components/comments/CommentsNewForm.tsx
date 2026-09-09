@@ -1,9 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {useState, useEffect, useRef, useMemo, Suspense} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings, type ForumTypeString } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { PermissionsPostMinimumInfo, requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
@@ -96,10 +97,11 @@ export type CommentSuccessCallback = ((
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
 const shouldOpenNewUserGuidelinesDialog = (
-  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
+  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo },
+  forumType: ForumTypeString,
 ): maybeProps is { user: UsersCurrent, post: PostsMinimumInfo } => {
   const { user, post } = maybeProps;
-  return !!user && requireNewUserGuidelinesAck(user) && !!post;
+  return !!user && requireNewUserGuidelinesAck(user, forumType) && !!post;
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
@@ -135,6 +137,7 @@ export type CommentsNewFormProps = {
 }
 
 const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSION", parentComment, successCallback, interactionType, cancelCallback, removeFields, formProps, enableGuidelines=true, padding=true, formStyle="default", overrideHintText, quickTakesSubmitButtonAtBottom, isAnswer, cancelLabel, hideAlignmentForumCheckbox, className}: CommentsNewFormProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -163,7 +166,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
-    af: commentDefaultToAlignment(currentUser, post, parentComment),
+    af: commentDefaultToAlignment(currentUser, post, forumType, parentComment),
   };
   
   const isQuickTake = !!prefilledProps.shortform
@@ -185,7 +188,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
       // TODO: user field for showing new user guidelines
       // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
       const dialogProps = { user: currentUser, post };
-      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps, forumType)) {
         openDialog({
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
@@ -326,7 +329,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
             rateLimitMessage={rateLimitMessage}
           />}
           <div onFocus={(ev) => {
-            afNonMemberDisplayInitialPopup(currentUser, openDialog)
+            afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)
             ev.preventDefault()
           }}>
             <CommentForm

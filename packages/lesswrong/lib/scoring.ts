@@ -1,5 +1,5 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { isLW, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactorSetting } from './instanceSettings';
+import { type ForumTypeString, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactorSetting } from './instanceSettings';
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -88,9 +88,9 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
-const getAgeOffset = () => isLW() ? 6 : SCORE_BIAS 
+const getAgeOffset = (forumType: ForumTypeString) => forumType === 'LessWrong' ? 6 : SCORE_BIAS
 
-export const timeDecayExpr = () => {
+export const timeDecayExpr = (forumType: ForumTypeString) => {
   return {$pow: [
     {$add: [
       {$divide: [
@@ -99,7 +99,7 @@ export const timeDecayExpr = () => {
         ]},
         60 * 60 * 1000
       ] }, // Age in hours
-      getAgeOffset()
+      getAgeOffset(forumType)
     ]},
     TIME_DECAY_FACTOR.get()
   ]}

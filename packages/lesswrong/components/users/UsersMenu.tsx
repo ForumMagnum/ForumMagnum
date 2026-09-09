@@ -179,7 +179,7 @@ const UsersMenu = () => {
               }}
             >
               <div onClick={(ev) => {
-                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+                if (afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)) {
                   ev.preventDefault()
                 }
               }}>

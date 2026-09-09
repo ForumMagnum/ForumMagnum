@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { type ForumTypeString, testServerSetting, isEAForum, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
@@ -33,7 +33,7 @@ export const userHasDefaultProfilePhotos = disabled
 
 export const userHasAutosummarize = adminOnly
 
-export const visitorGetsDynamicFrontpage: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
+export const visitorGetsDynamicFrontpage = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
 
 export const userHasSubscribeTabFeed: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
 

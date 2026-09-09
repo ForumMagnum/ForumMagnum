@@ -139,13 +139,14 @@ const UltraFeedOrRecentDiscussion = () => {
 }
 
 const UpdateLastVisitCookie = () => {
+  const { forumType } = useForumType();
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
-    if (visitorGetsDynamicFrontpage(null)) {
+    if (visitorGetsDynamicFrontpage(null, forumType)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }
-  }, [setCookie])
+  }, [setCookie, forumType])
 
   return <></>
 }

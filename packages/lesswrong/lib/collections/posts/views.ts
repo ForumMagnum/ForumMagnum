@@ -2,7 +2,7 @@ import moment from 'moment';
 import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { adminAccountSetting, isAF, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
@@ -105,7 +105,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 
 async function getVisitorActivity(context: ResolverContext): Promise<DbUserActivity|null> {
   const { currentUser, clientId } = context;
-  if ((currentUser || clientId) && visitorGetsDynamicFrontpage(currentUser)) {
+  if ((currentUser || clientId) && visitorGetsDynamicFrontpage(currentUser, context.forumType)) {
     if (currentUser) {
       return await context.UserActivities.findOne({visitorId: currentUser._id, type: 'userId'});
     } else if (clientId) {
@@ -124,12 +124,12 @@ async function getVisitorActivity(context: ResolverContext): Promise<DbUserActiv
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-async function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
+async function defaultView(terms: PostsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = isAF() ? {af: true} : {}
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,
@@ -179,11 +179,9 @@ async function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: Res
   const pendingKarmaInflationSeries = terms.sortedBy === 'topAdjusted' ? getKarmaInflationSeries() : null;
 
   if (terms.filterSettings) {
-    const visitorActivity = context
-      ? await getWithCustomLoader(context, "visitorActivityLoader", "_",
-          async () => [await getVisitorActivity(context)]
-        )
-      : null;
+    const visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
+      async () => [await getVisitorActivity(context)]
+    );
     const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
@@ -235,7 +233,7 @@ async function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: Res
     if (!isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
     } else if (!isEmpty(postedAt) && terms.timeField) {
-      const timeFieldSchema = context!.Posts.schema[terms.timeField];
+      const timeFieldSchema = context.Posts.schema[terms.timeField];
       if (timeFieldSchema.graphql?.outputType !== "Date" && timeFieldSchema.graphql?.outputType !== "Date!") {
         throw new Error(`Invalid time field: ${terms.timeField}`);
       }
@@ -308,7 +306,7 @@ export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): a
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context?: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags?.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -340,7 +338,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context && visitorGetsDynamicFrontpage(context.currentUser ?? null);
+  const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -372,7 +370,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         activityHalfLifeHours: terms.algoActivityHalfLifeHours,
         activityWeight: terms.algoActivityWeight,
         overrideActivityFactor: terms.algoActivityFactor,
-      }, visitorActivity) : timeDecayExpr()
+      }, visitorActivity) : timeDecayExpr(context.forumType)
     ]}
   }
   

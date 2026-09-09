@@ -350,7 +350,7 @@ const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme
 function PageBackgroundWrapper({children}: {
   children: React.ReactNode
 }) {
-  const { isAF, isLW } = useForumType();
+  const { isAF, isLW, forumType } = useForumType();
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
@@ -359,7 +359,7 @@ function PageBackgroundWrapper({children}: {
     getHomeDesignActiveSnapshot,
     () => false
   );
-  const isSandboxedHomePage = isLW && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
+  const isSandboxedHomePage = isLW && isHomeRoute(pathname, forumType) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
     "wrapper", classes.wrapper, {
