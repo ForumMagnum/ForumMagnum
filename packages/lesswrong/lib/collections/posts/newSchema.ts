@@ -3747,8 +3747,8 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["admins", postCanEditHideCommentKarma],
-      canCreate: ["admins", postCanEditHideCommentKarma],
+      canUpdate: ["admins", (user, post, context) => postCanEditHideCommentKarma(user, context.forumType, post)],
+      canCreate: ["admins", (user) => !!user?.showHideKarmaOption],
       validation: {
         optional: true,
       },

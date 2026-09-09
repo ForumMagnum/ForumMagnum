@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext, useRef, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
@@ -61,6 +62,7 @@ const CKCommentEditor = ({
   onReady: (editor: Editor) => void,
   placeholder?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -90,7 +92,7 @@ const CKCommentEditor = ({
     } : undefined,
     initialData: data || "",
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    mention: mentionPluginConfiguration(portalContext, forumType),
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
   });

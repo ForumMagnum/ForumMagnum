@@ -1,4 +1,4 @@
-import { newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { newUserIconKarmaThresholdSetting, isLW, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -43,11 +43,11 @@ export const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): stri
 }
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null, forumType: ForumTypeString): string => {
   if (!user) {
     return "";
   } else {
-    return (isAF()
+    return (forumType === 'AlignmentForum'
       ? (user.fullName || user.displayName) ?? ""
       : (user.displayName || getUserName(user)) ?? ""
     ).trim();
@@ -398,16 +398,16 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   return {lat: placeholderLat, lng: placeholderLng, known: false}
 }
 
-export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetPostCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afPostCount;
   } else {
     return user.postCount;
   }
 }
 
-export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetCommentCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
     return user.commentCount;

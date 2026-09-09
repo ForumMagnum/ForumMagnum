@@ -267,7 +267,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
-  const { isAF } = useForumType();
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
@@ -491,7 +491,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   }, [view, rawComments, currentUser?._id]);
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
-  const { commentCount: totalComments } = getResponseCounts({ post, answers })
+  const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;

@@ -1,4 +1,5 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { Suspense, useState } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useSuspenseQuery } from "@/lib/crud/useQuery";
@@ -220,11 +221,12 @@ function ProfilePageInner({user}: {
 function ProfileHeaderActions({user}: {
   user: UsersProfile
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(profilePageUnsharedStyles);
   const currentUser = useCurrentUser();
   const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
-  const username = userGetDisplayName(user);
+  const username = userGetDisplayName(user, forumType);
 
   if (!canEditProfile && !canModerateUserProfile) return null;
 

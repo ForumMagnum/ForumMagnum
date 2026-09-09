@@ -1,4 +1,4 @@
-import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
@@ -117,7 +117,7 @@ export const detectLinkpost = (
 export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
   var user = await context.Users.findOne({_id: post.userId});
   if (user) {
-    return userGetDisplayName(user);
+    return userGetDisplayName(user, context.forumType);
   } else {
     return post.author ?? "[unknown author]";
   }
@@ -238,8 +238,8 @@ export type PostWithCommentCounts = { commentCount: number; afCommentCount: numb
 /**
  * Get the total (cached) number of comments, including replies and answers
  */
-export const postGetCommentCount = (post: PostWithCommentCounts): number => {
-  if (isAF()) {
+export const postGetCommentCount = (post: PostWithCommentCounts, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -249,8 +249,8 @@ export const postGetCommentCount = (post: PostWithCommentCounts): number => {
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
-  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
+export const postGetCommentCountStr = (post: PostWithCommentCounts|null|undefined, forumType: ForumTypeString, commentCount?: number): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post, forumType) : 0;
   if (!count) {
     return "No comments";
   } else if (count === 1) {
@@ -270,7 +270,7 @@ export const postGetAnswerCountStr = (count: number): string => {
   }
 }
 
-export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCounts; answers: CommentsList[] }) => {
+export const getResponseCounts = ({ post, answers, forumType }: { post: PostWithCommentCounts; answers: CommentsList[]; forumType: ForumTypeString }) => {
   // answers may include some which are deleted:true, deletedPublic:true (in which
   // case various fields are unpopulated and a deleted-item placeholder is shown
   // in the UI). These deleted answers are *not* included in post.commentCount.
@@ -281,20 +281,20 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 
   return {
     answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - answerAndDescendentsCount,
+    commentCount: postGetCommentCount(post, forumType) - answerAndDescendentsCount,
   };
 };
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
-  if (isAF()) {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost, forumType: ForumTypeString): Date | null => {
+  if (forumType === 'AlignmentForum') {
     return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
     return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
   }
 }
 
-export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
-  if (isAF()) return null
+export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost, forumType: ForumTypeString): Date|null => {
+  if (forumType === 'AlignmentForum') return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
@@ -351,8 +351,8 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
   return (userOwns(currentUser, post) || isPostGroupOrganizer) && !!post.draft
 }
 
-export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = isAF() ? post.afBaseScore : post.baseScore
+export const postGetKarma = (post: PostsBase|DbPost, forumType: ForumTypeString): number => {
+  const baseScore = forumType === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 
@@ -362,8 +362,8 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostWithCommentCounts|null): boolean => {
-  return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
+export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString, post?: PostWithCommentCounts|null): boolean => {
+  return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post, forumType)))
 }
 
 export type CoauthoredPost = NullablePartial<Pick<DbPost, "coauthorUserIds">>

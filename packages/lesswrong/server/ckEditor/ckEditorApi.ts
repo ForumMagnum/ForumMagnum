@@ -6,6 +6,7 @@ import moment from 'moment';
 import Posts from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -475,7 +476,7 @@ export async function fetchCkEditorCloudStorageDocumentHtml(ckEditorId: string):
   }
 }
 
-export async function createMissingUsersForDocument(document: CreateDocumentPayload) {
+export async function createMissingUsersForDocument(document: CreateDocumentPayload, forumType: ForumTypeString) {
   const commentUsers = document.comments.map(comment => comment.user.id);
   const suggestionUsers = document.suggestions.map(suggestion => suggestion.author_id);
   const documentUserIds = Array.from(new Set([...commentUsers, ...suggestionUsers]));
@@ -486,14 +487,14 @@ export async function createMissingUsersForDocument(document: CreateDocumentPayl
   const missingUserNames = await Users.find({ _id: { $in: missingUserIds } }, undefined, { _id: 1, displayName: 1, username: 1, fullName: 1 }).fetch();
   const missingUserPayloads = missingUserNames.map(user => ({
     id: user._id,
-    name: userGetDisplayName(user),
+    name: userGetDisplayName(user, forumType),
   }));
 
   await Promise.all(missingUserPayloads.map(user => createCkEditorUser(user)));
 }
 
-export async function createRemoteStorageDocument(document: CreateDocumentPayload) {
-  await createMissingUsersForDocument(document);
+export async function createRemoteStorageDocument(document: CreateDocumentPayload, forumType: ForumTypeString) {
+  await createMissingUsersForDocument(document, forumType);
   return await createCkEditorDocument(document);
 }
 

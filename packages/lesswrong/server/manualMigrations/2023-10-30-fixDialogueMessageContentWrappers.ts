@@ -1,3 +1,4 @@
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import { Posts } from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
@@ -64,7 +65,7 @@ async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml
     await deleteCkEditorCloudDocument(ckEditorId);
 
     await sleep(10000);
-    await createRemoteStorageDocument(newDocumentPayload);
+    await createRemoteStorageDocument(newDocumentPayload, createAdminContext().forumType);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log('Failed to delete remote document from storage', { err });

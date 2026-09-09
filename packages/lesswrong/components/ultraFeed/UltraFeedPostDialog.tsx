@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import qs from 'qs';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import classNames from 'classnames';
@@ -535,6 +536,7 @@ const UltraFeedPostDialog = ({
   topLevelCommentId,
   onClose,
 }: UltraFeedPostDialogProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const location = useSubscribedLocation();
@@ -611,7 +613,7 @@ const UltraFeedPostDialog = ({
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = displayPost.question ? answersTree.length : undefined;
 
-  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers });
+  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers, forumType });
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
   const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
   const aboveLinkpostThreshold = displayPost.contents?.wordCount && 

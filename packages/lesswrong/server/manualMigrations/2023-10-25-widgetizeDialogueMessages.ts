@@ -1,3 +1,4 @@
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import Revisions from '../../server/collections/revisions/collection';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -88,7 +89,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
       const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
       // Push the selected revision
       try {
-        await createRemoteStorageDocument(newDocumentPayload);
+        await createRemoteStorageDocument(newDocumentPayload, createAdminContext().forumType);
       } catch (err) {
         //eslint-disable-next-line no-console
         console.log('Error pushing new document payload', { err })

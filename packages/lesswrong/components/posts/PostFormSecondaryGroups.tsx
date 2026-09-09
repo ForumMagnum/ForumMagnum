@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
@@ -149,6 +150,7 @@ const PostFormSecondaryGroups = ({
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const isEvent = !!initialData.isEvent;
@@ -762,7 +764,7 @@ const PostFormSecondaryGroups = ({
           </div>}
 
           {/* TODO: Consider porting comment-karma visibility controls together with the account preference. */}
-          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
+          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, forumType, form.state.values)) && <div className={classes.fieldWrapper}>
             <form.Field name="hideCommentKarma">
               {(field) => (
                 <FormComponentCheckbox

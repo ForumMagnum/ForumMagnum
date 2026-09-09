@@ -581,6 +581,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
 }
 
 export async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+  const { forumType } = createAdminContext();
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
@@ -648,7 +649,7 @@ export async function buildConversionContext(database: WholeArbitalDatabase, pag
         console.warn(`Arbital page ID ${arbitalUserId} may be being imported as both a wiki page and a user-matching?`);
       }
       linksById[arbitalUserId] = `/users/${lwUser.slug}`;
-      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser);
+      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser, forumType);
     }
   }
   

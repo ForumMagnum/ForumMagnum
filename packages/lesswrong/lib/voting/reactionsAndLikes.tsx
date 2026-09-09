@@ -86,7 +86,7 @@ export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLike
     
     // FIXME: userGetDisplayName differs between LW and AF; this will create a weird inconsistency in denormalized data based on whether the last vote was cast on LW or on AF
     const likesList = upvotesByDescendingUserKarma
-      .map(v => ({_id: v.userId, displayName: userGetDisplayName(usersById[v.userId])}));
+      .map(v => ({_id: v.userId, displayName: userGetDisplayName(usersById[v.userId], context.forumType)}));
     
     return {
       usersWhoLiked: likesList,

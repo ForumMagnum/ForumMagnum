@@ -254,20 +254,21 @@ export const userCanCreateField = (
 // Check if a user can edit a field
 export const userCanUpdateField = <N extends CollectionNameString>(
   user: DbUser | null,
-  canUpdate: FieldPermissions | undefined,
+  canUpdate: FieldUpdatePermissions | undefined,
   document: Partial<ObjectsByCollectionName[N]>,
+  context: ResolverContext,
 ): boolean => {
   if (canUpdate) {
     if (typeof canUpdate === 'function') {
-      // if canUpdate is a function, execute it with user and document passed. it must return a boolean
-      return canUpdate(user, document);
+      // if canUpdate is a function, pass the user, document, and request context. it must return a boolean
+      return canUpdate(user, document, context);
     } else if (typeof canUpdate === 'string') {
       // if canUpdate is just a string, we assume it's the name of a group and pass it to isMemberOf
       // note: if canUpdate is 'guests' then anybody can create it
       return canUpdate === 'guests' || userIsMemberOf(user, canUpdate);
     } else if (Array.isArray(canUpdate) && canUpdate.length > 0) {
       // if canUpdate is an array, we look at every item and return true if one of the items return true
-      return canUpdate.some(group => userCanUpdateField(user, group, document));
+      return canUpdate.some(group => userCanUpdateField(user, group, document, context));
 
     }
   }

@@ -1,4 +1,4 @@
-import { isAF, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { isAF, type ForumTypeString, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -10,7 +10,7 @@ import { forumSelect } from '../../forumTypeUtils';
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {
   var user = await context.Users.findOne({_id: comment.userId});
-  return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
+  return user ? userGetDisplayName(user, context.forumType) : comment.author ?? "[unknown author]";
 };
 
 // Get URL of a comment page.
@@ -92,8 +92,8 @@ export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, 
     || fallback;
 }
 
-export const commentGetKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = isAF() ? comment.afBaseScore : comment.baseScore
+export const commentGetKarma = (comment: CommentsList|DbComment, forumType: ForumTypeString): number => {
+  const baseScore = forumType === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -231,6 +232,7 @@ const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, h
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
@@ -302,7 +304,7 @@ const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, h
         <div className={classes.commentsCount}>
           <PostsItemComments
             small={false}
-            commentCount={postGetCommentCount(post)}
+            commentCount={postGetCommentCount(post, forumType)}
             unreadComments={unreadComments}
             newPromotedComments={false}
             onClick={toggleComments}

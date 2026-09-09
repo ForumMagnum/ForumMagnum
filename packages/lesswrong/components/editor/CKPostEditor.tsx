@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
@@ -418,6 +419,7 @@ const CKPostEditor = ({
   placeholder?: string,
   document?: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -572,7 +574,7 @@ const CKPostEditor = ({
     },
     initialData: initData,
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    mention: mentionPluginConfiguration(portalContext, forumType),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,

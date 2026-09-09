@@ -104,7 +104,7 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
 }))
 
 const UsersMenu = () => {
-  const { isAF } = useForumType();
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -131,7 +131,7 @@ const UsersMenu = () => {
     : null;
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
-    {userGetDisplayName(currentUser)}
+    {userGetDisplayName(currentUser, forumType)}
     {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
       <div>Your account has been deactivated:</div>
       <ul>

@@ -1,6 +1,7 @@
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
+import type { ForumTypeString } from './instanceSettings';
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
 import maxBy from "lodash/maxBy";
 
@@ -260,8 +261,9 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
 export function getTocComments({
   post,
   commentCount,
-}: { post?: PostWithCommentCounts | null; commentCount?: number | undefined } = {}) {
-  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
+  forumType,
+}: { post?: PostWithCommentCounts | null; commentCount?: number; forumType: ForumTypeString }) {
+  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, forumType, commentCount) }];
 }
 
 /**

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
@@ -26,6 +27,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
   isSeeLessMode?: boolean,
   postMetaInfo?: FeedPostMetaInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -53,7 +55,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
     <DropdownMenu className={classes.root}>
       {author && !userIsAuthor && <NotifyMeToggleDropdownItem
         document={author}
-        title={`Follow ${userGetDisplayName(author)}`}
+        title={`Follow ${userGetDisplayName(author, forumType)}`}
         subscriptionType="newActivityForFeed"
       />}
       {postMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem

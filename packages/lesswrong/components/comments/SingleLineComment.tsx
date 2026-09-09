@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
@@ -150,6 +151,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {anchorEl, hover, eventHandlers} = useHover();
   
@@ -190,7 +192,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <ShowParentComment comment={comment} />
         </span>}
         {!hideKarma && !comment.draft && <span className={classes.leadingInfo}>
-          {commentGetKarma(comment)}
+          {commentGetKarma(comment, forumType)}
         </span>}
         {comment.draft && <span className={classes.leadingInfo}>
           [Draft]
