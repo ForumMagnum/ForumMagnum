@@ -36,6 +36,8 @@ interface SearchComment extends SearchBase {
 
 interface SearchSequence extends SearchBase {
   _index: "sequences",
+  collectedAuthorIds?: string[],
+  baseScore?: number,
   title: string | null,
   userId: string,
   createdAt: string,
@@ -79,6 +81,8 @@ interface SearchUser extends SearchBase {
 
 interface SearchPost extends SearchBase {
   _index: "posts",
+  coauthorIds?: string[],
+  userId: string,
   url: string | null,
   title: string | null,
   slug: string,

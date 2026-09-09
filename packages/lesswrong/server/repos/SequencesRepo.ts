@@ -3,7 +3,7 @@ import Sequences from "../../server/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
+import { READ_WORDS_PER_MINUTE, postStatuses } from "@/lib/collections/posts/constants";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
@@ -18,6 +18,8 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         s."_id" AS "objectID",
         s."title",
         s."userId",
+        COALESCE(collected."authorIds", ARRAY[]::TEXT[]) AS "collectedAuthorIds",
+        COALESCE(collected."baseScore", 0) AS "baseScore",
         s."createdAt",
         EXTRACT(EPOCH FROM s."createdAt") * 1000 AS "publicDateMs",
         COALESCE(s."isDeleted", FALSE) AS "isDeleted",
@@ -41,6 +43,22 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         NOW() AS "exportedAt"
       FROM "Sequences" s
       LEFT JOIN "Users" author on s."userId" = author."_id"
+      LEFT JOIN LATERAL (
+        SELECT
+          ARRAY(SELECT DISTINCT UNNEST(ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::TEXT[]))
+            FROM "Posts" p WHERE p."_id" = ANY(public_posts.ids)) AS "authorIds",
+          (SELECT AVG(p."baseScore") FROM "Posts" p WHERE p."_id" = ANY(public_posts.ids)) AS "baseScore"
+        FROM (
+          SELECT ARRAY_AGG(DISTINCT p."_id") AS ids
+          FROM "Chapters" c
+          JOIN "Posts" p ON p."_id" = ANY(c."postIds")
+          WHERE c."sequenceId" = s."_id"
+            AND p."draft" IS NOT TRUE AND p."unlisted" IS NOT TRUE
+            AND p."isFuture" IS NOT TRUE AND p."rejected" IS NOT TRUE
+            AND p."authorIsUnreviewed" IS NOT TRUE AND p."status" = ${postStatuses.STATUS_APPROVED}
+            AND p."baseScore" >= 0
+        ) public_posts
+      ) collected ON TRUE
     `;
   }
 

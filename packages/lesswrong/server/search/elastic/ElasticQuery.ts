@@ -50,6 +50,7 @@ export type QueryData = {
   filters: QueryFilter[],
   // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
   coordinates?: number[],
+  unifiedRanking?: boolean,
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -73,6 +74,19 @@ class ElasticQuery {
   ) {
     this.collectionName = indexToCollectionName(queryData.index);
     this.config = collectionNameToConfig(this.collectionName);
+    if (queryData.unifiedRanking) {
+      // Use the same field weights and analyzer across object types. The individual
+      // indexes' karma multipliers and name boosts are intended for separate lists.
+      // ElasticMultiQuery applies bounded karma within explicit relationship tiers.
+      this.config = {
+        ...this.config,
+        fields: this.config.fields.map((field, index) => {
+          const name = field.split("^")[0];
+          return `${name}${index === 0 ? "^3" : ""}`;
+        }),
+        ranking: [],
+      };
+    }
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -247,7 +261,7 @@ class ElasticQuery {
     return {
       multi_match: {
         query: search,
-        fields,
+        fields: this.queryData.unifiedRanking ? fields.map(field => this.textFieldToExactField(field)) : fields,
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
@@ -279,17 +293,17 @@ class ElasticQuery {
             {
               multi_match: {
                 query: search,
-                fields: this.collectionName === 'Users' ? exactFields : fields,
+                fields: this.queryData.unifiedRanking || this.collectionName === 'Users' ? exactFields : fields,
                 type: "phrase",
                 slop: 2,
-                boost: this.collectionName === 'Users' ? 10 : 100,
+                boost: this.queryData.unifiedRanking ? 10 : this.collectionName === 'Users' ? 10 : 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: 1000,
+                  boost: this.queryData.unifiedRanking ? 20 : 1000,
                 },
               },
             },
