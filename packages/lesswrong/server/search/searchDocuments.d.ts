@@ -113,6 +113,7 @@ interface SearchTag extends SearchBase {
   defaultOrder: number,
   suggestedAsFilter: boolean,
   postCount: number,
+  baseScore?: number,
   wikiOnly: boolean,
   isSubforum: boolean,
   description: string,
