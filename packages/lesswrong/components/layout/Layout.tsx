@@ -12,7 +12,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting } from '@/lib/instanceSettings';
+import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -228,7 +228,7 @@ const Layout = ({children}: {
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get(forumType)}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
               {!isStandaloneRoute(prerenderablePathname) && <SuspenseWrapper name="Header">
                 <Header

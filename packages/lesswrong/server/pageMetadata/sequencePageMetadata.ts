@@ -42,7 +42,7 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
 
     if (!sequence) return await getDefaultMetadata();
 
-    const titleFields = getPageTitleFields(sequence.title);
+    const titleFields = await getPageTitleFields(sequence.title);
 
     const ogUrl = combineUrls(getSiteUrl(resolverContext.forumType), `/s/${_id}`);
     const canonicalUrl = sequenceGetAbsolutePageUrl({ _id }, resolverContext.forumType);
@@ -54,7 +54,7 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
       q: "auto",
       f: "auto",
       g: "auto:faces",
-    }, resolverContext.forumType) : undefined;
+    }) : undefined;
 
     return merge({},
       await getDefaultMetadata(),

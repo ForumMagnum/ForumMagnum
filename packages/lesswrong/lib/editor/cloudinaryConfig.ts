@@ -1,9 +1,9 @@
-import { cloudinaryCloudNameSetting, cloudinaryUploadPresetEditorName } from '../instanceSettings';
+import { cloudinaryCloudName, cloudinaryUploadPresetEditorName } from '../instanceSettings';
 import type { CloudinaryCkEditorPluginConfig } from '../../../../ckEditor/src/cloudinary';
 import type { ForumTypeString } from '../instanceSettings';
 
 function getCloudName(forumType: ForumTypeString): string {
-  const cloudName = cloudinaryCloudNameSetting.get(forumType);
+  const cloudName = cloudinaryCloudName;
   if (cloudName === undefined || cloudName === null) {
     throw new Error('Cloudinary cloud name is not set');
   }

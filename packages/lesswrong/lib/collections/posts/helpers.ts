@@ -1,4 +1,4 @@
-import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
@@ -92,7 +92,6 @@ export function parseUnsafeUrl(url: string) {
   return {};
 }
 
-
 // Detect if a post is a linkpost and get the domain
 export const detectLinkpost = (
   post: { url?: string | null },
@@ -167,7 +166,7 @@ ${postGetAbsoluteLink(post, forumType)}
 };
 
 const getSocialImagePreviewPrefix = (forumType: ForumTypeString) =>
-  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_fill,ar_1.91,g_auto/`;
+  `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,ar_1.91,g_auto/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
@@ -228,7 +227,6 @@ export const postGetCommentsUrl = (
 ): string => {
   return postGetPageUrl(post, sequenceId) + "#comments";
 }
-
 
 export const postGetAbsoluteCommentsUrl = (post: PostsMinimumForGetPageUrl, forumType: ForumTypeString, sequenceId: string|null=null): string => {
   return postGetAbsolutePageUrl(post, forumType, sequenceId) + "#comments";

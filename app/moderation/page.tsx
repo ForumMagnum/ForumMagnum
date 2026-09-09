@@ -11,7 +11,7 @@ import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import { adminAccountSetting, type ForumTypeString } from "@/lib/instanceSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Moderation Log'), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Moderation Log'), {
     robots: { index: false },
   });
 }

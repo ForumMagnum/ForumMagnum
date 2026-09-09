@@ -25,8 +25,8 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   const clientId = useClientId();
 
   const sendRecombeeViewPortionEvent = useCallback(
-    (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
-  []);
+    (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps, forumType),
+  [forumType]);
 
   useEffect(() => {
     const attributedUserId = currentUser?._id ?? clientId;
@@ -55,5 +55,4 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
 }
 
 export default AttributionInViewTracker;
-
 

@@ -2,7 +2,7 @@ import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
 import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
-import { airtableApiKeySetting } from '../../lib/instanceSettings';
+
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import Users from '../../server/collections/users/collection';
 import { userFindOneByEmail } from "../commonQueries";
@@ -418,13 +418,12 @@ type AirtableLeaderboardResultType = {
   leaderboardAmount?: number;
 };
 
-
 async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> {
   const baseId = "appUepxJdxacpehZz";
   const tableName = "Donors";
   const viewName = "LeaderBoard";
 
-  const apiKey = airtableApiKeySetting.get();
+  const apiKey = (process.env.private_airtable_apiKey ?? null);
   if (!apiKey) {
     throw new Error("Can't fetch Airtable records without an API key");
   }

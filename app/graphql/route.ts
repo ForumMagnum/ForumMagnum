@@ -77,7 +77,6 @@ const server = new ApolloServer<ResolverContext>({
   },
 });
 
-
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
   context: async (req) => {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
@@ -121,7 +120,7 @@ function isCrossSiteRequest(request: NextRequest) {
 async function sharedHandler(request: NextRequest) {
   const forumType = getForumTypeForRequest(request);
   if (!performanceMetricLoggingEnabled.get(forumType)) {
-    const res = await handler(request);
+    const res = await asyncLocalStorage.run({ forumType }, () => handler(request));
 
     if (isSandboxedIframeRequest(request)) {
       setSandboxedIframeCorsHeaders(res);
@@ -139,7 +138,7 @@ async function sharedHandler(request: NextRequest) {
     user_agent: request.headers.get('user-agent') ?? undefined,
   });
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, forumType }, async () => {
     let res;
     try {
       res = await handler(request);

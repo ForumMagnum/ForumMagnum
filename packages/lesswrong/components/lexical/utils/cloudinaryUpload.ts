@@ -1,5 +1,5 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
-import { cloudinaryCloudNameSetting, cloudinaryUploadPresetEditorName } from '@/lib/instanceSettings';
+import { cloudinaryCloudName, cloudinaryUploadPresetEditorName } from '@/lib/instanceSettings';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -47,7 +47,7 @@ export async function uploadToCloudinary(
   forumType: ForumTypeString,
   options?: { signal?: AbortSignal }
 ): Promise<CloudinaryUploadResult> {
-  const cloudName = cloudinaryCloudNameSetting.get(forumType);
+  const cloudName = cloudinaryCloudName;
   const uploadPreset = cloudinaryUploadPresetEditorName.get(forumType);
 
   if (!cloudName) {

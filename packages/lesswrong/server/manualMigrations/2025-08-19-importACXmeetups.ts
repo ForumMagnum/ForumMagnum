@@ -1,7 +1,6 @@
-import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { registerMigration } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection';
-import { mapsAPIKeySetting } from '@/lib/instanceSettings';
+import { mapsAPIKey } from '@/lib/instanceSettings';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';
@@ -17,7 +16,7 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
     redirect: 'follow'
   };
   
-  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get(forumTypeSetting.get())}`, requestOptions)
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKey}`, requestOptions)
   const responseText = await response.text()
   const responseData = JSON.parse(responseText)
   return responseData.results[0]

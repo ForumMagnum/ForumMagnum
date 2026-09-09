@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getAnalyticsConnection } from '@/server/analytics/postgresConnection';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { postMessage } from '@/server/slack/client';
@@ -50,7 +51,6 @@ function getOperationResult(event: RawAnalyticsRow): string | null {
   if (HAPPY_RESULTS.has(result)) return null;
   return result;
 }
-
 
 const onboardingLabels: Record<string, string> = {
   claudeOnboardingStarted: `opened the "Connect Claude to LW Docs" onboarding modal (step 1)`,
@@ -144,7 +144,7 @@ function formatAuthorActivity(
   return lines;
 }
 
-export async function postAiEditorUsageToSlack() {
+export async function postAiEditorUsageToSlack(forumType: ForumTypeString) {
   const connection = getAnalyticsConnection();
   if (!connection) {
     // eslint-disable-next-line no-console
@@ -152,7 +152,7 @@ export async function postAiEditorUsageToSlack() {
     return;
   }
 
-  const environment = isDevelopment ? "development" : environmentDescriptionSetting.get();
+  const environment = isDevelopment ? "development" : environmentDescriptionSetting.get(forumType);
 
   const events: RawAnalyticsRow[] = await connection.any(`
     SELECT event_type, event

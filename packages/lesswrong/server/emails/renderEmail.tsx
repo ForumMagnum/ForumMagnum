@@ -4,7 +4,7 @@ import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, type ForumTypeString } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
-import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
+
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@/lib/sentryWrapper';
@@ -142,7 +142,6 @@ export async function renderToString(component: React.ReactNode) {
 //     limited and inconsistent subset is supported by mail clients
 //
 
-
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams, emailContext}: {
   user: DbUser | null,
   to: string,
@@ -194,7 +193,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     wordwrap: plainTextWordWrap
   });
   
-  const fromAddress = from || defaultEmailSetting.get(theme.forumType)
+  const fromAddress = from || (process.env.private_defaultEmail ?? "hello@world.com")
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
@@ -306,7 +305,7 @@ export const wrapAndSendEmail = async ({
 
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
-  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
+  if (process.env.NODE_ENV === 'production' || (process.env.private_enableDevelopmentEmails === "true")) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line

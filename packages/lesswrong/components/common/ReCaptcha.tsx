@@ -2,7 +2,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
+import { reCaptchaSiteKey } from '@/lib/instanceSettings';
 import { isClient } from '../../lib/executionEnvironment';
 
 const propTypes = {
@@ -108,9 +108,6 @@ class ReCaptchaInner extends Component<ReCaptchaInnerProps,ReCaptchaState> {
 (ReCaptchaInner as any).defaultProps = defaultProps;
 
 export default function ReCaptcha({sitekey, ...props}: ReCaptchaProps) {
-  const { forumType } = useForumType();
-  return <ReCaptchaInner {...props} sitekey={sitekey ?? reCaptchaSiteKeySetting.get(forumType)} />;
+  return <ReCaptchaInner {...props} sitekey={sitekey ?? reCaptchaSiteKey} />;
 }
-
-
 

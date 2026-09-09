@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     {},
     await getDefaultMetadata(),
     getMetadataDescriptionFields(`All of ${siteNameWithArticleSetting.get(forumType)}'s posts, filtered and sorted however you want`),
-    getPageTitleFields('All Posts')
+    await getPageTitleFields('All Posts')
   );
 }
 

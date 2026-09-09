@@ -1,4 +1,3 @@
-import { useForumType } from "@/components/hooks/useForumType";
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -39,7 +38,6 @@ const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
   },
 }));
 
-
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
   name: string,
   value: string | null | undefined,
@@ -49,7 +47,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   croppingAspectRatio?: number,
   placeholderUrl?: string,
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {uploadImage} = useImageUpload({
     imageType: name as ImageType,
@@ -84,7 +81,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
     q: "auto",
     f: "auto",
     g: "auto:faces"
-  }, forumType) : placeholderUrl
+  }) : placeholderUrl
   
   if (imageUrl) {
     imageStyle.backgroundImage = `url(${imageUrl})`
@@ -115,5 +112,4 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 };
 
 export default ImageUpload2;
-
 

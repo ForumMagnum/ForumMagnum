@@ -9,7 +9,6 @@ import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from './useClientId';
 
-
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
   setPostRead: (postId: string, isRead: boolean) => void,
@@ -101,7 +100,7 @@ export const useRecordPostView = (post: ViewablePost) => {
         && isRecombeeRecommendablePost(post, forumType)
         && (!currentUser || !excludeUserFromRecombee(currentUser))
       ) {
-        void recombeeApi.createDetailView(post._id, attributedUserId, recommendationOptions?.recombeeOptions?.recommId);
+        void recombeeApi.createDetailView(post._id, attributedUserId, forumType, recommendationOptions?.recombeeOptions?.recommId);
       }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
@@ -135,7 +134,6 @@ export const useRecordPostView = (post: ViewablePost) => {
 function excludeUserFromRecombee(user: UsersCurrent) {
   return user.spamRiskScore <= 0.1;
 }
-
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
   const {recordEvent} = useNewEvents()
@@ -204,5 +202,4 @@ export const ItemsReadContextWrapper = ({children}: {children: React.ReactNode})
     {children}
   </ItemsReadContext.Provider>
 }
-
 

@@ -51,7 +51,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
       vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote});
       captureEvent("vote", {collectionName});
       if (recombeeEnabledSetting.get(forumType) && collectionName === "Posts" && recombeeRecommendationsContext?.postId === document._id) {
-        void recombeeApi.createRating(document._id, currentUserId, voteType, recombeeRecommendationsContext.recommId);
+        void recombeeApi.createRating(document._id, currentUserId, voteType, forumType, recombeeRecommendationsContext.recommId);
       }
     }
   }
@@ -78,5 +78,4 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
 }
 
 export default OverallVoteButton;
-
 

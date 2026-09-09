@@ -1,6 +1,6 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import React, { useCallback } from "react";
-import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudName, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { useExternalScript } from "./useExternalScript";
 
@@ -198,7 +198,7 @@ export const useImageUpload = ({
       multiple: false,
       sources: ["local", "url", "camera", "facebook", "instagram", "google_drive"],
       cropping: true,
-      cloudName: cloudinaryCloudNameSetting.get(theme.forumType),
+      cloudName: cloudinaryCloudName,
       theme: "minimal",
       croppingValidateDimensions: true,
       croppingShowDimensions: true,

@@ -1,4 +1,3 @@
-import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -6,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
@@ -151,7 +150,6 @@ const PostsItemIntroSequence = ({
   translucentBackground?: boolean,
   withImage?: boolean,
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
   const postLink = postGetPageUrl(post, sequence?._id);
@@ -200,7 +198,7 @@ const PostsItemIntroSequence = ({
 
           {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />
@@ -215,5 +213,4 @@ const PostsItemIntroSequence = ({
 export default registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
   hocs: [withErrorBoundary],
 });
-
 

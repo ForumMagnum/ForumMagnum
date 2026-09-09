@@ -7,7 +7,7 @@ import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import PangramPage from "./PangramPage";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields("Pangram"), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields("Pangram"), {
     robots: { index: false },
   });
 }

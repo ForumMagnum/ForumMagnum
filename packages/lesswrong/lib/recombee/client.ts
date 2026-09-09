@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { AddDetailView, AddRating, ApiClient, SetViewPortion, TimeoutError } from 'recombee-js-api-client';
 import { captureException } from '@/lib/sentryWrapper';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../instanceSettings';
@@ -11,12 +12,13 @@ export interface RecombeeViewPortionProps {
 }
 
 const getRecombeeClientOrThrow = (() => {
-  let client: ApiClient;
+  const clients = new Map<ForumTypeString, ApiClient>();
 
-  return () => {
+  return (forumType: ForumTypeString) => {
+    let client = clients.get(forumType);
     if (!client) {
-      const databaseId = recombeeDatabaseIdSetting.get();
-      const apiToken = recombeePublicApiTokenSetting.get();
+      const databaseId = recombeeDatabaseIdSetting.get(forumType);
+      const apiToken = recombeePublicApiTokenSetting.get(forumType);
 
       if (!databaseId || !apiToken) {
         throw new Error('Missing either databaseId or api token when initializing Recombee client!');
@@ -24,6 +26,7 @@ const getRecombeeClientOrThrow = (() => {
       
       // TODO - pull out client options like region to db settings?
       client = new ApiClient(databaseId, apiToken, { region: 'us-west' });
+      clients.set(forumType, client);
     }
 
     return client;
@@ -87,10 +90,9 @@ const recombeeRequestHelpers = {
   },
 }
 
-
 const recombeeApi = {
-  async createViewPortion(viewPortionProps: RecombeeViewPortionProps) {
-    const client = getRecombeeClientOrThrow();
+  async createViewPortion(viewPortionProps: RecombeeViewPortionProps, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = recombeeRequestHelpers.createViewPortionRequest(viewPortionProps);
 
     try {
@@ -102,8 +104,8 @@ const recombeeApi = {
     }
   },
 
-  async createDetailView(postId: string, userId: string, recommId?: string) {
-    const client = getRecombeeClientOrThrow();
+  async createDetailView(postId: string, userId: string, forumType: ForumTypeString, recommId?: string) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = recombeeRequestHelpers.createDetailViewRequest(postId, userId, recommId);
 
     try {
@@ -115,8 +117,8 @@ const recombeeApi = {
     }
   },
 
-  async createRating(postId: string, userId: string, voteType: string, recommId?: string) {
-    const client = getRecombeeClientOrThrow();
+  async createRating(postId: string, userId: string, voteType: string, forumType: ForumTypeString, recommId?: string) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = recombeeRequestHelpers.createRatingRequest(postId, userId, voteType, recommId);
     if (!request) {
       return;

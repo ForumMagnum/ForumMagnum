@@ -1,6 +1,6 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
+import { reCaptchaSiteKey } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -104,7 +104,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   startingState?: possibleActions,
   returnTo?: string
 }) => {
-  const { isAF, forumType } = useForumType();
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const hasSubscribeToCuratedCheckbox = !isAF;
 
@@ -128,7 +128,6 @@ const LoginForm = ({ startingState = "login", returnTo }: {
       path: "/",
     });
   }, [setCookie]);
-
 
   const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
@@ -214,7 +213,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get(forumType) && <DeferRender ssr={false}>
+    {reCaptchaSiteKey && <DeferRender ssr={false}>
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
     </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
@@ -258,5 +257,4 @@ const LoginForm = ({ startingState = "login", returnTo }: {
 }
 
 export default LoginForm;
-
 

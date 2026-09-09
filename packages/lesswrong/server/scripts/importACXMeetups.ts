@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { Posts } from '@/server/collections/posts/collection';
 import { Users } from '@/server/collections/users/collection';
-import { mapsAPIKeySetting } from '@/lib/instanceSettings';
+import { mapsAPIKey } from '@/lib/instanceSettings';
 import { getLocalTime } from '../mapsUtils';
 import { userFindOneByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
@@ -199,7 +199,7 @@ function acxMeetupProfileLookupKey(raw: string | undefined): string | null {
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }): Promise<Record<string, unknown> | undefined> {
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get("LessWrong")}`,
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKey}`,
       { method: 'GET', redirect: 'follow' }
     );
     const responseData = await response.json();
@@ -507,7 +507,7 @@ async function runStage2(dir: string): Promise<boolean> {
     return false;
   }
 
-  const apiKey = mapsAPIKeySetting.get("LessWrong");
+  const apiKey = mapsAPIKey;
   if (!apiKey) {
     console.log("  ERROR: Google Maps API key is not configured (googleMaps.apiKey setting).");
     return false;

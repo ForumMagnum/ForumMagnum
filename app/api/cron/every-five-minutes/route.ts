@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
 import { postAiEditorUsageToSlack } from './postAiEditorUsageToSlack';
 
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  await postAiEditorUsageToSlack();
+  await postAiEditorUsageToSlack(getForumTypeForRequest(request));
 
   return new Response('OK', { status: 200 });
 }

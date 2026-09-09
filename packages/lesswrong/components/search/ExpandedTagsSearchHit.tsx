@@ -1,9 +1,8 @@
-import { useForumType } from '@/components/hooks/useForumType';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -59,15 +58,13 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
 const ExpandedTagsSearchHit = ({hit}: {
   hit: Hit<any>,
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const tag = hit as SearchTag
   const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
   const greyBackground = useThemeColor(theme => theme.palette.grey[0]);
 
-
   const style = tag.bannerImageId ? {
-    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
+    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
   } : {}
 
   return <div className={classes.root} style={style}>
@@ -89,6 +86,4 @@ const ExpandedTagsSearchHit = ({hit}: {
 }
 
 export default ExpandedTagsSearchHit;
-
-
 

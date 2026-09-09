@@ -35,7 +35,7 @@ export async function generateMetadata({ params, searchParams }: {
     const description = collection.contents?.plaintextDescription ?? taglineSetting.get(resolverContext);
     const descriptionFields = getMetadataDescriptionFields(description);
 
-    const titleFields = getPageTitleFields(collection.title);
+    const titleFields = await getPageTitleFields(collection.title);
 
     const noIndexFields = collection.noindex ? noIndexMetadata : {};
 
@@ -45,7 +45,7 @@ export async function generateMetadata({ params, searchParams }: {
       q: "auto",
       f: "auto",
       g: "auto:faces",
-    }, resolverContext.forumType) : undefined;
+    }) : undefined;
 
     const imageFields = socialImageUrl ? getMetadataImagesFields(socialImageUrl) : {};
   

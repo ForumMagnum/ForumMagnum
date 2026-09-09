@@ -44,7 +44,6 @@ import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } fr
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 
-
 async function sendWelcomeMessageTo(userId: string) {
   const context = createAnonymousContext();
   const postId = welcomeEmailPostId.get(context);
@@ -145,7 +144,6 @@ async function sendVerificationEmail(user: DbUser, forumType: ForumTypeString) {
   });
 }
 
-
 const utils = {
   enforceDisplayNameRateLimit: async ({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}, context: ResolverContext) => {
     if (userIsAdminOrMod(currentUser)) return;
@@ -238,7 +236,7 @@ export function createRecombeeUser({ document }: {document: DbUser}, forumType: 
   if (!document.email)
     return;
 
-  backgroundTask(recombeeApi.createUser(document)
+  backgroundTask(recombeeApi.createUser(document, forumType)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }))
   );
@@ -480,7 +478,6 @@ export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser, forumT
     await regenerateAllType3AudioForUser(newUser._id, forumType);
   }
 }
-
 
 export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
   // if the user is setting up their profile and their username changes from that form,

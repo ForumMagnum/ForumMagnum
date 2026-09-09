@@ -1,6 +1,6 @@
 import { Images } from '../../server/collections/images/collection';
-import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
+
+import { ckEditorUploadUrlSetting, cloudinaryCloudName, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
@@ -19,7 +19,6 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-
 export type CloudinaryCredentials = {
   cloud_name: string,
   api_key: string,
@@ -30,9 +29,9 @@ export type CloudinaryCredentials = {
  * Credentials that can be spread into `cloudinary.v2` functions, like so: `cloudinary.v2.url(publicId, { ...credentials })`
  */
 const getCloudinaryCredentials = () => {
-  const cloudName = cloudinaryCloudNameSetting.get("LessWrong");
-  const apiKey = cloudinaryApiKey.get("LessWrong");
-  const apiSecret = cloudinaryApiSecret.get("LessWrong");
+  const cloudName = cloudinaryCloudName;
+  const apiKey = (process.env.private_cloudinaryApiKey ?? "");
+  const apiSecret = (process.env.private_cloudinaryApiSecret ?? "");
 
   if (!cloudName || !apiKey || !apiSecret) {
     // eslint-disable-next-line no-console

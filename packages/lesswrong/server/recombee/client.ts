@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { ApiClient, BatchResponse, Recommendation, RecommendationResponse, requests, errors } from 'recombee-api-client';
 import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
@@ -24,12 +25,13 @@ import { backgroundTask } from '../utils/backgroundTask';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 export const getRecombeeClientOrThrow = (() => {
-  let client: ApiClient;
+  const clients = new Map<ForumTypeString, ApiClient>();
 
-  return () => {
+  return (forumType: ForumTypeString) => {
+    let client = clients.get(forumType);
     if (!client) {
-      const databaseId = recombeeDatabaseIdSetting.get();
-      const apiToken = recombeePrivateApiTokenSetting.get();
+      const databaseId = recombeeDatabaseIdSetting.get(forumType);
+      const apiToken = recombeePrivateApiTokenSetting.get(forumType);
 
       if (!databaseId || !apiToken) {
         throw new Error('Missing either databaseId or api token when initializing Recombee client!');
@@ -37,6 +39,7 @@ export const getRecombeeClientOrThrow = (() => {
       
       // TODO - pull out client options like region to db settings?
       client = new ApiClient(databaseId, apiToken, { region: 'us-west' });
+      clients.set(forumType, client);
     }
 
     return client;
@@ -406,8 +409,8 @@ const helpers = {
     }
   },
 
-  sendRecRequestWithPerfMetrics<T extends RecRequest>(recRequest: T, batch: boolean, backfill = false) {
-    const client = getRecombeeClientOrThrow();
+  sendRecRequestWithPerfMetrics<T extends RecRequest>(recRequest: T, batch: boolean, forumType: ForumTypeString, backfill = false) {
+    const client = getRecombeeClientOrThrow(forumType);
     
     return wrapWithPerfMetric(
       () => client.send(recRequest).catch(helpers.handleRecombeeError) as Promise<RecommendationResponse | null>,
@@ -438,7 +441,7 @@ const helpers = {
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
     if (recRequest instanceof requests.RecommendNextItems || skipCache) {
-      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType);
       if (!recResponse) {
         return [];
       }
@@ -456,7 +459,7 @@ const helpers = {
 
     let formattedRecommendations: RecResponse[]; 
     if (unexpiredRecommendations.length <= (count / 2)) {
-      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType);
       if (!recResponse) {
         formattedRecommendations = [];
       } else {
@@ -479,7 +482,7 @@ const helpers = {
     }
 
     backgroundTask(helpers
-      .sendRecRequestWithPerfMetrics(recRequest, batch, true)
+      .sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType, true)
       .then((recResponse) => recResponse && helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
     );
 
@@ -608,7 +611,7 @@ const recombeeApi = {
   },
 
   async getHybridRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
-    const client = getRecombeeClientOrThrow();
+    const client = getRecombeeClientOrThrow(context.forumType);
 
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
@@ -728,7 +731,7 @@ const recombeeApi = {
 
   async upsertPost(post: DbPost, context: ResolverContext) {
     if (!isRecombeeRecommendablePost(post, context.forumType)) return;
-    const client = getRecombeeClientOrThrow();
+    const client = getRecombeeClientOrThrow(context.forumType);
 
     const contents = await fetchFragmentSingle({
       collectionName: "Revisions",
@@ -750,8 +753,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createReadStatus(readStatus: DbReadStatus) {
-    const client = getRecombeeClientOrThrow();
+  async createReadStatus(readStatus: DbReadStatus, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createReadStatusRequest(readStatus);
     if (!request) {
       return;
@@ -760,8 +763,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createVote(vote: DbVote) {
-    const client = getRecombeeClientOrThrow();
+  async createVote(vote: DbVote, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createVoteRequest(vote);
     if (!request) {
       return;
@@ -770,8 +773,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createUser(user: DbUser) {
-    const client = getRecombeeClientOrThrow();
+  async createUser(user: DbUser, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createUpsertUserDetailsRequest(user);
     await client.send(request).catch(helpers.handleRecombeeError);
   },
@@ -780,15 +783,15 @@ const recombeeApi = {
    * Primarily for admin use; you'll need to modify the query that returns the relevant postIds if you want something different
    */
   async listPosts() {
-    const client = getRecombeeClientOrThrow();
     const context = createAdminContext();
+    const client = getRecombeeClientOrThrow(context.forumType);
     const postIds = (await context.Posts.find({ unlisted: true }, undefined, { _id: 1 }).fetch()).map(({ _id }) => _id);
     const request = helpers.createListPostsRequest(postIds);
     return await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async deletePosts(postIds: string[]) {
-    const client = getRecombeeClientOrThrow();
+  async deletePosts(postIds: string[], forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createDeletePostsRequest(postIds);
     return await client.send(request).catch(helpers.handleRecombeeError);
   },

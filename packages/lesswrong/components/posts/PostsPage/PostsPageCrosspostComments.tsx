@@ -37,6 +37,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
       try {
         const data = await crosspostDetailsRoute.makeRequest(
           {postId: foreignPostId},
+          forumType,
           {foreignRequest: true},
         );
         setResponse({ loading: false, data });
@@ -46,7 +47,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
         setResponse({ loading: false });
       }
     })();
-  }, [foreignPostId]);
+  }, [foreignPostId, forumType]);
 
   if (response.loading) {
     return (

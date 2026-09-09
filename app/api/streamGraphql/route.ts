@@ -216,7 +216,7 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
 async function sharedHandler(request: NextRequest) {
   const forumType = getForumTypeForRequest(request);
   if (!performanceMetricLoggingEnabled.get(forumType)) {
-    const res = await graphqlStreamingHandler(request);
+    const res = await asyncLocalStorage.run({ forumType }, () => graphqlStreamingHandler(request));
 
     if (isCrossSiteRequest(request)) {
       setCorsHeaders(res, forumType);
@@ -232,7 +232,7 @@ async function sharedHandler(request: NextRequest) {
     user_agent: request.headers.get("user-agent") ?? undefined,
   });
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, forumType }, async () => {
     let res: Response;
     try {
       res = await graphqlStreamingHandler(request, {
@@ -275,5 +275,4 @@ export async function POST(request: NextRequest) {
 export function OPTIONS(request: NextRequest) {
   return crosspostOptionsHandler(request);
 }
-
 

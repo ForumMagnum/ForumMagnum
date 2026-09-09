@@ -6,7 +6,7 @@ import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@/lib/sentryWrapper";
 import { getSearchClient } from "@/lib/search/searchUtil";
-import { algoliaPrefixSetting } from '@/lib/instanceSettings';
+import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 
@@ -71,7 +71,7 @@ const fetchFromElasticIndex = async (
 ): Promise<string[]> => {
   const response = await getSearchClient().search([
     {
-      indexName: algoliaPrefixSetting.get(forumType) + index,
+      indexName: algoliaIndexPrefix + index,
       query,
       params: {
         query,

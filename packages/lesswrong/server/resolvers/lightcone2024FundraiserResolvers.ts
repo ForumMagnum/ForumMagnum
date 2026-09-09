@@ -1,8 +1,8 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import { getStripeIntentsCache } from "../lesswrongFundraiser/stripeIntentsCache";
-import { lightconeFundraiserStripeSecretKeySetting } from "../databaseSettings";
+
 import gql from "graphql-tag";
-import { airtableApiKeySetting } from "@/lib/instanceSettings";
+
 import { unstable_cache } from "next/cache";
 
 export const lightcone2024FundraiserGraphQLTypeDefs = gql`
@@ -17,7 +17,7 @@ async function fetchAirtableDonationRecords(forumType: ForumTypeString): Promise
   const tableName = "Donations";
   const viewName = "To Sync 2025";
 
-  const apiKey = airtableApiKeySetting.get(forumType);
+  const apiKey = (process.env.private_airtable_apiKey ?? null);
   if (!apiKey) {
     throw new Error("Can't fetch Airtable records without an API key");
   }
@@ -70,7 +70,7 @@ const fetchCachedAirtableDonationRecords = unstable_cache(fetchAirtableDonationR
 
 export const lightcone2024FundraiserGraphQLQueries = {
   async Lightcone2024FundraiserStripeAmounts(root: void, args: void, context: ResolverContext) {
-    if (!lightconeFundraiserStripeSecretKeySetting.get(context)) return;
+    if (!(process.env.private_stripe_lightconeFundraiserSecretKey ?? null)) return;
     const intents = getStripeIntentsCache();
     return intents.map(intent => intent.amount);
   },

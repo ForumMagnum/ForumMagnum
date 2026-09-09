@@ -45,7 +45,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
     }
 
     if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post, forumType)) {
-      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
+      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote", forumType);
     }
 
     void setIsHiddenMutation({postId: post._id, isHidden: true})
@@ -66,5 +66,4 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
 export default registerComponent('DislikeRecommendationDropdownItem', DislikeRecommendationDropdownItem, {
   hocs: [withErrorBoundary],
 });
-
 

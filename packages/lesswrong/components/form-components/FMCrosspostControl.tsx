@@ -167,7 +167,7 @@ export const FMCrosspostControl = ({ field }: {
 
   const onClickLogin = async () => {
     try {
-      const {token} = await generateTokenRoute.makeRequest({});
+      const {token} = await generateTokenRoute.makeRequest({}, forumType);
       if (token) {
         const url = combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", `crosspostLogin?token=${token}`);
         window.open(url, "_blank")?.focus();

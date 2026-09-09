@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getForumTypeForPage } from '@/server/utils/requestUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
@@ -63,16 +64,17 @@ export async function getDefaultMetadata() {
   } satisfies Metadata;
 }
 
-function getPageTitleString(title: string) {
-  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
+function getPageTitleString(title: string, forumType: ForumTypeString) {
+  const siteName = tabTitleSetting.get(forumType) ?? tabLongTitleSetting.get(forumType);
   return `${title} — ${siteName}`;
 }
 
-export function getPageTitleFields(title: string): Metadata {
+export async function getPageTitleFields(title: string): Promise<Metadata> {
+  const forumType = await getForumTypeForPage();
   return {
-    title: getPageTitleString(title),
+    title: getPageTitleString(title, forumType),
     openGraph: {
-      title: getPageTitleString(title),
+      title: getPageTitleString(title, forumType),
     },
   };
 }

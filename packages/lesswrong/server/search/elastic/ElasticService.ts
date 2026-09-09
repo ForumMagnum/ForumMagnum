@@ -1,6 +1,6 @@
 import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
 import type { SearchResult } from "./SearchResult";
-import { algoliaPrefixSetting } from '@/lib/instanceSettings';
+import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { indexNameToConfig } from "./ElasticConfig";
 import {
   QueryFilter,
@@ -243,7 +243,7 @@ class ElasticService {
   }
 
   private sanitizeIndexName(indexName: string): SanitizedIndexName {
-    const prefix = algoliaPrefixSetting.get();
+    const prefix = algoliaIndexPrefix;
     if (prefix) {
       indexName = indexName.replace(new RegExp(prefix, "g"), "");
     }

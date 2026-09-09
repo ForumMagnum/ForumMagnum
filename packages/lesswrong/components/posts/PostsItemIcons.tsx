@@ -85,7 +85,6 @@ export const CuratedIcon = ({hasColor}: {
     </span>
 }
 
-
 const RecommendedPostIcon = ({post, hover}: {
   post: PostsBase,
   hover?: boolean,
@@ -101,7 +100,7 @@ const RecommendedPostIcon = ({post, hover}: {
     e.stopPropagation();
 
     if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post, forumType)) {
-      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
+      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote", forumType);
     }
 
     void setIsHiddenMutation({postId: post._id, isHidden: true})
@@ -117,7 +116,6 @@ const RecommendedPostIcon = ({post, hover}: {
     </LWTooltip>
   </span>
 }
-
 
 export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,

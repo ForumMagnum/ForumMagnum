@@ -1,4 +1,3 @@
-import { useForumType } from "@/components/hooks/useForumType";
 import React, { CSSProperties } from 'react';
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from './cloudinaryHelpers';
 import { useAbstractThemeOptions } from '../themes/useTheme';
@@ -31,7 +30,6 @@ const CloudinaryImage2 = ({
   wrapperClassName?: string,
   loading?: "lazy"|"eager",
 }) => {
-  const { forumType } = useForumType();
   const themeOptions = useAbstractThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
 
   let cloudinaryProps: CloudinaryPropsType = {
@@ -80,12 +78,8 @@ const CloudinaryImage2 = ({
     shouldUseDarkImage = "maybe"
   } // themeOption.name must be dark, defaulting to yes
   // Cast is safe because if shouldUseDarkImage is "yes" we know that darkPublicId is defined
-  const basicImageUrl = makeCloudinaryImageUrl(
-    shouldUseDarkImage === "yes" ? darkPublicId! : publicId,
-    cloudinaryProps,
-    forumType
-  )
-  const darkImageUrl = darkPublicId && makeCloudinaryImageUrl(darkPublicId, cloudinaryProps, forumType)
+  const basicImageUrl = makeCloudinaryImageUrl(shouldUseDarkImage === "yes" ? darkPublicId! : publicId, cloudinaryProps)
+  const darkImageUrl = darkPublicId && makeCloudinaryImageUrl(darkPublicId, cloudinaryProps)
 
   // fullWidthHeader images are big and so need srcsets
   let srcSetFunc: ((publicId: string) => string) | null = null
@@ -95,10 +89,10 @@ const CloudinaryImage2 = ({
     const srcSetHeight = (cloudinaryProps.h || (DEFAULT_HEADER_HEIGHT*2).toString())
     // NB: we lie about the final width here, we don't know it
     srcSetFunc = (imgId) => `
-      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}}, forumType)} 450w,
-      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}}, forumType)} 900w,
-      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '1500', h: srcSetHeight}}, forumType)} 1500w,
-      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: 'iw', h: srcSetHeight}}, forumType)} 3000w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}})} 450w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}})} 900w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '1500', h: srcSetHeight}})} 1500w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: 'iw', h: srcSetHeight}})} 3000w,
     `
   }
 
