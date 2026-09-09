@@ -12,6 +12,7 @@ import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
+import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 
 // The research conversation mutations (`fireResearchConversation` /
 // `continueResearchConversation`) provision or resume a persistent sandbox
@@ -96,7 +97,7 @@ function isSandboxedIframeRequest(request: NextRequest) {
 }
 
 function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
+  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get(getForumTypeForRequest(request));
   if (!fmCrosspostBaseUrl) {
     return false;
   }
@@ -118,7 +119,7 @@ function isCrossSiteRequest(request: NextRequest) {
 }
 
 async function sharedHandler(request: NextRequest) {
-  if (!performanceMetricLoggingEnabled.get()) {
+  if (!performanceMetricLoggingEnabled.get(getForumTypeForRequest(request))) {
     const res = await handler(request);
 
     if (isSandboxedIframeRequest(request)) {
