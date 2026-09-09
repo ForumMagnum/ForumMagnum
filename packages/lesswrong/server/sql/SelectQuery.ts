@@ -1,6 +1,6 @@
 import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
-import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
+import { DefaultValueType, IdType, NotNullType, UnknownType } from "./Type";
 import { tableNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 import { inspect } from "util";
 import { getCollationType } from "./collation";

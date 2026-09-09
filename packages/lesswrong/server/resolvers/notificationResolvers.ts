@@ -9,7 +9,7 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
-import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
+import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 
 const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
   name: "NotificationDisplays",

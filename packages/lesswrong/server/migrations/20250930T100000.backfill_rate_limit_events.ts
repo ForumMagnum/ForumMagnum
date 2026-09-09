@@ -8,7 +8,7 @@
 
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { autoCommentRateLimits, autoPostRateLimits } from "@/lib/rateLimits/constants";
-import { getActiveRateLimits, getDownvoteRatio, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
+import { getActiveRateLimits, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
 export const up = async ({db}: MigrationContext) => {

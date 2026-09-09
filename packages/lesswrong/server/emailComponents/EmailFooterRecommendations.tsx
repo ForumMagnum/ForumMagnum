@@ -1,6 +1,5 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, emailUseStyles } from "./emailContext";

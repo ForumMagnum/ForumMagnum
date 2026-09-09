@@ -3,7 +3,6 @@
 // @see https://github.com/eritikass/express-graphiql-middleware
 // This is the only way to get graphiql to work
 
-import url from 'url';
 
 // @seehttps://github.com/apollographql/apollo-server/blob/v1.4.0/packages/apollo-server-module-graphiql/src/resolveGraphiQLString.ts
 

@@ -2,10 +2,10 @@ import moment from 'moment';
 import { hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
-import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { TupleSet } from '@/lib/utils/typeGuardUtils';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 /**
  * Comment sorting mode, a string which gets translated into a mongodb sort

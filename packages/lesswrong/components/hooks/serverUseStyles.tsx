@@ -1,6 +1,6 @@
 import type { ClassNameProxy, StyleDefinition } from "@/server/styleGeneration";
 import { classNameProxy } from "./defineStyles";
-import type { AbstractThemeOptions, ThemeOptions } from "@/themes/themeNames";
+import type { AbstractThemeOptions } from "@/themes/themeNames";
 import { styleDefinitionToCSS } from "./serverEmbeddedStyles";
 
 /**

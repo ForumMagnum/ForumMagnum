@@ -7,7 +7,7 @@
  *
  */
 
-import React, { type JSX } from 'react';
+import { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$insertNodeToNearestRoot} from '@lexical/utils';

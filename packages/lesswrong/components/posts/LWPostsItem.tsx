@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
-import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';

@@ -6,7 +6,6 @@ import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { GoogleDocMetadata } from '../collections/revisions/helpers';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';

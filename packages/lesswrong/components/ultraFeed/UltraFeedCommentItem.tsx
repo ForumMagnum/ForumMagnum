@@ -5,7 +5,7 @@ import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS, readCommentsInitialWords } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
-import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";

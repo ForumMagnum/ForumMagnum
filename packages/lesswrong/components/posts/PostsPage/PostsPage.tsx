@@ -17,7 +17,7 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { unflattenComments } from '../../../lib/utils/unflatten';
-import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';

@@ -1,7 +1,7 @@
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import type { KarmaChangesArgs, AnyKarmaChange } from './collections/users/karmaChangesGraphQL';
+import type { KarmaChangesArgs } from './collections/users/karmaChangesGraphQL';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType } from '@/lib/collections/users/helpers';
 
 // Our graphql type codegen returns output types with Dates as strings because

@@ -6,7 +6,7 @@
  *
  */
 import type {LexicalEditor} from 'lexical';
-import React, { type JSX } from 'react';
+import { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getNodeByKey, TextNode} from 'lexical';

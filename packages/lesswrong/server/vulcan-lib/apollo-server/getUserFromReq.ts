@@ -1,4 +1,4 @@
-import { hashLoginToken, tokenExpiration, userIsBanned } from '@/server/loginTokens';
+import { hashLoginToken, userIsBanned } from '@/server/loginTokens';
 import UsersRepo from '@/server/repos/UsersRepo';
 import type { NextRequest } from 'next/server';
 

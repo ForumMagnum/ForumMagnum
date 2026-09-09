@@ -12,7 +12,6 @@ import ArbitalTagContentRels from '@/server/collections/arbitalTagContentRels/co
 import { randomId } from '@/lib/random';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
-import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/server/collections/revisions/collection';
 import { buildRevision } from '@/server/editor/conversionUtils';

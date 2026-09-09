@@ -1,7 +1,7 @@
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { viewFieldAllowAny, jsonArrayContainsSelector } from "@/lib/utils/viewConstants";
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import type { ApolloClient } from "@apollo/client";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {

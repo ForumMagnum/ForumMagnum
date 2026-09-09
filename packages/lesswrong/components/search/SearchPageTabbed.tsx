@@ -23,8 +23,7 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
+import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
 import ErrorBoundary from "../common/ErrorBoundary";
 import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";

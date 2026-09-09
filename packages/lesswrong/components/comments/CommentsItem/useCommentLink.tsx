@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
+import React, { MouseEvent, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -6,7 +6,6 @@ import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
-import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "postId" | "tagCommentType">,

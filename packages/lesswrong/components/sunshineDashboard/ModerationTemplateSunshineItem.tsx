@@ -6,7 +6,6 @@ import BasicFormStyles from '../form-components/BasicFormStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
-import DeferRender from '../common/DeferRender';
 import Row from '../common/Row';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';

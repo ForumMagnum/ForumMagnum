@@ -21,7 +21,6 @@ import LWTooltip from "../common/LWTooltip";
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
-import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { UltraFeedEventCreateMutation } from "./ultraFeedMutations";
 import UltraFeedScoreBreakdown from "./UltraFeedScoreBreakdown";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";

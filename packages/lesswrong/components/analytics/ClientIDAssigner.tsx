@@ -1,6 +1,5 @@
 "use client";
 
-import React from 'react';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 import { useEffectOnce } from '../hooks/useEffectOnce';
 

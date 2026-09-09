@@ -10,7 +10,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useSuspenseQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
   root: {

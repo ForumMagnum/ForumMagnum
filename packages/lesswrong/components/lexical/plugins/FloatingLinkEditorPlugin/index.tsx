@@ -43,7 +43,6 @@ import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggesti
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
-import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
 

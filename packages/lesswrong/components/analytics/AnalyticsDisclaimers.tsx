@@ -1,7 +1,6 @@
 import React from "react";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';

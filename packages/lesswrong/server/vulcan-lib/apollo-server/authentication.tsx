@@ -19,7 +19,6 @@ import { comparePasswords, createPasswordHash, validatePassword } from './passwo
 import { isDevelopment } from '@/lib/executionEnvironment';
 
 const AGENT_TEST_USERNAME = 'agent-test';
-import type { NextRequest } from 'next/server';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 import LoginTokens from '@/server/collections/loginTokens/collection';
 

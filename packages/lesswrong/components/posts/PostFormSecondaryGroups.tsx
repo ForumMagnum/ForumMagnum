@@ -1,4 +1,4 @@
-import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
+import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum } from "@/lib/instanceSettings";

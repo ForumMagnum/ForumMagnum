@@ -1,4 +1,4 @@
-import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {getPublicSettings, initializeSetting} from './settingsCache'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');

@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@/lib/sentryWrapper";
-import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { Kind, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";

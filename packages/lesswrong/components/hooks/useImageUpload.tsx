@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { useExternalScript } from "./useExternalScript";

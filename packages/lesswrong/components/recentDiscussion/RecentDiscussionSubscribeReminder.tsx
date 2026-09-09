@@ -13,7 +13,6 @@ import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, isAF, isLW } from '../../lib/instanceSettings';
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";

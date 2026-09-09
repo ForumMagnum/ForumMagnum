@@ -3,7 +3,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 
-import { Paper, Card }from '@/components/widgets/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
@@ -15,7 +15,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
+import { isAF } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";

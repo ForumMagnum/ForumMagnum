@@ -6,7 +6,6 @@ import {
   $getSelection,
   $isRangeSelection,
   $createTextNode,
-  TextNode,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
   KEY_ENTER_COMMAND,

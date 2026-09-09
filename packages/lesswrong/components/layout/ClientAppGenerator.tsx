@@ -3,7 +3,7 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { Suspense, use, useEffect, useRef, useState, useTransition } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';

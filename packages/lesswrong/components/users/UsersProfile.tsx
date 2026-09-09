@@ -42,7 +42,6 @@ import SectionTitle from "../common/SectionTitle";
 import SequencesNewButton from "../sequences/SequencesNewButton";
 import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
-import DialogGroup from "../common/DialogGroup";
 import SettingsButton from "../icons/SettingsButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";

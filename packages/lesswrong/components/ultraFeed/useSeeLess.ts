@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';

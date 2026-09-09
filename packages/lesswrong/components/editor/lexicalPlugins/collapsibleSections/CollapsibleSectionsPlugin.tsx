@@ -24,7 +24,6 @@ import {
   INSERT_PARAGRAPH_COMMAND,
   createCommand,
   LexicalCommand,
-  TextNode,
   $isTextNode,
   LexicalNode,
   CLICK_COMMAND,

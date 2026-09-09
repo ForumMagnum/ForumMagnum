@@ -1,6 +1,5 @@
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { useQuery } from "@/lib/crud/useQuery";

@@ -1,11 +1,9 @@
 import type {
   QueryDslQueryContainer,
-  SearchRequest as SearchRequestInfo,
   Sort,
 } from "@elastic/elasticsearch/lib/api/types";
-import type {
-  SearchRequest as SearchRequestBody,
-} from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
+
+
 import {
   IndexConfig,
   Ranking,

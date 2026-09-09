@@ -1,5 +1,4 @@
 import { defaultVisibilityTags } from './instanceSettings';
-import { backgroundTask } from '@/server/utils/backgroundTask';
 
 export interface FilterSettings {
   personalBlog: FilterMode,

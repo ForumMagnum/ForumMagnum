@@ -5,7 +5,6 @@ import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
 

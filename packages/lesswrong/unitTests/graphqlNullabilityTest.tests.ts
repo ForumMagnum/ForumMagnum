@@ -1,6 +1,6 @@
 import chai from 'chai';
 import { getSchema } from "@/lib/schema/allSchemas";
-import { getAllCollections, getCollection, isValidCollectionName } from "@/server/collections/allCollections";
+import { getAllCollections, isValidCollectionName } from "@/server/collections/allCollections";
 import isArray from "lodash/isArray";
 import { allowAccess, getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
