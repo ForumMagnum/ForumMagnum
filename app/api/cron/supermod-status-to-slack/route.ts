@@ -3,7 +3,7 @@ import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { captureException } from '@/lib/sentryWrapper';
 import { postMessage } from '@/server/slack/client';
 import { getSupermodStatus } from './getSupermodStatus';
-import { formatDailySupermodMessage, getDailyWindow } from './supermodStatusFormat';
+import { formatDailySupermodMessage, getDailyWindow, isSupermodReportTime } from './supermodStatusFormat';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -11,10 +11,15 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  const now = new Date();
+  if (!isSupermodReportTime(now)) {
+    return new Response('Outside report time', { status: 200 });
+  }
+
   try {
     const context = createAnonymousContext();
-    const { windowStart, windowEnd } = getDailyWindow(new Date());
-    const report = await getSupermodStatus(context, windowStart, windowEnd);
+    const { windowStart, windowEnd } = getDailyWindow(now);
+    const { report } = await getSupermodStatus(context, windowStart, windowEnd);
     const text = formatDailySupermodMessage(report);
     await postMessage({
       text,

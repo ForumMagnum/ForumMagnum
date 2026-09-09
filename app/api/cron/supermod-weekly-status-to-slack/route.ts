@@ -3,7 +3,7 @@ import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { captureException } from '@/lib/sentryWrapper';
 import { postMessage } from '@/server/slack/client';
 import { getSupermodStatus } from '../supermod-status-to-slack/getSupermodStatus';
-import { formatWeeklySupermodBlocks, formatWeeklySupermodMessage, getTwoMonthWindow, getWeeklyWindow } from '../supermod-status-to-slack/supermodStatusFormat';
+import { formatWeeklySupermodBlocks, formatWeeklySupermodMessage, getTwoMonthWindow, getWeeklyWindow, isSupermodReportTime } from '../supermod-status-to-slack/supermodStatusFormat';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -11,14 +11,16 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  const now = new Date();
+  if (!isSupermodReportTime(now)) {
+    return new Response('Outside report time', { status: 200 });
+  }
+
   try {
     const context = createAnonymousContext();
-    const { windowStart, windowEnd } = getWeeklyWindow(new Date());
+    const { windowStart, windowEnd } = getWeeklyWindow(now);
     const twoMonths = getTwoMonthWindow(windowEnd);
-    const [report, lastTwoMonths] = await Promise.all([
-      getSupermodStatus(context, windowStart, windowEnd),
-      getSupermodStatus(context, twoMonths.windowStart, twoMonths.windowEnd),
-    ]);
+    const { report, lastTwoMonths } = await getSupermodStatus(context, windowStart, windowEnd, twoMonths.windowStart);
     const text = formatWeeklySupermodMessage(report, lastTwoMonths);
     await postMessage({
       text,

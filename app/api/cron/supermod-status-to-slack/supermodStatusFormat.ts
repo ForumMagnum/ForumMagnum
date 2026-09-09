@@ -1,3 +1,6 @@
+import moment from '@/lib/moment-timezone';
+import type { Block, RichTextBlock, SectionBlock } from '@slack/web-api';
+
 export const PACIFIC_TZ = 'America/Los_Angeles';
 const MS_PER_HOUR = 60 * 60 * 1000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
@@ -6,13 +9,6 @@ export interface ModeratorCount {
   userId: string;
   displayName: string;
   count: number;
-}
-
-export interface OldestUserInfo {
-  displayName: string;
-  userId: string;
-  reviewGroupLabel: string;
-  ageMs: number;
 }
 
 export interface DaysLateBucket {
@@ -38,72 +34,26 @@ export interface SupermodStatusReport {
   remainingYesterdayPostsLate: number;
   newWaitingUsers: number;
   newWaitingPosts: number;
-  oldestUser: OldestUserInfo | null;
   averageProcessTimeMs: number | null;
-  maxProcessTimeMs: number | null;
   longestHandled: LongestHandledUser[];
   daysLate: DaysLateBucket[];
   siteUrl: string;
 }
 
-function pad2(n: number): string {
-  return n.toString().padStart(2, '0');
-}
-
-export function getPacificYmd(date: Date): { year: number; month: number; day: number } {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: PACIFIC_TZ,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).formatToParts(date);
-  const num = (type: Intl.DateTimeFormatPartTypes) =>
-    Number(parts.find(part => part.type === type)?.value);
-  return { year: num('year'), month: num('month'), day: num('day') };
-}
-
-export const REPORT_HOUR = 9;
-export const REPORT_MINUTE = 30;
-
-export function pacificWallTimeToUtc(
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute = 0,
-): Date {
-  const ymd = `${year}-${pad2(month)}-${pad2(day)}`;
-  const time = `${pad2(hour)}:${pad2(minute)}:00`;
-  const asPst = new Date(`${ymd}T${time}-08:00`);
-  const hourInPacific = Number(new Intl.DateTimeFormat('en-US', {
-    timeZone: PACIFIC_TZ,
-    hour: 'numeric',
-    hour12: false,
-  }).format(asPst));
-  const normalizedHour = hourInPacific === 24 ? 0 : hourInPacific;
-  if (normalizedHour === hour) {
-    return asPst;
-  }
-  return new Date(`${ymd}T${time}-07:00`);
-}
-
 export function getMostRecentPacificReportTime(now: Date): Date {
-  const { year, month, day } = getPacificYmd(now);
-  const todayReportTime = pacificWallTimeToUtc(year, month, day, REPORT_HOUR, REPORT_MINUTE);
-  if (now.getTime() >= todayReportTime.getTime()) {
-    return todayReportTime;
-  }
-  const previousCalendarDay = new Date(todayReportTime.getTime() - (12 * MS_PER_HOUR));
-  const ymd = getPacificYmd(previousCalendarDay);
-  return pacificWallTimeToUtc(ymd.year, ymd.month, ymd.day, REPORT_HOUR, REPORT_MINUTE);
+  const reportTime = moment.tz(now, PACIFIC_TZ).startOf('day').hour(9).minute(30);
+  if (reportTime.isAfter(now)) reportTime.subtract(1, 'day');
+  return reportTime.toDate();
 }
 
-export function addPacificDays(pacificReportTime: Date, days: number): Date {
-  const ymd = getPacificYmd(pacificReportTime);
-  const utcAnchor = Date.UTC(ymd.year, ymd.month - 1, ymd.day, 20);
-  const shifted = new Date(utcAnchor + (days * MS_PER_DAY));
-  const next = getPacificYmd(shifted);
-  return pacificWallTimeToUtc(next.year, next.month, next.day, REPORT_HOUR, REPORT_MINUTE);
+// Vercel invokes both UTC candidates; only the one at 9:30 Pacific should send.
+export function isSupermodReportTime(now: Date): boolean {
+  const localTime = moment.tz(now, PACIFIC_TZ);
+  return localTime.hour() === 9 && localTime.minute() >= 30;
+}
+
+export function addPacificDays(reportTime: Date, days: number): Date {
+  return moment.tz(reportTime, PACIFIC_TZ).add(days, 'days').toDate();
 }
 
 export function getDailyWindow(now: Date): { windowStart: Date; windowEnd: Date } {
@@ -131,10 +81,9 @@ export function formatPacificDate(date: Date): string {
 export function formatWeeklyDateRange(windowStart: Date, windowEnd: Date): string {
   const lastInclusiveDay = addPacificDays(windowEnd, -1);
   const start = formatPacificDate(windowStart);
-  const startYmd = getPacificYmd(windowStart);
-  const endYmd = getPacificYmd(lastInclusiveDay);
-  if (startYmd.month === endYmd.month && startYmd.year === endYmd.year) {
-    return `${start}–${endYmd.day}`;
+  const end = moment.tz(lastInclusiveDay, PACIFIC_TZ);
+  if (moment.tz(windowStart, PACIFIC_TZ).isSame(end, 'month')) {
+    return `${start}–${end.date()}`;
   }
   return `${start}–${formatPacificDate(lastInclusiveDay)}`;
 }
@@ -223,28 +172,19 @@ function formatMostLateLines(users: LongestHandledUser[], siteUrl: string): stri
   ];
 }
 
-type SlackRawTextCell = { type: 'raw_text'; text: string };
-type SlackRichTextCell = {
-  type: 'rich_text';
-  elements: Array<{
-    type: 'rich_text_section';
-    elements: Array<{ type: 'link'; url: string; text: string } | { type: 'text'; text: string }>;
-  }>;
-};
-type SlackTableCell = SlackRawTextCell | SlackRichTextCell;
-type SlackTableBlock = {
+interface SlackRawTextCell { type: 'raw_text'; text: string }
+interface SlackTableBlock extends Block {
   type: 'table';
-  column_settings?: Array<{ align?: 'left' | 'center' | 'right'; is_wrapped?: boolean }>;
-  rows: SlackTableCell[][];
-};
-type SlackSectionBlock = { type: 'section'; text: { type: 'mrkdwn'; text: string } };
-export type SlackMessageBlock = SlackSectionBlock | SlackTableBlock;
+  column_settings: Array<{ align: 'left' | 'right' }>;
+  rows: Array<Array<SlackRawTextCell | RichTextBlock>>;
+}
+export type SlackMessageBlock = SectionBlock | SlackTableBlock;
 
 function rawCell(text: string): SlackRawTextCell {
   return { type: 'raw_text', text: text.length > 0 ? text : ' ' };
 }
 
-function linkCell(label: string, url: string): SlackRichTextCell {
+function linkCell(label: string, url: string): RichTextBlock {
   return {
     type: 'rich_text',
     elements: [{
@@ -254,7 +194,7 @@ function linkCell(label: string, url: string): SlackRichTextCell {
   };
 }
 
-function slackSection(text: string): SlackSectionBlock {
+function slackSection(text: string): SectionBlock {
   return { type: 'section', text: { type: 'mrkdwn', text } };
 }
 

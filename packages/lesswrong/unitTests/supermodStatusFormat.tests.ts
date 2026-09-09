@@ -9,7 +9,9 @@ import {
   getDailyWindow,
   getMostRecentPacificReportTime,
   groupDaysLate,
-  pacificWallTimeToUtc,
+  isSupermodReportTime,
+  getWeeklyWindow,
+  formatWeeklySupermodBlocks,
   type SupermodStatusReport,
 } from '../../../app/api/cron/supermod-status-to-slack/supermodStatusFormat';
 
@@ -18,22 +20,42 @@ describe('supermodStatusFormat', () => {
     // 16:45 UTC on 2026-03-20 is 9:45am PDT
     const now = new Date('2026-03-20T16:45:00.000Z');
     const { windowStart, windowEnd } = getDailyWindow(now);
-    expect(windowEnd.toISOString()).toBe(pacificWallTimeToUtc(2026, 3, 20, 9, 30).toISOString());
-    expect(windowStart.toISOString()).toBe(pacificWallTimeToUtc(2026, 3, 19, 9, 30).toISOString());
+    expect(windowEnd.toISOString()).toBe('2026-03-20T16:30:00.000Z');
+    expect(windowStart.toISOString()).toBe('2026-03-19T16:30:00.000Z');
   });
 
   it('uses yesterday 9:30am Pacific when it is still before 9:30am', () => {
     // 16:00 UTC on 2026-03-20 is 9am PDT
     const now = new Date('2026-03-20T16:00:00.000Z');
     const windowEnd = getMostRecentPacificReportTime(now);
-    expect(windowEnd.toISOString()).toBe(pacificWallTimeToUtc(2026, 3, 19, 9, 30).toISOString());
+    expect(windowEnd.toISOString()).toBe('2026-03-19T16:30:00.000Z');
   });
 
-  it('adds calendar days across Pacific DST', () => {
-    // 2026-03-08 9:30am PST -> 2026-03-09 9:30am PDT is 23 hours
-    const beforeDst = pacificWallTimeToUtc(2026, 3, 8, 9, 30);
-    const afterDst = addPacificDays(beforeDst, 1);
-    expect(afterDst.toISOString()).toBe(pacificWallTimeToUtc(2026, 3, 9, 9, 30).toISOString());
+  it.each([
+    ['2026-03-07T17:30:00Z', '2026-03-08T16:30:00.000Z', 23],
+    ['2026-10-31T16:30:00Z', '2026-11-01T17:30:00.000Z', 25],
+  ])('adds a Pacific calendar day across DST from %s', (start, expected, hours) => {
+    const before = new Date(start);
+    const after = addPacificDays(before, 1);
+    expect(after.toISOString()).toBe(expected);
+    expect(after.getTime() - before.getTime()).toBe(hours * 60 * 60 * 1000);
+    expect(getDailyWindow(after).windowStart).toEqual(before);
+  });
+
+  it.each([
+    ['2026-09-07T16:30:00Z', true],
+    ['2026-09-07T17:30:00Z', false],
+    ['2026-12-07T16:30:00Z', false],
+    ['2026-12-07T17:30:00Z', true],
+    ['2026-12-07T17:35:00Z', true],
+  ])('gates the UTC cron candidate %s', (now, expected) => {
+    expect(isSupermodReportTime(new Date(now))).toBe(expected);
+  });
+
+  it('ends the winter weekly report on Monday morning', () => {
+    const { windowStart, windowEnd } = getWeeklyWindow(new Date('2026-12-07T17:30:00Z'));
+    expect(windowEnd.toISOString()).toBe('2026-12-07T17:30:00.000Z');
+    expect(windowStart.toISOString()).toBe('2026-11-30T17:30:00.000Z');
   });
 
   it('formats counts, ages, and averages', () => {
@@ -63,7 +85,7 @@ describe('supermodStatusFormat', () => {
   });
 
   it('formats the daily and weekly Slack messages', () => {
-    const windowEnd = pacificWallTimeToUtc(2026, 3, 9, 9, 30);
+    const windowEnd = new Date('2026-03-09T16:30:00Z');
     const windowStart = addPacificDays(windowEnd, -7);
     const report: SupermodStatusReport = {
       windowStart,
@@ -76,14 +98,7 @@ describe('supermodStatusFormat', () => {
       remainingYesterdayPostsLate: 1,
       newWaitingUsers: 9,
       newWaitingPosts: 2,
-      oldestUser: {
-        displayName: 'Alice',
-        userId: 'aliceId',
-        reviewGroupLabel: 'new content',
-        ageMs: (2 * 24 * 60 * 60 * 1000) + (4 * 60 * 60 * 1000),
-      },
       averageProcessTimeMs: 1.4 * 24 * 60 * 60 * 1000,
-      maxProcessTimeMs: 6 * 24 * 60 * 60 * 1000,
       longestHandled: [],
       daysLate: [
         { days: 2, count: 3 },
@@ -113,7 +128,6 @@ describe('supermodStatusFormat', () => {
       usersHandled: [{ userId: '1', displayName: 'habryka', count: 80 }],
       postsReviewed: [{ userId: '2', displayName: 'ruby', count: 50 }],
       averageProcessTimeMs: 1.8 * 24 * 60 * 60 * 1000,
-      maxProcessTimeMs: (12 * 24 * 60 * 60 * 1000) + (3 * 60 * 60 * 1000),
       longestHandled: [{
         displayName: 'Alice',
         userId: 'aliceId',
@@ -126,6 +140,13 @@ describe('supermodStatusFormat', () => {
     expect(weeklyWithTwoMonths).toContain('Users: habryka: 80');
     expect(weeklyWithTwoMonths).toContain('Posts: ruby: 50');
     expect(weeklyWithTwoMonths).toContain('Avg time to process a user: 1.8 days');
+    expect(formatWeeklySupermodBlocks(report, lastTwoMonths)[1]).toMatchObject({
+      type: 'table',
+      rows: [
+        [{ text: 'Most late' }, { text: 'Wait' }, { text: 'Tab' }],
+        [{ type: 'rich_text', elements: [{ elements: [{ type: 'link', text: 'Alice' }] }] }, { text: '12d 3h' }, { text: 'Offboard?' }],
+      ],
+    });
     expect(weeklyWithTwoMonths).toContain('<https://www.lesswrong.com/admin/supermod?user=aliceId|Alice> — 12d 3h — Offboard?');
   });
 });
