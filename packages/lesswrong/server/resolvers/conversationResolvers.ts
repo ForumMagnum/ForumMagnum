@@ -2,7 +2,7 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting, isAF } from "@/lib/instanceSettings";
+import { adminAccountSetting } from "@/lib/instanceSettings";
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -123,7 +123,7 @@ export const conversationGqlMutations = {
       throw new Error("You must be logged in to do this");
     }
 
-    const afField = isAF() ? { af: true } : {};
+    const afField = context.forumType === 'AlignmentForum' ? { af: true } : {};
     const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
 
     // This is basically the `userGroupUntitledConversations` view plus the default view

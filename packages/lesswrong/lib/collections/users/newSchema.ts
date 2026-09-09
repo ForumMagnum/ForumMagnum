@@ -8,7 +8,6 @@ import {
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -4348,7 +4347,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF(),
+          af: context.forumType === 'AlignmentForum',
           context,
         });
       },

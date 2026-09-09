@@ -3,7 +3,7 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
@@ -118,8 +118,7 @@ export const welcomeMessageDelayer = new EventDebouncer({
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
-  // LW wants people to see site intro before posting
-  defaultTiming: () => isLW() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
+  defaultTiming: {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     backgroundTask(sendWelcomeMessageTo(userId));
@@ -255,9 +254,11 @@ export async function subscribeOnSignup(user: DbUser) {
   await utils.sendVerificationEmailConditional(user);
 }
 
-export async function sendWelcomingPM(user: DbUser) {
+export async function sendWelcomingPM(user: Pick<DbUser, '_id'>, context: ResolverContext) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
+    // LW wants people to see the site intro before posting.
+    timing: context.forumType === 'LessWrong' ? {type: "none"} : undefined,
   });
 }
 

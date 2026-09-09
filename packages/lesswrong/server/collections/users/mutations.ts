@@ -78,7 +78,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   }
 
   await subscribeOnSignup(documentWithId);
-  await sendWelcomingPM(documentWithId);
+  await sendWelcomingPM(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,

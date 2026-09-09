@@ -8,7 +8,7 @@ import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
@@ -1158,7 +1158,7 @@ function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: Db
   if (post.draft || !oldPost.draft) return false;
 
   // Skip for AF
-  if (!isLW()) return false;
+  if (context.forumType !== 'LessWrong') return false;
 
   // Not for event posts (which can legitimately have trivial bodies)
   if (post.isEvent) return false;

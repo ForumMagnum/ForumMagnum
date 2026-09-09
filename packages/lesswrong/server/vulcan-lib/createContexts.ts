@@ -1,10 +1,12 @@
 import { localeSetting } from '@/lib/instanceSettings';
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { getAllCollectionsByName } from "../collections/allCollections";
 import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";
 
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
   return {
+    forumType: forumTypeSetting.get(),
     userId: null,
     clientId: null,
     currentUser: null,
