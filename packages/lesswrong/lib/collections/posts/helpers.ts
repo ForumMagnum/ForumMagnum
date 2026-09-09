@@ -5,7 +5,6 @@ import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../us
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import { forumSelect } from '@/lib/forumTypeUtils';
 import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
 import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
@@ -547,14 +546,7 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
   return false;
 }
 
-export function getDefaultVotingSystem(forumType: ForumTypeString) {
-  return forumSelect({
-    EAForum: "eaEmojis",
-    LessWrong: "namesAttachedReactions",
-    AlignmentForum: "namesAttachedReactions",
-    default: "default",
-  }, forumType);
-}
+export const defaultVotingSystem = "namesAttachedReactions";
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
 

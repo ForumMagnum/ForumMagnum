@@ -27,7 +27,7 @@ import {
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
-  getDefaultVotingSystem,
+  defaultVotingSystem,
   type RSVPType,
   postGetAbsolutePageUrl,
 } from "./helpers";
@@ -1909,7 +1909,7 @@ const schema = {
       onCreate: async ({ document, context }) => {
         const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
-          : getDefaultVotingSystem(context.forumType);
+          : defaultVotingSystem;
 
         return votingSystem;
       },

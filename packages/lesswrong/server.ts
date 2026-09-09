@@ -11,7 +11,6 @@ import './lib/index';
 import './server/startupSanityChecks';
 
 import './server/postgresView';
-import './server/analytics/analyticsViews';
 
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';

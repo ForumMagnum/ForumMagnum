@@ -1,5 +1,3 @@
-import type { ForumTypeString } from '@/lib/instanceSettings';
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import type { ReasonReviewIsNeeded } from "@/server/callbacks/sunshineCallbackUtils";
 
@@ -131,7 +129,7 @@ export const MODERATOR_ACTION_TYPES = {
 export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 
 /** The max # of users an unapproved account is allowed to DM */
-export const getMaxAllowedContactsBeforeBlock = (forumType: ForumTypeString) => forumSelect({ EAForum: 4, default: 9 }, forumType);
+export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = 9;
 
 export const REVIEW_REASON_TO_MODERATOR_ACTION = {
   biography: UNREVIEWED_BIO_UPDATE,

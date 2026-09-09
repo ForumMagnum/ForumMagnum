@@ -7,7 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
-import CoreTagIcon, { getCoreTagIconMap } from '../tagging/CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import FormatDate from "../common/FormatDate";
 import ShowParentComment from "./ShowParentComment";
@@ -164,7 +164,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
   const parentTag = comment.tag;
-  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap(forumType)[parentTag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && coreTagIconMap[parentTag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   

@@ -1,5 +1,3 @@
-import { useForumType } from '@/components/hooks/useForumType';
-import type { ForumTypeString } from '@/lib/instanceSettings';
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
@@ -7,7 +5,6 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -65,22 +62,12 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   }
 }
 
-// TODO: Probably to be removed when Community becomes a tag
-const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includePersonal' | 'includeMeta'}> = {
-  LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
-  AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
-  EAForum: {humanName: 'Community', machineName: 'includeMeta'},
-  default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
-}
-const getIncludeExtra = (forumType: ForumTypeString) => forumSelect(forumIncludeExtra, forumType)
-
 const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdvanced=false}: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -154,14 +141,14 @@ const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdv
         />
       </span>
 
-      {/* Include personal blogposts (LW) or meta (EA Forum) */}
+      {/* Include personal blogposts */}
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[getIncludeExtra(forumType).machineName] ?? false}
-          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra(forumType).machineName]: !settings[getIncludeExtra(forumType).machineName] })}
-          label={getIncludeExtra(forumType).humanName}
-          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra(forumType).humanName}`}
+          value={settings.includePersonal ?? false}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, includePersonal: !settings.includePersonal })}
+          label="Personal Blogposts"
+          tooltip={`'${getArchiveRecommendationsName()}' will include Personal Blogposts`}
         />
       </span>
     </span>

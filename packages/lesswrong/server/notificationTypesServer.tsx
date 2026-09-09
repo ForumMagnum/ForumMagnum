@@ -16,7 +16,6 @@ import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSugg
 import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetAbsolutePageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
-import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../server/collections/tags/collection';
 import uniq from 'lodash/uniq';
@@ -451,15 +450,8 @@ export const NewUserNotification = createServerNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null,
 });
 
-const newMessageEmails: ForumOptions<string | null> = {
-  EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
-  default: null,
-}
-const forumNewMessageEmail = (context: ResolverContext) => forumSelect(newMessageEmails, context) ?? undefined
-
 export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
-  from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications, context }) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);

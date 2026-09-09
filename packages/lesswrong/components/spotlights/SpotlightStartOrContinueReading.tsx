@@ -1,11 +1,9 @@
-import { useForumType } from '@/components/hooks/useForumType';
 import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useSuspenseQuery } from '@/lib/crud/useQuery';
@@ -102,17 +100,11 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   spotlight: SpotlightDisplay
   firstPost: PostsList
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const firstPostSequenceId = spotlight.documentId;
 
-  const prefix = forumSelect({
-    EAForum: "Start with: ",
-    default: "First Post: "
-  }, forumType);
-
   return <div className={classNames(classes.firstPost, classes.root)}>
-    {prefix}<PostsTooltip post={firstPost}>
+    First Post: <PostsTooltip post={firstPost}>
       <Link to={postGetPageUrl(firstPost, firstPostSequenceId)}>{firstPost.title}</Link>
     </PostsTooltip>
   </div>

@@ -147,7 +147,7 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
   return fetch(`https://api.mymidjourney.ai/api/v1/midjourney/button`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+      'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({messageId, button})
@@ -193,7 +193,7 @@ async function checkOnJob(jobId: string): Promise<MyMidjourneyResponse | undefin
     const response = await fetch(`https://api.mymidjourney.ai/api/v1/midjourney/message/${jobId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
         'Content-Type': 'application/json'
       }
     })
@@ -224,7 +224,7 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
     const response = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/imagine', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({prompt: prompter(promptElement)})
@@ -272,7 +272,7 @@ async function generateCoverImages({limit = 2}: {
 
 // Exported to allow running manually with yarn repl
 export async function coverImages () {
-  if (!myMidjourneyAPIKeySetting.get()) {
+  if (!myMidjourneyAPIKeySetting.get("LessWrong")) {
     throw new Error('No MyMidjourney API key found!');
   }
   

@@ -1,12 +1,11 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
-import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
 import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
 import PostRecommendationsRepo from '@/server/repos/PostRecommendationsRepo';
 import { expiredRateLimitsReturnToReviewQueue } from '@/server/users/cron';
 import { updateScoreInactiveDocuments } from '@/server/votingCron';
-import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { maybeCreateSeasonalOpenThread } from '@/server/posts/seasonalOpenThreadCron';
 
 export async function GET(request: NextRequest) {
@@ -36,12 +35,5 @@ export async function GET(request: NextRequest) {
     await pruneOldPerfMetrics();
   }
 
-  // Maintain analytics views (EA Forum only)
-  // TODO: Retain the analytics pipeline for a possible LW/AF author-analytics port.
-  if (isEAForum()) {
-    // This is a fire-and-forget since the db queries take forever
-    maintainAnalyticsViews();
-  }
-  
   return new Response('OK', { status: 200 });
 }

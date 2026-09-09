@@ -258,13 +258,7 @@ export const ckEditorApiPrefixOverrideSetting = new PublicInstanceSetting<string
 export const ckEditorApiSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiSecretKey', null, "optional");
 
 
-export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>("elasticsearch.cloudId", null, "optional");
-
-export const elasticUsernameSetting = new PublicInstanceSetting<string | null>("elasticsearch.username", null, "optional");
-
-export const elasticPasswordSetting = new PublicInstanceSetting<string | null>("elasticsearch.password", null, "optional");
-
-export const searchOriginDate = new PublicInstanceSetting<string>("elasticsearch.searchOriginDate", "2014-06-01T01:00:00Z", "optional");
+export const searchOriginDate = "2003-01-01T01:00:00Z";
 
 // Database ID string that this config file should match with
 export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");

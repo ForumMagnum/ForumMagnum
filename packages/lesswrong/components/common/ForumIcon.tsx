@@ -1,10 +1,8 @@
 'use client';
-import { useForumType } from '@/components/hooks/useForumType';
 
 
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
@@ -497,13 +495,9 @@ const styles = defineStyles("ForumIcon", (_: ThemeType) => ({
 
 type IconClassName = "root"|"linkRotation"
 
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
-  },
+// Map icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: Partial<Record<ForumIconName, IconClassName>> = {
+  Link: "linkRotation",
 };
 
 type ForumIconProps = IconProps & {
@@ -535,7 +529,6 @@ const ForumIcon = ({
   className,
   ...props
 }: ForumIconProps) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const Icon = icons[icon];
   if (!Icon) {
@@ -544,7 +537,7 @@ const ForumIcon = ({
     return null;
   }
 
-  const customClassKey = forumSelect(CUSTOM_CLASSES, forumType)[icon];
+  const customClassKey = CUSTOM_CLASSES[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(
     className,

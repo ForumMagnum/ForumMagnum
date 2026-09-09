@@ -199,7 +199,7 @@ function acxMeetupProfileLookupKey(raw: string | undefined): string | null {
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }): Promise<Record<string, unknown> | undefined> {
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`,
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get("LessWrong")}`,
       { method: 'GET', redirect: 'follow' }
     );
     const responseData = await response.json();
@@ -507,7 +507,7 @@ async function runStage2(dir: string): Promise<boolean> {
     return false;
   }
 
-  const apiKey = mapsAPIKeySetting.get();
+  const apiKey = mapsAPIKeySetting.get("LessWrong");
   if (!apiKey) {
     console.log("  ERROR: Google Maps API key is not configured (googleMaps.apiKey setting).");
     return false;

@@ -30,9 +30,9 @@ export type CloudinaryCredentials = {
  * Credentials that can be spread into `cloudinary.v2` functions, like so: `cloudinary.v2.url(publicId, { ...credentials })`
  */
 const getCloudinaryCredentials = () => {
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
+  const cloudName = cloudinaryCloudNameSetting.get("LessWrong");
+  const apiKey = cloudinaryApiKey.get("LessWrong");
+  const apiSecret = cloudinaryApiSecret.get("LessWrong");
 
   if (!cloudName || !apiKey || !apiSecret) {
     // eslint-disable-next-line no-console
@@ -234,7 +234,7 @@ export async function getOrCreateCloudinaryImage({
  * their src updated.
  */
 function getImageUrlWhitelist() {
-  const localUploadUrl = ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get()
+  const localUploadUrl = ckEditorUploadUrlOverrideSetting.get("LessWrong") || ckEditorUploadUrlSetting.get("LessWrong")
   return [
     "cloudinary.com",
     "res.cloudinary.com",

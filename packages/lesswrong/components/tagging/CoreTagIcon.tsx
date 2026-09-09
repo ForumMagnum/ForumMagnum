@@ -1,73 +1,18 @@
-import { useForumType } from '@/components/hooks/useForumType';
-import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { FC, ReactNode } from 'react';
-import { DnaIcon } from '../icons/dnaIcon';
-import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
-import { CausePrioIcon } from '../icons/causePrioIcon';
-import { ScrollIcon } from '../icons/scrollIcon';
-import { BirdIcon } from '../icons/birdIcon';
-import { ChickenIcon } from '../icons/chickenIcon';
-import { ChoiceIcon } from '../icons/choiceIcon';
-import { AiIcon } from '../icons/aiIcon';
-import { GiveIcon } from '../icons/giveIcon';
-import { TelescopeIcon } from '../icons/telescopeIcon';
-import { GhdIcon } from '../icons/ghdIcon';
-import { GroupsIcon } from '../icons/groupsIcon';
-import { PolicyIcon } from '../icons/policyIcon';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import { LotusOutlineIcon } from '../icons/lotusIcon';
-import classNames from 'classnames';
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
 
-// Mapping from tag slug to icon
-export const getCoreTagIconMap = (forumType: ForumTypeString) => forumSelect<Record<string, FC<{className?: string}>>>({
-  EAForum: {
-    'biosecurity-and-pandemics': DnaIcon,
-    'existential-risk': MushroomCloudIcon,
-    'global-catastrophic-risk': MushroomCloudIcon, // (Possibly) replacing existential-risk
-    'cause-prioritization': CausePrioIcon,
-    'moral-philosophy': ScrollIcon,
-    'philosophy': ScrollIcon, // Replacing moral-philosophy
-    'wild-animal-welfare': BirdIcon,
-    'farmed-animal-welfare': ChickenIcon,
-    'animal-welfare': BirdIcon, // Replacing wild-animal-welfare and farmed-animal-welfare
-    'effective-altruism-groups': GroupsIcon,
-    'building-effective-altruism': GroupsIcon,
-    'community': LotusOutlineIcon,
-    'career-choice': ChoiceIcon,
-    'taking-action': ChoiceIcon, // Doesn't exist yet, but may be replacing career-choice
-    'ai-risk': AiIcon,
-    'ai-safety': AiIcon, // Replacing ai-risk
-    'global-health-and-development': GhdIcon,
-    'policy': PolicyIcon,
-    'effective-giving': GiveIcon,
-    'forecasting-and-estimation': TelescopeIcon,
-  },
-  default: {}
-}, forumType)
-
-const styles = defineStyles("CoreTagIcon", (theme: ThemeType) => ({
-  // prevent LotusOutlineIcon from having a fill
-  noFill: {
-    fill: 'none !important'
-  }
-}));
+// Mapping from tag slug to icon. LW and AF currently have no core-tag icons.
+export const coreTagIconMap: Record<string, FC<{className?: string}>> = {};
 
 const CoreTagIcon = ({tag, fallbackNode, className}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
 }) => {
-  const { forumType } = useForumType();
-  const classes = useStyles(styles);
-  const Icon = getCoreTagIconMap(forumType)[tag.slug]
+  const Icon = coreTagIconMap[tag.slug];
   if (!Icon) {
-    return fallbackNode ? <>{fallbackNode}</> : null
+    return fallbackNode ? <>{fallbackNode}</> : null;
   }
-  return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
+  return <Icon className={className} />;
 }
 
-export default CoreTagIcon
-
-
+export default CoreTagIcon;
