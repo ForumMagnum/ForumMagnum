@@ -1,6 +1,6 @@
-import type { ForumTypeString } from "@/lib/instanceSettings";
 'use client';
 
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React, { use, useMemo } from 'react';
 import { isServer } from '@/lib/executionEnvironment';
 import { yjsBinaryToHtml } from './yjsToHtml';
