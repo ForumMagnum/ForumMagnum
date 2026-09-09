@@ -126,7 +126,7 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   result: {
     position: "relative",
     scrollMarginBlock: '8px',
-    "&:hover, &:focus-within": {
+    "&:hover, &:focus-within, &[data-search-selected]": {
       backgroundColor: theme.palette.greyAlpha(0.12),
     },
     "& a": {

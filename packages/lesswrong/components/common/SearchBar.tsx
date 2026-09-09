@@ -25,6 +25,25 @@ import { useGlobalKeydown } from './withGlobalKeydown';
 
 const VirtualMenu = connectMenu(() => null);
 
+function getVisibleSearchResults(area: HTMLDivElement | null) {
+  return Array.from(area?.querySelectorAll<HTMLAnchorElement>(
+    '[data-search-result] a[href]'
+  ) ?? []).filter(result => result.getClientRects().length > 0);
+}
+
+function getSearchResultsSignature(results: HTMLAnchorElement[]) {
+  return JSON.stringify(results.map(result => [result.href, result.textContent]));
+}
+
+function selectSearchResult(area: HTMLDivElement | null, result: HTMLAnchorElement | undefined) {
+  area?.querySelectorAll('[data-search-selected]').forEach(previous => {
+    previous.removeAttribute('data-search-selected');
+  });
+  const row = result?.closest('[data-search-result]');
+  row?.setAttribute('data-search-selected', 'true');
+  row?.scrollIntoView({block: 'nearest'});
+}
+
 const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -196,6 +215,27 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   const [searchState, setSearchState] = useState<SearchState>({query: ""});
   const currentQuery = searchState.query ?? "";
   useEffect(() => {
+    if (!inputOpen) return;
+    const area = searchResultsArea.current;
+    let results = getVisibleSearchResults(area);
+    let signature = getSearchResultsSignature(results);
+    selectSearchResult(area, results[0]);
+
+    // Each index refreshes independently. Reset when its rendered results change,
+    // or when the content-kind filters change which results are visible.
+    const observer = new MutationObserver(() => {
+      const nextResults = getVisibleSearchResults(area);
+      const nextSignature = getSearchResultsSignature(nextResults);
+      if (nextSignature !== signature || nextResults.some((result, index) => result !== results[index])) {
+        results = nextResults;
+        signature = nextSignature;
+        selectSearchResult(area, results[0]);
+      }
+    });
+    if (area) observer.observe(area, {childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class', 'href']});
+    return () => observer.disconnect();
+  }, [currentQuery, inputOpen, searchResultsArea]);
+  useEffect(() => {
     if (inputOpen) inputAreaRef.current?.querySelector("input")?.focus();
   }, [inputOpen]);
   const navigate = useNavigate();
@@ -253,22 +293,20 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
     if (inputOpen && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
       && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       const input = inputAreaRef.current?.querySelector('input');
-      const results = Array.from(searchResultsArea.current?.querySelectorAll<HTMLAnchorElement>(
-        '[data-search-result] a[href]'
-      ) ?? []).filter(result => result.getClientRects().length > 0);
-      const currentIndex = results.findIndex(result => result === event.target);
-      if (event.target === input || currentIndex !== -1) {
+      const results = getVisibleSearchResults(searchResultsArea.current);
+      const focusedIndex = results.findIndex(result => result === event.target);
+      const currentIndex = event.target === input
+        ? results.findIndex(result => result.closest('[data-search-selected]'))
+        : focusedIndex;
+      if (event.target === input || focusedIndex !== -1) {
         event.preventDefault();
         event.stopPropagation();
-        if ((event.key === 'ArrowUp' && currentIndex === 0)
-          || (event.key === 'ArrowDown' && currentIndex === results.length - 1)) {
-          input?.focus();
-        } else {
-          const nextIndex = currentIndex === -1
-            ? (event.key === 'ArrowDown' ? 0 : results.length - 1)
-            : currentIndex + (event.key === 'ArrowDown' ? 1 : -1);
-          results[nextIndex]?.focus({preventScroll: true});
-        }
+        if (!results.length) return;
+        const nextIndex = currentIndex === -1
+          ? (event.key === 'ArrowDown' ? 0 : results.length - 1)
+          : (currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length;
+        selectSearchResult(searchResultsArea.current, results[nextIndex]);
+        input?.focus({preventScroll: true});
       }
     }
     if (event.key === 'Escape') {
@@ -278,7 +316,13 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
     }
     if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
       event.preventDefault();
-      handleSubmit();
+      const selectedResult = getVisibleSearchResults(searchResultsArea.current)
+        .find(result => result.closest('[data-search-selected]'));
+      if (selectedResult) {
+        selectedResult.click();
+      } else {
+        handleSubmit();
+      }
     }
   }
 
