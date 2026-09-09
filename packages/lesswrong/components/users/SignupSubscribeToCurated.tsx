@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -39,10 +38,7 @@ const SignupSubscribeToCurated = ({defaultValue, onChange}: {
   const classes = useStyles(styles);
   const [checked, setChecked] = useState(defaultValue);
 
-  // this component is not used in the EA Forum signup flow,
-  // but it does appear on the EA Forum via RecentDiscussionSubscribeReminder.tsx
-  const emailType = isLWorAF() ? 
-    'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
+  const emailType = 'Curated posts';
 
   return <div>
     <InputLabel className={classes.checkboxLabel}>
@@ -55,11 +51,9 @@ const SignupSubscribeToCurated = ({defaultValue, onChange}: {
         }}
       />
       Subscribe to {emailType}
-      {isLWorAF() && (
         <TooltipSpan title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
           <Info className={classes.infoIcon}/>
         </TooltipSpan>
-      )}
     </InputLabel>
   </div>
 }

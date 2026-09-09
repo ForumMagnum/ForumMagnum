@@ -1,4 +1,3 @@
-import { isEAForum } from './instanceSettings';
 import { pluralize } from './vulcan-lib/pluralize';
 
 const knownTagNames = ['tag', 'topic', 'concept', 'wikitag'];
@@ -21,4 +20,4 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
   return redirectPaths;
 };
 
-export const getCommunityPath = () => isEAForum() ? '/groups' : '/community';
+export const getCommunityPath = () => '/community';

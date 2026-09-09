@@ -5,14 +5,13 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
+export const getArchiveRecommendationsName = () => 'Archive Recommendations'
 
 const styles = defineStyles("RecommendationsAlgorithmPicker", (theme: ThemeType) => ({
   root: {
@@ -49,7 +48,6 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   currentUser: UsersCurrent|null,
   configName: string,
 }): DefaultRecommendationsAlgorithm {
-  if (isEAForum()) return defaultAlgorithmSettings
 
   if (settings) {
     return {

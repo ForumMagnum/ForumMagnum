@@ -10,7 +10,6 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
@@ -41,10 +40,6 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
   if (!post) return false;
   return !!post.hideCommentKarma;
 };
-
-function canReadUser(user: DbUser | null, comment: DbComment) {
-  return isEAForum() ? documentIsNotDeleted(user, comment) : true;
-}
 
 async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
   const { currentUser, Bookmarks } = context;
@@ -282,7 +277,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [canReadUser],
+      canRead: ["guests"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
@@ -292,7 +287,7 @@ const schema = {
   user: {
     graphql: {
       outputType: "User",
-      canRead: [canReadUser],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -1346,7 +1341,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (comment, args, context) => {
-        if (!isLWorAF()) return null;
         const { AutomatedContentEvaluations, Revisions } = context;
         const revisionIds = (await Revisions.find({
           documentId: comment._id,

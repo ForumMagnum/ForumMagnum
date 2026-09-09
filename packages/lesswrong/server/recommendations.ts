@@ -8,7 +8,6 @@ import {
   RecommendationsAlgorithm,
   recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
@@ -80,12 +79,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   }
   // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
-    if (isEAForum()) {
-      return {
-        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
-      }
-    }
     return {
       postedAt: {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
@@ -104,9 +97,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewNominations) {
-    if (isEAForum()) {
-      return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
-    }
     return {
       isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},

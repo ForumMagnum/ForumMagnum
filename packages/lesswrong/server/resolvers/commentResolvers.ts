@@ -4,7 +4,6 @@ import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schema
 import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { isLWorAF } from '../../lib/instanceSettings';
 import gql from 'graphql-tag';
 import { updateComment } from '../collections/comments/mutations';
 import { getEmbeddingsFromApi } from '../voyage/client';
@@ -27,7 +26,7 @@ const { Query: popularCommentsQuery, typeDefs: popularCommentsTypeDefs } = creat
     context: ResolverContext,
     limit: number,
   ): Promise<DbComment[]> => {
-    const recencyFactor = isLWorAF() ? 175_000 : 250_000;
+    const recencyFactor = 175_000;
     return context.repos.comments.getPopularComments({limit, recencyFactor});
   },
   cacheMaxAgeMs: 300000, // 5 mins

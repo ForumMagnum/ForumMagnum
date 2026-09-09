@@ -8,7 +8,7 @@ import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { isEAForum, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
@@ -880,10 +880,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
-  // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-  const noEmail = isEAForum()
-  ? false 
-  : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  const noEmail = !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
   if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   await utils.sendPostRejectionPM({

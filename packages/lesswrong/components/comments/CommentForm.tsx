@@ -12,7 +12,7 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { isAF, isLWorAF } from "@/lib/instanceSettings";
+import { isAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -379,7 +379,7 @@ export const CommentForm = ({
     return <Error404 />;
   }
 
-  const showAlignmentOptionsGroup = isLWorAF() && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
+  const showAlignmentOptionsGroup = formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 
   const submitElement = (
     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

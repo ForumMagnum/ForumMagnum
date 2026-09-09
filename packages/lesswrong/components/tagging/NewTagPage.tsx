@@ -2,14 +2,12 @@
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
 import { TagForm } from './TagForm';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -28,14 +26,6 @@ const TagEditFragmentUpdateMutation = gql(`
 export const styles = defineStyles("NewTagPage", (_theme: ThemeType) => ({
   root: {
     position: "relative",
-  },
-  guide: {
-    position: "absolute",
-    top: -50,
-    right: -300,
-    "@media (max-width: 1400px)": {
-      right: -240,
-    },
   },
 }));
 
@@ -110,11 +100,7 @@ const NewTagPage = () => {
           }}
         />
       )}
-      {isEAForum() &&
-        <div className={classes.guide}>
-          <NewTagInfoBox />
-        </div>
-      }
+
     </SingleColumnSection>
   );
 }

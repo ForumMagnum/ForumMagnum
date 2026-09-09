@@ -16527,17 +16527,6 @@ export type ArbitalPageRequestQueryVariables = Exact<{
 
 export type ArbitalPageRequestQuery = { __typename?: 'Query', ArbitalPageData: { __typename?: 'ArbitalPageData', title: string | null, html: string | null } | null };
 
-export type updateUserCommunityHomeMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserCommunityHomeMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersProfile
-    ) | null } | null };
-
 export type multiUserCommunityMapQueryQueryVariables = Exact<{
   selector?: InputMaybe<UserSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -23119,7 +23108,6 @@ export const SequencePreviewDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"SequencePr
 export const PostLinkPreviewCommentDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostLinkPreviewComment"),_1482,_o5(_7,[_o7(_8,_221,_1483,_1209)])),_146,_158,_61,_184]) as unknown as DocumentNode<PostLinkPreviewCommentQuery, PostLinkPreviewCommentQueryVariables>;
 export const PostLinkPreviewPostDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostLinkPreviewPost"),_1482,_o5(_7,[_o7(_8,_210,_1483,_1427)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<PostLinkPreviewPostQuery, PostLinkPreviewPostQueryVariables>;
 export const ArbitalPageRequestDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"ArbitalPageRequest"),[_o12(_989,_1484,_993)],_o5(_7,[_o7(_8,_o3(_3,"ArbitalPageData"),[_o8(_536,_o3(_3,"pageAlias"),_1484)],_o5(_7,[_14,_174]))]))]) as unknown as DocumentNode<ArbitalPageRequestQuery, ArbitalPageRequestQueryVariables>;
-export const updateUserCommunityHomeDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateUserCommunityHome"),_1196,_o5(_7,[_o7(_8,_1197,_1143,_o5(_7,[_o6(_8,_266,_1120)]))])),_61,_226,_907]) as unknown as DocumentNode<updateUserCommunityHomeMutation, updateUserCommunityHomeMutationVariables>;
 export const multiUserCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiUserCommunityMapQuery"),_1118,_o5(_7,[_o7(_8,_288,_1119,_o5(_7,[_o6(_8,_1026,_o5(_7,[_o4(_25,_886)])),_797]))])),_893]) as unknown as DocumentNode<multiUserCommunityMapQueryQuery, multiUserCommunityMapQueryQueryVariables>;
 export const multiLocalgroupCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiLocalgroupCommunityMapQuery"),_1377,_1486),_61,_415,_226,_418]) as unknown as DocumentNode<multiLocalgroupCommunityMapQueryQuery, multiLocalgroupCommunityMapQueryQueryVariables>;
 export const multiPostCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiPostCommunityMapQuery"),_1122,_1488),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<multiPostCommunityMapQueryQuery, multiPostCommunityMapQueryQueryVariables>;

@@ -7,7 +7,6 @@ import { htmlToTextDefault } from "../lib/htmlToText";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
-import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 // Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
 // eslint-disable-next-line no-restricted-imports
 import { type TiktokenModel } from "js-tiktoken/lite";
@@ -18,7 +17,7 @@ import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSch
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
 
-export const hasEmbeddingsForRecommendations = () => (isEAForum() || isLWorAF()) && !isE2E;
+export const hasEmbeddingsForRecommendations = () => !isE2E;
 
 const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";

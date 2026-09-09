@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { isEAForum, hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -384,9 +384,7 @@ function rejected(terms: CommentsViewTerms) {
 
 // As of 2021-10, JP is unsure if this is used
 function recentDiscussionThread(terms: CommentsViewTerms) {
-  // The forum has fewer comments, and so wants a more expansive definition of
-  // "recent"
-  const eighteenHoursAgo = moment().subtract(isEAForum() ? 36 : 18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -418,7 +416,7 @@ function postsItemComments(terms: CommentsViewTerms) {
       postId: terms.postId,
       deleted: false,
       postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
-      ...(!isEAForum() && {score: {$gt: 0}}),
+      score: {$gt: 0},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -510,18 +508,12 @@ function answersAndReplies(terms: CommentsViewTerms) {
 }
 
 function topShortform(terms: CommentsViewTerms) {
-  const shortformFrontpage =
-    isEAForum() && typeof terms.shortformFrontpage === "boolean"
-      ? {shortformFrontpage: terms.shortformFrontpage}
-      : {};
-
   return {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
       ...getPostedAtTimeRange(terms),
-      ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };

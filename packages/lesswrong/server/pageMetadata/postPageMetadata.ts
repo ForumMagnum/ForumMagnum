@@ -1,5 +1,5 @@
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
@@ -114,7 +114,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const ogUrl = postGetPageUrl(post, true);
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
-      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
+      const postNoIndex = post.noIndex || post.rejected;
       const noIndex = postNoIndex || commentId || options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);

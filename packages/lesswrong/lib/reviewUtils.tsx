@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
+import { isLW } from "./instanceSettings";
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment'; 
@@ -66,7 +66,7 @@ export function getReviewLink(year: string): string {
 
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const getReviewNameInSitu = () => isEAForum() ? 'Decade Review' : `${REVIEW_YEAR} Review`
+export const getReviewNameInSitu = () => `${REVIEW_YEAR} Review`
 
 export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
 
@@ -176,13 +176,13 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return isLWorAF() && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
+  return getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
-  if (!currentUser) return false;
-  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (!currentUser) return false
+  if (moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
+
   return true
 }
 
@@ -219,7 +219,7 @@ export const reviewExcludedPostIds = ['MquvZCGWyYinsN49c', '5n2ZQcbc7r4R8mvqc'];
 export function postEligibleForReview (post: PostsBase) {
   if (reviewExcludedPostIds.includes(post._id)) return false
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWorAF() && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
   if (post.shortform) return false
   return true
 }
@@ -236,8 +236,8 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
+
   return true
 }
 

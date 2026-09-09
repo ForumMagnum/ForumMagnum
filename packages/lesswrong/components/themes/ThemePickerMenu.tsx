@@ -1,7 +1,7 @@
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, getThemeMetadata, AbstractThemeOptions } from '../../themes/themeNames';
-import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { ThemeContext } from './useTheme';
 import { HomeDesignChatContext } from '../common/HomeDesignChatContext';
 import { useCurrentUser } from '../common/withUser';
@@ -38,6 +38,7 @@ const ThemePickerMenu = ({children}: {
   const navigate = useNavigate();
   const updateCurrentUser = useUpdateCurrentUser();
 
+  // TODO: Consider syncing theme preferences across devices on LW/AF; coordinate with ThemeContextProvider.
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
     if (isEAForum() && currentUser) {
       void updateCurrentUser({
@@ -74,7 +75,6 @@ const ThemePickerMenu = ({children}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {isLWorAF() &&
           <>
             {isLW() && <>
               <DropdownItem
@@ -95,7 +95,6 @@ const ThemePickerMenu = ({children}: {
               />
             )}
           </>
-        }
       </DropdownMenu>
     </Paper>
   );

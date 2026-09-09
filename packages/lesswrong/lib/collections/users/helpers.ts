@@ -1,4 +1,4 @@
-import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -82,14 +82,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 
-  // For the EA forum, return true if either:
-  // 1. the user is below the karma threshold, or
-  // 2. the user was created less than a week ago
-  if (isEAForum()) {
-    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
-  }
-
-  // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
+  // Only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
     return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
   }
@@ -484,7 +477,7 @@ export const socialMediaSiteNameToHref = (
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
-  const shortformName = isEAForum() ? "Quick takes" : "Shortform";
+  const shortformName = "Shortform";
 
   // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');

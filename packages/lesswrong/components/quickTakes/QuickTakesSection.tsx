@@ -1,5 +1,4 @@
 import React from "react";
-import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
@@ -8,7 +7,7 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
+import { quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import ExpandableSection from "../common/ExpandableSection";
@@ -35,22 +34,6 @@ const ShortformCommentsMultiQuery = gql(`
 `);
 
 const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
-  communityToggle: {
-    userSelect: "none",
-    cursor: "pointer",
-    "& .MuiIconButton-root": {
-      height: 0,
-      padding: 0,
-      color: theme.palette.grey[600],
-      transform: "scale(0.7) translate(-2px, -1px)",
-    },
-    "& .MuiIconButton-root.MuiCheckbox-checked": {
-      color: theme.palette.primary.main,
-    },
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
   list: {
     marginTop: 4,
     display: "flex",
@@ -97,7 +80,6 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
 }
 
 const QuickTakesSection = () => {
-  const classes = useStyles(styles);
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "quickTakes",
@@ -109,7 +91,6 @@ const QuickTakesSection = () => {
 
   const {
     expanded: showCommunity,
-    toggleExpanded: toggleShowCommunity,
   } = useExpandedFrontpageSection({
     section: "quickTakesCommunity",
     defaultExpanded: (currentUser: UsersCurrent | null) =>
@@ -133,28 +114,12 @@ const QuickTakesSection = () => {
 
   const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
 
-  const AfterTitleComponent = isEAForum() 
-    ? () => (
-      <LWTooltip
-        title='Show quick takes tagged "Community"'
-        placement="left"
-        hideOnTouchScreens
-      >
-        <div className={classes.communityToggle} onClick={toggleShowCommunity}>
-          <Checkbox checked={showCommunity} />
-          <span>Show community</span>
-        </div>
-      </LWTooltip>
-    )
-  : undefined;
-
   return <ExpandableSection
     pageSectionContext="quickTakesSection"
     expanded={expanded}
     toggleExpanded={toggleExpanded}
     title={title}
     afterTitleTo={afterTitleTo}
-    AfterTitleComponent={AfterTitleComponent}
   >
     <SuspenseWrapper name="QuickTakesSection">
       <QuickTakesSectionLoaded showCommunity={showCommunity}/>

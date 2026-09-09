@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ToCData, extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents } from "../../lib/tableOfContents";
+import { ToCData, extractTableOfContents, getTocAnswers, getTocComments } from "../../lib/tableOfContents";
 import { PostWithCommentCounts, getResponseCounts } from "../../lib/collections/posts/helpers";
 import { parseDocumentFromString } from "../../lib/domParser";
 
@@ -27,27 +27,23 @@ export const useDynamicTableOfContents = ({
     const { sections = [], html: tocHtml = null } =
       extractTableOfContents(parseDocumentFromString(html ?? '')) ?? {};
 
-    if (shouldShowTableOfContents({ sections, post })) {
-      if (!post) {
-        return {
-          html: tocHtml ?? null,
-          sections,
-        };
-      }
-
-      const answerSections = getTocAnswers({ post, answers });
-      sections.push(...answerSections);
-
-      const { commentCount } = getResponseCounts({ post, answers });
-      const commentsSection = getTocComments({ post, commentCount });
-      sections.push(...commentsSection);
-
+    if (!post) {
       return {
         html: tocHtml ?? null,
         sections,
       };
     }
 
-    return null;
+    const answerSections = getTocAnswers({ post, answers });
+    sections.push(...answerSections);
+
+    const { commentCount } = getResponseCounts({ post, answers });
+    const commentsSection = getTocComments({ post, commentCount });
+    sections.push(...commentsSection);
+
+    return {
+      html: tocHtml ?? null,
+      sections,
+    };
   }, [answers, html, post]);
 };

@@ -29,6 +29,7 @@ export const ThemeContextProvider = ({children}: {
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
+    // TODO: Keep this paired with ThemePickerMenu when considering account-synced themes for LW/AF.
     if (isEAForum()) {
       removeCookie(THEME_COOKIE, {path: "/"});
     } else {

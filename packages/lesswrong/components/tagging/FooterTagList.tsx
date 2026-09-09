@@ -4,7 +4,7 @@ import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUserId } from '../common/withUser';
-import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 import { getContentTypes } from '../posts/PostsPage/ContentType';
 import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
@@ -12,7 +12,7 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { adminAccountSetting, isLWorAF } from '../../lib/instanceSettings';
+import { adminAccountSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
@@ -233,18 +233,6 @@ const FooterTagList = ({
     setDisplayShowAllButton(false);
   }, [setShowAll, setDisplayShowAllButton]);
 
-  const tagIds = (results ? results.map((tagRel) => tagRel.tag?._id) : post.tags.map((tag) => tag._id)).filter(
-    Boolean
-  ) as string[];
-
-  useOnMountTracking({
-    eventType: "tagList",
-    eventProps: {tagIds},
-    captureOnMount: eventProps => eventProps.tagIds.length > 0,
-    // LW doesn't get a lot of use out of `tagListMounted` events and there are a lot of them
-    skip: isLWorAF() || !tagIds.length || loading
-  });
-
   // The fragment in this mutation must match the query above
   const [mutate] = useMutation(gql(`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
@@ -344,6 +332,10 @@ const FooterTagList = ({
   const currentYear = now.getFullYear(); // 2025
   const isRecent = postYear && ((currentYear - postYear) < 2);
 
+  const tagIds = (results ? results.map((tagRel) => tagRel.tag?._id) : post.tags.map((tag) => tag._id)).filter(
+    (tagId): tagId is string => !!tagId
+  );
+
   const innerContent = (
     <>
       {!tagRight && currentUserId && !hideAddTag && addTagButton}
@@ -369,9 +361,7 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {isLWorAF() && annualReviewMarketInfo && isRecent && (
-        <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
-      )}
+      {annualReviewMarketInfo && isRecent && <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />}
       {tagRight && currentUserId && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>

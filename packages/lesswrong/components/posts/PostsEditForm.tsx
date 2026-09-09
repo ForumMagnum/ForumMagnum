@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
@@ -16,7 +16,6 @@ import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import Error404 from "../common/Error404";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
-import PostsAcceptTos from "./PostsAcceptTos";
 import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import PostForm from "./PostForm";
@@ -28,14 +27,7 @@ import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
-import {
-  SHARE_POPUP_QUERY_PARAM,
-  CENTRAL_COLUMN_WIDTH,
-  RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
-  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-  RIGHT_COLUMN_WIDTH_XS,
-  sidenotesHiddenBreakpoint,
-} from './PostsPage/constants';
+import { CENTRAL_COLUMN_WIDTH, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -206,15 +198,6 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
-  const isDraft = document && document.draft;
-  const wasEverDraft = useRef(isDraft);
-
-  useEffect(() => {
-    if (wasEverDraft.current === undefined && isDraft !== undefined) {
-      wasEverDraft.current = isDraft;
-    }
-  }, [isDraft]);
-
   if (loading) {
     return <Loading/>
   }
@@ -262,7 +245,6 @@ const PostsEditFormInner = ({ documentId, version }: {
     <SideItemsContainer>
     <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
-        {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
@@ -283,15 +265,8 @@ const PostsEditFormInner = ({ documentId, version }: {
                   const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
-                  // If they are publishing a draft, show the share popup
-                  // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
-                  const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                  navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
-
-                  if (!showSharePopup) {
-                    flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
-                  }
+                  navigate({pathname: postGetPageUrl(post), search: ''});
+                  flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
                 }
               }}
               

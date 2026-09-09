@@ -6,10 +6,9 @@ import { useNavigate } from '../../lib/routeUtil';
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
-import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
-import { isEAForum, isLW } from '@/lib/instanceSettings';
+import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
+import { isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
-import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
@@ -230,19 +229,6 @@ const LocalGroupForm = ({
               field={field}
               label='Group Type:'
               options={localGroupTypeFormOptions}
-            />
-          )}
-        </form.Field>
-      </div>}
-
-      {isEAForum() && <div className={classes.fieldWrapper}>
-        <form.Field name="categories">
-          {(field) => (
-            <FormComponentMultiSelect
-              field={field}
-              label='Group type / intended audience:'
-              options={GROUP_CATEGORIES}
-              placeholder='Select all that apply'
             />
           )}
         </form.Field>

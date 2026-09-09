@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { reCaptchaSiteKeySetting, isAF } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -104,8 +104,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   returnTo?: string
 }) => {
   const classes = useStyles(styles);
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
-  const hasOauthSection = !isEAForum();
+  const hasSubscribeToCuratedCheckbox = !isAF();
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);
@@ -244,13 +243,13 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         {currentAction !== "signup" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span>}
         {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span>}
       </div>
-      {hasOauthSection && <>
+      <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
           <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
-      </>}
+      </>
       {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </ContentStyles>;

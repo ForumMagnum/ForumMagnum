@@ -1,7 +1,7 @@
 import moment from 'moment';
 import Notifications from '../../server/collections/notifications/collection';
 import Users from '../../server/collections/users/collection';
-import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
+import { reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { createNotification } from '../notificationCallbacksHelpers';
@@ -160,8 +160,7 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
     }
   }
 
-
-  if (!!newDocument.userId && isLWorAF() && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
+  if (!!newDocument.userId && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     backgroundTask(checkForStricterRateLimits(newDocument.userId, newDocument._id, vote.collectionName, context));
   }
 }
@@ -291,8 +290,6 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   const { Posts } = context;
 
-  // Forum gate
-  if (!isLWorAF()) return;
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here

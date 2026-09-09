@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { isLW } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -90,7 +90,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
   const PostBottomSecondaryVotingComponent = postBottomSecondaryVotingComponents[votingSystemName]?.() ?? null;
 
   return <>
-    {isLWorAF() && !post.shortform && !post.isEvent &&
+    {!post.shortform && !post.isEvent &&
       <SuspenseWrapper name="FooterTagList">
         <AnalyticsContext pageSectionContext="tagFooter">
           <div className={classes.footerTagList}>
@@ -102,7 +102,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
     {!post.shortform && isLW() &&
       <>
         <div className={classes.footerSection}>
-          <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>
+          <div className={classNames(classes.voteBottom, classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
               <PostsVote post={post} useHorizontalLayout={isFriendlyUI()} isFooter />
             </AnalyticsContext>
