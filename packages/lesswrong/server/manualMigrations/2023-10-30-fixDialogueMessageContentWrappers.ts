@@ -45,7 +45,7 @@ function revisionHasContentWrapper(revision: DbRevision) {
 }
 
 async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml: string) {
-  await saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await saveOrUpdateDocumentRevision(postId, migratedHtml, "LessWrong");
 
   const updatedContent = {
     content: {

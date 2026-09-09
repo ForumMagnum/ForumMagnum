@@ -79,7 +79,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       afCommentCount: afComments.length,
     },
     selector: { _id: postId }
-  }, createAnonymousContext()))
+  }, createAnonymousContext({ forumType: context.forumType })))
 }
 
 const utils = {
@@ -116,6 +116,7 @@ const utils = {
       const user = await Users.findOne(userId);
 
       await wrapAndSendEmail({
+        forumType: context.forumType,
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
@@ -183,9 +184,9 @@ const utils = {
       newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
-        createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
-        createNotifications({userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
-        createNotifications({userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
+        createNotifications({ context, userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
+        createNotifications({ context, userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
+        createNotifications({ context, userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
   
       notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
@@ -208,11 +209,11 @@ const utils = {
       // Filter out debate participants, since they get a different notification type
       // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
       const debateSubscriberIdsToNotify = difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
-      await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
+      await createNotifications({ context, userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
   
       // Handle debate participants
       const subscribedParticipantIds = intersection(debateSubscriberIds, debateParticipantIds);
-      await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
+      await createNotifications({ context, userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
   
       // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
       notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
@@ -252,7 +253,7 @@ const utils = {
         type: subscriptionTypes.newShortform
       })
       const userIdsSubscribedToShortform = usersSubscribedToShortform.map(u=>u._id);
-      await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
+      await createNotifications({ context, userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
       notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
     }
     
@@ -260,7 +261,7 @@ const utils = {
     // and of comment author (they could be replying in a thread they're subscribed to)
     const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
     if (postSubscriberIdsToNotify.length > 0) {
-      await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
+      await createNotifications({ context, userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
       notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
     }
     
@@ -283,6 +284,7 @@ const utils = {
       const subforumSubscriberIdsToNotify = difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
   
       await createNotifications({
+        context,
         userIds: subforumSubscriberIdsToNotify,
         notificationType: "newSubforumComment",
         documentType: "comment",
@@ -299,6 +301,7 @@ const utils = {
     const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
     const commentAuthorSubscriberIdsToNotify = difference(commentAuthorSubscriberIds, notifiedUsers)
     await createNotifications({
+      context,
       userIds: commentAuthorSubscriberIdsToNotify, 
       notificationType: 'newUserComment', 
       documentType: 'comment', 
@@ -335,7 +338,7 @@ const utils = {
       ...(action === 'rejected' ? { moderator: true } : {})
     };
 
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -470,7 +473,7 @@ const utils = {
           lastCommentedAt: new Date(lastCommentedAt),
         },
         selector: { _id: comment.postId }
-      }, createAnonymousContext()));
+      }, createAnonymousContext({ forumType: context.forumType })));
     }
     if (action === 'deleted') {
       backgroundTask(utils.commentsDeleteSendPMAsync(comment, currentUser, context));
@@ -497,7 +500,7 @@ export async function newCommentsRateLimit(newComment: CreateCommentDataInput, c
 }
 
 /* CREATE BEFORE */
-export async function assignPostVersion(comment: CreateCommentDataInput) {
+export async function assignPostVersion(comment: CreateCommentDataInput, context: ResolverContext) {
   if (!comment.postId) {
     return {
       ...comment,
@@ -506,6 +509,7 @@ export async function assignPostVersion(comment: CreateCommentDataInput) {
   }
   
   const post = await fetchFragmentSingle({
+    context,
     collectionName: "Posts",
     fragmentDoc: PostsRevision,
     currentUser: null,
@@ -548,7 +552,7 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
         shortformFeedId: post._id
       },
       selector: { _id: currentUser._id }
-    }, createAnonymousContext())
+    }, createAnonymousContext({ forumType: context.forumType }))
 
     return ({
       ...comment,
@@ -707,6 +711,7 @@ export async function updateDescendentCommentCountsOnCreate(comment: DbComment, 
 /* NEW AFTER */
 // Make users upvote their own new comments
 export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
+  const { context } = properties;
   const { context: { Comments, loaders } } = properties;
 
   const start = Date.now();
@@ -714,6 +719,7 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
   const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
+    context,
     document: comment,
     voteType: 'smallUpvote',
     collection: Comments,

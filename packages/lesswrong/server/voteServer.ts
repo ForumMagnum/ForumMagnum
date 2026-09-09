@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
@@ -5,7 +6,7 @@ import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { type VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
-import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
+import { createAdminContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING, VOTING_DISABLED } from "@/lib/collections/moderatorActions/constants";
@@ -246,7 +247,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
   skipRateLimits: boolean,
-  context?: ResolverContext,
+  context: ResolverContext,
   selfVote?: boolean,
 }): Promise<{
   /** The document with baseScore, extendedScore, etc updated */
@@ -263,9 +264,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   /** Whether to show the user a warning about voting too fast/etc. */
   showVotingPatternWarning: boolean,
 }> => {
-  if (!context)
-    context = createAnonymousContext();
-
   const { Posts } = context;
 
   const collectionName = collection.collectionName;
@@ -677,9 +675,9 @@ export async function silentlyReverseVote(vote: DbVote, context: ResolverContext
   }
 }
 
-export async function nullifyVotesForUserAndCollection(user: DbUser, collection: CollectionBase<VoteableCollectionName>) {
+export async function nullifyVotesForUserAndCollection(user: DbUser, collection: CollectionBase<VoteableCollectionName>, forumType: ForumTypeString) {
   const collectionName = capitalize(collection.collectionName);
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,

@@ -150,12 +150,12 @@ const getEmbeddingsForComments = async (
   }));
 };
 
-export const updateCommentEmbeddings = async (commentId: string) => {
+export const updateCommentEmbeddings = async (commentId: string, forumType: ForumTypeString) => {
   if (isAnyTest) {
     return;
   }
   
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const { repos } = context;
   const apolloClient = await getApolloClientForSSRWithContext(context);
 
@@ -184,8 +184,8 @@ const batchUpdateCommentEmbeddings = async (comments: EmbeddingCommentInfo[], co
   await Promise.all(updates);
 };
 
-export const updateMissingCommentEmbeddings = async () => {
-  const context = createAdminContext();
+export const updateMissingCommentEmbeddings = async (forumType: ForumTypeString) => {
+  const context = createAdminContext({ forumType });
   const { repos } = context;
 
   const apolloClient = await getApolloClientForSSRWithContext(context);

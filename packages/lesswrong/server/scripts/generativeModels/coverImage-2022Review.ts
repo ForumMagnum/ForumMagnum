@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 // eslint-disable-next-line no-restricted-imports
 import OpenAI from 'openai';
 import ReviewWinners from '../../../server/collections/reviewWinners/collection.ts';
@@ -73,6 +74,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
 
   const essays = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: {$in: postsToFind.map(p => p.postId)}},

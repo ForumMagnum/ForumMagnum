@@ -78,7 +78,7 @@ export async function flagOrBlockUserOnManyDMs({
       usersContactedBeforeReview: allUsersEverContacted,
     },
     selector: { _id: currentUser._id }
-  }, createAnonymousContext()));
+  }, createAnonymousContext({ forumType: context.forumType })));
   
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')
@@ -101,7 +101,7 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    const adminAccountContext = computeContextFromUser({ user: adminAccount, isSSR: context.isSSR });
+    const adminAccountContext = computeContextFromUser({ user: adminAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     await createMessage({
       data: {
@@ -140,6 +140,6 @@ export async function conversationEditNotification(
     // Notify newly added users of the most recent message
     const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
     if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
-      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+      await createNotifications({ context, userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
   }
 }

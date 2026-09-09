@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { NextRequest } from 'next/server';
 import { sendCurationEmails } from '@/server/curationEmails/cron';
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: getForumTypeForRequest(request) });
 
   const isTestServer = testServerSetting.get(context);
 
@@ -28,12 +29,12 @@ export async function GET(request: NextRequest) {
 
   // Debounced event handler
   if (!isTestServer) {
-    tasks.push(getLockOrAbort('dispatchPendingEvents', dispatchPendingEvents));
+    tasks.push(getLockOrAbort('dispatchPendingEvents', dispatchPendingEvents.bind(null, context.forumType)));
   }
 
   // Check upcoming event emails
   if (!isTestServer) {
-    await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails);
+    await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails.bind(null, context.forumType));
   }
 
   // Update score active documents (runs regardless of test server setting)

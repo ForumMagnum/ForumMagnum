@@ -11,9 +11,9 @@ interface RawAnalyticsRow {
   event: Record<string, unknown>;
 }
 
-async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string>> {
+async function getPostAuthorNames(postIds: string[], forumType: ForumTypeString): Promise<Map<string, string>> {
   if (postIds.length === 0) return new Map();
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType });
   const posts = await context.Posts.find(
     { _id: { $in: postIds } },
     undefined,
@@ -31,9 +31,9 @@ async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string
   return new Map(posts.map(p => [p._id, userNames.get(p.userId) ?? "Unknown user"]));
 }
 
-async function getUserNames(userIds: string[]): Promise<Map<string, string>> {
+async function getUserNames(userIds: string[], forumType: ForumTypeString): Promise<Map<string, string>> {
   if (userIds.length === 0) return new Map();
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType });
   const users = await context.Users.find(
     { _id: { $in: userIds } },
     undefined,
@@ -178,8 +178,8 @@ export async function postAiEditorUsageToSlack(forumType: ForumTypeString) {
   )];
   
   const [postAuthorNames, directUserNames] = await Promise.all([
-    getPostAuthorNames(postIds),
-    getUserNames(userIds),
+    getPostAuthorNames(postIds, forumType),
+    getUserNames(userIds, forumType),
   ]);
 
   const byAuthorName = new Map<string, RawAnalyticsRow[]>();

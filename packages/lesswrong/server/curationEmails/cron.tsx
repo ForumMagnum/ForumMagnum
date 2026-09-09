@@ -59,6 +59,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   // Send emails to all users in parallel
   await executePromiseQueue(users.map((user) => async () => {
     await wrapAndSendEmail({
+      forumType: "LessWrong",
       user,
       subject: subject ?? post.title,
       body: (emailContext) => <PostsEmail postIds={[post._id]} reason={reason} emailContext={emailContext}/>

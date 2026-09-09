@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -5,7 +6,7 @@ import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
-type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
+type DebouncerCallback<KeyType> = (key: KeyType, events: string[], forumType: ForumTypeString) => void | Promise<void>;
 
 export type DebouncerTiming =
     { type: "none" }
@@ -156,12 +157,12 @@ export class EventDebouncer<KeyType = string>
     }
   }
   
-  _dispatchEvent = async (key: KeyType, events: string[]|null) => {
+  _dispatchEvent = async (key: KeyType, events: string[]|null, forumType: ForumTypeString) => {
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
-    await this.callback(key, events||[]);
+    await this.callback(key, events||[], forumType);
   };
 }
 
@@ -202,11 +203,10 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
   
-  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
+  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents, event.af ? "AlignmentForum" : "LessWrong");
 }
 
-export const dispatchPendingEvents = async () => {
-  const forumType = forumTypeSetting.get();
+export const dispatchPendingEvents = async (forumType: ForumTypeString) => {
   const now = new Date();
   let eventToHandle: any = null;
   

@@ -189,6 +189,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const oldRevisionId = (document as AnyBecauseHard)?.[`${fieldName}_latest`];
     const oldRevision = oldRevisionId
       ? await fetchFragmentSingle({
+        context,
         collectionName: "Revisions",
         fragmentDoc: RevisionMetadata,
         selector: {_id: oldRevisionId},
@@ -294,13 +295,13 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
 // createAfter
 async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionNameString>(
   newDocument: ObjectsByCollectionName[N],
-  { currentUser }: AfterCreateCallbackProperties<N>,
+  { currentUser, context }: AfterCreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
   const { pingbacks = false, collectionName } = options;
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, context)
   }
 
   return newDocument
@@ -315,7 +316,7 @@ async function notifyUsersAboutPingbackMentionsInUpdate<N extends CollectionName
   const { pingbacks = false, collectionName } = options;
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, oldDocument as PingbackDocumentPartial)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, context, oldDocument as PingbackDocumentPartial)
   }
 
   return newDocument

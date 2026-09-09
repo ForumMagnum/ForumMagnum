@@ -399,7 +399,7 @@ export const graphqlMutations = {
       if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
         const newPartiallyRead = currentUser.partiallyReadSequences.filter(
           (s)=>s.nextPostId !== postId);
-        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead, context.forumType);
         return true;
       }
       return false;

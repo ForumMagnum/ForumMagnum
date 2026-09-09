@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createAdminContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import Revisions from '../../server/collections/revisions/collection';
@@ -55,7 +56,7 @@ async function wrapMessageContents(dialogue: PostsOriginalContents) {
 }
 
 async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string, ckEditorId: string) {
-  await saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await saveOrUpdateDocumentRevision(postId, migratedHtml, "LessWrong");
 
   try {
     //Repeated twice because ckEditor is bad at their jobs. Without this, 
@@ -102,6 +103,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
 
 export const migrateDialogue = async (postId: string) => {
   const dialogue = await fetchFragmentSingle({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsOriginalContents,
     selector: {_id: postId},
@@ -117,6 +119,7 @@ export default registerMigration({
   idempotent: true,
   action: async () => {
     const dialogues = await fetchFragment({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsOriginalContents,
       selector: {collabEditorDialogue: true},

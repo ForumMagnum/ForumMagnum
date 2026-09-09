@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import moment from "moment";
 import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
 import { isLowAverageKarmaContent, isActionActive, getCurrentContentCount } from "../../lib/collections/moderatorActions/helpers";
@@ -114,9 +115,9 @@ function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbP
     return (user.karma) < -5;
 }
 
-async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type'], forumType: ForumTypeString) {
   const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const { ModeratorActions } = context;
 
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
@@ -144,9 +145,9 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
   }
 }
 
-async function disableModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+async function disableModerationAction(userId: string, warningType: DbModeratorAction['type'], forumType: ForumTypeString) {
   const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const { ModeratorActions } = context;
 
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
@@ -161,11 +162,11 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
 /**
  * Enables or disables a moderator action on a specific user, based on a conditional
  */
-function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type']) {
+function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type'], forumType: ForumTypeString) {
   if (triggerAction) {
-    backgroundTask(triggerModerationAction(userId, actionType));
+    backgroundTask(triggerModerationAction(userId, actionType, forumType));
   } else {
-    backgroundTask(disableModerationAction(userId, actionType));
+    backgroundTask(disableModerationAction(userId, actionType, forumType));
   }
 }
 
@@ -211,7 +212,7 @@ export async function triggerAutomodIfNeededForUser(user: DbUser, context: Resol
     return
   }
   const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
-  handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT);
+  handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT, context.forumType);
 
   // Remove the most recent content item for each rule
   // Since posts & comments start by default without much karma, they artificially down-weight averages
@@ -235,9 +236,9 @@ export async function triggerAutomodIfNeededForUser(user: DbUser, context: Resol
   const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(unmoderatedLatestComments, 'comment');
   const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(unmoderatedLatestPosts, 'post');
 
-  handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
-  handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
-  handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
+  handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT, context.forumType);
+  handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT, context.forumType);
+  handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT, context.forumType);
 }
 
 export async function triggerAutomodIfNeeded(userId: string, context: ResolverContext) {
@@ -248,10 +249,10 @@ export async function triggerAutomodIfNeeded(userId: string, context: ResolverCo
   await triggerAutomodIfNeededForUser(user, context);
 }
 
-export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
+export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote, forumType: ForumTypeString) {
   const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
 
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const { Votes, CommentModeratorActions } = context;
   const commentId = comment._id;
 

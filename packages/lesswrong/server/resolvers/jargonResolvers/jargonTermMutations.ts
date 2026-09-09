@@ -316,6 +316,7 @@ const processedTerms = (jargonTerms: DbJargonTerm[]) => {
 
 export const createNewJargonTerms = async ({ postId, currentUser, context, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
+    context,
     collectionName: 'Posts',
     fragmentDoc: PostsPage,
     currentUser,
@@ -349,7 +350,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
       const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams }, context.forumType);
 
       const botAccount = await getAdminTeamAccount(context);
-      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false });
+      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false, forumType: context.forumType });
       
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>

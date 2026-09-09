@@ -115,7 +115,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-  data = await assignPostVersion(data);
+  data = await assignPostVersion(data, context);
   data = await createShortformPost(data, callbackProps);
   data = addReferrerToComment(data, callbackProps) ?? data;
   data = await handleReplyToAnswer(data, callbackProps);
@@ -170,7 +170,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   });
 
   if (!documentWithId.draft) {
-    backgroundTask(updateCommentEmbeddings(documentWithId._id));
+    backgroundTask(updateCommentEmbeddings(documentWithId._id, context.forumType));
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
@@ -229,7 +229,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   // There really has to be a currentUser here.
   await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
-  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
@@ -241,7 +241,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   }
 
   if (!updatedDocument.draft) {
-    backgroundTask(updateCommentEmbeddings(updatedDocument._id));
+    backgroundTask(updateCommentEmbeddings(updatedDocument._id, context.forumType));
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));

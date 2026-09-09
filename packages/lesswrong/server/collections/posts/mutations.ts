@@ -180,9 +180,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   }
 
   // former newAsync callbacks
-  await sendUsersSharedOnPostNotifications(documentWithId);
+  await sendUsersSharedOnPostNotifications(documentWithId, context);
   if (hasEmbeddingsForRecommendations()) {
-    await updatePostEmbeddingsOnChange(documentWithId, undefined);
+    await updatePostEmbeddingsOnChange(documentWithId, context);
 
     if (!documentWithId.draft) {
       await maybeAutoFrontpagePost(documentWithId._id, context);
@@ -263,7 +263,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // former updateAsync callbacks
   await eventUpdatedNotifications(updateCallbackProperties);
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
-  await updatePostEmbeddingsOnChange(updatedDocument, updateCallbackProperties.oldDocument);
+  await updatePostEmbeddingsOnChange(updatedDocument, context, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
   await maybeSendRejectionPM(updateCallbackProperties);
   await updateUserNotesOnPostDraft(updateCallbackProperties);
@@ -273,7 +273,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   // former editAsync callbacks
   await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
-  sendPostApprovalNotifications(updatedDocument, oldDocument);
+  sendPostApprovalNotifications(updatedDocument, oldDocument, context);
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
@@ -284,8 +284,8 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendLWAFPostCurationEmails(updatedDocument, oldDocument, context);
   await purgeCurationEmailQueueWhenUncurating(updatedDocument, oldDocument);
 
-  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
-  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
+  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument, context);
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
   await updatePostShortform(updatedDocument, oldDocument, context);
   await updateCommentHideKarma(updatedDocument, oldDocument, context);
   await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);

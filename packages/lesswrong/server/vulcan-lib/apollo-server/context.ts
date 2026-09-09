@@ -10,6 +10,7 @@ import type { NextRequest } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { getUserFromReq } from './getUserFromReq';
 import { getForumTypeFromRequestData } from '@/server/utils/requestUtil';
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { forumTypeSetting } from '@/lib/forumTypeUtils';
 
 
@@ -49,7 +50,8 @@ export function requestIsFromIssaRiceReader(headers?: Headers): boolean {
   return requestIsFromUserAgent(headers, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
-export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR}: {
+export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR, forumType: explicitForumType}: {
+  forumType?: ForumTypeString,
   user: DbUser|null,
   headers?: Headers,
   searchParams?: URLSearchParams,
@@ -58,9 +60,9 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
 }): ResolverContext => {
   const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
-  const forumType = headers || cookies
+  const forumType = explicitForumType ?? (headers || cookies
     ? getForumTypeFromRequestData(headers, cookies)
-    : forumTypeSetting.get();
+    : forumTypeSetting.get());
   let context: ResolverContext = {
     forumType,
     ...getAllCollectionsByName(),

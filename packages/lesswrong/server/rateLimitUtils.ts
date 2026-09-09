@@ -371,7 +371,7 @@ async function createModeratorActionForStricterRateLimit(userId: string, autoRat
   const { createAdminContext } = await import("./vulcan-lib/createContexts");
   
   // Use admin context instead to avoid leaking bits about whose vote on this user triggered the stricter rate limit
-  const adminContext = createAdminContext();
+  const adminContext = createAdminContext({ forumType: context.forumType });
 
   await createModeratorAction({
     data: {

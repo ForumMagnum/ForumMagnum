@@ -94,7 +94,7 @@ export const conversationGqlMutations = {
       title
     }
 
-    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     const conversation = await createConversation({
       data: conversationData

@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { Posts } from '@/server/collections/posts/collection';
 import ResearchDocuments from '@/server/collections/researchDocuments/collection';
 import Revisions from '@/server/collections/revisions/collection';
@@ -114,8 +115,9 @@ async function saveLexicalDocumentRevision(
   postId: string,
   html: string,
   yjsStateBase64: string,
+  forumType: ForumTypeString,
 ): Promise<void> {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const fieldName = 'contents';
   const { user, isAdmin } = await getUserForSavedPost(postId, userId);
   const previousRev = await getLatestRev(postId, fieldName, context);
@@ -139,7 +141,7 @@ async function saveLexicalDocumentRevision(
         originalContents: newOriginalContents,
         user,
         isAdmin,
-        context,
+      context: createAdminContext({ forumType }),
       })),
       documentId: postId,
       fieldName,
@@ -173,6 +175,7 @@ export async function saveOrUpdateLexicalRevision(
   documentId: string,
   html: string,
   yjsStateBase64: string,
+  forumType: ForumTypeString,
 ): Promise<void> {
   if (collectionName === 'ResearchDocuments') {
     backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
@@ -185,7 +188,7 @@ export async function saveOrUpdateLexicalRevision(
   if (!post) {
     throw new Error(`saveOrUpdateLexicalRevision: no Posts document ${documentId}`);
   }
-  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64);
+  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64, forumType);
 }
 
 // Generate a title via Haiku only while the doc still has a null title — once
@@ -328,13 +331,14 @@ export interface HocuspocusCommentData {
 export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
+  forumType: ForumTypeString,
 ): Promise<void> {
   const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
   if (collectionName === 'ResearchDocuments') {
     // comment.added fires on the comments subdocument, named
     // "research-doc-{id}/comments"; the owning document id is the segment
     // before the slash.
-    await handleResearchDocumentCommentAdded(documentId.split('/')[0], comment);
+    await handleResearchDocumentCommentAdded(documentId.split('/')[0], comment, forumType);
     return;
   }
   if (collectionName !== 'Posts') {
@@ -368,6 +372,7 @@ export async function handleCommentAdded(
   console.log(`[HocuspocusWebhook] Notifying users: ${JSON.stringify(usersToNotify)}`);
 
   await createNotifications({
+    context: createAdminContext({ forumType }),
     userIds: usersToNotify,
     notificationType: 'newCommentOnDraft',
     documentType: 'post',
@@ -395,6 +400,7 @@ export async function handleCommentAdded(
 async function handleResearchDocumentCommentAdded(
   researchDocumentId: string,
   comment: HocuspocusCommentData,
+  forumType: ForumTypeString,
 ): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(`[HocuspocusWebhook] Comment added on research document ${researchDocumentId} by ${comment.authorId}`);
@@ -403,7 +409,7 @@ async function handleResearchDocumentCommentAdded(
   if (!document) {
     throw new Error(`Couldn't find research document for Hocuspocus comment notification: ${researchDocumentId}`);
   }
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const project = await context.ResearchProjects.findOne({ _id: document.projectId });
 
   const candidateUserIds = [

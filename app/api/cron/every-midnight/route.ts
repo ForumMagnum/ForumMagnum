@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
   const postRecommendationsRepo = new PostRecommendationsRepo();
   await postRecommendationsRepo.clearStaleRecommendations();
 
-  await expiredRateLimitsReturnToReviewQueue();
+  await expiredRateLimitsReturnToReviewQueue(forumType);
 
   await updateScoreInactiveDocuments();
 
-  const openThreadResult = await maybeCreateSeasonalOpenThread();
+  const openThreadResult = await maybeCreateSeasonalOpenThread(new Date(), forumType);
   if (openThreadResult.status !== "not_due" && openThreadResult.status !== "not_lesswrong") {
     // eslint-disable-next-line no-console
     console.log("// Seasonal open thread:", openThreadResult);

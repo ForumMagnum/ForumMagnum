@@ -36,7 +36,7 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
-import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts.ts";
 import { getCollection } from "@/server/collections/allCollections";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createTag, updateTag } from '@/server/collections/tags/mutations';
@@ -1230,6 +1230,7 @@ async function convertLikesToVotes(conversionContext: ArbitalConversionContext, 
     }
     
     const { vote } = await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }),
       collection,
       user,
       voteType: "bigUpvote",

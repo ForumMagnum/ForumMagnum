@@ -44,8 +44,8 @@ import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } fr
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 
-async function sendWelcomeMessageTo(userId: string) {
-  const context = createAnonymousContext();
+async function sendWelcomeMessageTo(userId: string, forumType: ForumTypeString) {
+  const context = createAnonymousContext({ forumType });
   const postId = welcomeEmailPostId.get(context);
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
@@ -53,6 +53,7 @@ async function sendWelcomeMessageTo(userId: string) {
     return;
   }
   const welcomePost = await fetchFragmentSingle({
+    context,
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: postId},
@@ -86,7 +87,7 @@ async function sendWelcomeMessageTo(userId: string) {
     title: subjectLine,
   }
 
-  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR });
+  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR, forumType: context.forumType });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
@@ -104,6 +105,7 @@ async function sendWelcomeMessageTo(userId: string) {
   await createMessage({ data: messageDocument }, adminAccountContext);
   
   await wrapAndSendEmail({
+    forumType,
     user,
     subject: subjectLine,
     body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
@@ -120,14 +122,15 @@ export const welcomeMessageDelayer = new EventDebouncer({
   // particular moment could be bad.
   defaultTiming: {type: "delayed", delayMinutes: 5},
   
-  callback: (userId: string) => {
-    backgroundTask(sendWelcomeMessageTo(userId));
+  callback: (userId: string, events, forumType) => {
+    backgroundTask(sendWelcomeMessageTo(userId, forumType));
   },
 });
 
 async function sendVerificationEmail(user: DbUser, forumType: ForumTypeString) {
   const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id, forumType);
   await wrapAndSendEmail({
+    forumType,
     user,
     force: true,
     subject: `Verify your ${forumTitleSetting.get(forumType)} email`,
@@ -203,7 +206,7 @@ const utils = {
   sendVerificationEmailConditional: async (user: DbUser, forumType: ForumTypeString) => {
     if (!isAnyTest) {
       backgroundTask(sendVerificationEmail(user, forumType));
-      await bellNotifyEmailVerificationRequired(user);
+      await bellNotifyEmailVerificationRequired(user, createAnonymousContext({ forumType }));
     }
   },
 };
@@ -256,6 +259,7 @@ export async function subscribeOnSignup(user: DbUser, forumType: ForumTypeString
 export async function sendWelcomingPM(user: Pick<DbUser, '_id'>, context: ResolverContext) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
+    af: context.forumType === "AlignmentForum",
     // LW wants people to see the site intro before posting.
     timing: context.forumType === 'LessWrong' ? {type: "none"} : undefined,
   });
@@ -396,7 +400,7 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
 
 export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
-    await nullifyVotesForUser(newDocument);
+    await nullifyVotesForUser(newDocument, context.forumType);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     backgroundTask(userDeleteContent(newDocument, currentUser, context));
@@ -464,7 +468,7 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext());
+    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext({ forumType: context.forumType }));
   }
 }
 
@@ -511,7 +515,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       title: `Welcome to the AI Alignment Forum!`
     }
 
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
     const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =
@@ -546,7 +550,7 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
     if (newUser.shortformFeedId) {
       await updatePost({ data: {
         af: true
-      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
+      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext({ forumType: context.forumType }))
     }
   }
 }

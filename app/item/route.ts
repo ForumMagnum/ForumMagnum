@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import Posts from "@/server/collections/posts/collection";
 import Comments from "@/server/collections/comments/collection";
 import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     return new Response('No ID provided', { status: 400 });
   }
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: getForumTypeForRequest(req) });
 
   const post = await findPostByLegacyAFId(parseInt(id));
   if (post) {

@@ -130,8 +130,8 @@ export function ckEditorDocumentIdToPostId(ckEditorId: string) {
   }
 }
 
-export async function saveDocumentRevision(userId: string, documentId: string, html: string) {
-  const context = createAdminContext();
+export async function saveDocumentRevision(userId: string, documentId: string, html: string, forumType: ForumTypeString) {
+  const context = createAdminContext({ forumType });
   const fieldName = "contents";
   const {user, isAdmin} = await getUserForSavedPost(documentId, userId);
   const previousRev = await getLatestRev(documentId, fieldName, context);
@@ -195,8 +195,8 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
   };
 }
 
-export async function saveOrUpdateDocumentRevision(postId: string, html: string) {
-  const context = createAdminContext();
+export async function saveOrUpdateDocumentRevision(postId: string, html: string, forumType: ForumTypeString) {
+  const context = createAdminContext({ forumType });
   const fieldName = "contents";
   const previousRev = await getLatestRev(postId, fieldName, context);
   
@@ -231,12 +231,12 @@ export async function saveOrUpdateDocumentRevision(postId: string, html: string)
     const post = await Posts.findOne(postId);
     const userId = post!.userId;
     // Create a new rev
-    await saveDocumentRevision(userId, postId, html);
+    await saveDocumentRevision(userId, postId, html, forumType);
   }
 }
 
-export async function endCkEditorUserSession(documentId: string, endedBy: string, endedAt: Date = new Date()) {
-  const adminContext = createAdminContext();
+export async function endCkEditorUserSession(documentId: string, endedBy: string, forumType: ForumTypeString, endedAt: Date = new Date()) {
+  const adminContext = createAdminContext({ forumType });
 
   return updateCkEditorUserSession({
     data: { endedAt, endedBy },
@@ -356,7 +356,7 @@ export async function flushAndUpgradeCkEditorCollaboration(ckEditorId: string) {
   }
   
   const postId = ckEditorDocumentIdToPostId(ckEditorId);
-  await pushRevisionToCkEditor(postId, html);
+  await pushRevisionToCkEditor(postId, html, "LessWrong");
 }
 
 export async function flushAndUpgradeAllCkEditorCollaborations() {
@@ -502,14 +502,14 @@ export async function createRemoteStorageDocument(document: CreateDocumentPayloa
 // open and may or may not be stored yet in CkEditor's cloud, push a revision,
 // overwriting whatever's currently there.
 // (This is used when reverting through the revision-history UI.)
-export async function pushRevisionToCkEditor(postId: string, html: string) {
+export async function pushRevisionToCkEditor(postId: string, html: string, forumType: ForumTypeString) {
   // eslint-disable-next-line no-console
   console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html.slice(0, 100)}`);
   const ckEditorId = postIdToCkEditorDocumentId(postId);
   
   // Check for unsaved changes and save them first
   const latestHtml = await fetchCkEditorCloudStorageDocumentHtml(ckEditorId);
-  await saveOrUpdateDocumentRevision(postId, latestHtml);
+  await saveOrUpdateDocumentRevision(postId, latestHtml, forumType);
   
   // End the collaboration session so that we can restart with new contents
   // To do this we have to delete *both* the document and the collaboration.

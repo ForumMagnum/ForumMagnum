@@ -1,3 +1,5 @@
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Posts from "../server/collections/posts/collection";
 import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
 import PostsRepo from "./repos/PostsRepo";
@@ -180,8 +182,10 @@ type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 
 const getEmbeddingsForPost = async (
   postId: string,
+  forumType: ForumTypeString,
 ): Promise<EmbeddingsWithHash> => {
   const post = await fetchFragmentSingle({
+    context: createAnonymousContext({ forumType }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: postId},
@@ -215,18 +219,19 @@ const getEmbeddingsForPosts = async (
 }
 
 // Exported to allow running manually with yarn repl
-export const updatePostEmbeddings = async (postId: string) => {
+export const updatePostEmbeddings = async (postId: string, forumType: ForumTypeString) => {
   if (!isEmbeddingsAPIEnabled()) {
     return;
   }
-  const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
+  const {hash, embeddings, model} = await getEmbeddingsForPost(postId, forumType);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
 }
 
-const batchUpdatePostEmbeddings = async (postIds: string[]) => {
+const batchUpdatePostEmbeddings = async (postIds: string[], forumType: ForumTypeString) => {
   const repo = new PostEmbeddingsRepo();
   const posts = await fetchFragment({
+    context: createAnonymousContext({ forumType }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: {$in: postIds}},
@@ -247,7 +252,7 @@ export const updateAllPostEmbeddings = async () => {
       // eslint-disable-next-line no-console
       console.log("Processing next batch")
       try {
-        await batchUpdatePostEmbeddings(posts.map(({_id}) => _id));
+        await batchUpdatePostEmbeddings(posts.map(({_id}) => _id), "LessWrong");
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error", e);
@@ -262,7 +267,7 @@ export const updateMissingPostEmbeddings = async () => {
 
   for (const idBatch of chunk(ids, 50)) {
     try {
-      await batchUpdatePostEmbeddings(idBatch);
+      await batchUpdatePostEmbeddings(idBatch, "LessWrong");
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });

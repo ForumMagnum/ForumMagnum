@@ -214,8 +214,10 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   }
 }
 
-export async function createEmailContext(user: DbUser|null, resolverContext?: ResolverContext) {
-  const resolverContextWithDefault = resolverContext ?? computeContextFromUser({ user, isSSR: false });
+export async function createEmailContext(user: DbUser|null, forumTypeOrContext: ForumTypeString | ResolverContext) {
+  const resolverContextWithDefault = typeof forumTypeOrContext === "string"
+    ? computeContextFromUser({ user, isSSR: false, forumType: forumTypeOrContext })
+    : forumTypeOrContext;
   const currentUser = await runQuery(CurrentUserQuery, {}, resolverContextWithDefault);
 
   return {
@@ -231,8 +233,10 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  forumType,
 }: {
+  forumType: ForumTypeString;
   user: DbUser | null;
   to: string;
   from?: string;
@@ -240,7 +244,7 @@ export const wrapAndRenderEmail = async ({
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
-  const emailContext = await createEmailContext(user);
+  const emailContext = await createEmailContext(user, forumType);
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType) : null;
 
   return await generateEmail({
@@ -266,8 +270,10 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  forumType,
 }: {
+  forumType: ForumTypeString;
   user: DbUser | null;
   force?: boolean;
   to?: string;
@@ -291,9 +297,9 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
+    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType });
     const succeeded = await sendEmail(email);
-    backgroundTask(logSentEmail(email, user, {succeeded}));
+    backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -325,7 +331,7 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
   }
 }
 
-async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
+async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any, forumType: ForumTypeString) {
   // Remove the html, which is very large and bloats LWEvents
   // We still have the text content of the email, which is sufficient for email history
   const { html, ...emailFields } = renderedEmail;
@@ -346,7 +352,7 @@ async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, a
       },
       intercom: false,
     }
-  }, createAnonymousContext())
+  }, createAnonymousContext({ forumType }))
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

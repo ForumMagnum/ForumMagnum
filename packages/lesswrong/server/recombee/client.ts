@@ -783,7 +783,7 @@ const recombeeApi = {
    * Primarily for admin use; you'll need to modify the query that returns the relevant postIds if you want something different
    */
   async listPosts() {
-    const context = createAdminContext();
+    const context = createAdminContext({ forumType: "LessWrong" });
     const client = getRecombeeClientOrThrow(context.forumType);
     const postIds = (await context.Posts.find({ unlisted: true }, undefined, { _id: 1 }).fetch()).map(({ _id }) => _id);
     const request = helpers.createListPostsRequest(postIds);

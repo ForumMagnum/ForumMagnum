@@ -82,7 +82,7 @@ export const notificationResolversGqlMutations = {
 
     const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id, context) 
 
-    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
+    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post, context)
     
     return true
   },

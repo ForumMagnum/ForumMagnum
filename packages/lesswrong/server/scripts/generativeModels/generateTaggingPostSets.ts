@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { Posts } from '../../../server/collections/posts/collection';
 import { Tags } from '../../../server/collections/tags/collection';
 import { postStatuses } from '../../../lib/collections/posts/constants';
@@ -131,6 +132,7 @@ export const generateTagClassifierData = async (args: {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
 
   const trainingSet = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: trainingSetPostIds}},
@@ -138,6 +140,7 @@ export const generateTagClassifierData = async (args: {
     skipFiltering: true,
   });
   const testSet = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
@@ -200,6 +203,7 @@ export const generateIsFrontpageClassifierData = async () => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
 
   const trainingSet = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: trainingSetPostIds}},
@@ -207,6 +211,7 @@ export const generateIsFrontpageClassifierData = async () => {
     skipFiltering: true,
   });
   const testSet = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
@@ -239,6 +244,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
   const context = createAnonymousContext();
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const posts = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
@@ -283,6 +289,7 @@ export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const template = await wikiSlugToTemplate("lm-config-autotag", context);
   const posts = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
