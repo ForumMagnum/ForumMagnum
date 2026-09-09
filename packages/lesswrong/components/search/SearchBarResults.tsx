@@ -1,9 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import { Hits, Configure } from 'react-instantsearch-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SearchHitComponentProps } from './types';
-import { Index } from '../../lib/utils/componentsWithChildren';
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostsSearchHit from "./PostsSearchHit";
 import SequencesSearchHit from "./SequencesSearchHit";
@@ -14,12 +12,14 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useCaptureSearchResultSelected } from './useSearchAnalytics';
 
+import { SearchBarHit, useSearchBarResults } from './useSearchBarResults';
 import classNames from 'classnames';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import ChatBubbleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
 import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
+import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 
 interface SearchType {
   type: SearchIndexCollectionName;
@@ -60,9 +60,9 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   },
   filters: {
     display: "flex",
+    justifyContent: "space-between",
     gap: 4,
-    padding: "6px 4px 12px",
-    marginBottom: 8,
+    padding: "4px",
     overflowX: "auto",
     position: "sticky",
     top: 0,
@@ -79,17 +79,32 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     fontSize: 13,
     color: theme.palette.text.normal,
+    backgroundColor: theme.palette.panelBackground.default,
+    borderRadius: 3,
+    minHeight: 40,
+    boxSizing: "border-box",
     cursor: "pointer",
     "&:focus-visible": {
-      backgroundColor: theme.palette.greyAlpha(0.18),
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: -2,
+    },
+    [theme.breakpoints.up('sm')]: {
+      fontSize: 14,
+      gap: 4,
+      padding: "4px 8px",
     },
   },
   filterSelected: {
-    backgroundColor: theme.palette.greyAlpha(0.1),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
   filterIcon: {
     width: 14,
     height: 14,
+    [theme.breakpoints.up('sm')]: {
+      width: 16,
+      height: 16,
+    },
   },
   searchResults: {
     overflowX: "hidden",
@@ -98,30 +113,26 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
     height: "calc(100dvh - var(--header-height))",
     boxSizing: 'border-box',
     // Leave room for the sticky filters when scrolling a focused result into view.
-    scrollPaddingTop: '56px',
-    scrollPaddingBottom: '16px',
+    scrollPaddingTop: '48px',
+    scrollPaddingBottom: 'calc(64px + env(safe-area-inset-bottom))',
     backgroundColor: theme.palette.panelBackground.default,
-    paddingBottom: 100,
+    paddingBottom: 'calc(64px + env(safe-area-inset-bottom))',
     [theme.breakpoints.down('sm')]: {
-      height: 'auto',
+      height: 'calc(100dvh - var(--header-height) - 48px)',
       maxHeight: 'calc(100dvh - var(--header-height) - 48px)',
       boxSizing: 'border-box',
-      paddingBottom: 16,
     },
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
       boxShadow: theme.palette.boxShadow.searchResults,
+      // Keep the dropdown shadow below the search bar while preserving it on the other edges.
+      clipPath: 'inset(0 -40px -40px)',
     },
   },
-  list: {
-    '& .ais-Hits-list':{
-      paddingTop: 6,
-      paddingBottom: 4,
-      borderBottom: theme.palette.border.grey300,
-    },
-    '& .ais-Hits-list:empty':{
-      display:"none"
-    },
+  status: {
+    ...theme.typography.body2,
+    padding: 12,
+    textAlign: "center",
   },
   result: {
     position: "relative",
@@ -142,27 +153,35 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
       },
     },
   },
-  seeAll: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
-    marginTop: 10,
-    display: "block",
-    textAlign: "center",
-    '&:focus-visible': {
-      backgroundColor: theme.palette.greyAlpha(0.12),
+  searchActions: {
+    position: "fixed",
+    bottom: 0,
+    right: 0,
+    width: 500,
+    boxSizing: "border-box",
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: "4px 8px calc(4px + env(safe-area-inset-bottom))",
+    backgroundColor: theme.palette.panelBackground.default,
+    borderTop: theme.palette.greyBorder("1px", 0.1),
+    zIndex: 2,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
     },
   },
-  header: {
-    cursor: "pointer",
-    display:"flex",
-    justifyContent:"space-between",
+  advancedSearch: {
+    ...theme.typography.body2,
+    display: "inline-flex",
     alignItems: "center",
-    paddingLeft: 8,
-    paddingRight: 8,
-    '& h1': {
-      margin:0
-    }
+    gap: 6,
+    minHeight: 40,
+    padding: "0 10px",
+    fontSize: 13,
+    borderRadius: 3,
+    color: theme.palette.primary.main,
+    '&:hover, &:focus-visible': {
+      backgroundColor: theme.palette.greyAlpha(0.08),
+    },
   },
 }))
 
@@ -177,7 +196,31 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
 }) => {
   const classes = useStyles(styles);
   const captureResultSelected = useCaptureSearchResultSelected();
-  const [enabledTypes, setEnabledTypes] = useState<SearchIndexCollectionName[]>(searchTypes.map(({type}) => type));
+  const scrollArea = useRef<HTMLDivElement>(null);
+  const sentinel = useRef<HTMLDivElement>(null);
+  const [enabledTypes, setEnabledTypes] = useState<SearchIndexCollectionName[]>([]);
+
+  const indexName = searchTypes.filter(({type}) => !enabledTypes.length || enabledTypes.includes(type))
+    .map(({type}) => getSearchIndexName(type)).join(",");
+  const {hits, loading, error, hasMore, loadMore} = useSearchBarResults(indexName, currentQuery, open);
+
+  useEffect(() => {
+    const area = scrollArea.current;
+    const target = sentinel.current;
+    if (!open || !area || !target || loading || error || !hasMore) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) void loadMore();
+    }, {root: area, rootMargin: "0px 0px 100px 0px"});
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [open, loading, error, hasMore, loadMore]);
+
+  useEffect(() => {
+    const area = scrollArea.current;
+    const fetchNextPage = () => { void loadMore(); };
+    area?.addEventListener('search-load-more', fetchNextPage);
+    return () => area?.removeEventListener('search-load-more', fetchNextPage);
+  }, [loadMore]);
 
   const toggleType = (type: SearchIndexCollectionName) => {
     setEnabledTypes(previous => previous.includes(type)
@@ -185,20 +228,20 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
       : [...previous, type]);
   };
 
-  const makeClickHandler = useCallback((type: SearchIndexCollectionName, hit: Record<string, unknown>) => () => {
+  const selectHit = (type: SearchIndexCollectionName, hit: SearchBarHit, position: number) => {
     captureResultSelected({
       query: currentQuery,
-      resultId: hit._id as string | undefined,
+      resultId: hit._id,
       resultType: type,
-      position: hit.__position as number | undefined,
+      position,
       indexName: getSearchIndexName(type),
       context: "searchBar",
     });
     closeSearch();
-  }, [captureResultSelected, closeSearch, currentQuery]);
+  };
 
   return <div className={classNames(classes.root, {[classes.hidden]: !open})}>
-    <div className={classes.searchResults}>
+    <div className={classes.searchResults} ref={scrollArea}>
         <div className={classes.filters} role="group" aria-label="Search content kinds">
           {searchTypes.map(({type, label, Icon}) => <span
             key={type}
@@ -219,21 +262,32 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
             {label}
           </span>)}
         </div>
-        {searchTypes.map(({ type, label, Component }) => (
-          <ErrorBoundary key={type}>
-            <div role="group" aria-label={`${label} results`} className={classNames(classes.list, {[classes.hidden]: !enabledTypes.includes(type)})}>
-              <Index indexName={getSearchIndexName(type)}>
-                <Configure hitsPerPage={3} />
-                <Hits hitComponent={(props) => <div className={classes.result} data-search-result onFocus={scrollFocusedResultIntoView}>
-                  <Component clickAction={makeClickHandler(type, props.hit)} {...props} showIcon/>
-                </div>} />
-              </Index>
-            </div>
-          </ErrorBoundary>
-        ))}
-        <Link to={`/search?query=${encodeURIComponent(currentQuery)}`} className={classes.seeAll}>
-          See all results
-        </Link>
+        <div role="group" aria-label="Search results" aria-busy={loading}>
+          {hits.map((hit, position) => {
+            const searchType = searchTypes.find(({type}) => type.toLowerCase() === hit._index);
+            if (!searchType) return null;
+            const {type, Component} = searchType;
+            return <ErrorBoundary key={`${hit._index}:${hit._id}`}>
+              <div className={classes.result} data-search-result onFocus={scrollFocusedResultIntoView}>
+                <Component hit={hit} clickAction={() => selectHit(type, hit, position)} showIcon />
+              </div>
+            </ErrorBoundary>;
+          })}
+        </div>
+        <div ref={sentinel} />
+        {loading && <div className={classes.status} role="status">Loading results…</div>}
+        {error && <div className={classes.status} role="status">
+          Could not load results. <button onClick={() => { void loadMore(); }}>Try again</button>
+        </div>}
+        {!loading && !error && !hits.length && <div className={classes.status}>
+          No results found
+        </div>}
+    </div>
+    <div className={classes.searchActions}>
+      <Link to={`/search?query=${encodeURIComponent(currentQuery)}`} className={classes.advancedSearch} onClick={closeSearch}>
+        <ArrowForwardIcon className={classes.filterIcon} />
+        Advanced search
+      </Link>
     </div>
   </div>
 }
