@@ -56,12 +56,12 @@ describe('EventDebouncer', () => {
       
       // Advance clock, but not enough for events to fire
       clock.setSystemTime(new Date("1980-01-01 00:14:00"));
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       (eventsHandled as any).should.deep.equal({});
       
       // Advance clock, enough for events to fire
       clock.setSystemTime(new Date("1980-01-01 00:17:00"));
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       (numEventBatchesHandled as any).should.equal(2);
       (numEventsHandled as any).should.equal(3);
       (eventsHandled.firstKey as any).should.deep.equal({
@@ -76,20 +76,20 @@ describe('EventDebouncer', () => {
       // fired events.
       clock.setSystemTime(new Date("1980-01-01 00:20:00"));
       await testEventDebouncer.recordEvent({key: "firstKey", data: "4"});
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       (numEventsHandled as any).should.equal(3);
       
       // Add events to delay event release until maxDelayMinutes reached
       clock.setSystemTime(new Date("1980-01-01 00:30:00"));
       await testEventDebouncer.recordEvent({key: "firstKey", data: "5"});
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       clock.setSystemTime(new Date("1980-01-01 00:40:00"));
       await testEventDebouncer.recordEvent({key: "firstKey", data: "6"});
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       (numEventsHandled as any).should.equal(3);
       
       clock.setSystemTime(new Date("1980-01-01 00:51:00"));
-      await dispatchPendingEvents("LessWrong");
+      await dispatchPendingEvents();
       (numEventsHandled as any).should.equal(6);
     } finally {
       clock.uninstall();

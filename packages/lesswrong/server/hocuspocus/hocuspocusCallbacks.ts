@@ -4,7 +4,7 @@ import ResearchDocuments from '@/server/collections/researchDocuments/collection
 import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
-import { createAdminContext } from '@/server/vulcan-lib/createContexts';
+import { createAdminContext, createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { createRevision } from '@/server/collections/revisions/mutations';
 import { buildRevisionWithUser } from '../editor/conversionUtils';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
@@ -141,7 +141,7 @@ async function saveLexicalDocumentRevision(
         originalContents: newOriginalContents,
         user,
         isAdmin,
-      context: createAdminContext({ forumType }),
+        context,
       })),
       documentId: postId,
       fieldName,
@@ -372,7 +372,7 @@ export async function handleCommentAdded(
   console.log(`[HocuspocusWebhook] Notifying users: ${JSON.stringify(usersToNotify)}`);
 
   await createNotifications({
-    context: createAdminContext({ forumType }),
+    context: createAnonymousContext({ forumType }),
     userIds: usersToNotify,
     notificationType: 'newCommentOnDraft',
     documentType: 'post',

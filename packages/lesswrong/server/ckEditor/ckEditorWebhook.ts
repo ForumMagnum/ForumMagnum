@@ -5,7 +5,7 @@ import { createNotifications } from '../notificationCallbacksHelpers';
 import { ckEditorDocumentIdToPostId, endCkEditorUserSession, fetchCkEditorCloudStorageDocumentHtml, fetchCkEditorCommentThread, saveDocumentRevision, saveOrUpdateDocumentRevision } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
-import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 const ckEditorCommentAllowedTags = [
@@ -207,7 +207,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);
   
   await createNotifications({
-    context: createAdminContext({ forumType }),
+    context: createAnonymousContext({ forumType }),
     userIds: usersToNotify,
     notificationType: "newCommentOnDraft",
     documentType: "post",

@@ -206,7 +206,8 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
   await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents, event.af ? "AlignmentForum" : "LessWrong");
 }
 
-export const dispatchPendingEvents = async (forumType: ForumTypeString) => {
+// Drain both forums: each queued event carries the forum used by its callback.
+export const dispatchPendingEvents = async () => {
   const now = new Date();
   let eventToHandle: any = null;
   
@@ -220,7 +221,6 @@ export const dispatchPendingEvents = async (forumType: ForumTypeString) => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: forumType === 'AlignmentForum',
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }

@@ -1,3 +1,6 @@
+import { createElement } from "react";
+import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
+import { siteUrlSetting, forumTitleSetting } from "@/lib/instanceSettings";
 import { EventDebouncer } from "@/server/debouncer";
 import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { computeContextFromUser } from '@/server/vulcan-lib/apollo-server/context';
@@ -42,6 +45,30 @@ describe('resolver context forum type', () => {
     expect(context.userId).toBe(user._id);
     expect(context.currentUser).toBe(user);
     expect(await context.loaders.Users.load(user._id)).toBe(user);
+  });
+
+  it('renders email branding and relative links for the supplied forum', async () => {
+    jest.spyOn(forumTypeSetting, 'get').mockImplementation(() => {
+      throw new Error('Email rendering must not read the deployment forum');
+    });
+    jest.spyOn(siteUrlSetting, 'get').mockImplementation(forum => {
+      const forumType = typeof forum === 'string' ? forum : forum.forumType;
+      return forumType === 'AlignmentForum' ? 'https://www.alignmentforum.org/' : 'https://www.lesswrong.com/';
+    });
+    jest.spyOn(forumTitleSetting, 'get').mockImplementation(forum => {
+      const forumType = typeof forum === 'string' ? forum : forum.forumType;
+      return forumType === 'AlignmentForum' ? 'Alignment Forum' : 'LessWrong';
+    });
+
+    const email = await wrapAndRenderEmail({
+      forumType: 'AlignmentForum',
+      user: null,
+      to: 'test@example.com',
+      subject: 'Test email',
+      body: () => createElement('a', { href: '/about' }, 'About'),
+    });
+    expect(email.subject).toBe('[Alignment Forum] Test email');
+    expect(email.html).toContain('https://www.alignmentforum.org/about');
   });
 
   it('passes the queued forum to delayed callbacks', async () => {

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // Debounced event handler
   if (!isTestServer) {
-    tasks.push(getLockOrAbort('dispatchPendingEvents', dispatchPendingEvents.bind(null, context.forumType)));
+    tasks.push(getLockOrAbort('dispatchPendingEvents', dispatchPendingEvents));
   }
 
   // Check upcoming event emails
