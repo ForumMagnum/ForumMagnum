@@ -2,7 +2,7 @@ import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
 import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
-import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
+import { airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import Users from '../../server/collections/users/collection';
 import { userFindOneByEmail } from "../commonQueries";
@@ -146,14 +146,11 @@ const MERGE_ACCOUNTS_MUTATION_BUDGET_MS = 60 * 1000;
 
 export const graphqlMutations = {
   async NewUserCompleteProfile(root: void, { username, email, subscribeToDigest, acceptedTos }: NewUserUpdates, context: ResolverContext) {
-    const { currentUser } = context
+    const { currentUser } = context;
     if (!currentUser) {
       throw new Error('Cannot change username without being logged in')
     }
-    // Check they accepted the terms of use
-    if (isEAForum() && !acceptedTos) {
-      throw new Error("You must accept the terms of use to continue");
-    }
+
     // Only for new users. Existing users should need to contact support to
     // change their usernames
     if (!currentUser.usernameUnset) {

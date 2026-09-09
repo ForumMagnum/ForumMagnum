@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Maintain analytics views (EA Forum only)
+  // TODO: Retain the analytics pipeline for a possible LW/AF author-analytics port.
   if (isEAForum()) {
     // This is a fire-and-forget since the db queries take forever
     maintainAnalyticsViews();

@@ -3,7 +3,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
+import { isLW, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -89,9 +89,7 @@ export const PostSubmit = ({
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
   const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
-  // EA Forum title is Effective Altruism Forum, which is unecessarily long
-  const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
-  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
+  const feedbackTitle = `Request feedback from our editor.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
 
   return (
     <React.Fragment>

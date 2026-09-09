@@ -9,7 +9,7 @@ import { PopperPortalProvider } from '../common/LWPopper';
 import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
 import DeferRender from '../common/DeferRender';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
-import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
+import { isLW } from '@/lib/forumTypeUtils';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
@@ -128,7 +128,7 @@ const sidebarsWrapperStyles = defineStyles("LeftAndRightSidebarsWrapper", theme 
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLWorAF() ? 7 : 1}fr)
+        minmax(0, 7fr)
         minmax(0, min-content)
       `,
     },

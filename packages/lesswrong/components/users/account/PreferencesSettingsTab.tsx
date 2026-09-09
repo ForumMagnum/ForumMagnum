@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { hasEventsSetting, isAF, isEAForum, isLW } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
@@ -90,23 +90,6 @@ const PreferencesSettingsTab = ({
           label="Sort drafts by"
         />
 
-        {isEAForum() && (
-          <SettingsToggleRow
-            value={settings.hideCommunitySection}
-            onChange={(value) => void updateSettings({ hideCommunitySection: value })}
-            label="Hide community section"
-            description="Remove the community section from the frontpage"
-          />
-        )}
-
-        {isEAForum() && (
-          <SettingsToggleRow
-            value={settings.showCommunityInRecentDiscussion}
-            onChange={(value) => void updateSettings({ showCommunityInRecentDiscussion: value })}
-            label="Show community in Recent Discussion"
-          />
-        )}
-
         {userCanViewJargonTerms(settings) && (
           <SettingsToggleRow
             value={settings.postGlossariesPinned}
@@ -133,13 +116,11 @@ const PreferencesSettingsTab = ({
           />
         )}
 
-        {isLWorAF() && (
           <SettingsToggleRow
             value={settings.hideFrontpageBook2020Ad}
             onChange={(value) => void updateSettings({ hideFrontpageBook2020Ad: value })}
             label="Hide the frontpage book ad"
           />
-        )}
 
         {isAF() && (
           <SettingsToggleRow
@@ -160,8 +141,7 @@ const PreferencesSettingsTab = ({
         />
       </SettingsSection>
 
-      {hasEventsSetting.get() && (
-        <SettingsSection title="Location">
+      {hasEventsSetting.get() && <SettingsSection title="Location">
           <HighlightableField name="googleLocation">
             <div className={fieldWrapperClass}>
               <LocationFormComponent
@@ -172,15 +152,14 @@ const PreferencesSettingsTab = ({
             </div>
           </HighlightableField>
 
-          {!isEAForum() && <div className={fieldWrapperClass}>
+          <div className={fieldWrapperClass}>
             <LocationFormComponent
               field={bind('mapLocation')}
               variant="grey"
               label="Public map location"
             />
-          </div>}
-        </SettingsSection>
-      )}
+          </div>
+        </SettingsSection>}
 
       <SettingsSection title="Other">
         <SettingsToggleRow
@@ -197,6 +176,7 @@ const PreferencesSettingsTab = ({
           description="Hide the support chat widget"
         />
 
+        {/* TODO: Consider porting karma visibility controls together with the post-form control. */}
         {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && (
           <SettingsToggleRow
             value={settings.showHideKarmaOption}
@@ -207,23 +187,6 @@ const PreferencesSettingsTab = ({
         )}
       </SettingsSection>
 
-      {isEAForum() && (
-        <SettingsSection title="Privacy">
-          <SettingsToggleRow
-            value={settings.hideFromPeopleDirectory}
-            onChange={(value) => void updateSettings({ hideFromPeopleDirectory: value })}
-            label="Hide from People directory"
-            description="Your profile won't appear in the People directory"
-          />
-
-          <SettingsToggleRow
-            value={settings.allowDatadogSessionReplay}
-            onChange={(value) => void updateSettings({ allowDatadogSessionReplay: value })}
-            label="Allow Session Replay"
-            description="Allow us to capture a video-like recording of your browser session for debugging and site improvements"
-          />
-        </SettingsSection>
-      )}
     </div>
   );
 };

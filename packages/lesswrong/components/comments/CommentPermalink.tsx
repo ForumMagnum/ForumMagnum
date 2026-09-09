@@ -1,7 +1,7 @@
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -68,7 +68,9 @@ const CommentPermalink = ({
 
   if (silentLoading && !comment) return null;
 
-  if (error || (!comment && !loading)) return <div>Comment not found</div>
+  if (error || (!comment && !loading)) return (
+    <div>Comment not found</div>
+  )
   
   if (loading) return <Loading />
 
@@ -83,9 +85,9 @@ const CommentPermalink = ({
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>
     </div>
-    {isLWorAF() && <div className={classes.dividerMargins}>
+    <div className={classes.dividerMargins}>
       <Divider />
-    </div>}
+    </div>
   </div>
 
   const commentNodeProps = {
@@ -136,9 +138,9 @@ const CommentPermalink = ({
           }}>See in context</a>
         </div>
       </div>
-      {isLWorAF() && <div className={classes.dividerMargins}>
+      <div className={classes.dividerMargins}>
         <Divider />
-      </div>}
+      </div>
     </div>
   );
 }

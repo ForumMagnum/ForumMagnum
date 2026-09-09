@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
 import CommentsNode from "../comments/CommentsNode";
@@ -15,11 +14,9 @@ const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
     position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,
-      ...(isLWorAF() ? {
-        paddingTop: 0,
-        // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
-        position: 'relative',
-      } : {}),
+      paddingTop: 0,
+      // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
+      position: 'relative',
 
     },
   },

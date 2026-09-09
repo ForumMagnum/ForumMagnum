@@ -3,7 +3,7 @@ import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
+import { extractTableOfContents, getTocAnswers, getTocComments, ToCData } from '../lib/tableOfContents';
 import { parseDocumentFromString } from '../lib/domParser';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
@@ -126,18 +126,15 @@ export const getToCforPost = async ({document, version, context}: {
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   
-  if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
-    const tocAnswers = await getTocAnswersServer(document, context)
-    const tocComments = await getTocCommentsServer(document, context)
-    tocSections.push(...tocAnswers)
-    tocSections.push(...tocComments)
-  
-    return {
-      html: tableOfContents?.html||null,
-      sections: tocSections,
-    }
+  const tocAnswers = await getTocAnswersServer(document, context)
+  const tocComments = await getTocCommentsServer(document, context)
+  tocSections.push(...tocAnswers)
+  tocSections.push(...tocComments)
+
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
   }
-  return null;
 }
 
 export const getToCforTag = async ({document, version, context}: {

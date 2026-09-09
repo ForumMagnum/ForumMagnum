@@ -4,7 +4,7 @@ import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -401,10 +401,8 @@ const utils = {
         messageContents += ` They gave the following reason: "${comment.deletedReason}".`;
       }
   
-      // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-      const noEmail = isEAForum()
-      ? false 
-      : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
+      const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
       await utils.sendModerationPM({
         action: 'deleted',
@@ -443,10 +441,8 @@ const utils = {
   
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
-    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = isEAForum() 
-    ? false 
-    : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
+    const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
     await utils.sendModerationPM({
       action: 'rejected',
@@ -909,20 +905,6 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = includedInDescendentCountsAfter ? 1 : -1;
     await properties.context.Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
-  }
-}
-
-
-/* UPDATE ASYNC */
-export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  if (!currentUser) return;
-  if (isEAForum()) {
-    currentUser.snoozedUntilContentCount && await updateUser({ data: {
-      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-    }, selector: { _id: currentUser._id } }, createAnonymousContext());
-    // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
-    // and then update a comment multiple times.
-    await triggerReviewIfNeeded(currentUser._id, 'updatedComment', context)
   }
 }
 

@@ -5,4 +5,4 @@ import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from
 // import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
 import { getCommandLineArguments } from './commandLine';
-import { isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";

@@ -2,7 +2,7 @@ import { isServer, isDevelopment, isAnyTest, isE2E, isProduction } from './execu
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
-import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/forumTypeUtils';
+import { forumTypeSetting, isAF, isEAForum, isLW } from '@/lib/forumTypeUtils';
 import type { FilterTag } from './filterSettings';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
@@ -19,7 +19,6 @@ const anyIsObject = (...args: any[]): boolean => {
 export const Settings: Record<string,any> = {};
 
 const getSetting = <T>(settingName: string, settingDefault?: T): T => {
-
   let setting;
   const instanceSettings = getInstanceSettings();
 
@@ -104,7 +103,7 @@ export type ForumTypeString = UnionOf<typeof allForumTypes>;
 // export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
 // eslint-disable-next-line no-barrel-files/no-barrel-files
-export { forumTypeSetting, isLW, isEAForum, isAF, isLWorAF };
+export { forumTypeSetting, isLW, isEAForum, isAF };
 
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 

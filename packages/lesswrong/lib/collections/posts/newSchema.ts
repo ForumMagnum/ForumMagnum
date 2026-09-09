@@ -35,7 +35,7 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { isEAForum, isLWorAF, reviewUserBotSetting } from "../../instanceSettings";
+import { reviewUserBotSetting } from "../../instanceSettings";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -214,10 +214,6 @@ async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: R
   const lastTimestamp = messageTimestamps[messageTimestamps.length - 1];
   return lastTimestamp;
 };
-
-function adminOnlyOnEAForum(user: DbUser | null) {
-  return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
-}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -591,7 +587,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: post }) => {
-        if (!isEAForum() && !post.sticky) {
+        if (!post.sticky) {
           return false;
         }
       },
@@ -1258,9 +1254,6 @@ const schema = {
       outputType: "Float",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.probability;
       },
@@ -1271,9 +1264,6 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return false;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.isResolved;
       },
@@ -1284,9 +1274,6 @@ const schema = {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.year;
       },
@@ -1297,9 +1284,6 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.url;
       },
@@ -1840,9 +1824,6 @@ const schema = {
       outputType: "ReviewVote",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { ReviewVotes, currentUser } = context;
         if (!currentUser) return null;
         const votes = await getWithLoader(
@@ -1876,9 +1857,6 @@ const schema = {
       outputType: "ReviewWinner",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { currentUser } = context;
         const winner = await getPostReviewWinnerInfo(post._id, context);
         return accessFilterSingle(currentUser, "ReviewWinners", winner, context);
@@ -2152,8 +2130,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [userIsAdminOrMod],
+      canCreate: [userIsAdminOrMod],
       validation: {
         optional: true,
       },
@@ -3078,8 +3056,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [userIsAdminOrMod],
+      canCreate: [userIsAdminOrMod],
       validation: {
         optional: true,
       },
@@ -3861,7 +3839,7 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          ...(isLWorAF() ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
+          userId: { $ne: reviewUserBotSetting.get() },
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -4368,7 +4346,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) return null;
         return await getWithCustomLoader(context, "latestAutomatedContentEvaluations", post._id, (postIds) =>
           context.repos.automatedContentEvaluations.getLatestEvaluationsForPosts(postIds)
         );

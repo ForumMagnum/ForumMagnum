@@ -1,6 +1,5 @@
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerPostsCache } from "@/server/review/reviewWinnersCache";
-import { isLWorAF } from "../../lib/instanceSettings";
 import gql from "graphql-tag";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { backgroundTask } from "../utils/backgroundTask";

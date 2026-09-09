@@ -2,7 +2,8 @@ import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
 import { connectionStringSetting, mirrorConnectionSettingString } from "../databaseSettings";
-import { isEAForum } from "../../lib/instanceSettings";
+
+
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 declare global {
@@ -20,7 +21,7 @@ export const getPgPromiseLib = () => {
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
-  if (isAnyTest && !isEAForum()) {
+  if (isAnyTest) {
     return null;
   }
   if (!connectionString) {

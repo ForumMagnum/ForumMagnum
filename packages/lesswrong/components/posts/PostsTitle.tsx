@@ -10,11 +10,10 @@ import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
-import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting, startHerePostIdSetting, isEAForum } from '@/lib/instanceSettings';
+import { amaTagIdSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
-import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -129,17 +128,8 @@ const tagSettingIcons = new Map([
   [openThreadTagIdSetting, AllInclusiveIcon],
 ]);
 
-// Cute hack
-const reviewPostIdSetting = {
-  get: () => isEAForum() ?
-    annualReviewAnnouncementPostPathSetting.get()?.match(/^\/posts\/([a-zA-Z\d]+)/)?.[1] :
-    null
-}
-
 const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
-  // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting, StarIcon]
 ]);
 
 const postIcon = (post: PostsBase|PostsListBase) => {

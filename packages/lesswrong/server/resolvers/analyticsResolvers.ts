@@ -188,6 +188,7 @@ export const analyticsGraphQLQueries = {
     const post = await context.loaders.Posts.load(postId);
     // check that the current user has permission to view post metrics
     // LW doesn't want to show this to authors, but we'll let admins see it
+    // TODO: Review author access before porting EA post analytics to LW/AF.
     if (!isEAForum() && !currentUser.isAdmin) {
       throw new Error("Permission denied");
     }

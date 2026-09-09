@@ -1,9 +1,9 @@
 import React from "react";
 import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
-import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
+import { getUserEmail, userGetLocation } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
@@ -280,12 +280,7 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
-    if (data.shortformFeedId && !isLWorAF()) {
-      backgroundTask(updatePost({
-        data: {title: userShortformPostTitle(newDocument)},
-        selector: { _id: data.shortformFeedId }
-      }, createAnonymousContext()));
-    }
+
   }
   return data;
 }
@@ -319,7 +314,6 @@ export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier, u
 export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
-
     const newEmail = modifier.$set.email;
 
     // check for existing emails and throw error if necessary

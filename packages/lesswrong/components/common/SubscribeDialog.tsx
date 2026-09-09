@@ -15,7 +15,6 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { forumSelect } from '../../lib/forumTypeUtils';
@@ -232,7 +231,7 @@ const SubscribeDialog = (props: {
       open={open}
       onClose={onClose}
     >
-      {isLWorAF() && <Tabs
+      <Tabs
         value={method}
         indicatorColor="primary"
         textColor="primary"
@@ -242,7 +241,7 @@ const SubscribeDialog = (props: {
       >
         <Tab label="RSS" key="tabRSS" value="rss" />
         <Tab label="Email" key="tabEmail" value="email" />
-      </Tabs>}
+      </Tabs>
 
       <DialogContent className={classes.content}>
         { method === "rss" && <React.Fragment>
@@ -282,20 +281,16 @@ const SubscribeDialog = (props: {
 
         { method === "email" && [
           viewSelector,
-          !!currentUser ? (
-            [
+          !!currentUser ? [
               !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                 Sorry, there's currently no email feed for {viewNames[view]}.
               </DialogContentText>,
-              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum() && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                 We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
               </DialogContentText>
-            ]
-          ) : (
-            <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
+            ] : <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
               You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
             </DialogContentText>
-          )
         ] }
       </DialogContent>
       <DialogActions>

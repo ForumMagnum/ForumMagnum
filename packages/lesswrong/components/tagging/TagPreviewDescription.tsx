@@ -2,7 +2,7 @@ import React from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import TagExcerpt from "../common/excerpts/TagExcerpt";
@@ -43,8 +43,8 @@ export const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSect
 const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
-  // Show two paragraphs for links to tag section headers
-  return isLWorAF() ? 8 : 2;
+  // Show eight paragraphs for links to tag section headers
+  return 8;
 }
 
 const TagPreviewDescription = ({tag, hash, activeTab}: {
