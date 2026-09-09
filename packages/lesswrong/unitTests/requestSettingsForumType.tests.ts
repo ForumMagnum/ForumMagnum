@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { fmCrosspostBaseUrlSetting, siteUrlSetting } from '@/lib/instanceSettings';
-import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { crosspostOptionsHandler, setCorsHeaders } from '@/server/crossposting/cors';
 import { getSiteUrlFromHeaders, getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
 
@@ -25,12 +24,11 @@ describe('forum settings in request responses', () => {
   });
 
   it('uses the request forum for preflight responses', () => {
-    jest.spyOn(forumTypeSetting, 'get').mockReturnValue('AlignmentForum');
     jest.spyOn(fmCrosspostBaseUrlSetting, 'get').mockImplementation(forum =>
       forum === 'AlignmentForum' ? 'https://af-crosspost.example/' : null
     );
 
-    const response = crosspostOptionsHandler(new NextRequest('https://www.alignmentforum.org/api/v2/crosspost/crosspost'));
+    const response = crosspostOptionsHandler(new NextRequest('https://www.alignmentforum.org/api/v2/crosspost/crosspost', { headers: { host: 'www.alignmentforum.org' } }));
 
     expect(response.status).toBe(204);
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://af-crosspost.example');
@@ -41,11 +39,10 @@ describe('forum settings in request responses', () => {
     jest.spyOn(siteUrlSetting, 'get').mockImplementation(forum =>
       forum === 'AlignmentForum' ? 'https://www.alignmentforum.org/' : 'https://www.lesswrong.com/'
     );
-    jest.spyOn(forumTypeSetting, 'get').mockReturnValue('AlignmentForum');
 
     expect(getSiteUrlFromHeaders(undefined, 'LessWrong')).toBe('https://www.lesswrong.com');
     expect(getSiteUrlFromHeaders(undefined, 'AlignmentForum')).toBe('https://www.alignmentforum.org');
-    expect(getSiteUrlFromReq(new NextRequest('https://deployment.example/'))).toBe('https://www.alignmentforum.org');
+    expect(getSiteUrlFromReq(new NextRequest('https://deployment.example/', { headers: { 'x-forwarded-host': 'alignmentforum.org' } }))).toBe('https://www.alignmentforum.org');
   });
 
   it('preserves forwarded URL handling without reading the site URL setting', () => {

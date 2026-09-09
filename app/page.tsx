@@ -1,4 +1,4 @@
-import { getForumTypeForPage } from "@/server/utils/requestUtil";
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import HomePageWithDesignChat from "@/components/common/HomePageWithDesignChat";
 import LWHome from "@/components/common/LWHome";

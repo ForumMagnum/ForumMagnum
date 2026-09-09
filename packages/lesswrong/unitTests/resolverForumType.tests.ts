@@ -9,15 +9,16 @@ describe('resolver context forum type', () => {
     jest.restoreAllMocks();
   });
 
-  it('captures the setting separately for each request and SSR context', () => {
-    const getForumType = jest.spyOn(forumTypeSetting, 'get').mockReturnValue('LessWrong');
-    const lwContext = computeContextFromUser({ user: null, isSSR: false });
+  it('uses request headers and cookies for request and SSR contexts', () => {
+    jest.spyOn(forumTypeSetting, 'get').mockReturnValue('AlignmentForum');
+    const lwContext = computeContextFromUser({ user: null, isSSR: false, headers: new Headers() });
 
-    getForumType.mockReturnValue('AlignmentForum');
-    const afContext = computeContextFromUser({ user: null, isSSR: true });
+    const afContext = computeContextFromUser({ user: null, isSSR: true, headers: new Headers({ host: 'alignmentforum.localhost:3000' }) });
+    const cookieContext = computeContextFromUser({ user: null, isSSR: false, cookies: [{ name: 'forumType', value: 'AlignmentForum' }] });
 
     expect(lwContext.forumType).toBe('LessWrong');
     expect(afContext.forumType).toBe('AlignmentForum');
+    expect(cookieContext.forumType).toBe('AlignmentForum');
   });
 
   it('initializes anonymous and admin contexts while preserving explicit overrides', () => {

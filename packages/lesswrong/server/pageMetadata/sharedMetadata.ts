@@ -1,5 +1,5 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
-import { getForumTypeForPage } from '@/server/utils/requestUtil';
+import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";

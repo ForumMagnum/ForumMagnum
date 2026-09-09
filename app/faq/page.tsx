@@ -1,4 +1,4 @@
-import { getForumTypeForPage } from "@/server/utils/requestUtil";
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";

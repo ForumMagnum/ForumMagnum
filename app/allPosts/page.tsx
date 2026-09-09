@@ -1,4 +1,4 @@
-import { getForumTypeForPage } from "@/server/utils/requestUtil";
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import AllPostsPage from '@/components/posts/AllPostsPage';
 import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";

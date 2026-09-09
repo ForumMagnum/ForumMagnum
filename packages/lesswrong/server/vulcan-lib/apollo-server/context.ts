@@ -9,6 +9,7 @@ import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { getUserFromReq } from './getUserFromReq';
+import { getForumTypeFromRequestData } from '@/server/utils/requestUtil';
 import { forumTypeSetting } from '@/lib/forumTypeUtils';
 
 
@@ -57,7 +58,9 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
 }): ResolverContext => {
   const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
-  const forumType = forumTypeSetting.get();
+  const forumType = headers || cookies
+    ? getForumTypeFromRequestData(headers, cookies)
+    : forumTypeSetting.get();
   let context: ResolverContext = {
     forumType,
     ...getAllCollectionsByName(),

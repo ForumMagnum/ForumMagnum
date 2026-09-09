@@ -1,5 +1,4 @@
 'use client';
-import { useForumType } from '@/components/hooks/useForumType';
 
 import React, { useMemo } from 'react';
 
@@ -8,12 +7,10 @@ import { getSsrInjectedGraphqlLoaderScript } from "@/components/hooks/ssrInjecte
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
-import { faviconUrlSetting } from '@/lib/instanceSettings';
 
 // These exist as a client component to avoid the RSC rehydration protocol
 // putting them into the initial streamed response chunk twice.
 const SharedScriptsInner = () => {
-  const { forumType } = useForumType();
   const { public: publicInstanceSettings } = getInstanceSettings();
   return (<>
       {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
@@ -30,7 +27,6 @@ const SharedScriptsInner = () => {
       <script id="jss-insertion-start"/>
       {/*Style tags are dynamically inserted here*/}
       <script id="jss-insertion-end"/>
-      <link rel="icon" href={faviconUrlSetting.get(forumType)}/>
   </>)
 };
 

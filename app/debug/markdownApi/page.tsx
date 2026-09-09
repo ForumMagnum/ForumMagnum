@@ -1,5 +1,5 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import { getForumTypeForPage } from '@/server/utils/requestUtil';
+import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import React from "react";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import SingleColumnSection from "@/components/common/SingleColumnSection";

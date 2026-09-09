@@ -1,17 +1,30 @@
 import type { NextRequest } from 'next/server';
-import { forumTypeSetting } from '@/lib/forumTypeUtils';
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { FORUM_TYPE_COOKIE } from '@/lib/cookies/cookies';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 
-export function getForumTypeForRequest(_request: NextRequest): ForumTypeString {
-  // TODO: Determine the forum type from the request source.
-  return forumTypeSetting.get();
+const alignmentForumDomains = new Set([
+  'alignmentforum.org',
+  'www.alignmentforum.org',
+  'alignmentforum.localhost',
+]);
+
+function isAlignmentForumHost(host: string | null | undefined): boolean {
+  if (!host) return false;
+  const hostname = host.trim().toLowerCase().replace(/:\d+$/, '').replace(/\.$/, '');
+  return alignmentForumDomains.has(hostname);
 }
 
-/**
- * Get the forum type from an App Router server component or generateMetadata.
- * Async so callers can later use request cookies and headers without changing this interface.
- */
-export async function getForumTypeForPage(): Promise<ForumTypeString> {
-  // TODO: Read debugging overrides from cookies and the forum type from middleware headers.
-  return forumTypeSetting.get();
+export function getForumTypeFromRequestData(
+  requestHeaders: Pick<Headers, 'get'> | undefined,
+  requestCookies: readonly RequestCookie[] | undefined,
+): ForumTypeString {
+  const useAlignmentForum = isAlignmentForumHost(requestHeaders?.get('host'))
+    || isAlignmentForumHost(requestHeaders?.get('x-forwarded-host'))
+    || requestCookies?.some(cookie => cookie.name === FORUM_TYPE_COOKIE && cookie.value === 'AlignmentForum');
+  return useAlignmentForum ? 'AlignmentForum' : 'LessWrong';
+}
+
+export function getForumTypeForRequest(request: NextRequest): ForumTypeString {
+  return getForumTypeFromRequestData(request.headers, request.cookies.getAll());
 }

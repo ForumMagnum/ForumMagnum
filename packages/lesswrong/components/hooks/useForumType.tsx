@@ -1,16 +1,15 @@
 "use client";
 
 import React, { createContext, useContext } from 'react';
-import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 
 const ForumTypeContext = createContext<ForumTypeString | null>(null);
 
-export const ForumTypeProvider = ({ children }: {
+export const ForumTypeProvider = ({ forumType, children }: {
+  forumType: ForumTypeString,
   children: React.ReactNode,
 }) => {
-  // Keep the existing setting as the source until forum type is supplied per request.
-  return <ForumTypeContext.Provider value={forumTypeSetting.get()}>
+  return <ForumTypeContext.Provider value={forumType}>
     {children}
   </ForumTypeContext.Provider>;
 };

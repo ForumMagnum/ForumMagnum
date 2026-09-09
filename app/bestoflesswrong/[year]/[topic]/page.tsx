@@ -1,4 +1,4 @@
-import { getForumTypeForPage } from "@/server/utils/requestUtil";
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import TopPostsPage from '@/components/sequences/TopPostsPage';
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";

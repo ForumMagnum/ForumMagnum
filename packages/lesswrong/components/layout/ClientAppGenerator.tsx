@@ -22,6 +22,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { initClientOnce } from '@/client/initClient';
 import { TimeProvider } from '@/lib/utils/TimeProvider';
 import { ForumTypeProvider } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -137,12 +138,13 @@ function useLocationHash() {
   return hash;
 }
 
-const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
+const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   requestId: string,
+  forumType: ForumTypeString,
   children: React.ReactNode,
 }) => {
-  return <ForumTypeProvider>
+  return <ForumTypeProvider forumType={forumType}>
     <TimeProvider>
       <Suspense>
         <ApolloWrapper requestId={requestId}>
