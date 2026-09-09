@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Measure the amount of javascript on the page, using a local server running on
 # port 3000. (This will typically be debug-mode, which is bloatier than
 # production mode because it isn't minified.) Leaves the javascript behind in

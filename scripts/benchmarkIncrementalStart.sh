@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # benchmarkIncrementalStart: Given an already-running idle server on
 # locahost:3000, make a spurious change (by writing a file
 # packages/lesswrong/spuriousChange.js) and time how long it is until next
