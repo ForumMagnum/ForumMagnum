@@ -136,7 +136,7 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment, context, false);
+      return await commentGetPageUrlFromDB(document as DbComment, context);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":

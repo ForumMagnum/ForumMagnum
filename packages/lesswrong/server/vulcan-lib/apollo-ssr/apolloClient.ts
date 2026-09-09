@@ -10,14 +10,14 @@ import { apolloTypePolicies } from '@/lib/apollo/typePolicies';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
-export const createClient = async (context: ResolverContext | null, foreign = false) => {
+export const createClient = async (context: ResolverContext, foreign = false) => {
   const cache = new InMemoryCache({ typePolicies: apolloTypePolicies });
 
   const links: ApolloLink[] = [];
 
   if (foreign) {
     links.push(createErrorLink());
-    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/", null));
+    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get(context) ?? "/", null));
   } else if (context) {
     links.push(createErrorLink());
 

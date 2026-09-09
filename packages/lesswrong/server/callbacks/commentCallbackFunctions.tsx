@@ -1,7 +1,7 @@
 import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
-import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
+import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
@@ -426,7 +426,7 @@ const utils = {
       const tag = await loaders.Tags.load(comment.tagId)
       if (tag) {
         contentTitle = tag.name
-        rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
+        rejectedContentLink = `<a href=${tagGetAbsoluteDiscussionUrl({slug: tag.slug}, context.forumType)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
       }
     } else if (comment.postId) {
       const post = await loaders.Posts.load(comment.postId)

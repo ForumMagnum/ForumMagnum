@@ -14,12 +14,11 @@ import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
 import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 import type { NotificationDocument } from './collections/notifications/constants';
-import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
+import { commentGetAbsolutePageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../server/collections/tags/collection';
-import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import Sequences from '../server/collections/sequences/collection';
@@ -592,7 +591,7 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "Your submission to the Alignment Forum has been approved!";
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     let document: DbPost|DbComment|null 
     document = await Posts.findOne(notifications[0].documentId);
     if (!document) {
@@ -601,7 +600,7 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
     if (!document) throw Error(`Can't find document for notification: ${notifications[0]}`)
 
     if (isComment(document)) {
-      const link = commentGetPageUrlFromIds({postId: document.postId!, commentId: document._id, isAbsolute: true})
+      const link = commentGetAbsolutePageUrlFromIds({postId: document.postId!, commentId: document._id}, emailContext.resolverContext.forumType)
       return <p>
         Your <a href={link}>comment submission</a> to the Alignment Forum has been approved.
       </p>

@@ -91,7 +91,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings, forumType: Fo
     + (CASE WHEN p."curatedDate" IS NOT NULL THEN ${curatedBonus} ELSE 0 END)
   `;
   
-  const timeDecayFactor = TIME_DECAY_FACTOR.get(forumType);
+  const timeDecayFactor = TIME_DECAY_FACTOR;
   const ageOffset = forumType === 'AlignmentForum' ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `

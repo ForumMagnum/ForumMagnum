@@ -25,7 +25,7 @@ export const getTagMinimumKarmaPermissions = (forumType: ForumTypeString) => for
   }
 }, forumType)
 
-type GetUrlOptions = {
+interface GetUrlOptions {
   edit?: boolean,
   flagId?: string
   lens?: string
@@ -37,7 +37,8 @@ type GetUrlOptions = {
 export const getTagCreateUrl = () => `/w/create`
 export const getTagGradingSchemeUrl = () => `/w/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
+// Relative URLs do not depend on the forum's domain.
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, hash?: string) => {
   const urlSearchParams = urlOptions
   const search = qs.stringify(urlSearchParams)
 
@@ -46,30 +47,42 @@ export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbs
 
   const url = `/w/${tag.slug}`
   const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSuffixes) : urlWithSuffixes
+  return urlWithSuffixes
+}
+
+export const tagGetAbsoluteUrl = (tag: {slug: string}, forumType: ForumTypeString, urlOptions?: GetUrlOptions, hash?: string) => {
+  return combineUrls(siteUrlSetting.get(forumType), tagGetUrl(tag, urlOptions, hash));
 }
 
 export const tagGetHistoryUrl = (tag: {slug: string}) => `/w/${tag.slug}/history`
 
-export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/w/${tag.slug}/discussion`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
+export const tagGetDiscussionUrl = (tag: {slug: string}) => `/w/${tag.slug}/discussion`
+
+export const tagGetAbsoluteDiscussionUrl = (tag: {slug: string}, forumType: ForumTypeString) => {
+  return combineUrls(siteUrlSetting.get(forumType), tagGetDiscussionUrl(tag));
 }
 
-export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  return tagGetUrl(tag, {tab: "posts"}, isAbsolute)
+export const tagGetSubforumUrl = (tag: {slug: string}) => tagGetUrl(tag, {tab: "posts"})
+
+export const tagGetAbsoluteSubforumUrl = (tag: {slug: string}, forumType: ForumTypeString) => {
+  return combineUrls(siteUrlSetting.get(forumType), tagGetSubforumUrl(tag));
 }
 
-export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
+interface TagCommentLinkOptions {
   tagSlug: string,
   commentId?: string | null,
   tagCommentType: TagCommentType,
-  isAbsolute?: boolean,
-}): string => {
-  const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}, isAbsolute) : tagGetSubforumUrl({slug: tagSlug}, isAbsolute)
+}
+
+export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION"}: TagCommentLinkOptions): string => {
+  const base = tagCommentType === "DISCUSSION" ? tagGetDiscussionUrl({slug: tagSlug}) : tagGetSubforumUrl({slug: tagSlug})
 
   // Bit of a hack to make it work whether or not there are already query params, if this breaks just parse the URL properly
   return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
+}
+
+export const tagGetAbsoluteCommentLink = (options: TagCommentLinkOptions, forumType: ForumTypeString): string => {
+  return combineUrls(siteUrlSetting.get(forumType), tagGetCommentLink(options));
 }
 
 // TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
@@ -153,4 +166,3 @@ export const defaultTagHistorySettings: TagHistorySettings = {
   showMetadata: true,
   lensId: "all",
 };
-

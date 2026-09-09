@@ -1,4 +1,5 @@
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import { commentGetAbsolutePageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Comments from "@/server/collections/comments/collection";
 import Posts from "@/server/collections/posts/collection";
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   ]);
 
   if (post && comment) {
-    const url = commentGetPageUrlFromIds({ postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: true, isAbsolute: true });
+    const url = commentGetAbsolutePageUrlFromIds({ postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: true }, getForumTypeForRequest(req));
     return redirect(url);
   } else if (post) {
     return redirect(postGetPageUrl(post, true));

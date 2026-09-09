@@ -1,7 +1,7 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { type ForumTypeString, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactorSetting } from './instanceSettings';
+import { type ForumTypeString, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactor } from './instanceSettings';
 
-export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
+export const TIME_DECAY_FACTOR = timeDecayFactor;
 // Basescore bonuses for various categories
 export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
@@ -26,7 +26,7 @@ export const recalculateScore = (item: VoteableType) => {
     baseScore = baseScore + frontpageBonus + curatedBonus;
 
     // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
+    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR))*1000000)/1000000;
 
     return newScore;
   } else {
@@ -101,7 +101,7 @@ export const timeDecayExpr = (forumType: ForumTypeString) => {
       ] }, // Age in hours
       getAgeOffset(forumType)
     ]},
-    TIME_DECAY_FACTOR.get(forumType)
+    TIME_DECAY_FACTOR
   ]}
 }
 

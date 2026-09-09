@@ -1,5 +1,5 @@
-import { type ForumTypeString, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import { type ForumTypeString, hideUnreviewedAuthorCommentsSettings, siteUrlSetting } from '@/lib/instanceSettings';
+import { combineUrls } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
@@ -13,62 +13,78 @@ export async function commentGetAuthorName(comment: DbComment, context: Resolver
   return user ? userGetDisplayName(user, context.forumType) : comment.author ?? "[unknown author]";
 };
 
-// Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
+// Get the relative URL of a comment page, loading its parent through context.
+export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext): Promise<string> {
   if (comment.postId) {
     const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
-    return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(post)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const tag = await context.loaders.Tags.load(comment.tagId);
     if (!tag) throw Error(`Unable to find wikitag for comment: ${comment._id}`)
 
-    return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
+    return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType});
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
   }
 };
 
-export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbsolute = false): string {
+export function commentGetPageUrl(comment: CommentsListWithParentMetadata): string {
   if (comment.post) {
-    return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(comment.post)}?commentId=${comment._id}`;
   } else if (comment.tag) {
-    return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
+    return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType});
   } else {
     throw new Error(`Unable to find document for comment: ${comment._id}`);
   }
 }
 
-// TODO there are several functions which do this, some of them should be combined
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
+export async function commentGetAbsolutePageUrlFromDB(comment: DbComment, context: ResolverContext): Promise<string> {
+  const relativeUrl = await commentGetPageUrlFromDB(comment, context);
+  return combineUrls(siteUrlSetting.get(context), relativeUrl);
+}
+
+export function commentGetAbsolutePageUrl(comment: CommentsListWithParentMetadata, forumType: ForumTypeString): string {
+  return combineUrls(siteUrlSetting.get(forumType), commentGetPageUrl(comment));
+}
+
+interface CommentPageUrlOptions {
   postId?: string | null,
   postSlug?: string | null,
   tagSlug?: string | null,
   tagCommentType?: TagCommentType | null,
   commentId?: string | null,
   permalink?: boolean,
-  isAbsolute?: boolean,
-}): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+}
 
+// TODO there are several functions which do this, some of them should be combined
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true}: CommentPageUrlOptions): string {
   if (postId) {
     if (permalink) {
-      return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+      return `/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
     } else {
-      return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+      return `/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
   } else if (tagSlug) {
-    return tagGetCommentLink({tagSlug, commentId, tagCommentType: tagCommentType ?? "DISCUSSION", isAbsolute});
+    return tagGetCommentLink({tagSlug, commentId, tagCommentType: tagCommentType ?? "DISCUSSION"});
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"
   }
 }
 
+export function commentGetAbsolutePageUrlFromIds(options: CommentPageUrlOptions, forumType: ForumTypeString): string {
+  if (!options.postId && !options.tagSlug) return "/";
+  return combineUrls(siteUrlSetting.get(forumType), commentGetPageUrlFromIds(options));
+}
+
 // URL for RSS feed of all direct replies
-export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
+export const commentGetRSSUrl = function(comment: HasIdType): string {
+  return `/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
+};
+
+export const commentGetAbsoluteRSSUrl = function(comment: HasIdType, forumType: ForumTypeString): string {
+  return combineUrls(siteUrlSetting.get(forumType), commentGetRSSUrl(comment));
 };
 
 export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, forumType: ForumTypeString, comment?: CommentsList): boolean => {

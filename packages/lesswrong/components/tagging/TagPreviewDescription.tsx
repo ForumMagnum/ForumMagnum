@@ -78,7 +78,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
     );
   }
 
-  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
+  const tagUrl = tagGetUrl(tag, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
   let html: string | undefined;
 

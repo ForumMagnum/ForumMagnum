@@ -1,6 +1,6 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { tagGetAbsoluteUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { CommentTreeNode } from "@/lib/utils/unflatten";
@@ -54,14 +54,15 @@ export const getStructuredData = ({
   description,
   commentTree,
   answersTree,
-  isAF,
+  forumType,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
   commentTree: CommentTreeNode<CommentsList>[];
   answersTree: CommentTreeNode<CommentsList>[];
-  isAF: boolean;
+  forumType: ForumTypeString;
 }) => {
+  const isAF = forumType === "AlignmentForum";
   const { user, coauthors } = post;
   const hasUser = !!user;
   const hasCoauthors = !!coauthors && coauthors.length > 0;
@@ -83,7 +84,7 @@ export const getStructuredData = ({
     about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
       "@type": "Thing",
       name: tag.name,
-      url: tagGetUrl(tag, undefined, true),
+      url: tagGetAbsoluteUrl(tag, forumType),
       description: tag.description?.htmlHighlight,
     })),
     ...(hasUser && {

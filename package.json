@@ -195,6 +195,7 @@
     "draft-js-resizeable-plugin": "^2.0.6",
     "draft-js-richbuttons-plugin": "^2.1.0",
     "esbuild": "^0.25.0",
+    "fast-xml-parser": "^5.11.1",
     "feedparser-promised": "^1.2.2",
     "fp-ts": "^2.13.1",
     "geist": "^1.7.2",

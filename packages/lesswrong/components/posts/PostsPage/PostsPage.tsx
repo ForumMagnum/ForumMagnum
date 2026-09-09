@@ -540,7 +540,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, isAF})}/>
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, forumType})}/>
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">

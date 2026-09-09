@@ -1,6 +1,7 @@
 import Posts from "@/server/collections/posts/collection";
 import Comments from "@/server/collections/comments/collection";
-import { commentGetRSSUrl } from '@/lib/collections/comments/helpers';
+import { commentGetAbsoluteRSSUrl } from '@/lib/collections/comments/helpers';
+import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   ]);
 
   if (post && comment) {
-    redirect(commentGetRSSUrl(comment, true));
+    redirect(commentGetAbsoluteRSSUrl(comment, getForumTypeForRequest(req)));
   } else if (post) {
     redirect(postGetPageUrl(post, true));
   } else {

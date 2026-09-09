@@ -433,7 +433,7 @@ export const newUserIconKarmaThresholdSetting = new PublicInstanceSetting<number
 export const cloudinaryUploadPresetEditorName = new PublicInstanceSetting<string | null>('cloudinary.uploadPresetEditor', null, "optional");
 
 // LW (and legacy) time decay algorithm settings
-export const timeDecayFactorSetting = new PublicInstanceSetting<number>('timeDecayFactor', 1.15, "optional");
+export const timeDecayFactor = 1.15;
 export const frontpageBonusSetting = new PublicInstanceSetting<number>('frontpageScoreBonus', 10, "optional");
 export const curatedBonusSetting = new PublicInstanceSetting<number>('curatedScoreBonus', 10, "optional");
 
@@ -449,9 +449,9 @@ export const databaseDebuggersSetting = new PublicInstanceSetting<string[]>('deb
 // 'Maximum documents per request'
 export const maxDocumentsPerRequestSetting = new PublicInstanceSetting<number>('maxDocumentsPerRequest', 10000, "optional");
 
-export const addNewReactKarmaThreshold = new PublicInstanceSetting("reacts.addNewReactKarmaThreshold", 100, "optional");
-export const addNameToExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.addNameToExistingReactKarmaThreshold", 20, "optional");
-export const downvoteExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.downvoteExistingReactKarmaThreshold", 20, "optional");
+export const addNewReactKarmaThreshold = 10;
+export const addNameToExistingReactKarmaThreshold = 5;
+export const downvoteExistingReactKarmaThreshold = 20;
 
 export const karmaRewarderId100 = new PublicInstanceSetting<string | null>('karmaRewarderId100', null, "optional");
 export const karmaRewarderId1000 = new PublicInstanceSetting<string | null>('karmaRewarderId1000', null, "optional");

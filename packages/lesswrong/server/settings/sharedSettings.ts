@@ -14,11 +14,6 @@ export const sharedSettings = {
     petrovServerUrl: "https://forum.effectivealtruism.org/graphql",
     petrovGamePostId: "KTEciTeFwL2tTujZk"
   },
-  reacts: {
-    addNewReactKarmaThreshold: 10,
-    downvoteExistingReactKarmaThreshold: 20,
-    addNameToExistingReactKarmaThreshold: 5
-  },
   stripe: {
     publicKey: "pk_live_51HtKAwA2QvoATZCZiy9f2nc6hA52YS1BE81cFu9FEV1IKar0Bwx6hIpxxxYHnhaxO9KM7kRYofZId3sUUI7Q0NeO00tGni3Wza"
   },
@@ -112,7 +107,6 @@ export const sharedSettings = {
     enabled: true
   },
   moderationEmail: "team@lesswrong.com",
-  timeDecayFactor: 1.15,
   googleTagManager: {
     apiKey: "GTM-TRC765W"
   },

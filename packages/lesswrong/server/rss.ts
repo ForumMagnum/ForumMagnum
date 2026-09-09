@@ -2,7 +2,7 @@ import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { getForumTypeForRequest } from "./utils/requestUtil";
 import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
-import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
+import { commentGetAbsolutePageUrlFromDB } from '../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
@@ -117,7 +117,7 @@ export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
-    const url = await commentGetPageUrlFromDB(comment, context, true);
+    const url = await commentGetAbsolutePageUrlFromDB(comment, context);
     const parentTitle = await getCommentParentTitle(comment, context)
     feed.item({
      title: 'Comment on ' + parentTitle,
