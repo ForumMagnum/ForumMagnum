@@ -4,7 +4,6 @@ import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
 import md5 from "md5";
 import { captureException } from "@/lib/sentryWrapper";
-// import { dogstatsd } from "../datadog/tracer";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 

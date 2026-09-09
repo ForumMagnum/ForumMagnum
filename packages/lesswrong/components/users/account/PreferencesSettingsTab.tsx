@@ -215,13 +215,6 @@ const PreferencesSettingsTab = ({
             label="Hide from People directory"
             description="Your profile won't appear in the People directory"
           />
-
-          <SettingsToggleRow
-            value={settings.allowDatadogSessionReplay}
-            onChange={(value) => void updateSettings({ allowDatadogSessionReplay: value })}
-            label="Allow Session Replay"
-            description="Allow us to capture a video-like recording of your browser session for debugging and site improvements"
-          />
         </SettingsSection>
       )}
     </div>
