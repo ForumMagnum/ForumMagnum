@@ -275,10 +275,14 @@ function shouldProxyForStatusCode(req: NextRequest) {
 
 function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
   const cookies = headers.get("Cookie")?.split("; ") ?? [];
-  const cookiesByName = {};
+  const cookiesByName: Record<string, string> = {};
   for (const cookie of cookies) {
-    const [k,v] = cookie.split("=");
-    cookies[k] = cookie;
+    // Split on the first "=" only; cookie values may themselves contain "="
+    const separatorIndex = cookie.indexOf("=");
+    if (separatorIndex <= 0) continue;
+    const k = cookie.slice(0, separatorIndex);
+    const v = cookie.slice(separatorIndex + 1);
+    cookiesByName[k] = v;
   }
   cookiesByName[CLIENT_ID_COOKIE] = clientId;
   cookiesByName[CLIENT_ID_NEW_COOKIE] = "true";
