@@ -151,7 +151,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
   searchResultsArea: {
     position: "absolute",
-    zIndex: theme.zIndexes.searchResults,
+    zIndex: theme.zIndexes.header + 1,
     top: 0,
     width: "100%",
   },

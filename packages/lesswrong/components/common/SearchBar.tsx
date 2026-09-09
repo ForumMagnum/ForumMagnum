@@ -1,10 +1,11 @@
 "use client";
 
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
+import { SearchState } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
@@ -20,6 +21,7 @@ import SearchBarResults from "../search/SearchBarResults";
 import ForumIcon from "./ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useGlobalKeydown } from './withGlobalKeydown';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -27,9 +29,14 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
+    minWidth: 48,
+    '& :focus': {
+      outline: 'none',
+    },
   },
   rootChild: {
-    height: 'fit-content'
+    minWidth: 0,
+    width: '100%',
   },
   searchInputArea: {
     display: "block",
@@ -38,11 +45,11 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
     height: 48,
 
     "& .ais-SearchBox": {
-      display: 'inline-block',
+      display: 'none',
       position: 'relative',
-      maxWidth: 300,
-      width: '100%',
-      height: 46,
+      flex: 1,
+      minWidth: 0,
+      height: 48,
       whiteSpace: 'nowrap',
       boxSizing: 'border-box',
       fontSize: 14,
@@ -60,8 +67,9 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
 
       height: "100%",
       width: "100%",
-      paddingRight: 0,
-      paddingLeft: 48,
+      paddingRight: 28,
+      paddingLeft: 0,
+      boxSizing: 'border-box',
       verticalAlign: "bottom",
       borderStyle: "none",
       boxShadow: "none",
@@ -69,13 +77,74 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
-      borderRadius: 5,
+      borderRadius: 0,
+    },
+    "&.open": {
+      width: 300,
+      maxWidth: '100%',
+      height: 'var(--header-height)',
+    },
+    "&.open .ais-SearchBox": {
+      display: "inline-block",
     },
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
-    "&.open .SearchBar-searchIconButton": {
-      position: 'fixed',
+    [theme.breakpoints.down('sm')]: {
+      "&.open": {
+        width: 48,
+      },
+      "&.open .ais-SearchBox": {
+        position: 'fixed',
+        top: 'var(--header-height)',
+        left: 0,
+        width: '100%',
+        height: 48,
+        backgroundColor: theme.palette.panelBackground.default,
+        boxShadow: theme.palette.boxShadow.searchResults,
+        fontSize: 16,
+      },
+      "& .ais-SearchBox-input": {
+        paddingLeft: 16,
+        paddingRight: 48,
+      },
+    },
+  },
+  inputControls: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '100%',
+  },
+  backdrop: {
+    display: 'none',
+    position: "fixed",
+    inset: 0,
+    zIndex: 1,
+    backgroundColor: theme.palette.greyAlpha(0.12),
+    [theme.breakpoints.up('md')]: {
+      display: 'block',
+    },
+  },
+  activeInput: {
+    zIndex: 2,
+    backgroundColor: theme.palette.panelBackground.default,
+    color: theme.palette.text.normal,
+    "&&& .ais-SearchBox-input, &&& .ais-SearchBox-input::placeholder, &&& .SearchBar-searchIcon": {
+      color: theme.palette.text.normal,
+    },
+    [theme.breakpoints.down('sm')]: {
+      borderRadius: '4px 4px 0 0',
+      "& $searchIconButton": {
+        // Keep the active tab above the search field's shadow.
+        position: 'relative',
+        zIndex: 1,
+        height: '100%',
+        borderRadius: '4px 4px 0 0',
+        backgroundColor: theme.palette.panelBackground.default,
+        '&:hover': {
+          backgroundColor: theme.palette.panelBackground.default,
+        },
+      },
     },
   },
   searchInputAreaSmall: {},
@@ -84,6 +153,7 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   },
   searchIconButton: {
     color: theme.palette.header.text ,
+    flexShrink: 0,
   },
   searchIconButtonSmall: {},
   closeSearchIcon: {
@@ -92,22 +162,42 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: 15,
+    top: '50%',
+    transform: 'translateY(-50%)',
     right: 5,
-    cursor: "pointer"
+    cursor: "pointer",
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  clearSearch: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline-flex',
+      position: 'fixed',
+      top: 'var(--header-height)',
+      right: 0,
+      width: 48,
+      height: 48,
+      color: theme.palette.text.normal,
+    },
   },
 }))
 
 const SearchBar = ({onSetIsActive, searchResultsArea}: {
   onSetIsActive: (active: boolean) => void,
-  searchResultsArea: any,
+  searchResultsArea: React.RefObject<HTMLDivElement | null>,
 }) => {
   const { isAF } = useForumType();
   const classes = useStyles(styles);
+  const inputAreaRef = useRef<HTMLDivElement>(null);
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
-  const [searchOpen,setSearchOpen] = useState(false);
-  const [currentQuery,setCurrentQuery] = useState("");
+  const [searchState, setSearchState] = useState<SearchState>({query: ""});
+  const currentQuery = searchState.query ?? "";
+  useEffect(() => {
+    if (inputOpen) inputAreaRef.current?.querySelector("input")?.focus();
+  }, [inputOpen]);
   const navigate = useNavigate();
   const captureSearch = useSearchAnalytics();
 
@@ -121,36 +211,74 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   });
 
 
-  const openSearchResults = () => setSearchOpen(true);
-  const closeSearchResults = () => setSearchOpen(false);
-
   const closeSearch = () => {
-    setSearchOpen(false);
     setInputOpen(false);
+    setSearchState(previous => ({...previous, query: ""}));
     if (onSetIsActive)
       onSetIsActive(false);
   }
 
+  const clearSearch = () => {
+    setSearchState(previous => ({...previous, query: ""}));
+    inputAreaRef.current?.querySelector('input')?.focus();
+  };
+
   const handleSearchTap = () => {
     setInputOpen(true);
-    setSearchOpen(!!currentQuery);
     if (onSetIsActive)
       onSetIsActive(true);
   }
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape') closeSearch();
-    if (event.keyCode === 13) handleSubmit()
-  }
+  useGlobalKeydown((event) => {
+    if (event.defaultPrevented || !isSearchEnabled() || event.isComposing
+      || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey
+      || event.key.toLowerCase() !== 'k') {
+      return;
+    }
+    // Preserve rich-text editors' Cmd/Ctrl+K shortcut for inserting links.
+    if (event.target instanceof HTMLElement && event.target.isContentEditable) {
+      return;
+    }
+    event.preventDefault();
+    if (event.repeat) return;
+    if (inputOpen) {
+      closeSearch();
+    } else {
+      handleSearchTap();
+    }
+  });
 
-  const queryStateControl = (searchState: any): void => {
-    if (searchState.query !== currentQuery) {
-      setCurrentQuery(searchState.query);
-      if (searchState.query) {
-        openSearchResults();
-      } else {
-        closeSearchResults();
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented || event.nativeEvent.isComposing) return;
+    if (inputOpen && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
+      && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      const input = inputAreaRef.current?.querySelector('input');
+      const results = Array.from(searchResultsArea.current?.querySelectorAll<HTMLAnchorElement>(
+        '[data-search-result] a[href]'
+      ) ?? []).filter(result => result.getClientRects().length > 0);
+      const currentIndex = results.findIndex(result => result === event.target);
+      if (event.target === input || currentIndex !== -1) {
+        event.preventDefault();
+        event.stopPropagation();
+        if ((event.key === 'ArrowUp' && currentIndex === 0)
+          || (event.key === 'ArrowDown' && currentIndex === results.length - 1)) {
+          input?.focus();
+        } else {
+          const nextIndex = currentIndex === -1
+            ? (event.key === 'ArrowDown' ? 0 : results.length - 1)
+            : currentIndex + (event.key === 'ArrowDown' ? 1 : -1);
+          results[nextIndex]?.focus({preventScroll: true});
+        }
       }
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closeSearch();
+    }
+    if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
+      event.preventDefault();
+      handleSubmit();
     }
   }
 
@@ -167,30 +295,42 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
     <div className={classes.rootChild}>
       <InstantSearch
         indexName={getSearchIndexName("Posts")}
-        searchClient={getSearchClient({emptyStringSearchResults: "empty"})}
-        onSearchStateChange={queryStateControl}
+        searchClient={getSearchClient({emptyStringSearchResults: "default"})}
+        searchState={searchState}
+        onSearchStateChange={setSearchState}
       >
-        <div className={classNames(
+        {inputOpen && <div className={classes.backdrop} onClick={closeSearch} aria-hidden="true" />}
+        <div ref={inputAreaRef} className={classNames(
           classes.searchInputArea,
-          {"open": inputOpen},
+          {"open": inputOpen, [classes.activeInput]: inputOpen},
           {[classes.searchInputAreaSmall]: !currentUser}
         )}>
           {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
-          <div onClick={handleSearchTap}>
-            <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
+          <div className={classes.inputControls}>
+            <IconButton
+              aria-label="Search"
+              aria-expanded={inputOpen}
+              onClick={inputOpen ? closeSearch : handleSearchTap}
+              onFocus={(event) => {
+                if (event.currentTarget.matches(':focus-visible')) handleSearchTap();
+              }}
+              className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
               <ForumIcon icon="Search" className={classes.searchIcon} />
             </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
              // @ts-ignore */}
-            {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
+            <SearchBox reset={null} focusShortcuts={[]} autoFocus={inputOpen} />
           </div>
+          {inputOpen && <IconButton aria-label="Clear search" className={classes.clearSearch} onClick={clearSearch}>
+            <CloseIcon className={classes.closeSearchIcon}/>
+          </IconButton>}
           { inputOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>
-            {searchOpen && createPortal(
-              <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />,
+            {searchResultsArea.current && createPortal(
+              <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} open={inputOpen} />,
               searchResultsArea.current
             )}
           </div>
@@ -204,5 +344,3 @@ export default registerComponent("SearchBar", SearchBar, {
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });
-
-
