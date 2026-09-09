@@ -4,7 +4,6 @@ import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
-// import { dogstatsd } from "./datadog/tracer";
 import { accessTokenSecretSetting, accessTokenSetting, apiKeySecretSetting, apiKeySetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { createTweet } from "./collections/tweets/mutations";

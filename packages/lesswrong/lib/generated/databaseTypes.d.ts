@@ -1673,7 +1673,6 @@ interface DbUser extends DbObject {
   allPostsShowLowKarma: boolean | null
   allPostsSorting: string | null
   allPostsTimeframe: string | null
-  allowDatadogSessionReplay: boolean
   autoSubscribeAsOrganizer: boolean
   auto_subscribe_to_my_comments: boolean
   auto_subscribe_to_my_posts: boolean

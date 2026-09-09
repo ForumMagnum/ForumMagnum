@@ -7278,7 +7278,6 @@ interface User {
   subforumPreferredLayout: SubforumPreferredLayout | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
-  allowDatadogSessionReplay: boolean;
   afPostCount: number;
   afCommentCount: number;
   afSequenceCount: number;
@@ -9028,7 +9027,6 @@ interface CreateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
@@ -9223,7 +9221,6 @@ interface UpdateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afApplicationText?: string | null;
   afSubmittedApplication?: boolean | null;

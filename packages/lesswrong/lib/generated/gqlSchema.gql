@@ -7862,7 +7862,6 @@ type User {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
-  allowDatadogSessionReplay: Boolean!
   afPostCount: Float!
   afCommentCount: Float!
   afSequenceCount: Float!
@@ -9894,7 +9893,6 @@ input CreateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
@@ -10089,7 +10087,6 @@ input UpdateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afApplicationText: String
   afSubmittedApplication: Boolean

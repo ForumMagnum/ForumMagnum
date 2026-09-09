@@ -3289,7 +3289,6 @@ CREATE TABLE "Users" (
   "subforumPreferredLayout" TEXT,
   "criticismTipsDismissed" BOOL NOT NULL DEFAULT FALSE,
   "hideFromPeopleDirectory" BOOL NOT NULL DEFAULT FALSE,
-  "allowDatadogSessionReplay" BOOL NOT NULL DEFAULT FALSE,
   "afPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "afCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "afSequenceCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
