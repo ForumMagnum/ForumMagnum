@@ -407,7 +407,7 @@ export const jargonTermsGraphQLMutations = {
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
-    if (!userCanCreateAndEditJargonTerms(currentUser)) {
+    if (!userCanCreateAndEditJargonTerms(currentUser, context.forumType)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
     return await createNewJargonTerms({ postId, currentUser, ...exampleParams, context });

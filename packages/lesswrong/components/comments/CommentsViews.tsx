@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
@@ -9,6 +10,7 @@ import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,7 +41,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
   const includeAdminViews = userCanDo(currentUser, "comments.softRemove.all");
-  const viewOptions = getCommentViewOptions({includeAdminViews});
+  const viewOptions = getCommentViewOptions(forumType, {includeAdminViews});
   const selectedOption = viewOptions.find((option) => option.value === currentView) || viewOptions[0]
 
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick}/>

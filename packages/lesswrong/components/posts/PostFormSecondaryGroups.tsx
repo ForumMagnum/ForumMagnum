@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useForumType } from '@/components/hooks/useForumType';
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
@@ -111,12 +112,12 @@ function userCanEditCrosspostSettings(user: UsersCurrent | null, document: Ownab
   return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
 
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -534,7 +535,7 @@ const PostFormSecondaryGroups = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}

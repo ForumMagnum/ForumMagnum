@@ -1,5 +1,4 @@
 import React from "react";
-import { usesCurationEmailsCron } from "../../lib/betas";
 import CurationEmails from "../../server/collections/curationEmails/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";

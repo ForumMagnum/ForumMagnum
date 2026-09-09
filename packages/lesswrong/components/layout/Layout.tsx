@@ -297,6 +297,7 @@ export const IsLlmChatSidebarOpenContext = createContext(false);
 const LlmSidebarWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
@@ -309,7 +310,7 @@ const LlmSidebarWrapper = ({children}: {
     setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
   }, [setCookie]);
 
-  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !hideLlmChatButton;
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser, forumType) && !hideLlmChatButton;
 
   return <div className={classes.topLevelContainer}>
     <div className={classes.pageContent}>

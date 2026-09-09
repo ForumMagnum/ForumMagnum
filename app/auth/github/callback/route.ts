@@ -1,3 +1,4 @@
+import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { exchangeCodeForTokens, fetchGitHubUserProfile, getGitHubPrimaryEmail } from '@/lib/auth/githubOAuth';
@@ -36,7 +37,8 @@ export async function GET(request: NextRequest) {
   
   try {
     // Exchange code for tokens
-    const tokens = await exchangeCodeForTokens(request, code);
+    const context = await getContextFromReqAndRes({ req: request, isSSR: false });
+    const tokens = await exchangeCodeForTokens(request, code, context.forumType);
     
     // Fetch user profile
     const profile = await fetchGitHubUserProfile(tokens.access_token);

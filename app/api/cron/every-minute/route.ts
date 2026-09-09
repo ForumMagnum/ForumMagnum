@@ -1,3 +1,4 @@
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { NextRequest } from 'next/server';
 import { sendCurationEmails } from '@/server/curationEmails/cron';
 import { testServerSetting } from '@/lib/instanceSettings';
@@ -13,13 +14,15 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  const context = createAnonymousContext();
+
   const isTestServer = testServerSetting.get();
 
   // Run all once-a-minute tasks
   const tasks: Promise<void>[] = [];
 
   // Send curation emails
-  if (!isTestServer && usesCurationEmailsCron()) {
+  if (!isTestServer && usesCurationEmailsCron(context.forumType)) {
     tasks.push(getLockOrAbort('sendCurationEmails', sendCurationEmails));
   }
 

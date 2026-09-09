@@ -1,6 +1,6 @@
 import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { isAF } from '../lib/instanceSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
@@ -206,6 +206,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
+  const forumType = forumTypeSetting.get();
   const now = new Date();
   let eventToHandle: any = null;
   
@@ -219,7 +220,7 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF(),
+        af: forumType === 'AlignmentForum',
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -267,6 +268,7 @@ export const forcePendingEvents = async (
   } = {}
 ) => {
   let eventToHandle = null;
+  const forumType = forumTypeSetting.get();
   let countHandled = 0;
   // Default time condition is nothing
   let timeCondition: MongoSelector<DbDebouncerEvents> = {}
@@ -284,7 +286,7 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF(),
+        af: forumType === 'AlignmentForum',
         ...timeCondition,
       },
       { $set: { dispatched: true } },

@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
@@ -788,11 +790,11 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -1307,6 +1309,7 @@ const EditorSettingsSidebar = ({
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
 }: EditorSettingsSidebarProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { flash } = useMessages();
@@ -1744,7 +1747,7 @@ const EditorSettingsSidebar = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}

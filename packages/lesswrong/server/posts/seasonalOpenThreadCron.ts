@@ -1,4 +1,4 @@
-import { openThreadTagIdSetting, seasonalOpenThreadAuthorSlugSetting, isLW } from "@/lib/instanceSettings";
+import { openThreadTagIdSetting, seasonalOpenThreadAuthorSlugSetting, forumTypeSetting } from "@/lib/instanceSettings";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
@@ -100,7 +100,7 @@ export const maybeCreateSeasonalOpenThread = async (date = new Date()): Promise<
   if (!info) {
     return { status: "not_due" };
   }
-  if (!isLW()) {
+  if (forumTypeSetting.get() !== 'LessWrong') {
     return { status: "not_lesswrong", title: info.title };
   }
 

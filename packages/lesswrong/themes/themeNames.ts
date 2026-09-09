@@ -1,5 +1,5 @@
 import { DeferredForumSelect } from '../lib/forumTypeUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
@@ -79,8 +79,7 @@ export const abstractThemeToConcrete = (
   ? theme
   : {...theme, name: prefersDarkMode ? "dark" : "default"};
 
-export function getForumType(themeOptions: AbstractThemeOptions) {
-  const actualForumType = forumTypeSetting.get();
+export function getForumType(themeOptions: AbstractThemeOptions, actualForumType: ForumTypeString) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 

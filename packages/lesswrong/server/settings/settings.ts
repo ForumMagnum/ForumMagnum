@@ -10,7 +10,7 @@ import { testSettings } from "./test";
 import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest, isProduction } from "@/lib/executionEnvironment";
-import { isAF } from "@/lib/forumTypeUtils";
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 
 const validEnvNames = z.enum(["test", "testCrosspost", "baserates","localLwDevDb", "prodLw"]);
 
@@ -33,6 +33,7 @@ function getPublicSettings() {
   }
 
   const validEnvName = parsedEnvName.data;
+  const forumType = forumTypeSetting.get();
 
   switch (validEnvName) {
     case "test":
@@ -43,17 +44,17 @@ function getPublicSettings() {
       return baserates;
     // We're running a local dev instance against the dev db, or in the deployed dev environment
     case "localLwDevDb":
-      return isAF() ? localAfDevDb : localLwDevDb;
+      return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
     // TODO: figure out what to do about preview environments (i.e. whether they should hit the prod db).
     // Even if they do, they should probably not run with "prod" settings (rather "local prod").
     case "prodLw": {
       // We're running in production, or a local prod build against the prod db
       if (isProduction) {
-        return isAF() ? prodAf : prodLw;
+        return forumType === 'AlignmentForum' ? prodAf : prodLw;
       }
 
       // We're running a local dev instance against the prod db
-      return isAF() ? localAfProdDb : localLwProdDb;
+      return forumType === 'AlignmentForum' ? localAfProdDb : localLwProdDb;
     }
   }
 }

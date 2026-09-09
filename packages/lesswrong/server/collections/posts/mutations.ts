@@ -284,7 +284,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 
-  await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
+  await sendLWAFPostCurationEmails(updatedDocument, oldDocument, context);
   await purgeCurationEmailQueueWhenUncurating(updatedDocument, oldDocument);
 
   await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);

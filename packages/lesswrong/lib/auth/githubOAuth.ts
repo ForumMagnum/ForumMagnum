@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { githubClientIdSetting, githubOAuthSecretSetting, afGithubClientIdSetting, afGithubOAuthSecretSetting } from '@/server/databaseSettings';
-import { isAF } from '@/lib/instanceSettings';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { NextRequest } from 'next/server';
 import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
 import { combineUrls } from '../vulcan-lib/utils';
@@ -36,16 +36,16 @@ export function generateOAuthState(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-export function getGitHubCredentials() {
-  const clientId = isAF() ? afGithubClientIdSetting.get() : githubClientIdSetting.get();
-  const clientSecret = isAF() ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get();
+export function getGitHubCredentials(forumType: ForumTypeString) {
+  const clientId = forumType === 'AlignmentForum' ? afGithubClientIdSetting.get() : githubClientIdSetting.get();
+  const clientSecret = forumType === 'AlignmentForum' ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get();
   
   return { clientId, clientSecret };
 }
 
-export function getGitHubAuthUrl(request: NextRequest, state: string): string {
+export function getGitHubAuthUrl(request: NextRequest, state: string, forumType: ForumTypeString): string {
   const siteUrl = getSiteUrlFromReq(request);
-  const { clientId } = getGitHubCredentials();
+  const { clientId } = getGitHubCredentials(forumType);
   if (!clientId) throw new Error('GitHub OAuth not configured');
 
   const params = new URLSearchParams({
@@ -58,9 +58,9 @@ export function getGitHubAuthUrl(request: NextRequest, state: string): string {
   return `${GITHUB_AUTH_URL}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(request: NextRequest, code: string): Promise<GitHubTokenResponse> {
+export async function exchangeCodeForTokens(request: NextRequest, code: string, forumType: ForumTypeString): Promise<GitHubTokenResponse> {
   const siteUrl = getSiteUrlFromReq(request);
-  const { clientId, clientSecret } = getGitHubCredentials();
+  const { clientId, clientSecret } = getGitHubCredentials(forumType);
   
   if (!clientId || !clientSecret) {
     throw new Error('GitHub OAuth credentials not configured');

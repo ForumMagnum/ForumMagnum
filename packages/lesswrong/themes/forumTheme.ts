@@ -32,8 +32,8 @@ const themeCache = new Map<string,ThemeType>();
 // important that, given the same theme options, this always return something
 // reference-equal to other versions with the same theme options, or else there
 // will be a memory leak on every pageload.
-export const getForumTheme = (themeOptions: ThemeOptions): ThemeType => {
-  const forumType = getForumType(themeOptions);
+export const getForumTheme = (themeOptions: ThemeOptions, requestForumType: ForumTypeString): ThemeType => {
+  const forumType = getForumType(themeOptions, requestForumType);
   const themeCacheKey = `${forumType}/${themeOptions.name}`;
   
   if (!themeCache.has(themeCacheKey)) {
@@ -54,13 +54,13 @@ const buildTheme = (
 ): ThemeType => {
   const dark = userTheme.dark ?? false;
 
-  let componentPalette: ThemePalette = baseTheme.componentPalette(dark);
+  let componentPalette: ThemePalette = baseTheme.componentPalette(dark, forumType);
   if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
   if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
 
   const palette: ThemePalette = componentPalette;
   
-  let combinedTheme = baseTheme.make(palette);
+  let combinedTheme = baseTheme.make(palette, forumType);
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   

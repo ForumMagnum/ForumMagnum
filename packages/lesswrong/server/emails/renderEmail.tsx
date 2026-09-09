@@ -2,7 +2,7 @@ import { htmlToText } from 'html-to-text';
 import { sendMailgunEmail } from './sendEmail';
 import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, type ForumTypeString } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -43,7 +43,7 @@ const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional/
 // handling the top-level table layout; some of it looks like workarounds for
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
-const emailGlobalCss = () => `
+const emailGlobalCss = (forumType: ForumTypeString) => `
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -73,7 +73,7 @@ const emailGlobalCss = () => `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${getForumTheme({name: "default"}).palette.primary.main};
+    color: ${getForumTheme({name: "default"}, forumType).palette.primary.main};
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -83,10 +83,11 @@ const emailGlobalCss = () => `
   }
 `;
 
-function addEmailBoilerplate({ css, title, body }: {
+function addEmailBoilerplate({ css, title, body, forumType }: {
   css: string,
   title: string,
-  body: string
+  body: string,
+  forumType: ForumTypeString,
 }): string
 {
   return `
@@ -100,7 +101,7 @@ function addEmailBoilerplate({ css, title, body }: {
    
       <title>${title}</title>
       <style>
-        ${emailGlobalCss()}
+        ${emailGlobalCss(forumType)}
         ${css}
       </style>
     </head>
@@ -148,7 +149,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
+  boilerplateGenerator?: (props: {css: string, title: string, body: string, forumType: ForumTypeString}) => string,
   utmParams?: Partial<Record<UtmParam, string>>;
   emailContext: EmailContextType,
 }): Promise<RenderedEmail>
@@ -166,7 +167,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // visited since before that feature was implemented.
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
-  const theme = getForumTheme(themeOptions);
+  const theme = getForumTheme(themeOptions, emailContext.resolverContext.forumType);
   
   // Render the REACT tree to an HTML string
   const body = await renderToString(bodyComponent);
@@ -177,7 +178,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     stylesUsed: emailContext.stylesUsed,
     theme,
   });
-  const html = boilerplateGenerator({ css, body, title:subject })
+  const html = boilerplateGenerator({ css, body, title:subject, forumType: emailContext.resolverContext.forumType })
   
   // Find any relative links, and convert them to absolute
   const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());

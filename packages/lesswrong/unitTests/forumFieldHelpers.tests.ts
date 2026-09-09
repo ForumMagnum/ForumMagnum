@@ -58,9 +58,9 @@ describe('forum-specific field helpers', () => {
 
     expect(userCanUpdateField<'Posts'>(user, canUpdate, post, context)).toBe(true);
     expect(userCanUpdateField<'Posts'>(user, canUpdate, post, { ...context, forumType: 'LessWrong' })).toBe(false);
-    expect(userCanCreateField(user, canCreate)).toBe(true);
+    expect(userCanCreateField(user, canCreate, context)).toBe(true);
     user.showHideKarmaOption = false;
     expect(userCanUpdateField<'Posts'>(user, canUpdate, post, context)).toBe(false);
-    expect(userCanCreateField(user, canCreate)).toBe(false);
+    expect(userCanCreateField(user, canCreate, context)).toBe(false);
   });
 });

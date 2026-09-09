@@ -41,7 +41,7 @@ const notificationSettingsLink = (
 );
 
 const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount: boolean}) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [sectionResults, setSectionResults] = useState<Record<string, boolean>>({});
@@ -61,7 +61,7 @@ const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOw
   };
 
   const sections = [
-    ...(userHasSubscribeTabFeed(currentUser) ? [
+    ...(userHasSubscribeTabFeed(currentUser, forumType) ? [
       <SubscriptionsList
         {...sharedProps}
         key="newActivityForFeed"

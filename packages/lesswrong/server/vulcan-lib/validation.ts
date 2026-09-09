@@ -33,7 +33,7 @@ export const validateDocument = async <N extends CollectionNameString, D extends
     const fieldSchema = schema[fieldName];
 
     // 1. check that the current user has permission to insert each field
-    if (!fieldSchema?.graphql || !userCanCreateField(currentUser, fieldSchema.graphql.canCreate)) {
+    if (!fieldSchema?.graphql || !userCanCreateField(currentUser, fieldSchema.graphql.canCreate, context)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },

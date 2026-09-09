@@ -240,10 +240,11 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
 }));
 
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
+  const { forumType } = useForumType();
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
   let limit;
-  if (isValidCommentView(query.view, commentOpts)) {
+  if (isValidCommentView(query.view, forumType, commentOpts)) {
     const { view: queryView, limit: queryLimit } = query;
     view = queryView;
     limit = returnIfValidNumber(queryLimit);

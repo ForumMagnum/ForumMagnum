@@ -556,7 +556,7 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
   if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
   if (oldPost?.contents_latest === post.contents_latest) return post;
 
-  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
+  if (!userCanPassivelyGenerateJargonTerms(currentUser, context.forumType)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([
     JargonTerms.find({postId: post._id}).fetch(),
@@ -1053,7 +1053,7 @@ export const curationEmailDelayDebouncer = new EventDebouncer({
   }
 });
 
-export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) {
+export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost, context: ResolverContext) {
   if (post.curatedDate && !oldPost.curatedDate) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
@@ -1067,7 +1067,7 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
       subject: `[Admin preview] ${post.title}`,
     });
     
-    if (!usesCurationEmailsCron()) {
+    if (!usesCurationEmailsCron(context.forumType)) {
       await curationEmailDelayDebouncer.recordEvent({
         key: post._id,
         af: false

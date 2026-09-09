@@ -8,7 +8,7 @@ declare global {
 
 type PermissionGroups = UserGroup;
 
-type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null) => boolean);
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null, context: ResolverContext) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>

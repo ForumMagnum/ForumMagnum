@@ -23,7 +23,7 @@ const PreferencesSettingsTab = ({
   currentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
-  const { isAF, isLW } = useForumType();
+  const { isAF, isLW, forumType } = useForumType();
   // googleLocation has a companion plain-string field ("location") that
   // LocationFormComponent sets through form.setFieldValue just before it
   // calls handleChange; stash it so both fields save in one mutation.
@@ -50,7 +50,7 @@ const PreferencesSettingsTab = ({
         <SettingsSelectRow
           value={settings.commentSorting}
           onChange={(value) => void updateSettings({ commentSorting: value })}
-          options={getCommentViewOptions()}
+          options={getCommentViewOptions(forumType)}
           label="Default comment sorting"
           description="How comments are ordered when you open a post"
         />
@@ -92,7 +92,7 @@ const PreferencesSettingsTab = ({
           label="Sort drafts by"
         />
 
-        {userCanViewJargonTerms(settings) && (
+        {userCanViewJargonTerms(settings, forumType) && (
           <SettingsToggleRow
             value={settings.postGlossariesPinned}
             onChange={(value) => void updateSettings({ postGlossariesPinned: value })}

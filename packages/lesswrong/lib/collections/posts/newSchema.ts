@@ -1299,7 +1299,7 @@ const schema = {
         // Forum-gating/beta-gating is done here, rather than just client side,
         // so that users don't have to download the glossary if it isn't going
         // to be displayed.
-        if (!userCanViewJargonTerms(context.currentUser)) {
+        if (!userCanViewJargonTerms(context.currentUser, context.forumType)) {
           return [];
         }
         const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 } }).fetch();
@@ -2902,7 +2902,7 @@ const schema = {
       inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [userCanModeratePost],
+      canCreate: [(user) => userCanModeratePost(user)],
       validation: {
         optional: true,
       },
