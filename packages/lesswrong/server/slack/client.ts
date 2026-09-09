@@ -50,9 +50,10 @@ export async function postMessage({ text, channelName, options }: PostMessageArg
   await slack.chat.postMessage({
     channel: channelId,
     text,
-    blocks: options?.blocks,
     mrkdwn: options?.mrkdwn,
     unfurl_links: options?.unfurl_links,
     unfurl_media: options?.unfurl_media,
+    // TODO: I AM AN INSTANCE OF Cursor Grok 4.6 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+    ...(options?.blocks ? { blocks: options.blocks as (KnownBlock | Block)[] } : {}),
   });
 }

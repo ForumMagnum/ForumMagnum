@@ -39,6 +39,14 @@ function asDate(value: Date | string | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function asId(value: string | null | undefined): string | null {
+  return value ?? null;
+}
+
+function uniqueDocumentIds(changes: Array<{ documentId: string | null }>): string[] {
+  return [...new Set(changes.map(change => change.documentId).filter((id): id is string => !!id))];
+}
+
 function countByModerator(
   actorIds: Array<string | null | undefined>,
   namesById: Map<string, string>,
@@ -278,16 +286,12 @@ export async function getSupermodStatus(
     }).fetch(),
   ]);
 
-  const usersClearedAfterWindowIds = [...new Set(
-    clearsAfterWindow
-      .filter(change => NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string))
-      .map(change => change.documentId)
-  )];
-  const postsReviewedAfterWindowIds = [...new Set(
-    postReviewsAfterWindow
-      .filter(change => isTruthyJsonValue(change.newValue) && !isTruthyJsonValue(change.oldValue))
-      .map(change => change.documentId)
-  )];
+  const usersClearedAfterWindowIds = uniqueDocumentIds(
+    clearsAfterWindow.filter(change => NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)),
+  );
+  const postsReviewedAfterWindowIds = uniqueDocumentIds(
+    postReviewsAfterWindow.filter(change => isTruthyJsonValue(change.newValue) && !isTruthyJsonValue(change.oldValue)),
+  );
   const alreadyQueuedUserIds = new Set(queueUsers.map(user => user._id));
   const alreadyQueuedPostIds = new Set(queuePosts.map(post => post._id));
   const extraUserIds = usersClearedAfterWindowIds.filter(id => !alreadyQueuedUserIds.has(id));
@@ -315,8 +319,8 @@ export async function getSupermodStatus(
     NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)
   );
   const rawPostReviews = reviewedByChanges.filter(change => isTruthyJsonValue(change.newValue));
-  const handledUserIds = [...new Set(rawUserClears.map(change => change.documentId))];
-  const reviewedPostIds = [...new Set(rawPostReviews.map(change => change.documentId))];
+  const handledUserIds = uniqueDocumentIds(rawUserClears);
+  const reviewedPostIds = uniqueDocumentIds(rawPostReviews);
 
   const [handledUsers, reviewedPosts] = await Promise.all([
     handledUserIds.length
@@ -330,11 +334,15 @@ export async function getSupermodStatus(
   const reviewedPostsById = new Map(reviewedPosts.map(post => [post._id, post]));
 
   const userClears = rawUserClears.filter(change => {
-    const user = handledUsersById.get(change.documentId);
+    const documentId = asId(change.documentId);
+    if (!documentId) return false;
+    const user = handledUsersById.get(documentId);
     return !!user && appearsInSupermodUserInbox(user);
   });
   const postReviews = rawPostReviews.filter(change => {
-    const post = reviewedPostsById.get(change.documentId);
+    const documentId = asId(change.documentId);
+    if (!documentId) return false;
+    const post = reviewedPostsById.get(documentId);
     return !!post && isSupermodPostReview(change, post, adminTeamAccountId);
   });
   const queueUserIds = snapshotUsers.map(user => user._id);
@@ -367,16 +375,17 @@ export async function getSupermodStatus(
   const enteredByUser = new Map<string, Date[]>();
   for (const change of historicalClears) {
     const changedAt = asDate(change.createdAt);
-    if (!changedAt) continue;
+    const documentId = asId(change.documentId);
+    if (!changedAt || !documentId) continue;
     if (NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)) {
-      const list = clearsByUser.get(change.documentId) ?? [];
+      const list = clearsByUser.get(documentId) ?? [];
       list.push(changedAt);
-      clearsByUser.set(change.documentId, list);
+      clearsByUser.set(documentId, list);
     }
     if (NEEDS_REVIEW_TRUE.includes(change.newValue as boolean | string)) {
-      const list = enteredByUser.get(change.documentId) ?? [];
+      const list = enteredByUser.get(documentId) ?? [];
       list.push(changedAt);
-      enteredByUser.set(change.documentId, list);
+      enteredByUser.set(documentId, list);
     }
   }
   for (const [userId, clears] of clearsByUser) {
@@ -392,17 +401,18 @@ export async function getSupermodStatus(
     : [];
   for (const change of lastClearedForQueueUsers) {
     const changedAt = asDate(change.createdAt);
-    if (!changedAt || changedAt.getTime() >= windowEnd.getTime()) continue;
+    const documentId = asId(change.documentId);
+    if (!changedAt || !documentId || changedAt.getTime() >= windowEnd.getTime()) continue;
     if (NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)) {
-      const existing = lastClearedByUser.get(change.documentId);
+      const existing = lastClearedByUser.get(documentId);
       if (!existing || changedAt.getTime() > existing.getTime()) {
-        lastClearedByUser.set(change.documentId, changedAt);
+        lastClearedByUser.set(documentId, changedAt);
       }
     }
     if (NEEDS_REVIEW_TRUE.includes(change.newValue as boolean | string)) {
-      const list = enteredByUser.get(change.documentId) ?? [];
+      const list = enteredByUser.get(documentId) ?? [];
       list.push(changedAt);
-      enteredByUser.set(change.documentId, list);
+      enteredByUser.set(documentId, list);
     }
   }
 
@@ -481,23 +491,24 @@ export async function getSupermodStatus(
   }> = [];
   for (const change of userClears) {
     const handledAt = asDate(change.createdAt);
-    if (!handledAt) continue;
-    const previousClear = previousClearBefore(clearsByUser, change.documentId, handledAt);
+    const documentId = asId(change.documentId);
+    if (!handledAt || !documentId) continue;
+    const previousClear = previousClearBefore(clearsByUser, documentId, handledAt);
     const queuedAt = queuedAtForHandledUser(
-      actionsByUser.get(change.documentId) ?? [],
+      actionsByUser.get(documentId) ?? [],
       previousClear,
       handledAt,
-      enteredByUser.get(change.documentId) ?? [],
+      enteredByUser.get(documentId) ?? [],
     );
     if (!queuedAt) continue;
-    const user = handledUsersById.get(change.documentId);
+    const user = handledUsersById.get(documentId);
     if (!user) continue;
     processRecords.push({
       user,
       previousClear,
       handledAt,
       durationMs: handledAt.getTime() - queuedAt.getTime(),
-      actions: actionsByUser.get(change.documentId) ?? [],
+      actions: actionsByUser.get(documentId) ?? [],
     });
   }
   const processDurations = processRecords.map(record => record.durationMs);
@@ -572,7 +583,7 @@ export async function getLongestHandledUsers(
   const rawUserClears = needsReviewChanges.filter(change =>
     NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)
   );
-  const handledUserIds = [...new Set(rawUserClears.map(change => change.documentId))];
+  const handledUserIds = uniqueDocumentIds(rawUserClears);
   if (handledUserIds.length === 0) return [];
 
   const [handledUsers, moderatorActions, historicalClears] = await Promise.all([
@@ -588,7 +599,9 @@ export async function getLongestHandledUsers(
   ]);
   const handledUsersById = new Map(handledUsers.map(user => [user._id, user]));
   const userClears = rawUserClears.filter(change => {
-    const user = handledUsersById.get(change.documentId);
+    const documentId = asId(change.documentId);
+    if (!documentId) return false;
+    const user = handledUsersById.get(documentId);
     return !!user && appearsInSupermodUserInbox(user);
   });
 
@@ -603,16 +616,17 @@ export async function getLongestHandledUsers(
   const enteredByUser = new Map<string, Date[]>();
   for (const change of historicalClears) {
     const changedAt = asDate(change.createdAt);
-    if (!changedAt) continue;
+    const documentId = asId(change.documentId);
+    if (!changedAt || !documentId) continue;
     if (NEEDS_REVIEW_FALSE.includes(change.newValue as boolean | string)) {
-      const list = clearsByUser.get(change.documentId) ?? [];
+      const list = clearsByUser.get(documentId) ?? [];
       list.push(changedAt);
-      clearsByUser.set(change.documentId, list);
+      clearsByUser.set(documentId, list);
     }
     if (NEEDS_REVIEW_TRUE.includes(change.newValue as boolean | string)) {
-      const list = enteredByUser.get(change.documentId) ?? [];
+      const list = enteredByUser.get(documentId) ?? [];
       list.push(changedAt);
-      enteredByUser.set(change.documentId, list);
+      enteredByUser.set(documentId, list);
     }
   }
 
@@ -627,16 +641,17 @@ export async function getLongestHandledUsers(
   }> = [];
   for (const change of userClears) {
     const handledAt = asDate(change.createdAt);
-    if (!handledAt) continue;
-    const previousClear = previousClearBefore(clearsByUser, change.documentId, handledAt);
+    const documentId = asId(change.documentId);
+    if (!handledAt || !documentId) continue;
+    const previousClear = previousClearBefore(clearsByUser, documentId, handledAt);
     const queuedAt = queuedAtForHandledUser(
-      actionsByUser.get(change.documentId) ?? [],
+      actionsByUser.get(documentId) ?? [],
       previousClear,
       handledAt,
-      enteredByUser.get(change.documentId) ?? [],
+      enteredByUser.get(documentId) ?? [],
     );
     if (!queuedAt) continue;
-    const user = handledUsersById.get(change.documentId);
+    const user = handledUsersById.get(documentId);
     if (!user) continue;
     rows.push({
       userId: user._id,
