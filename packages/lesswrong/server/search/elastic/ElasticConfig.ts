@@ -247,6 +247,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       {range: {baseScore: {gte: 0}}},
     ],
     mappings: {
+      coauthorIds: keywordMapping,
       title: fullTextMapping,
       authorDisplayName: shingleTextMapping,
       authorFullName: shingleTextMapping,
@@ -271,6 +272,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "rejected",
       "status",
       "viewCount",
+      "coauthorIds",
     ],
   },
   Users: {
@@ -366,6 +368,9 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
     ],
     mappings: {
       body: fullTextMapping,
+      title: fullTextMapping,
+      collectedAuthorIds: keywordMapping,
+      baseScore: {type: "double"},
       plaintextDescription: fullTextMapping,
       authorDisplayName: shingleTextMapping,
       userId: keywordMapping,
@@ -376,6 +381,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "draft",
       "hidden",
       "isDeleted",
+      "collectedAuthorIds",
     ],
   },
   Tags: {

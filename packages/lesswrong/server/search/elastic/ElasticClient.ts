@@ -4,11 +4,10 @@ import type {
   SearchResponse,
   SearchTotalHits,
 } from "@elastic/elasticsearch/lib/api/types";
+import { compilePersonLookup, PersonCandidate, resolvePersonSearch } from "./ElasticPersonSearch";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
-import type { MultiQueryData } from "./ElasticMultiQuery";
-import sortBy from "lodash/sortBy";
+import { compileMultiQuery, MultiQueryData } from "./ElasticMultiQuery";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
-import take from "lodash/take";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -24,6 +23,25 @@ export type HitsOnlySearchResponse = {
 const DEBUG_LOG_ELASTIC_QUERIES = false;
 
 let globalClient: Client | null = null;
+
+/** Resolve people and promote at most two related sequences before ES paginates. */
+export async function executeMultiSearch(client: Client, queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
+  const lookup = compilePersonLookup(queryData.search);
+  const candidates = lookup ? await client.search<PersonCandidate>(lookup) : undefined;
+  const person = resolvePersonSearch(queryData.search, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
+  let featuredSequenceIds: string[] = [];
+  if (person && queryData.indexes.includes("sequences")) {
+    const sequenceRequest = compileMultiQuery({...queryData, indexes: ["sequences"], person, offset: 0, limit: 2});
+    // Only reserve positions for sequences that actually collect this author's writing.
+    sequenceRequest.query = {bool: {
+      should: [], must: [sequenceRequest.query ?? {match_none: {}}],
+      filter: [{terms: {collectedAuthorIds: person.userIds}}],
+    }};
+    const sequences = await client.search<ElasticDocument>(sequenceRequest);
+    featuredSequenceIds = sequences.hits.hits.flatMap(hit => hit._source ? [hit._source.objectID] : []);
+  }
+  return client.search<ElasticDocument>(compileMultiQuery({...queryData, person, featuredSequenceIds}));
+}
 
 class ElasticClient {
   private client: Client;
@@ -75,37 +93,7 @@ class ElasticClient {
   }
 
   async multiSearch(queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
-    // Perform the same search against each index
-    const resultsBySearchIndex = await Promise.all(
-      queryData.indexes.map((searchIndex) =>
-        this.client.search(new ElasticQuery({
-          index: searchIndex,
-          filters: [],
-          limit: queryData.limit,
-          search: queryData.search,
-          offset: queryData.offset,
-        }).compile())
-      )
-    )
-
-    // Normalize scores within each index to [0, 1] before merging, so that
-    // differences in analyzers/boosts between indexes don't cause one index's
-    // results to dominate the merged list.
-    const normalizedResults = resultsBySearchIndex.flatMap(indexResult => {
-      const hits = indexResult.hits.hits;
-      const maxScore = hits.reduce((max, h) => Math.max(max, h._score ?? 0), 0);
-      if (maxScore <= 0) return hits;
-      return hits.map(h => ({ ...h, _score: (h._score ?? 0) / maxScore }));
-    });
-
-    const sortedResults = take(sortBy(normalizedResults, h => -(h._score ?? 0)), queryData.limit);
-
-    return {
-      hits: {
-        total: normalizedResults.length,
-        hits: sortedResults as ElasticSearchHit[],
-      },
-    };
+    return executeMultiSearch(this.client, queryData);
   }
 }
 

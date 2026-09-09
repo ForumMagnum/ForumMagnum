@@ -24,6 +24,7 @@ export const querySchema = z.object({
 });
 
 const searchOptionsSchema = z.object({
+  unifiedSearch: z.optional(z.boolean()),
   emptyStringSearchResults: z.union([z.literal("default"), z.literal("empty")]),
 });
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;

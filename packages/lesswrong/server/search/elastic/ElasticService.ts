@@ -50,9 +50,12 @@ class ElasticService {
           hits: [],
         }}
       : await (
-        Array.isArray(index)
+        (Array.isArray(index) || options.unifiedSearch)
           ? this.client.multiSearch({
-            indexes: index,
+            indexes: Array.isArray(index) ? index : [index],
+            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+            preTag: params.highlightPreTag,
+            postTag: params.highlightPostTag,
             search,
             offset: page * hitsPerPage,
             limit: hitsPerPage,
@@ -260,18 +263,13 @@ class ElasticService {
     indexName: string | string[],
     hits: ElasticSearchHit[],
   ): SearchDocument[] {
-    if (Array.isArray(indexName)) {
-      return hits.map(({_id, _source, _index}) => ({
+    return hits.map(({_id, _source, _index, highlight}) => {
+      const hitIndex = Array.isArray(indexName) ? _index.split("_")[0] : indexName;
+      const config = indexNameToConfig(hitIndex);
+      return {
         ..._source,
         _id,
-        _index: _index.split("_")[0],
-      }))
-    } else {
-      const config = indexNameToConfig(indexName);
-      return hits.map(({_id, _source, highlight}) => ({
-        ..._source,
-        _id,
-        _index: indexName,
+        _index: hitIndex,
         _snippetResult: {
           [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
@@ -280,8 +278,8 @@ class ElasticService {
             [config.highlight]: extractNamedHighlight(highlight, config.highlight),
           },
         }),
-      }));
-    }
+      };
+    });
   }
 }
 

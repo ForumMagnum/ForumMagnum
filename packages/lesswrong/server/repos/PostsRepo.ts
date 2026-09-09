@@ -342,6 +342,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."_id",
         p."_id" AS "objectID",
         p."userId",
+        COALESCE(p."coauthorUserIds", ARRAY[]::TEXT[]) AS "coauthorIds",
         p."url",
         p."title",
         p."slug",
