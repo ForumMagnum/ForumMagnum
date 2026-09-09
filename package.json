@@ -237,7 +237,7 @@
     "md5": "^2.3.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.46",
-    "mysql2": "^3.11.4",
+    "mysql2": "^3.23.1",
     "next": "^16.1.7",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^8.0.5",
