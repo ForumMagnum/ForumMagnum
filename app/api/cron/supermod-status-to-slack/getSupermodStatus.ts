@@ -1,3 +1,4 @@
+import moment from '@/lib/moment-timezone';
 import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
@@ -12,7 +13,7 @@ import { UsersViews } from '@/lib/collections/users/views';
 import { adminAccountSetting } from '@/lib/instanceSettings';
 import { viewTermsToQuery } from '@/lib/utils/viewUtils';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { daysLateFromAge, groupDaysLate, type ModeratorCount, type SupermodStatusReport } from './supermodStatusFormat';
+import { addPacificDays, PACIFIC_TZ, daysLateFromAge, groupDaysLate, type ModeratorCount, type SupermodStatusReport } from './supermodStatusFormat';
 
 interface ReportUser extends Pick<DbUser,
   '_id' | 'displayName' | 'username' | 'fullName' | 'karma' | 'createdAt' |
@@ -184,11 +185,15 @@ export function summarizeSupermodStatus(
 /** Load overlapping activity windows and their common queue snapshot together. */
 export async function getSupermodStatus(
   context: ResolverContext,
-  windowStart: Date,
   windowEnd: Date,
-  twoMonthStart?: Date,
-): Promise<{ report: SupermodStatusReport; lastTwoMonths?: SupermodStatusReport }> {
-  const start = twoMonthStart ?? windowStart;
+): Promise<{
+  daily: SupermodStatusReport;
+  weekly?: { report: SupermodStatusReport; lastTwoMonths: SupermodStatusReport };
+}> {
+  const includeWeekly = moment.tz(windowEnd, PACIFIC_TZ).isoWeekday() === 1;
+  const dailyStart = addPacificDays(windowEnd, -1);
+  const twoMonthStart = addPacificDays(windowEnd, -60);
+  const start = includeWeekly ? twoMonthStart : dailyStart;
   const [userQuery, postQuery, recentChanges] = await Promise.all([
     viewTermsToQuery(UsersViews, { view: 'sunshineNewUsers' }, undefined, context),
     viewTermsToQuery(PostsViews, { view: 'sunshineNewPosts' }, undefined, context),
@@ -246,12 +251,18 @@ export async function getSupermodStatus(
     postReviews: reviews.filter(change => change.documentId && postsById[change.documentId] && change.createdAt < windowEnd
       && (!change.oldValue || (adminTeamAccountId && change.oldValue === adminTeamAccountId))),
   };
-  const report = summarizeSupermodStatus(data, windowStart);
-  if (!twoMonthStart) return { report };
+  const daily = summarizeSupermodStatus(data, dailyStart);
+  if (!includeWeekly) return { daily };
 
   const longest = sortBy(handledDurations(data, twoMonthStart), record => -record.durationMs).slice(0, 3);
   const offboardIds = longest.length
     ? await context.repos.users.getOffboardCandidateUserIds(longest.map(record => record.userId))
     : [];
-  return { report, lastTwoMonths: summarizeSupermodStatus(data, twoMonthStart, new Set(offboardIds)) };
+  return {
+    daily,
+    weekly: {
+      report: summarizeSupermodStatus(data, addPacificDays(windowEnd, -7)),
+      lastTwoMonths: summarizeSupermodStatus(data, twoMonthStart, new Set(offboardIds)),
+    },
+  };
 }

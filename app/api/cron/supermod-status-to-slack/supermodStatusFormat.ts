@@ -56,20 +56,6 @@ export function addPacificDays(reportTime: Date, days: number): Date {
   return moment.tz(reportTime, PACIFIC_TZ).add(days, 'days').toDate();
 }
 
-export function getDailyWindow(now: Date): { windowStart: Date; windowEnd: Date } {
-  const windowEnd = getMostRecentPacificReportTime(now);
-  return { windowStart: addPacificDays(windowEnd, -1), windowEnd };
-}
-
-export function getWeeklyWindow(now: Date): { windowStart: Date; windowEnd: Date } {
-  const windowEnd = getMostRecentPacificReportTime(now);
-  return { windowStart: addPacificDays(windowEnd, -7), windowEnd };
-}
-
-export function getTwoMonthWindow(windowEnd: Date): { windowStart: Date; windowEnd: Date } {
-  return { windowStart: addPacificDays(windowEnd, -60), windowEnd };
-}
-
 export function formatPacificDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     month: 'short',
