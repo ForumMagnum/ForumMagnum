@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
 import { runTwitterBot } from '@/server/twitterBot';
 
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  await runTwitterBot();
+  await runTwitterBot(getForumTypeForRequest(request));
   
   return new Response('OK', { status: 200 });
 }

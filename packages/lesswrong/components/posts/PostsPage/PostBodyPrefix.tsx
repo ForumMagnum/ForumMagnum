@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
@@ -46,12 +47,12 @@ const styles = defineStyles('PostBodyPrefix', (theme: ThemeType) => ({
   },
 }));
 
-const getForumNewUserProcessingTime = () => forumSelect({
+const getForumNewUserProcessingTime = (forumType: ForumTypeString) => forumSelect({
   EAForum: 24,
   LessWrong: 72,
   AlignmentForum: 72,
   default: 24
-})
+}, forumType)
 
 const PostBodyPrefix = ({post, query}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
@@ -83,7 +84,7 @@ const PostBodyPrefix = ({post, query}: {
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get(forumType)} are checked by moderators before they appear on the site.
-        Most posts will be approved within {getForumNewUserProcessingTime()} hours; posts that are spam or that don't meet site
+        Most posts will be approved within {getForumNewUserProcessingTime(forumType)} hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.
       </p>}>

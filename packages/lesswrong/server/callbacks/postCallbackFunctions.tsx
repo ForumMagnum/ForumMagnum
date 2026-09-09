@@ -139,7 +139,7 @@ export async function sendNewPostNotifications(post: DbPost) {
 
 const onPublishUtils = {
   updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
-    if (!isRecombeeRecommendablePost(post)) return;
+    if (!isRecombeeRecommendablePost(post, context.forumType)) return;
   
     if (recombeeEnabledSetting.get(context)) {
       backgroundTask(recombeeApi.upsertPost(post, context)
@@ -932,7 +932,7 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post, context.forumType)) return;
 
   if (recombeeEnabledSetting.get(context)) {
     backgroundTask(recombeeApi.upsertPost(post, context)

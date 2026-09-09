@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC, PropsWithChildren } from 'react'
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
@@ -60,7 +61,7 @@ type ContentTypeRecord = {
   event?: ContentTypeSettings,
 }
 
-export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
+export const getContentTypes = (forumType: ForumTypeString): ForumOptions<ContentTypeRecord> => {
   return {
     LessWrong: {
       frontpage: {
@@ -181,7 +182,7 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
       tags: {
         tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          Wikitag pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+          Wikitag pages, which organize {siteNameWithArticleSetting.get(forumType)} posts and concepts in
           a more durable format.
         </div>,
         Icon: TagIcon,
@@ -241,7 +242,7 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
       tags: {
         tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          Wikitag pages, which organize {forumTitleSetting.get()} posts and concepts in a more
+          Wikitag pages, which organize {forumTitleSetting.get(forumType)} posts and concepts in a more
           durable format.
         </div>,
         Icon: TagIcon,
@@ -278,7 +279,7 @@ const ContentType = ({className, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = forumSelect(getContentTypes(), forumType)[type]
+  const contentData = forumSelect(getContentTypes(forumType), forumType)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }

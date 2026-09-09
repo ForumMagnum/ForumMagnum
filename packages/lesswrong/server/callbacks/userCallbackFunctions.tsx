@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React from "react";
 import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
@@ -125,12 +126,12 @@ export const welcomeMessageDelayer = new EventDebouncer({
   },
 });
 
-async function sendVerificationEmail(user: DbUser) {
+async function sendVerificationEmail(user: DbUser, forumType: ForumTypeString) {
   const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
   await wrapAndSendEmail({
     user,
     force: true,
-    subject: `Verify your ${forumTitleSetting.get()} email`,
+    subject: `Verify your ${forumTitleSetting.get(forumType)} email`,
     body: (emailContext) => <div>
       <p>
         Click here to verify your {forumTitleSetting.get(emailContext.resolverContext)} email
@@ -201,9 +202,9 @@ const utils = {
     return user?.groups?.includes('alignmentForum')
   },
 
-  sendVerificationEmailConditional: async (user: DbUser) => {
+  sendVerificationEmailConditional: async (user: DbUser, forumType: ForumTypeString) => {
     if (!isAnyTest) {
-      backgroundTask(sendVerificationEmail(user));
+      backgroundTask(sendVerificationEmail(user, forumType));
       await bellNotifyEmailVerificationRequired(user);
     }
   },
@@ -230,8 +231,8 @@ export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, c
 }
 
 /* CREATE ASYNC */
-export function createRecombeeUser({ document }: {document: DbUser}) {
-  if (!recombeeEnabledSetting.get()) return;
+export function createRecombeeUser({ document }: {document: DbUser}, forumType: ForumTypeString) {
+  if (!recombeeEnabledSetting.get(forumType)) return;
 
   // Skip users without email addresses because that means they're imported
   if (!document.email)
@@ -244,14 +245,14 @@ export function createRecombeeUser({ document }: {document: DbUser}) {
 }
 
 /* NEW ASYNC */
-export async function subscribeOnSignup(user: DbUser) {
+export async function subscribeOnSignup(user: DbUser, forumType: ForumTypeString) {
   // Skip email confirmation if no email address is attached to the account.
   // An email address is required when signing up normally, but might not exist
   // for users created by data import, eg importing Arbital
   if (!user.email)
     return;
 
-  await utils.sendVerificationEmailConditional(user);
+  await utils.sendVerificationEmailConditional(user, forumType);
 }
 
 export async function sendWelcomingPM(user: Pick<DbUser, '_id'>, context: ResolverContext) {
@@ -287,7 +288,7 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
 }
 
 /* EDIT SYNC */
-export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser) {
+export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser, forumType: ForumTypeString) {
   const { $set: { whenConfirmationEmailSent } } = modifier;
   if (!whenConfirmationEmailSent) {
     return;
@@ -296,7 +297,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser
   const lastSent = user.whenConfirmationEmailSent;
 
   if (!lastSent || (lastSent.getTime() !== whenConfirmationEmailSent.getTime())) {
-    backgroundTask(utils.sendVerificationEmailConditional(user));
+    backgroundTask(utils.sendVerificationEmailConditional(user, forumType));
   }
 }
 
@@ -312,7 +313,7 @@ export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier, u
   return modifier;
 }
 
-export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser) {
+export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser, forumType: ForumTypeString) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
     const newEmail = modifier.$set.email;
@@ -329,11 +330,11 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
         modifier.$set.emails = user.emails;
-        await utils.sendVerificationEmailConditional(user)
+        await utils.sendVerificationEmailConditional(user, forumType)
       }
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
-      await utils.sendVerificationEmailConditional(user)
+      await utils.sendVerificationEmailConditional(user, forumType)
     }
   }
   return modifier;
@@ -469,14 +470,14 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
   }
 }
 
-export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
-  if (!hasType3ApiAccess()) {
+export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser, forumType: ForumTypeString) {
+  if (!hasType3ApiAccess(forumType)) {
     return;
   }
   const deletedChanged = newUser.deleted !== oldUser.deleted;
   const nameChanged = newUser.displayName !== oldUser.displayName;
   if (nameChanged || deletedChanged) {
-    await regenerateAllType3AudioForUser(newUser._id);
+    await regenerateAllType3AudioForUser(newUser._id, forumType);
   }
 }
 

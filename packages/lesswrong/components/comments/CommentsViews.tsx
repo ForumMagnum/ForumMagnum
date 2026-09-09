@@ -39,7 +39,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { scroll: false })
   };
 
-  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
+  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser, forumType)
   const includeAdminViews = userCanDo(currentUser, "comments.softRemove.all");
   const viewOptions = getCommentViewOptions(forumType, {includeAdminViews});
   const selectedOption = viewOptions.find((option) => option.value === currentView) || viewOptions[0]

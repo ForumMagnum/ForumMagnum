@@ -98,7 +98,7 @@ export const useRecordPostView = (post: ViewablePost) => {
       if (attributedUserId
         && recombeeEnabledSetting.get(forumType)
         && !recommendationOptions?.skip
-        && isRecombeeRecommendablePost(post)
+        && isRecombeeRecommendablePost(post, forumType)
         && (!currentUser || !excludeUserFromRecombee(currentUser))
       ) {
         void recombeeApi.createDetailView(post._id, attributedUserId, recommendationOptions?.recombeeOptions?.recommId);

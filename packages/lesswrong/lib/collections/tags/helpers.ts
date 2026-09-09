@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
@@ -7,7 +8,7 @@ import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
-export const getTagMinimumKarmaPermissions = () => forumSelect({
+export const getTagMinimumKarmaPermissions = (forumType: ForumTypeString) => forumSelect({
   // Topic spampocalypse defense
   EAForum: {
     new: 1,
@@ -22,7 +23,7 @@ export const getTagMinimumKarmaPermissions = () => forumSelect({
     new: -1000,
     edit: -1000,
   }
-})
+}, forumType)
 
 type GetUrlOptions = {
   edit?: boolean,
@@ -77,10 +78,10 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
   return `/w/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
-export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
+export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit", forumType: ForumTypeString): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
-  if ((user.karma) >= getTagMinimumKarmaPermissions()[action]) return true
+  if ((user.karma) >= getTagMinimumKarmaPermissions(forumType)[action]) return true
   return false
 }
 
@@ -131,8 +132,8 @@ export function stableSortTags<
   });
 }
 
-export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
-  if (!allowTypeIIIPlayerSetting.get()) return false
+export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag, forumType: ForumTypeString): boolean => {
+  if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
 };

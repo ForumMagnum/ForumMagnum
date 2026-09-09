@@ -44,7 +44,6 @@ import {
   getPrevPostIdFromPrevSequence,
   getNextPostIdFromNextSequence,
 } from '../sequences/sequenceServerHelpers';
-import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
@@ -737,7 +736,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetEmailShareUrl(post),
+      resolver: (post, args, context) => postGetEmailShareUrl(post, context.forumType),
     },
   },
   twitterShareUrl: {
@@ -759,7 +758,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => getSocialPreviewImage(post),
+      resolver: (post, args, context) => getSocialPreviewImage(post, context.forumType),
     },
   },
   question: {
@@ -1906,10 +1905,10 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: async ({ document }) => {
+      onCreate: async ({ document, context }) => {
         const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
-          : getDefaultVotingSystem();
+          : getDefaultVotingSystem(context.forumType);
 
         return votingSystem;
       },
@@ -2359,7 +2358,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context): Promise<SocialPreviewType> => {
         const { imageId = null, text = null } = post.socialPreview || {};
-        const imageUrl = getSocialPreviewImage(post);
+        const imageUrl = getSocialPreviewImage(post, context.forumType);
         return {
           _id: post._id,
           imageId,
@@ -2381,8 +2380,8 @@ const schema = {
       inputType: "CrosspostInput",
       validation: { blackbox: true },
       canRead: [documentIsNotDeleted],
-      canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
-      canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
+      canUpdate: [(user, post, context) => userOwns(user, post) && userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
+      canCreate: [(user, context) => userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
       // Users aren't allowed to directly select the foreignPostId of a crosspost
       onCreate: (args) => {
         const { document, context } = args;

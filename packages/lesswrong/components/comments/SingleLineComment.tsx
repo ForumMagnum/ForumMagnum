@@ -164,7 +164,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
   const parentTag = comment.tag;
-  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap()[parentTag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap(forumType)[parentTag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   

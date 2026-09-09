@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { FC, ReactNode } from 'react';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
@@ -19,7 +21,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 // Mapping from tag slug to icon
-export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?: string}>>>({
+export const getCoreTagIconMap = (forumType: ForumTypeString) => forumSelect<Record<string, FC<{className?: string}>>>({
   EAForum: {
     'biosecurity-and-pandemics': DnaIcon,
     'existential-risk': MushroomCloudIcon,
@@ -43,7 +45,7 @@ export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?
     'forecasting-and-estimation': TelescopeIcon,
   },
   default: {}
-})
+}, forumType)
 
 const styles = defineStyles("CoreTagIcon", (theme: ThemeType) => ({
   // prevent LotusOutlineIcon from having a fill
@@ -57,8 +59,9 @@ const CoreTagIcon = ({tag, fallbackNode, className}: {
   fallbackNode?: ReactNode,
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const Icon = getCoreTagIconMap()[tag.slug]
+  const Icon = getCoreTagIconMap(forumType)[tag.slug]
   if (!Icon) {
     return fallbackNode ? <>{fallbackNode}</> : null
   }

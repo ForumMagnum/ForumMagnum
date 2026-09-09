@@ -54,7 +54,7 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
       q: "auto",
       f: "auto",
       g: "auto:faces",
-    }) : undefined;
+    }, resolverContext.forumType) : undefined;
 
     return merge({},
       await getDefaultMetadata(),

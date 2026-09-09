@@ -45,7 +45,7 @@ export async function generateMetadata({ params, searchParams }: {
       q: "auto",
       f: "auto",
       g: "auto:faces",
-    }) : undefined;
+    }, resolverContext.forumType) : undefined;
 
     const imageFields = socialImageUrl ? getMetadataImagesFields(socialImageUrl) : {};
   

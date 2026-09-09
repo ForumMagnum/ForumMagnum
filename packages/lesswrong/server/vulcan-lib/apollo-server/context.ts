@@ -57,13 +57,14 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
 }): ResolverContext => {
   const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
+  const forumType = forumTypeSetting.get();
   let context: ResolverContext = {
-    forumType: forumTypeSetting.get(),
+    forumType,
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     searchParams,
     headers,
-    locale: headers ? getHeaderLocale(headers, null) : "en-US",
+    locale: headers ? getHeaderLocale(headers, null, forumType) : "en-US",
     isSSR,
     isGreaterWrong: requestIsFromGreaterWrong(headers),
     isIssaRiceReader: requestIsFromIssaRiceReader(headers),

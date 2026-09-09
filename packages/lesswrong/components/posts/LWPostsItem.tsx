@@ -524,7 +524,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
+                  [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo, forumType)
                 })}>
                 {post.isEvent
                   ? <AddToCalendarButton post={post} />

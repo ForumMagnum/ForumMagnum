@@ -151,44 +151,44 @@ export const postGetFacebookShareUrl = (post: DbPost): string => {
 };
 
 // Get URL for sharing by Email.
-export const postGetEmailShareUrl = (post: DbPost): string => {
+export const postGetEmailShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
   const subject = `Interesting link: ${post.title}`;
   const body = `I thought you might find this interesting:
 
 ${post.title}
 ${postGetLink(post, true)}
 
-(found via ${siteUrlSetting.get()})
+(found via ${siteUrlSetting.get(forumType)})
   `;
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-const getSocialImagePreviewPrefix = () =>
-  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/`;
+const getSocialImagePreviewPrefix = (forumType: ForumTypeString) =>
+  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_fill,ar_1.91,g_auto/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
 // For other posts, we use the manually-set cloudinary image if available,
 // or the auto-set from the post contents. If neither of those are available,
 // it will return null.
-export const getSocialPreviewImage = (post: DbPost): string => {
+export const getSocialPreviewImage = (post: DbPost, forumType: ForumTypeString): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
   if (manualId) {
-    return getSocialImagePreviewPrefix() + manualId;
+    return getSocialImagePreviewPrefix(forumType) + manualId;
   }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
 
-export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
+export const getSocialPreviewSql = (tablePrefix: string, forumType: ForumTypeString) => `JSON_BUILD_OBJECT(
   'imageUrl',
   CASE
     WHEN ${tablePrefix}."isEvent" AND ${tablePrefix}."eventImageId" IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix()}' || ${tablePrefix}."eventImageId"
+      THEN '${getSocialImagePreviewPrefix(forumType)}' || ${tablePrefix}."eventImageId"
     WHEN ${tablePrefix}."socialPreview"->>'imageId' IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId')
+      THEN '${getSocialImagePreviewPrefix(forumType)}' || (${tablePrefix}."socialPreview"->>'imageId')
     ELSE COALESCE(${tablePrefix}."socialPreviewImageAutoUrl", '')
   END
 )`;
@@ -395,17 +395,17 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 /**
  * Whether the post is allowed AI generated audio
  */
-export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost): boolean => {
-  if (!allowTypeIIIPlayerSetting.get()) return false
+export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
+  if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   try {
-    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get())
-    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
+    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get(forumType))
+    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get(forumType)
 
     return (
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.baseScore > type3KarmaCutoffSetting.get(forumType) ||
         post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
@@ -442,7 +442,7 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
+export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase, forumType: ForumTypeString): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
   // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
@@ -456,7 +456,7 @@ export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase &
     || !!post.groupId
     || post.disableRecommendation
     || post.status !== 2
-    || post._id === aboutPostIdSetting.get()
+    || post._id === aboutPostIdSetting.get(forumType)
   );
 };
 
@@ -509,8 +509,8 @@ export interface RSVPType {
 /**
  * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
  */
-export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
-  const currentKarmaThreshold = crosspostKarmaThreshold.get();
+export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null, forumType: ForumTypeString) => {
+  const currentKarmaThreshold = crosspostKarmaThreshold.get(forumType);
 
   return currentKarmaThreshold === null
     ? true
@@ -535,13 +535,13 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
   return false;
 }
 
-export function getDefaultVotingSystem() {
+export function getDefaultVotingSystem(forumType: ForumTypeString) {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
-  });
+  }, forumType);
 }
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';

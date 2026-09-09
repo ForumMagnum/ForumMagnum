@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
@@ -47,11 +48,11 @@ async function writeTweet(post: DbPost): Promise<string> {
   return `${truncatedPreUrlPart}\n${postGetPageUrl(post, true)}`;
 }
 
-async function postTweet(content: string) {
-  const apiKey = apiKeySetting.get()
-  const apiKeySecret = apiKeySecretSetting.get()
-  const accessToken = accessTokenSetting.get()
-  const accessTokenSecret = accessTokenSecretSetting.get()
+async function postTweet(content: string, context: ResolverContext) {
+  const apiKey = apiKeySetting.get(context)
+  const apiKeySecret = apiKeySecretSetting.get(context)
+  const accessToken = accessTokenSetting.get(context)
+  const accessTokenSecret = accessTokenSecretSetting.get(context)
 
   try {
     if (!apiKey || !apiKeySecret || !accessToken || !accessTokenSecret) {
@@ -76,13 +77,14 @@ async function postTweet(content: string) {
   }
 }
 
-export async function runTwitterBot() {
-  if (!twitterBotEnabledSetting.get()) return;
+export async function runTwitterBot(forumType: ForumTypeString) {
+  const anonymousContext = createAnonymousContext({forumType});
+  if (!twitterBotEnabledSetting.get(anonymousContext)) return;
 
   const repo = new TweetsRepo();
   const logger = loggerConstructor("twitter-bot");
 
-  const threshold = twitterBotKarmaThresholdSetting.get();
+  const threshold = twitterBotKarmaThresholdSetting.get(anonymousContext);
 
   logger(`Checking for posts newly crossing ${threshold} karma`);
   const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ limit: 20, threshold });
@@ -94,12 +96,10 @@ export async function runTwitterBot() {
 
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
 
-  const anonymousContext = createAnonymousContext();
-
   for (const post of posts) {
     const content = await writeTweet(post);
     logger(`Attempting to post tweet with content: ${content}`);
-    const tweetId = await postTweet(content);
+    const tweetId = await postTweet(content, anonymousContext);
 
     if (tweetId) {
       logger(`Tweet created, id: ${tweetId}`);

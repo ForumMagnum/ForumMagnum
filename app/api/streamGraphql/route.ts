@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from "next/server";
 import { GraphQLError, type GraphQLFormattedError, graphql } from "graphql";
 import { inspect } from "util";
@@ -21,7 +22,8 @@ type GraphqlHttpRequestBody = {
 };
 
 function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
+  const forumType = getForumTypeForRequest(request);
+  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get(forumType);
   if (!fmCrosspostBaseUrl) {
     return false;
   }
@@ -212,11 +214,12 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
 }
 
 async function sharedHandler(request: NextRequest) {
-  if (!performanceMetricLoggingEnabled.get()) {
+  const forumType = getForumTypeForRequest(request);
+  if (!performanceMetricLoggingEnabled.get(forumType)) {
     const res = await graphqlStreamingHandler(request);
 
     if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
     return res;
   }
@@ -248,7 +251,7 @@ async function sharedHandler(request: NextRequest) {
     }
 
     if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
 
     return res;

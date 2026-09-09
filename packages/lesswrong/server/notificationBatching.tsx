@@ -97,7 +97,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
       .map(async (notifications: DbNotification[]) => ({
         user,
         to: getUserEmail(user),
-        from: notificationTypeRenderer.from?.(),
+        from: notificationTypeRenderer.from?.(context),
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -128,12 +129,13 @@ const FooterTag = ({
   | { hoverable: true, tag: TagPreviewFragment }
   | { hoverable: "ifDescriptionPresent", tag: TagBasicInfo|TagPreviewFragment }
 )) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
+  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap(forumType)[tag.slug] && !hideIcon);
 
   const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name

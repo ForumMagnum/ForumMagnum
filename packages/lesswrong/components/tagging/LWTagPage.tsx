@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
@@ -524,6 +525,7 @@ function getTagQueryOptions(
 }
 
 const LWTagPage = ({slug}: {slug: string}) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -674,7 +676,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
-  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag) ? () => {
+  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag, forumType) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("audioPlayerToggle", { action, tagId: tag._id });
@@ -717,8 +719,8 @@ const LWTagPage = ({slug}: {slug: string}) => {
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit", forumType)) {
+    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions(forumType).edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts

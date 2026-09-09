@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { cloudinaryCloudNameSetting, cloudinaryUploadPresetEditorName } from '@/lib/instanceSettings';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -35,6 +36,7 @@ export function dataUriToBlob(dataUri: string): Blob {
  * Upload a file to Cloudinary using unsigned upload.
  *
  * @param file - The file or blob to upload
+ * @param forumType - The forum whose Cloudinary configuration to use
  * @param options - Optional configuration
  * @param options.signal - AbortSignal for cancellation
  * @returns The Cloudinary upload result with secure_url, dimensions, etc.
@@ -42,10 +44,11 @@ export function dataUriToBlob(dataUri: string): Blob {
  */
 export async function uploadToCloudinary(
   file: File | Blob,
+  forumType: ForumTypeString,
   options?: { signal?: AbortSignal }
 ): Promise<CloudinaryUploadResult> {
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const uploadPreset = cloudinaryUploadPresetEditorName.get();
+  const cloudName = cloudinaryCloudNameSetting.get(forumType);
+  const uploadPreset = cloudinaryUploadPresetEditorName.get(forumType);
 
   if (!cloudName) {
     throw new ImageUploadError('Cloudinary cloud name is not configured', false);

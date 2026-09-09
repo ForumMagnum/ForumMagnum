@@ -1,3 +1,4 @@
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { registerMigration } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection';
 import { Users } from '../../server/collections/users/collection';
@@ -72,7 +73,7 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
   };
 
   try {
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`, requestOptions)
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get(forumTypeSetting.get())}`, requestOptions)
     const responseData = await response.json()
     if (!responseData.results?.length) {
       // eslint-disable-next-line no-console

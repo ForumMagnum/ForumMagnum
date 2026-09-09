@@ -44,7 +44,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
       return;
     }
 
-    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post)) {
+    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post, forumType)) {
       void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
     }
 

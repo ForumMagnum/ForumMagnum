@@ -7,6 +7,7 @@ import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 /** For visually inspecting that our descriptions match the post content well */
 export const testPostDescription = async () => {
+  const context = createAnonymousContext();
   const plaintextResolver = RevisionSchema.plaintextDescription.graphql.resolver;
   console.log("running");
   console.log('plaintextResolver', plaintextResolver);
@@ -17,7 +18,7 @@ export const testPostDescription = async () => {
   ]).toArray();
 
   const revisions = await Promise.all(
-    posts.map((post) => getLatestContentsRevision(post, createAnonymousContext())),
+    posts.map((post) => getLatestContentsRevision(post, context)),
   );
 
   for (let i = 0; i < posts.length; i++) {
@@ -30,7 +31,7 @@ export const testPostDescription = async () => {
         plaintextDescription
       }
     }
-    const description = getPostDescription(fakeDoc as any);
+    const description = getPostDescription(fakeDoc as any, context.forumType);
     console.log(`# ${post.title}`)
     console.log(plaintextDescription);
     console.log(`. . . . . . . . . . .`);

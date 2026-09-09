@@ -1,4 +1,5 @@
 // Copied from: https://raw.githubusercontent.com/codeep/react-recaptcha-v3/master/src/ReCaptcha.js
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
@@ -28,11 +29,14 @@ interface ReCaptchaProps {
   sitekey?: string,
   action: string,
 }
+interface ReCaptchaInnerProps extends Omit<ReCaptchaProps, "sitekey"> {
+  sitekey: string | null,
+}
 interface ReCaptchaState {
   ready: boolean,
 }
-class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
-  constructor (props: ReCaptchaProps) {
+class ReCaptchaInner extends Component<ReCaptchaInnerProps,ReCaptchaState> {
+  constructor (props: ReCaptchaInnerProps) {
     super(props)
 
     this.execute = this.execute.bind(this)
@@ -52,7 +56,7 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
     }
   }
 
-  componentDidUpdate (_: ReCaptchaProps, prevState: ReCaptchaState) {
+  componentDidUpdate (_: ReCaptchaInnerProps, prevState: ReCaptchaState) {
     if (this.state.ready && !prevState.ready) {
       this.execute()
     }
@@ -64,7 +68,7 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 
   execute () {
     const {
-      sitekey = reCaptchaSiteKeySetting.get(),
+      sitekey,
       verifyCallback,
       action,
     } = this.props
@@ -103,7 +107,10 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 (ReCaptchaInner as any).propTypes = propTypes;
 (ReCaptchaInner as any).defaultProps = defaultProps;
 
-export default ReCaptchaInner;
+export default function ReCaptcha({sitekey, ...props}: ReCaptchaProps) {
+  const { forumType } = useForumType();
+  return <ReCaptchaInner {...props} sitekey={sitekey ?? reCaptchaSiteKeySetting.get(forumType)} />;
+}
 
 
 

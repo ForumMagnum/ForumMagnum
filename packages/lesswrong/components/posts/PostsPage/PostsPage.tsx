@@ -295,7 +295,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = useCallback(() => {
-    if (!post || !postHasAudioPlayer(post)) {
+    if (!post || !postHasAudioPlayer(post, forumType)) {
       return;
     }
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -308,7 +308,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
+  }, [post, showEmbeddedPlayer, captureEvent, setCookie, forumType]);
 
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
@@ -373,7 +373,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
 
-  const defaultView = commentGetDefaultView(post, currentUser);
+  const defaultView = commentGetDefaultView(post, currentUser, forumType);
   const defaultTerms = { view: defaultView, limit: 1000 };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
@@ -436,7 +436,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
 
-  const description = fullPost ? getPostDescription(fullPost) : null
+  const description = fullPost ? getPostDescription(fullPost, forumType) : null
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
@@ -544,7 +544,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo, forumType)})}>
         <div className={classes.centralColumn}>
           {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={postPreload ?? fullPost} silentLoading={silentLoadingPermalink} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>

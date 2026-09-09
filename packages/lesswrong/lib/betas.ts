@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { type ForumTypeString, testServerSetting, isEAForum, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { type ForumTypeString, isEAForum, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
@@ -18,7 +18,6 @@ const moderatorOnly = (user: UsersCurrent|DbUser|null): boolean => !!(user?.isAd
 const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // eslint-disable-line no-unused-vars
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
-const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
 const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
 
 //////////////////////////////////////////////////////////////////////////////

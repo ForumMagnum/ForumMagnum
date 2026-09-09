@@ -30,7 +30,7 @@ const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs}
       userId: currentUser._id,
       type: args?.type ?? undefined,
       limit,
-    });
+    }, context.forumType);
   },
 });
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -308,6 +309,7 @@ const UltraFeedItemFooterCore = ({
   hideReacts = false,
   isFirstCommentInThread,
 }: UltraFeedItemFooterCoreProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
@@ -406,7 +408,7 @@ const UltraFeedItemFooterCore = ({
     </div>
   ) : null
 
-  const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
+  const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem(forumType);
 
   return (
     <AnalyticsContext pageElementContext="ultraFeedFooter" documentId={document._id} collectionName={collectionName}>

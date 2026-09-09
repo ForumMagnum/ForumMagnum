@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
@@ -70,7 +72,7 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
   default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
 }
-const getIncludeExtra = () => forumSelect(forumIncludeExtra)
+const getIncludeExtra = (forumType: ForumTypeString) => forumSelect(forumIncludeExtra, forumType)
 
 const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdvanced=false}: {
   settings: DefaultRecommendationsAlgorithm,
@@ -78,6 +80,7 @@ const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdv
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -155,10 +158,10 @@ const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdv
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[getIncludeExtra().machineName] ?? false}
-          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra().machineName]: !settings[getIncludeExtra().machineName] })}
-          label={getIncludeExtra().humanName}
-          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra().humanName}`}
+          value={settings[getIncludeExtra(forumType).machineName] ?? false}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra(forumType).machineName]: !settings[getIncludeExtra(forumType).machineName] })}
+          label={getIncludeExtra(forumType).humanName}
+          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra(forumType).humanName}`}
         />
       </span>
     </span>

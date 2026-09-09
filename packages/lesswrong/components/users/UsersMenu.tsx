@@ -203,7 +203,7 @@ const UsersMenu = () => {
                   to="/newPost"
                 /> : null}
 
-                {tagUserHasSufficientKarma(currentUser, "new") ? (
+                {tagUserHasSufficientKarma(currentUser, "new", forumType) ? (
                   <NewWikiTagMenu>
                     <DropdownItem
                       title={`New Wikitag`}

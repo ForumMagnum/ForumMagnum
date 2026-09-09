@@ -184,7 +184,7 @@ export const loginDataGraphQLMutations = {
       throw Error("Username is already taken");
     }
 
-    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken, context)
     let recaptchaScore: number | undefined = undefined
     if (reCaptchaResponse) {
       const reCaptchaData = JSON.parse(reCaptchaResponse)
@@ -311,15 +311,15 @@ function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
   backgroundTask(createLWEvent({ data: document }, context));
 }
 
-const getCaptchaRating = async (token: string): Promise<string|null> => {
+const getCaptchaRating = async (token: string, context: ResolverContext): Promise<string|null> => {
   const { default: request } = await import('request');
 
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
-    if (reCaptchaSecretSetting.get()) {
+    if (reCaptchaSecretSetting.get(context)) {
       request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
           form: {
-            secret: reCaptchaSecretSetting.get(),
+            secret: reCaptchaSecretSetting.get(context),
             response: token
           }
         },

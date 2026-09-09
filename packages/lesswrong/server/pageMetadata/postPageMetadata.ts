@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { gql } from "@/lib/generated/gql-codegen";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
@@ -49,9 +50,9 @@ const PostMetadataQuery = gql(`
   }
 `);
 
-function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
+function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_result_Post, forumType: ForumTypeString) {
   if (post.isEvent && post.eventImageId) {
-    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
+    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
   return post.socialPreviewData?.imageUrl ?? "";
 }
@@ -109,11 +110,11 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
   
       const description = comment
         ? getCommentDescription(comment)
-        : getPostDescription(post) ?? defaultMetadata.description;
+        : getPostDescription(post, resolverContext.forumType) ?? defaultMetadata.description;
   
       const ogUrl = postGetPageUrl(post, true);
       const canonicalUrl = post.canonicalSource ?? ogUrl;
-      const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
+      const socialPreviewImageUrl = getSocialPreviewImageUrl(post, resolverContext.forumType);
       const postNoIndex = post.noIndex || post.rejected;
       const noIndex = postNoIndex || commentId || options?.noIndex;
   

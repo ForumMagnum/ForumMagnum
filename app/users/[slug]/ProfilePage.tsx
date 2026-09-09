@@ -178,9 +178,10 @@ export default function ProfilePage({slug}: {
 function ProfilePageInner({user}: {
   user: UsersProfile
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(profilePageUnsharedStyles);
   const userId = user?._id;
-  const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
+  const bioNoFollow = user.karma < nofollowKarmaThreshold.get(forumType);
 
   const currentUser = useCurrentUser();
 

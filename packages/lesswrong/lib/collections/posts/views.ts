@@ -1061,8 +1061,8 @@ function sunshineNewPosts() {
   }
 }
 
-function sunshineAutoClassifiedPosts() {
-  const adminTeamAccountId = adminAccountSetting.get()?._id;
+function sunshineAutoClassifiedPosts(_terms: PostsViewTerms, _client: ApolloClient, context: ResolverContext) {
+  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
   if (!adminTeamAccountId) {
     throw new Error('Admin team account ID is not set');
   }
@@ -1224,11 +1224,11 @@ function voting2019(terms: PostsViewTerms) {
   }
 }
 
-function stickied(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
+function stickied(terms: PostsViewTerms, _: ApolloClient, context: ResolverContext) {
   return {
     selector: {
       sticky: true,
-      ...(context?.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
+      ...(context.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get(context)}} : {}),
     },
     options: {
       sort: {
@@ -1353,11 +1353,11 @@ function alignmentSuggestedPosts() {
   }
 }
 
-function currentOpenThread(terms: PostsViewTerms) {
+function currentOpenThread(terms: PostsViewTerms, _client: ApolloClient, context: ResolverContext) {
   return {
     selector: {
       sticky: true,
-      [`tagRelevance.${openThreadTagIdSetting.get()}`]: { $gte: 1 }
+      [`tagRelevance.${openThreadTagIdSetting.get(context)}`]: { $gte: 1 }
     },
     options: {
       sort: { postedAt: -1 },

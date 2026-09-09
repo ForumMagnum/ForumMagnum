@@ -35,7 +35,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {
         if (recombeeEnabledSetting.get(forumType)) {
           const { post, ...recombeeEventProps } = eventProps;
-          if (isRecombeeRecommendablePost(post)) {
+          if (isRecombeeRecommendablePost(post, forumType)) {
             const postId = post._id;
             void sendRecombeeViewPortionEvent({ ...recombeeEventProps, postId, timestamp: new Date(), userId: attributedUserId });
           }

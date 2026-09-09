@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import moment from "moment"
 import { getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
 import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, postAndCommentRateLimits } from "@/lib/collections/moderatorActions/constants"
@@ -79,7 +80,7 @@ function getPostRateLimitInfos(
   postsInTimeframe: Array<DbPost>,
   modRateLimitHours: number,
   userPostRateLimits: DbUserRateLimit[],
-  recentKarmaInfo: RecentKarmaInfo
+  recentKarmaInfo: RecentKarmaInfo, forumType: ForumTypeString
 ): Array<RateLimitInfo> {
   // for each rate limit, get the next date that user could post  
   const userPostRateLimitInfos = userPostRateLimits.map(
@@ -91,7 +92,7 @@ function getPostRateLimitInfos(
     downvoteRatio: getDownvoteRatio(user)
   } 
 
-  const autoRatelimits = forumSelect(autoPostRateLimits)
+  const autoRatelimits = forumSelect(autoPostRateLimits, forumType)
   const autoRateLimitInfos = autoRatelimits?.map(
     rateLimit => getAutoRateLimitInfo(user, features, rateLimit, postsInTimeframe)
   ) ?? []
@@ -253,7 +254,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser, context:
   // fetch the posts from within the maxTimeframe
   const postsInTimeframe = await getPostsInTimeframe(user, maxHours, context);
 
-  const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, manualPostRateLimits, recentKarmaInfo);
+  const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, manualPostRateLimits, recentKarmaInfo, context.forumType);
 
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
@@ -438,7 +439,7 @@ export async function checkForStricterRateLimits(userId: string, documentId: str
   const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes, context);
 
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
-  const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
+  const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow, context.forumType);
 
   // Use the most recent vote date as the trigger time
   const triggeredAt = allVotes[0].votedAt;

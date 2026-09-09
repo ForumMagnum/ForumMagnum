@@ -119,13 +119,14 @@ function isCrossSiteRequest(request: NextRequest) {
 }
 
 async function sharedHandler(request: NextRequest) {
-  if (!performanceMetricLoggingEnabled.get(getForumTypeForRequest(request))) {
+  const forumType = getForumTypeForRequest(request);
+  if (!performanceMetricLoggingEnabled.get(forumType)) {
     const res = await handler(request);
 
     if (isSandboxedIframeRequest(request)) {
       setSandboxedIframeCorsHeaders(res);
     } else if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
     return res;
   }
@@ -172,7 +173,7 @@ async function sharedHandler(request: NextRequest) {
     if (isSandboxedIframeRequest(request)) {
       setSandboxedIframeCorsHeaders(res);
     } else if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
 
     return res;

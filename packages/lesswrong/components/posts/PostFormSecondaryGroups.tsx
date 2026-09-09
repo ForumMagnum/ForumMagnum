@@ -4,7 +4,6 @@ import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum } from "@/lib/instanceSettings";
-import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
 import classNames from "classnames";
@@ -108,8 +107,8 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
+function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument, forumType: ForumTypeString) {
+  return userIsAdmin(user) || (userOwns(user, document) && userPassesCrosspostingKarmaThreshold(user, forumType));
 }
 
 function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
@@ -622,7 +621,7 @@ const PostFormSecondaryGroups = ({
 
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Options</h3>
-            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
+            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }, forumType) && <div className={classes.fieldWrapper}>
               <form.Field name="fmCrosspost">
                 {(field) => (
                   <LWTooltip title={crosspostControlTooltip}>

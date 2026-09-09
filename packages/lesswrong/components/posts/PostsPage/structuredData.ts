@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
@@ -130,7 +131,7 @@ export const getPostDescription = (post: {
   socialPreviewData?: { text?: string | null } | null;
   shortform?: boolean | null;
   user: { displayName: string } | null;
-}) => {
+}, forumType: ForumTypeString) => {
   if (post.socialPreviewData?.text) {
     return post.socialPreviewData.text;
   }
@@ -174,7 +175,7 @@ export const getPostDescription = (post: {
   }
   if (post.shortform)
     return `A collection of shorter posts ${
-      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
+      post.user ? `by ${forumTitleSetting.get(forumType)} user ${post.user.displayName}` : ""
     }`;
   return null;
 };

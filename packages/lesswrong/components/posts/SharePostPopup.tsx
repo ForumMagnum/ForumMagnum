@@ -317,7 +317,7 @@ const SharePostPopup = ({post, onClose}: {
             <img className={classes.image} src={post.socialPreviewData.imageUrl || siteImageSetting.get(forumType)} />
             <div className={classes.postPreviewTextWrapper}>
               <div className={classes.postTitle}>{post.title}</div>
-              <div className={classes.postPreviewText}>{getPostDescription(post)}</div>
+              <div className={classes.postPreviewText}>{getPostDescription(post, forumType)}</div>
               <div className={classes.postPreviewHostname}>{urlHostname}</div>
             </div>
           </div>

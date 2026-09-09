@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -12,13 +13,13 @@ import { backgroundTask } from "../utils/backgroundTask";
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
 
-const getFollowSubscriptionStartDate = () => forumSelect({
+const getFollowSubscriptionStartDate = (forumType: ForumTypeString) => forumSelect({
   LessWrong: new Date("2024-06-06"),
   default: undefined
-})
+}, forumType)
 
-const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
-  const adminEmail = adminAccountSetting.get()?.email ?? "";
+const getTriggeredDmContents = (eventType: DmTriggeringEvent, forumType: ForumTypeString) => {
+  const adminEmail = adminAccountSetting.get(forumType)?.email ?? "";
 
   switch (eventType) {
     case "newFollowSubscription":
@@ -77,7 +78,7 @@ export const conversationGqlMutations = {
       const numUsersFollows = await Subscriptions.find({
         userId: currentUser._id,
         type: "newActivityForFeed",
-        createdAt: {$gt: getFollowSubscriptionStartDate()}
+        createdAt: {$gt: getFollowSubscriptionStartDate(context.forumType)}
       }).count();
 
       if (numUsersFollows > 1) {
@@ -86,7 +87,7 @@ export const conversationGqlMutations = {
       }
     }
 
-    const { title, message } = getTriggeredDmContents(eventType); 
+    const { title, message } = getTriggeredDmContents(eventType, context.forumType);
 
     const conversationData = {
       participantIds: [currentUser._id, lwAccount._id],

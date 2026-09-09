@@ -1,3 +1,5 @@
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { getForumTypeForRequest } from "./utils/requestUtil";
 import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
@@ -10,19 +12,18 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
-import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { PostsViews } from '@/lib/collections/posts/views';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
 import { camelCaseify } from '@/lib/vulcan-lib/utils';
 import type { NextRequest } from 'next/server';
 
-export const getMeta = (url: string) => {
-  const siteUrl = siteUrlSetting.get();
+export const getMeta = (url: string, context: ResolverContext) => {
+  const siteUrl = siteUrlSetting.get(context);
 
   return {
-    title: forumTitleSetting.get(),
-    description: taglineSetting.get(),
+    title: forumTitleSetting.get(context),
+    description: taglineSetting.get(context),
     feed_url: url,
     site_url: siteUrl,
     image_url: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"
@@ -40,18 +41,18 @@ const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
   : (threshold < 162) ? 125
   : 200;
 
-export const servePostRSS = async (terms: RSSTerms,) => {
+export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   const url = rssTermsToUrl(terms);
-  const feed = new RSS(getMeta(url));
+  const context = createAnonymousContext({forumType: getForumTypeForRequest(req)});
+  const feed = new RSS(getMeta(url, context));
 
   // We renamed the rss views to no longer have dashes in them
   if (terms.view?.includes('-')) {
     terms.view = camelCaseify(terms.view);
   }
 
-  const context = createAnonymousContext();
   const parameters = await viewTermsToQuery(PostsViews, terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
 
@@ -61,6 +62,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     collectionName: "Posts",
     fragmentDoc: PostsRSSFeed,
     currentUser: null,
+    context,
     selector: parameters.selector,
     options: parameters.options,
   });
@@ -106,8 +108,8 @@ export const servePostRSS = async (terms: RSSTerms,) => {
 
 export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
   const url = rssTermsToUrl(terms);
-  const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
+  const feed = new RSS(getMeta(url, context));
 
   let parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;

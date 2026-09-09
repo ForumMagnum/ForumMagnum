@@ -249,7 +249,7 @@ const helpers = {
       };
     }
 
-    const filterSettings: FilterSettings = lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+    const filterSettings: FilterSettings = lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
     const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
 
     const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
@@ -346,7 +346,7 @@ const helpers = {
     const excludedAndHiddenPostIds = [...excludedPostIds, ...hiddenPostIds];
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     const notPostIdsArg = excludedAndHiddenPostIds.length ? { notPostIds: excludedAndHiddenPostIds } : {};
-    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
     const ninetyDaysAgo = new Date(new Date().getTime() - (90*24*60*60*1000));
 
     const postsTerms: PostsViewTerms = {
@@ -727,7 +727,7 @@ const recombeeApi = {
   },
 
   async upsertPost(post: DbPost, context: ResolverContext) {
-    if (!isRecombeeRecommendablePost(post)) return;
+    if (!isRecombeeRecommendablePost(post, context.forumType)) return;
     const client = getRecombeeClientOrThrow();
 
     const contents = await fetchFragmentSingle({

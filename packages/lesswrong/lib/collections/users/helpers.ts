@@ -73,12 +73,12 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
 /**
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
-export const isNewUser = (user: UsersMinimumInfo): boolean => {
+export const isNewUser = (user: UsersMinimumInfo, forumType: ForumTypeString): boolean => {
   const oneYearInMs = 365*24*60*60*1000;
   const oneWeekInMs = 7*24*60*60*1000;
   const userCreatedAt = new Date(user.createdAt);
 
-  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get(forumType)
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 

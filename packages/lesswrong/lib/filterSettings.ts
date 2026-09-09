@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { defaultVisibilityTags } from './instanceSettings';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 
@@ -25,14 +26,14 @@ export const getStandardFilterModes = (): FilterMode[] => {
 export const isCustomFilterMode = (mode: string|number) =>
   !getStandardFilterModes().includes(mode as FilterMode);
 
-export const getDefaultFilterSettings = (): FilterSettings => {
+export const getDefaultFilterSettings = (forumType: ForumTypeString): FilterSettings => {
   return {
     personalBlog: "Hidden",
     // Default visibility tags are always set with "TagDefault" until the user
     // changes them. But the filter mode in default visibility tags is used as
     // that default. That way, if it gets updated, we don't need to run a
     // migration to update the users.
-    tags: defaultVisibilityTags.get().map(tf => ({...tf, filterMode: "TagDefault"})),
+    tags: defaultVisibilityTags.get(forumType).map(tf => ({...tf, filterMode: "TagDefault"})),
   }
 }
 

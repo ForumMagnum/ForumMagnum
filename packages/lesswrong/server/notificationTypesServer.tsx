@@ -35,7 +35,7 @@ import { EmailContextType } from './emailComponents/emailContext';
 
 interface ServerNotificationType {
   name: string,
-  from?: () => string | undefined,
+  from?: (context: ResolverContext) => string | undefined,
   canCombineEmails?: boolean,
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<any>,
@@ -456,7 +456,7 @@ const newMessageEmails: ForumOptions<string | null> = {
   EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
   default: null,
 }
-const forumNewMessageEmail = () => forumSelect(newMessageEmails) ?? undefined
+const forumNewMessageEmail = (context: ResolverContext) => forumSelect(newMessageEmails, context) ?? undefined
 
 export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
@@ -506,7 +506,7 @@ export const WrappedNotification = createServerNotificationType({
   emailSubject: async function() {
     return 'Your 2024 EA Forum Wrapped';
   },
-  emailBody: async function({ user }: {user: DbUser}) {
+  emailBody: async function({ user, emailContext }) {
     return <div>
       <p>
         Hi {user.displayName},
@@ -519,7 +519,7 @@ export const WrappedNotification = createServerNotificationType({
         🎁
       </p>
       <p>
-        - The {forumTitleSetting.get()} Team
+        - The {forumTitleSetting.get(emailContext.resolverContext)} Team
       </p>
     </div>
   },
@@ -690,7 +690,7 @@ export const NewGroupOrganizerNotification = createServerNotificationType({
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const localGroup = await Localgroups.findOne(notifications[0].documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     
@@ -701,13 +701,13 @@ export const NewGroupOrganizerNotification = createServerNotificationType({
         Hi {user.displayName},
       </p>
       <p>
-        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get()}.
+        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get(emailContext.resolverContext)}.
       </p>
       <p>
         We recommend you check the group's info and update it if necessary. You can also post your group's events on the forum, which get advertised to users based on relevance.
       </p>
       <p>
-        - The {forumTitleSetting.get()} Team
+        - The {forumTitleSetting.get(emailContext.resolverContext)} Team
       </p>
     </div>
   },

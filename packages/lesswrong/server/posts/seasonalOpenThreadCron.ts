@@ -43,7 +43,7 @@ const unpinOtherOpenThreads = async (
 const createOrUpdateSeasonalOpenThread = async (
   info: SeasonalOpenThreadInfo,
 ): Promise<SeasonalOpenThreadCronResult> => {
-  const authorSlug = seasonalOpenThreadAuthorSlugSetting.get();
+  const authorSlug = seasonalOpenThreadAuthorSlugSetting.get("LessWrong");
   const author = await Users.findOne({ slug: authorSlug });
   if (!author) {
     return { status: "missing_author", title: info.title };

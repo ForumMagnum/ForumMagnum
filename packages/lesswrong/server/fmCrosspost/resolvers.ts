@@ -106,13 +106,13 @@ export const fmCrosspostGraphQLMutations = {
   connectCrossposter: async (
     _root: void,
     {token}: ConnectCrossposterArgs,
-    {req, currentUser, Users}: ResolverContext,
+    {req, currentUser, Users, forumType}: ResolverContext,
   ) => {
     if (!currentUser) {
       throw new UnauthorizedError();
     }
     const localUserId = currentUser._id;
-    assertCrosspostingKarmaThreshold(currentUser);
+    assertCrosspostingKarmaThreshold(currentUser, forumType);
     const {foreignUserId} = await makeV2CrossSiteRequest(
       connectCrossposterRoute,
       {token, localUserId},

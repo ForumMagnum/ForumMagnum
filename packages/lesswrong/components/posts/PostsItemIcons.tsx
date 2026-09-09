@@ -100,7 +100,7 @@ const RecommendedPostIcon = ({post, hover}: {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post)) {
+    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post, forumType)) {
       void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
     }
 

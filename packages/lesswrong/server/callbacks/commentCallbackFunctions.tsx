@@ -771,7 +771,7 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
-  if (commentIsNotPublicForAnyReason(comment)) return
+  if (commentIsNotPublicForAnyReason(comment, context.forumType)) return
   
   backgroundTask(utils.sendNewCommentNotifications(comment, context))
 }
@@ -933,7 +933,7 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
+  if (commentIsNotPublicForAnyReason(oldComment, context.forumType) && !commentIsNotPublicForAnyReason(comment, context.forumType)) {
     backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
 }

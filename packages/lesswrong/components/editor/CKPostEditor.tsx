@@ -19,7 +19,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { Command, Editor } from '@ckeditor/ckeditor5-core';
 import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
@@ -577,7 +577,7 @@ const CKPostEditor = ({
     mention: mentionPluginConfiguration(portalContext, forumType),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
-    ...cloudinaryConfig,
+    ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),
   });
 

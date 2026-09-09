@@ -437,11 +437,12 @@ const CommentPermalinkSection = ({
   targetCommentId: string;
   onSeeInContext: (e: React.MouseEvent) => void;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   
   if (!targetComment) return null;
   
-  if (commentIsHiddenPendingReview(targetComment) && !targetComment.rejected) {
+  if (commentIsHiddenPendingReview(targetComment, forumType) && !targetComment.rejected) {
     return (
       <>
         <div className={classes.permalinkLabel}>
@@ -665,7 +666,7 @@ const UltraFeedPostDialog = ({
     setFootnoteDialogHTML(footnoteHTML);
   });
 
-  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
+  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost, forumType) ? (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const action = showEmbeddedPlayer ? "close" : "open";

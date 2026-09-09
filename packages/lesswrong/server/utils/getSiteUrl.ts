@@ -1,11 +1,13 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { siteUrlSetting } from "@/lib/instanceSettings";
 import { NextRequest } from "next/server";
 
 export function getSiteUrlFromReq(req: NextRequest): string {
-  return getSiteUrlFromHeaders(req.headers);
+  return getSiteUrlFromHeaders(req.headers, getForumTypeForRequest(req));
 }
 
-export function getSiteUrlFromHeaders(headers: Headers | undefined): string {
+export function getSiteUrlFromHeaders(headers: Headers | undefined, forumType: ForumTypeString): string {
   const forwardedFor = headers?.get('x-forwarded-for') ?? null;
   const forwardedHost = headers?.get('x-forwarded-host') ?? null;
   const forwardedPort = headers?.get('x-forwarded-port') ?? null;
@@ -18,7 +20,7 @@ export function getSiteUrlFromHeaders(headers: Headers | undefined): string {
     const port = getPortFromForwardedHeaders(forwardedFor, forwardedPort);
     url = `${proto}://${forwardedHostWithoutPort}${port ? `:${port}` : ""}`;
   } else {
-    url = siteUrlSetting.get();
+    url = siteUrlSetting.get(forumType);
   }
 
   return url.replace(/\/+$/, "");

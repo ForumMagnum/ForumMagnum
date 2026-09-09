@@ -32,7 +32,7 @@ export const SequenceNewPostsEmail = ({sequence, posts, emailContext}: {
       q: "auto",
       f: "auto",
       g: "auto:faces",
-    }) : undefined;
+    }, emailContext.resolverContext.forumType) : undefined;
   
   return <div className={classes.root}>
     {imgUrl && <img src={imgUrl} className={classes.img} />}

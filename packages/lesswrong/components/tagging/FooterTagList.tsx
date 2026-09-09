@@ -262,7 +262,7 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  const contentTypeInfo = forumSelect(getContentTypes(), forumType);
+  const contentTypeInfo = forumSelect(getContentTypes(forumType), forumType);
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling, showAutoClassifiedIcon}: {
     tooltipBody: ReactNode,

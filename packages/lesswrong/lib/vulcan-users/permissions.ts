@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import intersection from 'lodash/intersection';
 import moment from 'moment';
 import { hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
@@ -118,7 +119,7 @@ export const documentIsNotDeleted = (
 }
 
 
-export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
+export const userCanComment = (user: PermissionableUser|DbUser|null, forumType: ForumTypeString): boolean => {
   if (!user) {
     return false;
   }
@@ -128,7 +129,7 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
   if (user.allCommentingDisabled) {
     return false;
   }
-  if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
+  if (hideUnreviewedAuthorCommentsSettings.get(forumType) && !user.reviewedByUserId) {
     return false;
   }
   return true;

@@ -263,7 +263,7 @@ const SequencesPage = ({documentId}: {
     q: "auto",
     f: "auto",
     g: "auto:faces",
-  }) : undefined;
+  }, forumType) : undefined;
     
   return <AnalyticsContext pageContext="sequencesPage">
     <StatusCodeSetter status={200}/>

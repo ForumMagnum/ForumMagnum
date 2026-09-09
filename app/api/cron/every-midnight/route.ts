@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
 import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
@@ -9,6 +10,7 @@ import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettin
 import { maybeCreateSeasonalOpenThread } from '@/server/posts/seasonalOpenThreadCron';
 
 export async function GET(request: NextRequest) {
+  const forumType = getForumTypeForRequest(request);
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', { status: 401 });
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   // This one's probably the longest-running, so do it last
-  if (performanceMetricLoggingEnabled.get()) {
+  if (performanceMetricLoggingEnabled.get(forumType)) {
     await pruneOldPerfMetrics();
   }
 

@@ -78,7 +78,7 @@ const CommentPermalink = ({
 
   if (!comment || !documentId) return null
   
-  const hiddenPendingReview = commentIsHiddenPendingReview(comment) && !comment.rejected;
+  const hiddenPendingReview = commentIsHiddenPendingReview(comment, forumType) && !comment.rejected;
   const isOwnUnreviewedComment = hiddenPendingReview && currentUserId === comment.userId;
 
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment

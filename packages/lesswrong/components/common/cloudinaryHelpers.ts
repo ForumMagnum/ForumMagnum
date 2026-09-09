@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 
 // see their documentation: https://cloudinary.com/documentation/transformation_reference
@@ -19,6 +20,6 @@ function cloudinaryPropsToStr(props: Record<string, string>) {
   return sb.join(",");
 }
 
-export function makeCloudinaryImageUrl(publicId: string, cloudinaryProps: CloudinaryPropsType) {
-  return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
+export function makeCloudinaryImageUrl(publicId: string, cloudinaryProps: CloudinaryPropsType, forumType: ForumTypeString) {
+  return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
 }
