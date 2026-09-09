@@ -11,7 +11,7 @@ type SlackChannelName = keyof typeof slackChannels;
 
 interface PostMessageOptions {
   mrkdwn?: boolean;
-  blocks?: (KnownBlock | Block)[];
+  blocks?: Array<KnownBlock | Block | Record<string, unknown>>;
   unfurl_links?: boolean;
   unfurl_media?: boolean;
 }
