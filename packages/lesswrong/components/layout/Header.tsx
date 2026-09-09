@@ -245,14 +245,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     alignItems: "center",
     minWidth: 0,
   },
-  userMenuDuringSearch: {
-    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
-      display: 'none',
-    },
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-    },
-  },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
     minWidth: 48
@@ -504,7 +496,7 @@ const Header = ({
     {!isLoggedIn && <LWUsersAccountMenu />}
 
     {isLoggedIn && <>
-      <div className={searchOpen ? classes.userMenuDuringSearch : undefined}>
+      <div>
         <AnalyticsContext pageSectionContext="usersMenu">
           <UsersMenu />
         </AnalyticsContext>

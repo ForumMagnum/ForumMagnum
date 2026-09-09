@@ -83,12 +83,14 @@ class NativeSearchClient implements Client {
         },
         body,
       }).then((response) => {
+        if (!response.ok) throw new Error(`Search failed: ${response.status}`);
         response.json().then((results) => {
           resolve({results});
         }).catch(reject);
       }).catch(reject);
     });
     this.cache.set(body, promise);
+    void promise.catch(() => { this.cache.del(body); });
     if (cb) {
       promise.then((result) => cb(null, result)).catch((err) => cb(err, null));
     } else {
