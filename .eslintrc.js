@@ -45,7 +45,7 @@ module.exports = {
     // Commented out because there are immport cycles that haven't been resolved
     // yet.
     "plugin:import/typescript",
-    "plugin:@next/next/recommended"
+    "plugin:@next/next/recommended-legacy"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -348,6 +348,9 @@ module.exports = {
     "@next/next/no-img-element": 0,
 
     "@next/next/no-html-link-for-pages": 0,
+    // Full-page navigation is intentional when changing cookie-backed homepage
+    // settings or switching between the editor playground's browsing contexts.
+    "@next/next/no-location-assign-relative-destination": 0,
   },
   "overrides": [
     {
