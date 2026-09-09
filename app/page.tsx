@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/requestUtil";
 import React from "react";
 import HomePageWithDesignChat from "@/components/common/HomePageWithDesignChat";
 import LWHome from "@/components/common/LWHome";
@@ -21,6 +22,7 @@ export default async function Home({ searchParams }: {
     openCustomize?: string | string[] | undefined;
   }>;
 }) {
+  const forumType = await getForumTypeForPage();
   const params = searchParams ? await searchParams : undefined;
   const openCustomizeParam = Array.isArray(params?.openCustomize) ? params?.openCustomize[0] : params?.openCustomize;
 
@@ -29,6 +31,6 @@ export default async function Home({ searchParams }: {
       AlignmentForum: <AlignmentForumHome/>,
       LessWrong: <HomePageWithDesignChat initialIsOpen={Boolean(openCustomizeParam)} />,
       default: <LWHome/>,
-    })}
+    }, forumType)}
   </RouteRoot>;
 }

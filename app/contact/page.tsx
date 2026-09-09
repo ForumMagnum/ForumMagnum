@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/requestUtil";
 import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
@@ -12,8 +13,9 @@ assertRouteAttributes("/contact", {
   hasMarkdownVersion: true,
 });
 
-export default function Page() {
+export default async function Page() {
+  const forumType = await getForumTypeForPage();
   return <RouteRoot delayedStatusCode>
-    <PostsSingleRoute _id={contactPostIdSetting.get()} />
+    <PostsSingleRoute _id={contactPostIdSetting.get(forumType)} />
   </RouteRoot>;
 }

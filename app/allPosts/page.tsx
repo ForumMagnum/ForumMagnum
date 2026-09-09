@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/requestUtil";
 import React from "react";
 import AllPostsPage from '@/components/posts/AllPostsPage';
 import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
@@ -8,10 +9,11 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const forumType = await getForumTypeForPage();
   return merge(
     {},
     await getDefaultMetadata(),
-    getMetadataDescriptionFields(`All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`),
+    getMetadataDescriptionFields(`All of ${siteNameWithArticleSetting.get(forumType)}'s posts, filtered and sorted however you want`),
     getPageTitleFields('All Posts')
   );
 }
