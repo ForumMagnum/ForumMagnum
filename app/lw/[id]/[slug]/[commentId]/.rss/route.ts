@@ -2,7 +2,7 @@ import Posts from "@/server/collections/posts/collection";
 import Comments from "@/server/collections/comments/collection";
 import { commentGetAbsoluteRSSUrl } from '@/lib/collections/comments/helpers';
 import { getForumTypeForRequest } from '@/server/utils/requestUtil';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '@/lib/collections/posts/helpers';
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (post && comment) {
     redirect(commentGetAbsoluteRSSUrl(comment, getForumTypeForRequest(req)));
   } else if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetAbsolutePageUrl(post, getForumTypeForRequest(req)));
   } else {
     return new Response(`No post or comment found with: id=${id} commentId=${commentId}`, { status: 404 });
   }

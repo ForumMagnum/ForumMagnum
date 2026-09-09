@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Paper }from '@/components/widgets/Paper';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useRerenderOnce } from "../hooks/useFirstRender";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting, siteImageSetting } from '@/lib/instanceSettings';
@@ -215,7 +215,7 @@ const SharePostPopup = ({post, onClose}: {
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
-  const urlHostname = new URL(getSiteUrl()).hostname;
+  const urlHostname = new URL(getSiteUrl(forumType)).hostname;
 
   // Force rerender because the element we are anchoring to is created after the first render
   useRerenderOnce();
@@ -236,7 +236,7 @@ const SharePostPopup = ({post, onClose}: {
     };
   }, []);
 
-  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=publish_share&utm_source=${source}`
+  const postUrl = (source: string) => `${postGetAbsolutePageUrl(post, forumType)}?utm_campaign=publish_share&utm_source=${source}`
 
   const copyLink = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "copyLink" });

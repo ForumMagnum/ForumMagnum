@@ -17,7 +17,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { commentAncestorsToNotifySetting } from "../databaseSettings";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -109,7 +109,7 @@ const utils = {
     
     const emailsToNotify = await getUsersToNotifyAboutEvent(post);
     
-    const postLink = postGetPageUrl(post, true);
+    const postLink = postGetAbsolutePageUrl(post, context.forumType);
     
     for (let {userId,email} of emailsToNotify) {
       if (!email) continue;

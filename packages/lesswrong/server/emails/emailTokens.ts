@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../server/collections/emailTokens/collection';
@@ -57,11 +58,11 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     return token;
   }
 
-  generateLink = async (userId: string) => {
+  generateLink = async (userId: string, forumType: ForumTypeString) => {
     if (!userId) throw new Error("Missing required argument: userId");
 
     const token = await this.generateToken(userId);
-    const prefix = getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl(forumType).slice(0,-1);
     return `${prefix}/${this.path}/${token}`;
   }
 
@@ -81,11 +82,11 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     return this.generateToken(userId);
   }
 
-  getOrGenerateLink = async (userId: string) => {
+  getOrGenerateLink = async (userId: string, forumType: ForumTypeString) => {
     if (!userId) throw new Error("Missing required argument: userId");
 
     const token = await this.getOrGenerateToken(userId);
-    const prefix = getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl(forumType).slice(0,-1);
     return `${prefix}/${this.path}/${token}`;
   }
   
@@ -160,7 +161,7 @@ export const emailTokensGraphQLMutations = {
   async getClaudeAccessLink(root: void, _args: {}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser) throw new Error("Must be logged in");
-    return emailTokenTypesByName.confirmClaudeAccess.getOrGenerateLink(currentUser._id);
+    return emailTokenTypesByName.confirmClaudeAccess.getOrGenerateLink(currentUser._id, context.forumType);
   },
 };
 

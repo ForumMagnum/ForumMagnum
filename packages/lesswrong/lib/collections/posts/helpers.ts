@@ -22,11 +22,15 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false): string {
+export const postGetLink = function (post: PostsBase|DbPost): string {
   if (post.url) {
     return post.url;
   }
-  return postGetPageUrl(post, isAbsolute);
+  return postGetPageUrl(post);
+};
+
+export const postGetAbsoluteLink = (post: PostsBase|DbPost, forumType: ForumTypeString): string => {
+  return post.url || postGetAbsolutePageUrl(post, forumType);
 };
 
 // Whether a post's link should open in a new tab or not
@@ -141,13 +145,13 @@ export const postIsApproved = function (post: Pick<DbPost, '_id' | 'status'>): b
 };
 
 // Get URL for sharing on Twitter.
-export const postGetTwitterShareUrl = (post: DbPost): string => {
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
+export const postGetTwitterShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetAbsoluteLink(post, forumType)) }`;
 };
 
 // Get URL for sharing on Facebook.
-export const postGetFacebookShareUrl = (post: DbPost): string => {
-  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetLink(post, true)) }`;
+export const postGetFacebookShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
+  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetAbsoluteLink(post, forumType)) }`;
 };
 
 // Get URL for sharing by Email.
@@ -156,7 +160,7 @@ export const postGetEmailShareUrl = (post: DbPost, forumType: ForumTypeString): 
   const body = `I thought you might find this interesting:
 
 ${post.title}
-${postGetLink(post, true)}
+${postGetAbsoluteLink(post, forumType)}
 
 (found via ${siteUrlSetting.get(forumType)})
   `;
@@ -203,36 +207,44 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId: string|null=null): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
+export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, sequenceId: string|null=null): string {
   // LESSWRONG – included event and group post urls
   if (sequenceId) {
-    return `${prefix}/s/${sequenceId}/p/${post._id}`;
+    return `/s/${sequenceId}/p/${post._id}`;
   } else if (post.isEvent) {
-    return `${prefix}/events/${post._id}/${post.slug}`;
+    return `/events/${post._id}/${post.slug}`;
   } else if (post.groupId) {
-    return `${prefix}/g/${post.groupId}/p/${post._id}/`;
+    return `/g/${post.groupId}/p/${post._id}/`;
   }
-  return `${prefix}/posts/${post._id}/${post.slug}`;
+  return `/posts/${post._id}/${post.slug}`;
+};
+
+export const postGetAbsolutePageUrl = (post: PostsMinimumForGetPageUrl, forumType: ForumTypeString, sequenceId: string|null=null): string => {
+  return getSiteUrl(forumType).slice(0, -1) + postGetPageUrl(post, sequenceId);
 };
 
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
-  isAbsolute = false,
   sequenceId: string | null = null,
 ): string => {
-  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+  return postGetPageUrl(post, sequenceId) + "#comments";
 }
 
 
-export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
-  const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
-  let url = `${prefix}/editPost?postId=${postId}`;
+export const postGetAbsoluteCommentsUrl = (post: PostsMinimumForGetPageUrl, forumType: ForumTypeString, sequenceId: string|null=null): string => {
+  return postGetAbsolutePageUrl(post, forumType, sequenceId) + "#comments";
+};
+
+export const postGetEditUrl = (postId: string, linkSharingKey?: string, version?: string): string => {
+  let url = `/editPost?postId=${postId}`;
   if (linkSharingKey) url += `&key=${linkSharingKey}`;
   if (version) url += `&version=${version}`;
   return url;
 }
+
+export const postGetAbsoluteEditUrl = (postId: string, forumType: ForumTypeString, linkSharingKey?: string, version?: string): string => {
+  return getSiteUrl(forumType).slice(0, -1) + postGetEditUrl(postId, linkSharingKey, version);
+};
 
 export type PostWithCommentCounts = { commentCount: number; afCommentCount: number }
 /**

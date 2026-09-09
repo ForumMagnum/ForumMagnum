@@ -53,15 +53,15 @@ const getMobileSpotlightOverrideId = (now: Date = new Date()): string | null => 
 const getStructuredData = (forumType: ForumTypeString) => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
-  "url": `${getSiteUrl()}`,
+  "url": `${getSiteUrl(forumType)}`,
   "potentialAction": {
     "@type": "SearchAction",
-    "target": `${combineUrls(getSiteUrl(), '/search')}?query={search_term_string}`,
+    "target": `${combineUrls(getSiteUrl(forumType), '/search')}?query={search_term_string}`,
     "query-input": "required name=search_term_string"
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": `${getSiteUrl()}`,
+    "@id": `${getSiteUrl(forumType)}`,
   },
   ...(forumType === 'LessWrong' && {
     "description": [

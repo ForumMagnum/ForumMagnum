@@ -81,7 +81,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
           ? tagGetDiscussionUrl(tag)
           : tagGetUrl(tag);
 
-      const ogUrl = combineUrls(getSiteUrl(), urlBase);
+      const ogUrl = combineUrls(getSiteUrl(resolverContext.forumType), urlBase);
       const canonicalUrl = ogUrl;
 
       const urlFields = {

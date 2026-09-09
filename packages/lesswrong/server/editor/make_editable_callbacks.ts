@@ -156,7 +156,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       }),
       [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
-        pingbacks: await htmlToPingbacks(html, null),
+        pingbacks: await htmlToPingbacks(html, null, context.forumType),
       } : null),
     }
   }
@@ -250,7 +250,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
         pingbacks: await htmlToPingbacks(html, [{
             collectionName: collectionName,
             documentId: document._id,
-          }]
+          }], context.forumType
         ),
       } : null),
     }

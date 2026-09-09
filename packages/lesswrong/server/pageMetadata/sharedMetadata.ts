@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from '@/server/utils/requestUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -34,30 +35,31 @@ export const noIndexMetadata = { robots: { index: false } };
  * https://nextjs.org/docs/app/getting-started/metadata-and-og-images#default-fields
  */
 export async function getDefaultMetadata() {
+  const forumType = await getForumTypeForPage();
   const headersList = await headers();
   const userAgent = headersList.get("user-agent");
   return {
-    title: tabLongTitleSetting.get() || tabTitleSetting.get(),
-    description: taglineSetting.get(),
+    title: tabLongTitleSetting.get(forumType) || tabTitleSetting.get(forumType),
+    description: taglineSetting.get(forumType),
     twitter: {
-      description: taglineSetting.get(),
-      images: siteImageSetting.get(),
+      description: taglineSetting.get(forumType),
+      images: siteImageSetting.get(forumType),
       ...(userAgent?.startsWith("Slackbot-LinkExpanding") ? { card: "summary_large_image" } : { card: "summary" }),
     },
     openGraph: {
-      title: tabLongTitleSetting.get() || tabTitleSetting.get(),
+      title: tabLongTitleSetting.get(forumType) || tabTitleSetting.get(forumType),
       type: 'article',
-      url: getSiteUrl(),
-      description: taglineSetting.get(),
-      images: siteImageSetting.get(),
+      url: getSiteUrl(forumType),
+      description: taglineSetting.get(forumType),
+      images: siteImageSetting.get(forumType),
     },
     alternates: {
-      canonical: getSiteUrl(),
+      canonical: getSiteUrl(forumType),
       types: {
-        'application/rss+xml': `${getSiteUrl()}feed.xml`,
+        'application/rss+xml': `${getSiteUrl(forumType)}feed.xml`,
       }
     },
-    ...(noIndexSetting.get() ? noIndexMetadata : {})
+    ...(noIndexSetting.get(forumType) ? noIndexMetadata : {})
   } satisfies Metadata;
 }
 

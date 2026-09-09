@@ -278,7 +278,7 @@ const PostsNewFormInner = () => {
           const createdPost = data?.createPost?.data;
 
           if (createdPost) {
-            navigate(postGetEditUrl(createdPost._id, false, createdPost.linkSharingKey ?? undefined), {replace: true});
+            navigate(postGetEditUrl(createdPost._id, createdPost.linkSharingKey ?? undefined), {replace: true});
           }
         } catch(e) {
           setError(e.message);

@@ -324,33 +324,47 @@ export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null): string => {
   if (!user) return "";
   
   if (user.slug) {
-    return userGetProfileUrlFromSlug(user.slug, isAbsolute);
+    return userGetProfileUrlFromSlug(user.slug);
   } else {
     return "";
   }
 }
 
-export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
+export const userGetProfileUrlFromSlug = (userSlug: string): string => {
   if (!userSlug) return "";
   
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/users/${userSlug}`;
+  return `/users/${userSlug}`;
 }
 
-export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+export const userGetAnalyticsUrl = (user: {slug: string}): string => {
   if (!user) return "";
 
   if (user.slug) {
-    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+    return `${userGetProfileUrlFromSlug(user.slug)}/stats`;
   } else {
     return "";
   }
 }
 
+
+export const userGetAbsoluteProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteProfileUrlFromSlug = (userSlug: string, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrlFromSlug(userSlug);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteAnalyticsUrl = (user: {slug: string}, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetAnalyticsUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|DbUser|null): boolean => {
   if (!user) {

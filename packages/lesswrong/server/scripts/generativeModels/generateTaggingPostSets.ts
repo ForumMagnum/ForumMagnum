@@ -262,7 +262,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
       const tagsPredicted = await checkTags(post, tags, openAIApi, context);
       
       writeResult(`${post.title}\n`
-        + `    ${getSiteUrl()}/posts/${post._id}/${post.slug}\n`
+        + `    ${getSiteUrl(context.forumType)}/posts/${post._id}/${post.slug}\n`
         + `    Language model: ${filter(tags, t=>!!tagsPredicted[t.slug]).map(t=>t.name).join(", ")}\n`
         + `    Human: ${tagsByHumans.join(", ")}\n`
       );

@@ -127,7 +127,7 @@ export const welcomeMessageDelayer = new EventDebouncer({
 });
 
 async function sendVerificationEmail(user: DbUser, forumType: ForumTypeString) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id, forumType);
   await wrapAndSendEmail({
     user,
     force: true,

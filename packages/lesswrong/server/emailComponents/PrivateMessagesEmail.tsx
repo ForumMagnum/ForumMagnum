@@ -1,5 +1,5 @@
 import React from 'react';
-import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
+import { conversationGetAbsolutePageUrl } from '../../lib/collections/conversations/helpers';
 // import { useCurrentUser } from '../../components/common/withUser';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { EmailContextType } from "./emailContext";
@@ -50,13 +50,13 @@ export const EmailListOfUsers = ({users, emailContext}: {
   if (users.length === 0) {
     return <span>nobody</span>;
   } else if(users.length === 1) {
-    return <EmailUsername user={users[0]}/>
+    return <EmailUsername emailContext={emailContext} user={users[0]}/>
   } else {
     let result: Array<string|React.JSX.Element> = [];
     for (let i=0; i<users.length; i++) {
       if (i===users.length-1) result.push(" and ");
       else if (i>0) result.push(", ");
-      result.push(<EmailUsername user={users[i]}/>);
+      result.push(<EmailUsername emailContext={emailContext} user={users[i]}/>);
     }
     return <span>{result}</span>;
   }
@@ -70,7 +70,7 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
 }) => {
   const currentUser = emailContext.currentUser;
   const sitename = siteNameWithArticleSetting.get(emailContext.resolverContext)
-  const conversationLink = conversationGetPageUrl(conversation, true);
+  const conversationLink = conversationGetAbsolutePageUrl(conversation, emailContext.resolverContext.forumType);
 
   const participantIds = conversation.participantIds ?? [];
   
@@ -87,7 +87,7 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
     <p><a href={conversationLink}>View this conversation on {sitename}</a>.</p>
     
     {messages.map((message,i) => <div key={i}>
-      <EmailUsername user={participantsById[message.userId]!}/>
+      <EmailUsername emailContext={emailContext} user={participantsById[message.userId]!}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
       <EmailContentItemBody dangerouslySetInnerHTML={{
         __html: message.contents?.html ?? "",

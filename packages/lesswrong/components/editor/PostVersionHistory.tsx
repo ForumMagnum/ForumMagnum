@@ -208,7 +208,7 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
 
       navigate({ ...location.location, search: `?${newSearchString}`});
     } else {
-      void navigate(postGetEditUrl(postId, false, post.linkSharingKey ?? undefined, version));
+      void navigate(postGetEditUrl(postId, post.linkSharingKey ?? undefined, version));
     }
 
     onClose();

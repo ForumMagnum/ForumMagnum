@@ -9,7 +9,7 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { isProduction } from '../../lib/executionEnvironment';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { tagGetAbsoluteUrl } from '@/lib/collections/tags/helpers';
@@ -300,7 +300,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.manifoldReviewMarketId) return;
 
   const annualReviewLink = tagGetAbsoluteUrl({slug: 'lesswrong-review'}, context.forumType)
-  const postLink = postGetPageUrl(post, true)
+  const postLink = postGetAbsolutePageUrl(post, context.forumType)
 
   const year = post.postedAt.getFullYear()
   const initialProb = 14

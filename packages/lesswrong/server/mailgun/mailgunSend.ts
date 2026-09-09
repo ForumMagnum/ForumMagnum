@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { MailgunMessageData } from "mailgun.js/definitions";
 import { getMailgunClient, MAILGUN_DOMAIN } from "./mailgunClient";
@@ -7,8 +8,8 @@ export function renderUnsubscribeLinkTemplateForBulk(htmlOrText: string): string
   return htmlOrText.replaceAll("{{unsubscribeUrl}}", "%recipient.unsubscribeUrl%");
 }
 
-export function getUnsubscribeAllUrlFromToken(token: string): string {
-  const prefix = getSiteUrl().slice(0, -1);
+export function getUnsubscribeAllUrlFromToken(token: string, forumType: ForumTypeString): string {
+  const prefix = getSiteUrl(forumType).slice(0, -1);
   return `${prefix}/emailToken/${token}`;
 }
 

@@ -2,7 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import SuggestCuratedDropdownItem from "../dropdowns/posts/SuggestCuratedDropdownItem";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
@@ -38,10 +38,10 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
   }, [post, closeMenu]);
 
   const handleCopyLink = useCallback(() => {
-    const url = postGetPageUrl(post, true);
+    const url = postGetAbsolutePageUrl(post, forumType);
     void navigator.clipboard.writeText(url);
     closeMenu();
-  }, [post, closeMenu]);
+  }, [post, closeMenu, forumType]);
 
   const handleSeeLess = useCallback(() => {
     onSeeLess?.();

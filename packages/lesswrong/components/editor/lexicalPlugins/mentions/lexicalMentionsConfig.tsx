@@ -105,7 +105,7 @@ function isSearchTag(hit: SearchUser | SearchPost | SearchTag): hit is SearchTag
  * Format a search hit into a MentionItem
  */
 function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: ForumTypeString): MentionItemWithHit | null {
-  const linkPrefix = getSiteUrl();
+  const linkPrefix = getSiteUrl(forumType);
 
   if (isSearchUser(hit)) {
     const displayName = MARKER + userGetDisplayName(hit, forumType);

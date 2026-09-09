@@ -21,7 +21,7 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
   children: React.ReactNode,
 }) => {
   const classes = emailUseStyles(styles, emailContext);
-  const accountLink = `${getSiteUrl()}account`
+  const accountLink = `${getSiteUrl(emailContext.resolverContext.forumType)}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get(emailContext.resolverContext)
   
   // Put props for some HTML elements in any-typed objects, because emails use

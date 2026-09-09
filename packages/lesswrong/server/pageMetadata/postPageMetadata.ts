@@ -4,7 +4,7 @@ import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { runQuery } from "../vulcan-lib/query";
@@ -112,7 +112,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         ? getCommentDescription(comment)
         : getPostDescription(post, resolverContext.forumType) ?? defaultMetadata.description;
   
-      const ogUrl = postGetPageUrl(post, true);
+      const ogUrl = postGetAbsolutePageUrl(post, resolverContext.forumType);
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post, resolverContext.forumType);
       const postNoIndex = post.noIndex || post.rejected;

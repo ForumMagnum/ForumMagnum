@@ -2,7 +2,7 @@ import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { ZodType, z } from "zod";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { assertCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import {
   ApiError,
   InvalidPostError,
@@ -140,7 +140,7 @@ export const crosspostDetailsCrosspostHandler = getNextHandler(
       throw new InvalidPostError();
     }
     return {
-      canonicalLink: postGetPageUrl(post as DbPost, true),
+      canonicalLink: postGetAbsolutePageUrl(post as DbPost, context.forumType),
       commentCount: Math.max(post.commentCount ?? 0, 0),
     };
   },

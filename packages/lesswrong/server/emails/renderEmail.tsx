@@ -181,8 +181,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const html = boilerplateGenerator({ css, body, title:subject, forumType: emailContext.resolverContext.forumType })
   
   // Find any relative links, and convert them to absolute
-  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
-  const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl() });
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl(theme.forumType));
+  const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl(theme.forumType) });
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
@@ -241,9 +241,8 @@ export const wrapAndRenderEmail = async ({
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
-  
   const emailContext = await createEmailContext(user);
+  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType) : null;
 
   return await generateEmail({
     user,

@@ -1,5 +1,6 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { checkNested } from '../vulcan-lib/utils';
-import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
+import { userGetDisplayName, userGetProfileUrl, userGetAbsoluteProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
 
 export const userGetDisplayNameById = async function(userId: string, context: ResolverContext): Promise<string> {
@@ -9,9 +10,12 @@ export const userGetDisplayNameById = async function(userId: string, context: Re
 
 // Get a user's account edit URL
 // @param {Object} user (note: we only actually need either the _id or slug properties)
-// @param {Boolean} isAbsolute
-export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
-  return `${userGetProfileUrl(user, isAbsolute)}/edit`;
+export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null): string {
+  return `${userGetProfileUrl(user)}/edit`;
+};
+
+export const userGetAbsoluteEditUrl = (user: DbUser|UsersMinimumInfo|null, forumType: ForumTypeString): string => {
+  return `${userGetAbsoluteProfileUrl(user, forumType)}/edit`;
 };
 
 // Get a user's GitHub name

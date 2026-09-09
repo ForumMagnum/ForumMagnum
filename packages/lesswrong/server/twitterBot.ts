@@ -3,7 +3,7 @@ import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
 import { accessTokenSecretSetting, accessTokenSetting, apiKeySecretSetting, apiKeySetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
@@ -12,7 +12,7 @@ import { createTweet } from "./collections/tweets/mutations";
 const TWEET_MAX_LENGTH = 279;
 const URL_LENGTH = 24;
 
-async function writeTweet(post: DbPost): Promise<string> {
+async function writeTweet(post: DbPost, forumType: ForumTypeString): Promise<string> {
   const userIds = [
     post.userId,
     ...post.coauthorUserIds
@@ -45,7 +45,7 @@ async function writeTweet(post: DbPost): Promise<string> {
     ? preUrlPart.substring(0, TWEET_MAX_LENGTH - URL_LENGTH - 3) + "..."
     : preUrlPart;
 
-  return `${truncatedPreUrlPart}\n${postGetPageUrl(post, true)}`;
+  return `${truncatedPreUrlPart}\n${postGetAbsolutePageUrl(post, forumType)}`;
 }
 
 async function postTweet(content: string, context: ResolverContext) {
@@ -97,7 +97,7 @@ export async function runTwitterBot(forumType: ForumTypeString) {
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
 
   for (const post of posts) {
-    const content = await writeTweet(post);
+    const content = await writeTweet(post, forumType);
     logger(`Attempting to post tweet with content: ${content}`);
     const tweetId = await postTweet(content, anonymousContext);
 

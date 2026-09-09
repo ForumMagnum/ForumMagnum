@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
@@ -39,6 +40,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   className?: string,
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const URLClass = getUrlClass()
   const location = useLocation();
   href = href ? href.trim() : href;
@@ -69,7 +71,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   }
 
   try {
-    const currentURL = new URLClass(location.url, getSiteUrl());
+    const currentURL = new URLClass(location.url, getSiteUrl(forumType));
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;

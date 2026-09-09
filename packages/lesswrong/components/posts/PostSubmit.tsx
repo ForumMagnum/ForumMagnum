@@ -132,7 +132,7 @@ export const PostSubmit = ({
                           const intercomProps = {
                             title: createdPost.title,
                             _id: createdPost._id,
-                            url: getSiteUrl() + "posts/" + createdPost._id
+                            url: getSiteUrl(forumType) + "posts/" + createdPost._id
                           };
 
                           // eslint-disable-next-line

@@ -464,8 +464,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   //const redLinks = JSON.parse(fs.readFileSync("redLinksCache.json", 'utf-8'));
   await createRedLinkPlaceholders(redLinks, conversionContext);
   
-  await recomputePingbacks("Tags");
-  await recomputePingbacks("MultiDocuments");
+  await recomputePingbacks("Tags", resolverContext.forumType);
+  await recomputePingbacks("MultiDocuments", resolverContext.forumType);
 
   // This needs to be rerun whenever the page import is run
   await importPagePairs(database, resolverContext, options);

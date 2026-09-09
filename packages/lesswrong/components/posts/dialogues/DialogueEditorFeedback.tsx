@@ -42,7 +42,7 @@ export const DialogueEditorFeedback = ({post}: {
           window.Intercom(
             'trackEvent',
             'requested-feedback',
-            {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
+            {title: post.title, _id: post._id, url: getSiteUrl(forumType) + "posts/" + post._id}
           );
           setClickState('success')
         }}>

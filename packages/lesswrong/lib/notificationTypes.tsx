@@ -491,7 +491,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
-    return postGetEditUrl(documentId, false)
+    return postGetEditUrl(documentId)
   },
   Display: ({User, Post, notification: {post}}) => <>
     <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you
@@ -515,7 +515,7 @@ export const PostAddedAsCoauthorNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostAddedAsCoauthorNotification documentId is missing")
     }
-    return postGetEditUrl(documentId, false)
+    return postGetEditUrl(documentId)
   },
   Display: ({User, Post, notification: {post}}) => {
     const postOrDialogue = post?.collabEditorDialogue ? "dialogue" : "post";
@@ -632,7 +632,7 @@ export const NewCommentOnDraftNotification = createNotificationType({
       throw new Error("NewCommentOnDraftNotification documentId is missing");
     }
     const { linkSharingKey } = extraData;
-    const url = postGetEditUrl(documentId, false, linkSharingKey);
+    const url = postGetEditUrl(documentId, linkSharingKey);
     return url;
   },
   Display: ({Post}) => <>New comments on your draft <Post /></>,

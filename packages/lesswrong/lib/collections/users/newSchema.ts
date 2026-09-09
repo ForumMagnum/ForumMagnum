@@ -5,8 +5,9 @@ import {
   getUserEmail,
   userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
+  userGetAbsoluteProfileUrl,
 } from "./helpers";
-import { userGetEditUrl } from "../../vulcan-users/helpers";
+import { userGetAbsoluteEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -639,7 +640,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, true);
+        return userGetAbsoluteProfileUrl(user, context.forumType);
       },
     },
   },
@@ -648,7 +649,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, false);
+        return userGetProfileUrl(user);
       },
     },
   },
@@ -657,7 +658,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetEditUrl(user, true);
+        return userGetAbsoluteEditUrl(user, context.forumType);
       },
     },
   },

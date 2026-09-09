@@ -319,7 +319,7 @@ const UsersProfileFn = ({terms, slug}: {
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <StatusCodeSetter status={200}/>
-        <StructuredData generate={() => getUserStructuredData(user)}/>
+        <StructuredData generate={() => getUserStructuredData(user, forumType)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>

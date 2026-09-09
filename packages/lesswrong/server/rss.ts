@@ -3,7 +3,7 @@ import { getForumTypeForRequest } from "./utils/requestUtil";
 import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
 import { commentGetAbsolutePageUrlFromDB } from '../lib/collections/comments/helpers';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../lib/collections/posts/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
@@ -44,8 +44,8 @@ const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
 export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
-  const url = rssTermsToUrl(terms);
   const context = createAnonymousContext({forumType: getForumTypeForRequest(req)});
+  const url = rssTermsToUrl(terms, context.forumType);
   const feed = new RSS(getMeta(url, context));
 
   // We renamed the rss views to no longer have dashes in them
@@ -85,7 +85,7 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
 
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
-    const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
+    const postLink = `<a href="${postGetAbsolutePageUrl(post, context.forumType)}#comments">Discuss</a>`;
     const feedItem: any = {
       title: post.title,
       description: `${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
@@ -97,7 +97,7 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
       // date: post.postedAt
       date: date,
       guid: post._id,
-      url: postGetPageUrl(post, true)
+      url: postGetAbsolutePageUrl(post, context.forumType)
     };
 
     feed.item(feedItem);
@@ -107,8 +107,8 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
 };
 
 export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
-  const url = rssTermsToUrl(terms);
   const context = await getContextFromReqAndRes({req, isSSR: false});
+  const url = rssTermsToUrl(terms, context.forumType);
   const feed = new RSS(getMeta(url, context));
 
   let parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);

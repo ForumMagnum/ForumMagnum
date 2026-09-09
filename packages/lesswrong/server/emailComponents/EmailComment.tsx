@@ -1,5 +1,5 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
 import filter from 'lodash/filter';
 import { tagGetAbsoluteSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
@@ -136,7 +136,7 @@ const EmailCommentsOnPostHeader = async ({postId, allShortform, emailContext}: {
 
   const title = allShortform ? post.title : `New comments on ${post.title}`
 
-  return <HeadingLink text={title} href={postGetPageUrl(post, true)} emailContext={emailContext}/>
+  return <HeadingLink text={title} href={postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)} emailContext={emailContext}/>
 }
 
 const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
@@ -195,9 +195,9 @@ export const EmailComment = async ({commentId, hideTitle, emailContext}: {
         <EmailFormatDate date={maybeDate(comment.postedAt)}/>
       </a>
       {" by "}
-      <EmailUsername user={comment.user}/>
+      <EmailUsername emailContext={emailContext} user={comment.user}/>
       {" "}
-      {!hideTitle && comment.post && <a href={postGetPageUrl(comment.post, true)}>
+      {!hideTitle && comment.post && <a href={postGetAbsolutePageUrl(comment.post, emailContext.resolverContext.forumType)}>
         {comment.post.title}
       </a>}
     </div>

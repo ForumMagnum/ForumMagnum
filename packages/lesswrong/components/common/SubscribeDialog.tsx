@@ -277,7 +277,7 @@ const SubscribeDialog = (props: {
             label="RSS Link"
             onFocus={autoselectRSSLink}
             onClick={autoselectRSSLink}
-            value={rssTermsToUrl(rssTerms())}
+            value={rssTermsToUrl(rssTerms(), forumType)}
             key="rssLinkTextField"
             fullWidth />
         </React.Fragment> }
@@ -299,7 +299,7 @@ const SubscribeDialog = (props: {
       <DialogActions>
         { method === "rss" &&
           <CopyToClipboard
-            text={rssTermsToUrl(rssTerms())}
+            text={rssTermsToUrl(rssTerms(), forumType)}
             onCopy={ (text, result) => {
               setCopiedRSSLink(result);
               captureEvent("rssLinkCopied")

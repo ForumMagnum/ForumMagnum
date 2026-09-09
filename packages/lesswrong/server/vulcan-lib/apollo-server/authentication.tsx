@@ -245,7 +245,7 @@ export const loginDataGraphQLMutations = {
     if (!user) throw Error("Can't find user with given email address")
     const { emailTokenTypesByName } = await import("@/server/emails/emailTokens");
 
-    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id)
+    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id, context.forumType)
     const emailSucceeded = await wrapAndSendEmail({
       user,
       force: true,

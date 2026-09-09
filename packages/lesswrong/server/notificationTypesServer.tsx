@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
-import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
+import { postGetAuthorName, postGetAbsolutePageUrl, postGetAbsoluteEditUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../server/collections/comments/collection';
 import { Localgroups } from '../server/collections/localgroups/collection';
 import { Messages } from '../server/collections/messages/collection';
@@ -10,7 +10,7 @@ import { Conversations } from '../server/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
-import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
+import { userGetDisplayName } from '../lib/collections/users/helpers';
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
 import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 import type { NotificationDocument } from './collections/notifications/constants';
@@ -512,7 +512,7 @@ export const WrappedNotification = createServerNotificationType({
       </p>
       <p>
         Thanks for being part of our community this year!{' '}
-        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
+        <a href={`${combineUrls(getSiteUrl(emailContext.resolverContext.forumType), 'wrapped')}?utm_medium=email`}>
           Check out your 2024 EA Forum Wrapped.
         </a>{' '}
         🎁
@@ -549,7 +549,7 @@ export const PostSharedWithUserNotification = createServerNotificationType({
   emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
@@ -570,7 +570,7 @@ export const PostAddedAsCoauthorNotification = createServerNotificationType({
   emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetEditUrl(post._id, true);
+    const link = postGetAbsoluteEditUrl(post._id, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
 
@@ -606,7 +606,7 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
       </p>
     }
     else {
-      const link = postGetPageUrl(document, true)
+      const link = postGetAbsolutePageUrl(document, emailContext.resolverContext.forumType)
       return <p>
         Your post, <a href={link}>{document.title}</a>, has been accepted to the Alignment Forum.
       </p>
@@ -654,7 +654,7 @@ export const NewRSVPNotification = createServerNotificationType({
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `New RSVP for your event: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return <div>
@@ -662,7 +662,7 @@ export const NewRSVPNotification = createServerNotificationType({
         {notifications[0].message}
       </p>
       <p>
-        <a href={postGetPageUrl(post,true)}>Event Link</a>
+        <a href={postGetAbsolutePageUrl(post,emailContext.resolverContext.forumType)}>Event Link</a>
       </p>
     </div>
   },
@@ -693,7 +693,7 @@ export const NewGroupOrganizerNotification = createServerNotificationType({
     const localGroup = await Localgroups.findOne(notifications[0].documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     
-    const groupLink = `${getSiteUrl().slice(0,-1)}/groups/${localGroup._id}`
+    const groupLink = `${getSiteUrl(emailContext.resolverContext.forumType).slice(0,-1)}/groups/${localGroup._id}`
     
     return <div>
       <p>
@@ -736,7 +736,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     }
     const post = await Posts.findOne({_id: firstNotification.documentId});
     const postTitle = post?.title;
-    const postLink = postGetEditUrl(firstNotification.documentId, true, firstNotification.extraData?.linkSharingKey);
+    const postLink = postGetAbsoluteEditUrl(firstNotification.documentId, emailContext.resolverContext.forumType, firstNotification.extraData?.linkSharingKey);
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
@@ -765,7 +765,7 @@ export const PostCoauthorRequestNotification = createServerNotificationType({
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return (
       <p>
@@ -785,12 +785,12 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
     }
     return `Your co-author request for '${post.title}' was accepted`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     return (
       <p>
         Your co-author request for <a href={link}>{post.title}</a> was accepted.
@@ -811,8 +811,8 @@ export const TypoSuggestionNotification = createServerNotificationType({
     const notification = notifications[0];
     const ctx = await getTypoSuggestionNotificationContext(notification.documentId, emailContext.resolverContext);
     const link = notification.link
-      ? makeAbsolute(notification.link)
-      : makeAbsolute(ctx?.targetUrl ?? "/notifications");
+      ? makeAbsolute(notification.link, emailContext.resolverContext.forumType)
+      : makeAbsolute(ctx?.targetUrl ?? "/notifications", emailContext.resolverContext.forumType);
     const reactorName = ctx?.reactorName ?? "A reader";
     const targetDescription = ctx?.targetDescription ?? "your content";
     return (
@@ -847,7 +847,7 @@ export const NewMentionNotification = createServerNotificationType({
 
     return (
       <p>
-        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notification.link)}>{summary.displayName}</a>.
+        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notification.link, emailContext.resolverContext.forumType)}>{summary.displayName}</a>.
       </p>
     );
   },

@@ -216,7 +216,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
-    return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+    return <PermanentRedirect url={postGetEditUrl(document._id, document.linkSharingKey)} status={302}/>
   }
 
   // If we don't have the post and none of the earlier cases applied, we either
@@ -263,7 +263,7 @@ const PostsEditFormInner = ({ documentId, version }: {
                 if (options?.submitOptions?.skipRedirect) {
                   return;
                 } else if (options?.submitOptions?.redirectToEditor) {
-                  const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
+                  const redirectPath = postGetEditUrl(post._id, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
                   navigate({pathname: postGetPageUrl(post), search: ''});

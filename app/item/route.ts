@@ -1,6 +1,6 @@
 import Posts from "@/server/collections/posts/collection";
 import Comments from "@/server/collections/comments/collection";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetAbsolutePageUrlFromDB } from "@/lib/collections/comments/helpers";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { redirect } from "next/navigation";
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   const post = await findPostByLegacyAFId(parseInt(id));
   if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetAbsolutePageUrl(post, context.forumType));
   } else {
     const comment = await findCommentByLegacyAFId(parseInt(id));
     if (comment) {

@@ -13,7 +13,7 @@ import type { ForumTypeString } from '@/lib/instanceSettings';
 const MARKER = "@";
 
 const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag, forumType: ForumTypeString) => {
-  const linkPrefix = getSiteUrl();
+  const linkPrefix = getSiteUrl(forumType);
 
   switch (hit._index) {
     case "users":

@@ -17,7 +17,7 @@ export const createClient = async (context: ResolverContext, foreign = false) =>
 
   if (foreign) {
     links.push(createErrorLink());
-    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get(context) ?? "/", null));
+    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get(context) ?? "/", null, context.forumType));
   } else if (context) {
     links.push(createErrorLink());
 

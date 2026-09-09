@@ -29,6 +29,7 @@ import {
   userPassesCrosspostingKarmaThreshold,
   getDefaultVotingSystem,
   type RSVPType,
+  postGetAbsolutePageUrl,
 } from "./helpers";
 import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -704,14 +705,14 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, true),
+      resolver: (post, args, context) => postGetAbsolutePageUrl(post, context.forumType),
     },
   },
   pageUrlRelative: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, false),
+      resolver: (post, args, context) => postGetPageUrl(post),
     },
   },
   linkUrl: {
@@ -719,7 +720,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? post.url : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetAbsolutePageUrl(post, context.forumType);
       },
     },
   },
@@ -743,14 +744,14 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetTwitterShareUrl(post),
+      resolver: (post, args, context) => postGetTwitterShareUrl(post, context.forumType),
     },
   },
   facebookShareUrl: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetFacebookShareUrl(post),
+      resolver: (post, args, context) => postGetFacebookShareUrl(post, context.forumType),
     },
   },
   // DEPRECATED: use socialPreview.imageUrl instead

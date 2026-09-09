@@ -18,7 +18,7 @@ export const siteGraphQLQueries = {
     return {
       title: forumTitleSetting.get(context),
       url: siteUrlSetting.get(context),
-      logoUrl: getLogoUrl(),
+      logoUrl: getLogoUrl(context.forumType),
     };
   },
 };

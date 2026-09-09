@@ -2,7 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
 import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
@@ -812,8 +812,8 @@ const STICKY_PRIORITIES: Record<number, string> = {
 const CLAUDE_BUTTON_TOOLTIP_ENABLED = "Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)";
 const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" below to enable this button.";
 
-function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
-  const postUrl = postGetEditUrl(postId, true, linkSharingKey);
+function getFeedbackQuery(postId: string, linkSharingKey: string | undefined, forumType: ForumTypeString) {
+  const postUrl = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
   return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is at ${postUrl} and documentation for interacting with the site's API is at https://www.lesswrong.com/api/SKILL.md.`;
 }
 
@@ -890,11 +890,12 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
   panel: "sharing" | "publish";
   className?: string;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const isConnected = !!currentUser?.claudeLinkedAt;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
-  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
+  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey, forumType))}`;
   const tooltip = isConnected ? CLAUDE_BUTTON_TOOLTIP_ENABLED : CLAUDE_BUTTON_TOOLTIP_DISABLED;
 
   const inner = (
@@ -974,6 +975,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const postId = form.state.values._id;
@@ -1015,7 +1017,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
                       anyoneWithLinkCan: "edit",
                     });
                     // Copy link after enabling
-                    const url = postGetEditUrl(postId, true, linkSharingKey);
+                    const url = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
                     void navigator.clipboard.writeText(url)
                       .then(() => flash("Link sharing enabled & link copied"))
                       .catch(() => flash("Failed to copy link"));
@@ -1035,7 +1037,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
               const copyLinkButton = (
                 <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
+                  text={postGetAbsoluteEditUrl(postId, forumType, linkSharingKey)}
                   onCopy={() => flash("Link copied")}
                 >
                   <button type="button" className={classes.shareLinkButton}>
@@ -1156,7 +1158,7 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
         const result = data?.ImportGoogleDoc;
         if (!result) return;
 
-        const editPostUrl = postGetEditUrl(result._id, false, result.linkSharingKey ?? undefined);
+        const editPostUrl = postGetEditUrl(result._id, result.linkSharingKey ?? undefined);
 
         captureEvent("googleDocImportSubmitted", {
           success: true,
