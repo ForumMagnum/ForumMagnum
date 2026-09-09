@@ -11,7 +11,12 @@ import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles"
 // These exist as a client component to avoid the RSC rehydration protocol
 // putting them into the initial streamed response chunk twice.
 const SharedScriptsInner = () => {
-  const { public: publicInstanceSettings } = getInstanceSettings();
+  // Include both forums so this bootstrap stays synchronous and independent
+  // of request headers. Setting getters select the forum supplied by callers.
+  const publicInstanceSettings = {
+    LessWrong: getInstanceSettings('LessWrong').public,
+    AlignmentForum: getInstanceSettings('AlignmentForum').public,
+  };
   return (<>
       {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
       <script dangerouslySetInnerHTML={{__html: `window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}}/>

@@ -18,9 +18,9 @@ const anyIsObject = (...args: any[]): boolean => {
 
 export const Settings: Record<string,any> = {};
 
-const getSetting = <T>(settingName: string, settingDefault?: T): T => {
+const getSetting = <T>(settingName: string, forumType: ForumTypeString, settingDefault?: T): T => {
   let setting;
-  const instanceSettings = getInstanceSettings();
+  const instanceSettings = getInstanceSettings(forumType);
 
   // if a default value has been registered using registerSetting, use it
   if (typeof settingDefault === 'undefined' && Settings[settingName])
@@ -75,8 +75,9 @@ export class PublicInstanceSetting<SettingValueType> {
   ) {
     initializeSetting(settingName, "instance")
     if (isDevelopment && settingType !== "optional") {
-      const settingValue = getSetting(settingName)
-      if (typeof settingValue === 'undefined') {
+      const lwSettingValue = getSetting(settingName, "LessWrong")
+      const afSettingValue = getSetting(settingName, "AlignmentForum")
+      if (typeof lwSettingValue === 'undefined' && typeof afSettingValue === 'undefined') {
         if (settingType === "warning") {
           if (!isAnyTest) {
             // eslint-disable-next-line no-console
@@ -89,9 +90,9 @@ export class PublicInstanceSetting<SettingValueType> {
       }
     }
   }
-  // The forum argument is required while callers migrate; value selection is unchanged for now.
-  get(_forum: ForumTypeString | ResolverContext): SettingValueType {
-    return getSetting(this.settingName, this.defaultValue)
+  get(forum: ForumTypeString | ResolverContext): SettingValueType {
+    const forumType = typeof forum === 'string' ? forum : forum.forumType;
+    return getSetting(this.settingName, forumType, this.defaultValue)
   }
 }
 

@@ -10,11 +10,11 @@ import { testSettings } from "./test";
 import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest, isProduction } from "@/lib/executionEnvironment";
-import { forumTypeSetting } from "@/lib/forumTypeUtils";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 const validEnvNames = z.enum(["test", "testCrosspost", "baserates","localLwDevDb", "prodLw"]);
 
-function getPublicSettings() {
+function getPublicSettings(forumType: ForumTypeString) {
   if (isAnyTest) {
     return testSettings;
   }
@@ -22,18 +22,17 @@ function getPublicSettings() {
   if (!envName) {
     // eslint-disable-next-line no-console
     console.error("ENV_NAME is not set");
-    return localLwDevDb;
+    return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
   }
 
   const parsedEnvName = validEnvNames.safeParse(envName);
   if (!parsedEnvName.success) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ENV_NAME: ${envName}`);
-    return localLwDevDb;
+    return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
   }
 
   const validEnvName = parsedEnvName.data;
-  const forumType = forumTypeSetting.get();
 
   switch (validEnvName) {
     case "test":
@@ -41,7 +40,7 @@ function getPublicSettings() {
     case "testCrosspost":
       return testCrosspostSettings;
     case "baserates":
-      return baserates;
+      return forumType === 'AlignmentForum' ? localAfDevDb : baserates;
     // We're running a local dev instance against the dev db, or in the deployed dev environment
     case "localLwDevDb":
       return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
@@ -84,9 +83,9 @@ export function getPrivateSettings() {
   return privateSettings;
 }
 
-export function getSettings() {
+export function getSettings(forumType: ForumTypeString) {
   return {
-    public: getPublicSettings(),
+    public: getPublicSettings(forumType),
     private: getPrivateSettings(),
   };
 }
