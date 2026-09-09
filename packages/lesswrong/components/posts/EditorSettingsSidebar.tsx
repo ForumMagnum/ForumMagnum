@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
-import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
+import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
@@ -992,9 +992,11 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               const linkEnabled = settings.anyoneWithLinkCan !== "none";
 
               if (!postId) {
-                return <div className={classes.disabledMessage}>
+                return (
+                  <div className={classes.disabledMessage}>
                   Save this post first to share a link
-                </div>;
+                </div>
+                );
               }
 
               const shareWithClaudeButton = (
@@ -1318,8 +1320,8 @@ const EditorSettingsSidebar = ({
   const canSeeHighlight = isAdminOrMod;
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
-  const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
-  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeTags = !initialData.isEvent && !initialData.collabEditorDialogue;
+  const canSeeSocialPreview = !initialData.collabEditorDialogue;
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
@@ -1577,8 +1579,7 @@ const EditorSettingsSidebar = ({
         )}
         </AccordionSection>
 
-        {canSeeAdmin && (
-          <AccordionSection title="Admin Controls">
+        {canSeeAdmin && <AccordionSection title="Admin Controls">
           <div className={classes.fieldWrapper}>
             <form.Field name="sticky">
               {(field) => <SidebarToggle field={field} label="Sticky" />}
@@ -1593,13 +1594,11 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && (
-            <div className={classes.fieldWrapper}>
+          {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && <div className={classes.fieldWrapper}>
               <form.Field name="afSticky">
                 {(field) => <SidebarToggle field={field} label="Sticky (Alignment)" />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="stickyPriority">
@@ -1710,13 +1709,11 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
               <form.Field name="manifoldReviewMarketId">
                 {(field) => <MuiTextField field={field} label="Manifold review market ID" updateOnBlur />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="noIndex">
@@ -1815,8 +1812,7 @@ const EditorSettingsSidebar = ({
               </form.Field>
             </div>
           )}
-          </AccordionSection>
-        )}
+          </AccordionSection>}
 
         {canSeeAudio && (
           <AccordionSection title="Audio">

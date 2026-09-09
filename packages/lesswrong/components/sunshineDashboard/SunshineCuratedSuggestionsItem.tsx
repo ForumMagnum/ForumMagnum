@@ -19,7 +19,6 @@ import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from '@/lib/instanceSettings';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -103,9 +102,6 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
     })
   }
 
-  // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
-
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
   const now = useCurrentTime();
@@ -165,10 +161,9 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
               <ForumIcon icon="Clear"/>
             </SidebarAction>
-          }
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>

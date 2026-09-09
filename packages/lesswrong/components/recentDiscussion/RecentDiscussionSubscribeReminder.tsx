@@ -8,12 +8,11 @@ import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/error
 import { randInt } from '../../lib/random';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
 import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting, isAF, isLW } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
@@ -72,15 +71,6 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
     fontSize: 18,
     lineHeight: 1.75,
   },
-  messageDescription: {
-    fontSize: 12,
-    marginTop: 8
-  },
-  mailIcon: {
-    color: theme.palette.primary.main,
-    marginTop: 4,
-    marginRight: 12
-  },
   checkIcon: {
     color: safeForDarkMode("#4caf50"),
     marginTop: 4,
@@ -108,9 +98,8 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
 
 /**
  * This is the ad that appears in "Recent discussion".
- * For LW it's for the Curated email, and for EA Forum it's for the Forum Digest.
+ * This promotes curated-post emails.
  *
- * It has some overlap with the Forum Digest ad that appears on the EA Forum home rhs.
  * In particular, both components use currentUser.hideSubscribePoke,
  * so for logged in users, hiding one ad hides the other.
  */
@@ -138,9 +127,7 @@ const RecentDiscussionSubscribeReminder = () => {
   
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
-      // EA Forum only has 4 branches, LW has 5. Fortunately LW's extra branch
-      // is the last one, so we can exclude it easily.
-      setAdminBranch(randInt(!isLWorAF() ? 4 : 5));
+      setAdminBranch(randInt(5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
@@ -205,20 +192,6 @@ const RecentDiscussionSubscribeReminder = () => {
     setLoading(false);
   }
   
-  // the EA Forum uses this prompt in most cases
-  const eaForumSubscribePrompt = (
-    <>
-      <div className={classes.message}>
-        <MailOutline className={classes.mailIcon} />
-        Sign up for the Forum's email digest
-      </div>
-      <div className={classes.messageDescription}>
-        You'll get a weekly email with the best posts from the past week.
-        The Forum team selects the posts to feature based on personal preference
-        and Forum popularity, and also adds some announcements and a classic post.
-      </div>
-    </>
-  );
   
   if (loading) {
     return <div className={classes.root}>
@@ -249,11 +222,9 @@ const RecentDiscussionSubscribeReminder = () => {
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
-    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
-      <div className={classes.message}>
+    const subscribeTextNode = <div className={classes.message}>
         To get the best posts emailed to you, create an account! {subscriptionDescription}
-      </div>
-    );
+      </div>;
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
       <div className={classes.loginForm}>
@@ -262,7 +233,7 @@ const RecentDiscussionSubscribeReminder = () => {
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
-    const emailType = isEAForum() ? 'our weekly digest email' : 'curated posts';
+    const emailType = 'curated posts';
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
@@ -319,12 +290,10 @@ const RecentDiscussionSubscribeReminder = () => {
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
     // activated), and sends a confirmation email (if needed).
-    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
-      <div className={classes.message}>
+    const subscribeTextNode = <div className={classes.message}>
         You previously unsubscribed from all emails from LessWrong.
         Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
-      </div>
-    );
+      </div>;
     return <AnalyticsWrapper branch="previously-unsubscribed">
       {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {
@@ -342,11 +311,9 @@ const RecentDiscussionSubscribeReminder = () => {
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
     // verified) resends the verification email.
-    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
-      <div className={classes.message}>
+    const subscribeTextNode = <div className={classes.message}>
         Subscribe to get the best of LessWrong emailed to you. {subscriptionDescription}
-      </div>
-    );
+      </div>;
     return <AnalyticsWrapper branch="logged-in-not-subscribed">
       {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {

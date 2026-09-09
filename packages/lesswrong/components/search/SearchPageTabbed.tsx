@@ -4,7 +4,6 @@ import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
@@ -130,12 +129,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: 'none'
     },
-  },
-  funnelIconLW: {
-    fill: theme.palette.grey[1000],
-  },
-  funnelIconEA: {
-    stroke: theme.palette.grey[1000],
   },
   searchInputArea: {
     flex: 1,
@@ -428,7 +421,7 @@ const SearchPageTabbed = () => {
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum()})}/>
+                <ForumIcon icon="Funnel"/>
               </IconButton>
             </div>
           </div>

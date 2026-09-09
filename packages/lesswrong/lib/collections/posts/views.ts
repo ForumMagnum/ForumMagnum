@@ -2,7 +2,7 @@ import moment from 'moment';
 import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { adminAccountSetting, isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, isAF, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
@@ -18,9 +18,7 @@ import type { ApolloClient } from '@apollo/client';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const getEventBuffer = () => isEAForum()
-  ? { startBuffer: 1, endBuffer: null }
-  : { startBuffer: 6, endBuffer: 3 };
+const getEventBuffer = () => ({ startBuffer: 6, endBuffer: 3 });
 
 export const POST_SORTING_MODES = new TupleSet([
   "magic", "top", "topAdjusted", "new", "old", "recentComments"
@@ -107,7 +105,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 
 async function getVisitorActivity(context: ResolverContext): Promise<DbUserActivity|null> {
   const { currentUser, clientId } = context;
-  if ((currentUser || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(currentUser))) {
+  if ((currentUser || clientId) && visitorGetsDynamicFrontpage(currentUser)) {
     if (currentUser) {
       return await context.UserActivities.findOne({visitorId: currentUser._id, type: 'userId'});
     } else if (clientId) {
@@ -342,7 +340,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum()) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
+  const useSlowerFrontpage = !!context && visitorGetsDynamicFrontpage(context.currentUser ?? null);
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -456,15 +454,8 @@ const stickiesIndexPrefix = {
 };
 
 function magic(terms: PostsViewTerms) {
-  let selector = { isEvent: false };
-  if (isEAForum()) {
-    selector = {
-      ...selector,
-      ...filters.nonSticky,
-    };
-  }
   return {
-    selector,
+    selector: { isEvent: false },
     options: {sort: setStickies(sortings.magic, terms)},
   };
 }

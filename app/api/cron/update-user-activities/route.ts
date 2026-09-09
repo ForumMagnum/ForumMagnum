@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { updateUserActivities } from '@/server/useractivities/cron';
-import { isEAForum, isLW } from '@/lib/instanceSettings';
+import { isLW } from '@/lib/instanceSettings';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  if (!isEAForum() && !isLW()) {
+  if (!isLW()) {
     return new Response('OK', { status: 200 });
   }
 

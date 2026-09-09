@@ -8,7 +8,7 @@ import {
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF, isEAForum } from "../../instanceSettings";
+import { isAF } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -33,7 +33,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSettings, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
@@ -1800,7 +1800,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationShortformContent: {
@@ -1812,7 +1811,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1824,7 +1822,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1836,7 +1833,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1848,7 +1844,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1860,7 +1855,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1935,7 +1929,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRSVPs: {
@@ -1995,7 +1988,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationDialogueMessages: {

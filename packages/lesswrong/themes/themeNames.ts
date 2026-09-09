@@ -1,5 +1,5 @@
 import { DeferredForumSelect } from '../lib/forumTypeUtils';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
@@ -29,35 +29,20 @@ export type ThemeMetadata = {
   label: string
 }
 
-export const getThemeMetadata = (): Array<ThemeMetadata> => isEAForum()
-  ? [
-    {
-      name: "auto",
-      label: "Auto",
-    },
-    {
-      name: "default",
-      label: "Light",
-    },
-    {
-      name: "dark",
-      label: "Dark",
-    },
-  ]
-  : [
-    {
-      name: "default",
-      label: "Default",
-    },
-    {
-      name: "dark",
-      label: "Dark Mode",
-    },
-    {
-      name: "auto",
-      label: "Auto",
-    },
-  ];
+export const getThemeMetadata = (): Array<ThemeMetadata> => [
+  {
+    name: "default",
+    label: "Default",
+  },
+  {
+    name: "dark",
+    label: "Dark Mode",
+  },
+  {
+    name: "auto",
+    label: "Auto",
+  },
+];
 
 export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
   try {

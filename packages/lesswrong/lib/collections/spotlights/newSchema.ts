@@ -4,7 +4,6 @@ import {
   accessFilterSingle,
   accessFilterMultiple
 } from "../../utils/schemaUtils";
-import { isLWorAF } from "../../instanceSettings";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 
@@ -436,7 +435,7 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       // Note that `onCreate` has a forum-specific default value,
       // because we can't use forumType conditionals in `defaultValue` while sharing an `accepted_schema.sql` file
-      onCreate: ({ document }) => document.imageFade ?? (isLWorAF() ? false : true),
+      onCreate: ({ document }) => document.imageFade ?? ((false)),
       validation: {
         optional: true,
       },

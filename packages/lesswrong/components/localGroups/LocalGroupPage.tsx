@@ -4,7 +4,6 @@ import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -116,12 +115,6 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       justifyContent: 'flex-start !important'
     }
-  },
-  groupName: {
-    ...theme.typography.headerStyle,
-    fontSize: "30px",
-    marginTop: "0px",
-    marginBottom: "0.5rem"
   },
   groupOrganizers: {
     display: "flex",
@@ -367,11 +360,9 @@ const LocalGroupPage = ({ documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            {isEAForum() ? <Typography variant="display1" className={classes.groupName}>
-              {groupNameHeading}
-            </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
+            <SectionTitle title={groupNameHeading} noTopMargin />
 
-            {!isEAForum() && <div className={classes.groupOrganizers}>
+            <div className={classes.groupOrganizers}>
               <Person className={classes.organizersIcon}/>
               <div className={classes.organizedBy}>
                 Organized by: {group.organizers.map((user, i) => <React.Fragment key={user._id}>
@@ -379,7 +370,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
                   <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
                 </React.Fragment>)}
               </div>
-            </div>}
+            </div>
 
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
@@ -401,10 +392,9 @@ const LocalGroupPage = ({ documentId: groupId }: {
               />
             </SectionButton>}
             <SectionFooter className={classes.organizerActions}>
-              {canCreateEvent &&
-                (!isEAForum() || isAdmin || isGroupAdmin) && <SectionButton>
+              {canCreateEvent && <SectionButton>
                   <HoverOver
-                    disabled={!isLWorAF()}
+                    disabled={false}
                     title={<div>
                       Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
                     </div>}
@@ -415,7 +405,6 @@ const LocalGroupPage = ({ documentId: groupId }: {
                   </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum() || isAdmin || isGroupAdmin) &&
                   <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>
@@ -516,7 +505,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
         {((isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
-  )
+  );
 }
 
 export default LocalGroupPage;

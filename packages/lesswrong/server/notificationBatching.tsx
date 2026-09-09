@@ -6,8 +6,6 @@ import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
-import { UtmParam } from './analytics/utm-tracking';
-import { isEAForum } from '@/lib/instanceSettings';
 import { EmailContextType } from './emailComponents/emailContext';
 import toDictionary from '@/lib/utils/toDictionary';
 import { getNotificationTypes } from '@/lib/notificationTypes';
@@ -30,14 +28,6 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
     });
   }
 );
-
-export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
-  return {
-    utm_source: 'notification',
-    utm_medium: 'email',
-    utm_campaign: encodeURIComponent(notificationType)
-  }
-}
 
 /**
  * Given a list of notifications (by ID) which had their sending delayed by
@@ -95,7 +85,6 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
 }) => {
   const { getNotificationTypeByNameServer } = await import('./notificationTypesServer');
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
-  const utmParams = getUtmParamsForNotificationType(notificationType);
   
   // Each call to emailSubject or emailBody takes a list of notifications.
   // If we can combine the emails this will be all the notifications in the batch, if we can't combine the emails, this will be a list containing a single notification.
@@ -111,7 +100,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
         from: notificationTypeRenderer.from?.(),
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
-        ...(isEAForum() && { utmParams: { ...utmParams, utm_user_id: user._id } })
+
       }))
   );
 }

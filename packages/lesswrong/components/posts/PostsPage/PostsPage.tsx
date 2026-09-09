@@ -472,6 +472,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
+  // TODO: Consider showing recently submitted comments first on LW/AF, preserving the selected sort otherwise.
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const comments = useMemo(() => {
     if (!isEAForum() || !rawComments || view !== "postCommentsMagic") return rawComments;

@@ -2106,7 +2106,7 @@ type Comment {
   tagId: String
   tag: Tag
   tagCommentType: TagCommentType!
-  userId: String
+  userId: String!
   user: User
   userIP: String
   userAgent: String

@@ -1,7 +1,7 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
@@ -201,9 +201,7 @@ export const CommentsItemMeta = ({
     ? "Moderator Comment (Invisible)"
     : "Moderator Comment";
 
-  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
-    ? "the Decade"
-    : comment.reviewingForReview;
+  const reviewingForReview = comment.reviewingForReview;
 
   const [showMoreClicked, setShowMoreClicked] = useState(false);
   let relevantTagsTruncated = comment.relevantTags ?? [];

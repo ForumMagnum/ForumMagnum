@@ -2,7 +2,6 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { defaultSequenceBannerIdSetting, isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
 import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
@@ -119,9 +118,7 @@ const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
   
   let imageId: string|null = sequence.gridImageId
   if (!imageId) {
-    // LW falls back to a specific image.
-    // Other sites fall back first to the sequence banner image, and otherwise to their own site-specific image
-    imageId = isLWorAF() ? "sequences/vnyzzznenju0hzdv6pqb.jpg" : (sequence.bannerImageId || defaultSequenceBannerIdSetting.get())
+    imageId = "sequences/vnyzzznenju0hzdv6pqb.jpg"
   }
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>

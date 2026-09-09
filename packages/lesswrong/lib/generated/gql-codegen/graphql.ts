@@ -2455,7 +2455,7 @@ export type Comment = {
   user: Maybe<User>;
   userAgent: Maybe<Scalars['String']['output']>;
   userIP: Maybe<Scalars['String']['output']>;
-  userId: Maybe<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
   voteCount: Scalars['Float']['output'];
   votingSystem: Scalars['String']['output'];
   wordCount: Maybe<Scalars['Int']['output']>;
@@ -16527,17 +16527,6 @@ export type ArbitalPageRequestQueryVariables = Exact<{
 
 export type ArbitalPageRequestQuery = { __typename?: 'Query', ArbitalPageData: { __typename?: 'ArbitalPageData', title: string | null, html: string | null } | null };
 
-export type updateUserCommunityHomeMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserCommunityHomeMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersProfile
-    ) | null } | null };
-
 export type multiUserCommunityMapQueryQueryVariables = Exact<{
   selector?: InputMaybe<UserSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -21187,7 +21176,7 @@ export type CollectionsEditFragment = (
   & CollectionsPageFragment
 );
 
-export type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: { __typename?: 'Tag', _id: string, slug: string } | null, relevantTags: Array<(
+export type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: { __typename?: 'Tag', _id: string, slug: string } | null, relevantTags: Array<(
     { __typename?: 'Tag' }
     & TagPreviewFragment
   )>, contents: { __typename?: 'Revision', _id: string, html: string | null, plaintextMainText: string, wordCount: number } | null, user: (
@@ -23119,7 +23108,6 @@ export const SequencePreviewDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"SequencePr
 export const PostLinkPreviewCommentDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostLinkPreviewComment"),_1482,_o5(_7,[_o7(_8,_221,_1483,_1209)])),_146,_158,_61,_184]) as unknown as DocumentNode<PostLinkPreviewCommentQuery, PostLinkPreviewCommentQueryVariables>;
 export const PostLinkPreviewPostDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostLinkPreviewPost"),_1482,_o5(_7,[_o7(_8,_210,_1483,_1427)])),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<PostLinkPreviewPostQuery, PostLinkPreviewPostQueryVariables>;
 export const ArbitalPageRequestDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"ArbitalPageRequest"),[_o12(_989,_1484,_993)],_o5(_7,[_o7(_8,_o3(_3,"ArbitalPageData"),[_o8(_536,_o3(_3,"pageAlias"),_1484)],_o5(_7,[_14,_174]))]))]) as unknown as DocumentNode<ArbitalPageRequestQuery, ArbitalPageRequestQueryVariables>;
-export const updateUserCommunityHomeDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateUserCommunityHome"),_1196,_o5(_7,[_o7(_8,_1197,_1143,_o5(_7,[_o6(_8,_266,_1120)]))])),_61,_226,_907]) as unknown as DocumentNode<updateUserCommunityHomeMutation, updateUserCommunityHomeMutationVariables>;
 export const multiUserCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiUserCommunityMapQuery"),_1118,_o5(_7,[_o7(_8,_288,_1119,_o5(_7,[_o6(_8,_1026,_o5(_7,[_o4(_25,_886)])),_797]))])),_893]) as unknown as DocumentNode<multiUserCommunityMapQueryQuery, multiUserCommunityMapQueryQueryVariables>;
 export const multiLocalgroupCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiLocalgroupCommunityMapQuery"),_1377,_1486),_61,_415,_226,_418]) as unknown as DocumentNode<multiLocalgroupCommunityMapQueryQuery, multiLocalgroupCommunityMapQueryQueryVariables>;
 export const multiPostCommunityMapQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiPostCommunityMapQuery"),_1122,_1488),_23,_127,_61,_136,_146,_158,_184,_192,_198]) as unknown as DocumentNode<multiPostCommunityMapQueryQuery, multiPostCommunityMapQueryQueryVariables>;

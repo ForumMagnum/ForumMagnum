@@ -2,7 +2,7 @@ import { htmlToText } from 'html-to-text';
 import { sendMailgunEmail } from './sendEmail';
 import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -208,7 +208,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: isLWorAF() ? taggedSubject : subject,
+    subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }

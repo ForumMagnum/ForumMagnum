@@ -11,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -359,10 +359,9 @@ function PageBackgroundWrapper({children}: {
   const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
-    "wrapper", {
+    "wrapper", classes.wrapper, {
       'alignment-forum': isAF(),
       [classes.fullscreen]: isFullscreenRoute(pathname),
-      [classes.wrapper]: isLWorAF(),
       'home-design-active': isSandboxedHomePage,
       'research-active': isResearchRoute(pathname),
     },

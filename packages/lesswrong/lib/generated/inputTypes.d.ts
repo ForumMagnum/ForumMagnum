@@ -1864,7 +1864,7 @@ interface Comment {
   tagId: string | null;
   tag: Tag | null;
   tagCommentType: TagCommentType;
-  userId: string | null;
+  userId: string;
   user: User | null;
   userIP: string | null;
   userAgent: string | null;

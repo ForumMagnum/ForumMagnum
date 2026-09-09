@@ -14,8 +14,7 @@ import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
-import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
-import { isLWorAF } from '@/lib/instanceSettings';
+import { ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { getClassName, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
@@ -262,7 +261,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = ((!isLWorAF() && !postContext) || isServer || postContext?.shortform);
+  const disableProgressBar = isServer || postContext?.shortform;
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -318,11 +317,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
 
-      if (!isLWorAF()) {
-        scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
-      } else {
-        jumpToY(sectionYdocumentSpace);
-      }
+      jumpToY(sectionYdocumentSpace);
     }
   }
 

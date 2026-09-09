@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasEventsSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { hasEventsSetting, isLW } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -104,7 +104,7 @@ const NotificationsSettingsTab = ({
           name="notificationShortformContent"
           value={settings.notificationShortformContent ?? null}
           onChange={(value) => void updateSettings({ notificationShortformContent: value })}
-          label={`${isEAForum() ? "Quick takes" : "Shortform"} by subscribed users`}
+          label="Shortform by subscribed users"
         />
       </SettingsSection>
 
@@ -196,14 +196,12 @@ const NotificationsSettingsTab = ({
           label="New discussions in subscribed topics"
         />
 
-        {isLWorAF() && (
           <NotificationSettingsRow
             name="notificationAlignmentSubmissionApproved"
             value={settings.notificationAlignmentSubmissionApproved ?? null}
             onChange={(value) => void updateSettings({ notificationAlignmentSubmissionApproved: value })}
             label="AF submission approvals"
           />
-        )}
 
         {hasEventsSetting.get() && (
           <NotificationSettingsRow

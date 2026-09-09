@@ -1,4 +1,4 @@
-import { isAF, isLWorAF } from '../../instanceSettings';
+import { isAF } from '../../instanceSettings';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
@@ -97,8 +97,6 @@ function curatedSequences(terms: SequencesViewTerms) {
 }
 
 function communitySequences(terms: SequencesViewTerms) {
-  const gridImageFilter = isLWorAF() ? {gridImageId: {$ne: null}} : undefined
-
   return {
     selector: {
       userId: terms.userId,
@@ -109,7 +107,7 @@ function communitySequences(terms: SequencesViewTerms) {
         {canonicalCollectionSlug: ""},
         {canonicalCollectionSlug: {$exists: false}},
       ],
-      ...gridImageFilter,
+      gridImageId: {$ne: null},
     },
     options: {
       sort: {
