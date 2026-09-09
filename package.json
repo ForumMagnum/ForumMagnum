@@ -278,7 +278,7 @@
     "recombee-js-api-client": "^4.1.5",
     "request": "^2.88.0",
     "rss": "^1.2.1",
-    "sanitize-html": "^2.12.1",
+    "sanitize-html": "^2.17.7",
     "shallowequal": "^1.1.0",
     "simpl-schema": "^1.5.0",
     "speakingurl": "^9.0.0",
