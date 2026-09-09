@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Measure from-scratch and incremental server startup times, from 'yarn start'
 # to completion of a local pageload, and from changing a file in 
 # packages/lesswrong/components to completion of a local pageload. Port 3000
