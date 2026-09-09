@@ -1,6 +1,8 @@
 import {
   TIME_DECAY_FACTOR,
   SCORE_BIAS,
+  FRONTPAGE_BONUS,
+  CURATED_BONUS,
 } from '../lib/scoring';
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
@@ -30,8 +32,8 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
         THEN "postedAt"
         ELSE "frontpageDate" END) AS "scoreDate"`;
       proj.baseScore = `("baseScore" +
-        (CASE WHEN "frontpageDate" IS NULL THEN 0 ELSE 10 END) +
-        (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE 10 END)) AS "baseScore"`;
+        (CASE WHEN "frontpageDate" IS NULL THEN 0 ELSE $4 END) +
+        (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE $5 END)) AS "baseScore"`;
       break;
     case "Comments":
       proj.baseScore = '("baseScore")';
@@ -70,7 +72,7 @@ const getBatchItemsPg = async <N extends VoteableCollectionName>(collection: Col
       1.0 / POW(${ageHours} + $2, $3) AS "singleVotePower"
     ) ns
     ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > ns."singleVotePower" OR NOT q."inactive"'}
-  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR], "read");
+  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR, FRONTPAGE_BONUS, CURATED_BONUS], "read");
 }
 
 const getBatchItems = <N extends VoteableCollectionName>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {

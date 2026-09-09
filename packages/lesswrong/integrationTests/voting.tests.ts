@@ -43,21 +43,26 @@ describe('Voting', function() {
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
       (updatedPost[0].inactive as any).should.be.true;
     });
-    it('should compute a higher score if post is categorized as frontpage and even higher if curated', async () => {
+    it('gives curated posts a bonus but no bonus for frontpage placement alone', async () => {
       const user = await createDummyUser();
-      const normalPost = await createDummyPost(user, {baseScore: 10});
-      const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
-      const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      const postedAt = new Date(Date.now() - (60 * 60 * 1000));
+      const normalPost = await createDummyPost(user, {postedAt, baseScore: 10});
+      const frontpagePost = await createDummyPost(user, {postedAt, frontpageDate: new Date(), baseScore: 10});
+      const curatedPost = await createDummyPost(user, {postedAt, curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
-      // TODO: HACK - one of the callbacks seems to set normalPost.frontpageDate, but we want it to be null
+      // Set the category explicitly after creation callbacks have finished.
       await Posts.rawUpdateOne({_id: normalPost._id}, {$set: {frontpageDate: null}});
-      await batchUpdateScore({collection: Posts});
-      const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
-      const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
-      const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
+      await batchUpdateScore({collection: Posts, forceUpdate: true});
+      const updatedNormalPost = await Posts.findOne({_id: normalPost._id});
+      const updatedFrontpagePost = await Posts.findOne({_id: frontpagePost._id});
+      const updatedCuratedPost = await Posts.findOne({_id: curatedPost._id});
+      if (!updatedNormalPost || !updatedFrontpagePost || !updatedCuratedPost) {
+        throw new Error('Expected all three posts to exist');
+      }
 
-      (updatedFrontpagePost[0].score as any).should.be.above(updatedNormalPost[0].score + 1);
-      (updatedCuratedPost[0].score as any).should.be.above(updatedFrontpagePost[0].score + 1);
+      expect(updatedFrontpagePost.score).toBeCloseTo(updatedNormalPost.score, 3);
+      expect(updatedCuratedPost.score).toBeGreaterThan(updatedFrontpagePost.score + 1);
     });
     it('produces the same result as `recalculateScore`', async () => {
       const user = await createDummyUser();
@@ -66,17 +71,19 @@ describe('Voting', function() {
         createDummyPost(user, {frontpageDate: new Date(), baseScore: 10}),
         createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10}),
       ]);
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
-      await batchUpdateScore({collection: Posts});
+      await batchUpdateScore({collection: Posts, forceUpdate: true});
       const [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost] = await Promise.all([
         Posts.findOne({_id: normalPost._id}),
         Posts.findOne({_id: frontpagePost._id}),
         Posts.findOne({_id: curatedPost._id}),
       ]);
 
-      (updatedNormalPost?.score as any).should.be.closeTo(recalculateScore(normalPost), 0.002);
-      (updatedFrontpagePost?.score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.002);
-      (updatedCuratedPost?.score as any).should.be.closeTo(recalculateScore(curatedPost), 0.002);
+      for (const post of [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost]) {
+        if (!post) throw new Error('Expected the scored post to exist');
+        expect(Math.abs(post.score - recalculateScore(post))).toBeLessThan(0.002);
+      }
     });
   });
   describe('performVoteServer', () => {

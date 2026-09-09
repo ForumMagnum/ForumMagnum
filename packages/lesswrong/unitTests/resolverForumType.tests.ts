@@ -8,6 +8,21 @@ import { createAdminContext, createAnonymousContext } from '@/server/vulcan-lib/
 import { runQuery } from '@/server/vulcan-lib/query';
 import { sendWelcomingPM, welcomeMessageDelayer } from '@/server/callbacks/userCallbackFunctions';
 
+// Mock the constructor too: even constructing a real repo opens a SQL connection.
+jest.mock('@/server/repos/PostsRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    getCuratedAndPopularPosts: jest.fn().mockResolvedValue([]),
+  })),
+}));
+
+jest.mock('@/server/sqlConnection', () => ({
+  ...jest.requireActual<typeof import('@/server/sqlConnection')>('@/server/sqlConnection'),
+  createSqlConnection: jest.fn(() => {
+    throw new Error('Unit tests must not access the database');
+  }),
+}));
+
 describe('resolver context forum type', () => {
   afterEach(() => {
     jest.restoreAllMocks();
