@@ -20,7 +20,6 @@ import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
-import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
@@ -691,11 +690,6 @@ export async function commentsNewUserApprovedStatus(comment: CreateCommentDataIn
 
 
 /* CREATE AFTER */
-export function invalidatePostOnCommentCreate({ postId }: DbComment, context: ResolverContext) {
-  if (!postId) return;
-  backgroundTask(swrInvalidatePostRoute(postId, context));
-}
-
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
   if (isIncludedInDescendentCounts(comment)) {
     const { Comments } = properties.context;
@@ -888,11 +882,6 @@ export async function moveToAnswers(modifier: MongoModifier, comment: DbComment,
 }
 
 /* UPDATE AFTER */
-export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }, context: ResolverContext) {
-  if (!postId) return;
-  backgroundTask(swrInvalidatePostRoute(postId, context));
-}
-
 export function isIncludedInDescendentCounts(comment: DbComment) {
   return !comment.draft && !comment.deleted && !comment.rejected && !comment.authorIsUnreviewed;
 }

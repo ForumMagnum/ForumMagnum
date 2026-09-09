@@ -1807,14 +1807,6 @@ const EditorSettingsSidebar = ({
               </form.Field>
             </div>
           )}
-
-          {userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
-              <form.Field name="swrCachingEnabled">
-                {(field) => <SidebarToggle field={field} label="stale-while-revalidate caching enabled" />}
-              </form.Field>
-            </div>
-          )}
           </AccordionSection>}
 
         {canSeeAudio && (

@@ -19,7 +19,6 @@ import maxBy from 'lodash/maxBy';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import VotesRepo from './repos/VotesRepo';
-import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
@@ -100,9 +99,6 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   );
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
-  }
-  if (collection.collectionName === "Posts") {
-    backgroundTask(swrInvalidatePostRoute(newDocument._id, context))
   }
   return {newDocument, vote};
 }

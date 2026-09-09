@@ -148,11 +148,6 @@ export const googleMapsApiKeySetting = new ServerSetting<string | null>('googleM
 // since the setting will override any future robots.txt updates.)
 export const robotsTxtSetting = new ServerSetting<string|null>('robotsTxt', null)
 
-export const awsRegionSetting = new ServerSetting<string>('swrCaching.awsRegion', 'us-east-1');
-export const awsAccessKeyIdSetting = new ServerSetting<string | null>('swrCaching.accessKeyId', null);
-export const awsSecretAccessKeySetting = new ServerSetting<string | null>('swrCaching.secretAccessKey', null);
-export const cloudFrontDistributionIdSetting = new ServerSetting<string | null>('swrCaching.distributionId', null);
-
 export const lightconeFundraiserStripeSecretKeySetting = new ServerSetting<string | null>('stripe.lightconeFundraiserSecretKey', null)
 
 export const googleDocImportClientIdSetting = new ServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
@@ -225,9 +220,6 @@ export const memoryUsageCheckInterval = new ParsedServerSetting<number>("memoryU
 
 export const logGraphqlQueriesSetting = new ParsedServerSetting<boolean>("logGraphqlQueries", false);
 export const logGraphqlMutationsSetting = new ParsedServerSetting<boolean>("logGraphqlMutations", false);
-
-export const swrCachingEnabledSetting = new ParsedServerSetting<boolean>('swrCaching.enabled', false)
-export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
 
 export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
 

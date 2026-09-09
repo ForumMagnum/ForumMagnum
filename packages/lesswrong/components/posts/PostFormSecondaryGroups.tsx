@@ -618,17 +618,6 @@ const PostFormSecondaryGroups = ({
               )}
             </form.Field>
           </div>}
-
-          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-            <form.Field name="swrCachingEnabled">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="stale-while-revalidate caching enabled"
-                />
-              )}
-            </form.Field>
-          </div>}
         </div>}
 
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>

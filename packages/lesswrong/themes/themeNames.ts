@@ -83,13 +83,7 @@ export function getForumType(themeOptions: AbstractThemeOptions, actualForumType
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = new DeferredForumSelect({
-  EAForum: {name: "auto"},
-  default: {name: "default"},
-} as const);
-
-export const getDefaultThemeOptions = (): AbstractThemeOptions =>
-  defaultThemeOptions.get();
+export const defaultThemeOptions: AbstractThemeOptions = {name: "default"};
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {
@@ -116,7 +110,7 @@ const getSerializedThemeOptions = (
   }
 
   // If we still don't have anything, use the default
-  return getDefaultThemeOptions();
+  return defaultThemeOptions;
 }
 
 export const getThemeOptions = (

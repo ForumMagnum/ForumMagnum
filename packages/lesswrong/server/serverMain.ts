@@ -1,5 +1,4 @@
 // import { startWebserver } from './apolloServer';
-import { scheduleQueueProcessing } from './cache/swr';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
@@ -35,7 +34,6 @@ import { backgroundTask } from './utils/backgroundTask';
 // }
 
 export async function runServerOnStartupFunctions() {
-  scheduleQueueProcessing();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
   // addLegacyRssRoutes();
