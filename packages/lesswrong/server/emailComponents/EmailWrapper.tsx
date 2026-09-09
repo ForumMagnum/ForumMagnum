@@ -22,7 +22,7 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
 }) => {
   const classes = emailUseStyles(styles, emailContext);
   const accountLink = `${getSiteUrl()}account`
-  const siteNameWithArticle = siteNameWithArticleSetting.get()
+  const siteNameWithArticle = siteNameWithArticleSetting.get(emailContext.resolverContext)
   
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about

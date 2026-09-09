@@ -312,7 +312,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t.filterMode === "TagDefault" ? {
       tagId: t.tagId,
       tagName: t.tagName,
-      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
+      filterMode: defaultVisibilityTags.get(context).find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
     } :
     t
   ) ?? [];

@@ -47,13 +47,13 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   
     if (!localgroup) return defaultMetadata;
   
-    const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get();
+    const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get(resolverContext);
     const descriptionFields = getMetadataDescriptionFields(description);
   
     const titleFields = getPageTitleFields(localgroup.name);
   
     const imageUrl = localgroup.bannerImageId
-      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
+      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(resolverContext)}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
       : undefined;
   
     const imagesFields = imageUrl ? getMetadataImagesFields(imageUrl) : {};

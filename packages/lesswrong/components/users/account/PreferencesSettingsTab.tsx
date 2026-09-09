@@ -143,7 +143,7 @@ const PreferencesSettingsTab = ({
         />
       </SettingsSection>
 
-      {hasEventsSetting.get() && <SettingsSection title="Location">
+      {hasEventsSetting.get(forumType) && <SettingsSection title="Location">
           <HighlightableField name="googleLocation">
             <div className={fieldWrapperClass}>
               <LocationFormComponent

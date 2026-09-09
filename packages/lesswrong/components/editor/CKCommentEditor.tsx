@@ -64,7 +64,7 @@ const CKCommentEditor = ({
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
   const portalContext = useContext(CkEditorPortalContext);
@@ -87,7 +87,7 @@ const CKCommentEditor = ({
       // The collaborative editor is not activated because no `websocketUrl`
       // or `documentId` is provided.
       tokenUrl: generateTokenRequest(collectionName, fieldName),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
     initialData: data || "",

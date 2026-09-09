@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -99,12 +100,13 @@ export interface CommentsNodeProps {
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
 const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
 
-  const hasInContextLinks = commentPermalinkStyleSetting.get() === 'in-context';
+  const hasInContextLinks = commentPermalinkStyleSetting.get(forumType) === 'in-context';
 
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
 

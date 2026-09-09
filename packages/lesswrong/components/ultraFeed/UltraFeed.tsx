@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import type { ObservableQuery } from '@apollo/client';
@@ -360,6 +361,7 @@ const UltraFeed = ({
   settingsVisible?: boolean
   onSettingsToggle?: () => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
@@ -395,7 +397,7 @@ const UltraFeed = ({
     captureEvent("ultraFeedTabChanged", { tab });
   };
 
-  if (!ultraFeedEnabledSetting.get()) {
+  if (!ultraFeedEnabledSetting.get(forumType)) {
     return (
       <SingleColumnSection>
         <div className={classes.disabledMessage}>

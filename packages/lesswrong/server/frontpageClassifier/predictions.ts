@@ -171,7 +171,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     return;
   }
 
-  const adminTeamAccountId = adminAccountSetting.get()?._id;
+  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
   if (!adminTeamAccountId) {
     return;
   }

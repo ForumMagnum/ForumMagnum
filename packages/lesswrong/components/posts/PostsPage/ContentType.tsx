@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC, PropsWithChildren } from 'react'
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
@@ -271,12 +272,13 @@ const ContentType = ({className, type, label}: {
   type: ContentTypeString,
   label?: string
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = forumSelect(getContentTypes())[type]
+  const contentData = forumSelect(getContentTypes(), forumType)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }

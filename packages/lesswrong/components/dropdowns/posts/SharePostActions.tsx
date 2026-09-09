@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
@@ -24,6 +25,7 @@ const SharePostActions = ({post, onClick}: {
   post: PostsBase,
   onClick?: () => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
@@ -40,7 +42,7 @@ const SharePostActions = ({post, onClick}: {
     window.open(url, '_blank');
   }
   
-  const siteName = forumTitleSetting.get();
+  const siteName = forumTitleSetting.get(forumType);
   const linkTitle = `${post.title} - ${siteName}`;
   
   const shareToTwitter = () => {

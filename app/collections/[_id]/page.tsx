@@ -32,7 +32,7 @@ export async function generateMetadata({ params, searchParams }: {
   
     const collection = data.collection.result;
     
-    const description = collection.contents?.plaintextDescription ?? taglineSetting.get();
+    const description = collection.contents?.plaintextDescription ?? taglineSetting.get(resolverContext);
     const descriptionFields = getMetadataDescriptionFields(description);
 
     const titleFields = getPageTitleFields(collection.title);

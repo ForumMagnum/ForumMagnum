@@ -43,13 +43,13 @@ export async function generateUserPageMetadata({ params, searchParams }: {
     if (!user) return defaultMetadata;
   
     const displayName = userGetDisplayName(user, resolverContext.forumType);
-    const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`;
+    const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get(resolverContext)} — ${taglineSetting.get(resolverContext)}`;
     const descriptionFields = getMetadataDescriptionFields(description);
   
     const titleFields = getPageTitleFields(user.displayName ?? user.slug);
   
     const imageUrl = user.profileImageId
-      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`
+      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(resolverContext)}/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`
       : '';
   
     const imageFields = getMetadataImagesFields(imageUrl);

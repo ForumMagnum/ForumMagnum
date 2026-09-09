@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   const context = createAnonymousContext();
 
-  const isTestServer = testServerSetting.get();
+  const isTestServer = testServerSetting.get(context);
 
   // Run all once-a-minute tasks
   const tasks: Promise<void>[] = [];

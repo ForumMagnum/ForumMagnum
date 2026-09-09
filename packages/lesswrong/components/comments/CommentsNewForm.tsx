@@ -258,7 +258,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     answer: !!isAnswer,
   };
 
-  const hideDate = hideUnreviewedAuthorCommentsSettings.get();
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get(forumType);
   const commentWillBeHidden = (
     hideDate
     && new Date(hideDate) < now

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
@@ -110,6 +111,7 @@ let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
 let onMapsLoaded: Array<() => void> = [];
 
 export const useGoogleMaps = (): [boolean, any] => {
+  const { forumType } = useForumType();
   const [isMapsLoaded, setIsMapsLoaded] = useState(false);
   
   useEffect(() => {
@@ -127,7 +129,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         
         var tag = document.createElement('script');
         tag.async = true;
-        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get(forumType)}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
         window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
@@ -139,7 +141,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         document.body.appendChild(tag);
       }
     }
-  }, []);
+  }, [forumType]);
   
   if (!isMapsLoaded) return [false, null];
   return [true, window?.google?.maps];

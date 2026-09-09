@@ -436,7 +436,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
 export type PostsList2Props = PostsItemConfig;
 
 const LWPostsItem = (props: PostsItemConfig) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const {
     post,
     postLink,
@@ -645,7 +645,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {resumeReading &&
                 <div className={classes.sequenceImage}>
                   <img className={classes.sequenceImageImg}
-                    src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                       resumeReading.sequence?.gridImageId
                         || resumeReading.collection?.gridImageId
                         || "sequences/vnyzzznenju0hzdv6pqb.jpg"

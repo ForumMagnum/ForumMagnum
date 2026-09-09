@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -70,6 +71,7 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
 const ExpandedSequencesSearchHit = ({hit}: {
   hit: Hit<any>,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const sequence: SearchSequence = hit
@@ -81,7 +83,7 @@ const ExpandedSequencesSearchHit = ({hit}: {
   }
   
   const style = sequence.bannerImageId ? {
-    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
+    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudNameSetting.get(forumType)}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
   } : {}
 
   return <div className={classes.root} style={style}>

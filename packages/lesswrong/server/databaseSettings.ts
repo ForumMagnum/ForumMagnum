@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { isDevelopment } from '../lib/executionEnvironment';
 import {
     getPublicSettings,
@@ -40,7 +41,8 @@ class ServerSetting<SettingValueType> {
   ) {
     initializeSetting(settingName, "server")
   }
-  get(): SettingValueType | string {
+  // The forum argument is required while callers migrate; value selection is unchanged for now.
+  get(_forum: ForumTypeString | ResolverContext): SettingValueType | string {
     const privateSettings = getPrivateSettings();
     const value = get(privateSettings, this.settingName);
     if (typeof value === 'undefined') return this.defaultValue;
@@ -55,8 +57,8 @@ class ParsedServerSetting<SettingValueType> extends ServerSetting<SettingValueTy
   ) {
     super(settingName, defaultValue);
   }
-  get(): SettingValueType {
-    const value = super.get();
+  get(forum: ForumTypeString | ResolverContext): SettingValueType {
+    const value = super.get(forum);
     if (typeof value === 'string') {
       const parsedValue = JSON.parse(value);
       const parsedValueType = typeof parsedValue;

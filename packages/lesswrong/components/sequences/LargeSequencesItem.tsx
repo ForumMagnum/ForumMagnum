@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -156,10 +157,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showAuthor?: boolean,
   showChapters?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState<boolean>(false)
 
-  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  const cloudinaryCloudName = cloudinaryCloudNameSetting.get(forumType)
 
 
   const { data, loading: statsLoading } = useQuery(GET_SEQUENCE_STATS, {

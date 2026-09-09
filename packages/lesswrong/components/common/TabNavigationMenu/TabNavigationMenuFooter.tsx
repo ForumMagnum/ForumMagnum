@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -33,12 +34,13 @@ const styles = defineStyles("TabNavigationMenuFooter", (theme: ThemeType) => ({
 }))
 
 const TabNavigationMenuFooter = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {forumSelect(getMenuTabs()).map(tab => {
+          {forumSelect(getMenuTabs(), forumType).map(tab => {
             if (!('showOnMobileStandalone' in tab) || !tab.showOnMobileStandalone) {
               return
             }

@@ -41,7 +41,7 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null, forumType:
   if (!currentUser) {
     return false
   }
-  const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
+  const userIdsWithAccess = userIdsWithAccessToLlmChat.get(forumType);
   
   return forumType === 'LessWrong' && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }

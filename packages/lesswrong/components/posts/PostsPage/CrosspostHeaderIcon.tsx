@@ -24,7 +24,7 @@ const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
 const CrosspostHeaderIcon = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,
 }) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
 
   if (!post.fmCrosspost) {
@@ -32,9 +32,9 @@ const CrosspostHeaderIcon = ({post}: {
   }
   const icon = isLW ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
-    ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
-    : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;
-  const href = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${post.fmCrosspost.foreignPostId}`);
+    ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get(forumType)}. Click to view.`
+    : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get(forumType)}.`;
+  const href = combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", `posts/${post.fmCrosspost.foreignPostId}`);
 
   return (
     <div className={classes.root}>

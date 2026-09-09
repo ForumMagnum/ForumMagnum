@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext, useCallback, useState, useMemo } from 'react';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -40,6 +41,7 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
+  const { forumType } = useForumType();
   const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
@@ -94,7 +96,7 @@ export const useRecordPostView = (post: ViewablePost) => {
       const attributedUserId = currentUser?._id ?? clientId;
 
       if (attributedUserId
-        && recombeeEnabledSetting.get()
+        && recombeeEnabledSetting.get(forumType)
         && !recommendationOptions?.skip
         && isRecombeeRecommendablePost(post)
         && (!currentUser || !excludeUserFromRecombee(currentUser))
@@ -104,7 +106,7 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent, forumType]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     const currentUser = getCurrentUser();

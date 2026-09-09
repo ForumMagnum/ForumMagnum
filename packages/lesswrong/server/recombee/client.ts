@@ -259,7 +259,7 @@ const helpers = {
     const [curatedPosts, stickiedPosts] = await Promise.all(postPromises);
 
     const curatedPostIds = curatedPosts.map(post => post._id);
-    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get(context);
     const stickiedPostIds = [...manuallyStickiedPostIds, ...stickiedPosts.map(post => post._id)];
     const staleRecPostIds = 'excludedPostIds' in lwAlgoSettings ? lwAlgoSettings.excludedPostIds ?? [] : [];
     const userHiddenPostsIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
@@ -375,12 +375,12 @@ const helpers = {
   },
 
   getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, recombeeUser: RecombeeUser, context: ResolverContext) {
-    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get(context);
     return helpers.getReadStatuses(lwAlgoSettings, manuallyStickiedPostIds, recombeeUser, context);
   },
 
   async getUnreadAboutPostId(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, recombeeUser: RecombeeUser, context: ResolverContext): Promise<[string] | []> {
-    const aboutPostId = aboutPostIdSetting.get();
+    const aboutPostId = aboutPostIdSetting.get(context);
     const [aboutPageReadStatus] = await helpers.getReadStatuses(lwAlgoSettings, [aboutPostId], recombeeUser, context);
     return aboutPageReadStatus ? [] : [aboutPostId];
   },
@@ -418,7 +418,7 @@ const helpers = {
   backfillRecommendationsCache(userId: string, scenario: string, recResponse: RecommendationResponse, context: ResolverContext) {
     const createdAt = new Date();
     const attributionId = recResponse.recommId;
-    const ttlMs = recombeeCacheTtlMsSetting.get();
+    const ttlMs = recombeeCacheTtlMsSetting.get(context);
 
     backgroundTask(context.RecommendationsCaches.rawInsertMany(
       recResponse.recomms.map((rec) => ({
@@ -717,8 +717,8 @@ const recombeeApi = {
     const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
-    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
-    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied || result.recommId));
+    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get(context) || result.curated || result.stickied));
+    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.post._id === aboutPostIdSetting.get(context) || result.curated || result.stickied || result.recommId));
     const recombeeRecommendedPosts = postsWithMetadata.filter((result): result is RecombeeRecommendedPost => !!result.recommId);
 
     const interleavedRecommendedPosts = helpers.interleaveHybridRecommendedPosts([...nativeRecommendedPosts, ...recombeeRecommendedPosts]);

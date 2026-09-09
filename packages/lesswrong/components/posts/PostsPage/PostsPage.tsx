@@ -404,7 +404,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       }
     });
 
-    if (!recombeeEnabledSetting.get()) return;
+    if (!recombeeEnabledSetting.get(forumType)) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 

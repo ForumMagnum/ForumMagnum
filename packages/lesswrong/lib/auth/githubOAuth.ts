@@ -37,8 +37,8 @@ export function generateOAuthState(): string {
 }
 
 export function getGitHubCredentials(forumType: ForumTypeString) {
-  const clientId = forumType === 'AlignmentForum' ? afGithubClientIdSetting.get() : githubClientIdSetting.get();
-  const clientSecret = forumType === 'AlignmentForum' ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get();
+  const clientId = forumType === 'AlignmentForum' ? afGithubClientIdSetting.get(forumType) : githubClientIdSetting.get(forumType);
+  const clientSecret = forumType === 'AlignmentForum' ? afGithubOAuthSecretSetting.get(forumType) : githubOAuthSecretSetting.get(forumType);
   
   return { clientId, clientSecret };
 }

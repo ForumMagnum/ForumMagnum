@@ -3839,7 +3839,7 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          userId: { $ne: reviewUserBotSetting.get() },
+          userId: { $ne: reviewUserBotSetting.get(context) },
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);

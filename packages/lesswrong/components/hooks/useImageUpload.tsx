@@ -197,7 +197,7 @@ export const useImageUpload = ({
       multiple: false,
       sources: ["local", "url", "camera", "facebook", "instagram", "google_drive"],
       cropping: true,
-      cloudName: cloudinaryCloudNameSetting.get(),
+      cloudName: cloudinaryCloudNameSetting.get(theme.forumType),
       theme: "minimal",
       croppingValidateDimensions: true,
       croppingShowDimensions: true,
@@ -242,6 +242,7 @@ export const useImageUpload = ({
       }
     });
   }, [
+    theme.forumType,
     croppingAspectRatio,
     imageType,
     onUploadSuccess,

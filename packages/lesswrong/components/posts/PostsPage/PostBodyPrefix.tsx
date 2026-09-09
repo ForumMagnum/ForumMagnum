@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
@@ -56,6 +57,7 @@ const PostBodyPrefix = ({post, query}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
   query?: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -80,7 +82,7 @@ const PostBodyPrefix = ({post, query}: {
         : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to be approved by a moderator."
       }
       <LWTooltip title={<p>
-        New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
+        New users' first posts on {siteNameWithArticleSetting.get(forumType)} are checked by moderators before they appear on the site.
         Most posts will be approved within {getForumNewUserProcessingTime()} hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.

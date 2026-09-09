@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState }  from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -165,6 +166,7 @@ export const CommentsItemMeta = ({
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
@@ -211,7 +213,7 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
-  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const highlightLinkIcon = commentPermalinkStyleSetting.get(forumType) === 'in-context' && scrollToCommentId === comment._id
   const menuVisible = (!isParentComment && !hideActionsMenu);
 
   return (

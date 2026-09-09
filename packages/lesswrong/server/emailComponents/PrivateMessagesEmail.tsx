@@ -69,7 +69,7 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
   emailContext: EmailContextType,
 }) => {
   const currentUser = emailContext.currentUser;
-  const sitename = siteNameWithArticleSetting.get()
+  const sitename = siteNameWithArticleSetting.get(emailContext.resolverContext)
   const conversationLink = conversationGetPageUrl(conversation, true);
 
   const participantIds = conversation.participantIds ?? [];

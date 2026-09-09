@@ -1,4 +1,6 @@
 'use client';
+import { useForumType } from '@/components/hooks/useForumType';
+
 
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -533,6 +535,7 @@ const ForumIcon = ({
   className,
   ...props
 }: ForumIconProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const Icon = icons[icon];
   if (!Icon) {
@@ -541,7 +544,7 @@ const ForumIcon = ({
     return null;
   }
 
-  const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
+  const customClassKey = forumSelect(CUSTOM_CLASSES, forumType)[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(
     className,

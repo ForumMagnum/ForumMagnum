@@ -16,8 +16,8 @@ export const siteGraphQLTypeDefs = gql`
 export const siteGraphQLQueries = {
   SiteData: async (root: void, args: void, context: ResolverContext) => {
     return {
-      title: forumTitleSetting.get(),
-      url: siteUrlSetting.get(),
+      title: forumTitleSetting.get(context),
+      url: siteUrlSetting.get(context),
       logoUrl: getLogoUrl(),
     };
   },

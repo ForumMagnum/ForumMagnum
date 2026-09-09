@@ -122,7 +122,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, cont
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed', 'shortform');
 
   const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
-  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get(context)
   
   const notDeletedOrDeletionIsPublic = {
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],

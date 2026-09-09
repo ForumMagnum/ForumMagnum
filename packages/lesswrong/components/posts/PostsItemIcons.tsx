@@ -90,6 +90,7 @@ const RecommendedPostIcon = ({post, hover}: {
   post: PostsBase,
   hover?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
@@ -99,7 +100,7 @@ const RecommendedPostIcon = ({post, hover}: {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post)) {
       void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
     }
 

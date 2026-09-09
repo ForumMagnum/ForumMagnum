@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -21,6 +22,7 @@ const styles = defineStyles('DislikeRecommendationDropdownItem', (theme: ThemeTy
 }));
 
 const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
+  const { forumType } = useForumType();
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog()
@@ -42,7 +44,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
       return;
     }
 
-    if (!!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post)) {
       void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
     }
 

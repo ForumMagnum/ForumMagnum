@@ -40,7 +40,7 @@ const NewUserGuidelinesDialog = ({onClose, post}: {
   onClose: () => void,
   post: PostsMinimumInfo,
 }) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
@@ -61,7 +61,7 @@ const NewUserGuidelinesDialog = ({onClose, post}: {
     onClose();
   }
   
-  const documentId = firstCommentAcknowledgeMessageCommentIdSetting.get()
+  const documentId = firstCommentAcknowledgeMessageCommentIdSetting.get(forumType)
   
   const { loading, data } = useQuery(CommentsListQuery, {
     variables: { documentId: documentId },

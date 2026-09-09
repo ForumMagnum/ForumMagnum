@@ -1,4 +1,6 @@
 'use client';
+import { useForumType } from '@/components/hooks/useForumType';
+
 
 import React from 'react';
 import { componentWithChildren } from '@/lib/utils/componentsWithChildren';
@@ -25,6 +27,7 @@ export type MapboxViewport = {
 }
 
 const WrappedReactMapGLInner = (props: InteractiveMapProps & AddedProps) => {
+  const { forumType } = useForumType();
   const mapStyle = useMapStyle();
   const pathname = usePathname();
 
@@ -39,7 +42,7 @@ const WrappedReactMapGLInner = (props: InteractiveMapProps & AddedProps) => {
       // which fixes whatever the underlying problem is.
       key={pathname}
       mapStyle={mapStyle}
-      mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
+      mapboxApiAccessToken={mapboxAPIKeySetting.get(forumType) ?? undefined}
     />
   </>;
 }

@@ -101,7 +101,7 @@ export const timeDecayExpr = (forumType: ForumTypeString) => {
       ] }, // Age in hours
       getAgeOffset(forumType)
     ]},
-    TIME_DECAY_FACTOR.get()
+    TIME_DECAY_FACTOR.get(forumType)
   ]}
 }
 

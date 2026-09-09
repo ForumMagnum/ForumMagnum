@@ -141,7 +141,7 @@ const onPublishUtils = {
   updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
     if (!isRecombeeRecommendablePost(post)) return;
   
-    if (recombeeEnabledSetting.get()) {
+    if (recombeeEnabledSetting.get(context)) {
       backgroundTask(recombeeApi.upsertPost(post, context)
         // eslint-disable-next-line no-console
         .catch(e => console.log('Error when sending published post to recombee', { e }))
@@ -236,7 +236,7 @@ const utils = {
       return;
     }
     const tagBot = await getTagBotAccount(context);
-    const tagBotActiveTime = tagBotActiveTimeSetting.get();
+    const tagBotActiveTime = tagBotActiveTimeSetting.get(context);
   
     if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
       //eslint-disable-next-line no-console
@@ -272,7 +272,7 @@ const utils = {
       }
     }
   
-    const autoFrontpageEnabled = autoFrontpageSetting.get()
+    const autoFrontpageEnabled = autoFrontpageSetting.get(context)
     if (!autoFrontpageEnabled) {
       return;
     }
@@ -934,7 +934,7 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
   const redrafted = post.draft && !oldDocument.draft
   if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
-  if (recombeeEnabledSetting.get()) {
+  if (recombeeEnabledSetting.get(context)) {
     backgroundTask(recombeeApi.upsertPost(post, context)
       // eslint-disable-next-line no-console
       .catch(e => console.log('Error when sending updated post to recombee', { e }))

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { siteImageSetting } from '@/lib/instanceSettings';
 import { htmlToText } from "html-to-text";
@@ -228,6 +229,7 @@ export const SocialPreviewUpload = ({
   post,
   croppingAspectRatio,
 }: SocialPreviewUploadProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const value = field.state.value;
 
@@ -264,7 +266,7 @@ export const SocialPreviewUpload = ({
           clearField={() => updateImageId(undefined)}
           label={fallbackImageUrl ? "Change preview image" : "Upload preview image"}
           croppingAspectRatio={croppingAspectRatio}
-          placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
+          placeholderUrl={fallbackImageUrl || siteImageSetting.get(forumType)}
         />
         <div className={classes.cardTextArea}>
           <div className={classes.cardTitle}>

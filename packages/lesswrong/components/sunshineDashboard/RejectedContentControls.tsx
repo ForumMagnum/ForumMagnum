@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 import RejectContentButton from './RejectContentButton';
@@ -41,13 +42,14 @@ const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
 export const RejectedContentControls = ({ contentWrapper }: {
   contentWrapper: RejectContentParams
 }) => {
+  const { forumType } = useForumType();
   const { collectionName, document } = contentWrapper;
   const classes = useStyles(styles);
 
   const { openDialog } = useDialog();
 
   // Gate the visibility based on forum settings
-  if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
+  if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get(forumType)) return null;
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in document ? document.automatedContentEvaluations : null;
 

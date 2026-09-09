@@ -146,7 +146,7 @@ const utils = {
   
       const parentComments: { commentId: string; userId: string }[] = await repos.comments.getParentCommentIds({
         commentId: comment._id,
-        limit: commentAncestorsToNotifySetting.get(),
+        limit: commentAncestorsToNotifySetting.get(context),
       });
   
       let newReplyUserIds: string[] = [];
@@ -660,7 +660,7 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
     ])
 
     // update the lastCommentedAt field in Recombee version of post
-    if (recombeeEnabledSetting.get() && !comment.debateResponse) {
+    if (recombeeEnabledSetting.get(context) && !comment.debateResponse) {
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console

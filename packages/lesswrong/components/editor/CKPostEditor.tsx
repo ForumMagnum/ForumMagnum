@@ -461,7 +461,7 @@ const CKPostEditor = ({
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
@@ -554,7 +554,7 @@ const CKPostEditor = ({
     ...postEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, key),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       webSocketUrl: webSocketUrl,
       documentId: getCKEditorDocumentId(documentId),
       bundleVersion: ckEditorBundleVersion,

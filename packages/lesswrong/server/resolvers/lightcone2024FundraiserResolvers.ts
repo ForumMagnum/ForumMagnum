@@ -69,7 +69,7 @@ const fetchCachedAirtableDonationRecords = unstable_cache(fetchAirtableDonationR
 
 export const lightcone2024FundraiserGraphQLQueries = {
   async Lightcone2024FundraiserStripeAmounts(root: void, args: void, context: ResolverContext) {
-    if (!lightconeFundraiserStripeSecretKeySetting.get()) return; 
+    if (!lightconeFundraiserStripeSecretKeySetting.get(context)) return;
     const intents = getStripeIntentsCache();
     return intents.map(intent => intent.amount);
   },

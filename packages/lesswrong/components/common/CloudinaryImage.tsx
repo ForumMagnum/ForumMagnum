@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Image } from 'cloudinary-react';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
@@ -16,7 +17,8 @@ const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
   publicId: string,
   imgProps?: ImgPropsType
 }) => {
-  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  const { forumType } = useForumType();
+  const cloudinaryCloudName = cloudinaryCloudNameSetting.get(forumType)
   
   let sizeProps: any = {};
   if (width)

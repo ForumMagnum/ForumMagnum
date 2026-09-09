@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { ForumOptions, forumSelect } from "../../lib/forumTypeUtils";
 
@@ -34,4 +35,7 @@ const personalBlogpostInfo: ForumOptions<{name: string, tooltip: React.JSX.Eleme
   },
 }
 
-export const usePersonalBlogpostInfo = () => forumSelect(personalBlogpostInfo);
+export const usePersonalBlogpostInfo = () => {
+  const { forumType } = useForumType();
+  return forumSelect(personalBlogpostInfo, forumType);
+};

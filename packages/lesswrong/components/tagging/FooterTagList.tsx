@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { NetworkStatus } from '@apollo/client';
@@ -161,6 +162,7 @@ const FooterTagList = ({
   neverCoreStyling?: boolean,
   tagRight?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -260,7 +262,7 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  const contentTypeInfo = forumSelect(getContentTypes());
+  const contentTypeInfo = forumSelect(getContentTypes(), forumType);
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling, showAutoClassifiedIcon}: {
     tooltipBody: ReactNode,
@@ -294,7 +296,7 @@ const FooterTagList = ({
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
-  const showAutoClassifiedIcon = !post.curatedDate && !!post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
+  const showAutoClassifiedIcon = !post.curatedDate && !!post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get(forumType)?._id;
 
   let postType = post.curatedDate
     ? <MaybeLink to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>

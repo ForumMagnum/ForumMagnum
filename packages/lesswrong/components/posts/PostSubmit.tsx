@@ -66,7 +66,7 @@ export const PostSubmit = ({
   claudeButton,
   cancelCallback,
 }: PostSubmitProps) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
@@ -89,7 +89,7 @@ export const PostSubmit = ({
   const requireConfirmation = isLW && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
+  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get(forumType)
   const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
   const feedbackTitle = `Request feedback from our editor.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
 

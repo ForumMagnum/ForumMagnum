@@ -185,7 +185,7 @@ export const usePostsItem = ({
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
-  if (recombeeRecommId && recombeeEnabledSetting.get()) {
+  if (recombeeRecommId && recombeeEnabledSetting.get(forumType)) {
     postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
   }
 

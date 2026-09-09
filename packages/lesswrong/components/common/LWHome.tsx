@@ -94,7 +94,7 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
         </>}
-        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
+        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get(forumType)) && <SingleColumnSection>
           <DismissibleSpotlightItem
             loadingStyle="placeholder"
             className={classes.desktopSpotlight}
@@ -125,7 +125,8 @@ const LWHome = () => {
 }
 
 const UltraFeedOrRecentDiscussion = () => {
-  const ultraFeedEnabled = ultraFeedEnabledSetting.get()
+  const { forumType } = useForumType();
+  const ultraFeedEnabled = ultraFeedEnabledSetting.get(forumType)
   
   return ultraFeedEnabled
     ? <UltraFeed />

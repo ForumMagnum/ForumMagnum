@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -101,13 +102,14 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   spotlight: SpotlightDisplay
   firstPost: PostsList
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const firstPostSequenceId = spotlight.documentId;
 
   const prefix = forumSelect({
     EAForum: "Start with: ",
     default: "First Post: "
-  });
+  }, forumType);
 
   return <div className={classNames(classes.firstPost, classes.root)}>
     {prefix}<PostsTooltip post={firstPost}>

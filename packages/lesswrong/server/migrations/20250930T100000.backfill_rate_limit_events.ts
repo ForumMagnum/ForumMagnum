@@ -44,8 +44,8 @@ export const up = async ({db}: MigrationContext) => {
   // eslint-disable-next-line no-console
   console.log(`Found ${activeUserIds.length} users with recent activity`);
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, context);
+  const postRateLimits = forumSelect(autoPostRateLimits, context);
 
   if (!commentRateLimits || !postRateLimits) {
     // eslint-disable-next-line no-console

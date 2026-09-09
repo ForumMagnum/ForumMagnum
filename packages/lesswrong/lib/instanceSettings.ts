@@ -89,7 +89,8 @@ export class PublicInstanceSetting<SettingValueType> {
       }
     }
   }
-  get(): SettingValueType {
+  // The forum argument is required while callers migrate; value selection is unchanged for now.
+  get(_forum: ForumTypeString | ResolverContext): SettingValueType {
     return getSetting(this.settingName, this.defaultValue)
   }
 }

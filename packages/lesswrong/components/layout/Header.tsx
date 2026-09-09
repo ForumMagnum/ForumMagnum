@@ -338,6 +338,7 @@ const Header = ({
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -556,13 +557,13 @@ const Header = ({
 
               <Typography className={classNames(classes.title, classes.hideXsDown)} variant="title">
                 <Link to="/" className={classes.titleLink}>
-                  {forumHeaderTitleSetting.get()}
+                  {forumHeaderTitleSetting.get(forumType)}
                 </Link>
                 <HeaderSubtitle />
               </Typography>
               <Typography className={classNames(classes.title, classes.hideSmUp)} variant="title">
                 <Link to="/" className={classes.titleLink}>
-                  {forumShortTitleSetting.get()}
+                  {forumShortTitleSetting.get(forumType)}
                 </Link>
               </Typography>
               {rightHeaderItemsNode}

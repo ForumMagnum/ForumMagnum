@@ -128,7 +128,7 @@ export const scheduleQueueProcessing = () => {
 export const swrInvalidatePostRoute = async (postId: string, context: ResolverContext) => {
   const { Posts } = context;
 
-  if (!swrCachingEnabledSetting.get() || invalidationQueue.length > MAX_LENGTH) return;
+  if (!swrCachingEnabledSetting.get(context) || invalidationQueue.length > MAX_LENGTH) return;
   const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
 
   if (!post) return;

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from "react";
 import {
   fmCrosspostSiteNameSetting,
@@ -68,6 +69,7 @@ const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
 const FMCrosspostAccount = ({fmCrosspostUserId}: {
   fmCrosspostUserId: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const apolloClient = useForeignApolloClient();
   const { loading, data } = useQuery(UsersCrosspostInfoQuery, {
@@ -76,12 +78,12 @@ const FMCrosspostAccount = ({fmCrosspostUserId}: {
   });
   const document = data?.user?.result;
 
-  const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
+  const link = `${fmCrosspostBaseUrlSetting.get(forumType)}users/${document?.slug}`;
   if (!document || loading) {
     return <Loading/>
   }
   return <div className={classes.crosspostMessage}>
-    This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
+    This post will be crossposted to {fmCrosspostSiteNameSetting.get(forumType)} by
     your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
       {document.username}
     </a>
@@ -99,6 +101,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
   onClickLogin: () => void,
   onClickUnlink: () => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   if (loading) {
@@ -121,7 +124,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
       <div>
         <Button onClick={onClickLogin} className={classes.button}>
           <LoginIcon className={classes.buttonIcon} />
-          Login to {fmCrosspostSiteNameSetting.get()} to enable crossposting
+          Login to {fmCrosspostSiteNameSetting.get(forumType)} to enable crossposting
         </Button>
       </div>
     );
@@ -136,6 +139,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
 export const FMCrosspostControl = ({ field }: {
   field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null } | null | undefined>
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {isCrosspost} = field.state.value ?? {};
@@ -165,7 +169,7 @@ export const FMCrosspostControl = ({ field }: {
     try {
       const {token} = await generateTokenRoute.makeRequest({});
       if (token) {
-        const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
+        const url = combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", `crosspostLogin?token=${token}`);
         window.open(url, "_blank")?.focus();
       } else {
         setError("Couldn't create login token");
@@ -183,7 +187,7 @@ export const FMCrosspostControl = ({ field }: {
   return (
     <div className={classes.root}>
       <FormControlLabel
-        label={`Crosspost to ${fmCrosspostSiteNameSetting.get()}`}
+        label={`Crosspost to ${fmCrosspostSiteNameSetting.get(forumType)}`}
         control={
           <Checkbox
             checked={isCrosspost}

@@ -1438,7 +1438,7 @@ const EditorSettingsSidebar = ({
           </AccordionSection>
         )}
 
-        {hasGoogleDocImportSetting.get() && (
+        {hasGoogleDocImportSetting.get(forumType) && (
           <GoogleDocImportSection postId={initialData._id} />
         )}
 

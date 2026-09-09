@@ -46,7 +46,7 @@ import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentica
 
 async function sendWelcomeMessageTo(userId: string) {
   const context = createAnonymousContext();
-  const postId = welcomeEmailPostId.get();
+  const postId = welcomeEmailPostId.get(context);
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
     console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
@@ -69,7 +69,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // try to use forumTeamUserId as the sender,
   // and default to the admin account if not found
-  const adminUserId = forumTeamUserId.get()
+  const adminUserId = forumTeamUserId.get(context)
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
     adminsAccount = await getAdminTeamAccount(context)
@@ -133,7 +133,7 @@ async function sendVerificationEmail(user: DbUser) {
     subject: `Verify your ${forumTitleSetting.get()} email`,
     body: (emailContext) => <div>
       <p>
-        Click here to verify your {forumTitleSetting.get()} email
+        Click here to verify your {forumTitleSetting.get(emailContext.resolverContext)} email
       </p>
       <p>
         <a href={verifyEmailLink}>
@@ -153,10 +153,10 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    const sinceDaysAgo = sinceDaysAgoSetting.get();
+    const sinceDaysAgo = sinceDaysAgoSetting.get(context);
     const MS_PER_DAY = 24*60*60*1000;
     const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))
-    const changesAllowed = changesAllowedSetting.get();
+    const changesAllowed = changesAllowedSetting.get(context);
   
     // Count username changes in the relevant timeframe
     const nameChangeCount = await FieldChanges.find({

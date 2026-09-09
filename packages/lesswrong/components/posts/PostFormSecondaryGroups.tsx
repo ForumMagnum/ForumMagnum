@@ -207,8 +207,8 @@ const PostFormSecondaryGroups = ({
 
   const hideSocialPreviewGroup = !!initialData.collabEditorDialogue;
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
+  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get(forumType) || isEvent;
+  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get(forumType)?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
 

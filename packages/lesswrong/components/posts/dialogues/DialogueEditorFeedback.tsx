@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../../common/withUser';
@@ -29,6 +30,7 @@ type ClickState = 'unclicked' | 'success' | 'failure'
 export const DialogueEditorFeedback = ({post}: {
   post: PostsEdit,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [clickState, setClickState] = useState<ClickState>('unclicked');
   const user = useCurrentUser()
@@ -44,7 +46,7 @@ export const DialogueEditorFeedback = ({post}: {
           );
           setClickState('success')
         }}>
-          Get feedback or editing help from the {forumTitleSetting.get()} team.
+          Get feedback or editing help from the {forumTitleSetting.get(forumType)} team.
         </Button>
       : clickState === 'success'
         ? <div>Feedback requested!</div>

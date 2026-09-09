@@ -310,7 +310,7 @@ const UsersProfileFn = ({terms, slug}: {
     
 
     const username = userGetDisplayName(user, forumType)
-    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get(forumType)} — ${taglineSetting.get(forumType)}`
     
     const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
@@ -372,7 +372,7 @@ const UsersProfileFn = ({terms, slug}: {
             </Typography>
 
             {user.htmlBio && <ContentStyles contentType="post">
-              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get()}/>
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get(forumType)}/>
             </ContentStyles>}
           </SingleColumnSection>
 
@@ -397,7 +397,7 @@ const UsersProfileFn = ({terms, slug}: {
               <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
               <CommentsDraftList userId={user._id} initialLimit={5} sectionTitleStyle />
             </AnalyticsContext>
-            {hasEventsSetting.get() && <LocalGroupsList
+            {hasEventsSetting.get(forumType) && <LocalGroupsList
               view='userInactiveGroups'
               terms={{userId: currentUser?._id}}
               showNoResults={false}

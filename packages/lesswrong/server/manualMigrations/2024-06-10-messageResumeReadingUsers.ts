@@ -11,7 +11,7 @@ import { backgroundTask } from '../utils/backgroundTask';
 
 const messageResumeReadingUsers = async (user: DbUser) => {
   const context = createAnonymousContext();
-  const adminEmail = adminAccountSetting.get()?.email ?? "";
+  const adminEmail = adminAccountSetting.get(context)?.email ?? "";
   const message = `<div
     <p>Hey ${userGetDisplayName(user, context.forumType)},</p>
     <p>I wanted to send you a heads up that we have removed the Resume Reading tab from the frontpage. You have been switched to the Enriched tab instead.</p>

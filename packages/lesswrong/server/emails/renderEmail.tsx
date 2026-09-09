@@ -194,12 +194,12 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     wordwrap: plainTextWordWrap
   });
   
-  const fromAddress = from || defaultEmailSetting.get()
+  const fromAddress = from || defaultEmailSetting.get(theme.forumType)
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = forumTitleSetting.get();
+  const sitename = forumTitleSetting.get(theme.forumType);
   if (!sitename) {
     throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
   }

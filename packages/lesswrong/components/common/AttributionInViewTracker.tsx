@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useCallback, useState } from 'react';
 import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
@@ -17,6 +18,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   observerProps?: Record<string,any>,
   children?: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const { setNode, entry } = useIsInView(observerProps);
   const [alreadySent, setAlreadySent] = useState(false);
   const currentUser = useCurrentUser();
@@ -31,7 +33,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
     if (!!entry && attributedUserId) {
       const { isIntersecting, intersectionRatio } = entry;
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {
-        if (recombeeEnabledSetting.get()) {
+        if (recombeeEnabledSetting.get(forumType)) {
           const { post, ...recombeeEventProps } = eventProps;
           if (isRecombeeRecommendablePost(post)) {
             const postId = post._id;

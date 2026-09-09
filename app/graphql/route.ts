@@ -33,7 +33,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     }
 
     let startedRequestMetric: IncompletePerfMetric;
-    if (performanceMetricLoggingEnabled.get()) {
+    if (performanceMetricLoggingEnabled.get(context)) {
       startedRequestMetric = openPerfMetric({
         op_type: 'query',
         op_name: operationName,
@@ -45,7 +45,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     
     return {
       async willSendResponse() { // hook for transaction finished
-        if (performanceMetricLoggingEnabled.get()) {
+        if (performanceMetricLoggingEnabled.get(context)) {
           closePerfMetric(startedRequestMetric);
         }
       }

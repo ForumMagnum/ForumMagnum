@@ -28,7 +28,7 @@ export const petrovDay2024GraphQLTypeDefs = gql`
 
 export const petrovDay2024GraphQLQueries = {
   async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
-    const startTime = new Date(petrovBeforeTime.get())
+    const startTime = new Date(petrovBeforeTime.get(context))
     const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}).fetch()
 
     if (!inWarningWindow(new Date().getMinutes()) || !context.currentUser) {

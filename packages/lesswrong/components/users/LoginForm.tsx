@@ -104,7 +104,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   startingState?: possibleActions,
   returnTo?: string
 }) => {
-  const { isAF } = useForumType();
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const hasSubscribeToCuratedCheckbox = !isAF;
 
@@ -214,7 +214,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
+    {reCaptchaSiteKeySetting.get(forumType) && <DeferRender ssr={false}>
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
     </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>

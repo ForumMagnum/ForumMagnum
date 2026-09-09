@@ -148,7 +148,7 @@ const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDef
         throw new Error("You must be an admin to use this resolver")
       }
 
-      const threshold = twitterBotKarmaThresholdSetting.get();
+      const threshold = twitterBotKarmaThresholdSetting.get(context);
 
       const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ limit, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();

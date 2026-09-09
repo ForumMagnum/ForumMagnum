@@ -50,7 +50,7 @@ const createOrUpdateSeasonalOpenThread = async (
   }
 
   const context = await computeContextFromUser({ user: author, isSSR: false });
-  const openThreadTagId = openThreadTagIdSetting.get();
+  const openThreadTagId = openThreadTagIdSetting.get(context);
   const existingPost = await Posts.findOne({
     title: info.title,
     [`tagRelevance.${openThreadTagId}`]: { $gte: 1 },

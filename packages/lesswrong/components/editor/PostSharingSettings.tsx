@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {FC, useCallback, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
@@ -187,6 +188,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
@@ -263,7 +265,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
       
       <p className={classes.warning}>
         Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
-        {moderationEmail.get()} if you experience issues
+        {moderationEmail.get(forumType)} if you experience issues
       </p>
 
       <div className={classes.buttonRow}>

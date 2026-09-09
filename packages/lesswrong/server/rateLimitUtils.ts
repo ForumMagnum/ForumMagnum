@@ -207,7 +207,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
     ? []
     : manualCommentRateLimits.map(rateLimit => getManualRateLimitInfo(rateLimit, commentsOnOthersPostsInTimeframe))
 
-  const autoRateLimits = forumSelect(autoCommentRateLimits)
+  const autoRateLimits = forumSelect(autoCommentRateLimits, context)
   const filteredAutoRateLimits = autoRateLimits?.filter(rateLimit => {
     if (userIsAuthor) return rateLimit.appliesToOwnPosts
     return true 
@@ -247,7 +247,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser, context:
 
   // what's the longest rate limit timeframe being evaluated?
   const manualPostRateLimitHours = getMaxManualRateLimitHours(manualPostRateLimits);
-  const maxPostAutolimitHours = getMaxAutoLimitHours(forumSelect(autoPostRateLimits));
+  const maxPostAutolimitHours = getMaxAutoLimitHours(forumSelect(autoPostRateLimits, context));
   const maxHours = Math.max(modRateLimitHours, manualPostRateLimitHours, maxPostAutolimitHours);
 
   // fetch the posts from within the maxTimeframe
@@ -274,7 +274,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const manualCommentRateLimitHours = getMaxManualRateLimitHours(manualCommentRateLimits);
 
   // what's the longest rate limit timeframe being evaluated?
-  const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits))
+  const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits, context))
   const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours, manualCommentRateLimitHours);
 
   // fetch the comments from within the maxTimeframe
@@ -452,8 +452,8 @@ export async function checkForStricterRateLimits(userId: string, documentId: str
 async function checkForLoosenedRateLimits(userId: string, userKarmaInfoWindow: UserKarmaInfoWindow, documentId: string, collectionName: CollectionNameString, triggeredAt: Date, context: ResolverContext) {
   const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, context);
+  const postRateLimits = forumSelect(autoPostRateLimits, context);
 
   if (!commentRateLimits || !postRateLimits) return;
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
@@ -29,6 +30,7 @@ const UserCommentMarkers = ({user, isPostAuthor, className}: {
   isPostAuthor?: boolean,
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   if (!user) {
@@ -55,7 +57,7 @@ const UserCommentMarkers = ({user, isPostAuthor, className}: {
       {showNewUserIcon &&
         <LWTooltip
           placement="bottom-start"
-          title={`${user.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
+          title={`${user.displayName} is either new on ${siteNameWithArticleSetting.get(forumType)} or doesn't have much karma yet.`}
           className={classes.iconWrapper}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />

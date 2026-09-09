@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Paper }from '@/components/widgets/Paper';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -208,6 +209,7 @@ const SharePostPopup = ({post, onClose}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   onClose: () => void;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
@@ -246,7 +248,7 @@ const SharePostPopup = ({post, onClose}: {
     window.open(url, "_blank");
   };
 
-  const siteName = forumTitleSetting.get();
+  const siteName = forumTitleSetting.get(forumType);
   const linkTitle = `${post.title} - ${siteName}`;
 
   const shareToTwitter = () => {
@@ -312,7 +314,7 @@ const SharePostPopup = ({post, onClose}: {
           </div>
           <div className={classes.sharePost}>Share post</div>
           <div className={classes.contentContainer}>
-            <img className={classes.image} src={post.socialPreviewData.imageUrl || siteImageSetting.get()} />
+            <img className={classes.image} src={post.socialPreviewData.imageUrl || siteImageSetting.get(forumType)} />
             <div className={classes.postPreviewTextWrapper}>
               <div className={classes.postTitle}>{post.title}</div>
               <div className={classes.postPreviewText}>{getPostDescription(post)}</div>

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import React, { ComponentProps } from 'react';
@@ -79,10 +80,11 @@ const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | nu
 };
 
 const WelcomeBox = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-  const data = forumSelect(welcomeBoxes);
+  const data = forumSelect(welcomeBoxes, forumType);
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_WELCOME_BOX_COOKIE]);
 
   const canShow = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && data && !cookies[HIDE_WELCOME_BOX_COOKIE];
