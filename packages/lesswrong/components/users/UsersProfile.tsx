@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -12,7 +13,7 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -163,6 +164,7 @@ const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -187,7 +189,7 @@ const UsersProfileFn = ({terms, slug}: {
   const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (isAF()) {
+    if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -208,19 +210,19 @@ const UsersProfileFn = ({terms, slug}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = !isAF() ? postCount || 0 : afPostCount || 0
-    const userCommentCount = !isAF() ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { !isAF() && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
           <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Karma">
             {userKarma}
           </MetaInfo>
         </TooltipSpan>}
 
-        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF()) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
           <OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Alignment Karma">
             {userAfKarma}
@@ -310,7 +312,7 @@ const UsersProfileFn = ({terms, slug}: {
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
-    const nonAFMember = (isAF() && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
     const showMessageButton = currentUser?._id !== user._id
 

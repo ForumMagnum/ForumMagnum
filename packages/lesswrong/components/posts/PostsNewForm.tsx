@@ -1,11 +1,11 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -173,6 +173,7 @@ const PostsNewForm = () => {
   return <PostsNewFormInner key={pathname}/>;
 }
 const PostsNewFormInner = () => {
+  const { isAF } = useForumType();
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
@@ -228,7 +229,7 @@ const PostsNewFormInner = () => {
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      af: isAF() || (query && !!query.af),
+      af: isAF || (query && !!query.af),
     };
   }
 

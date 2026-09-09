@@ -1,7 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { isAF } from '../../../lib/instanceSettings';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -17,6 +17,7 @@ const PostsListUpdateMutation = gql(`
 `);
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
+  const { isAF } = useForumType();
   const currentUser = useCurrentUser();
   const [updatePost] = useMutation(PostsListUpdateMutation);
   
@@ -53,7 +54,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
     return null;
   }
-  if (isAF()) {
+  if (isAF) {
     return null;
   }
 

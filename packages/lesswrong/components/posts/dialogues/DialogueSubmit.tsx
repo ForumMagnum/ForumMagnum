@@ -1,8 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
-import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { EditorContext } from '../EditorContext';
 import { useNavigate } from '../../../lib/routeUtil';
@@ -55,6 +55,7 @@ export const DialogueSubmit = ({
   submitLabel = "Submit",
   saveDraftLabel = "Save as draft",
 }: DialogueSubmitProps) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   if (!currentUser) throw Error("must be logged in to post")
@@ -77,7 +78,7 @@ export const DialogueSubmit = ({
 
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW() && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
   const showShortformButton = !!userShortformId && !isFriendlyUI();
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;

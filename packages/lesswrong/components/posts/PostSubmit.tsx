@@ -1,9 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { isLW, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
+import { requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -65,6 +66,7 @@ export const PostSubmit = ({
   claudeButton,
   cancelCallback,
 }: PostSubmitProps) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
@@ -84,7 +86,7 @@ export const PostSubmit = ({
     await formApi.handleSubmit();
   };
 
-  const requireConfirmation = isLW() && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()

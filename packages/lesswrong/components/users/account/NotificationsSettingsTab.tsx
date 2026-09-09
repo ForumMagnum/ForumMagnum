@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { hasEventsSetting, isLW } from '@/lib/instanceSettings';
+import { hasEventsSetting } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -18,6 +19,7 @@ const NotificationsSettingsTab = ({
   isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isLW } = useForumType();
   return (
     <div>
       <SettingsSection title="Auto-Subscriptions">
@@ -246,7 +248,7 @@ const NotificationsSettingsTab = ({
           <UsersEmailVerification />
         </div>}
 
-        {isLW() && <div className={fieldWrapperClass}>
+        {isLW && <div className={fieldWrapperClass}>
           <EmailConfirmationRequiredCheckbox
             field={bind('emailSubscribedToCurated')}
             label="Email me new posts in Curated"

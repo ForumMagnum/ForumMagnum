@@ -1,8 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import TagExcerpt from "../common/excerpts/TagExcerpt";
@@ -52,6 +52,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
   hash?: string,
   activeTab?: number,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
 
@@ -59,7 +60,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
     return null
   }
 
-  const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
+  const showCustomDescriptionHighlight = isLW && tag.core && !hash;
 
   let highlight: string | undefined;
   // If we're on LW and previewing a core tag (but not a section within it), show the custom description

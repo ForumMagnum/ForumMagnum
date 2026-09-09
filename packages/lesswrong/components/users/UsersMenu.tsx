@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { MouseEvent, useContext } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
@@ -15,7 +16,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
+import { blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -103,6 +104,7 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
 }))
 
 const UsersMenu = () => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -122,7 +124,7 @@ const UsersMenu = () => {
     </div>
   }
   
-  const showNewButtons = (!isAF() || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
     ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
@@ -139,7 +141,7 @@ const UsersMenu = () => {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
   /** Prevent navigation to your dashboard on mobile, where the only way to open
@@ -217,7 +219,7 @@ const UsersMenu = () => {
 
               <DropdownDivider />
 
-              {isAF() && !isAfMember &&
+              {isAF && !isAfMember &&
                 <DropdownItem
                   title={"Apply for Membership"}
                   onClick={() => {

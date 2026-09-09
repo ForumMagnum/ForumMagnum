@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {useState, useEffect, useRef} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
@@ -12,7 +13,7 @@ import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isAF, isLW } from '../../lib/instanceSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
@@ -104,6 +105,7 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
  * so for logged in users, hiding one ad hides the other.
  */
 const RecentDiscussionSubscribeReminder = () => {
+  const { isAF, isLW } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -132,7 +134,7 @@ const RecentDiscussionSubscribeReminder = () => {
   }, [adminBranch, currentUser?.isAdmin]);
 
   // disable on AlignmentForum
-  if (isAF()) {
+  if (isAF) {
     return null;
   }
 
@@ -200,7 +202,7 @@ const RecentDiscussionSubscribeReminder = () => {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     let confirmText;
-    if (isLW()) {
+    if (isLW) {
       confirmText = "You are subscribed to the best posts of LessWrong!";
     } else {
       confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;

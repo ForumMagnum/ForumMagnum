@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting, isAF } from '../../lib/instanceSettings';
+import { reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -103,8 +104,9 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   startingState?: possibleActions,
   returnTo?: string
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const hasSubscribeToCuratedCheckbox = !isAF();
+  const hasSubscribeToCuratedCheckbox = !isAF;
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);

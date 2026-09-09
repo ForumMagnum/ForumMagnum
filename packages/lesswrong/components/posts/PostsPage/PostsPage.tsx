@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
@@ -6,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
@@ -266,6 +267,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
@@ -537,7 +539,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, isAF})}/>
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
@@ -581,7 +583,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  if (isAF() && !post.af) {
+  if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
@@ -702,7 +704,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
-            {isAF() && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>
         </div>

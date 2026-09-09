@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef } from 'react';
-import { hasEventsSetting, isAF, isEAForum, isLW } from '@/lib/instanceSettings';
+import { hasEventsSetting, isEAForum } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
@@ -22,6 +23,7 @@ const PreferencesSettingsTab = ({
   currentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isAF, isLW } = useForumType();
   // googleLocation has a companion plain-string field ("location") that
   // LocationFormComponent sets through form.setFieldValue just before it
   // calls handleChange; stash it so both fields save in one mutation.
@@ -108,7 +110,7 @@ const PreferencesSettingsTab = ({
       </SettingsSection>
 
       <SettingsSection title="Frontpage">
-        {isLW() && (
+        {isLW && (
           <SettingsToggleRow
             value={settings.hideFrontpageMap}
             onChange={(value) => void updateSettings({ hideFrontpageMap: value })}
@@ -122,7 +124,7 @@ const PreferencesSettingsTab = ({
             label="Hide the frontpage book ad"
           />
 
-        {isAF() && (
+        {isAF && (
           <SettingsToggleRow
             value={settings.hideAFNonMemberInitialWarning}
             onChange={(value) => void updateSettings({ hideAFNonMemberInitialWarning: value })}

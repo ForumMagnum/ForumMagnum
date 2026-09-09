@@ -1,7 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef } from "react";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
-import { isAF } from "../../lib/instanceSettings";
 import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import TruncatedAuthorsList from "./TruncatedAuthorsList";
@@ -79,12 +79,13 @@ const FeedPostCardMeta = ({post, className}: {
   useEventStyles?: boolean,
   className?: string,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 
-  const baseScore = (isAF() ? post.afBaseScore : post.baseScore) ?? 0
-  const showAfScore = !isAF() && post.af && !post.shortform && !post.isEvent;
+  const baseScore = (isAF ? post.afBaseScore : post.baseScore) ?? 0
+  const showAfScore = !isAF && post.af && !post.shortform && !post.isEvent;
   const afBaseScore = showAfScore ? post.afBaseScore : null
 
   const separatorElement = <span className={classes.dot}>·</span>

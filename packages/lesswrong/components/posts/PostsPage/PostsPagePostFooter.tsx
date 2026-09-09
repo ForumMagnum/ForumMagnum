@@ -1,8 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -83,6 +83,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -99,7 +100,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
         </AnalyticsContext>
       </SuspenseWrapper>
     }
-    {!post.shortform && isLW() &&
+    {!post.shortform && isLW &&
       <>
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, classes.lwVote)}>

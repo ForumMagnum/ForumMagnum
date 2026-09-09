@@ -1,6 +1,6 @@
 import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isLW } from "@/lib/instanceSettings";
+import { useForumType } from "@/components/hooks/useForumType";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
@@ -54,10 +54,10 @@ const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit') {
+function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit', isLW: boolean) {
   // On AF, only moderators can set this field when creating a tag.
   if (formType === 'new') {
-    return isLW() || userIsAdminOrMod(currentUser);
+    return isLW || userIsAdminOrMod(currentUser);
   }
 
   return userIsAdminOrMod(currentUser);
@@ -93,6 +93,7 @@ export const TagForm = ({
   onCancel?: () => void;
   onChange?: () => void;
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   
@@ -131,7 +132,7 @@ export const TagForm = ({
 
         if (formType === 'new') {
           const { wikiOnly, ...rest } = formApi.state.values;
-          const createData = showWikiOnlyField(currentUser, formType) ? { ...rest, wikiOnly } : rest;
+          const createData = showWikiOnlyField(currentUser, formType, isLW) ? { ...rest, wikiOnly } : rest;
 
           const { data } = await create({ variables: { data: createData } });
           if (!data?.createTag?.data) {
@@ -384,7 +385,7 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {showWikiOnlyField(currentUser, formType) && <div className={classes.fieldWrapper}>
+          {showWikiOnlyField(currentUser, formType, isLW) && <div className={classes.fieldWrapper}>
             <form.Field name="wikiOnly">
               {(field) => (
                 <FormComponentCheckbox

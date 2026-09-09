@@ -1,9 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
-import {
-  fmCrosspostSiteNameSetting,
-  fmCrosspostBaseUrlSetting,
-  isLW,
-} from "../../../lib/instanceSettings";
+import { fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
@@ -27,12 +24,13 @@ const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
 const CrosspostHeaderIcon = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
 
   if (!post.fmCrosspost) {
     return null;
   }
-  const icon = isLW() ? lightbulbIcon : compassIcon;
+  const icon = isLW ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;

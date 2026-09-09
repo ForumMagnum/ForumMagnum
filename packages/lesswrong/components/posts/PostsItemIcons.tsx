@@ -1,9 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 import { recombeeApi } from '@/lib/recombee/client';
@@ -123,6 +124,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
@@ -156,7 +158,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
       </LWTooltip>
     </span>}
 
-    {!isAF() && post.af && <span className={classes.postIcon}>
+    {!isAF && post.af && <span className={classes.postIcon}>
       <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
           <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>

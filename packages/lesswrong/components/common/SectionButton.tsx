@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames'
-import { isAF } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import { Typography } from "./Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -14,12 +14,11 @@ const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
     '& svg': {
       marginRight: 8
     },
-    
-    ...(isAF() && {
-      marginTop: 4,
-      fontWeight: 500,
-    }),
-  }
+  },
+  af: {
+    marginTop: 4,
+    fontWeight: 500,
+  },
 }))
 
 const SectionButton = ({children, className, onClick}: {
@@ -27,12 +26,13 @@ const SectionButton = ({children, className, onClick}: {
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
 
   return <Typography
     component='span'
     variant='body2'
-    className={classNames(classes.root, className)}
+    className={classNames(classes.root, { [classes.af]: isAF }, className)}
     onClick={onClick}
   >
     {children}

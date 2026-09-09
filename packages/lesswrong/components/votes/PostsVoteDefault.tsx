@@ -1,7 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -88,6 +88,7 @@ const PostsVoteDefault = ({
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
@@ -142,7 +143,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF() &&
+        {!!post.af && !!post.afBaseScore && !isAF &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
@@ -435,6 +436,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
 export type PostsList2Props = PostsItemConfig;
 
 const LWPostsItem = (props: PostsItemConfig) => {
+  const { isLW } = useForumType();
   const {
     post,
     postLink,
@@ -571,7 +573,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
 
-              {isLW() && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
                 {post.rsvpCounts?.yes && <>
                   <ResponseIcon response="yes"/>
                   <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>

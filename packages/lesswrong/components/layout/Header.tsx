@@ -9,7 +9,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { useLocation } from '../../lib/routeUtil';
 import SearchBar from "@/components/common/SearchBar";
@@ -599,4 +599,3 @@ export default registerComponent('Header', Header, {
   areEqual: "auto",
   hocs: [withErrorBoundary]
 });
-

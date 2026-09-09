@@ -1,5 +1,6 @@
 'use client';
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from '@/components/themes/useTheme';
@@ -11,7 +12,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -170,6 +171,7 @@ const isPathnameWithHiddenFloatingButtons = (pathname: string) =>
 const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
@@ -184,7 +186,7 @@ const Layout = ({children}: {
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
 
-  // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // isLW && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
@@ -246,7 +248,7 @@ const Layout = ({children}: {
                 <FlashMessages />
               </ErrorBoundary>
 
-              {isLW() && <LWBackgroundImage />}
+              {isLW && <LWBackgroundImage />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
@@ -348,6 +350,7 @@ const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme
 function PageBackgroundWrapper({children}: {
   children: React.ReactNode
 }) {
+  const { isAF, isLW } = useForumType();
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
@@ -356,11 +359,11 @@ function PageBackgroundWrapper({children}: {
     getHomeDesignActiveSnapshot,
     () => false
   );
-  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
+  const isSandboxedHomePage = isLW && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
     "wrapper", classes.wrapper, {
-      'alignment-forum': isAF(),
+      'alignment-forum': isAF,
       [classes.fullscreen]: isFullscreenRoute(pathname),
       'home-design-active': isSandboxedHomePage,
       'research-active': isResearchRoute(pathname),

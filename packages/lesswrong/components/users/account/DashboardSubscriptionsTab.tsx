@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useState } from 'react';
 import { useCurrentUser } from '@/components/common/withUser';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -9,7 +10,6 @@ import {
   allowSubscribeToUserComments,
   userHasSubscribeTabFeed,
 } from '@/lib/betas';
-import { isLW } from '@/lib/instanceSettings';
 import UsersNameDisplay from '../UsersNameDisplay';
 import SubscriptionsList from '../SubscriptionsList';
 import {
@@ -41,6 +41,7 @@ const notificationSettingsLink = (
 );
 
 const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount: boolean}) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [sectionResults, setSectionResults] = useState<Record<string, boolean>>({});
@@ -136,7 +137,7 @@ const DashboardSubscriptionsTab = ({userId, isOwnAccount}: {userId: string, isOw
       renderDocument={(post) => post.title}
     />,
 
-    ...(isLW() ? [
+    ...(isLW ? [
       <SubscriptionsList
         {...sharedProps}
         key="newDebateComments"
