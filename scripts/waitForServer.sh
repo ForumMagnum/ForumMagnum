@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Repeatedly try to download localhost:3000, until successful.
 
 while ! curl --silent -o /dev/null http://localhost:3000/robots.txt

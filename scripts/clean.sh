@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Remove all intermediate files from the working directory, restoring it to a
 # fresh checkout. (Like "make clean")
 
