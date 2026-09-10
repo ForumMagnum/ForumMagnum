@@ -1,280 +1,37 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useId } from 'react';
+import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import classNames from 'classnames';
-import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import withErrorBoundary from '../common/withErrorBoundary';
-import { getSearchIndexName, getSearchClient, isSearchEnabled, SearchIndexCollectionName } from '../../lib/search/searchUtil';
-import { useSearchAnalytics } from '../search/useSearchAnalytics';
-import { useCurrentUser } from './withUser';
-import { useNavigate } from '../../lib/routeUtil';
-import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { createPortal } from 'react-dom';
-import { searchPageLink } from '../search/searchPageUrl';
-import SearchBarResults from "../search/SearchBarResults";
-import { getVisibleSearchResults, getSearchResultsSignature, selectSearchResult, getNextSearchResultIndex } from '../search/searchBarNavigation';
-import ForumIcon from "./ForumIcon";
+import withErrorBoundary from './withErrorBoundary';
+import { isSearchEnabled } from '../../lib/search/searchUtil';
+import ForumIcon from './ForumIcon';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useGlobalKeydown } from './withGlobalKeydown';
-import { useSearchHistory } from '../search/useSearchHistory';
+import SearchModal from '../search/SearchModal';
 
-const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
-  root: {
-    display: 'flex',
-    alignItems: 'center',
-    minWidth: 48,
-    flexShrink: 0,
-    '& :focus': {
-      outline: 'none',
-    },
-  },
-  rootOpen: {
-    [theme.breakpoints.up('md')]: {
-      width: 300,
-    },
-  },
-  rootChild: {
-    minWidth: 0,
-    width: '100%',
-  },
-  searchInputArea: {
-    display: "block",
-    position: "relative",
-    minWidth: 48,
-    height: 48,
+const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
+  root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0},
+  searchIcon: {'--icon-size': '24px'},
+  searchIconButton: {color: theme.palette.header.text, flexShrink: 0},
+}));
 
-    "& .ais-SearchBox": {
-      display: 'none',
-      position: 'relative',
-      flex: 1,
-      minWidth: 0,
-      height: 48,
-      whiteSpace: 'nowrap',
-      boxSizing: 'border-box',
-      fontSize: 14,
-    },
-    "& .ais-SearchBox-form": {
-      height: '100%'
-    },
-    "& .ais-SearchBox-submit":{
-      display: "none"
-    },
-    "& .ais-SearchBox-input": {
-      display:"none",
-
-      height: "100%",
-      width: "100%",
-      paddingRight: 44,
-      paddingLeft: 0,
-      boxSizing: 'border-box',
-      verticalAlign: "bottom",
-      borderStyle: "none",
-      boxShadow: "none",
-      backgroundColor: "transparent",
-      fontSize: 'inherit',
-      "-webkit-appearance": "none",
-      cursor: "text",
-      borderRadius: 0,
-    },
-    "&.open": {
-      width: '100%',
-      height: 'var(--header-height)',
-    },
-    "&.open .ais-SearchBox": {
-      display: "inline-block",
-    },
-    "&.open .ais-SearchBox-input": {
-      display:"inline-block",
-    },
-    [theme.breakpoints.down('sm')]: {
-      "&.open": {
-        width: 48,
-      },
-      "&.open .ais-SearchBox": {
-        position: 'fixed',
-        top: 'var(--header-height)',
-        left: 0,
-        width: '100%',
-        height: 48,
-        backgroundColor: theme.palette.panelBackground.default,
-        boxShadow: theme.palette.boxShadow.searchResults,
-        fontSize: 16,
-      },
-      "& .ais-SearchBox-input": {
-        paddingLeft: 16,
-        paddingRight: 48,
-      },
-    },
-  },
-  historyHint: {
-    ...theme.typography.body2,
-    padding: '8px 12px',
-    fontSize: 12,
-    backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.text.dim,
-  },
-  clearHistory: {
-    display: 'block',
-    padding: '8px 0',
-    border: 'none',
-    background: 'transparent',
-    color: theme.palette.primary.main,
-    cursor: 'pointer',
-    '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`},
-  },
-  inputControls: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '100%',
-  },
-  backdrop: {
-    display: 'none',
-    position: "fixed",
-    inset: 0,
-    zIndex: 1,
-    backgroundColor: theme.palette.greyAlpha(0.12),
-    [theme.breakpoints.up('md')]: {
-      display: 'block',
-    },
-  },
-  activeInput: {
-    zIndex: 2,
-    backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.text.normal,
-    "&&& .ais-SearchBox-input, &&& .ais-SearchBox-input::placeholder, &&& .SearchBar-searchIcon": {
-      color: theme.palette.text.normal,
-    },
-    [theme.breakpoints.down('sm')]: {
-      borderRadius: '4px 4px 0 0',
-      "& $searchIconButton": {
-        // Keep the active tab above the search field's shadow.
-        position: 'relative',
-        zIndex: 1,
-        height: '100%',
-        borderRadius: '4px 4px 0 0',
-        backgroundColor: theme.palette.panelBackground.default,
-        '&:hover': {
-          backgroundColor: theme.palette.panelBackground.default,
-        },
-      },
-    },
-  },
-  searchInputAreaSmall: {},
-  searchIcon: {
-    "--icon-size": "24px",
-  },
-  searchIconButton: {
-    color: theme.palette.header.text ,
-    flexShrink: 0,
-  },
-  searchIconButtonSmall: {},
-  closeSearchIcon: {
-    fontSize: 14,
-  },
-  searchBarClose: {
-    display: "inline-block",
-    position: "absolute",
-    top: '50%',
-    transform: 'translateY(-50%)',
-    right: 16,
-    cursor: "pointer",
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  clearSearch: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline-flex',
-      position: 'fixed',
-      top: 'var(--header-height)',
-      right: 0,
-      width: 48,
-      height: 48,
-      color: theme.palette.text.normal,
-    },
-  },
-}))
-
-const SearchBar = ({onSetIsActive, searchResultsArea}: {
+const SearchBar = ({onSetIsActive}: {
   onSetIsActive: (active: boolean) => void,
-  searchResultsArea: React.RefObject<HTMLDivElement | null>,
 }) => {
   const classes = useStyles(styles);
-  const inputAreaRef = useRef<HTMLDivElement>(null);
-  const currentUser = useCurrentUser()
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const [enabledKinds, setEnabledKinds] = useState<SearchIndexCollectionName[]>([]);
-  const [inputOpen,setInputOpen] = useState(false);
-  const [searchState, setSearchState] = useState({query: ""});
-  const currentQuery = searchState.query ?? "";
-  const [inputFocused, setInputFocused] = useState(false);
-  const hintId = useId();
-  const {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory, error: historyError} = useSearchHistory(currentUser?._id, inputOpen);
-  const showHistoryHint = !!currentUser && inputFocused && !currentQuery && inputOpen;
-  useEffect(() => {
-    if (!inputOpen) return;
-    const area = searchResultsArea.current;
-    let results = getVisibleSearchResults(area);
-    let signature = getSearchResultsSignature(results);
-    selectSearchResult(area, results[0]);
-
-    // Preserve the selected row when another page is appended. A new query or
-    // content-kind filter replaces the rows and selects the first new result.
-    const observer = new MutationObserver(() => {
-      const nextResults = getVisibleSearchResults(area);
-      const nextSignature = getSearchResultsSignature(nextResults);
-      if (nextSignature !== signature || nextResults.some((result, index) => result !== results[index])) {
-        const selected = results.find(result => result.closest('[data-search-selected]'));
-        results = nextResults;
-        signature = nextSignature;
-        if (!selected || !results.includes(selected)) selectSearchResult(area, results[0]);
-      }
-    });
-    if (area) observer.observe(area, {childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class', 'href']});
-    return () => observer.disconnect();
-  }, [currentQuery, inputOpen, searchResultsArea]);
-  useEffect(() => {
-    if (inputOpen) inputAreaRef.current?.querySelector("input")?.focus();
-  }, [inputOpen]);
-  const navigate = useNavigate();
-  const captureSearch = useSearchAnalytics();
-
-  const handleSubmit = () => {
-    recordSearch(currentQuery);
-    navigate(searchPageLink(currentQuery, enabledKinds));
-    closeSearch()
-  }
-  
-  useOnNavigate(() => {
-    closeSearch();
-  });
-
-
+  const [inputOpen, setInputOpen] = useState(false);
   const closeSearch = () => {
-    resetNavigation();
     setInputOpen(false);
-    setSearchState(previous => ({...previous, query: ""}));
-    if (onSetIsActive)
-      onSetIsActive(false);
-  }
-
-  const clearSearch = () => {
-    resetNavigation();
-    setSearchState(previous => ({...previous, query: ""}));
-    inputAreaRef.current?.querySelector('input')?.focus();
+    onSetIsActive(false);
   };
-
   const handleSearchTap = () => {
     setInputOpen(true);
-    if (onSetIsActive)
-      onSetIsActive(true);
-  }
+    onSetIsActive(true);
+  };
+  useOnNavigate(closeSearch);
 
   useGlobalKeydown((event) => {
     if (event.defaultPrevented || !isSearchEnabled() || event.isComposing
@@ -295,129 +52,18 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
     }
   });
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.defaultPrevented || event.nativeEvent.isComposing) return;
-    if (inputOpen && currentUser && event.target instanceof HTMLInputElement
-      && event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
-      && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-      event.preventDefault();
-      event.stopPropagation();
-      setSearchState({query: recallSearch(currentQuery, event.key)});
-      return;
-    }
-    if (inputOpen && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
-      && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
-      const input = inputAreaRef.current?.querySelector('input');
-      const results = getVisibleSearchResults(searchResultsArea.current);
-      const focusedIndex = results.findIndex(result => result === event.target);
-      const currentIndex = event.target === input
-        ? results.findIndex(result => result.closest('[data-search-selected]'))
-        : focusedIndex;
-      if (event.target === input || focusedIndex !== -1) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!results.length) return;
-        const nextIndex = getNextSearchResultIndex(currentIndex, results.length, event.key);
-        selectSearchResult(searchResultsArea.current, results[nextIndex]);
-        input?.focus({preventScroll: true});
-      }
-    }
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      event.stopPropagation();
-      closeSearch();
-    }
-    if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
-      event.preventDefault();
-      const selectedResult = getVisibleSearchResults(searchResultsArea.current)
-        .find(result => result.closest('[data-search-selected]'));
-      if (selectedResult) {
-        selectedResult.click();
-      } else {
-        handleSubmit();
-      }
-    }
-  }
+  if (!isSearchEnabled()) return null;
 
-  useEffect(() => {
-    if (currentQuery) {
-      captureSearch("searchBar", {query: currentQuery});
-    }
-  }, [currentQuery, captureSearch])
-  if (!isSearchEnabled()) {
-    return <div>Search is disabled (ElasticSearch not configured on server)</div>
-  }
+  return <div className={classes.root}>
+    <IconButton aria-label="Search" aria-haspopup="dialog" aria-expanded={inputOpen}
+      onClick={handleSearchTap} className={classes.searchIconButton}>
+      <ForumIcon icon="Search" className={classes.searchIcon} />
+    </IconButton>
+    {inputOpen && <SearchModal onClose={closeSearch} />}
+  </div>;
+};
 
-  return <div className={classNames(classes.root, {[classes.rootOpen]: inputOpen})} onKeyDown={handleKeyDown}>
-    <div className={classes.rootChild}>
-      {/* Snippet widgets need this context. Its static empty query does not search Elasticsearch. */}
-      <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
-        {inputOpen && <div className={classes.backdrop} onClick={closeSearch} aria-hidden="true" />}
-        <div ref={inputAreaRef} className={classNames(
-          classes.searchInputArea,
-          {"open": inputOpen, [classes.activeInput]: inputOpen},
-          {[classes.searchInputAreaSmall]: !currentUser}
-        )}>
-          <div className={classes.inputControls}>
-            <IconButton
-              aria-label="Search"
-              aria-expanded={inputOpen}
-              onClick={inputOpen ? closeSearch : handleSearchTap}
-              onFocus={(event) => {
-                if (event.currentTarget.matches(':focus-visible')) handleSearchTap();
-              }}
-              className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
-              <ForumIcon icon="Search" className={classes.searchIcon} />
-            </IconButton>
-            <div className="ais-SearchBox">
-              <form className="ais-SearchBox-form" role="search" onSubmit={(event) => {
-                event.preventDefault();
-                handleSubmit();
-              }}>
-                <input
-                  className="ais-SearchBox-input"
-                  type="search"
-                  aria-label="Search"
-                  placeholder="Search"
-                  aria-describedby={showHistoryHint ? hintId : undefined}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  autoComplete="off"
-                  value={currentQuery}
-                  onChange={(event) => {
-                    resetNavigation();
-                    setSearchState({query: event.target.value});
-                  }}
-                />
-              </form>
-            </div>
-          </div>
-          {inputOpen && <IconButton aria-label="Clear search" className={classes.clearSearch} onClick={clearSearch}>
-            <CloseIcon className={classes.closeSearchIcon}/>
-          </IconButton>}
-          { inputOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
-            <CloseIcon className={classes.closeSearchIcon}/>
-          </div>}
-          <div>
-            {mounted && searchResultsArea.current && createPortal(
-              <SearchBarResults enabledTypes={enabledKinds} onKindsChange={setEnabledKinds} closeSearch={closeSearch} recordSearch={() => recordSearch(currentQuery)} currentQuery={currentQuery} open={inputOpen}
-                searchHistoryControls={currentUser && !currentQuery && <div className={classes.historyHint}>
-                  {showHistoryHint && <div id={hintId}>Shift+↑ / Shift+↓: search history</div>}
-                  {hasHistory && <button type="button" className={classes.clearHistory}
-                    onClick={() => { void clearHistory(); }}>Clear search history</button>}
-                  {historyError && <div role="status">Could not update search history.</div>}
-                </div>}
-              />,
-              searchResultsArea.current
-            )}
-          </div>
-        </div>
-      </InstantSearch>
-    </div>
-  </div>
-}
-
-export default registerComponent("SearchBar", SearchBar, {
+export default registerComponent('SearchBar', SearchBar, {
   hocs: [withErrorBoundary],
-  areEqual: "auto",
+  areEqual: 'auto',
 });

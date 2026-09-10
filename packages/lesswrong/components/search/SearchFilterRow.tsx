@@ -7,7 +7,7 @@ const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
   header: {display: "flex", alignItems: "center", minWidth: 0},
   toggle: {
     ...theme.typography.body2,
-    display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0,
+    display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0,
     minHeight: 40, padding: "4px 0", border: "none", background: "transparent",
     color: theme.palette.text.normal, textAlign: "left", cursor: "pointer",
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
@@ -19,7 +19,7 @@ const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
     background: "transparent", color: theme.palette.primary.main, cursor: "pointer",
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
-  controls: {padding: "4px 0 12px", minWidth: 0, "&[hidden]": {display: "none"}},
+  controls: {padding: "2px 0 6px", minWidth: 0, "&[hidden]": {display: "none"}},
 }));
 
 interface SearchFilterRowProps {
@@ -29,21 +29,22 @@ interface SearchFilterRowProps {
   expanded: boolean;
   onToggle: () => void;
   onReset: () => void;
-  children: React.ReactNode;
+  controlsId?: string;
+  children?: React.ReactNode;
 }
 
-export default function SearchFilterRow({label, summary, active, expanded, onToggle, onReset, children}: SearchFilterRowProps) {
+export default function SearchFilterRow({label, summary, active, expanded, onToggle, onReset, controlsId, children}: SearchFilterRowProps) {
   const classes = useStyles(styles);
   const id = useId();
   return <div className={classes.root}>
     <div className={classes.header}>
-      <button type="button" className={classes.toggle} aria-expanded={expanded} aria-controls={id} onClick={onToggle}>
+      <button type="button" className={classes.toggle} aria-expanded={expanded} aria-controls={controlsId ?? id} onClick={onToggle}>
         <span aria-hidden="true">{expanded ? "−" : "+"}</span>
         <span className={classes.label}>{label}</span>
         <span className={classes.summary}>{summary}</span>
       </button>
       {active && <button type="button" className={classes.reset} aria-label={`Reset ${label.toLowerCase()}`} onClick={onReset}>Reset</button>}
     </div>
-    <div id={id} className={classes.controls} hidden={!expanded}>{children}</div>
+    {children !== undefined && <div id={id} className={classes.controls} hidden={!expanded}>{children}</div>}
   </div>;
 }

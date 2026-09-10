@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import qs from 'qs';
+import classNames from 'classnames';
 import { usePathname } from 'next/navigation';
 import { InstantSearch } from '@/lib/utils/componentsWithChildren';
 import { searchOriginDate } from '@/lib/instanceSettings';
@@ -15,6 +17,7 @@ import { searchFiltersToParams, SearchFilterState, emptySearchFilters, defaultSe
 import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { useCurrentUser } from '../common/withUser';
 import ErrorBoundary from '../common/ErrorBoundary';
 import ForumIcon from '../common/ForumIcon';
@@ -60,6 +63,103 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
       padding: "0 8px 40px",
     },
   },
+  modal: {
+    '--header-height': '0px',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    maxHeight: '100%',
+    minHeight: 0,
+    overflowY: 'auto',
+    overscrollBehavior: 'contain',
+    margin: 0,
+    padding: '0 24px 24px',
+    '& $sidebar': {maxHeight: 'calc(var(--search-viewport-height, 100dvh) - 56px)'},
+    '& $layout': {
+      flex: 1,
+      minHeight: 200,
+      overflowY: 'auto',
+      overscrollBehavior: 'contain',
+      gridTemplateColumns: '340px minmax(0, 1fr)',
+      gridTemplateAreas: '"sidebar results"',
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: '100%',
+      maxHeight: '100%',
+      margin: 0,
+      padding: '0 max(8px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left))',
+      '& $timeframePanel': {maxHeight: '45%', overflowY: 'auto'},
+      '& $layout': {
+        height: 'auto',
+        flex: 1,
+        minHeight: 160,
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        gridTemplateAreas: '"controls" "sidebar" "hits"',
+      },
+      '& $sidebar': {maxHeight: 'none'},
+      '& $topBar': {padding: '8px 0 4px'},
+      '& $searchBoxRow': {gap: 4, marginBottom: 4},
+      '& $kinds': {margin: 0, padding: '8px 0'},
+      '& $resultCount': {marginBottom: 8},
+      '& $historyHint': {marginTop: 0, marginBottom: 4},
+    },
+  },
+  timeframePanel: {
+    flexShrink: 0,
+    width: '100%',
+    maxWidth: 1200,
+    position: 'relative',
+    margin: '8px auto 0',
+    padding: '8px 12px 0px',
+    '& .SearchTimeframeBar-controls': {paddingRight: 60},
+    boxSizing: 'border-box',
+    backgroundColor: theme.palette.background.paper,
+    border: theme.palette.greyBorder('1px', 0.12),
+    borderRadius: 4,
+    scrollMarginTop: 'calc(var(--header-height) + 8px)',
+    [theme.breakpoints.down('sm')]: {padding: '4px 8px 8px', marginTop: 8},
+  },
+  // Rendered into the modal's slot above the dialog box. It stays mounted while
+  // collapsed so the dialog box keeps the same place on screen.
+  // It sits flush on the dialog box and paints above it. The clip drops the
+  // shadow below its bottom edge so the two boxes read as one.
+  timeframePanelModal: {
+    flexShrink: 0,
+    zIndex: 1,
+    margin: 0,
+    minHeight: 0,
+    overflowY: 'auto',
+    border: 'none',
+    borderRadius: '12px 12px 0 0',
+    boxShadow: `0 0 40px ${theme.palette.boxShadowColor(0.3)}`,
+    clipPath: 'inset(-48px -48px 0)',
+  },
+  timeframePanelCollapsed: {
+    visibility: 'hidden',
+  },
+  timeframeHeading: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    ...theme.typography.body2,
+    fontWeight: 500,
+    fontSize: 14,
+  },
+  mobileFiltersToggle: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {display: 'inline-flex', alignItems: 'center'},
+  },
+  closeButton: {
+    ...theme.typography.body2,
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.text.normal,
+    cursor: 'pointer',
+    minWidth: 44,
+    minHeight: 44,
+    flexShrink: 0,
+    '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`},
+  },
   topBar: {
     position: "sticky",
     top: "var(--header-height)",
@@ -70,32 +170,24 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
       gridArea: "controls",
     },
     backgroundColor: theme.palette.background.paper,
-    "&::before": {
-      content: '""',
-      position: "absolute",
-      bottom: "100%",
-      left: 0,
-      right: 0,
-      height: "var(--header-height)",
-      backgroundColor: theme.palette.background.paper,
-    },
+
   },
   layout: {
     display: "grid",
-    // Equal outer tracks keep the search column centered in the viewport.
-    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 760px) minmax(0, 1fr)",
+    // Keep the filter column wide enough for its controls; center results when space allows.
+    gridTemplateColumns: "minmax(340px, 1fr) minmax(0, 760px) minmax(0, 1fr)",
     gridTemplateAreas: '"sidebar results ."',
     gap: 24,
     alignItems: "start",
     "@media (max-width: 1399px)": {
-      gridTemplateColumns: "280px minmax(0, 760px)",
+      gridTemplateColumns: "340px minmax(0, 760px)",
       gridTemplateAreas: '"sidebar results"',
       justifyContent: "center",
     },
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: "minmax(0, 1fr)",
       gridTemplateAreas: '"controls" "sidebar" "hits"',
-      gap: 32,
+      gap: 8,
     },
   },
   sidebar: {
@@ -104,14 +196,14 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     top: "calc(var(--header-height) + 16px)",
     marginTop: 16,
     width: "100%",
-    maxWidth: 320,
+    maxWidth: 360,
     justifySelf: "end",
     boxSizing: "border-box",
     maxHeight: "calc(100dvh - var(--header-height) - 32px)",
     overflowY: "auto",
     overscrollBehavior: "contain",
     scrollbarGutter: "stable",
-    padding: "16px 24px 24px",
+    padding: "6px 12px 8px",
     backgroundColor: theme.palette.background.paper,
     border: theme.palette.greyBorder("1px", 0.08),
     borderRadius: 4,
@@ -119,9 +211,13 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       position: "static",
       maxWidth: "none",
-      maxHeight: "35dvh",
+      maxHeight: "none",
+      display: "none",
       marginTop: 0,
     },
+  },
+  mobileFiltersOpen: {
+    [theme.breakpoints.down('sm')]: {display: 'block'},
   },
   results: {
     gridArea: "results",
@@ -183,17 +279,24 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
   filters: {
-    marginTop: 24,
-    marginBottom: 16,
-    "& > div": {marginBottom: 20},
+    marginTop: 0,
+    marginBottom: 0,
   },
   kinds: {
     marginTop: 12,
     marginBottom: 12,
     justifyContent: "flex-start",
     gap: 8,
+    [theme.breakpoints.down('sm')]: {
+      margin: 0,
+      padding: "16px 0",
+      gap: 0,
+    },
   },
   postTypes: {flexWrap: "wrap"},
+  sortDescription: {
+    [theme.breakpoints.down('sm')]: {display: 'none'},
+  },
   resultCount: {
     ...theme.typography.body2,
     fontSize: 14,
@@ -205,6 +308,7 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     display: "flex",
     // Redistribute the row and hit's former bottom margins as vertical padding.
     padding: "12px 16px",
+    [theme.breakpoints.down('sm')]: {padding: '8px'},
     scrollMarginTop: 'calc(var(--header-height) + 160px)',
     scrollMarginBottom: 16,
     "&:hover, &:focus-within, &[data-search-selected]": {
@@ -255,7 +359,14 @@ function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
     .join(",");
 }
 
-const SearchPage = () => {
+interface SearchPageProps {
+  presentation?: 'page' | 'modal',
+  onClose?: () => void,
+  /** Where the modal shows the timeline on wide screens: above its dialog box instead of inside the search layout. */
+  timeframeSlot?: HTMLElement | null,
+}
+
+const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot}: SearchPageProps) => {
   // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
   const pathname = usePathname();
   const classes = useStyles(styles);
@@ -265,21 +376,34 @@ const SearchPage = () => {
   const captureSearch = useSearchAnalytics();
   const captureResultSelected = useCaptureSearchResultSelected();
   const hintId = useId();
+  const filtersId = useId();
+  const timeframeId = useId();
+  const timeframeRef = useRef<HTMLElement>(null);
+  // Phones keep the timeline inline, where the layout stacks anyway.
+  const timeframeSlot = useIsAboveBreakpoint('md') ? providedTimeframeSlot : null;
+  const layoutRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const writtenSearch = useRef<string | null>(null);
   const observedSearch = useRef(location.search);
-  const [expandedFilters, setExpandedFilters] = useState<string[]>(["sorting", "tags", "time", "events", "types", "authors", "karma"]);
-  const [state, setState] = useState<SearchPageState>(() => searchPageStateFromQuery(urlQuery));
+  const [expandedFilters, setExpandedFilters] = useState<string[]>([]);
+  const timeframeOpen = expandedFilters.includes('time');
+  useEffect(() => {
+    if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
+  }, [timeframeOpen, presentation]);
+  const [state, setState] = useState<SearchPageState>(() => searchPageStateFromQuery(presentation === 'page' || pathname === '/search' ? urlQuery : {}));
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
   // The indexed archive includes material from 2003, before the configured site origin.
   const scale = {originMs: Math.min(new Date(searchOriginDate.get()).getTime(), Date.UTC(2003, 0, 1)), nowMs};
-  const {recallSearch, recordSearch, resetNavigation} = useSearchHistory(currentUser?._id, true);
+  const {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory, error: historyError} = useSearchHistory(currentUser?._id, true);
 
   // External navigation wins before writing local refinements back to the URL.
   useEffect(() => {
+    if (presentation === 'modal') return;
     if (location.search !== observedSearch.current) {
       observedSearch.current = location.search;
       if (location.search !== writtenSearch.current) {
@@ -293,7 +417,7 @@ const SearchPage = () => {
     if (location.search !== targetSearch) navigate({...location, search}, {replace: true, skipRouter: true});
   // URL query and location are snapshots of location.search; other URL parts are read at write time.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, navigate, location.search]);
+  }, [state, navigate, location.search, presentation]);
 
   const sortParam = formatSearchSort(state.sort);
   const request = {
@@ -312,10 +436,10 @@ const SearchPage = () => {
     if (!target || loading || error || !hasMore) return;
     const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) void loadMore();
-    }, {rootMargin: "0px 0px 400px 0px"});
+    }, {root: presentation === 'modal' ? layoutRef.current : null, rootMargin: "0px 0px 400px 0px"});
     observer.observe(target);
     return () => observer.disconnect();
-  }, [loading, error, hasMore, loadMore]);
+  }, [loading, error, hasMore, loadMore, presentation]);
 
   useEffect(() => {
     if (state.query) {
@@ -356,6 +480,10 @@ const SearchPage = () => {
   }
 
   const toggleFilter = (key: string) => setExpandedFilters(previous => previous.includes(key) ? previous.filter(item => item !== key) : [...previous, key]);
+  const closeTimeframe = () => {
+    toggleFilter('time');
+    scrollRef.current?.querySelector<HTMLButtonElement>(`button[aria-controls="${timeframeId}"]`)?.focus({preventScroll: true});
+  };
   const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes}}));
   const {dateRange, karmaRange} = state.filters;
   const hasDateFilter = dateRange.start !== undefined || dateRange.end !== undefined;
@@ -364,12 +492,32 @@ const SearchPage = () => {
   const hasFilters = hasDateFilter || hasKarmaFilter || hasPostFilter || state.filters.events !== "include" || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
   const dateSummary = hasDateFilter ? `${dateRange.start === undefined ? "Beginning" : new Date(dateRange.start).toISOString().slice(0, 10)} – ${dateRange.end === undefined ? "Today" : new Date(dateRange.end).toISOString().slice(0, 10)}` : "All time";
   const showHistoryHint = !!currentUser && inputFocused && !state.query;
+  const timeframePanel = (timeframeOpen || !!timeframeSlot) && <section
+    ref={timeframeRef} id={timeframeId} aria-label="Timeframe"
+    className={classNames(classes.timeframePanel, {[classes.timeframePanelModal]: !!timeframeSlot, [classes.timeframePanelCollapsed]: !timeframeOpen})}
+    inert={!timeframeOpen} aria-hidden={!timeframeOpen}
+  >
+    <div className={classes.timeframeHeading}>
+      <button type="button" className={classes.clearFilters} aria-label="Done with timeframe" onClick={closeTimeframe}>Done</button>
+    </div>
+    <SearchTimeframeBar value={state.filters.dateRange} onChange={(dateRange) => setFilters({dateRange})} scale={scale} />
+  </section>;
 
-  return <div key={pathname} className={classes.root}>
+  return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal'})} onClickCapture={event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+    if (onClose && link && link.getAttribute('target') !== '_blank' && !link.hasAttribute('download')) {
+      // Result links stop propagation. Let their navigation handler run before unmounting search.
+      queueMicrotask(onClose);
+    }
+  }}>
     {/* Snippet widgets in the hit components need this context. Its static empty query does not search Elasticsearch. */}
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
-      <div className={classes.layout}>
-        <aside className={classes.sidebar} aria-label="Search options">
+      {timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
+      <div ref={layoutRef} className={classes.layout}>
+        <aside id={filtersId} className={classNames(classes.sidebar, {[classes.mobileFiltersOpen]: mobileFiltersOpen})} aria-label="Search options">
+          <SearchFilterRow label="Timeframe" summary={dateSummary} active={hasDateFilter} expanded={timeframeOpen}
+            controlsId={timeframeId} onToggle={() => toggleFilter('time')} onReset={() => setFilters({dateRange: {}})} />
           <SearchFilterRow
             label="Tune the sorting"
             summary={searchSortToUrlParam(state.sort) ? "Custom sorting" : ""}
@@ -390,9 +538,6 @@ const SearchPage = () => {
             <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
               <SearchWikitagsBar match={state.filters.tagMatch} onMatchChange={(tagMatch) => setFilters({tagMatch})} tagIds={state.filters.tagIds} onChange={(tagIds) => setFilters({tagIds})} />
             </SearchFilterRow>
-            <SearchFilterRow label="Timeframe" summary={dateSummary} active={hasDateFilter} expanded={expandedFilters.includes("time")} onToggle={() => toggleFilter("time")} onReset={() => setFilters({dateRange: {}})}>
-              <SearchTimeframeBar value={state.filters.dateRange} onChange={(dateRange) => setFilters({dateRange})} scale={scale} />
-            </SearchFilterRow>
             <SearchFilterRow label="Events" summary={state.filters.events === "include" ? "Included" : state.filters.events === "exclude" ? "Excluded" : "Only events"} active={state.filters.events !== "include"} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: "include"})}>
               <SearchEventsBar value={state.filters.events} onChange={(events) => setFilters({events})} />
             </SearchFilterRow>
@@ -407,7 +552,8 @@ const SearchPage = () => {
             </SearchFilterRow>
             {hasFilters && <button type="button" className={classes.clearFilters} onClick={clearFilters}>Clear filters</button>}
           </div>
-
+          {hasHistory && <button type="button" className={classes.clearFilters} onClick={() => { void clearHistory(); }}>Clear search history</button>}
+          {historyError && <div role="status">Could not update search history.</div>}
         </aside>
         <div className={classes.results} onKeyDown={handleResultKeyDown}>
           <div className={classes.topBar}>
@@ -425,7 +571,7 @@ const SearchPage = () => {
                   aria-label="Search"
                   placeholder="Search"
                   autoComplete="off"
-                  autoFocus
+                  autoFocus={presentation === 'page'}
                   value={state.query}
                   aria-describedby={showHistoryHint ? hintId : undefined}
                   onFocus={() => setInputFocused(true)}
@@ -441,6 +587,7 @@ const SearchPage = () => {
               <LWTooltip title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or wikitag:"Expected value" to filter by user or wikitag.`}>
                 <InfoIcon className={classes.infoIcon} />
               </LWTooltip>
+              {onClose && <button type="button" className={classes.closeButton} aria-label="Close search" onClick={onClose}>✕</button>}
             </form>
             {showHistoryHint && <div id={hintId} className={classes.historyHint}>Shift+↑ / Shift+↓: search history</div>}
 
@@ -450,11 +597,16 @@ const SearchPage = () => {
               onClear={() => setState(previous => ({...previous, kinds: []}))}
               onToggle={(type) => setState(previous => ({...previous, kinds: toggleSearchKind(previous.kinds, type)}))}
             />
+            <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
+              aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
+              onClick={() => setMobileFiltersOpen(previous => !previous)}>
+              {mobileFiltersOpen ? 'Hide filters' : 'Filters and sorting'}{hasFilters ? ' · Active' : ''}
+            </button>
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>
               {total !== null && <div className={classes.resultCount} aria-live="polite">
-                {total} result{total === 1 ? '' : 's'} · Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}
+                {total} result{total === 1 ? '' : 's'}<span className={classes.sortDescription}> · Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>
               </div>}
               <div ref={resultsRef} role="group" aria-label="Search results" aria-busy={loading}>
                 {hits.map((hit, position) => {

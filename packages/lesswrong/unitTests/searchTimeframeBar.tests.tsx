@@ -74,3 +74,20 @@ it("drags an endpoint without moving the opposite date", () => {
   expect(onChange).toHaveBeenCalledWith({start: expect.any(Number), end: value.end});
   expect(onChange.mock.calls[0][0].start).toBeLessThan(value.start);
 });
+
+
+it("shows calendar detail when zooming and returns to year labels", () => {
+  render(<SearchTimeframeBar value={value} scale={scale} onChange={jest.fn()} />);
+  fireEvent.click(screen.getByText("Zoom to selection"));
+  expect(screen.getAllByText(/^\d+ Jan$/)[0]).toBeTruthy();
+  fireEvent.click(screen.getByText("All years"));
+  expect(screen.queryByText(/^\d+ Jan$/)).toBeNull();
+  expect(screen.getByText("2020")).toBeTruthy();
+});
+
+it("shows the drag hint inline after the zoom button without the arrow-key sentence", () => {
+  render(<SearchTimeframeBar value={value} scale={scale} onChange={jest.fn()} />);
+  const hint = screen.getByText("Drag a range or its handles to adjust.");
+  expect(screen.getByText("Zoom to selection").nextElementSibling).toBe(hint);
+  expect(screen.queryByText(/Arrow keys/)).toBeNull();
+});

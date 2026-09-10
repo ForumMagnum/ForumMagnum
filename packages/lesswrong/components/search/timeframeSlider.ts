@@ -75,6 +75,48 @@ export function presetDateRange(preset: TimeframePreset, nowMs: number): SearchD
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+export interface CalendarBand {
+  startMs: number;
+  unit: "year" | "month" | "day";
+  fraction: number;
+  endFraction: number;
+  label: string;
+  alternate: boolean;
+  showLabel: boolean;
+}
+
+/** Calendar-aligned UTC bands, with detail and label spacing based on track width. */
+export function calendarBands(scale: TimeframeScale, width: number): CalendarBand[] {
+  const span = scale.nowMs - scale.originMs;
+  if (span <= 0 || width <= 0) return [];
+  const pixelsPerDay = width * dayMs / span;
+  const unit = pixelsPerDay >= 12 ? "day" : pixelsPerDay * 28 >= 32 ? "month" : "year";
+  const first = new Date(scale.originMs);
+  let startMs = unit === "day" ? startOfDay(scale.originMs)
+    : Date.UTC(first.getUTCFullYear(), unit === "month" ? first.getUTCMonth() : 0, 1);
+  const bands: CalendarBand[] = [];
+  let lastLabelX = -Infinity;
+  const labelWidth = unit === "month" ? 64 : 48;
+  while (startMs < scale.nowMs) {
+    const date = new Date(startMs);
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const endMs = unit === "day" ? startMs + dayMs : Date.UTC(year + (unit === "year" ? 1 : 0), unit === "month" ? month + 1 : 0, 1);
+    const fraction = msToFraction(startMs, scale);
+    const endFraction = msToFraction(endMs, scale);
+    const x = fraction * width;
+    const showLabel = x - lastLabelX >= labelWidth && width - x >= labelWidth;
+    if (showLabel) lastLabelX = x;
+    bands.push({
+      startMs, unit, fraction, endFraction, showLabel,
+      label: unit === "year" ? String(year) : unit === "month" ? `${monthNames[month]} ${year}` : `${date.getUTCDate()} ${monthNames[month]}`,
+      alternate: (unit === "day" ? Math.floor(startMs / dayMs) : unit === "month" ? month : year) % 2 !== 0,
+    });
+    startMs = endMs;
+  }
+  return bands;
+}
+
 export function formatDay(ms: number): string {
   const date = new Date(ms);
   return `${date.getUTCDate()} ${monthNames[date.getUTCMonth()]} ${date.getUTCFullYear()}`;

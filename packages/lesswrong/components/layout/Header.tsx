@@ -342,12 +342,10 @@ function useGetToC() {
 const Header = ({
   standaloneNavigationPresent,
   stayAtTop=false,
-  searchResultsArea,
   backgroundColor,
 }: {
   standaloneNavigationPresent: boolean,
   stayAtTop?: boolean,
-  searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
 }) => {
@@ -491,7 +489,7 @@ const Header = ({
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
-    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    <SearchBar onSetIsActive={setSearchOpen} />
 
     {!isLoggedIn && <LWUsersAccountMenu />}
 

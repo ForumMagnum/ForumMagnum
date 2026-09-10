@@ -9,11 +9,18 @@ const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 4,
     flexWrap: "wrap",
     flex: 1,
     minWidth: 0,
   },
+  tags: {
+    flex: '1 1 140px',
+    minWidth: 0,
+    '& .TagMultiselect-inputContainer': {marginBottom: 0, boxSizing: 'border-box'},
+    '& input': {minWidth: 0, boxSizing: 'border-box'},
+  },
+  match: {display: 'flex', gap: 2},
 }));
 
 /** Restricts posts, comments and users to the chosen wikitags. */
@@ -25,15 +32,19 @@ const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.root} role="group" aria-label="Wikitags">
-    <TagMultiselect
-      value={tagIds}
-      placeholder="Filter by wikitags"
-      hidePostCount
-      startWithBorder
-      updateCurrentValues={onChange}
-    />
-    <SearchChip selected={match === "any"} onToggle={() => onMatchChange("any")}>Match any</SearchChip>
-    <SearchChip selected={match === "all"} onToggle={() => onMatchChange("all")}>Match all</SearchChip>
+    <div className={classes.tags}>
+      <TagMultiselect
+        value={tagIds}
+        placeholder="Filter by wikitags"
+        hidePostCount
+        startWithBorder
+        updateCurrentValues={onChange}
+      />
+    </div>
+    <div className={classes.match} role="group" aria-label="Match wikitags">
+      <SearchChip selected={match === "any"} onToggle={() => onMatchChange("any")}>Any</SearchChip>
+      <SearchChip selected={match === "all"} onToggle={() => onMatchChange("all")}>All</SearchChip>
+    </div>
   </div>;
 };
 

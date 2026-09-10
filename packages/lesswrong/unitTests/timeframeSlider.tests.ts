@@ -11,6 +11,7 @@ import {
   presetDateRange,
   shiftRange,
   yearTicks,
+  calendarBands,
 } from "../components/search/timeframeSlider";
 
 const scale = {originMs: Date.UTC(2014, 5, 1), nowMs: Date.UTC(2026, 8, 10, 12)};
@@ -66,4 +67,39 @@ it("keeps keyboard endpoints ordered and makes older selected dates visible", ()
   expect(keyboardRange(range, "end", "Home", overview)?.end).toBe(range.start + dayMs - 1);
   expect(zoomToRange(range, overview).nowMs - zoomToRange(range, overview).originMs).toBeLessThan(60 * dayMs);
   expect(parseIsoDay("2024-02-30")).toBeUndefined();
+});
+
+
+it("uses years, months, and days as the visible scale gets smaller", () => {
+  expect(calendarBands(scale, 640)[0].unit).toBe("year");
+  expect(calendarBands({originMs: Date.UTC(2024, 0, 1), nowMs: Date.UTC(2025, 0, 1)}, 640)[0].unit).toBe("month");
+  expect(calendarBands({originMs: Date.UTC(2024, 1, 25), nowMs: Date.UTC(2024, 2, 5)}, 640)[0].unit).toBe("day");
+});
+
+it("clips calendar months at the viewport and respects leap years", () => {
+  const view = {originMs: Date.UTC(2024, 0, 15), nowMs: Date.UTC(2024, 3, 15)};
+  const bands = calendarBands(view, 640);
+  expect(bands.map(band => band.label)).toEqual(["Jan 2024", "Feb 2024", "Mar 2024", "Apr 2024"]);
+  expect(bands[0].fraction).toBe(0);
+  expect(bands[bands.length - 1].endFraction).toBe(1);
+  expect(bands[1].endFraction - bands[1].fraction).toBeCloseTo(29 / 91);
+  expect(bands.map(band => band.alternate)).toEqual([false, true, false, true]);
+});
+
+it("includes leap day and preserves alternating day colors across a month boundary", () => {
+  const bands = calendarBands({originMs: Date.UTC(2024, 1, 28), nowMs: Date.UTC(2024, 2, 2)}, 640);
+  expect(bands.map(band => band.label)).toEqual(["28 Feb", "29 Feb", "1 Mar"]);
+  expect(bands[0].alternate).not.toBe(bands[1].alternate);
+  expect(bands[1].alternate).not.toBe(bands[2].alternate);
+});
+
+it("reduces detail on narrow tracks and skips labels that would overlap", () => {
+  const view = {originMs: Date.UTC(2024, 0, 1), nowMs: Date.UTC(2024, 1, 1)};
+  expect(calendarBands(view, 640)[0].unit).toBe("day");
+  expect(calendarBands(view, 280)[0].unit).toBe("month");
+  const labeled = calendarBands(view, 640).filter(band => band.showLabel);
+  for (let i = 1; i < labeled.length; i++) {
+    expect((labeled[i].fraction - labeled[i - 1].fraction) * 640).toBeGreaterThanOrEqual(48);
+  }
+  expect(calendarBands({originMs: 0, nowMs: 0}, 640)).toEqual([]);
 });
