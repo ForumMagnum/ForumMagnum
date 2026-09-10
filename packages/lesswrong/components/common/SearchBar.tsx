@@ -1,25 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import classNames from 'classnames';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
-import qs from 'qs'
+import { getSearchIndexName, getSearchClient, isSearchEnabled, SearchIndexCollectionName } from '../../lib/search/searchUtil';
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
+import { searchPageLink } from '../search/searchPageUrl';
 import SearchBarResults from "../search/SearchBarResults";
 import { getVisibleSearchResults, getSearchResultsSignature, selectSearchResult, getNextSearchResultIndex } from '../search/searchBarNavigation';
 import ForumIcon from "./ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useGlobalKeydown } from './withGlobalKeydown';
+import { useSearchHistory } from '../search/useSearchHistory';
 
 const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   root: {
@@ -109,6 +110,22 @@ const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
       },
     },
   },
+  historyHint: {
+    ...theme.typography.body2,
+    padding: '8px 12px',
+    fontSize: 12,
+    backgroundColor: theme.palette.panelBackground.default,
+    color: theme.palette.text.dim,
+  },
+  clearHistory: {
+    display: 'block',
+    padding: '8px 0',
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`},
+  },
   inputControls: {
     display: 'flex',
     alignItems: 'center',
@@ -190,9 +207,16 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   const classes = useStyles(styles);
   const inputAreaRef = useRef<HTMLDivElement>(null);
   const currentUser = useCurrentUser()
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const [enabledKinds, setEnabledKinds] = useState<SearchIndexCollectionName[]>([]);
   const [inputOpen,setInputOpen] = useState(false);
   const [searchState, setSearchState] = useState({query: ""});
   const currentQuery = searchState.query ?? "";
+  const [inputFocused, setInputFocused] = useState(false);
+  const hintId = useId();
+  const {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory, error: historyError} = useSearchHistory(currentUser?._id, inputOpen);
+  const showHistoryHint = !!currentUser && inputFocused && !currentQuery && inputOpen;
   useEffect(() => {
     if (!inputOpen) return;
     const area = searchResultsArea.current;
@@ -222,7 +246,8 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   const captureSearch = useSearchAnalytics();
 
   const handleSubmit = () => {
-    navigate({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
+    recordSearch(currentQuery);
+    navigate(searchPageLink(currentQuery, enabledKinds));
     closeSearch()
   }
   
@@ -232,6 +257,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
 
 
   const closeSearch = () => {
+    resetNavigation();
     setInputOpen(false);
     setSearchState(previous => ({...previous, query: ""}));
     if (onSetIsActive)
@@ -239,6 +265,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   }
 
   const clearSearch = () => {
+    resetNavigation();
     setSearchState(previous => ({...previous, query: ""}));
     inputAreaRef.current?.querySelector('input')?.focus();
   };
@@ -270,6 +297,14 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.defaultPrevented || event.nativeEvent.isComposing) return;
+    if (inputOpen && currentUser && event.target instanceof HTMLInputElement
+      && event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
+      && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      event.preventDefault();
+      event.stopPropagation();
+      setSearchState({query: recallSearch(currentQuery, event.key)});
+      return;
+    }
     if (inputOpen && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
       && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       const input = inputAreaRef.current?.querySelector('input');
@@ -344,9 +379,15 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
                   type="search"
                   aria-label="Search"
                   placeholder="Search"
+                  aria-describedby={showHistoryHint ? hintId : undefined}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
                   autoComplete="off"
                   value={currentQuery}
-                  onChange={(event) => setSearchState({query: event.target.value})}
+                  onChange={(event) => {
+                    resetNavigation();
+                    setSearchState({query: event.target.value});
+                  }}
                 />
               </form>
             </div>
@@ -358,8 +399,15 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>
-            {searchResultsArea.current && createPortal(
-              <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} open={inputOpen} />,
+            {mounted && searchResultsArea.current && createPortal(
+              <SearchBarResults enabledTypes={enabledKinds} onKindsChange={setEnabledKinds} closeSearch={closeSearch} recordSearch={() => recordSearch(currentQuery)} currentQuery={currentQuery} open={inputOpen}
+                searchHistoryControls={currentUser && !currentQuery && <div className={classes.historyHint}>
+                  {showHistoryHint && <div id={hintId}>Shift+↑ / Shift+↓: search history</div>}
+                  {hasHistory && <button type="button" className={classes.clearHistory}
+                    onClick={() => { void clearHistory(); }}>Clear search history</button>}
+                  {historyError && <div role="status">Could not update search history.</div>}
+                </div>}
+              />,
               searchResultsArea.current
             )}
           </div>

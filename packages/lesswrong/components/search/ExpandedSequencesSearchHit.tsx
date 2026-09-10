@@ -13,6 +13,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 700,
     paddingTop: 2,
     paddingBottom: 2,
@@ -22,9 +23,6 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
     display: 'block',
     maxWidth: 600,
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    },
     [theme.breakpoints.down('sm')]: {
       maxWidth: '80%',
     }
@@ -67,8 +65,9 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
   }
 }))
 
-const ExpandedSequencesSearchHit = ({hit}: {
+const ExpandedSequencesSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
@@ -85,6 +84,7 @@ const ExpandedSequencesSearchHit = ({hit}: {
   } : {}
 
   return <div className={classes.root} style={style}>
+    {icon}
     <div className={classes.body} onClick={handleClick}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
@@ -95,6 +95,7 @@ const ExpandedSequencesSearchHit = ({hit}: {
         {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)} onClick={(e) => e.stopPropagation()}>
           {sequence.authorDisplayName}
         </Link> : <UserNameDeleted />}
+        <span>{Math.round(sequence.baseScore ?? 0)} average post karma</span>
         <FormatDate date={sequence.createdAt} />
       </div>
       <div className={classes.snippet}>
