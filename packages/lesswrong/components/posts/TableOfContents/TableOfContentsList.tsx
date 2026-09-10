@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
+import type { ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';

@@ -2,7 +2,6 @@ import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';

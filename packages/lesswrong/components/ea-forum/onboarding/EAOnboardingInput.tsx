@@ -1,7 +1,3 @@
-import React, { useCallback, ChangeEvent, RefObject } from "react";
-import classNames from "classnames";
-import { defineStyles } from "@/components/hooks/defineStyles";
-import { useStyles } from "@/components/hooks/useStyles";
 
 // These styles are also used by `EAOnboardingSelect`
 export const rootStyles = (theme: ThemeType) => ({

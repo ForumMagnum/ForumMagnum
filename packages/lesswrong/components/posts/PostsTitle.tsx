@@ -1,8 +1,8 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import React, { CSSProperties, FC, PropsWithChildren } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import classNames from 'classnames';
-import { useCurrentUser, useCurrentUserId } from "../common/withUser";
+import { useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -11,7 +11,6 @@ import { InteractionWrapper } from '../common/useClickableCell';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
-import TagsTooltip from "../tagging/TagsTooltip";
 import { amaTagIdSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';

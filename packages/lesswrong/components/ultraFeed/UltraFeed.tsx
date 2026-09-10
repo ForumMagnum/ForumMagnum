@@ -23,7 +23,6 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';

@@ -5,7 +5,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
-import ToCColumn, { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 import PostsLoading from "../posts/PostsLoading";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";

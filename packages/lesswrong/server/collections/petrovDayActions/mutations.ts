@@ -1,9 +1,9 @@
 
 import schema from "@/lib/collections/petrovDayActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 

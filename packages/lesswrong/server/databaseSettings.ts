@@ -3,13 +3,11 @@ import { isDevelopment } from '../lib/executionEnvironment';
 import {
     getPublicSettings,
     getServerSettingsCache,
-    getServerSettingsLoaded,
     initializeSetting,
     registeredSettings,
 } from '../lib/settingsCache'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
-import { forumSelect } from '@/lib/forumTypeUtils';
 import { getPrivateSettings } from './settings/settings';
 
 const runValidateSettings = false

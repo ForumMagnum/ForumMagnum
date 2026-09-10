@@ -2,7 +2,6 @@ import { isCollaborative, canUserEditPostMetadata, userIsPostCoauthor } from '@/
 import { Posts } from '../../server/collections/posts/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
-import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableFields';

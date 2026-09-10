@@ -1,7 +1,7 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import { $getMarkIDs } from '@lexical/mark';
-import { $getSelection, $isElementNode, $isRangeSelection, $isTextNode, type EditorState, type ElementNode, type LexicalNode, type NodeKey } from 'lexical';
+import { $getSelection, $isElementNode, $isRangeSelection, $isTextNode, type EditorState, type ElementNode, type NodeKey } from 'lexical';
 import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { $getSuggestionID } from '../suggestedEdits/Utils';
 import { $isSuggestionThatAffectsWholeParent } from '../suggestedEdits/Types';

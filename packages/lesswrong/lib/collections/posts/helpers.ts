@@ -1,4 +1,4 @@
-import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';

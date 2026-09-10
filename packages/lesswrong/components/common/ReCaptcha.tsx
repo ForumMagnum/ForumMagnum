@@ -1,5 +1,4 @@
 // Copied from: https://raw.githubusercontent.com/codeep/react-recaptcha-v3/master/src/ReCaptcha.js
-import { useForumType } from '@/components/hooks/useForumType';
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { reCaptchaSiteKey } from '@/lib/instanceSettings';

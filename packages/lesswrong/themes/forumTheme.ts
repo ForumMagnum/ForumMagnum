@@ -4,7 +4,6 @@ import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import { forumSelect } from '../lib/forumTypeUtils';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
 export const isBookUI = () => true

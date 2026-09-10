@@ -1,6 +1,6 @@
 "use client";
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { Suspense, useState } from "react";
+import React, { Suspense } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";

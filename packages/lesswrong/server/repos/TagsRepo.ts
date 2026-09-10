@@ -1,7 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../server/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { getViewableTagsSelector } from "./helpers";
 import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import sortBy from "lodash/sortBy";
 

@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
+import { useCurrentUserId, useGetCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';

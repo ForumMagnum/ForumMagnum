@@ -335,6 +335,12 @@ module.exports = {
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
 
+    // Unused imports are an error (and are auto-fixable with `yarn eslint --fix`).
+    // This is narrower than no-unused-vars: it only looks at import
+    // specifiers, and is type-aware so imports that are only used as types
+    // count as used.
+    "unused-imports/no-unused-imports": "error",
+
     "@typescript-eslint/no-unused-expressions": 0,
     "@typescript-eslint/no-unsafe-function-type": 0,
 
@@ -413,6 +419,7 @@ module.exports = {
     "import",
     "no-barrel-files",
     "@stylistic/ts",
+    "unused-imports",
     "local"
   ],
   "settings": {

@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import ClientAppGenerator from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
-import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
+import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";

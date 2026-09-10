@@ -3,7 +3,6 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
-import { useTheme, useThemeColor } from '@/components/themes/useTheme';
 import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents'
 import { useCurrentUser } from '@/components/common/withUser';
@@ -14,7 +13,6 @@ import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
-import { Helmet } from "@/components/layout/Helmet";
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';

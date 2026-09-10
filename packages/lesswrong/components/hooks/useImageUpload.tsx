@@ -1,5 +1,5 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { cloudinaryCloudName, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { useExternalScript } from "./useExternalScript";

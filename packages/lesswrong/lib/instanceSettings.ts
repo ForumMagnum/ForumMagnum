@@ -1,4 +1,4 @@
-import { isServer, isDevelopment, isAnyTest, isE2E, isProduction } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';

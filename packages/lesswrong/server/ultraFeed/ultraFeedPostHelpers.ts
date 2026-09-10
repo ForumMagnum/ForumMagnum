@@ -1,4 +1,4 @@
-import { FeedFullPost, FeedItemSourceType, FeedPostStub } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";

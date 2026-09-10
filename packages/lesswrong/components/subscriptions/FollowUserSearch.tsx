@@ -5,9 +5,7 @@ import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/
 import type { SearchState } from 'react-instantsearch-core';
 import { isLeftClick } from '../search/UsersSearchHit';
 import { SearchHitComponentProps } from '../search/types';
-import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";

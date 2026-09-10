@@ -7,7 +7,6 @@ import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import SubjectIcon from '@/lib/vendor/@material-ui/icons/src/Subject';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
-import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { curatedUrl } from '@/components/recommendations/constants';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';

@@ -5,7 +5,6 @@ import LWEvents from "../../server/collections/lwevents/collection";
 import Votes from "../../server/collections/votes/collection";
 import uniq from "lodash/uniq";
 import intersection from "lodash/intersection";
-import { wrapVulcanAsyncScript } from "./utils";
 
 /**
  * Helper function for checkPostForSockpuppetVoting().

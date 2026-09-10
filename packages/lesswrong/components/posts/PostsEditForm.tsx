@@ -21,7 +21,6 @@ import RateLimitWarning from "../editor/RateLimitWarning";
 import PostForm from "./PostForm";
 import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
-import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';

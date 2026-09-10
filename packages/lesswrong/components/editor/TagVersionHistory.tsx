@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
@@ -17,7 +17,6 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
-import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';

@@ -11,7 +11,6 @@ import {
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
-  $nodesOfType,
   COMMAND_PRIORITY_CRITICAL,
   DROP_COMMAND,
   FORMAT_ELEMENT_COMMAND,
@@ -29,7 +28,7 @@ import {
   REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { SuggestionTypesThatCanBeEmpty, type SuggestionID } from './Types'
 import { BEFOREINPUT_EVENT_COMMAND, COMPOSITION_START_EVENT_COMMAND, INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'

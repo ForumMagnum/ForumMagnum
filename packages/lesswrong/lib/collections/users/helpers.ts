@@ -1,7 +1,6 @@
 import { newUserIconKarmaThresholdSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
-import type { PermissionResult } from '../../make_voteable';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';

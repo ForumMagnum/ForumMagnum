@@ -2,8 +2,6 @@ import { useForumType } from '@/components/hooks/useForumType';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import React, { useMemo } from 'react';
 import { useHover } from '../common/withHover';
-import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
-import { tagStyle } from '../tagging/FooterTag';
 import { Card } from "@/components/widgets/Paper";
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";

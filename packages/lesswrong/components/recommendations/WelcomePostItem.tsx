@@ -1,6 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";

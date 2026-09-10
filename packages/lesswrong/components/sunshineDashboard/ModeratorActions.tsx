@@ -21,7 +21,6 @@ import { useDialog } from '../common/withDialog';
 import NewModeratorActionDialog from "./NewModeratorActionDialog";
 import LWTooltip from "../common/LWTooltip";
 import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
-import { MenuItem } from "../common/Menus";
 import UserRateLimitItem from "./UserRateLimitItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";

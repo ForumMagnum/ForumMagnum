@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import React, { ComponentProps } from 'react';
+import React from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';

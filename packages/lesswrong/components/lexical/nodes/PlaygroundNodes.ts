@@ -6,7 +6,7 @@
  *
  */
 
-import type {Klass, LexicalNode, LexicalNodeConfig} from 'lexical';
+import type { LexicalNodeConfig} from 'lexical';
 
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {HashtagNode} from '@lexical/hashtag';

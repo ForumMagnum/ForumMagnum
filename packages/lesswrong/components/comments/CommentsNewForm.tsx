@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, {useState, useEffect, useRef, useMemo, Suspense} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'

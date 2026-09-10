@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';

@@ -3,11 +3,6 @@
 import { startupSanityChecks } from './startupSanityChecks';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
-import chokidar from 'chokidar';
-import fs from 'fs';
-import { basename, join } from 'path';
-import type { CommandLineArguments } from './commandLine';
 import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
 import { backgroundTask } from './utils/backgroundTask';
 

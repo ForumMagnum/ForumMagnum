@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { CurationNoticesForm } from '@/components/admin/CurationNoticesForm';

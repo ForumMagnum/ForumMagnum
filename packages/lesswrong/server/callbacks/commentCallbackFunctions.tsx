@@ -37,7 +37,7 @@ import { createModeratorAction } from "../collections/moderatorActions/mutations
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
-import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
+import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
 

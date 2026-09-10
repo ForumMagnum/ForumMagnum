@@ -1,5 +1,5 @@
 import { isMobile } from "@/lib/utils/isMobile";
-import React, { ReactNode, useContext, useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import React, { ReactNode, useEffect, useState, useSyncExternalStore, useTransition } from "react";
 
 const DeferRender = ({
   ssr,

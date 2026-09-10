@@ -1,8 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useMessages } from '../common/withMessages';
-import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
+import { UserDisplayNameInfo } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';

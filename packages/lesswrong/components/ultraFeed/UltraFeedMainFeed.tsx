@@ -5,7 +5,7 @@ import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import type { FeedType } from './ultraFeedTypes';
-import type { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import type { WatchQueryFetchPolicy } from '@apollo/client';
 import { randomId } from '../../lib/random';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import {

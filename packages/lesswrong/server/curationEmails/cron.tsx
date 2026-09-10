@@ -2,7 +2,6 @@ import React from "react";
 import CurationEmails from "../../server/collections/curationEmails/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
-import { testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";

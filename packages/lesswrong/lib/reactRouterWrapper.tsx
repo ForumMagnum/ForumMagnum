@@ -1,6 +1,6 @@
 'use client';
 
-import React, { CSSProperties, FC, useState } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";

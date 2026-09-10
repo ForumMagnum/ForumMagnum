@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { RecommendationOptions, useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
 import {

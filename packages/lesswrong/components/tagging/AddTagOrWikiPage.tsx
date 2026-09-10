@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
