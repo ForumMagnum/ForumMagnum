@@ -1,19 +1,18 @@
-import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getAnalyticsConnection } from '@/server/analytics/postgresConnection';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { postMessage } from '@/server/slack/client';
 import { captureException } from '@/lib/sentryWrapper';
 import { isDevelopment } from '@/lib/executionEnvironment';
-import { environmentDescriptionSetting } from '@/lib/instanceSettings';
+import { environmentDescriptionSetting, type ForumTypeString } from '@/lib/instanceSettings';
 
 interface RawAnalyticsRow {
   event_type: string;
   event: Record<string, unknown>;
 }
 
-async function getPostAuthorNames(postIds: string[], forumType: ForumTypeString): Promise<Map<string, string>> {
+async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string>> {
   if (postIds.length === 0) return new Map();
-  const context = createAnonymousContext({ forumType });
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   const posts = await context.Posts.find(
     { _id: { $in: postIds } },
     undefined,
@@ -31,9 +30,9 @@ async function getPostAuthorNames(postIds: string[], forumType: ForumTypeString)
   return new Map(posts.map(p => [p._id, userNames.get(p.userId) ?? "Unknown user"]));
 }
 
-async function getUserNames(userIds: string[], forumType: ForumTypeString): Promise<Map<string, string>> {
+async function getUserNames(userIds: string[]): Promise<Map<string, string>> {
   if (userIds.length === 0) return new Map();
-  const context = createAnonymousContext({ forumType });
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   const users = await context.Users.find(
     { _id: { $in: userIds } },
     undefined,
@@ -144,7 +143,18 @@ function formatAuthorActivity(
   return lines;
 }
 
-export async function postAiEditorUsageToSlack(forumType: ForumTypeString) {
+/**
+ * Analytics events are tagged with the environment of the forum they came
+ * through (e.g. "lesswrong.com" vs "alignmentforum.org"), so report across all
+ * forums' environments rather than just the one the cron request resolved to.
+ */
+function getReportedEnvironments(): string[] {
+  if (isDevelopment) return ["development"];
+  const forumTypes: ForumTypeString[] = ["LessWrong", "AlignmentForum"];
+  return [...new Set(forumTypes.map(forumType => environmentDescriptionSetting.get(forumType)))];
+}
+
+export async function postAiEditorUsageToSlack() {
   const connection = getAnalyticsConnection();
   if (!connection) {
     // eslint-disable-next-line no-console
@@ -152,17 +162,17 @@ export async function postAiEditorUsageToSlack(forumType: ForumTypeString) {
     return;
   }
 
-  const environment = isDevelopment ? "development" : environmentDescriptionSetting.get(forumType);
+  const environments = getReportedEnvironments();
 
   const events: RawAnalyticsRow[] = await connection.any(`
     SELECT event_type, event
     FROM raw
     WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall', 'claudeOnboardingStarted', 'claudeOnboardingSettingsClicked', 'claudeOnboardingConfirmClicked', 'claudeOnboardingConfirmed')
       AND timestamp > NOW() - INTERVAL '5 minutes'
-      AND environment = $(environment)
+      AND environment = ANY($(environments))
     ORDER BY timestamp
     LIMIT 10000
-  `, { environment });
+  `, { environments });
 
   if (events.length === 0) return;
 
@@ -178,8 +188,8 @@ export async function postAiEditorUsageToSlack(forumType: ForumTypeString) {
   )];
   
   const [postAuthorNames, directUserNames] = await Promise.all([
-    getPostAuthorNames(postIds, forumType),
-    getUserNames(userIds, forumType),
+    getPostAuthorNames(postIds),
+    getUserNames(userIds),
   ]);
 
   const byAuthorName = new Map<string, RawAnalyticsRow[]>();
