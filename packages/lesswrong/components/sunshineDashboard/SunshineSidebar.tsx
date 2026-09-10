@@ -22,12 +22,7 @@ const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
-    display:"none",
     background: theme.palette.panelBackground.default,
-    width: 210,
-    [theme.breakpoints.up('lg')]: {
-      display:"block"
-    }
   },
   background: {
     background: theme.palette.panelBackground.default,

@@ -51,7 +51,13 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     padding: 0,
   },
   rightSidebar: {
-    gridArea: 'rightSidebar'
+    gridArea: 'rightSidebar',
+    // Reserve the sidebar's column before its deferred content and queries load.
+    width: 210,
+    display: 'none',
+    [theme.breakpoints.up('lg')]: {
+      display: 'block',
+    },
   },
 }))
 
