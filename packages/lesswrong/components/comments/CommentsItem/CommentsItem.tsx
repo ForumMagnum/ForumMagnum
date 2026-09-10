@@ -23,6 +23,7 @@ import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
 import CommentsNewForm from "../CommentsNewForm";
 import ParentCommentSingle from "../ParentCommentSingle";
+import AnimatedExpansion from "../../common/AnimatedExpansion";
 import ForumIcon from "../../common/ForumIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import LWTooltip from "../../common/LWTooltip";
@@ -340,18 +341,20 @@ export const CommentsItem = ({
         treeOptions.isSideComment && classes.sideComment,
         comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,
       )}>
-        { comment.parentCommentId && showParentState && (
+        { comment.parentCommentId && (
           <div className={classes.firstParentComment}>
-            <ParentCommentSingle
-              post={post} tag={tag}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={showParentDefault}
-              key={comment.parentCommentId}
-              treeOptions={{
-                hideParentCommentToggleForTopLevel,
-              }}
-            />
+            <AnimatedExpansion expanded={showParentState}>
+              {showParentState && <ParentCommentSingle
+                post={post} tag={tag}
+                documentId={comment.parentCommentId}
+                nestingLevel={nestingLevel - 1}
+                truncated={showParentDefault}
+                key={comment.parentCommentId}
+                treeOptions={{
+                  hideParentCommentToggleForTopLevel,
+                }}
+              />}
+            </AnimatedExpansion>
           </div> 
         )}
         
@@ -464,5 +467,4 @@ function hasPostField(comment: CommentsList | CommentsListWithParentMetadata): c
 function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
   return !!(comment as CommentsListWithParentMetadata).tag
 }
-
 

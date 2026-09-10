@@ -399,6 +399,8 @@ export const SpotlightItem = ({
   isDraftProcessing,
   className,
   children,
+  ref,
+  inert,
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
@@ -409,6 +411,8 @@ export const SpotlightItem = ({
   isDraftProcessing?: boolean,
   className?: string,
   children?: React.ReactNode,
+  ref?: React.Ref<HTMLDivElement>,
+  inert?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
@@ -503,6 +507,8 @@ export const SpotlightItem = ({
       <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
         <div
           id={spotlight._id}
+          ref={ref}
+          inert={inert}
           style={style}
           className={classNames(classes.root, className)}
       >
@@ -658,4 +664,3 @@ const SpotlightReviewComment = ({id}: {
     />
   </div>
 }
-

@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useFilteredCurrentUser } from '../common/withUser';
@@ -16,6 +16,7 @@ import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import AnimatedExpansion from '../common/AnimatedExpansion';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -105,12 +106,14 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
+  const heightBeforeExpansionRef = useRef<number|null>(null);
 
   const hasInContextLinks = commentPermalinkStyleSetting.get(forumType) === 'in-context';
 
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
 
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
+  const animateWholeThread = forceSingleLine && loadChildrenSeparately;
 
   const shouldUncollapseForAutoScroll = useCallback(() => {
     const commentAndChildren = [
@@ -226,6 +229,29 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
+
+  useLayoutEffect(() => {
+    const element = scrollTargetRef.current;
+    const previousHeight = heightBeforeExpansionRef.current;
+    heightBeforeExpansionRef.current = null;
+    if (!element || previousHeight === null || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const expandedHeight = element.getBoundingClientRect().height;
+    if (expandedHeight <= previousHeight) {
+      return;
+    }
+
+    // Measure the full content before paint, and release the height once the animation ends.
+    const animation = element.animate([
+      { height: `${previousHeight}px`, overflow: 'clip' },
+      { height: `${expandedHeight}px`, overflow: 'clip' },
+    ], { duration: 200, easing: 'ease-out' });
+
+    return () => animation.cancel();
+  }, [isTruncated, isSingleLine]);
+
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
@@ -268,6 +294,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       event?.stopPropagation();
     }
     if (isTruncated || isSingleLine) {
+      heightBeforeExpansionRef.current = animateWholeThread ? null : scrollTargetRef.current?.getBoundingClientRect().height ?? null;
       captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);
       setSingleLine(false);
@@ -277,7 +304,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     if (scroll) {
       scrollIntoView(scrollBehaviour);
     }
-  }, [isTruncated, isSingleLine, comment.postId, comment._id, comment.draft, captureEvent, scrollIntoView]);
+  }, [isTruncated, isSingleLine, animateWholeThread, comment.postId, comment._id, comment.draft, captureEvent, scrollIntoView]);
 
   const onClickFrame = useCallback((event: React.MouseEvent) => {
     handleExpand({ event, scroll: scrollOnExpand });
@@ -349,12 +376,16 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     </CommentFrame>
   );
   
+  const animatedResult = animateWholeThread
+    ? <AnimatedExpansion expanded={!isSingleLine}>{result}</AnimatedExpansion>
+    : result;
+
   if (comment.gapIndicator) {
     return <div className={classes.gapIndicator}>
-      {result}
+      {animatedResult}
     </div>
   } else {
-    return result;
+    return animatedResult;
   }
 }
 
