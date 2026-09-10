@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -77,7 +78,7 @@ const ExpandedTagsSearchHit = ({hit, icon}: {
     >
       <div className={classes.titleRow}>
         <span className={classes.title}>
-          {tag.name}
+          <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
         </span>
         <span>{tag.baseScore ?? 0} karma</span>
         <span>{tag.postCount ?? 0} post{tag.postCount === 1 ? '' : 's'}</span>

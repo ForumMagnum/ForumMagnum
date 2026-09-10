@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
@@ -39,7 +40,7 @@ const UsersSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPr
     </LWTooltip>}
     <Link to={`${userGetProfileUrl(user)}?from=search_autocomplete`} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <MetaInfo>
-        {user.displayName}
+        <SearchHighlight hit={hit} attribute="displayName">{user.displayName}</SearchHighlight>
       </MetaInfo>
       <MetaInfo>
         <FormatDate date={user.createdAt} />
