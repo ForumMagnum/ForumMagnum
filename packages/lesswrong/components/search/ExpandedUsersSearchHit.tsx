@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
@@ -79,7 +80,7 @@ const ExpandedUsersSearchHit = ({hit, icon}: {
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>
-            {user.displayName}
+            <SearchHighlight hit={hit} attribute="displayName">{user.displayName}</SearchHighlight>
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>

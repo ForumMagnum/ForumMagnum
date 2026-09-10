@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -107,7 +108,7 @@ const ExpandedCommentsSearchHit = ({hit, icon}: {
     </Link>
     <div className={classes.authorRow}>
       {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {comment.authorDisplayName}
+        <SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight>
       </Link> : <UserNameDeleted />}
       <span>{comment.baseScore ?? 0} karma</span>
       <FormatDate date={comment.createdAt} />

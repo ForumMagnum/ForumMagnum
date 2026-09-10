@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -54,11 +55,11 @@ const PostsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPr
       to={postGetPageUrl(post)}
     >
         <Typography variant="title" className={classes.title}>
-          {post.title}
+          <SearchHighlight hit={hit} attribute="title">{post.title}</SearchHighlight>
         </Typography>
         <div>
           {post.authorDisplayName && <MetaInfo>
-            {post.authorDisplayName}
+            <SearchHighlight hit={hit} attribute="authorDisplayName">{post.authorDisplayName}</SearchHighlight>
           </MetaInfo>}
           <MetaInfo>
             {post.baseScore} karma

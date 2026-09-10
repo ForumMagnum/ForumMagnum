@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -89,11 +90,11 @@ const ExpandedSequencesSearchHit = ({hit, icon}: {
       <div className={classes.titleRow}>
         <span className={classes.title}>
           <Link to={`/sequences/${sequence._id}`} className={classes.link} onClick={(e) => e.stopPropagation()}>
-            {sequence.title}
+            <SearchHighlight hit={hit} attribute="title">{sequence.title}</SearchHighlight>
           </Link>
         </span>
         {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)} onClick={(e) => e.stopPropagation()}>
-          {sequence.authorDisplayName}
+          <SearchHighlight hit={hit} attribute="authorDisplayName">{sequence.authorDisplayName}</SearchHighlight>
         </Link> : <UserNameDeleted />}
         <span>{Math.round(sequence.baseScore ?? 0)} average post karma</span>
         <FormatDate date={sequence.createdAt} />

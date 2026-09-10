@@ -303,9 +303,9 @@ class ElasticService {
           [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
         ...(config.highlight && {
-          _highlightResult: {
-            [config.highlight]: extractNamedHighlight(highlight, config.highlight),
-          },
+          _highlightResult: Object.fromEntries(config.highlight.map(name => [
+            name, extractNamedHighlight(highlight, name),
+          ])),
         }),
       };
     });

@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -74,12 +75,12 @@ const ExpandedPostsSearchHit = ({hit, icon}: {
     {icon}
     <div className={classes.title}>
       <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
-        {post.title}
+        <SearchHighlight hit={hit} attribute="title">{post.title}</SearchHighlight>
       </Link>
     </div>
     <div className={classes.metaInfoRow}>
       {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {post.authorDisplayName}
+        <SearchHighlight hit={hit} attribute="authorDisplayName">{post.authorDisplayName}</SearchHighlight>
       </Link> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
       <span>{post.commentCount ?? 0} comment{post.commentCount === 1 ? "" : "s"}</span>
