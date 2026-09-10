@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from 'react';
 import { Notifications } from '../server/collections/notifications/collection';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
@@ -22,8 +23,8 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         type: "delayed",
         delayMinutes: 15,
       },
-      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
+      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>, forumType) => {
+        backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType, forumType}));
       }
     });
   }
@@ -39,7 +40,7 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
  *
  * Precondition: All notifications in a batch share a notification type
  */
-const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
+const sendNotificationBatch = async ({userId, notificationIds, notificationType, forumType}: {userId: string, notificationIds: Array<string>, notificationType: string, forumType: ForumTypeString}) => {
   const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
@@ -62,7 +63,7 @@ const sendNotificationBatch = async ({userId, notificationIds, notificationType}
     { _id: {$in: notificationIds}, emailed: true }
   ).fetch();
   
-  const context = await computeContextFromUser({ user, isSSR: false });
+  const context = await computeContextFromUser({ user, isSSR: false, forumType });
   if (notificationsToEmail.length) {
     const emails = await notificationBatchToEmails({
       user,
@@ -96,8 +97,9 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
       .filter((_, idx) => !shouldSkip[idx])
       .map(async (notifications: DbNotification[]) => ({
         user,
+        forumType: context.forumType,
         to: getUserEmail(user),
-        from: notificationTypeRenderer.from?.(),
+        from: notificationTypeRenderer.from?.(context),
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
 
@@ -147,6 +149,7 @@ export const graphqlQueries = {
         return [];
       }
       const renderedEmail = await wrapAndRenderEmail({
+        forumType: context.forumType,
         user: currentUser,
         subject: post.title,
         body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />,

@@ -139,7 +139,7 @@ async function getParameters<N extends CollectionNameString>(
   }
 
   // limit number of items to 1000 by default
-  const maxDocuments = maxDocumentsPerRequestSetting.get();
+  const maxDocuments = maxDocumentsPerRequestSetting.get(context);
   const limit = terms.limit || parameters.options.limit;
   parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 

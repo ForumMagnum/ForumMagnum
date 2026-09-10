@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext, useRef, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
@@ -5,7 +6,7 @@ import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '@/lib/instanceSettings';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
@@ -61,8 +62,9 @@ const CKCommentEditor = ({
   onReady: (editor: Editor) => void,
   placeholder?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
   const portalContext = useContext(CkEditorPortalContext);
@@ -85,13 +87,13 @@ const CKCommentEditor = ({
       // The collaborative editor is not activated because no `websocketUrl`
       // or `documentId` is provided.
       tokenUrl: generateTokenRequest(collectionName, fieldName),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
     initialData: data || "",
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
-    ...cloudinaryConfig,
+    mention: mentionPluginConfiguration(portalContext, forumType),
+    ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),
   });
 

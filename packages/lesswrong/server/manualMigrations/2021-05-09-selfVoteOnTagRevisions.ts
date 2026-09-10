@@ -1,3 +1,4 @@
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { registerMigration, forEachDocumentInCollection } from './migrationUtils';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Users } from '../../server/collections/users/collection';
@@ -21,7 +22,8 @@ export default registerMigration({
         }
         const user = usersCache[userId];
         
-        await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user, toggleIfAlreadyVoted: false, skipRateLimits: true });
+        await performVoteServer({
+          context: createAnonymousContext({ forumType: "LessWrong" }), document: revision, voteType: 'smallUpvote', collection: Revisions, user, toggleIfAlreadyVoted: false, skipRateLimits: true });
       }
     });
   }

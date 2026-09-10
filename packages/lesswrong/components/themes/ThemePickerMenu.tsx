@@ -1,7 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, getThemeMetadata, AbstractThemeOptions } from '../../themes/themeNames';
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { ThemeContext } from './useTheme';
 import { HomeDesignChatContext } from '../common/HomeDesignChatContext';
 import { useCurrentUser } from '../common/withUser';
@@ -30,6 +31,7 @@ const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
 const ThemePickerMenu = ({children}: {
   children: React.ReactNode,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const themeContext = React.useContext(ThemeContext)!;
   const designChat = React.useContext(HomeDesignChatContext);
@@ -76,7 +78,7 @@ const ThemePickerMenu = ({children}: {
     <Paper>
       <DropdownMenu>
           <>
-            {isLW() && <>
+            {isLW && <>
               <DropdownItem
                 title="Custom Front Page"
                 onClick={openCustomizeSidebar}

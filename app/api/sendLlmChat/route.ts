@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const currentUser = context.currentUser;
     
     // Validation: Check user permissions
-    if (!userHasLlmChat(currentUser)) {
+    if (!userHasLlmChat(currentUser, context.forumType)) {
       return new Response('Only admins and authorized users can use Claude chat right now', {
         status: 403
       });

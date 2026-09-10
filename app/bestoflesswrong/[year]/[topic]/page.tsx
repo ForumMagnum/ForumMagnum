@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import TopPostsPage from '@/components/sequences/TopPostsPage';
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
@@ -8,11 +9,12 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const forumType = await getForumTypeForPage();
   return merge(
     {},
     await getDefaultMetadata(),
-    getMetadataDescriptionFields(`${siteNameWithArticleSetting.get()}'s best posts`),
-    getPageTitleFields('The Best of LessWrong'),
+    getMetadataDescriptionFields(`${siteNameWithArticleSetting.get(forumType)}'s best posts`),
+    await getPageTitleFields('The Best of LessWrong'),
     getMetadataImagesFields('https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png'),
   );
 }

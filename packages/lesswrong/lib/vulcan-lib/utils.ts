@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import { siteUrlSetting, logoUrlSetting } from '../instanceSettings';
+import { siteUrlSetting, logoUrlSetting, type ForumTypeString } from '../instanceSettings';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 // @summary Convert a camelCase string to a space-separated capitalized string
@@ -37,10 +37,10 @@ export const capitalize = function(str: string): string {
 //////////////////////////
 
 /**
- * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
+ * Returns the forum's configured site URL with a trailing slash.
  */
-export const getSiteUrl = function (): string {
-  let url = siteUrlSetting.get();
+export const getSiteUrl = function (forumType: ForumTypeString | ResolverContext): string {
+  let url = siteUrlSetting.get(forumType);
   if (url.slice(-1) !== '/') {
     url += '/';
   }
@@ -53,8 +53,8 @@ export function urlIsAbsolute(url: string): boolean {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 }
 
-export const makeAbsolute = function (url: string): string {
-  const baseUrl = getSiteUrl();
+export const makeAbsolute = function (url: string, forumType: ForumTypeString | ResolverContext): string {
+  const baseUrl = getSiteUrl(forumType);
   if (url.startsWith("/"))
     return baseUrl+url.substr(1);
   else
@@ -157,10 +157,10 @@ export const getNestedProperty = function (obj: any, desc: string) {
   return obj;
 };
 
-export const getLogoUrl = (): string|undefined => {
-  const logoUrl = logoUrlSetting.get()
+export const getLogoUrl = (forumType: ForumTypeString | ResolverContext): string|undefined => {
+  const logoUrl = logoUrlSetting.get(forumType)
   if (logoUrl) {
-    const prefix = getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl(forumType).slice(0,-1);
     // the logo may be hosted on another website
     return logoUrl.indexOf('://') > -1 ? logoUrl : prefix + logoUrl;
   }

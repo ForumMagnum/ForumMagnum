@@ -53,7 +53,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
-    karmaChangeNotifierDefaultSettings.get();
+    karmaChangeNotifierDefaultSettings.get(context);
 
   const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {

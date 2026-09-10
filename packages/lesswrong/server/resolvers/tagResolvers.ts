@@ -716,7 +716,7 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description", context);
@@ -736,7 +736,7 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
-  const resolverContext = createAdminContext();
+  const resolverContext = createAdminContext({ forumType: "LessWrong" });
   const { Tags } = resolverContext;
 
   const tag = await Tags.findOne({slug: tagSlug});

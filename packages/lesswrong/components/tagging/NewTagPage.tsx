@@ -1,4 +1,6 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
@@ -30,6 +32,7 @@ export const styles = defineStyles("NewTagPage", (_theme: ThemeType) => ({
 }));
 
 const NewTagPage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
@@ -56,13 +59,13 @@ const NewTagPage = () => {
     );
   }
   
-  if (!tagUserHasSufficientKarma(currentUser, "new")) {
+  if (!tagUserHasSufficientKarma(currentUser, "new", forumType)) {
     return (
       <SingleColumnSection>
         <SectionTitle title={`New Wikitag`}/>
         <div>
           You do not have enough karma to define new wikitags. You must have
-          at least {getTagMinimumKarmaPermissions().new} karma.
+          at least {getTagMinimumKarmaPermissions(forumType).new} karma.
         </div>
       </SingleColumnSection>
     );

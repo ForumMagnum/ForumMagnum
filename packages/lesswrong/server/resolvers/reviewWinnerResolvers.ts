@@ -7,7 +7,7 @@ import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 
 export async function initReviewWinnerCache() {
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   backgroundTask(reviewWinnerPostsCache.get());
   backgroundTask(splashArtCoordinateCache.get(context));
 }

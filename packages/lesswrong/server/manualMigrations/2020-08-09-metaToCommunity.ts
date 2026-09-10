@@ -5,6 +5,7 @@
  * These migrations assume you have a tag with the slug "community", and an
  * admin with the slug "jpaddison"
  */
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils'
 import { FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings'
 import Users from '../../server/collections/users/collection'
@@ -76,7 +77,7 @@ export const metaToCommunityUserSettings = registerMigration({
               updateOne: {
                 filter: { _id: user._id },
                 update: {$set: {
-                  'frontpageFilterSettings.personalBlog': getDefaultFilterSettings().personalBlog
+                  'frontpageFilterSettings.personalBlog': getDefaultFilterSettings(forumTypeSetting.get()).personalBlog
                 }}
               }
             }

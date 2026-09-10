@@ -1,15 +1,16 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { isLW } from '../../lib/instanceSettings';
 import ConfigurableRecommendationsList from "./ConfigurableRecommendationsList";
 import RecommendationsPageCuratedList from "./RecommendationsPageCuratedList";
 import SpotlightHistory from "../spotlights/SpotlightHistory";
 
 const RecommendationsPage = () => {
+  const { isLW } = useForumType();
   return (
     <AnalyticsContext pageSectionContext={"recommendationsPage"} capturePostItemOnMount>
-      {isLW() && <SpotlightHistory/>}
+      {isLW && <SpotlightHistory/>}
       <RecommendationsPageCuratedList/>
       <ConfigurableRecommendationsList configName="recommendationspage" />
     </AnalyticsContext>

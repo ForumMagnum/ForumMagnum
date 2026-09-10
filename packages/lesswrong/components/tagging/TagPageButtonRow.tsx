@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useDialog } from '../common/withDialog';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
@@ -122,11 +123,12 @@ const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
  * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
  */
 export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
+  const { forumType } = useForumType();
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
   const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds?.includes(currentUser._id)));
-  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit", forumType);
   const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
@@ -143,6 +145,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   toggleEmbeddedPlayer?: () => void;
   showEmbeddedPlayer?: boolean;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
@@ -205,7 +208,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
     </>}
     {noEditKarmaTooLow && <>
       <div>
-      You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
+      You must have at least {getTagMinimumKarmaPermissions(forumType).edit} karma to edit this topic
     </div>
     <br />
     </>}
@@ -217,7 +220,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   </>;
 
   // Audio toggle element
-  const audioToggle = isTagAllowedType3Audio(tag) && toggleEmbeddedPlayer && (
+  const audioToggle = isTagAllowedType3Audio(tag, forumType) && toggleEmbeddedPlayer && (
     <LWTooltip title={'Listen to this page'} className={classes.togglePodcastContainer}>
       <a href="#" onClick={(e) => {
         e.preventDefault();

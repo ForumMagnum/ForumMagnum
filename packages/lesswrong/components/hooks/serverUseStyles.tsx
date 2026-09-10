@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import type { ClassNameProxy, StyleDefinition } from "@/server/styleGeneration";
 import { classNameProxy } from "./defineStyles";
 import type { AbstractThemeOptions } from "@/themes/themeNames";
@@ -14,7 +15,7 @@ import { styleDefinitionToCSS } from "./serverEmbeddedStyles";
  *     }
  *   }), { stylePriority: 0 });
  *   function MyServerComponent() {
- *     const { classes, styleTag } = serverUseStyles(styles);
+ *     const { classes, styleTag } = serverUseStyles(styles, context.forumType);
  *     return <div className={classes.root}>
  *       {styleTag}
  *     </div>
@@ -25,24 +26,20 @@ import { styleDefinitionToCSS } from "./serverEmbeddedStyles";
  * specificity between server-component styles, server-component styles always win over client-component
  * styles if they have the same specificity.
  */
-export function serverUseStyles<T extends string>(styles: StyleDefinition<T>): {
+export function serverUseStyles<T extends string>(styles: StyleDefinition<T>, forumType: ForumTypeString): {
   classes: ClassNameProxy<T>;
   styleTag: React.ReactNode;
 } {
   if (!styles.nameProxy) {
     styles.nameProxy = classNameProxy(styles.name+"-");
   }
-  if (!styles.styleTag) {
-    const themeOptions: AbstractThemeOptions = { name: "auto" };
-    const precedence = `${styles.options?.stylePriority ?? 0}-${styles.name}`;
-    const styleStr = styleDefinitionToCSS(themeOptions, styles);
-    // eslint-disable-next-line react/no-unknown-property
-    styles.styleTag = <style href={styles.name} precedence={precedence}>
-      {styleStr}
-    </style>;
-  }
+  const themeOptions: AbstractThemeOptions = { name: "auto" };
+  const precedence = `${styles.options?.stylePriority ?? 0}-${styles.name}`;
+  const styleStr = styleDefinitionToCSS(themeOptions, styles, forumType);
+  // eslint-disable-next-line react/no-unknown-property
+  const styleTag = <style href={`${forumType}-${styles.name}`} precedence={precedence}>{styleStr}</style>;
   return {
     classes: styles.nameProxy!,
-    styleTag: styles.styleTag!
+    styleTag
   };
 }

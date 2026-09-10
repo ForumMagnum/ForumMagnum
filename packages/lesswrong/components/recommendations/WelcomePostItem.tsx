@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
@@ -22,9 +23,10 @@ const WelcomePostQuery = gql(`
 export default function WelcomePostItem({repeatedPostsPrecedence}: {
   repeatedPostsPrecedence?: number
 }) {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const welcomePostId = aboutPostIdSetting.get();
+  const welcomePostId = aboutPostIdSetting.get(forumType);
 
   const { data } = useQuery(WelcomePostQuery, {
     variables: { documentId: welcomePostId },

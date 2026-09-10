@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -26,6 +27,7 @@ interface UseSeeLessOptions {
 }
 
 export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessOptions) => {
+  const { forumType } = useForumType();
   const documentType = collectionName === 'Posts' ? 'post' : 'comment';
   const currentUser = useCurrentUser();
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
@@ -55,7 +57,7 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
     
     // Send neutral rating to Recombee to undo the downvote (posts only)
     if (documentType === 'post' && recommId) {
-      void recombeeApi.createRating( documentId, currentUser._id, "neutral", recommId);
+      void recombeeApi.createRating(documentId, currentUser._id, "neutral", forumType, recommId);
     }
     
     captureEvent("ultraFeedSeeLessUndone", {
@@ -64,7 +66,7 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
     });
     
     setSeeLessEventId(null);
-  }, [currentUser, seeLessEventId, documentId, documentType, recommId, updateUltraFeedEvent, captureEvent]);
+  }, [currentUser, seeLessEventId, documentId, documentType, recommId, updateUltraFeedEvent, captureEvent, forumType]);
 
   const handleSeeLessClick = useCallback(async () => {
     if (!currentUser) return;
@@ -115,12 +117,7 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
 
       // Handle Recombee rating for posts
       if (collectionName === "Posts" && metaInfo && 'recommInfo' in metaInfo && recommId) {
-        void recombeeApi.createRating(
-          documentId, 
-          currentUser._id, 
-          "bigDownvote",
-          recommId
-        );
+        void recombeeApi.createRating(documentId, currentUser._id, "bigDownvote", forumType, recommId);
       }
     } catch (error) {
       //eslint-disable-next-line no-console
@@ -136,7 +133,8 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
     collectionName, 
     metaInfo, 
     createUltraFeedEvent,
-    recommId
+    recommId,
+    forumType
   ]);
 
   const debouncedFeedbackUpdate = useDebouncedCallback(async (feedback: FeedbackOptions) => {

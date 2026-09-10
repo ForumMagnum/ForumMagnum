@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import React, { useMemo } from 'react';
 import { useHover } from '../common/withHover';
@@ -51,6 +52,7 @@ const styles = defineStyles('PostsAnnualReviewMarketTag', (theme: ThemeType) => 
 const PostsAnnualReviewMarketTag = ({annualReviewMarketInfo}: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -61,7 +63,7 @@ const PostsAnnualReviewMarketTag = ({annualReviewMarketInfo}: {
     return userAndSlug;
   }, [marketUrl]);
 
-  const marketOutcomeClass = (highlightMarket(annualReviewMarketInfo)) ? "expectedWinner" : "expectedLoser"
+  const marketOutcomeClass = (highlightMarket(annualReviewMarketInfo, forumType)) ? "expectedWinner" : "expectedLoser"
 
   const decimalPlaces = 0;
   return <span>

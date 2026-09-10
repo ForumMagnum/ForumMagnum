@@ -230,8 +230,8 @@ export async function checkFrontpage(
 ) {
   const template = await wikiSlugToTemplate("lm-config-autotag", context);
 
-  const autoFrontpageModel = autoFrontpageModelSetting.get()
-  const autoFrontpagePrompt = autoFrontpagePromptSetting.get()
+  const autoFrontpageModel = autoFrontpageModelSetting.get(context)
+  const autoFrontpagePrompt = autoFrontpagePromptSetting.get(context)
 
   if (!autoFrontpageModel || !autoFrontpagePrompt) {
     return false;
@@ -250,7 +250,7 @@ export async function checkFrontpage(
 
 export async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
   const { Users } = context;
-  const accountSlug = tagBotAccountSlug.get();
+  const accountSlug = tagBotAccountSlug.get(context);
   if (!accountSlug) return null;
   const account = await Users.findOne({slug: accountSlug});
   if (!account) return null;

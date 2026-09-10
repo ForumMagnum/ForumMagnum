@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useGlobalKeydown, useOnSearchHotkey } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
@@ -5,9 +6,9 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
-import { isLW } from '@/lib/instanceSettings';
 
 export const GlobalHotkeys = () => {
+  const { isLW } = useForumType();
   const currentThemeOptions = useConcreteThemeOptions();
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
@@ -34,7 +35,7 @@ export const GlobalHotkeys = () => {
       });
     }
 
-    if (isLW() && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
+    if (isLW && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
       replaceText();
     }
   });

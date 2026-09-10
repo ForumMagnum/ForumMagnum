@@ -1,7 +1,6 @@
 import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
-import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
 import { getSqlFragment } from "@/lib/fragments/sqlFragments";
 import { TypedDocumentNode } from "@apollo/client";
 import { FragmentDefinitionNode } from "graphql";
@@ -26,8 +25,8 @@ type FetchFragmentOptions<
   options?: MongoFindOptions<ObjectsByCollectionName[CollectionName]>,
   /** Arguments to pass to code resolvers and SQL resolvers */
   resolverArgs?: Record<string, unknown> | null,
-  /** Optional resolver context */
-  context?: ResolverContext,
+  /** Resolver context, including the request forum. */
+  context: ResolverContext,
   /**
    * By default, the results are passed through `accessFilterMultiple` to
    * restrict the data for the current user. If you need unrestricted data
@@ -70,14 +69,10 @@ export const fetchFragment = async <
   selector,
   options,
   resolverArgs,
-  context: maybeContext,
+  context,
   skipFiltering,
   skipCodeResolvers,
 }: FetchFragmentOptions<F, V, CollectionName>): Promise<FetchedFragment<F, CollectionName>[]> => {
-  const context = maybeContext ?? await computeContextFromUser({
-    user: currentUser,
-    isSSR: false,
-  });
 
   const fragmentDefinitions = fragmentDoc.definitions.filter((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
   if (!fragmentDefinitions.length) {

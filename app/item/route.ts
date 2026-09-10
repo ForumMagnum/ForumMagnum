@@ -1,7 +1,8 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import Posts from "@/server/collections/posts/collection";
 import Comments from "@/server/collections/comments/collection";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { commentGetPageUrlFromDB } from "@/lib/collections/comments/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetAbsolutePageUrlFromDB } from "@/lib/collections/comments/helpers";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
@@ -22,15 +23,15 @@ export async function GET(req: NextRequest) {
     return new Response('No ID provided', { status: 400 });
   }
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: getForumTypeForRequest(req) });
 
   const post = await findPostByLegacyAFId(parseInt(id));
   if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetAbsolutePageUrl(post, context.forumType));
   } else {
     const comment = await findCommentByLegacyAFId(parseInt(id));
     if (comment) {
-      redirect(await commentGetPageUrlFromDB(comment, context, true));
+      redirect(await commentGetAbsolutePageUrlFromDB(comment, context));
     } else {
       return new Response(`No af legacy item found with: id=${id}`, { status: 404 });
     }

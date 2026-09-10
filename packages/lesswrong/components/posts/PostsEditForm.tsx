@@ -1,9 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from 'react';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isLW } from '../../lib/instanceSettings';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
@@ -150,6 +150,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -214,7 +215,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
-    return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+    return <PermanentRedirect url={postGetEditUrl(document._id, document.linkSharingKey)} status={302}/>
   }
 
   // If we don't have the post and none of the earlier cases applied, we either
@@ -229,7 +230,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
+  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
   const rightColumnChildren = <>
     {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
@@ -261,7 +262,7 @@ const PostsEditFormInner = ({ documentId, version }: {
                 if (options?.submitOptions?.skipRedirect) {
                   return;
                 } else if (options?.submitOptions?.redirectToEditor) {
-                  const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
+                  const redirectPath = postGetEditUrl(post._id, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
                   navigate({pathname: postGetPageUrl(post), search: ''});

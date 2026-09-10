@@ -10,6 +10,8 @@ import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import { BodyWithBackgroundColor } from "@/components/layout/PageBackgroundWrapper";
 import PageBackgroundColorSwitcher from "@/components/layout/PageBackgroundColorSwitcher";
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
+import { faviconUrlSetting } from "@/lib/instanceSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getDefaultMetadata();
@@ -23,7 +25,12 @@ export default async function RootLayout({
   return (
     <html>
       <head>
+        {/* Keep the JSS markers outside Suspense so streamed styles inserted
+            between them are preserved during hydration. */}
         <SharedScripts/>
+        <Suspense>
+          <ForumFavicon/>
+        </Suspense>
       </head>
       <BodyWithBackgroundColor>
         <Suspense>
@@ -38,13 +45,19 @@ export default async function RootLayout({
   );
 }
 
+async function ForumFavicon() {
+  const forumType = await getForumTypeForPage();
+  return <link rel="icon" href={faviconUrlSetting.get(forumType)}/>;
+}
+
 const ClientAppGeneratorWithRequestId = async ({ children }: {
   children: React.ReactNode,
 }) => {
   const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
   const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+  const forumType = await getForumTypeForPage();
 
-  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId} forumType={forumType}>
     {children}
   </ClientAppGenerator>
 }

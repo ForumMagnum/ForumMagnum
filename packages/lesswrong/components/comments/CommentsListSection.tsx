@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
@@ -243,6 +244,7 @@ function CommentsListSectionTitle({
   setHighlightDate: (newValue: Date|undefined) => void,
   setRestoreScrollPos: (newValue: number) => void,
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const newCommentsSinceDate = highlightDate
@@ -274,7 +276,7 @@ function CommentsListSectionTitle({
       {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
     </span> :
     <span>
-      {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+      {postGetCommentCountStr(post, forumType, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
 
   const contentType = "comments";

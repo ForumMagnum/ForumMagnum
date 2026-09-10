@@ -28,6 +28,6 @@ export const EmailUsernameByID = async ({userID, fallbackName, emailContext}: {
   if (!document && fallbackName) {
     return <span>{fallbackName}</span>
   }
-  return <EmailUsername user={document}/>
+  return <EmailUsername emailContext={emailContext} user={document}/>
 }
 

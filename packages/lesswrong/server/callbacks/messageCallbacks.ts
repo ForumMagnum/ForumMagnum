@@ -88,7 +88,7 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
-  const userContext = await computeContextFromUser({ user: user, isSSR: false });
+  const userContext = await computeContextFromUser({ user: user, isSSR: false, forumType: context.forumType });
   await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext);
 }
 
@@ -106,5 +106,5 @@ export async function sendMessageNotifications(message: DbMessage, context: Reso
   const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
   // Create notification
-  await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
+  await createNotifications({ context, userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 }

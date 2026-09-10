@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
@@ -42,6 +43,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   hideLabel?: boolean,
   className?: string
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { eventHandlers, hover, forceUnHover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
@@ -71,7 +73,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
     );
   }
 
-  if (!tagUserHasSufficientKarma(currentUser, "new")) {
+  if (!tagUserHasSufficientKarma(currentUser, "new", forumType)) {
     return null;
   }
 

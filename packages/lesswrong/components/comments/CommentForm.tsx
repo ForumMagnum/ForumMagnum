@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -12,7 +13,6 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { isAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -273,6 +273,7 @@ export const CommentForm = ({
   onCancel: () => void;
   onError?: () => void;
 }) => {
+  const { isAF } = useForumType();
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
@@ -280,7 +281,7 @@ export const CommentForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   const canSetAfField = userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser);
-  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && canSetAfField;
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && canSetAfField;
 
   const DefaultFormGroupLayout = FormGroupNoStyling;
 
@@ -326,7 +327,7 @@ export const CommentForm = ({
           // 2026-04-12 and 2026-04-14); we drop `af` so the comment submits as
           // a regular LW comment and the existing non-member success-popup
           // flow (`useAfNonMemberSuccessHandling`) queues it for AF review.
-          const submitData = ((showAfCheckbox || isAF()) && canSetAfField) ? { ...rest, af } : rest;
+          const submitData = ((showAfCheckbox || isAF) && canSetAfField) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {

@@ -152,7 +152,7 @@ export async function getLatestAndSubscribedPosts(
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
-  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
 
   return await repos.posts.getLatestAndSubscribedFeedPosts(
     context,

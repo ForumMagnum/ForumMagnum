@@ -1,5 +1,6 @@
 'use client';
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
 import { useLocation } from '@/lib/routeUtil';
@@ -10,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
@@ -168,6 +169,7 @@ const isPathnameWithHiddenFloatingButtons = (pathname: string) =>
 const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
@@ -182,7 +184,7 @@ const Layout = ({children}: {
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
 
-  // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // isLW && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
@@ -224,7 +226,7 @@ const Layout = ({children}: {
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
               {!isStandaloneRoute(prerenderablePathname) && <SuspenseWrapper name="Header">
                 <Header
@@ -244,7 +246,7 @@ const Layout = ({children}: {
                 <FlashMessages />
               </ErrorBoundary>
 
-              {isLW() && <LWBackgroundImage />}
+              {isLW && <LWBackgroundImage />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
@@ -293,6 +295,7 @@ export const IsLlmChatSidebarOpenContext = createContext(false);
 const LlmSidebarWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
@@ -305,7 +308,7 @@ const LlmSidebarWrapper = ({children}: {
     setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
   }, [setCookie]);
 
-  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !hideLlmChatButton;
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser, forumType) && !hideLlmChatButton;
 
   return <div className={classes.topLevelContainer}>
     <div className={classes.pageContent}>
@@ -346,6 +349,7 @@ const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme
 function PageBackgroundWrapper({children}: {
   children: React.ReactNode
 }) {
+  const { isAF, isLW, forumType } = useForumType();
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
@@ -354,11 +358,11 @@ function PageBackgroundWrapper({children}: {
     getHomeDesignActiveSnapshot,
     () => false
   );
-  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
+  const isSandboxedHomePage = isLW && isHomeRoute(pathname, forumType) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
     "wrapper", classes.wrapper, {
-      'alignment-forum': isAF(),
+      'alignment-forum': isAF,
       [classes.fullscreen]: isFullscreenRoute(pathname),
       'home-design-active': isSandboxedHomePage,
       'research-active': isResearchRoute(pathname),

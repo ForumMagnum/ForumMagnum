@@ -1,15 +1,15 @@
 // eslint-disable-next-line no-restricted-imports
 import type OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
-import { openAIApiKey, openAIOrganizationId } from '../databaseSettings';
+import { openAIOrganizationId } from '../databaseSettings';
 import drop from 'lodash/drop';
 import take from 'lodash/take';
 
 let openAIApi: OpenAI|null = null;
 export async function getOpenAI(): Promise<OpenAI|null> {
   if (!openAIApi){
-    const apiKey = openAIApiKey.get();
-    const organizationId = openAIOrganizationId.get();
+    const apiKey = (process.env.private_languageModels_openai_apiKey ?? null);
+    const organizationId = openAIOrganizationId;
     
     if (apiKey) {
       const { OpenAI } = await import('openai');
@@ -23,7 +23,7 @@ export async function getOpenAI(): Promise<OpenAI|null> {
 }
 
 export function isOpenAIAPIEnabled() {
-  const apiKey = openAIApiKey.get();
+  const apiKey = (process.env.private_languageModels_openai_apiKey ?? null);
   return !!apiKey;
 }
 

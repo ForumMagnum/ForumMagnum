@@ -1,3 +1,4 @@
+import type { ForumTypeString } from './instanceSettings';
 import {getPublicSettings, initializeSetting} from './settingsCache'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
@@ -34,7 +35,8 @@ export class DatabasePublicSetting<SettingValueType> {
     this.get = this.get.bind(this)
     this.getOrThrow = this.getOrThrow.bind(this)
   }
-  get(): SettingValueType {
+  // The forum argument is required while callers migrate; value selection is unchanged for now.
+  get(_forum: ForumTypeString | ResolverContext): SettingValueType {
     // eslint-disable-next-line no-console
     // TODO: come back to this when we get to the point where we need database settings available on the client
     // if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
@@ -43,8 +45,8 @@ export class DatabasePublicSetting<SettingValueType> {
     return cacheValue
   }
 
-  getOrThrow(): SettingValueType {
-    const value = this.get()
+  getOrThrow(forum: ForumTypeString | ResolverContext): SettingValueType {
+    const value = this.get(forum)
     if (value === null || value === undefined) throw Error(`Tried to access public setting ${this.settingName} but it was not set`)
     return value
   }

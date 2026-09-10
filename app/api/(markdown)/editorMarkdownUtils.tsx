@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { markdownClasses, markdownResponse } from "@/server/markdownApi/markdownResponse";
 import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
@@ -303,6 +304,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
       version,
       bodyMarkdown,
       commentThreadsMarkdown,
+      forumType: resolverContext.forumType,
     });
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
@@ -320,12 +322,14 @@ export async function renderEditorDraftMarkdown({
   bodyMarkdown,
   version,
   commentThreadsMarkdown,
+  forumType,
 }: {
   title: string
   postId: string
   bodyMarkdown: string
   version?: string
   commentThreadsMarkdown?: string
+  forumType: ForumTypeString
 }): Promise<Response> {
   return markdownResponse(
     <div>
@@ -353,6 +357,7 @@ export async function renderEditorDraftMarkdown({
       <hr />
       {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
       <hr />
-    </div>
+    </div>,
+    forumType
   );
 }

@@ -1,7 +1,7 @@
 import React, { type CSSProperties } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { isLW } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = defineStyles("MuiPaper", (theme: ThemeType) => {
   const elevations: Record<string,AnyBecauseHard> = {};
@@ -56,10 +56,10 @@ export const Paper = ({elevation=2, square=false, className, nodeRef, style, chi
 const cardStyles = defineStyles("Card", (theme) => ({
   root: {
     overflow: "hidden",
-    ...(isLW() && {
-      borderRadius: 1,
-      boxShadow: theme.palette.boxShadow.lwCard,
-    })
+  },
+  lw: {
+    borderRadius: 1,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
 }));
 
@@ -73,10 +73,11 @@ export const Card = ({raised=false, className, style, children}: {
   style?: CSSProperties,
   children?: React.ReactNode
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(cardStyles);
   return <Paper
     elevation={raised ? 8 : 1}
-    className={classNames(classes.root, className)}
+    className={classNames(classes.root, { [classes.lw]: isLW }, className)}
     style={style}
   >
     {children}

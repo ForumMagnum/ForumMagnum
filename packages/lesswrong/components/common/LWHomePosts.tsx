@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -414,6 +415,7 @@ const useHasContinueReadingTab = (currentUser: UsersCurrent|null) => {
 const LWHomePosts = ({ children, }: {
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
@@ -422,7 +424,7 @@ const LWHomePosts = ({ children, }: {
   const now = useCurrentTime();
   const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get(forumType)
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
@@ -555,7 +557,7 @@ const LWHomePosts = ({ children, }: {
     settings = recombeeSettingsElement;
   }
 
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(forumType)*24, 'hours').startOf('hour').toISOString();
 
   const recentPostsTerms: PostsViewTerms = {
     filterSettings,

@@ -4,7 +4,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useSuspenseQuery } from '@/lib/crud/useQuery';
@@ -103,14 +102,9 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   const classes = useStyles(styles);
   const firstPostSequenceId = spotlight.documentId;
 
-  const prefix = forumSelect({
-    EAForum: "Start with: ",
-    default: "First Post: "
-  });
-
   return <div className={classNames(classes.firstPost, classes.root)}>
-    {prefix}<PostsTooltip post={firstPost}>
-      <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
+    First Post: <PostsTooltip post={firstPost}>
+      <Link to={postGetPageUrl(firstPost, firstPostSequenceId)}>{firstPost.title}</Link>
     </PostsTooltip>
   </div>
 }
@@ -130,7 +124,7 @@ const SpotlightStartOrContinueReadingCheckboxes = ({spotlight, posts}: {
       flip={false}
       inlineBlock
     >
-      <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
+      <Link to={postGetPageUrl(post, firstPostSequenceId)}>
         <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
       </Link>
     </PostsTooltip>

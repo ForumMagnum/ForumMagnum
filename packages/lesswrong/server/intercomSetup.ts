@@ -1,9 +1,8 @@
 import { Client as IntercomClient } from 'intercom-client';
-import { intercomTokenSetting } from './databaseSettings';
 
 let intercomClient: IntercomClient | null = null;
 export const getIntercomClient = () => {
-  const intercomToken = intercomTokenSetting.get();
+  const intercomToken = (process.env.private_intercomToken ?? null);
   if (!intercomClient && intercomToken) {
     intercomClient =  new IntercomClient({
       tokenAuth: {

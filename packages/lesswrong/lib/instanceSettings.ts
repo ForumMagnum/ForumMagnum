@@ -18,9 +18,9 @@ const anyIsObject = (...args: any[]): boolean => {
 
 export const Settings: Record<string,any> = {};
 
-const getSetting = <T>(settingName: string, settingDefault?: T): T => {
+const getSetting = <T>(settingName: string, forumType: ForumTypeString, settingDefault?: T): T => {
   let setting;
-  const instanceSettings = getInstanceSettings();
+  const instanceSettings = getInstanceSettings(forumType);
 
   // if a default value has been registered using registerSetting, use it
   if (typeof settingDefault === 'undefined' && Settings[settingName])
@@ -75,8 +75,9 @@ export class PublicInstanceSetting<SettingValueType> {
   ) {
     initializeSetting(settingName, "instance")
     if (isDevelopment && settingType !== "optional") {
-      const settingValue = getSetting(settingName)
-      if (typeof settingValue === 'undefined') {
+      const lwSettingValue = getSetting(settingName, "LessWrong")
+      const afSettingValue = getSetting(settingName, "AlignmentForum")
+      if (typeof lwSettingValue === 'undefined' && typeof afSettingValue === 'undefined') {
         if (settingType === "warning") {
           if (!isAnyTest) {
             // eslint-disable-next-line no-console
@@ -89,8 +90,9 @@ export class PublicInstanceSetting<SettingValueType> {
       }
     }
   }
-  get(): SettingValueType {
-    return getSetting(this.settingName, this.defaultValue)
+  get(forum: ForumTypeString | ResolverContext): SettingValueType {
+    const forumType = typeof forum === 'string' ? forum : forum.forumType;
+    return getSetting(this.settingName, forumType, this.defaultValue)
   }
 }
 
@@ -160,15 +162,9 @@ export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCur
 
 export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLogging.enabled', false, "optional");
 export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
-export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
+export const performanceMetricLoggingSqlSampleRate: number = 0.05;
 
-const disableElastic = new PublicInstanceSetting<'true' | 'false'>(
-  "disableElastic",
-  'false',
-  "optional",
-);
-
-export const isElasticEnabled = () => !isAnyTest && !isE2E && disableElastic.get() !== 'true';
+export const isElasticEnabled = () => !isAnyTest && !isE2E && process.env.private_elasticsearch_disableElastic !== 'true';
 
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
@@ -216,12 +212,9 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
-
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
 
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
-
-export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
 export const falApiKey = new PublicInstanceSetting<string>('falAI.apiKey', "", "optional")
 
@@ -232,7 +225,6 @@ export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.ap
 export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
 export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
 
-export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('airtable.apiKey', null, "optional");
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
 
@@ -242,7 +234,7 @@ export const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '
 export const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning");
 export const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional");
 
-export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional');
+export const instanceDebuggers: string[] = [];
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning");
@@ -251,19 +243,8 @@ export const environmentDescriptionSetting = new PublicInstanceSetting<string>("
 // settings, which take precedence over the database settings. This allows
 // using custom CkEditor settings that don't match what's in the attached
 // database.
-export const ckEditorEnvironmentIdOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.environmentId', null, "optional");
-export const ckEditorSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.secretKey', null, "optional");
-export const ckEditorApiPrefixOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiPrefix', null, "optional");
-export const ckEditorApiSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiSecretKey', null, "optional");
 
-
-export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>("elasticsearch.cloudId", null, "optional");
-
-export const elasticUsernameSetting = new PublicInstanceSetting<string | null>("elasticsearch.username", null, "optional");
-
-export const elasticPasswordSetting = new PublicInstanceSetting<string | null>("elasticsearch.password", null, "optional");
-
-export const searchOriginDate = new PublicInstanceSetting<string>("elasticsearch.searchOriginDate", "2014-06-01T01:00:00Z", "optional");
+export const searchOriginDate = "2003-01-01T01:00:00Z";
 
 // Database ID string that this config file should match with
 export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");
@@ -276,17 +257,16 @@ export const accessTokenSecretSetting = new PublicInstanceSetting<string | null>
   Public Database Settings
 */
 
-export const googleTagManagerIdSetting = new PublicInstanceSetting<string | null>('googleTagManager.apiKey', null, "optional"); // Google Tag Manager ID
-export const reCaptchaSiteKeySetting = new PublicInstanceSetting<string | null>('reCaptcha.apiKey', null, "optional"); // ReCaptcha API Key
+export const googleTagManagerId: string = "GTM-TRC765W"; // Google Tag Manager ID
+export const reCaptchaSiteKey: string = "6LfFgqEUAAAAAHKdMgzGO-1BRBhHw1x6_8Ly1cXc"; // ReCaptcha API Key
 // Despite the name, this setting is also used to set the index prefix for Elasticsearch for legacy reasons
-export const algoliaPrefixSetting = new PublicInstanceSetting<string>('algolia.indexPrefix', '', "optional");
+export const algoliaIndexPrefix: string = "test_";
 
 export const ckEditorUploadUrlSetting = new PublicInstanceSetting<string | null>('ckEditor.uploadUrl', null, "optional"); // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new PublicInstanceSetting<string | null>('ckEditor.webSocketUrl', null, "optional"); // Websocket URL for CKEditor (for collaboration)
 
-
 export const hideUnreviewedAuthorCommentsSettings = new PublicInstanceSetting<string | null>('hideUnreviewedAuthorComments', null, "optional"); // Hide comments by unreviewed authors after date provided (prevents spam / flaming / makes moderation easier, but delays new user engagement)
-export const cloudinaryCloudNameSetting = new PublicInstanceSetting<string>('cloudinary.cloudName', 'lesswrong-2-0', "optional"); // Cloud name for cloudinary hosting
+export const cloudinaryCloudName: string = "lesswrong-2-0"; // Cloud name for cloudinary hosting
 
 export const nofollowKarmaThreshold = new PublicInstanceSetting<number>('nofollowKarmaThreshold', 10, "optional"); // Users with less than this much karma have their links marked as nofollow
 
@@ -335,7 +315,7 @@ export const seasonalOpenThreadAuthorSlugSetting = new PublicInstanceSetting<str
 
 export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
-export const hasCookieConsentSetting = new PublicInstanceSetting<boolean>('hasCookieConsent', false, "optional");
+export const hasCookieConsent: boolean = false;
 
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
@@ -343,7 +323,6 @@ export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number
 export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', true, "optional");
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
-
 
 export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recombee.enabled', false, "optional");
 export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
@@ -357,7 +336,7 @@ export const userIdsWithAccessToLlmChat = new PublicInstanceSetting<string[]>('l
 
 export const textReplacementsSetting = new PublicInstanceSetting<Record<string, string>>('textReplacements', {}, "optional");
 
-export const lightconeFundraiserPaymentLinkId = new PublicInstanceSetting<string>('lightconeFundraiser.paymentLinkId', '', "optional");
+export const lightconeFundraiserPaymentLinkId: string = "plink_1QPdGLBlb9vL5IMTvkJ3LZ6v";
 export const lightconeFundraiserThermometerBgUrl = new PublicInstanceSetting<string>('lightconeFundraiser.thermometerBgUrl', '', "optional");
 export const lightconeFundraiserThermometerGoalAmount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0, "optional");
 export const lightconeFundraiserThermometerGoal2Amount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000, "optional");
@@ -368,7 +347,7 @@ export const lightconeFundraiserActive = new PublicInstanceSetting<boolean>('lig
 export const postsListViewTypeSetting = new PublicInstanceSetting<string>('posts.viewType', 'list', "optional");
 export const quickTakesMaxAgeDaysSetting = new PublicInstanceSetting<number>('feed.quickTakesMaxAgeDays', 5, "optional");
 
-export const mapsAPIKeySetting = new PublicInstanceSetting<string | null>('googleMaps.apiKey', null, "optional");
+export const mapsAPIKey: string = "AIzaSyA3C48rl26gynG3qIuNuS-3Bh_Zz9jFXkY";
 
 export const siteImageSetting = new PublicInstanceSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg', "optional"); // An image used to represent the site on social media
 
@@ -387,7 +366,7 @@ export const graphqlBatchMaxSetting = new PublicInstanceSetting('batchHttpLink.b
 
 export const firstCommentAcknowledgeMessageCommentIdSetting = new PublicInstanceSetting<string>('firstCommentAcknowledgeMessageCommentId', '', "optional");
 
-export const ipApiKeySetting = new PublicInstanceSetting<string | null>('ipapi.apiKey', null, "optional");
+export const ipApiKey: string|null = null;
 
 export const intercomAppIdSetting = new PublicInstanceSetting<string>('intercomAppId', 'wtb8z7sj', "optional");
 
@@ -421,8 +400,7 @@ export const defaultAFModeratorPMsTagSlug = new PublicInstanceSetting<string>('d
 export const commentModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('commentModerationWarningCommentId', '', "optional");
 export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('postModerationWarningCommentId', '', "optional");
 
-export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
-
+export const showAnalyticsDebug: "never" | "dev" | "always" = "dev";
 
 export const type3DateCutoffSetting = new PublicInstanceSetting<string>('type3.cutoffDate', '2023-05-01', "optional");
 export const type3ExplicitlyAllowedPostIdsSetting = new PublicInstanceSetting<string[]>('type3.explicitlyAllowedPostIds', [], "optional");
@@ -432,27 +410,27 @@ export const newUserIconKarmaThresholdSetting = new PublicInstanceSetting<number
 export const cloudinaryUploadPresetEditorName = new PublicInstanceSetting<string | null>('cloudinary.uploadPresetEditor', null, "optional");
 
 // LW (and legacy) time decay algorithm settings
-export const timeDecayFactorSetting = new PublicInstanceSetting<number>('timeDecayFactor', 1.15, "optional");
-export const frontpageBonusSetting = new PublicInstanceSetting<number>('frontpageScoreBonus', 10, "optional");
-export const curatedBonusSetting = new PublicInstanceSetting<number>('curatedScoreBonus', 10, "optional");
+export const timeDecayFactor = 1.15;
+export const frontpageScoreBonus: number = 0;
+export const curatedScoreBonus: number = 10;
 
 // EA Frontpage time decay algorithm settings
-export const startingAgeHoursSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.startingAgeHours', 6, "optional");
-export const decayFactorSlowestSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5, "optional");
-export const decayFactorFastestSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08, "optional");
-export const activityWeightSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.activityWeight', 1.4, "optional");
-export const activityHalfLifeSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.activityHalfLife', 60, "optional");
+export const defaultStartingAgeHours: number = 6;
+export const defaultDecayFactorSlowest: number = 0.5;
+export const defaultDecayFactorFastest: number = 1.08;
+export const defaultActivityWeight: number = 1.4;
+export const defaultActivityHalfLife: number = 60;
 export const frontpageDaysAgoCutoffSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90, "optional");
-export const databaseDebuggersSetting = new PublicInstanceSetting<string[]>('debuggers', [], "optional");
+export const databaseDebuggers: string[] = [];
 
 // 'Maximum documents per request'
 export const maxDocumentsPerRequestSetting = new PublicInstanceSetting<number>('maxDocumentsPerRequest', 10000, "optional");
 
-export const addNewReactKarmaThreshold = new PublicInstanceSetting("reacts.addNewReactKarmaThreshold", 100, "optional");
-export const addNameToExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.addNameToExistingReactKarmaThreshold", 20, "optional");
-export const downvoteExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.downvoteExistingReactKarmaThreshold", 20, "optional");
+export const addNewReactKarmaThreshold = 10;
+export const addNameToExistingReactKarmaThreshold = 5;
+export const downvoteExistingReactKarmaThreshold = 20;
 
-export const karmaRewarderId100 = new PublicInstanceSetting<string | null>('karmaRewarderId100', null, "optional");
-export const karmaRewarderId1000 = new PublicInstanceSetting<string | null>('karmaRewarderId1000', null, "optional");
+export const karmaRewarderId100: string = "iqWr6C3oEB4yWpzn5";
+export const karmaRewarderId1000: string = "mBBmKWkmw8bgJmGiG";
 
 export const logoUrlSetting = new PublicInstanceSetting<string | null>('logoUrl', null, "optional");

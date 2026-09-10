@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { hasEventsSetting, isLW } from '@/lib/instanceSettings';
+import { hasEventsSetting } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -18,6 +19,7 @@ const NotificationsSettingsTab = ({
   isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isLW, forumType } = useForumType();
   return (
     <div>
       <SettingsSection title="Auto-Subscriptions">
@@ -37,7 +39,7 @@ const NotificationsSettingsTab = ({
           description="Get notified when someone replies to your comments"
         />
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <SettingsToggleRow
             value={settings.autoSubscribeAsOrganizer}
             onChange={(value) => void updateSettings({ autoSubscribeAsOrganizer: value })}
@@ -91,7 +93,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationPostsInGroups"
             value={settings.notificationPostsInGroups ?? null}
@@ -203,7 +205,7 @@ const NotificationsSettingsTab = ({
             label="AF submission approvals"
           />
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationEventInRadius"
             value={settings.notificationEventInRadius ?? null}
@@ -212,7 +214,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationRSVPs"
             value={settings.notificationRSVPs ?? null}
@@ -221,7 +223,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationGroupAdministration"
             value={settings.notificationGroupAdministration ?? null}
@@ -246,7 +248,7 @@ const NotificationsSettingsTab = ({
           <UsersEmailVerification />
         </div>}
 
-        {isLW() && <div className={fieldWrapperClass}>
+        {isLW && <div className={fieldWrapperClass}>
           <EmailConfirmationRequiredCheckbox
             field={bind('emailSubscribedToCurated')}
             label="Email me new posts in Curated"

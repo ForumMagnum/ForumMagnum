@@ -1,10 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
 import { useMutation } from '@apollo/client/react';
 import { DocumentNode } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
-import { isAF } from '../../lib/instanceSettings';
 import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
 import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { VotingProps } from './votingProps';
@@ -101,6 +101,7 @@ const performVoteMutations = {
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
 
 export const useVote = <T extends VoteableTypeClient, CollectionName extends VoteableCollectionName>(document: T, collectionName: CollectionName, votingSystem?: VotingSystem): VotingProps<T> & { collectionName: CollectionName } => {
+  const { isAF } = useForumType();
   const getCurrentUser = useGetCurrentUser();
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
@@ -170,7 +171,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
   }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);
 
   const result = optimisticResponseDocument || document;
-  const baseScore = (isAF() ? result.afBaseScore : result.baseScore) || 0;
+  const baseScore = (isAF ? result.afBaseScore : result.baseScore) || 0;
   const voteCount = (result.voteCount) || 0;
   return useMemo(
     () => ({ vote, collectionName, document: result, baseScore, voteCount }),

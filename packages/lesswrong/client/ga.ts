@@ -1,8 +1,6 @@
-import { googleTagManagerIdSetting } from '@/lib/instanceSettings';
-
+import { googleTagManagerId } from '@/lib/instanceSettings';
 
 export function googleTagManagerInit() {
-  const googleTagManagerId = googleTagManagerIdSetting.get()
   if (googleTagManagerId) {
     (function (w: any, d: any, s: any, l: any, i: any) {
       w[l] = w[l] || [];

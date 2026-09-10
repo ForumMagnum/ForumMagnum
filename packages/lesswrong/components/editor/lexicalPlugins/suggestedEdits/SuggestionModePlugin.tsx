@@ -1,3 +1,5 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { useForumType } from "@/components/hooks/useForumType";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $findMatchingParent, IS_APPLE, mergeRegister } from '@lexical/utils'
 import type { ElementNode, LexicalEditor, NodeKey } from 'lexical'
@@ -103,13 +105,14 @@ function getImageAltText(payload: Blob): string {
 function insertImageFileAsSuggestion(
   editor: LexicalEditor,
   payload: Blob,
+  forumType: ForumTypeString,
   onSuggestionCreation: (id: string) => void,
   logger: ConsoleLogger,
 ): boolean {
   if (!isImageFile(payload) || !(payload instanceof File)) {
     return false
   }
-  uploadToCloudinary(payload)
+  uploadToCloudinary(payload, forumType)
     .then((result) => {
       const altText = getImageAltText(payload)
       editor.update(() => {
@@ -176,6 +179,7 @@ export function SuggestionModePlugin({
   controller: SuggestionThreadController
   onUserModeChange: (mode: EditorUserModeType) => void
 }) {
+  const { forumType } = useForumType()
   const [editor] = useLexicalComposerContext()
   const { accessLevel } = useCollaboratorIdentity()
   const canAcceptOrReject = accessLevelCan(accessLevel, "edit")
@@ -978,7 +982,7 @@ export function SuggestionModePlugin({
       ),
       editor.registerCommand(
         INSERT_FILE_COMMAND,
-        (payload) => insertImageFileAsSuggestion(editor, payload, addCreatedIDtoSet, suggestionModeLogger),
+        (payload) => insertImageFileAsSuggestion(editor, payload, forumType, addCreatedIDtoSet, suggestionModeLogger),
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
@@ -1080,7 +1084,7 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
     )
-  }, [controller, createNotification, editor, isSuggestionMode, onUserModeChange, suggestionModeLogger])
+  }, [controller, createNotification, editor, forumType, isSuggestionMode, onUserModeChange, suggestionModeLogger])
 
   return null
 }

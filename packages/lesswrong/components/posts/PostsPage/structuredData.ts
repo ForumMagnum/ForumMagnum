@@ -1,7 +1,8 @@
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
-import { userGetProfileUrl } from "@/lib/collections/users/helpers";
-import { forumTitleSetting, isAF } from "@/lib/instanceSettings";
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
+import { tagGetAbsoluteUrl } from "@/lib/collections/tags/helpers";
+import { userGetAbsoluteProfileUrl } from "@/lib/collections/users/helpers";
+import { forumTitleSetting } from "@/lib/instanceSettings";
 import { CommentTreeNode } from "@/lib/utils/unflatten";
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
@@ -12,9 +13,11 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 
 
 const getCommentStructuredData = ({
-  comment
+  comment,
+  forumType,
 }: {
-  comment: CommentTreeNode<CommentsList>
+  comment: CommentTreeNode<CommentsList>,
+  forumType: ForumTypeString,
 }): Record<string, any> => ({
   "@type": "Comment",
   text: comment.item.contents?.html,
@@ -22,25 +25,25 @@ const getCommentStructuredData = ({
   author: [{
     "@type": "Person",
     name: comment.item.user?.displayName,
-    url: userGetProfileUrl(comment.item.user, true),
+    url: userGetAbsoluteProfileUrl(comment.item.user, forumType),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/CommentAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afCommentCount" : "commentCount"],
+        userInteractionCount: comment.item.user?.[forumType === "AlignmentForum" ? "afCommentCount" : "commentCount"],
       },
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/WriteAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afPostCount" : "postCount"],
+        userInteractionCount: comment.item.user?.[forumType === "AlignmentForum" ? "afPostCount" : "postCount"],
       },
     ],
   }],
-  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child, forumType}))})
 })
 
 /**
@@ -50,12 +53,14 @@ export const getStructuredData = ({
   post,
   description,
   commentTree,
-  answersTree
+  answersTree,
+  forumType,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
   commentTree: CommentTreeNode<CommentsList>[];
   answersTree: CommentTreeNode<CommentsList>[];
+  forumType: ForumTypeString;
 }) => {
   const { user, coauthors } = post;
   const hasUser = !!user;
@@ -66,11 +71,11 @@ export const getStructuredData = ({
   return {
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
-    "url": postGetPageUrl(post, true),
+    "url": postGetAbsolutePageUrl(post, forumType),
     "text": post.contents?.html ?? description,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": postGetPageUrl(post, true),
+      "@id": postGetAbsolutePageUrl(post, forumType),
     },
     headline: post.title,
     ...(description && { description: description }),
@@ -78,7 +83,7 @@ export const getStructuredData = ({
     about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
       "@type": "Thing",
       name: tag.name,
-      url: tagGetUrl(tag, undefined, true),
+      url: tagGetAbsoluteUrl(tag, forumType),
       description: tag.description?.htmlHighlight,
     })),
     ...(hasUser && {
@@ -86,7 +91,7 @@ export const getStructuredData = ({
         {
           "@type": "Person",
           name: user.displayName,
-          url: userGetProfileUrl(post.user, true),
+          url: userGetAbsoluteProfileUrl(post.user, forumType),
         },
         ...(hasCoauthors
           ? coauthors
@@ -94,12 +99,12 @@ export const getStructuredData = ({
               .map(coauthor => ({
                 "@type": "Person",
                 "name": coauthor.displayName,
-                url: userGetProfileUrl(post.user, true),
+                url: userGetAbsoluteProfileUrl(post.user, forumType),
               }))
           : []),
       ],
     }),
-    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment, forumType}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",
@@ -126,7 +131,7 @@ export const getPostDescription = (post: {
   socialPreviewData?: { text?: string | null } | null;
   shortform?: boolean | null;
   user: { displayName: string } | null;
-}) => {
+}, forumType: ForumTypeString) => {
   if (post.socialPreviewData?.text) {
     return post.socialPreviewData.text;
   }
@@ -170,7 +175,7 @@ export const getPostDescription = (post: {
   }
   if (post.shortform)
     return `A collection of shorter posts ${
-      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
+      post.user ? `by ${forumTitleSetting.get(forumType)} user ${post.user.displayName}` : ""
     }`;
   return null;
 };

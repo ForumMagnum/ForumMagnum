@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ForwardedRef, createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { useContextSelector } from "use-context-selector";
 import { UserContext } from './sharedContexts';
@@ -12,9 +13,10 @@ export const CurrentUserLoadingContext = createContext<boolean>(false);
 export const UserContextProvider = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   
-  const locale = localeSetting.get();
+  const locale = localeSetting.get(forumType);
 
   useEffect(() => {
     onUserChanged(currentUser);

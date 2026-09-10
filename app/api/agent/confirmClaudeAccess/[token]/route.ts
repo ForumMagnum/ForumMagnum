@@ -1,14 +1,16 @@
-import { NextResponse } from "next/server";
+import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { NextRequest, NextResponse } from "next/server";
 import { executeEmailToken } from "@/server/emails/emailTokens";
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 
 export async function POST(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     const { token } = await params;
-    const result = await executeEmailToken(token);
+    const context = await getContextFromReqAndRes({req, isSSR: false});
+    const result = await executeEmailToken(token, context);
     serverCaptureEvent("claudeOnboardingConfirmed", { userId: result.userId });
     return NextResponse.json({ ok: true, message: result.props.message });
   } catch (e) {

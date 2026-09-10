@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
@@ -56,9 +57,10 @@ const CommentPermalink = ({
   post?: PostsBase,
   silentLoading?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
-  const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
+  const hasInContextComments = commentPermalinkStyleSetting.get(forumType) === 'in-context'
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
     variables: { documentId: documentId },
@@ -75,7 +77,7 @@ const CommentPermalink = ({
 
   if (!comment || !documentId) return null
   
-  const hiddenPendingReview = commentIsHiddenPendingReview(comment) && !comment.rejected;
+  const hiddenPendingReview = commentIsHiddenPendingReview(comment, forumType) && !comment.rejected;
   const isOwnUnreviewedComment = hiddenPendingReview && currentUserId === comment.userId;
 
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment

@@ -26,7 +26,7 @@ function postCanHaveJargonTerms(post: DbPost) {
 async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | CreateJargonTermDataInput | null, context: ResolverContext) {
   const { Posts } = context;
 
-  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
+  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user, context.forumType)) {
     return false;
   }
 

@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { isDevelopment } from '../lib/executionEnvironment';
 import {
     getPublicSettings,
@@ -38,7 +39,8 @@ class ServerSetting<SettingValueType> {
   ) {
     initializeSetting(settingName, "server")
   }
-  get(): SettingValueType | string {
+  // The forum argument is required while callers migrate; value selection is unchanged for now.
+  get(_forum: ForumTypeString | ResolverContext): SettingValueType | string {
     const privateSettings = getPrivateSettings();
     const value = get(privateSettings, this.settingName);
     if (typeof value === 'undefined') return this.defaultValue;
@@ -53,8 +55,8 @@ class ParsedServerSetting<SettingValueType> extends ServerSetting<SettingValueTy
   ) {
     super(settingName, defaultValue);
   }
-  get(): SettingValueType {
-    const value = super.get();
+  get(forum: ForumTypeString | ResolverContext): SettingValueType {
+    const value = super.get(forum);
     if (typeof value === 'string') {
       const parsedValue = JSON.parse(value);
       const parsedValueType = typeof parsedValue;
@@ -108,8 +110,7 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
   console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
 }
 
-export const openAIApiKey = new ServerSetting<string|null>('languageModels.openai.apiKey', null);
-export const openAIOrganizationId = new ServerSetting<string|null>('languageModels.openai.organizationId', null);
+export const openAIOrganizationId: string|null = null;
 
 export const tagBotAccountSlug = new ServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
 export const tagBotActiveTimeSetting = new ServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
@@ -129,8 +130,7 @@ export const githubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.
 export const afGithubClientIdSetting = new ServerSetting<string | null>('oAuth.afGithub.clientId', null);
 export const afGithubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.afGithub.secret', null);
 
-export const connectionStringSetting = new ServerSetting<string | null>("analytics.connectionString", null);
-export const mirrorConnectionSettingString = new ServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
+export const mirrorConnectionString: string|null = null; //for streaming to two DB at once
 
 export const googleMapsApiKeySetting = new ServerSetting<string | null>('googleMaps.serverApiKey', null)
 
@@ -143,13 +143,6 @@ export const googleMapsApiKeySetting = new ServerSetting<string | null>('googleM
 // PR to this file, and then set the setting back to null when it's merged,
 // since the setting will override any future robots.txt updates.)
 export const robotsTxtSetting = new ServerSetting<string|null>('robotsTxt', null)
-
-export const awsRegionSetting = new ServerSetting<string>('swrCaching.awsRegion', 'us-east-1');
-export const awsAccessKeyIdSetting = new ServerSetting<string | null>('swrCaching.accessKeyId', null);
-export const awsSecretAccessKeySetting = new ServerSetting<string | null>('swrCaching.secretAccessKey', null);
-export const cloudFrontDistributionIdSetting = new ServerSetting<string | null>('swrCaching.distributionId', null);
-
-export const lightconeFundraiserStripeSecretKeySetting = new ServerSetting<string | null>('stripe.lightconeFundraiserSecretKey', null)
 
 export const googleDocImportClientIdSetting = new ServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
 export const googleDocImportClientSecretSetting = new ServerSetting<string | null>('googleDocImport.oAuth.secret', null)
@@ -170,23 +163,6 @@ export const expressSessionSecretSetting = new ServerSetting<string | null>('exp
 
 export const reCaptchaSecretSetting = new ServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 
-export const defaultEmailSetting = new ServerSetting<string>('defaultEmail', "hello@world.com")
-
-export const cloudinaryApiKey = new ServerSetting<string>("cloudinaryApiKey", "");
-export const cloudinaryApiSecret = new ServerSetting<string>("cloudinaryApiSecret", "");
-
-// Found in CkEditor Dashboard -- https://dashboard.ckeditor.com/
-export const ckEditorEnvironmentIdSetting = new ServerSetting<string | null>('ckEditor.environmentId', null)
-
-// Found in CkEditor Dashboard>Environment>Access credentials>Create new access key
-export const ckEditorSecretKeySetting = new ServerSetting<string | null>('ckEditor.secretKey', null)
-
-// Found in CkEditor Dashboard>Environment>API Configuration>API base URL
-export const ckEditorApiPrefixSetting = new ServerSetting<string | null>('ckEditor.apiPrefix', null)
-
-// Found in CkEditor Dashboard>Environment>Access credentials>Create new access key
-export const ckEditorApiSecretKeySetting = new ServerSetting<string | null>('ckEditor.apiSecretKey', null)
-
 export const healthCheckUserAgentSetting = new ServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
 export const zohoClientId = new ServerSetting('zoho.clientId', '')
@@ -194,11 +170,6 @@ export const zohoClientSecret = new ServerSetting('zoho.secret', '')
 export const zohoRefreshToken = new ServerSetting('zoho.refreshToken', '')
 
 export const apolloEngineSettings = new ServerSetting<string | null>('apolloEngine.apiKey', null)
-
-// Initiate Intercom on the server
-export const intercomTokenSetting = new ServerSetting<string | null>("intercomToken", null)
-
-export const crosspostSigningKeySetting = new ServerSetting<string|null>("fmCrosspostSigningKey", null);
 
 interface SSLSettings {
   require?: boolean
@@ -222,11 +193,6 @@ export const memoryUsageCheckInterval = new ParsedServerSetting<number>("memoryU
 export const logGraphqlQueriesSetting = new ParsedServerSetting<boolean>("logGraphqlQueries", false);
 export const logGraphqlMutationsSetting = new ParsedServerSetting<boolean>("logGraphqlMutations", false);
 
-export const swrCachingEnabledSetting = new ParsedServerSetting<boolean>('swrCaching.enabled', false)
-export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
-
-export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
-
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
@@ -234,7 +200,7 @@ export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('p
  * Timeout for cross-site requests to prevent crosspost requests from hanging
  * the site
  */
-export const fmCrosspostTimeoutMsSetting = new ParsedServerSetting<number>('fmCrosspostTimeoutMs', 15000)
+export const fmCrosspostTimeoutMs: number = 15000;
 
 export const slowSSRWarnThresholdSetting = new ParsedServerSetting<number>("slowSSRWarnThreshold", 3000);
 

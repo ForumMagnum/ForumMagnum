@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
@@ -47,9 +48,10 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
 const QuickTakesSectionLoaded = ({showCommunity}: {
   showCommunity: boolean
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
+  const maxAgeDays = quickTakesMaxAgeDaysSetting.get(forumType)
 
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {

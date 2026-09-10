@@ -35,7 +35,7 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
-import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts.ts";
 import { getCollection } from "@/server/collections/allCollections";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createTag, updateTag } from '@/server/collections/tags/mutations';
@@ -463,8 +463,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   //const redLinks = JSON.parse(fs.readFileSync("redLinksCache.json", 'utf-8'));
   await createRedLinkPlaceholders(redLinks, conversionContext);
   
-  await recomputePingbacks("Tags");
-  await recomputePingbacks("MultiDocuments");
+  await recomputePingbacks("Tags", resolverContext.forumType);
+  await recomputePingbacks("MultiDocuments", resolverContext.forumType);
 
   // This needs to be rerun whenever the page import is run
   await importPagePairs(database, resolverContext, options);
@@ -580,6 +580,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
 }
 
 export async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+  const { forumType } = createAdminContext();
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
@@ -647,7 +648,7 @@ export async function buildConversionContext(database: WholeArbitalDatabase, pag
         console.warn(`Arbital page ID ${arbitalUserId} may be being imported as both a wiki page and a user-matching?`);
       }
       linksById[arbitalUserId] = `/users/${lwUser.slug}`;
-      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser);
+      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser, forumType);
     }
   }
   
@@ -1228,6 +1229,7 @@ async function convertLikesToVotes(conversionContext: ArbitalConversionContext, 
     }
     
     const { vote } = await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }),
       collection,
       user,
       voteType: "bigUpvote",

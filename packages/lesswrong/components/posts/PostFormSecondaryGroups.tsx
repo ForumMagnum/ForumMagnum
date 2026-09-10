@@ -1,8 +1,9 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum } from "@/lib/instanceSettings";
-import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
 import classNames from "classnames";
@@ -106,16 +107,16 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
+function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument, forumType: ForumTypeString) {
+  return userIsAdmin(user) || (userOwns(user, document) && userPassesCrosspostingKarmaThreshold(user, forumType));
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
 
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -149,6 +150,7 @@ const PostFormSecondaryGroups = ({
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const isEvent = !!initialData.isEvent;
@@ -204,8 +206,8 @@ const PostFormSecondaryGroups = ({
 
   const hideSocialPreviewGroup = !!initialData.collabEditorDialogue;
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
+  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get(forumType) || isEvent;
+  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get(forumType)?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
 
@@ -532,7 +534,7 @@ const PostFormSecondaryGroups = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}
@@ -615,22 +617,11 @@ const PostFormSecondaryGroups = ({
               )}
             </form.Field>
           </div>}
-
-          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-            <form.Field name="swrCachingEnabled">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="stale-while-revalidate caching enabled"
-                />
-              )}
-            </form.Field>
-          </div>}
         </div>}
 
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Options</h3>
-            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
+            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }, forumType) && <div className={classes.fieldWrapper}>
               <form.Field name="fmCrosspost">
                 {(field) => (
                   <LWTooltip title={crosspostControlTooltip}>
@@ -762,7 +753,7 @@ const PostFormSecondaryGroups = ({
           </div>}
 
           {/* TODO: Consider porting comment-karma visibility controls together with the account preference. */}
-          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
+          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, forumType, form.state.values)) && <div className={classes.fieldWrapper}>
             <form.Field name="hideCommentKarma">
               {(field) => (
                 <FormComponentCheckbox

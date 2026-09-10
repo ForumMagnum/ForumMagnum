@@ -95,7 +95,7 @@ export async function updateBook({ selector, data }: UpdateBookInput, context: R
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Books', updatedDocument, oldDocument);
 
-  await updateCollectionLinks(updatedDocument);
+  await updateCollectionLinks(updatedDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,

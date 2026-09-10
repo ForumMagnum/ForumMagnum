@@ -11,6 +11,7 @@ import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient } from '@apollo/client';
 import type { CollectionVoteOptions } from '../make_voteable';
 import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 // These server imports are safe as they use `import type`
 // eslint-disable-next-line import/no-restricted-paths
@@ -102,8 +103,8 @@ interface FindResult<T> {
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
   terms: ViewTermsByCollectionName[N],
-  apolloClient?: ApolloClient,
-  context?: ResolverContext,
+  apolloClient: ApolloClient | undefined,
+  context: ResolverContext,
 ) => ViewQueryAndOptions<N> | Promise<ViewQueryAndOptions<N>>;
 
 
@@ -330,6 +331,7 @@ interface PerfMetric {
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
 
 interface ResolverContext extends CollectionsByName {
+  forumType: ForumTypeString,
   searchParams?: URLSearchParams,
   headers?: Headers,
   userId: string|null,

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -139,6 +140,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   forceParentPostCollapsed?: boolean,
   focusedCommentId?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   
   const { comments, commentMetaInfos, postSources, post: preloadedPost, postMetaInfo } = thread;
@@ -200,10 +202,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   const commentAuthorsMap = useMemo(() => {
     const authorsMap: Record<string, string | null> = {};
     comments.forEach(comment => {
-      authorsMap[comment._id] = userGetDisplayName(comment.user) ?? null;
+      authorsMap[comment._id] = userGetDisplayName(comment.user, forumType) ?? null;
     });
     return authorsMap;
-  }, [comments]);
+  }, [comments, forumType]);
   
   const setDisplayStatus = useCallback((commentId: string, newStatus: FeedItemDisplayStatus) => {
     setCommentDisplayStatuses(prev => ({
@@ -436,7 +438,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 }
 
 export default UltraFeedThreadItem;
-
 
 
 

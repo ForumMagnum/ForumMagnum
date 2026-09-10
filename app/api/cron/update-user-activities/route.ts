@@ -1,6 +1,7 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { NextRequest } from 'next/server';
 import { updateUserActivities } from '@/server/useractivities/cron';
-import { isLW } from '@/lib/instanceSettings';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -8,7 +9,9 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  if (!isLW()) {
+  const context = createAnonymousContext({ forumType: getForumTypeForRequest(request) });
+
+  if (context.forumType !== 'LessWrong') {
     return new Response('OK', { status: 200 });
   }
 
