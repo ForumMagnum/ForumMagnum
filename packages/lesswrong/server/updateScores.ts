@@ -31,6 +31,9 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
       proj.scoreDate = `(CASE WHEN "frontpageDate" IS NULL
         THEN "postedAt"
         ELSE "frontpageDate" END) AS "scoreDate"`;
+      // $4/$5 are FRONTPAGE_BONUS/CURATED_BONUS, matching postScoreModifiers()
+      // in lib/scoring.ts. (The original Postgres port hardcoded 10 for both,
+      // which diverged from the configured frontpage bonus of 0.)
       proj.baseScore = `("baseScore" +
         (CASE WHEN "frontpageDate" IS NULL THEN 0 ELSE $4 END) +
         (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE $5 END)) AS "baseScore"`;

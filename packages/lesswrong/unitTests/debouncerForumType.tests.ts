@@ -1,6 +1,5 @@
 import { EventDebouncer, dispatchPendingEvents } from '@/server/debouncer';
 import { DebouncerEvents } from '@/server/collections/debouncerEvents/collection';
-import { forumTypeSetting } from '@/lib/forumTypeUtils';
 
 const mockCallback = jest.fn();
 const mockDebouncer = new EventDebouncer({
@@ -13,14 +12,13 @@ jest.mock('../server/getDebouncerByName', () => ({
   getDebouncerByName: () => mockDebouncer,
 }));
 
-describe('dispatching events from both forums', () => {
+describe('dispatching debounced events', () => {
   afterEach(() => {
     jest.restoreAllMocks();
     mockCallback.mockClear();
   });
 
-  it('drains both queues and restores each event forum on a LW worker', async () => {
-    jest.spyOn(forumTypeSetting, 'get').mockReturnValue('LessWrong');
+  it('drains events regardless of their af flag and always dispatches them as LessWrong', async () => {
     const pendingEvents = [false, true].map(af => ({
       name: 'forumDispatchTest',
       key: JSON.stringify('user-id'),
@@ -37,6 +35,6 @@ describe('dispatching events from both forums', () => {
 
     expect(pendingEvents).toHaveLength(0);
     expect(mockCallback).toHaveBeenNthCalledWith(1, 'user-id', ['lw-notification'], 'LessWrong');
-    expect(mockCallback).toHaveBeenNthCalledWith(2, 'user-id', ['af-notification'], 'AlignmentForum');
+    expect(mockCallback).toHaveBeenNthCalledWith(2, 'user-id', ['af-notification'], 'LessWrong');
   });
 });

@@ -125,11 +125,11 @@ describe('resolver context forum type', () => {
     const user = { _id: 'new-user' };
 
     await sendWelcomingPM(user, createAnonymousContext({ forumType: 'LessWrong' }));
-    expect(recordEvent).toHaveBeenLastCalledWith({ key: user._id, af: false, timing: { type: 'none' } });
+    expect(recordEvent).toHaveBeenLastCalledWith({ key: user._id, timing: { type: 'none' } });
 
     getForumType.mockReturnValue('LessWrong');
     await sendWelcomingPM(user, createAnonymousContext({ forumType: 'AlignmentForum' }));
-    expect(recordEvent).toHaveBeenLastCalledWith({ key: user._id, af: true, timing: undefined });
+    expect(recordEvent).toHaveBeenLastCalledWith({ key: user._id, timing: undefined });
     expect(welcomeMessageDelayer.defaultTiming).toEqual({ type: 'delayed', delayMinutes: 5 });
   });
 });

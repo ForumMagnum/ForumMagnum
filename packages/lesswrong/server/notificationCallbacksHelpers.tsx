@@ -226,7 +226,8 @@ export const createNotification = async ({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
-        af: context.forumType === "AlignmentForum",
+        // Notification emails are always LW-branded; see dispatchEvent in debouncer.ts
+        af: false,
       });
     }
   }
@@ -243,7 +244,7 @@ export const createNotification = async ({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),
-      af: context.forumType === "AlignmentForum",
+      af: false,
     });
   }
 }

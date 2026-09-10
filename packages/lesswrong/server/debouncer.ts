@@ -1,7 +1,6 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
@@ -203,10 +202,14 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
   
-  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents, event.af ? "AlignmentForum" : "LessWrong");
+  // Debounced work (notification emails, welcome messages, etc.) is always
+  // dispatched as LessWrong, regardless of which site the triggering action
+  // came through: the recipient's email shouldn't depend on whether a reply was
+  // submitted via lesswrong.com or alignmentforum.org. The `af` column on
+  // DebouncerEvents is retained but no longer affects branding.
+  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents, "LessWrong");
 }
 
-// Drain both forums: each queued event carries the forum used by its callback.
 export const dispatchPendingEvents = async () => {
   const now = new Date();
   let eventToHandle: any = null;
@@ -268,7 +271,6 @@ export const forcePendingEvents = async (
   } = {}
 ) => {
   let eventToHandle = null;
-  const forumType = forumTypeSetting.get();
   let countHandled = 0;
   // Default time condition is nothing
   let timeCondition: MongoSelector<DbDebouncerEvents> = {}
@@ -286,7 +288,6 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: forumType === 'AlignmentForum',
         ...timeCondition,
       },
       { $set: { dispatched: true } },

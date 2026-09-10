@@ -259,7 +259,6 @@ export async function subscribeOnSignup(user: DbUser, forumType: ForumTypeString
 export async function sendWelcomingPM(user: Pick<DbUser, '_id'>, context: ResolverContext) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    af: context.forumType === "AlignmentForum",
     // LW wants people to see the site intro before posting.
     timing: context.forumType === 'LessWrong' ? {type: "none"} : undefined,
   });
