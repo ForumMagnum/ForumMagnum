@@ -10,6 +10,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 700,
     paddingTop: 2,
     paddingBottom: 2,
@@ -55,8 +56,9 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedTagsSearchHit = ({hit}: {
+const ExpandedTagsSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const tag = hit as SearchTag
@@ -68,6 +70,7 @@ const ExpandedTagsSearchHit = ({hit}: {
   } : {}
 
   return <div className={classes.root} style={style}>
+    {icon}
     <Link
       to={tagGetUrl(tag)}
       className={classes.link}
@@ -76,6 +79,7 @@ const ExpandedTagsSearchHit = ({hit}: {
         <span className={classes.title}>
           {tag.name}
         </span>
+        <span>{tag.baseScore ?? 0} karma</span>
         <span>{tag.postCount ?? 0} post{tag.postCount === 1 ? '' : 's'}</span>
       </div>
       <div className={classes.snippet}>

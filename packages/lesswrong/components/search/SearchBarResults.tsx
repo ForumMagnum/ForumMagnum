@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SearchHitComponentProps } from './types';
@@ -12,29 +12,19 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useCaptureSearchResultSelected } from './useSearchAnalytics';
 
-import { SearchBarHit, useSearchBarResults } from './useSearchBarResults';
+import { SearchBarHit, useSearchResults } from './useSearchResults';
+import { searchPageLink } from './searchPageUrl';
+import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
 import classNames from 'classnames';
-import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
-import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
-import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
-import ChatBubbleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
-import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 
-interface SearchType {
-  type: SearchIndexCollectionName;
-  label: string;
-  Icon: typeof PersonIcon;
-  Component: React.ComponentType<SearchHitComponentProps>;
-}
-
-const searchTypes: SearchType[] = [
-  { type: "Users", label: "User", Icon: PersonIcon, Component: UsersSearchHit },
-  { type: "Posts", label: "Post", Icon: DescriptionIcon, Component: PostsSearchHit },
-  { type: "Tags", label: "Wiki entry", Icon: LocalOfferOutlinedIcon, Component: TagsSearchHit },
-  { type: "Comments", label: "Comment", Icon: ChatBubbleOutlineIcon, Component: CommentsSearchHit },
-  { type: "Sequences", label: "Sequence", Icon: LocalLibraryIcon, Component: SequencesSearchHit },
-];
+const hitComponents: Record<SearchIndexCollectionName, React.ComponentType<SearchHitComponentProps>> = {
+  Users: UsersSearchHit,
+  Posts: PostsSearchHit,
+  Tags: TagsSearchHit,
+  Comments: CommentsSearchHit,
+  Sequences: SequencesSearchHit,
+};
 
 const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   root: {
@@ -59,46 +49,12 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
     display: "none",
   },
   filters: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 4,
-    padding: "4px",
-    overflowX: "auto",
     position: "sticky",
     top: 0,
     backgroundColor: theme.palette.panelBackground.default,
     zIndex: 1,
   },
-  filter: {
-    ...theme.typography.body2,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 3,
-    padding: "2px 6px",
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    fontSize: 13,
-    color: theme.palette.text.normal,
-    backgroundColor: theme.palette.panelBackground.default,
-    borderRadius: 3,
-    minHeight: 40,
-    boxSizing: "border-box",
-    cursor: "pointer",
-    "&:focus-visible": {
-      outline: `2px solid ${theme.palette.primary.main}`,
-      outlineOffset: -2,
-    },
-    [theme.breakpoints.up('sm')]: {
-      fontSize: 14,
-      gap: 4,
-      padding: "4px 8px",
-    },
-  },
-  filterSelected: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-  },
-  filterIcon: {
+  advancedSearchIcon: {
     width: 14,
     height: 14,
     [theme.breakpoints.up('sm')]: {
@@ -153,34 +109,30 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
       },
     },
   },
-  searchActions: {
-    position: "fixed",
-    bottom: 0,
-    right: 0,
-    width: 500,
-    boxSizing: "border-box",
-    display: "flex",
-    justifyContent: "flex-end",
-    padding: "4px 8px calc(4px + env(safe-area-inset-bottom))",
-    backgroundColor: theme.palette.panelBackground.default,
-    borderTop: theme.palette.greyBorder("1px", 0.1),
-    zIndex: 2,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%",
-    },
-  },
   advancedSearch: {
     ...theme.typography.body2,
+    position: "absolute",
+    bottom: "calc(12px + env(safe-area-inset-bottom))",
+    right: 12,
+    zIndex: 2,
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
     minHeight: 40,
-    padding: "0 10px",
+    padding: "0 12px",
     fontSize: 13,
     borderRadius: 3,
     color: theme.palette.primary.main,
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.greyBorder("1px", 0.2),
+    boxShadow: `0 2px 8px ${theme.palette.boxShadowColor(0.16)}`,
     '&:hover, &:focus-visible': {
-      backgroundColor: theme.palette.greyAlpha(0.08),
+      backgroundColor: theme.palette.grey[100],
+      opacity: 1,
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
     },
   },
 }))
@@ -189,8 +141,12 @@ function scrollFocusedResultIntoView(event: React.FocusEvent<HTMLDivElement>) {
   event.currentTarget.scrollIntoView({block: 'nearest'});
 }
 
-const SearchBarResults = ({closeSearch, currentQuery, open}: {
+const SearchBarResults = ({closeSearch, recordSearch, currentQuery, open, searchHistoryControls, enabledTypes, onKindsChange}: {
+  enabledTypes: SearchIndexCollectionName[],
+  onKindsChange: (kinds: SearchIndexCollectionName[]) => void,
   closeSearch: () => void,
+  recordSearch: () => void,
+  searchHistoryControls: React.ReactNode,
   currentQuery: string,
   open: boolean,
 }) => {
@@ -198,11 +154,10 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
   const captureResultSelected = useCaptureSearchResultSelected();
   const scrollArea = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
-  const [enabledTypes, setEnabledTypes] = useState<SearchIndexCollectionName[]>([]);
 
-  const indexName = searchTypes.filter(({type}) => !enabledTypes.length || enabledTypes.includes(type))
+  const indexName = searchKinds.filter(({type}) => !enabledTypes.length || enabledTypes.includes(type))
     .map(({type}) => getSearchIndexName(type)).join(",");
-  const {hits, loading, error, hasMore, loadMore} = useSearchBarResults(indexName, currentQuery, open);
+  const {hits, loading, error, hasMore, total, loadMore} = useSearchResults({indexName, query: currentQuery}, open);
 
   useEffect(() => {
     const area = scrollArea.current;
@@ -223,9 +178,7 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
   }, [loadMore]);
 
   const toggleType = (type: SearchIndexCollectionName) => {
-    setEnabledTypes(previous => previous.includes(type)
-      ? previous.filter(enabledType => enabledType !== type)
-      : [...previous, type]);
+    onKindsChange(toggleSearchKind(enabledTypes, type));
   };
 
   const selectHit = (type: SearchIndexCollectionName, hit: SearchBarHit, position: number) => {
@@ -237,36 +190,20 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
       indexName: getSearchIndexName(type),
       context: "searchBar",
     });
+    recordSearch();
     closeSearch();
   };
 
   return <div className={classNames(classes.root, {[classes.hidden]: !open})}>
     <div className={classes.searchResults} ref={scrollArea}>
-        <div className={classes.filters} role="group" aria-label="Search content kinds">
-          {searchTypes.map(({type, label, Icon}) => <span
-            key={type}
-            role="checkbox"
-            tabIndex={0}
-            className={classNames(classes.filter, {[classes.filterSelected]: enabledTypes.includes(type)})}
-            aria-checked={enabledTypes.includes(type)}
-            onClick={() => toggleType(type)}
-            onKeyDown={(event) => {
-              if (event.key === " " || event.key === "Enter") {
-                event.preventDefault();
-                event.stopPropagation();
-                toggleType(type);
-              }
-            }}
-          >
-            <Icon className={classes.filterIcon} />
-            {label}
-          </span>)}
-        </div>
+        {searchHistoryControls}
+        <SearchKindBar className={classes.filters} enabled={enabledTypes} onToggle={toggleType} onClear={() => onKindsChange([])} />
         <div role="group" aria-label="Search results" aria-busy={loading}>
           {hits.map((hit, position) => {
-            const searchType = searchTypes.find(({type}) => type.toLowerCase() === hit._index);
-            if (!searchType) return null;
-            const {type, Component} = searchType;
+            const searchKind = searchKinds.find(({type}) => type.toLowerCase() === hit._index);
+            if (!searchKind) return null;
+            const {type} = searchKind;
+            const Component = hitComponents[type];
             return <ErrorBoundary key={`${hit._index}:${hit._id}`}>
               <div className={classes.result} data-search-result onFocus={scrollFocusedResultIntoView}>
                 <Component hit={hit} clickAction={() => selectHit(type, hit, position)} showIcon />
@@ -279,16 +216,14 @@ const SearchBarResults = ({closeSearch, currentQuery, open}: {
         {error && <div className={classes.status} role="status">
           Could not load results. <button onClick={() => { void loadMore(); }}>Try again</button>
         </div>}
-        {!loading && !error && !hits.length && <div className={classes.status}>
+        {!loading && !error && total !== null && !hits.length && <div className={classes.status}>
           No results found
         </div>}
     </div>
-    <div className={classes.searchActions}>
-      <Link to={`/search?query=${encodeURIComponent(currentQuery)}`} className={classes.advancedSearch} onClick={closeSearch}>
-        <ArrowForwardIcon className={classes.filterIcon} />
-        Advanced search
-      </Link>
-    </div>
+    <Link to={searchPageLink(currentQuery, enabledTypes)} className={classes.advancedSearch} onClick={() => { recordSearch(); closeSearch(); }}>
+      <ArrowForwardIcon className={classes.advancedSearchIcon} />
+      Advanced search
+    </Link>
   </div>
 }
 

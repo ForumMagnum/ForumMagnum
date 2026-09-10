@@ -11,6 +11,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
@@ -65,13 +66,15 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedUsersSearchHit = ({hit}: {
+const ExpandedUsersSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return <div className={classes.root}>
+    {icon}
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
       <div>
         <div className={classes.displayNameRow}>

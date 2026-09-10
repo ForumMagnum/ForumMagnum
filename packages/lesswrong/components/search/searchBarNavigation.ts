@@ -21,6 +21,7 @@ export function selectSearchResult(area: HTMLDivElement | null, result: HTMLAnch
 }
 
 export function getNextSearchResultIndex(currentIndex: number, resultCount: number, direction: "ArrowUp" | "ArrowDown") {
-  if (currentIndex === -1) return direction === 'ArrowDown' ? 0 : resultCount - 1;
-  return (currentIndex + (direction === 'ArrowDown' ? 1 : -1) + resultCount) % resultCount;
+  if (resultCount === 0) return -1;
+  if (currentIndex === -1) return 0;
+  return Math.max(0, Math.min(resultCount - 1, currentIndex + (direction === 'ArrowDown' ? 1 : -1)));
 }

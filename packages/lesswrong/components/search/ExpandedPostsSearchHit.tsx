@@ -12,14 +12,12 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18,
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
   },
   link: {
     '&:hover': {
@@ -60,8 +58,9 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedPostsSearchHit = ({hit}: {
+const ExpandedPostsSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
@@ -72,6 +71,7 @@ const ExpandedPostsSearchHit = ({hit}: {
   }
 
   return <div className={classes.root} onClick={handleClick}>
+    {icon}
     <div className={classes.title}>
       <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
         {post.title}
@@ -82,6 +82,7 @@ const ExpandedPostsSearchHit = ({hit}: {
         {post.authorDisplayName}
       </Link> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
+      <span>{post.commentCount ?? 0} comment{post.commentCount === 1 ? "" : "s"}</span>
       <FormatDate date={post.postedAt} />
     </div>
     <div className={classes.snippet}>

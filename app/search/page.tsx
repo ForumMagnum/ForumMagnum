@@ -1,5 +1,5 @@
 import React from "react";
-import SearchPageTabbed from '@/components/search/SearchPageTabbed';
+import SearchPage from '@/components/search/SearchPage';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -20,6 +20,6 @@ assertRouteAttributes("/search", {
 
 export default function Page() {
   return <RouteRoot>
-    <SearchPageTabbed />
+    <SearchPage />
   </RouteRoot>;
 }
