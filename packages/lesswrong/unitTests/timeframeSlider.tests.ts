@@ -1,5 +1,7 @@
 import {
   dayMs,
+  defaultTimeframeView,
+  keyboardTimeframeView,
   keyboardRange,
   overviewScale,
   zoomToRange,
@@ -102,4 +104,34 @@ it("reduces detail on narrow tracks and skips labels that would overlap", () => 
     expect((labeled[i].fraction - labeled[i - 1].fraction) * 640).toBeGreaterThanOrEqual(48);
   }
   expect(calendarBands({originMs: 0, nowMs: 0}, 640)).toEqual([]);
+});
+
+
+it("defaults to the last six calendar years, bounded by the archive", () => {
+  expect(defaultTimeframeView(scale)).toEqual({originMs: Date.UTC(2020, 8, 10, 12), nowMs: scale.nowMs});
+  const short = {originMs: Date.UTC(2025, 0, 1), nowMs: scale.nowMs};
+  expect(defaultTimeframeView(short)).toEqual(short);
+});
+
+it("pans the viewport without changing its span and clamps at archive boundaries", () => {
+  const view = defaultTimeframeView(scale);
+  const left = keyboardTimeframeView(view, scale, "ArrowLeft", true, false)!;
+  expect(left.originMs).toBeLessThan(view.originMs);
+  expect(left.nowMs - left.originMs).toBe(view.nowMs - view.originMs);
+  expect(keyboardTimeframeView(view, scale, "ArrowRight", true, false)).toEqual(view);
+  let oldest = left;
+  for (let i = 0; i < 100; i++) oldest = keyboardTimeframeView(oldest, scale, "ArrowLeft", true, false)!;
+  expect(oldest.originMs).toBe(scale.originMs);
+});
+
+it("zooms within the archive and stops at a one-day viewport", () => {
+  const view = defaultTimeframeView(scale);
+  const zoomed = keyboardTimeframeView(view, scale, "ArrowRight", false, true)!;
+  expect(zoomed.nowMs - zoomed.originMs).toBeLessThan(view.nowMs - view.originMs);
+  expect(keyboardTimeframeView(view, scale, "ArrowLeft", false, true)!.originMs).toBeLessThan(view.originMs);
+  let smallest = zoomed;
+  for (let i = 0; i < 100; i++) smallest = keyboardTimeframeView(smallest, scale, "ArrowUp", false, true)!;
+  expect(smallest.nowMs - smallest.originMs).toBe(dayMs);
+  expect(keyboardTimeframeView(scale, scale, "ArrowDown", false, true)).toEqual(scale);
+  expect(keyboardTimeframeView(view, scale, "ArrowLeft", false, false)).toBeUndefined();
 });

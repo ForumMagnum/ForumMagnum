@@ -166,3 +166,40 @@ export function zoomToRange(range: SearchDateRange, scale: TimeframeScale): Time
   const padding = Math.max(7 * dayMs, (end - start) * 0.15);
   return {originMs: Math.max(scale.originMs, startOfDay(start - padding)), nowMs: Math.min(scale.nowMs, endOfDay(end + padding))};
 }
+
+
+/** The initial viewport is independent of the selected dates. */
+export function defaultTimeframeView(scale: TimeframeScale): TimeframeScale {
+  const start = new Date(scale.nowMs);
+  start.setUTCFullYear(start.getUTCFullYear() - 6);
+  return {originMs: Math.max(scale.originMs, start.getTime()), nowMs: scale.nowMs};
+}
+
+/** Shift pans by a tenth of the view; Ctrl zooms around its center. */
+export function keyboardTimeframeView(
+  view: TimeframeScale,
+  bounds: TimeframeScale,
+  key: string,
+  shiftKey: boolean,
+  ctrlKey: boolean,
+): TimeframeScale | undefined {
+  const direction = key === "ArrowRight" || key === "ArrowUp" ? 1
+    : key === "ArrowLeft" || key === "ArrowDown" ? -1 : undefined;
+  if (direction === undefined || (!shiftKey && !ctrlKey)) return undefined;
+  return moveTimeframeView(view, bounds, direction * 0.1, ctrlKey ? (direction > 0 ? 0.8 : 1.25) : 1);
+}
+
+/** Wheel distances are pixels; scale movement to the visible track width. */
+export function wheelTimeframeView(view: TimeframeScale, bounds: TimeframeScale, deltaPixels: number, width: number, ctrlKey: boolean): TimeframeScale {
+  const distance = deltaPixels / Math.max(1, width);
+  return moveTimeframeView(view, bounds, distance, ctrlKey ? Math.exp(-distance) : 1);
+}
+
+function moveTimeframeView(view: TimeframeScale, bounds: TimeframeScale, panFraction: number, zoomFactor: number): TimeframeScale {
+  const span = view.nowMs - view.originMs;
+  const fullSpan = bounds.nowMs - bounds.originMs;
+  const nextSpan = Math.min(fullSpan, Math.max(dayMs, span * zoomFactor));
+  const start = zoomFactor !== 1 ? view.originMs + (span - nextSpan) / 2 : view.originMs + panFraction * span;
+  const originMs = Math.max(bounds.originMs, Math.min(bounds.nowMs - nextSpan, start));
+  return {originMs, nowMs: originMs + nextSpan};
+}

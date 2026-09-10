@@ -52,14 +52,13 @@ it("discards a pointer draft on cancellation and Escape", () => {
   expect(onChange).toHaveBeenCalledTimes(1);
 });
 
-it("zooms into the selection and restores the overview", () => {
+it("zooms into an older selection and restores all years", () => {
   render(<SearchTimeframeBar value={value} scale={scale} onChange={jest.fn()} />);
-  const start = screen.getByRole("slider", {name: "Start date"});
-  const originalMin = start.getAttribute("aria-valuemin");
+  expect(screen.queryByText("2014")).toBeNull();
   fireEvent.click(screen.getByText("Zoom to selection"));
-  expect(start.getAttribute("aria-valuemin")).not.toBe(originalMin);
+  expect(screen.getAllByText(/^\d+ Jan$/).length).toBeGreaterThan(0);
   fireEvent.click(screen.getByText("All years"));
-  expect(start.getAttribute("aria-valuemin")).toBe(originalMin);
+  expect(screen.getByText("2014")).toBeTruthy();
 });
 
 it("drags an endpoint without moving the opposite date", () => {
@@ -68,6 +67,7 @@ it("drags an endpoint without moving the opposite date", () => {
   const track = screen.getByRole("group", {name: "Timeframe selection"});
   track.setPointerCapture = jest.fn();
   Object.defineProperty(track, "getBoundingClientRect", {value: () => ({left: 0, width: 100})});
+  fireEvent.click(screen.getByText("All years"));
   fireEvent(screen.getByRole("slider", {name: "Start date"}), new MouseEvent("pointerdown", {bubbles: true, button: 0, clientX: 45}));
   fireEvent(track, new MouseEvent("pointermove", {bubbles: true, clientX: 40}));
   fireEvent.pointerUp(track);
@@ -85,9 +85,65 @@ it("shows calendar detail when zooming and returns to year labels", () => {
   expect(screen.getByText("2020")).toBeTruthy();
 });
 
-it("shows the drag hint inline after the zoom button without the arrow-key sentence", () => {
-  render(<SearchTimeframeBar value={value} scale={scale} onChange={jest.fn()} />);
-  const hint = screen.getByText("Drag a range or its handles to adjust.");
-  expect(screen.getByText("Zoom to selection").nextElementSibling).toBe(hint);
-  expect(screen.queryByText(/Arrow keys/)).toBeNull();
+it("selects all time while initially showing six years and navigates without filtering", () => {
+  const onChange = jest.fn();
+  const {container} = render(<SearchTimeframeBar value={{}} scale={scale} onChange={onChange} />);
+  const track = screen.getByRole("group", {name: "Timeframe selection"});
+  expect(track.tabIndex).toBe(0);
+  expect(screen.queryByText("2019")).toBeNull();
+  expect(screen.getByText("2020")).toBeTruthy();
+  expect(container.querySelector("[data-band]")).not.toBeNull();
+  fireEvent.keyDown(track, {key: "ArrowLeft", shiftKey: true});
+  fireEvent.keyDown(track, {key: "ArrowLeft", shiftKey: true});
+  expect(screen.getByText("2019")).toBeTruthy();
+  fireEvent.keyDown(screen.getByRole("slider", {name: "Start date"}), {key: "ArrowRight", ctrlKey: true});
+  expect(screen.queryByText("2019")).toBeNull();
+  fireEvent.keyDown(screen.getByRole("slider", {name: "End date"}), {key: "ArrowLeft", shiftKey: true});
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+it.each([
+  {deltaX: -128, deltaMode: 0},
+  {deltaX: -8, deltaMode: 1},
+  {deltaX: -0.2, deltaMode: 2},
+])("pans with horizontal wheel input in mode $deltaMode without filtering", ({deltaX, deltaMode}) => {
+  const onChange = jest.fn();
+  render(<SearchTimeframeBar value={{}} scale={scale} onChange={onChange} />);
+  const track = screen.getByRole("group", {name: "Timeframe selection"});
+  expect(fireEvent.wheel(track, {deltaX, deltaMode})).toBe(false);
+  expect(screen.getByText("2019")).toBeTruthy();
+  fireEvent.wheel(track, {deltaX: -deltaX, deltaMode});
+  expect(screen.queryByText("2019")).toBeNull();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+it("zooms with Ctrl+horizontal wheel and prevents browser zoom", () => {
+  const onChange = jest.fn();
+  render(<SearchTimeframeBar value={{}} scale={scale} onChange={onChange} />);
+  const track = screen.getByRole("group", {name: "Timeframe selection"});
+  expect(fireEvent.wheel(track, {deltaX: 256, ctrlKey: true})).toBe(false);
+  expect(screen.queryByText("2020")).toBeNull();
+  fireEvent.wheel(track, {deltaX: -256, ctrlKey: true});
+  expect(screen.getByText("2020")).toBeTruthy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+it("leaves vertical wheel scrolling alone and supports Shift+wheel horizontal scrolling", () => {
+  render(<SearchTimeframeBar value={{}} scale={scale} onChange={jest.fn()} />);
+  const track = screen.getByRole("group", {name: "Timeframe selection"});
+  expect(fireEvent.wheel(track, {deltaY: -128})).toBe(true);
+  expect(screen.queryByText("2019")).toBeNull();
+  expect(fireEvent.wheel(track, {deltaY: -128, shiftKey: true})).toBe(false);
+  expect(screen.getByText("2019")).toBeTruthy();
+});
+
+it("labels all time with the archive start through now, independently of the viewport", () => {
+  const {container} = render(<SearchTimeframeBar value={{}} scale={scale} onChange={jest.fn()} />);
+  const label = container.querySelector('[aria-live="polite"]');
+  expect(label?.textContent).toBe("1 Jan 2014–now");
+  fireEvent.wheel(screen.getByRole("group", {name: "Timeframe selection"}), {deltaX: -128});
+  expect(label?.textContent).toBe("1 Jan 2014–now");
+  fireEvent.wheel(screen.getByRole("group", {name: "Timeframe selection"}), {deltaX: 256, ctrlKey: true});
+  expect(label?.textContent).toBe("1 Jan 2014–now");
+  expect(screen.getByRole("checkbox", {name: "All time"}).getAttribute("aria-checked")).toBe("true");
 });
