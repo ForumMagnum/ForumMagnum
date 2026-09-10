@@ -10,7 +10,7 @@ import { PostsViews } from '@/lib/collections/posts/views';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { getReviewGroupDisplayName, getReviewGroupFromActions } from '@/lib/collections/users/reviewGroups';
 import { UsersViews } from '@/lib/collections/users/views';
-import { adminAccountSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { viewTermsToQuery } from '@/lib/utils/viewUtils';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { addPacificDays, PACIFIC_TZ, daysLateFromAge, groupDaysLate, type ModeratorCount, type SupermodStatusReport } from './supermodStatusFormat';
@@ -48,6 +48,7 @@ interface UserReviewHistory {
 
 export interface SupermodStatusData {
   windowEnd: Date;
+  forumType: ForumTypeString;
   siteUrl: string;
   adminTeamAccountId: string | null;
   usersById: Record<string, ReportUser>;
@@ -125,7 +126,7 @@ function countModerators(actorIds: Array<string | null>, data: SupermodStatusDat
   const counts = countBy(actorIds.filter(id => id && id !== data.adminTeamAccountId));
   return Object.entries(counts).map(([userId, count]) => ({
     userId,
-    displayName: userGetDisplayName(data.moderatorsById[userId]) || 'Unknown',
+    displayName: userGetDisplayName(data.moderatorsById[userId], data.forumType) || 'Unknown',
     count,
   }));
 }
@@ -172,7 +173,7 @@ export function summarizeSupermodStatus(
         ? 'offboard' : record.reviewGroup;
       return {
         userId: user._id,
-        displayName: userGetDisplayName(user) || 'Unknown',
+        displayName: userGetDisplayName(user, data.forumType) || 'Unknown',
         durationMs: record.durationMs,
         reviewGroupLabel: getReviewGroupDisplayName(group),
       };
@@ -231,11 +232,12 @@ export async function getSupermodStatus(
   const changesByUser = groupBy(userChanges, 'documentId');
   const histories = users.map(user => getUserReviewHistory(user, actionsByUser[user._id] ?? [], changesByUser[user._id] ?? [], windowEnd));
   const postChanges = groupBy(sortBy(recentChanges.filter(change => change.fieldName === 'reviewedByUserId'), 'createdAt'), 'documentId');
-  const adminTeamAccountId = adminAccountSetting.get()?._id ?? null;
+  const adminTeamAccountId = adminAccountSetting.get(context)?._id ?? null;
   const postsById = keyBy(posts, '_id');
   const data: SupermodStatusData = {
     windowEnd,
-    siteUrl: getSiteUrl(),
+    forumType: context.forumType,
+    siteUrl: getSiteUrl(context),
     adminTeamAccountId,
     usersById: keyBy(users, '_id'),
     moderatorsById: keyBy(moderators, '_id'),
