@@ -15,7 +15,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
-import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import { DismissibleSpotlightItemSuspense } from "@/components/spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
@@ -84,6 +84,9 @@ const LWHome = () => {
   const mobileSpotlightOverrideId = getMobileSpotlightOverrideId();
 
   return (
+    // Wait for spotlight selection and dismissal before revealing the posts
+    // placeholder. The posts and spotlight content can then load independently.
+    <SuspenseWrapper name="LWHome">
       <AnalyticsContext pageContext="homePage">
         <StructuredData generate={() => getStructuredData(forumType)}/>
         <UpdateLastVisitCookie />
@@ -95,11 +98,11 @@ const LWHome = () => {
           </SingleColumnSection>}
         </>}
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get(forumType)) && <SingleColumnSection>
-          <DismissibleSpotlightItem
+          <DismissibleSpotlightItemSuspense
             loadingStyle="placeholder"
             className={classes.desktopSpotlight}
           />
-          <DismissibleSpotlightItem
+          <DismissibleSpotlightItemSuspense
             loadingStyle="placeholder"
             className={classes.mobileSpotlight}
             spotlightId={mobileSpotlightOverrideId}
@@ -121,6 +124,7 @@ const LWHome = () => {
           </IsReturningVisitorContextProvider>
         </SuspenseWrapper>
       </AnalyticsContext>
+    </SuspenseWrapper>
   )
 }
 
@@ -155,5 +159,4 @@ const UpdateLastVisitCookie = () => {
 export default registerComponent('LWHome', LWHome, {
   areEqual: "auto",
 });
-
 

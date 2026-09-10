@@ -1,4 +1,5 @@
 import moment from 'moment';
+import classNames from 'classnames';
 import React, { useCallback, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -28,9 +29,12 @@ const DisplaySpotlightByIdQuery = gql(`
   }
 `);
 
-const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
+// Let the parent suspend until we know which spotlight to show and whether it
+// has been dismissed, so it can position content below the spotlight correctly.
+export const DismissibleSpotlightItemSuspense = ({ className, spotlightId, loadingStyle="spinner" }: {
   className?: string,
   spotlightId?: string | null,
+  loadingStyle?: "placeholder"|"spinner",
 }) => {
   const { captureEvent } = useTracking()
 
@@ -67,24 +71,29 @@ const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
   }
 
   return <AnalyticsContext pageElementContext="spotlightItem">
-    <SpotlightItem
-      key={spotlight._id}
-      spotlight={spotlight}
-      hideBanner={hideBanner}
-      className={className}
-    />
+    <SuspenseWrapper
+      name="SpotlightItem"
+      fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback className={className}/> : <Loading/>}
+    >
+      <SpotlightItem
+        key={spotlight._id}
+        spotlight={spotlight}
+        hideBanner={hideBanner}
+        className={className}
+      />
+    </SuspenseWrapper>
   </AnalyticsContext>
 }
 
-const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme) => ({
+const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", () => ({
   fallback: {
     height: 181,
   },
 }));
 
-export const SpotlightItemFallback = () => {
+export const SpotlightItemFallback = ({className}: {className?: string}) => {
   const classes = useStyles(spotlightItemFallbackStyles);
-  return <div className={classes.fallback}/>
+  return <div className={classNames(classes.fallback, className)}/>
 }
 
 export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spotlightId}: {
@@ -94,15 +103,15 @@ export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spo
 }) => {
   return <SuspenseWrapper
     name="DismissibleSpotlightItem"
-    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
+    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback className={className}/> : <Loading/>}
   >
-    <DismissibleSpotlightItemInner
+    <DismissibleSpotlightItemSuspense
       className={className}
       spotlightId={spotlightId}
+      loadingStyle={loadingStyle}
     />
   </SuspenseWrapper>
 }
 
 export default DismissibleSpotlightItem;
-
 
