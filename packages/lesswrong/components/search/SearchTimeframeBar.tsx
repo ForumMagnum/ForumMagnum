@@ -10,6 +10,7 @@ import {
   dayMs,
   dragToRange,
   formatDateRange,
+  formatDay,
   msToFraction,
   presetDateRange,
   shiftRange,
@@ -20,6 +21,9 @@ import {
   positionToMs,
   overviewScale,
   zoomToRange,
+  defaultTimeframeView,
+  keyboardTimeframeView,
+  wheelTimeframeView,
 } from './timeframeSlider';
 
 const trackHeight = 40;
@@ -180,10 +184,31 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
   const [zoom, setZoom] = useState<TimeframeScale | null>(null);
   const [dateError, setDateError] = useState("");
   const overview = overviewScale(scale, value);
-  const viewScale = zoom ? overviewScale(zoom, value) : overview;
+  const viewScale = zoom ?? defaultTimeframeView(overview);
   const shown = draft ?? value;
   const ticks = mounted ? calendarBands(viewScale, trackWidth) : [];
   const draftRef = useRef<SearchDateRange | null>(null);
+  useEffect(() => {
+    const element = track.current;
+    if (!element) return;
+    const bounds = {originMs: overview.originMs, nowMs: overview.nowMs};
+    const onWheel = (event: WheelEvent) => {
+      // Shift+wheel is reported as vertical input by some mice/browsers.
+      const delta = event.deltaX || (event.shiftKey ? event.deltaY : 0);
+      if (!delta) return;
+      event.preventDefault();
+      const pixelsPerUnit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16
+        : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? trackWidth : 1;
+      drag.current = null;
+      draftRef.current = null;
+      setDraft(null);
+      setZoom(current => wheelTimeframeView(current ?? defaultTimeframeView(bounds), bounds, delta * pixelsPerUnit, trackWidth, event.ctrlKey));
+    };
+    // React wheel listeners are passive, which would leave browser scrolling/zoom enabled.
+    element.addEventListener("wheel", onWheel, {passive: false});
+    return () => element.removeEventListener("wheel", onWheel);
+  }, [overview.originMs, overview.nowMs, trackWidth]);
+
   const updateDraft = (range: SearchDateRange) => {
     draftRef.current = range;
     setDraft(range);
@@ -207,8 +232,8 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
     const fraction = trackFraction(track.current, event.clientX);
     updateDraft(drag.current.mode === "select"
       ? dragToRange(drag.current.anchor, fraction, viewScale)
-      : drag.current.mode === "shift" ? shiftRange(drag.current.original, fraction - drag.current.from, viewScale)
-      : resizeRange(value, drag.current.mode, positionToMs(fraction, viewScale), viewScale));
+      : drag.current.mode === "shift" ? shiftRange(drag.current.original, (fraction - drag.current.from) * (viewScale.nowMs - viewScale.originMs) / (overview.nowMs - overview.originMs), overview)
+      : resizeRange(value, drag.current.mode, positionToMs(fraction, viewScale), overview));
   };
   const onPointerUp = () => {
     if (!drag.current) return;
@@ -241,10 +266,21 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
     onChange(next);
   };
   const onEndpointKey = (event: React.KeyboardEvent<HTMLButtonElement>, endpoint: "start" | "end") => {
-    const next = keyboardRange(value, endpoint, event.key, viewScale);
+    if (event.shiftKey || event.ctrlKey) return;
+    const next = keyboardRange(value, endpoint, event.key, overview);
     if (next) {
       event.preventDefault();
       onChange(next);
+    }
+  };
+
+  const onTrackKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") cancelDrag();
+    const next = keyboardTimeframeView(viewScale, overview, event.key, event.shiftKey, event.ctrlKey);
+    if (next) {
+      event.preventDefault();
+      cancelDrag();
+      setZoom(next);
     }
   };
 
@@ -262,19 +298,19 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
       <input type="date" aria-label="From date" className={classes.dateInput} value={toIsoDay(value.start)} onChange={event => setDate(event, "start")} aria-invalid={!!dateError} />
       <input type="date" aria-label="To date" className={classes.dateInput} value={toIsoDay(value.end)} onChange={event => setDate(event, "end")} aria-invalid={!!dateError} />
 
-      <button type="button" className={classes.dateInput} disabled={isEmpty(value)} onClick={() => setZoom(zoomToRange(value, viewScale))}>Zoom to selection</button>
-      <span className={classes.hint}>Drag a range or its handles to adjust.</span>
-      {zoom && <button type="button" className={classes.dateInput} onClick={() => setZoom(null)}>All years</button>}
-      <span className={classes.label} aria-live="polite">{formatDateRange(shown)}</span>
+      <button type="button" className={classes.dateInput} disabled={isEmpty(value)} onClick={() => setZoom(zoomToRange(value, overview))}>Zoom to selection</button>
+      {(viewScale.originMs !== overview.originMs || viewScale.nowMs !== overview.nowMs) && <button type="button" className={classes.dateInput} onClick={() => setZoom(overview)}>All years</button>}
+      <span className={classes.hint}>Drag to select.</span>
+      <span className={classes.label} aria-live="polite">{isEmpty(shown) ? `${formatDay(scale.originMs)}–now` : formatDateRange(shown)}</span>
     </div>
     {dateError && <span role="alert" className={classes.error}>{dateError}</span>}
     <div
       ref={track}
-      tabIndex={-1}
+      tabIndex={0}
       className={classes.track}
       role="group"
       aria-label="Timeframe selection"
-      onKeyDown={event => {if (event.key === "Escape") cancelDrag();}}
+      onKeyDown={onTrackKey}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -286,7 +322,7 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
         className={classNames(classes.tick, {[classes.tickAlternate]: alternate})}
         style={{left: `${fraction * 100}%`, width: `${(endFraction - fraction) * 100}%`}}
       />)}
-      {mounted && !isEmpty(shown) && <div
+      {mounted && (shown.start ?? overview.originMs) <= viewScale.nowMs && (shown.end ?? overview.nowMs) >= viewScale.originMs && <div
         data-band=""
         className={classNames(classes.band, {[classes.bandShiftable]: isClosed(value)})}
         style={{left: `${startFraction * 100}%`, width: `${Math.max(0, endFraction - startFraction) * 100}%`}}
@@ -298,13 +334,13 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
       >{label}</span>)}
       {mounted && <>
         <button type="button" role="slider" aria-label="Start date" data-endpoint="start"
-          aria-valuemin={viewScale.originMs} aria-valuemax={shown.end ?? viewScale.nowMs}
-          aria-valuenow={shown.start ?? viewScale.originMs} aria-valuetext={toIsoDay(shown.start ?? viewScale.originMs)}
+          aria-valuemin={overview.originMs} aria-valuemax={shown.end ?? overview.nowMs}
+          aria-valuenow={shown.start ?? overview.originMs} aria-valuetext={toIsoDay(shown.start ?? overview.originMs)}
           className={classNames(classes.endpoint, classes.startEndpoint)} style={{left: `clamp(20px, ${startFraction * 100}%, calc(100% - 20px))`}}
           onKeyDown={event => onEndpointKey(event, "start")}>◀</button>
         <button type="button" role="slider" aria-label="End date" data-endpoint="end"
-          aria-valuemin={shown.start ?? viewScale.originMs} aria-valuemax={viewScale.nowMs}
-          aria-valuenow={shown.end ?? viewScale.nowMs} aria-valuetext={toIsoDay(shown.end ?? viewScale.nowMs)}
+          aria-valuemin={shown.start ?? overview.originMs} aria-valuemax={overview.nowMs}
+          aria-valuenow={shown.end ?? overview.nowMs} aria-valuetext={toIsoDay(shown.end ?? overview.nowMs)}
           className={classNames(classes.endpoint, classes.endEndpoint)} style={{left: `clamp(20px, ${endFraction * 100}%, calc(100% - 20px))`}}
           onKeyDown={event => onEndpointKey(event, "end")}>▶</button>
       </>}
