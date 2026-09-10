@@ -3092,6 +3092,7 @@ CREATE TABLE "Users" (
   "groups" TEXT[],
   "lwWikiImport" BOOL,
   "theme" JSONB NOT NULL DEFAULT '{"name":"default"}'::JSONB,
+  "searchHistory" TEXT[] NOT NULL DEFAULT '{}',
   "lastUsedTimezone" TEXT,
   "whenConfirmationEmailSent" TIMESTAMPTZ,
   "legacy" BOOL NOT NULL DEFAULT FALSE,

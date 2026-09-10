@@ -1,3 +1,4 @@
+import { searchHistoryGqlTypeDefs, searchHistoryGqlMutations } from "@/server/resolvers/searchHistoryResolvers";
 // Generate GraphQL-syntax schemas from resolvers &c that were set up with
 // addGraphQLResolvers &c.
 
@@ -303,6 +304,7 @@ export const getTypeDefs = () => gql`
   ${analyticsEventTypeDefs}
   ${usersGraphQLTypeDefs}
   ${elasticGqlTypeDefs}
+  ${searchHistoryGqlTypeDefs}
   ${emailTokensGraphQLTypeDefs}
   ${fmCrosspostGraphQLTypeDefs}
   ${diffGqlTypeDefs}
@@ -599,6 +601,7 @@ const getResolvers = () => ({
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,
     ...elasticGqlMutations,
+    ...searchHistoryGqlMutations,
     ...emailTokensGraphQLMutations,
     ...fmCrosspostGraphQLMutations,
     ...recommendationsGqlMutations,
