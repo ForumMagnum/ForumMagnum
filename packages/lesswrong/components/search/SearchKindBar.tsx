@@ -36,6 +36,14 @@ const styles = defineStyles("SearchKindBar", (theme: ThemeType) => ({
     gap: 4,
     padding: 4,
     overflowX: "auto",
+    [theme.breakpoints.down('xs')]: {
+      gap: 0,
+      padding: "4px 0",
+      "& > button": {
+        padding: "2px 6px",
+        gap: 1,
+      },
+    },
   },
 }));
 

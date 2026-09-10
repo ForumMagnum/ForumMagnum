@@ -15,10 +15,14 @@ const styles = defineStyles("SearchAuthorsBar", (theme: ThemeType) => ({
     minWidth: 0,
   },
   input: {
-    minWidth: 200,
+    minWidth: 0,
+    width: '100%',
+    '& .MuiInput-root': {width: '100%', padding: 0},
     "& input": {
       ...theme.typography.body2,
       fontSize: 14,
+      minWidth: 0,
+      boxSizing: 'border-box',
       padding: "6px 8px",
       border: theme.palette.border.slightlyIntense2,
       borderRadius: 3,
@@ -41,7 +45,7 @@ const SearchAuthorsBar = ({authorIds, onChange}: {
     {authorIds.map(userId => <SingleUsersItem key={userId} userId={userId} removeItem={remove} />)}
     <ErrorBoundary>
       <div className={classes.input}>
-        <UsersSearchAutoComplete clickAction={add} label="Filter by author" />
+        <UsersSearchAutoComplete clickAction={add} label="Filter by author" disableUnderline />
       </div>
     </ErrorBoundary>
   </div>;

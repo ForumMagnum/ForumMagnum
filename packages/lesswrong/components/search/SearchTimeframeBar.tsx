@@ -10,11 +10,10 @@ import {
   dayMs,
   dragToRange,
   formatDateRange,
-  formatDay,
   msToFraction,
   presetDateRange,
   shiftRange,
-  yearTicks,
+  calendarBands,
   parseIsoDay,
   keyboardRange,
   resizeRange,
@@ -23,7 +22,7 @@ import {
   zoomToRange,
 } from './timeframeSlider';
 
-const trackHeight = 80;
+const trackHeight = 40;
 
 const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
   root: {
@@ -50,7 +49,8 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontSize: 13,
     color: theme.palette.text.dim,
-    margin: 0,
+    marginLeft: 8,
+    whiteSpace: "nowrap",
   },
   dateInput: {
     ...theme.typography.body2,
@@ -79,19 +79,19 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
     borderLeft: theme.palette.greyBorder("1px", 0.15),
     pointerEvents: "none",
   },
+  tickAlternate: {
+    backgroundColor: theme.palette.greyAlpha(0.06),
+  },
   tickLabel: {
     ...theme.typography.body2,
     position: "absolute",
     bottom: 2,
     left: 3,
     fontSize: 10,
+    fontVariantNumeric: "tabular-nums",
+    pointerEvents: "none",
     color: theme.palette.grey[600],
     whiteSpace: "nowrap",
-  },
-  tickLabelHidden: {
-    [theme.breakpoints.down('xs')]: {
-      display: "none",
-    },
   },
   band: {
     position: "absolute",
@@ -167,12 +167,22 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
   // server render and the client. The track contents are drawn after mount.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const [trackWidth, setTrackWidth] = useState(640);
+  useEffect(() => {
+    const element = track.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setTrackWidth(entry.contentRect.width);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   const [zoom, setZoom] = useState<TimeframeScale | null>(null);
   const [dateError, setDateError] = useState("");
   const overview = overviewScale(scale, value);
   const viewScale = zoom ? overviewScale(zoom, value) : overview;
   const shown = draft ?? value;
-  const ticks = mounted ? yearTicks(viewScale) : [];
+  const ticks = mounted ? calendarBands(viewScale, trackWidth) : [];
   const draftRef = useRef<SearchDateRange | null>(null);
   const updateDraft = (range: SearchDateRange) => {
     draftRef.current = range;
@@ -251,15 +261,13 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
       })}
       <input type="date" aria-label="From date" className={classes.dateInput} value={toIsoDay(value.start)} onChange={event => setDate(event, "start")} aria-invalid={!!dateError} />
       <input type="date" aria-label="To date" className={classes.dateInput} value={toIsoDay(value.end)} onChange={event => setDate(event, "end")} aria-invalid={!!dateError} />
+
+      <button type="button" className={classes.dateInput} disabled={isEmpty(value)} onClick={() => setZoom(zoomToRange(value, viewScale))}>Zoom to selection</button>
+      <span className={classes.hint}>Drag a range or its handles to adjust.</span>
+      {zoom && <button type="button" className={classes.dateInput} onClick={() => setZoom(null)}>All years</button>}
       <span className={classes.label} aria-live="polite">{formatDateRange(shown)}</span>
     </div>
     {dateError && <span role="alert" className={classes.error}>{dateError}</span>}
-    <div className={classes.controls}>
-      <button type="button" className={classes.dateInput} disabled={isEmpty(value)} onClick={() => setZoom(zoomToRange(value, viewScale))}>Zoom to selection</button>
-      {zoom && <button type="button" className={classes.dateInput} onClick={() => setZoom(null)}>All years</button>}
-      {mounted && <span className={classes.label}>{formatDay(viewScale.originMs)} – {formatDay(viewScale.nowMs)}</span>}
-    </div>
-    <p className={classes.hint}>Drag to select a range, move the middle, or resize with the endpoints. Arrow keys adjust a focused endpoint by one day.</p>
     <div
       ref={track}
       tabIndex={-1}
@@ -273,14 +281,21 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
       onPointerCancel={cancelDrag}
       onLostPointerCapture={cancelDrag}
     >
-      {ticks.map(({year, fraction}, index) => <div key={year} className={classes.tick} style={{left: `${fraction * 100}%`}}>
-        <span className={classNames(classes.tickLabel, {[classes.tickLabelHidden]: index % 2 === 1})}>{year}</span>
-      </div>)}
+      {ticks.map(({startMs, fraction, endFraction, alternate}) => <div
+        key={startMs}
+        className={classNames(classes.tick, {[classes.tickAlternate]: alternate})}
+        style={{left: `${fraction * 100}%`, width: `${(endFraction - fraction) * 100}%`}}
+      />)}
       {mounted && !isEmpty(shown) && <div
         data-band=""
         className={classNames(classes.band, {[classes.bandShiftable]: isClosed(value)})}
         style={{left: `${startFraction * 100}%`, width: `${Math.max(0, endFraction - startFraction) * 100}%`}}
       />}
+      {ticks.filter(tick => tick.showLabel).map(({startMs, fraction, label}) => <span
+        key={startMs}
+        className={classes.tickLabel}
+        style={{left: `calc(${fraction * 100}% + 3px)`}}
+      >{label}</span>)}
       {mounted && <>
         <button type="button" role="slider" aria-label="Start date" data-endpoint="start"
           aria-valuemin={viewScale.originMs} aria-valuemax={shown.end ?? viewScale.nowMs}
