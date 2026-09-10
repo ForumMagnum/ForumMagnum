@@ -208,6 +208,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."_id" AS "objectID",
         u."username",
         u."displayName",
+        u."fullName",
         u."createdAt",
         EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",

@@ -12,7 +12,9 @@ import {
   collectionNameToConfig,
 } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
+import { contentTokens } from "./searchTokens";
 import { searchOriginDate } from "@/lib/instanceSettings";
+import type { SearchPostType } from "@/lib/search/searchFilters";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**
@@ -37,6 +39,19 @@ export type QueryFilter = {
   op: QueryFilterOperator,
 } | {
   type: "exists"
+} | {
+  /** Restricts to kinds that carry tags. */
+  type: "tag",
+  value: string[],
+  match?: "any" | "all",
+} | {
+  /** Content by any of the given users, or the users themselves. */
+  type: "author",
+  value: string[],
+} | {
+  /** Restricts non-event posts only, preserving every other content kind. */
+  type: "postType",
+  value: SearchPostType[],
 });
 
 export type QueryData = {
@@ -54,6 +69,13 @@ export type QueryData = {
 }
 
 export type Fuzziness = "AUTO" | number;
+
+export interface AdditiveRecall {
+  query: QueryDslQueryContainer,
+  filters?: QueryDslQueryContainer[],
+  tokens: QueryToken[],
+  isAdvanced: boolean,
+}
 
 type CompiledQuery = {
   tokens: QueryToken[],
@@ -168,6 +190,50 @@ class ElasticQuery {
       : term;
   }
 
+  /** The unified "karma" filter field maps to the karma field of each index. */
+  private resolveNumericField(field: string): string {
+    return field === "karma" ? this.config.karmaField ?? "baseScore" : field;
+  }
+
+  private compileTagFilter(ids: string[], match: "any" | "all" = "any"): QueryDslQueryContainer {
+    if (!["Posts", "Users", "Comments"].includes(this.collectionName)) return {match_none: {}};
+    const field = this.collectionName === "Comments" ? "tags" : "tags._id";
+    return match === "all"
+      ? {bool: {should: [], filter: ids.map(id => ({term: {[field]: id}}))}}
+      : {terms: {[field]: ids}};
+  }
+
+  private compileAuthorFilter(ids: string[]): QueryDslQueryContainer {
+    switch (this.collectionName) {
+    case "Posts":
+      return {bool: {should: [{terms: {userId: ids}}, {terms: {coauthorIds: ids}}], minimum_should_match: 1}};
+    case "Comments":
+      return {terms: {userId: ids}};
+    case "Sequences":
+      return {bool: {should: [{terms: {userId: ids}}, {terms: {collectedAuthorIds: ids}}], minimum_should_match: 1}};
+    case "Users":
+      return {terms: {objectID: ids}};
+    default:
+      return {match_none: {}};
+    }
+  }
+
+  // Posts indexed before the next rebuild have no `question` or `shortform`
+  // field, so they do not match those positive selections until reindexed.
+  private compilePostTypeFilter(types: SearchPostType[]): QueryDslQueryContainer {
+    if (this.collectionName !== "Posts") return {match_all: {}};
+    const typed: Record<Exclude<SearchPostType, "article">, QueryDslQueryContainer> = {
+      question: {term: {question: true}},
+      event: {term: {isEvent: true}},
+      shortform: {term: {shortform: true}},
+      linkpost: {exists: {field: "url"}},
+    };
+    const should = types.map((type) => type === "article"
+      ? {bool: {should: [], must_not: Object.values(typed)}}
+      : typed[type]);
+    return {bool: {should: [...should, {term: {isEvent: true}}], minimum_should_match: 1}};
+  }
+
   private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
     switch (filter.type) {
     case "facet":
@@ -176,11 +242,20 @@ class ElasticQuery {
     case "numeric":
       return {
         range: {
-          [filter.field]: {
+          [this.resolveNumericField(filter.field)]: {
             [filter.op]: filter.value,
           },
         },
       };
+
+    case "tag":
+      return this.compileTagFilter(filter.value, filter.match);
+
+    case "author":
+      return this.compileAuthorFilter(filter.value);
+
+    case "postType":
+      return this.compilePostTypeFilter(filter.value);
 
     case "exists":
       return {
@@ -216,7 +291,9 @@ class ElasticQuery {
       const fieldTerms = filters.map(
         (filter) => this.compileFilterTermForField(filter),
       );
-      if (fieldTerms.length > 1) {
+      if (filters.every(filter => filter.type === "numeric")) {
+        terms.push(...fieldTerms);
+      } else if (fieldTerms.length > 1) {
         terms.push({
           bool: {
             should: fieldTerms,
@@ -239,6 +316,7 @@ class ElasticQuery {
       } else if (type === "tag") {
         tagFilters.push(
           {term: {"tags._id": token}},
+          {term: {tags: token}},
           {term: {"tags.slug": {value: token, case_insensitive: true}}},
           {term: {"tags.name": {value: token, case_insensitive: true}}},
         );
@@ -422,6 +500,48 @@ class ElasticQuery {
       highlightName: highlight,
       highlightQuery,
     };
+  }
+
+  /**
+   * Recall query for the additive unified ranking: analyzed (stemmed, synonym)
+   * fields for recall, with exact phrase and title-prefix clauses so that BM25
+   * rewards precision. Field weights are flat apart from the title/name field.
+   * Ranking signals are added on top by ElasticAdditiveRanking.
+   */
+  compileAdditiveRecall(): AdditiveRecall {
+    const {search} = this.queryData;
+    const {tokens, isAdvanced} = search ? parseQuery(search) : {tokens: [], isAdvanced: false};
+    const filters = this.compileFilters(tokens);
+    if (!search) return {query: {match_all: {}}, filters, tokens, isAdvanced};
+    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens).searchQuery, filters, tokens, isAdvanced};
+    const names = this.config.fields.map((field) => field.split("^")[0]);
+    const main = names[0];
+    const titleField = this.collectionName !== "Comments" && isFullTextField(this.collectionName, main) ? main : undefined;
+    const minimumShouldMatch = contentTokens(search).length >= 5 ? "60%" : "2<75%";
+    const should: QueryDslQueryContainer[] = [
+      {term: {objectID: {value: search}}},
+      {multi_match: {
+        query: search,
+        fields: names.map(name => name === titleField ? `${name}^2` : name),
+        type: "best_fields",
+        fuzziness: 1,
+        prefix_length: 2,
+        max_expansions: 10,
+        minimum_should_match: minimumShouldMatch,
+      }},
+      {multi_match: {
+        query: search,
+        fields: names.map((name) => `${name}.exact`),
+        type: "phrase",
+        slop: 2,
+      }},
+      {match_phrase_prefix: {[`${main}.exact`]: {query: search}}},
+    ];
+    if (titleField) should.push({multi_match: {
+      query: search, fields: [`${titleField}^2`], fuzziness: "AUTO", prefix_length: 1,
+      max_expansions: 10, minimum_should_match: minimumShouldMatch,
+    }});
+    return {query: {bool: {should, minimum_should_match: 1}}, filters, tokens, isAdvanced};
   }
 
   private compileEmptyQuery(): CompiledQuery {

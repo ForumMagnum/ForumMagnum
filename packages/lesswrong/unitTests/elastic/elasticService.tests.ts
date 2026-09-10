@@ -41,3 +41,31 @@ describe("ElasticService", () => {
     ]);
   });
 });
+
+describe("ElasticService unified requests", () => {
+  it("parses the sort and forwards it with the new filters to the multi search", async () => {
+    const service = new ElasticService();
+    // @ts-ignore
+    const client = ElasticClient.mock.instances[0];
+    client.multiSearch.mockResolvedValue({hits: {total: 0, hits: []}});
+    await service.runQuery({indexName: "posts,users", params: {
+      query: "alignment", sort: ["karma:desc", "date:asc"], tagIds: ["t1"], tagMatch: "all", authorIds: ["u1"], postTypes: ["question"],
+    }}, {emptyStringSearchResults: "default"});
+    expect(client.multiSearch).toHaveBeenCalledWith(expect.objectContaining({
+      indexes: ["posts", "users"],
+      sort: [{key: "karma", direction: "desc"}, {key: "date", direction: "asc"}],
+      filters: [
+        {type: "tag", field: "tags", value: ["t1"], match: "all"},
+        {type: "author", field: "author", value: ["u1"]},
+        {type: "postType", field: "postType", value: ["question"]},
+      ],
+    }));
+  });
+
+  it("rejects invalid sorts and post types", async () => {
+    const service = new ElasticService();
+    await expect(service.runQuery({indexName: "posts", params: {query: "x", sort: ["views:desc"]}}, {emptyStringSearchResults: "default", unifiedSearch: true}))
+      .rejects.toThrow("Invalid search sort");
+    expect(() => service.parseFilters(undefined, undefined, undefined, {postTypes: ["poem"]})).toThrow("Invalid post type: poem");
+  });
+});

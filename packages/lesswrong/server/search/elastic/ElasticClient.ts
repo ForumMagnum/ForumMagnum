@@ -1,12 +1,14 @@
 import { Client } from "@elastic/elasticsearch";
 import type {
   SearchHit,
+  SearchRequest,
   SearchResponse,
   SearchTotalHits,
 } from "@elastic/elasticsearch/lib/api/types";
 import { compilePersonLookup, PersonCandidate, resolvePersonSearch } from "./ElasticPersonSearch";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
-import { compileMultiQuery, MultiQueryData } from "./ElasticMultiQuery";
+import { compileMultiQuery, defaultUnifiedRanking } from "./ElasticMultiQuery";
+import type { MultiQueryData } from "./unifiedSearchTypes";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
@@ -24,11 +26,21 @@ const DEBUG_LOG_ELASTIC_QUERIES = false;
 
 let globalClient: Client | null = null;
 
-/** Resolve people and promote at most two related sequences before ES paginates. */
-export async function executeMultiSearch(client: Client, queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
+/**
+ * Resolve people before ES ranks and paginates. The tiered ranking also promotes
+ * at most two related sequences; the additive ranking has no reserved positions.
+ */
+export interface UnifiedSearchClient {
+  search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>>;
+}
+
+export async function executeMultiSearch(client: UnifiedSearchClient, queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
   const lookup = compilePersonLookup(queryData.search);
-  const candidates = lookup ? await client.search<PersonCandidate>(lookup) : undefined;
+  const candidates = lookup ? await completeSearch<PersonCandidate>(client, lookup) : undefined;
   const person = resolvePersonSearch(queryData.search, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
+  if ((queryData.ranking ?? defaultUnifiedRanking) === "additive") {
+    return completeSearch<ElasticDocument>(client, compileMultiQuery({...queryData, person}));
+  }
   let featuredSequenceIds: string[] = [];
   if (person && queryData.indexes.includes("sequences")) {
     const sequenceRequest = compileMultiQuery({...queryData, indexes: ["sequences"], person, offset: 0, limit: 2});
@@ -37,10 +49,26 @@ export async function executeMultiSearch(client: Client, queryData: MultiQueryDa
       should: [], must: [sequenceRequest.query ?? {match_none: {}}],
       filter: [{terms: {collectedAuthorIds: person.userIds}}],
     }};
-    const sequences = await client.search<ElasticDocument>(sequenceRequest);
+    const sequences = await completeSearch<ElasticDocument>(client, sequenceRequest);
     featuredSequenceIds = sequences.hits.hits.flatMap(hit => hit._source ? [hit._source.objectID] : []);
   }
-  return client.search<ElasticDocument>(compileMultiQuery({...queryData, person, featuredSequenceIds}));
+  return completeSearch<ElasticDocument>(client, compileMultiQuery({...queryData, person, featuredSequenceIds}));
+}
+
+/**
+ * A multi-index request keeps going when one index's shards fail (for example a
+ * script error on one mapping), silently dropping that whole content type from
+ * the ranking. Treat that as an error rather than serving a partial list.
+ */
+async function completeSearch<TDocument>(client: UnifiedSearchClient, request: SearchRequest): Promise<SearchResponse<TDocument>> {
+  const response = await client.search<TDocument>({...request, allow_partial_search_results: false});
+  if (response.timed_out) throw new Error("Search timed out before producing complete results");
+  const failed = response._shards?.failed ?? 0;
+  if (failed > 0) {
+    const reasons = (response._shards.failures ?? []).map(failure => failure.reason?.reason ?? failure.reason?.type ?? "unknown").join("; ");
+    throw new Error(`Search failed on ${failed} shard(s): ${reasons}`);
+  }
+  return response;
 }
 
 class ElasticClient {
