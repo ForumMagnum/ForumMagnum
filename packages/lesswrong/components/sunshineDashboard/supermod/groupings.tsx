@@ -48,33 +48,6 @@ export function getTabsInPriorityOrder(): ReviewGroup[] {
   return ['newContent', 'offboard', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
 }
 
-export function getReviewGroupDisplayName(group: TabId): string {
-  switch (group) {
-    case 'newContent':
-      return 'New Content';
-    case 'offboard':
-      return 'Offboard?';
-    case 'highContext':
-      return 'High Context';
-    case 'maybeSpam':
-      return 'Maybe Spam';
-    case 'automod':
-      return 'Automod';
-    case 'snoozeExpired':
-      return 'Snooze Expired';
-    case 'unknown':
-      return 'Unknown';
-    case 'all':
-      return 'All';
-    case 'posts':
-      return 'Posts';
-    case 'classifiedPosts':
-      return 'Auto-Classified';
-    case 'curation':
-      return 'Curation';
-  }
-}
-
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({
   root: {
     display: 'flex',

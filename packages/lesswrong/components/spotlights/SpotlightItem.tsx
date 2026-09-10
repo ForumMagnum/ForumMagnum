@@ -33,7 +33,7 @@ import range from 'lodash/range';
 import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
 import { descriptionStyles } from './SpotlightDescriptionStyles';
-import { INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID } from '../seasonal/Inkhaven2026Banner';
+import { INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML, INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID } from '../seasonal/Inkhaven2026Banner';
 
 import dynamic from 'next/dynamic';
 const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
@@ -489,7 +489,12 @@ export const SpotlightItem = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
+  const isInkhavenEarlyBird = spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID;
+  const displaySubtitle = isInkhavenEarlyBird ? INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE : spotlight.customSubtitle;
+  const descriptionHtml = isInkhavenEarlyBird
+    ? INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML
+    : (spotlight.description?.html ?? '');
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{displaySubtitle}</Link> : displaySubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = getSpotlightDisplayReviews(spotlight);
@@ -516,7 +521,7 @@ export const SpotlightItem = ({
                   </LWTooltip>}
                 </span>
               </div>
-              {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+              {displaySubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
               <div className={classes.description}>
@@ -530,7 +535,7 @@ export const SpotlightItem = ({
                   </div>
                   :
                   <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                    dangerouslySetInnerHTML={{__html: descriptionHtml}}
                     description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                   />
                 }

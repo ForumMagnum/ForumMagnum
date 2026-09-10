@@ -6,6 +6,7 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getNextVersionAfterSemver, htmlToChangeMetrics } from "@/server/editor/utils";
 import { randomId } from "@/lib/random";
 import { htmlToPingbacks } from "@/server/pingbacks";
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { inventorySchema, lookupResultSchema, type LinkDocument, type StoredRevision, normalizeObUrl, parseLwUrl, transformContents } from "./content";
 
 interface RevisionEdit {
@@ -117,7 +118,7 @@ async function repairDocument(
         SELECT * FROM jsonb_populate_record(NULL::"Revisions", $(revision)::jsonb)
       `, { revision: JSON.stringify(edit.revision) });
       if (edit.updatePointer) {
-        const pingbacks = await htmlToPingbacks(edit.revision.html ?? "", [{ collectionName, documentId }]);
+        const pingbacks = await htmlToPingbacks(edit.revision.html ?? "", [{ collectionName, documentId }], forumTypeSetting.get());
         await tx.none(`
           UPDATE $(collectionName:name) SET contents_latest = $(revisionId), pingbacks = $(pingbacks)::jsonb
           ${collectionName === "Comments" ? `, contents = COALESCE(contents, '{}'::jsonb) || $(contents)::jsonb` : ""}
