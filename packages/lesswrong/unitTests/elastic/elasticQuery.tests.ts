@@ -163,6 +163,19 @@ describe("ElasticQuery unified filters", () => {
     }
   });
 
+  it("highlights text without passing article exclusions to the plain highlighter", () => {
+    const body = new ElasticQuery({index: "posts", search: "alignment", filters: [
+      {type: "postType", field: "postType", value: ["article"]},
+    ]}).compile().body;
+    const fields = Object.values(body.highlight?.fields ?? {});
+    expect(fields.length).toBeGreaterThan(0);
+    for (const field of fields) {
+      expect(field.highlight_query).toEqual(body.query.script_score.query.bool.must);
+      expect(JSON.stringify(field.highlight_query)).not.toContain('"exists"');
+    }
+    expect(JSON.stringify(body.query.script_score.query.bool.filter)).toContain('"exists":{"field":"url"}');
+  });
+
   it("maps karma range filters to the karma field of each index", () => {
     const karma = [{type: "numeric" as const, field: "karma", value: 10, op: "gte" as const}];
     expect(filterClauses("users", karma)).toContain('{"range":{"karma":{"gte":10}}}');
