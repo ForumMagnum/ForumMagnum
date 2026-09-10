@@ -56,4 +56,21 @@ describe("elastic - parseQuery", () => {
       isAdvanced: true,
     });
   });
+  it("keeps non-ASCII letters and splits Unicode dashes", () => {
+    expect(parseQuery("日本語 ショーペンハウアー")).toStrictEqual({
+      tokens: [
+        {type: "should", "token": "日本語"},
+        {type: "should", "token": "ショーペンハウアー"},
+      ],
+      isAdvanced: false,
+    });
+    expect(parseQuery("Navier–Stokes")).toStrictEqual({
+      tokens: [{type: "should", "token": "Navier Stokes"}],
+      isAdvanced: false,
+    });
+    expect(parseQuery("“behave responsibly”")).toStrictEqual({
+      tokens: [{type: "must", "token": "behave responsibly"}],
+      isAdvanced: true,
+    });
+  });
 });

@@ -1,20 +1,13 @@
 import type { SearchRequest, SearchHighlightField, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
-import ElasticQuery, { QueryFilter } from "./ElasticQuery";
+import ElasticQuery from "./ElasticQuery";
 import { indexNameToConfig } from "./ElasticConfig";
-import { PersonSearch } from "./ElasticPersonSearch";
 import { parseQuery } from "./parseQuery";
+import { compileAdditiveMultiQuery } from "./ElasticAdditiveRanking";
+import { compileUnifiedSort } from "./ElasticUnifiedSort";
+import type { MultiQueryData, UnifiedRanking } from "./unifiedSearchTypes";
 
-export interface MultiQueryData {
-  indexes: string[];
-  search: string;
-  offset?: number;
-  limit?: number;
-  filters?: QueryFilter[];
-  preTag?: string;
-  postTag?: string;
-  person?: PersonSearch;
-  featuredSequenceIds?: string[];
-}
+/** Ranking used when a caller does not choose. Switch after the evaluation in the README. */
+export const defaultUnifiedRanking: UnifiedRanking = "tiered";
 
 // Tier intervals never overlap: text relevance and karma only reorder within a tier.
 // Saturating the product preserves meaningful karma differences without allowing
@@ -52,7 +45,13 @@ function authorship(index: string, userIds: string[]): QueryDslQueryContainer | 
   return undefined;
 }
 
-export function compileMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, featuredSequenceIds = []}: MultiQueryData): SearchRequest {
+export function compileMultiQuery(data: MultiQueryData): SearchRequest {
+  if ((data.ranking ?? defaultUnifiedRanking) === "additive") return compileAdditiveMultiQuery(data);
+  return compileTieredMultiQuery(data);
+}
+
+// Tiered ranking: relationship tiers never overlap; text and karma reorder within a tier.
+function compileTieredMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, featuredSequenceIds = [], sort}: MultiQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const queries: QueryDslQueryContainer[] = [];
   const excludes = new Set<string>();
@@ -102,7 +101,7 @@ export function compileMultiQuery({indexes, search, offset = 0, limit = 10, filt
     size: limit,
     track_total_hits: true,
     query: {dis_max: {queries}},
-    sort: [{_score: {order: "desc"}}, {objectID: "asc"}, {_index: "asc"}],
+    sort: compileUnifiedSort(sort),
     highlight: {fields: highlightFields, number_of_fragments: 1, fragment_size: 140, no_match_size: 140},
     _source: {excludes: [...excludes]},
   };
