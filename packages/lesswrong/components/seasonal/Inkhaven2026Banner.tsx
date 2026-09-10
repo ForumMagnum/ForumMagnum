@@ -7,8 +7,8 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 export const INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID = 'SbqCm443KuNuxoZKt';
 export const INKHAVEN_RESIDENCY_3_START = new Date('2026-08-28T00:00:00-07:00');
 export const INKHAVEN_RESIDENCY_3_END = new Date('2026-09-11T00:00:00-07:00');
-export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE = 'Early-Bird Deadline is Tonight (Sept 10)';
-export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML = '<p>Want to become a great blogger? Join a cohort of ~40 promising writers for an intense month focused on the art and craft of writing, where everyone will publish a blogpost every single day. With 1-1 support from people including Scott Alexander, Max Harms, Scott Sumner, and more. Nov 10–Dec 11, at Lighthaven, CA. Early-Bird Deadline is Tonight (Sept 10).</p>';
+export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE = 'Early-Bird Application Deadline is Tonight (Sept 10)';
+export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML = '<p>Want to become a great blogger? Join a cohort of ~40 promising writers for an intense month focused on the art and craft of writing, where everyone will publish a blogpost every single day. With 1-1 support from people including Scott Alexander, Max Harms, Scott Sumner, and more. Nov 10–Dec 11, at Lighthaven, CA. Early-Bird Application Deadline is Tonight (Sept 10).</p>';
 const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_46_57_AM_uynuti';
 
 const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
@@ -151,7 +151,7 @@ export const Inkhaven2026Banner = () => {
           <h2><a href="https://www.inkhaven.blog">Inkhaven<br /><span className={classes.noWidow}>Residency #3</span></a></h2>
           <h3>
             <span className={classes.earlyBirdWide}>
-              Early-Bird Deadline<br />
+              Early-Bird Application Deadline<br />
               is Tonight <span className={classes.noWidow}>(Sept 10)</span>
             </span>
             <span className={classes.earlyBirdMid}>
