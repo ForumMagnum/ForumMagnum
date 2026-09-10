@@ -8,7 +8,7 @@ export const INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID = 'SbqCm443KuNuxoZKt';
 export const INKHAVEN_RESIDENCY_3_START = new Date('2026-08-28T00:00:00-07:00');
 export const INKHAVEN_RESIDENCY_3_END = new Date('2026-09-11T00:00:00-07:00');
 export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE = 'Early-Bird Application Deadline is Tonight (Sept 10)';
-export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML = '<p>Want to become a great blogger? Join a cohort of ~40 promising writers for an intense month focused on the art and craft of writing, where everyone will publish a blogpost every single day. With 1-1 support from people including Scott Alexander, Max Harms, Scott Sumner, and more. Nov 10–Dec 11, at Lighthaven, CA. Early-Bird Application Deadline is Tonight (Sept 10).</p>';
+export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML = '<p>Want to become a great blogger? Join a cohort of ~40 promising writers for an intense month focused on the art and craft of writing, where everyone will publish a blogpost every single day. With 1-1 support from people including Scott Alexander, Max Harms, Scott Sumner, and more. Nov 10–Dec 11, at Lighthaven, CA.</p>';
 const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_46_57_AM_uynuti';
 
 const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
