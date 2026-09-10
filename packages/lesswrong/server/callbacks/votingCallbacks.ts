@@ -9,10 +9,10 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { isProduction } from '../../lib/executionEnvironment';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetAbsoluteUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
@@ -233,7 +233,7 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
 
 async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName === 'Comments') {
-    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote));
+    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote, context.forumType));
   }
 }
 
@@ -293,14 +293,14 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;
+  if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get(context)) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post || post.draft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
-  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
-  const postLink = postGetPageUrl(post, true)
+  const annualReviewLink = tagGetAbsoluteUrl({slug: 'lesswrong-review'}, context.forumType)
+  const postLink = postGetAbsolutePageUrl(post, context.forumType)
 
   const year = post.postedAt.getFullYear()
   const initialProb = 14
@@ -309,7 +309,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = isProduction ? "public" : "unlisted"
 
-  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb, post._id)
+  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb, post._id, context.forumType)
 
   // Return if market creation fails
   if (!liteMarket) return;

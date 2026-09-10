@@ -3,7 +3,7 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
-import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { sequenceGetAbsolutePageUrl } from "@/lib/collections/sequences/helpers";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import { runQuery } from "@/server/vulcan-lib/query";
 
@@ -42,10 +42,10 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
 
     if (!sequence) return await getDefaultMetadata();
 
-    const titleFields = getPageTitleFields(sequence.title);
+    const titleFields = await getPageTitleFields(sequence.title);
 
-    const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
-    const canonicalUrl = sequenceGetPageUrl({ _id }, true);
+    const ogUrl = combineUrls(getSiteUrl(resolverContext.forumType), `/s/${_id}`);
+    const canonicalUrl = sequenceGetAbsolutePageUrl({ _id }, resolverContext.forumType);
 
     const socialImageId = sequence.gridImageId || sequence.bannerImageId;
     const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
+import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
@@ -435,6 +436,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
 export type PostsList2Props = PostsItemConfig;
 
 const LWPostsItem = (props: PostsItemConfig) => {
+  const { isLW, forumType } = useForumType();
   const {
     post,
     postLink,
@@ -522,7 +524,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
+                  [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo, forumType)
                 })}>
                 {post.isEvent
                   ? <AddToCalendarButton post={post} />
@@ -571,7 +573,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
 
-              {isLW() && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
                 {post.rsvpCounts?.yes && <>
                   <ResponseIcon response="yes"/>
                   <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>
@@ -643,7 +645,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {resumeReading &&
                 <div className={classes.sequenceImage}>
                   <img className={classes.sequenceImageImg}
-                    src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                       resumeReading.sequence?.gridImageId
                         || resumeReading.collection?.gridImageId
                         || "sequences/vnyzzznenju0hzdv6pqb.jpg"

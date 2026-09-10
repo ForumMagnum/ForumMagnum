@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
@@ -37,9 +38,10 @@ const AudioToggle = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   toggleEmbeddedPlayer?: (e: React.MouseEvent) => void,
   showEmbeddedPlayer?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
-  if (!postHasAudioPlayer(post)) {
+  if (!postHasAudioPlayer(post, forumType)) {
     return null;
   }
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
 import filter from 'lodash/filter';
-import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import { tagGetAbsoluteSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import { commentGetAbsolutePageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, emailUseStyles } from "./emailContext";
@@ -136,7 +136,7 @@ const EmailCommentsOnPostHeader = async ({postId, allShortform, emailContext}: {
 
   const title = allShortform ? post.title : `New comments on ${post.title}`
 
-  return <HeadingLink text={title} href={postGetPageUrl(post, true)} emailContext={emailContext}/>
+  return <HeadingLink text={title} href={postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)} emailContext={emailContext}/>
 }
 
 const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
@@ -155,7 +155,7 @@ const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
   if (isSubforum) {
     return <HeadingLink
       text={`New comments in the ${startCase(tag.name)} subforum`}
-      href={tagGetSubforumUrl(tag, true)}
+      href={tagGetAbsoluteSubforumUrl(tag, emailContext.resolverContext.forumType)}
       emailContext={emailContext}
     />
   } else {
@@ -191,13 +191,13 @@ export const EmailComment = async ({commentId, hideTitle, emailContext}: {
   
   return <div>
     <div>
-      <a href={commentGetPageUrl(comment, true)}>
+      <a href={commentGetAbsolutePageUrl(comment, emailContext.resolverContext.forumType)}>
         <EmailFormatDate date={maybeDate(comment.postedAt)}/>
       </a>
       {" by "}
-      <EmailUsername user={comment.user}/>
+      <EmailUsername emailContext={emailContext} user={comment.user}/>
       {" "}
-      {!hideTitle && comment.post && <a href={postGetPageUrl(comment.post, true)}>
+      {!hideTitle && comment.post && <a href={postGetAbsolutePageUrl(comment.post, emailContext.resolverContext.forumType)}>
         {comment.post.title}
       </a>}
     </div>

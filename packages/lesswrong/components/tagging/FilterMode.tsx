@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
@@ -160,6 +161,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onRemove?: () => void,
   description?: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
@@ -175,9 +177,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   const standardFilterModes = getStandardFilterModes();
 
-  if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
+  if (mode === "TagDefault" && defaultVisibilityTags.get(forumType).find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
-    mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
+    mode = defaultVisibilityTags.get(forumType).find(t => t.tagId === tagId)!.filterMode
   }
   
   const reducedName = 'Reduced'
@@ -237,7 +239,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const tagPreviewPostCount = forumSelect({
     LessWrong: 0,
     default: 3
-  });
+  }, forumType);
 
   // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;

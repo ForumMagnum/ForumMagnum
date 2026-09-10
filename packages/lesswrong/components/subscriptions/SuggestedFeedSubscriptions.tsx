@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
@@ -135,12 +136,13 @@ const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => 
 }));
 
 function useSuggestedUsers(skipFetch = false) {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
 
   const initialLimit = 64;
 
-  const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser));
+  const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser, forumType));
   
   const { data: suggestedUsersData, loading } = useQuery(gql(`
     query SuggestedFeedSubscriptionUsers($limit: Int) {

@@ -1,4 +1,5 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { use } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
@@ -6,10 +7,9 @@ import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { PopperPortalProvider } from '../common/LWPopper';
-import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
 import DeferRender from '../common/DeferRender';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
-import { isLW } from '@/lib/forumTypeUtils';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
@@ -59,6 +59,7 @@ export const RouteRootClient = ({fullscreen, children}: {
   fullscreen: boolean
   children: React.ReactNode
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
   const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
@@ -66,7 +67,7 @@ export const RouteRootClient = ({fullscreen, children}: {
 
   // an optional mode for displaying the side navigation, for when we want the right banner
   // to be displayed on medium screens
-  const renderIconOnlyNavigation = isLW()
+  const renderIconOnlyNavigation = isLW
   const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
 
   const currentUser = useCurrentUser();
@@ -160,9 +161,10 @@ function LeftAndRightSidebarsWrapper({sidebarsEnabled, fullscreen, leftSidebar, 
   rightSidebar: React.ReactNode
   children: React.ReactNode
 }) {
+  const { isLW } = useForumType();
   const classes = useStyles(sidebarsWrapperStyles);
   // ea-forum-look-here There used to be a column-sizing special case for the EA Forum front page here, which is no present.
-  const navigationHasIconOnlyVersion = isLW();
+  const navigationHasIconOnlyVersion = isLW;
 
   return <div className={classNames({
     [classes.spacedGridActivated]: sidebarsEnabled,

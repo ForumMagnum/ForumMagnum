@@ -1,5 +1,6 @@
 'use client';
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { forwardRef } from 'react';
 import { AbstractThemeOptions, abstractThemeToConcrete, ThemeOptions } from '../../themes/themeNames';
 import { getForumTheme } from '@/themes/forumTheme';
@@ -52,14 +53,15 @@ export const useSetTheme = () => {
 }
 
 export const useThemeColor = (fn: (theme: ThemeType) => string) => {
+  const { forumType } = useForumType();
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) {
     throw new Error("No theme context");
   } else if (themeContext.abstractThemeOptions.name === 'auto') {
     const lightThemeOptions = abstractThemeToConcrete(themeContext.abstractThemeOptions, false);
     const darkThemeOptions = abstractThemeToConcrete(themeContext.abstractThemeOptions, true);
-    const lightTheme = getForumTheme(lightThemeOptions);
-    const darkTheme = getForumTheme(darkThemeOptions);
+    const lightTheme = getForumTheme(lightThemeOptions, forumType);
+    const darkTheme = getForumTheme(darkThemeOptions, forumType);
     const lightModeColor = fn(lightTheme);
     const darkModeColor = fn(darkTheme);
     return `light-dark(${lightModeColor},${darkModeColor})`;

@@ -2,6 +2,12 @@ import { registerCookie } from "./utils";
 
 // First party cookies
 
+export const FORUM_TYPE_COOKIE = registerCookie({
+  name: "forumType",
+  type: "necessary",
+  description: "Set to AlignmentForum to display the Alignment Forum for debugging",
+});
+
 export const CLIENT_ID_COOKIE = registerCookie({
   name: "clientId",
   type: "necessary",

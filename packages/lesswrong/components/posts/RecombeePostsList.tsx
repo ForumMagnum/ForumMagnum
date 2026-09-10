@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
@@ -117,6 +118,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   settings: RecombeeConfiguration,
   limit?: number,
 }) => {
+  const { forumType } = useForumType();
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
 
@@ -153,7 +155,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }, idx) => {
     let loggedScenario = scenario;
     if (!loggedScenario) {
-      if (post._id === aboutPostIdSetting.get() && idx === 0) {
+      if (post._id === aboutPostIdSetting.get(forumType) && idx === 0) {
         loggedScenario = 'welcome-post';
       } else if (curated) {
         loggedScenario = 'curated';

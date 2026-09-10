@@ -9,7 +9,7 @@ import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 // TODO: this route previously did _not_ use the PostsPageHeaderTitle for its metadata.
 // Check whether we want that to continue to be true?
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Community'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Community'));
 }
 
 assertRouteAttributes("/g/[groupId]/p/[_id]", {

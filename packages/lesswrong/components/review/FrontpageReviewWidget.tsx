@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
@@ -208,7 +209,8 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
 }
 
 export function ReviewOverviewTooltip() {
-  const forumTitle = forumTitleSetting.get()
+  const { forumType } = useForumType();
+  const forumTitle = forumTitleSetting.get(forumType)
   
   const nominationStartDate = getReviewStart(REVIEW_YEAR)
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)

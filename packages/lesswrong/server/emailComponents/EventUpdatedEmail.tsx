@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, emailUseStyles } from "./emailContext";
@@ -68,7 +68,7 @@ export const EventUpdatedEmail = async({postId, emailContext}: {
   
   if (!post) return null;
   
-  const link = postGetPageUrl(post, true);
+  const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
   
   // event location - for online events, attempt to show the meeting link
   let eventLocation: string|React.JSX.Element = post.location ?? ""
@@ -87,7 +87,7 @@ export const EventUpdatedEmail = async({postId, emailContext}: {
         <a href={link} className={classes.headingLink}>{post.title}</a> has been updated
       </h1>
       {post.group && <p className={classes.groupName}>
-        Posted in <a href={`${getSiteUrl().slice(0,-1)}/groups/${post.group._id}`} className={classes.headingLink}>{post.group.name}</a>
+        Posted in <a href={`${getSiteUrl(emailContext.resolverContext.forumType).slice(0,-1)}/groups/${post.group._id}`} className={classes.headingLink}>{post.group.name}</a>
       </p>}
     </div>
     <p>

@@ -5,7 +5,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
@@ -115,7 +115,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-  data = await assignPostVersion(data);
+  data = await assignPostVersion(data, context);
   data = await createShortformPost(data, callbackProps);
   data = addReferrerToComment(data, callbackProps) ?? data;
   data = await handleReplyToAnswer(data, callbackProps);
@@ -132,7 +132,6 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  invalidatePostOnCommentCreate(documentWithId, context);
   backgroundTask(updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties));
 
   documentWithId = await updateRevisionsDocumentIds({
@@ -171,7 +170,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   });
 
   if (!documentWithId.draft) {
-    backgroundTask(updateCommentEmbeddings(documentWithId._id));
+    backgroundTask(updateCommentEmbeddings(documentWithId._id, context.forumType));
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
@@ -215,7 +214,6 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
-  invalidatePostOnCommentUpdate(updatedDocument, context);
   backgroundTask(updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties));
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
@@ -231,7 +229,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   // There really has to be a currentUser here.
   await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
-  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
@@ -243,7 +241,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   }
 
   if (!updatedDocument.draft) {
-    backgroundTask(updateCommentEmbeddings(updatedDocument._id));
+    backgroundTask(updateCommentEmbeddings(updatedDocument._id, context.forumType));
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));

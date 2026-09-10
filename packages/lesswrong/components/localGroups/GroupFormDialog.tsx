@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
@@ -7,7 +8,6 @@ import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
-import { isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
@@ -98,6 +98,7 @@ const LocalGroupForm = ({
   currentUser: UsersCurrent;
   onSuccess: (group: any) => void;
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const formType = initialData ? 'edit' : 'new';
 
@@ -222,7 +223,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>
 
-      {isLW() && <div className={classes.fieldWrapper}>
+      {isLW && <div className={classes.fieldWrapper}>
         <form.Field name="types">
           {(field) => (
             <MultiSelectButtons

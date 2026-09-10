@@ -1,15 +1,13 @@
 import React from "react";
-import LibraryPage from '@/components/sequences/LibraryPage';
+import ForumLibraryPage from '@/components/sequences/ForumLibraryPage';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { isAF } from "@/lib/forumTypeUtils";
-import AFLibraryPage from "@/components/alignment-forum/AFLibraryPage";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('The Library'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('The Library'));
 }
 
 assertRouteAttributes("/library", {
@@ -22,6 +20,6 @@ assertRouteAttributes("/library", {
 
 export default function Page() {
   return <RouteRoot>
-    {isAF() ? <AFLibraryPage /> : <LibraryPage />}
+    <ForumLibraryPage />
   </RouteRoot>;
 }

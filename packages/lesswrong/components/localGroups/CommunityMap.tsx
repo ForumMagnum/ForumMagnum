@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
@@ -249,6 +250,7 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
   handleClose: (userId: string) => void,
   openWindows: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(personalMapMarkerStyles);
   const mapLocations = filterNonnull(users.map(user => {
     const location = user.mapLocationLatLng
@@ -284,7 +286,7 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
             lat={lat}
             lng={lng}
             link={userGetProfileUrl(user)}
-            title={` [User] ${userGetDisplayName(user)} `}
+            title={` [User] ${userGetDisplayName(user, forumType)} `}
             onClose={() => handleClose(user._id)}
           >
             <div dangerouslySetInnerHTML={htmlBody} />

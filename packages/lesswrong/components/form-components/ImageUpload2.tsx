@@ -38,7 +38,6 @@ const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
   },
 }));
 
-
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
   name: string,
   value: string | null | undefined,
@@ -113,5 +112,4 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 };
 
 export default ImageUpload2;
-
 

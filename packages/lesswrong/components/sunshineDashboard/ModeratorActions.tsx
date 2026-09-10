@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from 'react';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
@@ -115,6 +116,7 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
@@ -347,7 +349,7 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
     setNotes( newNotes )
   }
 
-  const userCommentsWarning = user.commentCount && hideUnreviewedAuthorCommentsSettings.get();
+  const userCommentsWarning = user.commentCount && hideUnreviewedAuthorCommentsSettings.get(forumType);
 
   const actionRow = <div className={classes.row}>
     <LWTooltip title="Snooze and Approve 10 (Appear in sidebar after 10 posts and/or comments. User's future posts are autoapproved)" placement="top">

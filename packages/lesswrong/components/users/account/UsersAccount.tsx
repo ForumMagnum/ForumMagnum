@@ -1,4 +1,6 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
 import React, { useCallback, useState } from 'react';
 import { userCanEditUser, userCanSeeAdminSettingsTab, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -136,6 +138,7 @@ function getSettingsSubTab(tab: DashboardTabId): SettingsTabId {
 }
 
 const UsersAccount = ({slug}: {slug: string | null}) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
@@ -169,7 +172,7 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
 
   const visibility: DashboardTabVisibility = {
     showAdminTab: userCanSeeAdminSettingsTab(currentUser),
-    showGroupsTab: hasEventsSetting.get(),
+    showGroupsTab: hasEventsSetting.get(forumType),
   };
 
   // Handle highlightField: if present, navigate to the correct settings tab

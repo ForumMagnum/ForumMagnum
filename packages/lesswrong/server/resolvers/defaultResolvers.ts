@@ -151,7 +151,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Don't allow API requests with an arbitrarily large offset. This
     // prevents some extremely-slow queries.
-    const maxAllowedSkip = maxAllowedApiSkip.get();
+    const maxAllowedSkip = maxAllowedApiSkip.get(context);
     if (
       terms.offset &&
       maxAllowedSkip !== null &&

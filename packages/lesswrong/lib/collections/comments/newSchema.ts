@@ -10,7 +10,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
+import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
@@ -352,7 +352,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
-        return await commentGetPageUrlFromDB(comment, context, true);
+        return await commentGetAbsolutePageUrlFromDB(comment, context);
       },
     },
   },
@@ -361,7 +361,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
-        return await commentGetPageUrlFromDB(comment, context, false);
+        return await commentGetPageUrlFromDB(comment, context);
       },
     },
   },

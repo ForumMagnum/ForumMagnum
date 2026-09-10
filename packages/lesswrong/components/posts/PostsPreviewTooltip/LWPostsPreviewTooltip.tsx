@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
@@ -167,6 +168,7 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
 }))
 
 const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false)
 
@@ -230,8 +232,8 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
               { !postsList && <>
                 {post.user && <div className={classes.userAndCoauthors}><PostsUserAndCoauthors post={post}/></div>}
                 <div className={classes.metadata}>
-                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
-                  <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
+                  <span className={classes.smallText}>{postGetKarma(post, forumType)} karma</span>
+                  <span className={classes.smallText}>{postGetCommentCountStr(post, forumType)}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>
                   </span>

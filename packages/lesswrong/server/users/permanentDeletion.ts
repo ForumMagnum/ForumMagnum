@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Users from "@/server/collections/users/collection";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -11,9 +12,9 @@ type DeleteOptions = { includingNonForumData: boolean };
 const defaultDeleteOptions = { includingNonForumData: false };
 
 
-async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
+async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions, forumType: ForumTypeString) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
-  const adminContext = createAdminContext();
+  const adminContext = createAdminContext({ forumType });
   const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
@@ -41,12 +42,12 @@ export async function permanentlyDeleteUserById(userId: string, options?: Delete
     return
   }
 
-  await permanentlyDeleteUser(user, options ?? defaultDeleteOptions)
+  await permanentlyDeleteUser(user, options ?? defaultDeleteOptions, "LessWrong")
 }
 
 const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
 
-export async function permanentlyDeleteUsers() {
+export async function permanentlyDeleteUsers(forumType: ForumTypeString) {
   const deletionRequestCutoff = new Date(Date.now() - cutoffOffsetMs)
 
   const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
@@ -58,7 +59,7 @@ export async function permanentlyDeleteUsers() {
 
   for (const user of usersToDelete) {
     try {
-      await permanentlyDeleteUser(user, defaultDeleteOptions)
+      await permanentlyDeleteUser(user, defaultDeleteOptions, forumType)
       // dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
     } catch (e) {
       // eslint-disable-next-line no-console

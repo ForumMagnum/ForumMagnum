@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
@@ -146,9 +147,10 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
 }));
 
 export const LWBackgroundImage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
-  const isHomePage = isHomeRoute(pathname);
+  const isHomePage = isHomeRoute(pathname, forumType);
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";

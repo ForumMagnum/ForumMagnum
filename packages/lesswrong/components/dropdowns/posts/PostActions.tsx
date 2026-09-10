@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
@@ -49,6 +50,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
   closeMenu: () => void,
   includeBookmark?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -80,7 +82,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
-      {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
+      {hasCuratedPostsSetting.get(forumType) && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />

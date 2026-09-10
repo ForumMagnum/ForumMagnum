@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from 'react'
 import { randomBytes } from "crypto";
 import sha1 from 'crypto-js/sha1';
@@ -107,7 +108,7 @@ function isValidCharInUsername(ch: string): boolean {
   return !restrictedChars.includes(ch);
 }
 
-export async function createAndSetToken(headers: Headers|undefined, user: DbUser) {
+export async function createAndSetToken(headers: Headers|undefined, user: DbUser, forumType: ForumTypeString) {
   const { cookies } = await import('next/headers');
 
   const token = randomBytes(32).toString('hex');
@@ -120,7 +121,7 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
   const hashedToken = hashLoginToken(token)
   await insertHashedLoginToken(user._id, hashedToken)
 
-  registerLoginEvent(user, headers)
+  registerLoginEvent(user, headers, forumType)
   return token
 }
 
@@ -137,7 +138,7 @@ export const loginDataGraphQLTypeDefs = gql`
 `
 
 export const loginDataGraphQLMutations = {
-  async login(root: void, { username, password }: {username: string, password: string}, { headers }: ResolverContext) {
+  async login(root: void, { username, password }: {username: string, password: string}, { headers, forumType }: ResolverContext) {
     const result = await authenticateWithPassword(username, password);
     if (!result.success) {
       throw new Error(result.message);
@@ -148,7 +149,7 @@ export const loginDataGraphQLMutations = {
       throw new Error("This user is banned");
     }
 
-    const token = await createAndSetToken(headers, user);
+    const token = await createAndSetToken(headers, user, forumType);
 
     return { token }
   },
@@ -184,7 +185,7 @@ export const loginDataGraphQLMutations = {
       throw Error("Username is already taken");
     }
 
-    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken, context)
     let recaptchaScore: number | undefined = undefined
     if (reCaptchaResponse) {
       const reCaptchaData = JSON.parse(reCaptchaResponse)
@@ -234,7 +235,7 @@ export const loginDataGraphQLMutations = {
       await Users.rawUpdateOne({ _id: user._id }, { $set: { isAdmin: true, beta: true } });
     }
 
-    const token = await createAndSetToken(headers, user)
+    const token = await createAndSetToken(headers, user, context.forumType)
     return {
       token
     }
@@ -245,8 +246,9 @@ export const loginDataGraphQLMutations = {
     if (!user) throw Error("Can't find user with given email address")
     const { emailTokenTypesByName } = await import("@/server/emails/emailTokens");
 
-    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id)
+    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id, context.forumType)
     const emailSucceeded = await wrapAndSendEmail({
+        forumType: context.forumType,
       user,
       force: true,
       subject: "Password Reset Request",
@@ -295,7 +297,7 @@ export async function invalidateLoginTokensFor(userId: string) {
   );
 }
 
-function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
+function registerLoginEvent(user: DbUser, headers: Headers|undefined, forumType: ForumTypeString) {
   const document = {
     name: 'login',
     important: false,
@@ -307,19 +309,19 @@ function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
       referrer: headers?.get('referer')
     }
   }
-  const context = computeContextFromUser({ user, isSSR: false });
+  const context = computeContextFromUser({ user, headers, isSSR: false, forumType });
   backgroundTask(createLWEvent({ data: document }, context));
 }
 
-const getCaptchaRating = async (token: string): Promise<string|null> => {
+const getCaptchaRating = async (token: string, context: ResolverContext): Promise<string|null> => {
   const { default: request } = await import('request');
 
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
-    if (reCaptchaSecretSetting.get()) {
+    if (reCaptchaSecretSetting.get(context)) {
       request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
           form: {
-            secret: reCaptchaSecretSetting.get(),
+            secret: reCaptchaSecretSetting.get(context),
             response: token
           }
         },

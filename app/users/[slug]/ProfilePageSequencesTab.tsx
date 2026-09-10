@@ -1,4 +1,5 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -95,6 +96,7 @@ export function ProfilePageSequencesTabContents({user, settings}: {
 }) {
   void settings;
   const sharedClasses = useStyles(profileStyles);
+  const { forumType } = useForumType();
   const classes = useStyles(profilePageSequencesTabUnsharedStyles);
   const userId = user._id;
 
@@ -113,7 +115,7 @@ export function ProfilePageSequencesTabContents({user, settings}: {
   return <TabPanel className={classes.sequencesList}>
     <div className={classes.sequencesGrid}>
       {sequences.map((sequence) => {
-        const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
+        const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get(forumType);
         return (
           <article key={sequence._id} className={classes.sequenceCard}>
             <Link

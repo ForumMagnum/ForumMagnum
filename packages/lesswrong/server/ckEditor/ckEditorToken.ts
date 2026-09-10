@@ -87,7 +87,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
       iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: {
         id: user ? user._id : randomId(),
-        name: user ? userGetDisplayName(user) : "Anonymous"
+        name: user ? userGetDisplayName(user, contextWithKey.forumType) : "Anonymous"
       },
       auth: {
         collaboration: {
@@ -109,7 +109,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
       iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: user ? {
         id: user._id,
-        name: userGetDisplayName(user)
+        name: userGetDisplayName(user, contextWithKey.forumType)
       } : null,
     };
     

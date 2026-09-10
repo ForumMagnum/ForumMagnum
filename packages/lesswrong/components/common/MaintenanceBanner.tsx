@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { siteNameWithArticleSetting, explanationText, maintenanceTime } from '@/lib/instanceSettings';
 import { ExpandedDate } from "../common/FormatDate";
@@ -38,8 +39,9 @@ const styles = defineStyles("MaintenanceBanner", (theme: ThemeType) => ({
 }))
 
 const MaintenanceBanner = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const maintenanceTimeValue = maintenanceTime.get();
+  const maintenanceTimeValue = maintenanceTime.get(forumType);
   const now = useCurrentTime();
   if (!maintenanceTimeValue) return <></>;
   const isUrgent = new Date(maintenanceTimeValue).getTime() - now.getTime() < urgentCutoff;
@@ -48,9 +50,9 @@ const MaintenanceBanner = () => {
       className={classNames(classes.root, { [classes.rootMobile]: isMobile(), [classes.rootUrgent]: isUrgent })}
     >
       <div>
-        {startCase(siteNameWithArticleSetting.get())} will be undergoing scheduled maintenance on{" "}
+        {startCase(siteNameWithArticleSetting.get(forumType))} will be undergoing scheduled maintenance on{" "}
         <ExpandedDate date={maintenanceTimeValue} />
-        {explanationText.get() || ""}
+        {explanationText.get(forumType) || ""}
       </div>
     </SingleColumnSection>
   );

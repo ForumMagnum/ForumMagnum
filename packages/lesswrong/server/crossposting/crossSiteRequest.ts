@@ -1,9 +1,10 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { ZodType, z } from "zod"
 import { FMCrosspostRoute } from "@/lib/fmCrosspost/routes"
 import { combineUrls } from "@/lib/vulcan-lib/utils.ts";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { crosspostUserAgent } from "@/lib/apollo/constants";
-import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
+import { fmCrosspostTimeoutMs } from "../databaseSettings";
 import {
   ApiError,
   TOS_NOT_ACCEPTED_ERROR,
@@ -18,14 +19,15 @@ export const makeV2CrossSiteRequest = async <
   route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData>,
   body: RequestData,
   onErrorMessage: string,
+  forumType: ForumTypeString,
 ) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(),
-    fmCrosspostTimeoutMsSetting.get(),
+    fmCrosspostTimeoutMs,
   );
 
-  const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", route.getPath());
+  const url = combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", route.getPath());
 
   let result: Response;
   try {

@@ -71,14 +71,14 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
     newDocument: documentWithId,
   };
 
-  createRecombeeUser(asyncProperties);
+  createRecombeeUser(asyncProperties, context.forumType);
 
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', documentWithId._id));
   }
 
-  await subscribeOnSignup(documentWithId);
-  await sendWelcomingPM(documentWithId);
+  await subscribeOnSignup(documentWithId, context.forumType);
+  await sendWelcomingPM(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,
@@ -126,9 +126,9 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   let modifier = dataToModifier(data);
 
-  maybeSendVerificationEmail(modifier, oldDocument);
+  maybeSendVerificationEmail(modifier, oldDocument, context.forumType);
   modifier = clearKarmaChangeBatchOnSettingsChange(modifier, oldDocument);
-  modifier = await usersEditCheckEmail(modifier, oldDocument);
+  modifier = await usersEditCheckEmail(modifier, oldDocument, context.forumType);
   modifier = syncProfileUpdatedAt(modifier, oldDocument);
 
   data = modifierToData(modifier);
@@ -146,7 +146,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   await approveUnreviewedSubmissionsOnApproval(updatedDocument, oldDocument, context);
   await handleSetShortformPost(updatedDocument, oldDocument, context);
-  await updatingPostAudio(updatedDocument, oldDocument);
+  await updatingPostAudio(updatedDocument, oldDocument, context.forumType);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
   userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);

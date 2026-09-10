@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/instanceSettings';
@@ -323,12 +324,13 @@ const styles = defineStyles("FundraisingThermometer", (theme: ThemeType) => ({
 const FundraisingThermometer: React.FC<
   FundraisingThermometerProps
 > = ({ onPost = false }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   // First, second, and third goal amounts
-  const goal1 = lightconeFundraiserThermometerGoalAmount.get();
-  const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
-  const goal3 = lightconeFundraiserThermometerGoal3Amount.get();
+  const goal1 = lightconeFundraiserThermometerGoalAmount.get(forumType);
+  const goal2 = lightconeFundraiserThermometerGoal2Amount.get(forumType);
+  const goal3 = lightconeFundraiserThermometerGoal3Amount.get(forumType);
 
   // Use the main fundraiser progress hook for the overall amount
   const [percentage, currentAmount] = useFundraiserProgress(goal3);
@@ -405,7 +407,7 @@ const FundraisingThermometer: React.FC<
             <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
               <Link
                 className={classNames(classes.header, classes.headerLinkIcon)}
-                to={`/posts/${lightconeFundraiserPostId.get()}`}
+                to={`/posts/${lightconeFundraiserPostId.get(forumType)}`}
               >
                 Lightcone Infrastructure Fundraiser
               </Link>
@@ -434,7 +436,7 @@ const FundraisingThermometer: React.FC<
           <div className={classNames(classes.backgroundSlider, currentAmount > goal1 && classes.backgroundSliderAnimation)}>
             <div
               className={classes.backgroundImage}
-              style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})` }}
+              style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get(forumType)})` }}
             />
             <div
               className={classes.backgroundImage}

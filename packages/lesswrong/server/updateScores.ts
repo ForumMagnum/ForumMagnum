@@ -1,6 +1,8 @@
 import {
   TIME_DECAY_FACTOR,
   SCORE_BIAS,
+  FRONTPAGE_BONUS,
+  CURATED_BONUS,
 } from '../lib/scoring';
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
@@ -29,9 +31,12 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
       proj.scoreDate = `(CASE WHEN "frontpageDate" IS NULL
         THEN "postedAt"
         ELSE "frontpageDate" END) AS "scoreDate"`;
+      // $4/$5 are FRONTPAGE_BONUS/CURATED_BONUS, matching postScoreModifiers()
+      // in lib/scoring.ts. (The original Postgres port hardcoded 10 for both,
+      // which diverged from the configured frontpage bonus of 0.)
       proj.baseScore = `("baseScore" +
-        (CASE WHEN "frontpageDate" IS NULL THEN 0 ELSE 10 END) +
-        (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE 10 END)) AS "baseScore"`;
+        (CASE WHEN "frontpageDate" IS NULL THEN 0 ELSE $4 END) +
+        (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE $5 END)) AS "baseScore"`;
       break;
     case "Comments":
       proj.baseScore = '("baseScore")';
@@ -70,7 +75,7 @@ const getBatchItemsPg = async <N extends VoteableCollectionName>(collection: Col
       1.0 / POW(${ageHours} + $2, $3) AS "singleVotePower"
     ) ns
     ${forceUpdate ? "" : 'WHERE ABS("score" - ns."newScore") > ns."singleVotePower" OR NOT q."inactive"'}
-  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
+  `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR, FRONTPAGE_BONUS, CURATED_BONUS], "read");
 }
 
 const getBatchItems = <N extends VoteableCollectionName>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {

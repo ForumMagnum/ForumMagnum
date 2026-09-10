@@ -21,6 +21,8 @@ import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
 import { TimeProvider } from '@/lib/utils/TimeProvider';
+import { ForumTypeProvider } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -136,34 +138,37 @@ function useLocationHash() {
   return hash;
 }
 
-const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
+const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   requestId: string,
+  forumType: ForumTypeString,
   children: React.ReactNode,
 }) => {
-  return <TimeProvider>
-    <Suspense>
-    <ApolloWrapper requestId={requestId}>
-      <CookiesProvider>
-        <UserContextProvider>
-          <ThemeContextProvider>
-            <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-                <HelmetProvider>
-                  <LocationContextProvider>
-                    <MessageContextProvider>
-                      <Layout>
-                        {children}
-                      </Layout>
-                    </MessageContextProvider>
-                  </LocationContextProvider>
-                </HelmetProvider>
-            </ABTestGroupsUsedContext.Provider>
-          </ThemeContextProvider>
-        </UserContextProvider>
-      </CookiesProvider>
-    </ApolloWrapper>
-    </Suspense>
-  </TimeProvider>
+  return <ForumTypeProvider forumType={forumType}>
+    <TimeProvider>
+      <Suspense>
+        <ApolloWrapper requestId={requestId}>
+          <CookiesProvider>
+            <UserContextProvider>
+              <ThemeContextProvider>
+                <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
+                  <HelmetProvider>
+                    <LocationContextProvider>
+                      <MessageContextProvider>
+                        <Layout>
+                          {children}
+                        </Layout>
+                      </MessageContextProvider>
+                    </LocationContextProvider>
+                  </HelmetProvider>
+                </ABTestGroupsUsedContext.Provider>
+              </ThemeContextProvider>
+            </UserContextProvider>
+          </CookiesProvider>
+        </ApolloWrapper>
+      </Suspense>
+    </TimeProvider>
+  </ForumTypeProvider>
 };
 
 export default ClientAppGenerator;

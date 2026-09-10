@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useMemo } from "react";
 import { RecommendationOptions, useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
@@ -137,6 +138,7 @@ export const usePostsItem = ({
   showCommentsIcon = true,
   className,
 }: PostsItemConfig) => {
+  const { forumType } = useForumType();
   const [showComments, setShowComments] = useState(defaultToShowComments);
   const [readComments, setReadComments] = useState(false);
   const [showDialogueMessages, setShowDialogueMessages] = useState(false);
@@ -173,17 +175,17 @@ export const usePostsItem = ({
     return (isRead && newComments && !readComments);
   }
 
-  const lastCommentedAt = postGetLastCommentedAt(post);
-  const lastCommentPromotedAt = postGetLastCommentPromotedAt(post);
+  const lastCommentedAt = postGetLastCommentedAt(post, forumType);
+  const lastCommentPromotedAt = postGetLastCommentPromotedAt(post, forumType);
   const hasUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
   const hadUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentPromotedAt);
 
   let postLink = post.draft && !post.debate
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
-    : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+    : postGetPageUrl(post, sequenceId || chapter?.sequenceId);
 
-  if (recombeeRecommId && recombeeEnabledSetting.get()) {
+  if (recombeeRecommId && recombeeEnabledSetting.get(forumType)) {
     postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
   }
 
@@ -213,7 +215,7 @@ export const usePostsItem = ({
     post,
     postLink,
     commentsLink: postLink + "#comments",
-    commentCount: postGetCommentCount(post),
+    commentCount: postGetCommentCount(post, forumType),
     primaryTag: hideTag ? null : postGetPrimaryTag(post),
     tagRel,
     resumeReading,

@@ -3,7 +3,7 @@ import { Comments } from '../../server/collections/comments/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
-import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
+import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
@@ -87,11 +87,11 @@ const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWee
   graphQLType: "Post",
   args: { af: "Boolean" },
   callback: async (
-    {repos, currentUser}: ResolverContext,
+    {repos, currentUser, forumType}: ResolverContext,
     limit: number,
     args: { af?: boolean },
   ): Promise<DbPost[]> => {
-    const af = args?.af ?? isAF();
+    const af = args?.af ?? (forumType === 'AlignmentForum');
     return repos.posts.getCuratedAndPopularPosts({
       currentUser,
       limit,
@@ -148,7 +148,7 @@ const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDef
         throw new Error("You must be an admin to use this resolver")
       }
 
-      const threshold = twitterBotKarmaThresholdSetting.get();
+      const threshold = twitterBotKarmaThresholdSetting.get(context);
 
       const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ limit, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
@@ -591,7 +591,7 @@ export const postGqlMutations = {
         : null;
       const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: yjs?.yjsState ?? null };
       let afField = {};
-      if (isAF()) {
+      if (context.forumType === 'AlignmentForum') {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };

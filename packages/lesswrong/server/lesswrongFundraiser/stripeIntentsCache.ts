@@ -1,7 +1,7 @@
 import type Stripe from 'stripe';
 import { captureException } from '@/lib/sentryWrapper';
 import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
-import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
+
 import { backgroundTask } from '../utils/backgroundTask';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 
@@ -11,7 +11,7 @@ let stripe: Stripe | undefined = undefined;
 
 const getStripe = async () => {
   if (stripe) return stripe;
-  let stripeSecretKey = lightconeFundraiserStripeSecretKeySetting.get();
+  let stripeSecretKey = (process.env.private_stripe_lightconeFundraiserSecretKey ?? null);
   if (!stripeSecretKey) return;
   const { Stripe } = await import('stripe');
   stripe = new Stripe(stripeSecretKey, {
@@ -32,7 +32,7 @@ export async function updateStripeIntentsCache() {
 
     while (hasMore) {
       const sessions: Stripe.Response<Stripe.ApiList<Stripe.Checkout.Session>> = await stripe.checkout.sessions.list({
-        payment_link: lightconeFundraiserPaymentLinkId.get(),
+        payment_link: lightconeFundraiserPaymentLinkId,
         limit: 100,
         starting_after: startingAfter,
         expand: ['data.payment_intent'],

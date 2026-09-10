@@ -27,8 +27,9 @@ import {
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
-  getDefaultVotingSystem,
+  defaultVotingSystem,
   type RSVPType,
+  postGetAbsolutePageUrl,
 } from "./helpers";
 import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -44,7 +45,6 @@ import {
   getPrevPostIdFromPrevSequence,
   getNextPostIdFromNextSequence,
 } from '../sequences/sequenceServerHelpers';
-import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
@@ -705,14 +705,14 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, true),
+      resolver: (post, args, context) => postGetAbsolutePageUrl(post, context.forumType),
     },
   },
   pageUrlRelative: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, false),
+      resolver: (post, args, context) => postGetPageUrl(post),
     },
   },
   linkUrl: {
@@ -720,7 +720,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? post.url : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetAbsolutePageUrl(post, context.forumType);
       },
     },
   },
@@ -737,21 +737,21 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetEmailShareUrl(post),
+      resolver: (post, args, context) => postGetEmailShareUrl(post, context.forumType),
     },
   },
   twitterShareUrl: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetTwitterShareUrl(post),
+      resolver: (post, args, context) => postGetTwitterShareUrl(post, context.forumType),
     },
   },
   facebookShareUrl: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetFacebookShareUrl(post),
+      resolver: (post, args, context) => postGetFacebookShareUrl(post, context.forumType),
     },
   },
   // DEPRECATED: use socialPreview.imageUrl instead
@@ -759,7 +759,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => getSocialPreviewImage(post),
+      resolver: (post, args, context) => getSocialPreviewImage(post, context.forumType),
     },
   },
   question: {
@@ -1299,7 +1299,7 @@ const schema = {
         // Forum-gating/beta-gating is done here, rather than just client side,
         // so that users don't have to download the glossary if it isn't going
         // to be displayed.
-        if (!userCanViewJargonTerms(context.currentUser)) {
+        if (!userCanViewJargonTerms(context.currentUser, context.forumType)) {
           return [];
         }
         const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 } }).fetch();
@@ -1906,10 +1906,10 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: async ({ document }) => {
+      onCreate: async ({ document, context }) => {
         const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
-          : getDefaultVotingSystem();
+          : defaultVotingSystem;
 
         return votingSystem;
       },
@@ -2359,7 +2359,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context): Promise<SocialPreviewType> => {
         const { imageId = null, text = null } = post.socialPreview || {};
-        const imageUrl = getSocialPreviewImage(post);
+        const imageUrl = getSocialPreviewImage(post, context.forumType);
         return {
           _id: post._id,
           imageId,
@@ -2381,8 +2381,8 @@ const schema = {
       inputType: "CrosspostInput",
       validation: { blackbox: true },
       canRead: [documentIsNotDeleted],
-      canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
-      canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
+      canUpdate: [(user, post, context) => userOwns(user, post) && userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
+      canCreate: [(user, context) => userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
       // Users aren't allowed to directly select the foreignPostId of a crosspost
       onCreate: (args) => {
         const { document, context } = args;
@@ -2902,7 +2902,7 @@ const schema = {
       inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [userCanModeratePost],
+      canCreate: [(user) => userCanModeratePost(user)],
       validation: {
         optional: true,
       },
@@ -3747,8 +3747,8 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["admins", postCanEditHideCommentKarma],
-      canCreate: ["admins", postCanEditHideCommentKarma],
+      canUpdate: ["admins", (user, post, context) => postCanEditHideCommentKarma(user, context.forumType, post)],
+      canCreate: ["admins", (user) => !!user?.showHideKarmaOption],
       validation: {
         optional: true,
       },
@@ -3839,7 +3839,7 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          userId: { $ne: reviewUserBotSetting.get() },
+          userId: { $ne: reviewUserBotSetting.get(context) },
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);

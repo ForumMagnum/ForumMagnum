@@ -1,8 +1,6 @@
 // import { startWebserver } from './apolloServer';
-import { scheduleQueueProcessing } from './cache/swr';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
-// import { addLegacyRssRoutes } from './legacy-redirects/routes';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
@@ -36,7 +34,6 @@ import { backgroundTask } from './utils/backgroundTask';
 // }
 
 export async function runServerOnStartupFunctions() {
-  scheduleQueueProcessing();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
   // addLegacyRssRoutes();

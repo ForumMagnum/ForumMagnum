@@ -1,4 +1,4 @@
-import { isAF } from '../../instanceSettings';
+import type { ApolloClient } from '@apollo/client';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
@@ -12,8 +12,8 @@ declare global {
 /**
  * When changing this, also update getViewableSequencesSelector.
  */
-function defaultView(terms: SequencesViewTerms) {
-  const alignmentForum = isAF() ? {af: true} : {}
+function defaultView(terms: SequencesViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,

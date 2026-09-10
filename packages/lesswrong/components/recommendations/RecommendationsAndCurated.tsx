@@ -1,10 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { isLW } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
@@ -74,8 +74,8 @@ const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => (
   },
 }));
 
-const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isLW()) {
+const getFrontPageOverwrites = (haveCurrentUser: boolean, isLW: boolean): Partial<RecommendationsAlgorithm> => {
+  if (isLW) {
     return {
       lwRationalityOnly: true,
       method: 'sample',
@@ -94,6 +94,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 const RecommendationsAndCurated = ({configName}: {
   configName: string,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -112,7 +113,7 @@ const RecommendationsAndCurated = ({configName}: {
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
-      ...getFrontPageOverwrites(!!currentUser)
+      ...getFrontPageOverwrites(!!currentUser, isLW)
     }
 
     const continueReadingTooltip = <div>
@@ -160,14 +161,14 @@ const RecommendationsAndCurated = ({configName}: {
 
     const bodyNode = (
       <>
-        {isLW() && (
+        {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
             <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && isLW() && (
+        {!currentUser && isLW && (
           <div>
             {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">

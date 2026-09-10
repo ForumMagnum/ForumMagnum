@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
@@ -90,6 +91,7 @@ export const CommentLinkWrapper = ({
  * will be taken from the `#id` part of the URL if present.
  */
 export const useCommentLinkState = () => {
+  const { forumType } = useForumType();
   const { query, hash } = useSubscribedLocation();
 
   const queryId = query.commentId
@@ -99,8 +101,8 @@ export const useCommentLinkState = () => {
   // the SSR mismatch
   const scrollToCommentId = useSyncExternalStore(
     ()=>()=>{},
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
+    () => commentPermalinkStyleSetting.get(forumType) === 'in-context' ? (queryId ?? hashId) : hashId,
+    () => commentPermalinkStyleSetting.get(forumType) === 'in-context' ? queryId : "",
   ) ?? "";
 
   return { linkedCommentId: queryId, scrollToCommentId }

@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
@@ -12,8 +13,9 @@ assertRouteAttributes("/faq", {
   hasMarkdownVersion: true,
 });
 
-export default function Page() {
+export default async function Page() {
+  const forumType = await getForumTypeForPage();
   return <RouteRoot delayedStatusCode>
-    <PostsSingleRoute _id={faqPostIdSetting.get()} />
+    <PostsSingleRoute _id={faqPostIdSetting.get(forumType)} />
   </RouteRoot>;
 }

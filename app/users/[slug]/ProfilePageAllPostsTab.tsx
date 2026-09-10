@@ -1,4 +1,6 @@
 "use client";
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -282,9 +284,9 @@ const formatAuthorNames = (names: string[]) => {
   return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
 };
 
-const getProfilePostAuthorLine = (post: UserProfilePost) => {
-  const primaryAuthorName = (!post.user || post.hideAuthor) ? "Deleted user" : userGetDisplayName(post.user);
-  const coauthorNames = (post.coauthors ?? []).map(userGetDisplayName).filter(Boolean);
+const getProfilePostAuthorLine = (post: UserProfilePost, forumType: ForumTypeString) => {
+  const primaryAuthorName = (!post.user || post.hideAuthor) ? "Deleted user" : userGetDisplayName(post.user, forumType);
+  const coauthorNames = (post.coauthors ?? []).map(user => userGetDisplayName(user, forumType)).filter(Boolean);
   const authorNames = [primaryAuthorName, ...coauthorNames].filter(Boolean);
 
   return formatAuthorNames(authorNames);
@@ -350,6 +352,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   user: UsersProfile
   settings: ProfilePageAllPostsTabSettings
 }) {
+  const { forumType } = useForumType();
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
@@ -370,7 +373,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written or coauthored any posts yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user, forumType)} has not written or coauthored any posts yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-2.png" alt="" />
         </div>
@@ -381,7 +384,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
       const imageUrl = getListPostImageUrl(post);
       const hasListImage = !!imageUrl;
       const isCoauthoredOnly = post.userId !== userId && post.coauthorUserIds.includes(userId);
-      const authorLine = isCoauthoredOnly ? getProfilePostAuthorLine(post) : null;
+      const authorLine = isCoauthoredOnly ? getProfilePostAuthorLine(post, forumType) : null;
 
       return (
         <article key={post._id} className={classes.listArticle}>

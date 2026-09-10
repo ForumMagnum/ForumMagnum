@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import classNames from 'classnames';
 import { useCurrentUser, useCurrentUserId } from "../common/withUser";
@@ -132,8 +134,8 @@ const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
 ]);
 
-const postIcon = (post: PostsBase|PostsListBase) => {
-  const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
+const postIcon = (post: PostsBase|PostsListBase, forumType: ForumTypeString) => {
+  const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get(forumType))
   if (matchingIdSetting) {
     return idSettingIcons.get(matchingIdSetting);
   }
@@ -141,7 +143,7 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   //Sometimes this function will be called with fragments that don't have the tag array, in that case assume that the tag array is empty
   const postTags = ('tags' in post) ? (post as PostsListBase).tags : []
   if (!postTags) return null
-  const matchingTagSetting = tagSettingIconKeys.find(tagSetting => (postTags).find(tag => tag._id === tagSetting.get()));
+  const matchingTagSetting = tagSettingIconKeys.find(tagSetting => (postTags).find(tag => tag._id === tagSetting.get(forumType)));
   if (matchingTagSetting) {
     return tagSettingIcons.get(matchingTagSetting);
   }
@@ -168,6 +170,7 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
   postItemHovered?: boolean,
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
@@ -179,7 +182,7 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
 
   const url = postLink || postGetPageUrl(post)
 
-  const Icon = postIcon(post);
+  const Icon = postIcon(post, forumType);
 
   const title = <span>
     {sticky && <span className={classes.sticky}>

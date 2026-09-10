@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return merge(
     {},
     await getDefaultMetadata(),
-    getPageTitleFields('Books: A Map that Reflects the Territory'),
+    await getPageTitleFields('Books: A Map that Reflects the Territory'),
     getMetadataDescriptionFields('LessWrong is now a book.'),
     getMetadataImagesFields('https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606944736/Screen_Shot_2020-11-30_at_10.17.10_PM_copy_mleu4a.png'),
   );

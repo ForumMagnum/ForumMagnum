@@ -1,4 +1,4 @@
-import { newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { newUserIconKarmaThresholdSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -43,11 +43,11 @@ export const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): stri
 }
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null, forumType: ForumTypeString): string => {
   if (!user) {
     return "";
   } else {
-    return (isAF()
+    return (forumType === 'AlignmentForum'
       ? (user.fullName || user.displayName) ?? ""
       : (user.displayName || getUserName(user)) ?? ""
     ).trim();
@@ -73,12 +73,12 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
 /**
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
-export const isNewUser = (user: UsersMinimumInfo): boolean => {
+export const isNewUser = (user: UsersMinimumInfo, forumType: ForumTypeString): boolean => {
   const oneYearInMs = 365*24*60*60*1000;
   const oneWeekInMs = 7*24*60*60*1000;
   const userCreatedAt = new Date(user.createdAt);
 
-  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get(forumType)
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 
@@ -324,33 +324,47 @@ export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null): string => {
   if (!user) return "";
   
   if (user.slug) {
-    return userGetProfileUrlFromSlug(user.slug, isAbsolute);
+    return userGetProfileUrlFromSlug(user.slug);
   } else {
     return "";
   }
 }
 
-export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
+export const userGetProfileUrlFromSlug = (userSlug: string): string => {
   if (!userSlug) return "";
   
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/users/${userSlug}`;
+  return `/users/${userSlug}`;
 }
 
-export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+export const userGetAnalyticsUrl = (user: {slug: string}): string => {
   if (!user) return "";
 
   if (user.slug) {
-    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+    return `${userGetProfileUrlFromSlug(user.slug)}/stats`;
   } else {
     return "";
   }
 }
 
+
+export const userGetAbsoluteProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteProfileUrlFromSlug = (userSlug: string, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrlFromSlug(userSlug);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteAnalyticsUrl = (user: {slug: string}, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetAnalyticsUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|DbUser|null): boolean => {
   if (!user) {
@@ -398,16 +412,16 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   return {lat: placeholderLat, lng: placeholderLng, known: false}
 }
 
-export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetPostCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afPostCount;
   } else {
     return user.postCount;
   }
 }
 
-export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetCommentCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
     return user.commentCount;
@@ -419,10 +433,10 @@ export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
 }
 
 const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
-export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+export const requireNewUserGuidelinesAck = (user: UsersCurrent, forumType: ForumTypeString) => {
   if (isE2E) return false;
   
-  if (!isLW()) return false;
+  if (forumType !== 'LessWrong') return false;
 
   const userCreatedAfterCutoff = user.createdAt
     ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER

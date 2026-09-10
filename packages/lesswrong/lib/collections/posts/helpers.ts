@@ -1,11 +1,10 @@
-import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import { forumSelect } from '@/lib/forumTypeUtils';
 import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
 import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
@@ -22,11 +21,15 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false): string {
+export const postGetLink = function (post: PostsBase|DbPost): string {
   if (post.url) {
     return post.url;
   }
-  return postGetPageUrl(post, isAbsolute);
+  return postGetPageUrl(post);
+};
+
+export const postGetAbsoluteLink = (post: PostsBase|DbPost, forumType: ForumTypeString): string => {
+  return post.url || postGetAbsolutePageUrl(post, forumType);
 };
 
 // Whether a post's link should open in a new tab or not
@@ -89,7 +92,6 @@ export function parseUnsafeUrl(url: string) {
   return {};
 }
 
-
 // Detect if a post is a linkpost and get the domain
 export const detectLinkpost = (
   post: { url?: string | null },
@@ -117,7 +119,7 @@ export const detectLinkpost = (
 export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
   var user = await context.Users.findOne({_id: post.userId});
   if (user) {
-    return userGetDisplayName(user);
+    return userGetDisplayName(user, context.forumType);
   } else {
     return post.author ?? "[unknown author]";
   }
@@ -141,54 +143,54 @@ export const postIsApproved = function (post: Pick<DbPost, '_id' | 'status'>): b
 };
 
 // Get URL for sharing on Twitter.
-export const postGetTwitterShareUrl = (post: DbPost): string => {
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
+export const postGetTwitterShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetAbsoluteLink(post, forumType)) }`;
 };
 
 // Get URL for sharing on Facebook.
-export const postGetFacebookShareUrl = (post: DbPost): string => {
-  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetLink(post, true)) }`;
+export const postGetFacebookShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
+  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetAbsoluteLink(post, forumType)) }`;
 };
 
 // Get URL for sharing by Email.
-export const postGetEmailShareUrl = (post: DbPost): string => {
+export const postGetEmailShareUrl = (post: DbPost, forumType: ForumTypeString): string => {
   const subject = `Interesting link: ${post.title}`;
   const body = `I thought you might find this interesting:
 
 ${post.title}
-${postGetLink(post, true)}
+${postGetAbsoluteLink(post, forumType)}
 
-(found via ${siteUrlSetting.get()})
+(found via ${siteUrlSetting.get(forumType)})
   `;
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-const getSocialImagePreviewPrefix = () =>
-  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/`;
+const getSocialImagePreviewPrefix = (forumType: ForumTypeString) =>
+  `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,ar_1.91,g_auto/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
 // For other posts, we use the manually-set cloudinary image if available,
 // or the auto-set from the post contents. If neither of those are available,
 // it will return null.
-export const getSocialPreviewImage = (post: DbPost): string => {
+export const getSocialPreviewImage = (post: DbPost, forumType: ForumTypeString): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
   if (manualId) {
-    return getSocialImagePreviewPrefix() + manualId;
+    return getSocialImagePreviewPrefix(forumType) + manualId;
   }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
 
-export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
+export const getSocialPreviewSql = (tablePrefix: string, forumType: ForumTypeString) => `JSON_BUILD_OBJECT(
   'imageUrl',
   CASE
     WHEN ${tablePrefix}."isEvent" AND ${tablePrefix}."eventImageId" IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix()}' || ${tablePrefix}."eventImageId"
+      THEN '${getSocialImagePreviewPrefix(forumType)}' || ${tablePrefix}."eventImageId"
     WHEN ${tablePrefix}."socialPreview"->>'imageId' IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId')
+      THEN '${getSocialImagePreviewPrefix(forumType)}' || (${tablePrefix}."socialPreview"->>'imageId')
     ELSE COALESCE(${tablePrefix}."socialPreviewImageAutoUrl", '')
   END
 )`;
@@ -203,43 +205,50 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId: string|null=null): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
+export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, sequenceId: string|null=null): string {
   // LESSWRONG – included event and group post urls
   if (sequenceId) {
-    return `${prefix}/s/${sequenceId}/p/${post._id}`;
+    return `/s/${sequenceId}/p/${post._id}`;
   } else if (post.isEvent) {
-    return `${prefix}/events/${post._id}/${post.slug}`;
+    return `/events/${post._id}/${post.slug}`;
   } else if (post.groupId) {
-    return `${prefix}/g/${post.groupId}/p/${post._id}/`;
+    return `/g/${post.groupId}/p/${post._id}/`;
   }
-  return `${prefix}/posts/${post._id}/${post.slug}`;
+  return `/posts/${post._id}/${post.slug}`;
+};
+
+export const postGetAbsolutePageUrl = (post: PostsMinimumForGetPageUrl, forumType: ForumTypeString, sequenceId: string|null=null): string => {
+  return getSiteUrl(forumType).slice(0, -1) + postGetPageUrl(post, sequenceId);
 };
 
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
-  isAbsolute = false,
   sequenceId: string | null = null,
 ): string => {
-  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+  return postGetPageUrl(post, sequenceId) + "#comments";
 }
 
+export const postGetAbsoluteCommentsUrl = (post: PostsMinimumForGetPageUrl, forumType: ForumTypeString, sequenceId: string|null=null): string => {
+  return postGetAbsolutePageUrl(post, forumType, sequenceId) + "#comments";
+};
 
-export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
-  const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
-  let url = `${prefix}/editPost?postId=${postId}`;
+export const postGetEditUrl = (postId: string, linkSharingKey?: string, version?: string): string => {
+  let url = `/editPost?postId=${postId}`;
   if (linkSharingKey) url += `&key=${linkSharingKey}`;
   if (version) url += `&version=${version}`;
   return url;
 }
 
+export const postGetAbsoluteEditUrl = (postId: string, forumType: ForumTypeString, linkSharingKey?: string, version?: string): string => {
+  return getSiteUrl(forumType).slice(0, -1) + postGetEditUrl(postId, linkSharingKey, version);
+};
+
 export type PostWithCommentCounts = { commentCount: number; afCommentCount: number }
 /**
  * Get the total (cached) number of comments, including replies and answers
  */
-export const postGetCommentCount = (post: PostWithCommentCounts): number => {
-  if (isAF()) {
+export const postGetCommentCount = (post: PostWithCommentCounts, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -249,8 +258,8 @@ export const postGetCommentCount = (post: PostWithCommentCounts): number => {
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
-  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
+export const postGetCommentCountStr = (post: PostWithCommentCounts|null|undefined, forumType: ForumTypeString, commentCount?: number): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post, forumType) : 0;
   if (!count) {
     return "No comments";
   } else if (count === 1) {
@@ -270,7 +279,7 @@ export const postGetAnswerCountStr = (count: number): string => {
   }
 }
 
-export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCounts; answers: CommentsList[] }) => {
+export const getResponseCounts = ({ post, answers, forumType }: { post: PostWithCommentCounts; answers: CommentsList[]; forumType: ForumTypeString }) => {
   // answers may include some which are deleted:true, deletedPublic:true (in which
   // case various fields are unpopulated and a deleted-item placeholder is shown
   // in the UI). These deleted answers are *not* included in post.commentCount.
@@ -281,20 +290,20 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 
   return {
     answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - answerAndDescendentsCount,
+    commentCount: postGetCommentCount(post, forumType) - answerAndDescendentsCount,
   };
 };
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
-  if (isAF()) {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost, forumType: ForumTypeString): Date | null => {
+  if (forumType === 'AlignmentForum') {
     return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
     return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
   }
 }
 
-export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
-  if (isAF()) return null
+export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost, forumType: ForumTypeString): Date|null => {
+  if (forumType === 'AlignmentForum') return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
@@ -351,8 +360,8 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
   return (userOwns(currentUser, post) || isPostGroupOrganizer) && !!post.draft
 }
 
-export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = isAF() ? post.afBaseScore : post.baseScore
+export const postGetKarma = (post: PostsBase|DbPost, forumType: ForumTypeString): number => {
+  const baseScore = forumType === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 
@@ -362,8 +371,8 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostWithCommentCounts|null): boolean => {
-  return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
+export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString, post?: PostWithCommentCounts|null): boolean => {
+  return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post, forumType)))
 }
 
 export type CoauthoredPost = NullablePartial<Pick<DbPost, "coauthorUserIds">>
@@ -395,17 +404,17 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 /**
  * Whether the post is allowed AI generated audio
  */
-export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost): boolean => {
-  if (!allowTypeIIIPlayerSetting.get()) return false
+export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
+  if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   try {
-    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get())
-    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
+    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get(forumType))
+    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get(forumType)
 
     return (
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.baseScore > type3KarmaCutoffSetting.get(forumType) ||
         post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
@@ -442,7 +451,7 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
+export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase, forumType: ForumTypeString): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
   // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
@@ -456,7 +465,7 @@ export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase &
     || !!post.groupId
     || post.disableRecommendation
     || post.status !== 2
-    || post._id === aboutPostIdSetting.get()
+    || post._id === aboutPostIdSetting.get(forumType)
   );
 };
 
@@ -509,8 +518,8 @@ export interface RSVPType {
 /**
  * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
  */
-export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
-  const currentKarmaThreshold = crosspostKarmaThreshold.get();
+export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null, forumType: ForumTypeString) => {
+  const currentKarmaThreshold = crosspostKarmaThreshold.get(forumType);
 
   return currentKarmaThreshold === null
     ? true
@@ -535,14 +544,7 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
   return false;
 }
 
-export function getDefaultVotingSystem() {
-  return forumSelect({
-    EAForum: "eaEmojis",
-    LessWrong: "namesAttachedReactions",
-    AlignmentForum: "namesAttachedReactions",
-    default: "default",
-  });
-}
+export const defaultVotingSystem = "namesAttachedReactions";
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
 

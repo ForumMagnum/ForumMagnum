@@ -1,5 +1,6 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
@@ -9,7 +10,6 @@ import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
-import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
@@ -102,6 +102,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
@@ -174,7 +175,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
           {"open": inputOpen},
           {[classes.searchInputAreaSmall]: !currentUser}
         )}>
-          {isAF() && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
             <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
               <ForumIcon icon="Search" className={classes.searchIcon} />

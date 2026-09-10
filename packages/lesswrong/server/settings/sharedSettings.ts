@@ -14,18 +14,12 @@ export const sharedSettings = {
     petrovServerUrl: "https://forum.effectivealtruism.org/graphql",
     petrovGamePostId: "KTEciTeFwL2tTujZk"
   },
-  reacts: {
-    addNewReactKarmaThreshold: 10,
-    downvoteExistingReactKarmaThreshold: 20,
-    addNameToExistingReactKarmaThreshold: 5
-  },
   stripe: {
     publicKey: "pk_live_51HtKAwA2QvoATZCZiy9f2nc6hA52YS1BE81cFu9FEV1IKar0Bwx6hIpxxxYHnhaxO9KM7kRYofZId3sUUI7Q0NeO00tGni3Wza"
   },
   algolia: {
     appId: "fakeAppId",
     searchKey: "fakeSearchKey",
-    indexPrefix: "test_"
   },
   llmChat: {
     userIds: [
@@ -74,19 +68,12 @@ export const sharedSettings = {
     apiKey: "mtnxzn/lesswrong",
     sampleDensity: 5
   },
-  reCaptcha: {
-    apiKey: "6LfFgqEUAAAAAHKdMgzGO-1BRBhHw1x6_8Ly1cXc"
-  },
   siteImage: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg",
   cloudinary: {
-    cloudName: "lesswrong-2-0",
     uploadPresetBanner: "navcjwf7",
     uploadPresetGridImage: "tz0mgw2s",
     uploadPresetSocialPreview: "nn5tppry",
     uploadPresetEditor: "lexical_client_upload",
-  },
-  googleMaps: {
-    apiKey: "AIzaSyA3C48rl26gynG3qIuNuS-3Bh_Zz9jFXkY"
   },
   adminAccount: {
     _id: "AgwWRYMJRutPtkjds",
@@ -112,10 +99,6 @@ export const sharedSettings = {
     enabled: true
   },
   moderationEmail: "team@lesswrong.com",
-  timeDecayFactor: 1.15,
-  googleTagManager: {
-    apiKey: "GTM-TRC765W"
-  },
   textReplacements: {
     "Less Wrong": "Down Bad",
     "Alignment Forum": "Standards Committee",
@@ -124,17 +107,13 @@ export const sharedSettings = {
   alternateHomePage: false,
   bookDisplaySetting: false,
   gardenOpenToPublic: false,
-  karmaRewarderId100: "iqWr6C3oEB4yWpzn5",
   legacyRouteAcronym: "lw",
   recommendationsTab: {
     manuallyStickiedPostIds: []
   },
-  frontpageScoreBonus: 0,
-  karmaRewarderId1000: "mBBmKWkmw8bgJmGiG",
   lightconeFundraiser: {
     active: true,
     postId: "eKGdCNdKjvTBG9i6y",
-    paymentLinkId: "plink_1QPdGLBlb9vL5IMTvkJ3LZ6v",
     unsyncedAmount: 321_213,
     thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1765607802/fundraiserTest2_weie7h.webp",
     thermometerGoalAmount: 1000000,

@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 // eslint-disable-next-line no-restricted-imports
 import OpenAI from 'openai';
 import ReviewWinners from '../../../server/collections/reviewWinners/collection.ts';
@@ -73,6 +74,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
 
   const essays = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: {$in: postsToFind.map(p => p.postId)}},
@@ -147,7 +149,7 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
   return fetch(`https://api.mymidjourney.ai/api/v1/midjourney/button`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+      'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({messageId, button})
@@ -193,7 +195,7 @@ async function checkOnJob(jobId: string): Promise<MyMidjourneyResponse | undefin
     const response = await fetch(`https://api.mymidjourney.ai/api/v1/midjourney/message/${jobId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
         'Content-Type': 'application/json'
       }
     })
@@ -224,7 +226,7 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
     const response = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/imagine', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get("LessWrong")}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({prompt: prompter(promptElement)})
@@ -272,7 +274,7 @@ async function generateCoverImages({limit = 2}: {
 
 // Exported to allow running manually with yarn repl
 export async function coverImages () {
-  if (!myMidjourneyAPIKeySetting.get()) {
+  if (!myMidjourneyAPIKeySetting.get("LessWrong")) {
     throw new Error('No MyMidjourney API key found!');
   }
   

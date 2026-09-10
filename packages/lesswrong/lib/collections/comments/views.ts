@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -118,11 +118,11 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
   }
 };
 
-function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
+function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed', 'shortform');
 
-  const alignmentForum = isAF() ? {af: true} : {}
-  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get(context)
   
   const notDeletedOrDeletionIsPublic = {
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
