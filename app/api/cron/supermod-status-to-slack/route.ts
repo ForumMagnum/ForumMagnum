@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 import { captureException } from '@/lib/sentryWrapper';
 import { postMessage } from '@/server/slack/client';
 import { getSupermodStatus } from './getSupermodStatus';
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const context = createAnonymousContext();
+    const context = createAnonymousContext({ forumType: getForumTypeForRequest(request) });
     const { daily, weekly } = await getSupermodStatus(context, getMostRecentPacificReportTime(now));
     const messages: Array<{ text: string; blocks?: SlackMessageBlock[] }> = [
       { text: formatDailySupermodMessage(daily) },
