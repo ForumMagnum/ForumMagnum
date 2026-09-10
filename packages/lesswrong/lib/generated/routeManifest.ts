@@ -350,6 +350,9 @@ export const routeTrie = {
             "run-twitter-bot": {
               "hasRoute": true
             },
+            "supermod-status-to-slack": {
+              "hasRoute": true
+            },
             "update-analytics-collections": {
               "hasRoute": true
             },
@@ -374,6 +377,7 @@ export const routeTrie = {
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
             "run-twitter-bot": "run-twitter-bot",
+            "supermod-status-to-slack": "supermod-status-to-slack",
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
