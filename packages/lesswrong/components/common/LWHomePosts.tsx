@@ -641,6 +641,7 @@ const LWHomePosts = ({ children, }: {
                     <PostsList2
                       terms={recentPostsTerms}
                       alwaysShowLoadMore
+                      animateLoadMore
                       hideHiddenFrontPagePosts
                       repeatedPostsPrecedence={3}
                     >
@@ -723,6 +724,7 @@ const LWHomePosts = ({ children, }: {
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
+                  animateLoadMore
                   hideHiddenFrontPagePosts
                 >
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
