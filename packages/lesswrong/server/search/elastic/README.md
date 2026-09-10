@@ -25,42 +25,142 @@ an existing index.
 
 ## Unified search ranking
 
-Unified search uses explicit relationship tiers. Within a tier, text relevance is
-multiplied by `1 + 3 * max(karma, 0) / (max(karma, 0) + pivot)`, then bounded so it
-cannot overtake the next tier. Pivots are 50 for posts/sequences/tags, 10 for comments,
-and 1,000 for profiles. Tags use their own karma (`baseScore`), not linked-post
-count: a widely used tag should not outrank high-karma posts just because many
-posts link to it. Missing karma contributes zero. Sequences use the average
-karma of their distinct public, approved, nonnegative-karma posts.
+`ElasticMultiQuery.compileMultiQuery` accepts `ranking: "tiered" | "additive"`.
+The default remains `tiered` pending broader relevance judgments. The additive
+implementation and evaluator are available for explicit comparisons; changing
+`defaultUnifiedRanking` enables it for callers that omit the option. This work
+has not deployed a production ranking or rebuilt production indexes.
 
-For recognized person searches, the order is matching profiles, up to two
-featured sequences collecting their writing, authored/coauthored posts and other
-related sequences, title/name matches, authored comments, body mentions, then
-other comments. Sequence ownership alone is not authorship. A comment merely
-under the author's post does not qualify.
+### Additive scoring
 
-Exact display names/slugs can resolve a person. A complete first name can resolve
-an author when it has at least four characters and the author has at least 1,000
-karma. Ambiguous matches to the same name span are retained. Name lookup considers
-up to 100 candidates. Additional topic words must match the result's content;
-advanced query syntax uses the established query parser without inferred people.
+Each candidate receives bounded points on a shared scale:
 
-For ordinary topic searches, exact titles/names precede other complete title/name
-matches, body matches, and comment matches. Age is not penalized. Elasticsearch
-performs pagination and exact counting after ranking, with document ID and index
-as stable score tie-breakers. Sequence promotion is selected independently of the
-requested page.
+```
+score = T + H + N + A + P × G(T) + C + 2
+T = 3 × BM25² / (BM25² + k²) + allTerms + phrase
+P = min(4, 0.8 × log2(1 + max(karma, 0) / popularityPivot))
+G(T) = 0.1 + 0.9 × min(T / 5, 1)²
+```
+
+| Signal | Behavior |
+|---|---|
+| T, topical evidence | Raw content-only BM25 contributes 0–3, complete analyzed term coverage adds 1, title/body phrase proximity adds 1. Author metadata and recall boosts never contribute. |
+| H, title coverage | Adds 1 for multiple content tokens or 0.5 for a single content token. Complete analyzed coverage or title-prefix coverage qualifies once. |
+| N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. Identifiers add 8 within identifier-only eligibility. |
+| A, relationship | Exact/strong/weak profiles add 6/5/4; authored posts and sequences 3/3/2; authored comments 2/2/1.5. Use the strongest relationship once. Minor exact accounts receive half the profile points. |
+| C, context | Curated posts add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
+
+The constant 2 keeps Elasticsearch function scores nonnegative and does not
+change ordering. Popularity pivots are posts 15, comments 4, users 100, tags 5,
+sequences 15. Raw BM25 pivots are posts 8.1, comments 7.6, users 12.9, tags 5.9,
+sequences 3.8, calibrated from 150 deterministically selected development queries
+using multi-index DFS. A raw score equal to its pivot earns 1.5 points. These
+are initial measured development parameters, not universal relevance constants.
+
+A title prefix earns one proximity point outside the popularity gate when it
+has not already earned ordinary phrase proximity. Its navigation bonus requires
+an unfinished final word. Prefix scoring uses the same bounded 50-completion
+budget as recall; a smaller scoring budget silently dropped “college” for
+“american coll” in the real index. Complete topic phrases such as “lab automation” do
+not gain it simply because a title continues afterward. Generic exact titles
+such as “History” have no unconditional priority. No ordinary title or profile
+is mathematically guaranteed first place.
+
+Recall searches exact and stemmed/synonym fields together, with bounded fuzzy
+and prefix alternatives. Recall is a filter, separate from topical scoring.
+For a single 12–24-letter ASCII word, a bounded fallback tries adjacent title/name
+tokens with one edit per part, two fixed prefix letters and at most five fuzzy
+expansions per part. This handles joined compounds such as
+“infrabayesiansism” → “Infra-Bayesianism” without a query whitelist. Its raw
+span evidence competes by maximum with ordinary topical BM25 and can earn the
+single all-terms point. It has no extra navigation bonus. Short words, bodies,
+and advanced syntax do not get compound recovery. This specialized fallback
+was added after the general BM25 calibration; its latency and relevance need
+monitoring on production-scale traffic.
+
+Raw 17-character IDs must contain an uppercase letter or digit; lowercase-only
+17-letter strings remain text to avoid interpreting natural-language typos as
+IDs. 24-character hexadecimal IDs and internal LW/AF URLs are recognized.
+Internal URLs also support lowercase-only IDs. Identifier-only searches still
+apply all eligibility and permission-related filters.
+
+Person resolution keeps all plausible candidates for the selected name span,
+with confidence per candidate. Public full names, display names and slugs
+support real-name aliases, surnames, prefixes and bounded typos. A prominent
+account has at least 1,000 karma. Exact minor accounts remain possible matches.
+For author-plus-topic queries, the original query and residual topic compete
+by maximum; only that author's documents qualify for the residual branch.
+“roko” can therefore retrieve both the author and topic results. Multiple
+coauthors and related sequences cannot accumulate repeated relationship points.
+Resolved profile IDs receive the full popularity gate; unrelated profile hits
+do not inherit it.
+
+Event freshness requires an event-related query or positive event filter. Only
+future `startTime` values receive a bonus, flat for seven days and decaying with
+a 30-day half-value distance thereafter. Explicit years or date/time filters
+disable it. Classic essays and past events receive no age penalty. Current
+opportunities without event metadata have no reliable deadline signal yet.
+
+### Evaluation and release decision
+
+Run these development-only helpers through the REPL:
+
+```sh
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingFixtures.ts 'runControlledFixtures()'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots(undefined, 150)'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'inspectAliasCoverage()'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings()'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateJudgedSearches()'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation", "additive")'
+```
+
+The evaluator expects the reports under `/tmp/forum-search-report`. It compares
+427 normalized header queries from 481 searchBar evidence rows, separately from
+tabbed-page/editor clicks. Targets are collection-qualified IDs. Absent and
+ineligible targets are reported separately; paired metrics require both
+rankings to succeed. Connected components join shared targets and all 39 intent
+families before a deterministic training/holdout split. Both partitions were
+inspected during tuning, so results are exploratory, not an untouched holdout.
+
+Full comparisons use one Elasticsearch point-in-time snapshot for eligibility,
+person lookup and both rankers, retaining DFS. Reports record source/input
+hashes, weights, physical indexes, mappings, counts, failures and individual
+ranked results. Calibration is separately reported and is not PIT-frozen.
+Incomplete or timed-out searches fail instead of becoming relevance misses.
+
+Controlled fixtures clone actual development analyzers into temporary indexes,
+exercise real compiled queries at two body lengths, and clean up only their own
+indexes. Clicks remain weak positive candidates: they contain neither result
+impressions nor original karma and cannot label unclicked results irrelevant.
+The reviewed lab-automation pool includes actual indexed text and karma, with
+explicit relevant-body versus misleading-title pairs. Its coverage is too small
+to establish broad discovery quality. The [final measured report](ranking-evaluation-2026-09-10.md) records the frozen
+comparison, limitations and release decision; detailed JSON artifacts remain in
+`/tmp/forum-search-report`.
+
+Keep the tiered default until a broader independently judged pool demonstrates
+discovery improvement without navigation regressions, and latency is validated
+under representative load. The existing tiered compiler remains the comparison
+baseline, including its rigid post/comment and relationship boundaries.
 
 ### Rollout
 
-No PostgreSQL migration or GraphQL generation is needed. The new Elasticsearch
+The ranking itself needs no PostgreSQL migration. The new Elasticsearch
 fields must be populated from PostgreSQL: post coauthor IDs, sequence collected
-author IDs, and sequence karma. Sequence title mappings also gain the normal
+author IDs, sequence karma, and public user `fullName` aliases. Sequence title mappings also gain the normal
 full-text subfields. Existing single-record post updates and chapter mutations
 refresh affected sequence documents.
 
-The explicit rebuild helper has **not been run** as part of this change. Start
-with the development environment:
+The development Users index was rebuilt on 2026-09-10 with
+`rebuildUserSearchIndex()` from `server/scripts/elastic.ts` after
+`previewUserSearchAliases(userIds)` verified public aliases in PostgreSQL.
+The exporter verified 206,916 records before switching the alias. Older Users
+indexes with no `fullName` values need the same backfill; mapping changes alone
+do not populate aliases.
+
+The rebuild helper was run against the development environment on 2026-09-10
+(Posts and Sequences). It has not been run in production. Start with the
+development environment:
 
 ```sh
 yarn repl dev lw packages/lesswrong/server/scripts/elastic.ts
@@ -72,6 +172,23 @@ The helper rebuilds Posts and Sequences from the selected database, preserves
 synonyms, and atomically switches each index alias once its export is complete.
 `configureIndexes()` alone copies existing Elasticsearch documents and does not
 backfill the new relationship fields.
+
+The search-page Questions and Shortform filters require the `question` and
+`shortform` fields from the current Posts exporter. For an existing index, run
+`await backfillPostSearchFlags()` from the script module above. This updates only
+those flags on existing documents, skips absent documents (404), and refreshes
+Posts after completion. It does not create documents or replace indexes. A full
+Posts export or rebuild also populates the flags.
+
+Development refresh completed on 2026-09-10: 150,379 database rows processed,
+49,211 existing search documents updated, 101,168 absent documents skipped, and
+zero indexing errors. One empty-ID database fixture was excluded because
+Elasticsearch cannot index it. Live question and shortform searches were verified
+after the refresh. Other environments still require this explicit backfill.
+
+Search-page sorters use exact values in the displayed priority order; later keys
+only break ties. Post types refine posts without removing other selected content
+kinds. Events are controlled independently, and numeric range bounds both apply.
 
 ### Removing stale documents
 
