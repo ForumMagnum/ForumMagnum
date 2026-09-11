@@ -88,13 +88,6 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       alignSelf: "end",
       opacity: 0.8,
-    },
-    [theme.breakpoints.up('md')]: {
-      display: "none",
-    },
-  },
-  tagFilterSettingsButtonContainerMobileBackground: {
-    [theme.breakpoints.down('sm')]: {
       display: "flex",
       border: theme.palette.greyBorder("1px", 0.07),
       borderRadius: 3,
@@ -338,7 +331,6 @@ const FrontpageSettingsButton = ({
   toggleMobileSettingsVisible,
   desktopSettingsVisible,
   mobileSettingsVisible,
-  mobileSettingsButtonLabel,
   filterSettings,
   styleDesktopButton = true,
   labelOverride,
@@ -349,29 +341,26 @@ const FrontpageSettingsButton = ({
   toggleMobileSettingsVisible?: (newVisibilityState: boolean) => void;
   desktopSettingsVisible: boolean;
   mobileSettingsVisible: boolean;
-  mobileSettingsButtonLabel: string;
   filterSettings: FilterSettings;
   styleDesktopButton?: boolean;
   labelOverride?: (settingsVisible: boolean) => string;
   labelClassName?: string;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
   const desktopConfiguration = labelOverride ? {
     showIcon: false,
     label: labelOverride(desktopSettingsVisible)
   } : {
-    showIcon: !!currentUser,
+    showIcon: true,
   } as const;
 
   const mobileConfiguration = labelOverride ? {
     showIcon: false,
     label: labelOverride(mobileSettingsVisible)
   } : {
-    showIcon: !!currentUser,
-    label: !currentUser ? mobileSettingsButtonLabel : undefined
+    showIcon: true,
   } as const;
 
   return <>
@@ -386,9 +375,7 @@ const FrontpageSettingsButton = ({
       />
     </div>
     {/* Mobile button */}
-    {toggleMobileSettingsVisible && <div className={classNames(classes.tagFilterSettingsButtonContainerMobile, {
-      [classes.tagFilterSettingsButtonContainerMobileBackground]: !!currentUser
-    })}>
+    {toggleMobileSettingsVisible && <div className={classes.tagFilterSettingsButtonContainerMobile}>
       <SettingsButton
         {...mobileConfiguration}
         onClick={() => {
@@ -474,9 +461,7 @@ const LWHomePosts = ({ children, }: {
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
-  const mobileSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
-
-  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, mobileSettingsButtonLabel, filterSettings };
+  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, filterSettings };
 
   const inlineTabSettingsButton = <FrontpageSettingsButton
     {...settingsButtonProps}

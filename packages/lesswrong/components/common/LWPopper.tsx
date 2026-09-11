@@ -46,6 +46,7 @@ const LWPopper = ({
   tooltip=false,
   allowOverflow,
   overflowPadding,
+  preventOverflowOnBothAxes,
   flip,
   open,
   anchorEl,
@@ -59,6 +60,8 @@ const LWPopper = ({
   tooltip?: boolean,
   allowOverflow?: boolean,
   overflowPadding?: number,
+  /** Also shift along the placement axis when there is not enough space beside the anchor. */
+  preventOverflowOnBothAxes?: boolean,
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
@@ -83,7 +86,7 @@ const LWPopper = ({
     {
       name: 'preventOverflow',
       enabled: !allowOverflow,
-      options: {padding: overflowPadding},
+      options: {padding: overflowPadding, altAxis: preventOverflowOnBothAxes},
     }
   ];
 
