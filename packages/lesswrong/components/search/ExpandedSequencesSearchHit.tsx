@@ -99,7 +99,6 @@ const ExpandedSequencesSearchHit = ({hit, icon}: {
         {sequence.authorSlug ? <span>
           <SearchHighlight hit={hit} attribute="authorDisplayName">{sequence.authorDisplayName}</SearchHighlight>
         </span> : <UserNameDeleted />}
-        <span>{Math.round(sequence.baseScore ?? 0)} average post karma</span>
         <FormatDate date={sequence.createdAt} />
       </div>
       <div className={classes.snippet}>
