@@ -111,10 +111,11 @@ const MobilePostSelectionToolbar = ({range, quote, voteProps, disabled, paletteO
 
   // Range is a Popper virtual element: its bounding rect follows the selected
   // text when the page scrolls or reflows. Popper keeps both views on screen.
+  // Prefer below the selection to avoid iOS's native selection menu above it.
   return <LWPopper
     open
     anchorEl={range}
-    placement="top"
+    placement="bottom"
     distance={12}
     overflowPadding={8}
     preventOverflowOnBothAxes={paletteOpen}
