@@ -1,8 +1,7 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { connectionStringSetting, mirrorConnectionSettingString } from "../databaseSettings";
-import { isEAForum } from "../../lib/instanceSettings";
+import { mirrorConnectionString } from "../databaseSettings";
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 declare global {
@@ -20,7 +19,7 @@ export const getPgPromiseLib = () => {
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
-  if (isAnyTest && !isEAForum()) {
+  if (isAnyTest) {
     return null;
   }
   if (!connectionString) {
@@ -52,7 +51,7 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
 // first time this is called, it will block briefly.
 export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   // We make sure that the settingsCache is initialized before we access the connection strings
-  const connectionString = connectionStringSetting.get();
+  const connectionString = (process.env.private_analytics_connectionString ?? null);
   return getAnalyticsConnectionFromString(connectionString);
 };
 
@@ -66,6 +65,6 @@ export const getAnalyticsConnectionOrThrow = (): AnalyticsConnectionPool => {
 
 export const getMirrorAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   // We make sure that the settingsCache is initialized before we access the connection strings
-  const connectionString = mirrorConnectionSettingString.get();
+  const connectionString = mirrorConnectionString;
   return getAnalyticsConnectionFromString(connectionString);
 };

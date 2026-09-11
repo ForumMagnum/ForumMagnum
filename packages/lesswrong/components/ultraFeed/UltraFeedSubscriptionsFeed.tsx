@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection from '../common/SingleColumnSection';
 import SectionTitle from '../common/SectionTitle';

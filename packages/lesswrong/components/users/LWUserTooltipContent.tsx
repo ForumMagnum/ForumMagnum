@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
@@ -20,6 +21,16 @@ const PostsListMultiQuery = gql(`
         ...PostsList
       }
       totalCount
+    }
+  }
+`);
+
+const UserTooltipProfileQuery = gql(`
+  query userTooltipProfileQuery($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersProfile
+      }
     }
   }
 `);
@@ -79,6 +90,7 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
   hideFollowButton?: boolean,
   user: UsersMinimumInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -94,6 +106,14 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
     notifyOnNetworkStatusChange: true,
   });
 
+  const { data: profileData } = useQuery(UserTooltipProfileQuery, {
+    variables: { documentId: user._id },
+  });
+
+  const enrichedUser = profileData?.user?.result
+    ? { ...user, voteReceivedCount: profileData.user.result.voteReceivedCount }
+    : user;
+
   const results = data?.posts?.results;
 
 
@@ -102,8 +122,8 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
       <div className={classes.header}>
         <div className={classes.name}>{displayName}</div>
         <div className={classes.metaRow}>
-          <UserMetaInfo user={user} />
-          {!hideFollowButton && userHasSubscribeTabFeed(currentUser) && <FollowUserButton user={user} />}
+          <UserMetaInfo user={enrichedUser} />
+          {!hideFollowButton && userHasSubscribeTabFeed(currentUser, forumType) && <FollowUserButton user={user} />}
         </div>
       </div>
 

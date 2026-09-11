@@ -7,6 +7,7 @@ import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import ForumIcon from '@/components/common/ForumIcon';
 import { GiftIcon } from '../icons/giftIcon';
@@ -63,9 +64,11 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'cancelledRSVP': return <EventIcon style={iconStyles} />;
     case 'newGroupOrganizer': return <SupervisedUserCircleIcon style={iconStyles} />;
     case 'newCommentOnDraft': return <CommentsIcon style={iconStyles}/>;
+    case 'newCommentOnResearchDoc': return <CommentsIcon style={iconStyles}/>;
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyles} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;
     case 'newMention': return <CommentsIcon style={iconStyles}/>;
+    case 'typoSuggestion': return <EditIcon style={iconStyles}/>;
 
     default: return null;
   }

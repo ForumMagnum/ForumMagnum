@@ -97,7 +97,7 @@ export function generateInputTypes() {
   const createInputTypeNames = typeNames.filter((t): t is keyof typeof typeNameToCollectionName => (
     t.startsWith('Create')
     && t.endsWith('Input')
-    && isValidCollectionName(typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName])
+    && isValidCollectionName(typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName]!)
   ));
 
   const createInputTypeNamePairs = createInputTypeNames.map(t => [t, typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName]] as const);
@@ -111,7 +111,7 @@ export function generateInputTypes() {
   const updateInputTypeNames = typeNames.filter((t): t is keyof typeof typeNameToCollectionName => (
     t.startsWith('Update')
     && t.endsWith('Input')
-    && isValidCollectionName(typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName])
+    && isValidCollectionName(typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName]!)
   ));
 
   const updateInputTypeNamePairs = updateInputTypeNames.map(t => [t, typeNameToCollectionName[t.slice(6, -5) as keyof typeof typeNameToCollectionName]] as const);

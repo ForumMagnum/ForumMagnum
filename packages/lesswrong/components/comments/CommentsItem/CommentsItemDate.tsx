@@ -1,7 +1,6 @@
 import React from 'react';
 import { CommentLinkWrapper, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
@@ -24,6 +23,12 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
     // Prevent permalink-icon and date from wrapping onto separate lines, in
     // narrow/flexbox contexts
     whiteSpace: "nowrap",
+
+    // Pin the font size so the date renders consistently regardless of which
+    // context wraps the comment (post page, /allPosts quick takes, frontpage
+    // quick takes, comment permalink, etc., were inheriting different sizes
+    // from their containers — 13px in some places, 15.08px in others).
+    fontSize: 15.08,
 
     zIndex: theme.zIndexes.commentPermalinkIcon,
     color: theme.palette.text.dim,
@@ -74,7 +79,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
       comment.answer && classes.answerDate,
       className,
     )}>
-      <DeferRender ssr={!isLWorAF()} fallback={linkContents}>
+      <DeferRender ssr={false} fallback={linkContents}>
         <CommentLinkWrapper comment={comment} {...rest}>
           {linkContents}
         </CommentLinkWrapper>

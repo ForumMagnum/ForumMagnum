@@ -51,11 +51,17 @@ export function setFloatingElemPosition(
   }
 
   if (top < editorScrollerRect.top) {
-    // adjusted height for link element if the element is at top
-    top +=
+    const below =
+      top +
       floatingElemRect.height +
       targetRect.height +
       (verticalGap * (isLink ? 9 : 2));
+    // Small editors (chat composers) sit near the viewport bottom, where
+    // falling below the selection pushes the toolbar off-screen — keep the
+    // above position in that case even though it escapes the scroller.
+    if (below + floatingElemRect.height <= window.innerHeight || top < 0) {
+      top = below;
+    }
   }
 
   if (left + floatingElemRect.width > editorScrollerRect.right) {

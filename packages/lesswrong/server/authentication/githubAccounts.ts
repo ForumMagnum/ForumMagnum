@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { GitHubUserProfile } from '@/lib/auth/githubOAuth';
 import { Users } from '../collections/users/collection';
 import { createUser, updateUser } from '../collections/users/mutations';
@@ -6,7 +7,7 @@ import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise<DbUser> {
+export async function getOrCreateGitHubUser(profile: GitHubUserProfile, forumType: ForumTypeString): Promise<DbUser> {
   // GitHub IDs are stored as strings in the database (even though they're numbers)
   const githubId = profile.id.toString();
   
@@ -25,7 +26,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
             verified: true
           }]
         }
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
       return updatedUser;
     }
@@ -53,7 +54,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
       const updatedUser = await updateUser({
         data: { [servicePath]: githubProfile },
         selector: { _id: matchingUser._id },
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
       return updatedUser;
     }
@@ -82,7 +83,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
       emailSubscribedToCurated: true,
       ...{ services, emails },
     }
-  }, createAnonymousContext());
+  }, createAnonymousContext({ forumType }));
   
   return newUser;
 }

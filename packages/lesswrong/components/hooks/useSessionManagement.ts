@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 import { randomId } from '../../lib/random';
 import { clientContextVars, useTracking } from '../../lib/analyticsEvents';
 
@@ -20,7 +20,7 @@ export function useSessionManagement() {
       return { sessionId: randomId(), lastActivityTimestamp: Date.now() };
     }
 
-    const storedData = ls.getItem(SESSION_STORAGE_KEY);
+    const storedData = safeStorageGetItem(ls, SESSION_STORAGE_KEY);
     if (storedData) {
       try {
         const parsed = JSON.parse(storedData) as SessionData;
@@ -31,7 +31,7 @@ export function useSessionManagement() {
           sessionId: randomId(),
           lastActivityTimestamp: Date.now()
         };
-        ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
+        safeStorageSetItem(ls, SESSION_STORAGE_KEY, JSON.stringify(newSession));
         captureEvent('sessionStarted', { previousSessionId: parsed.sessionId, previousSessionLastActivity: parsed.lastActivityTimestamp });
         
         return newSession;
@@ -45,7 +45,7 @@ export function useSessionManagement() {
       sessionId: randomId(),
       lastActivityTimestamp: Date.now()
     };
-    ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
+    safeStorageSetItem(ls, SESSION_STORAGE_KEY, JSON.stringify(newSession));
     captureEvent('sessionStarted');
     
     return newSession;
@@ -55,13 +55,13 @@ export function useSessionManagement() {
     const ls = getBrowserLocalStorage();
     if (!ls) return;
 
-    const storedData = ls.getItem(SESSION_STORAGE_KEY);
+    const storedData = safeStorageGetItem(ls, SESSION_STORAGE_KEY);
     if (!storedData) return;
 
     try {
       const session = JSON.parse(storedData) as SessionData;
       const updatedSession = { ...session, lastActivityTimestamp: Date.now() };
-      ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
+      safeStorageSetItem(ls, SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Failed to update session data", e);

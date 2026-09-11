@@ -15,7 +15,7 @@ assertRouteAttributes("/admin/commentEmbeddings", {
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Comment Embeddings'), { ...noIndexMetadata });
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Comment Embeddings'), { ...noIndexMetadata });
 }
 
 export default function Page() {

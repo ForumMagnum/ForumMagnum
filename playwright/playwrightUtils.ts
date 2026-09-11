@@ -1,5 +1,6 @@
+import Users from "@/server/collections/users/collection";
 import { createPasswordHash } from "@/server/vulcan-lib/apollo-server/passwordHelpers";
-import type { Browser, BrowserContext, Cookie, Page } from "@playwright/test";
+import { expect, Locator, type Browser, type BrowserContext, type Cookie, type Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
 import getSlug from "speakingurl";
 
@@ -79,19 +80,52 @@ export const uniqueId = new class {
 export const loginUser = async (
   context: BrowserContext,
   {email, password}: PlaywrightUser,
+  options?: {
+    allowFailure?: boolean,
+  }
 ): Promise<void> => {
   await logout(context);
-  await context.request.post("/graphql", {
+  const response = await context.request.post("/graphql", {
     data: {
       query: `
-        mutation {
-          login(username: "${email}", password: "${password}") {
+        mutation PlaywrightLogin($username: String, $password: String) {
+          login(username: $username, password: $password) {
             token
           }
         }
       `,
+      variables: {
+        username: email,
+        password,
+      },
     },
+    headers: {
+      "content-type": "application/json",
+    }
   });
+  const responseData: {
+    data?: {
+      login?: {
+        token?: string | null,
+      } | null,
+    },
+    errors?: Array<{
+      message?: string,
+    }>,
+  } = await response.json();
+  const token = responseData.data?.login?.token;
+  if (!token) {
+    if (options?.allowFailure) {
+      return;
+    }
+    const errorMessages = responseData.errors?.map(({message}) => message).filter(Boolean).join(", ");
+    throw new Error(errorMessages ? `Playwright login failed: ${errorMessages}` : "Playwright login did not return a token");
+  }
+  await context.addCookies([{
+    name: "loginToken",
+    value: token,
+    url: new URL(response.url()).origin,
+  }]);
 }
 
 export const createNewUserDetails = (): PlaywrightUser => {
@@ -107,18 +141,20 @@ export const createNewUserDetails = (): PlaywrightUser => {
   };
 }
 
-type CreateNewUserOptions = Partial<{
-  database: Database,
-  isAdmin: boolean,
-  karma: number,
-  hideSunshineSidebar: boolean,
-}>;
+type CreateNewUserOptions = {
+  database?: Database,
+  isAdmin?: boolean,
+  karma?: number,
+  hideSunshineSidebar?: boolean,
+  isReviewed?: boolean,
+};
 
 export const createNewUser = async ({
   database = db,
   isAdmin = false,
   karma = 0,
   hideSunshineSidebar = false,
+  isReviewed = true,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName, password} = user;
@@ -128,6 +164,8 @@ export const createNewUser = async ({
     password: {bcrypt: await createPasswordHash(password)},
     resume: {loginTokens: []},
   };
+
+  const reviewedByUserId = isReviewed ? "playwright-dummy-reviewer" : null;
 
   await database.get().none(`
     INSERT INTO "Users" (
@@ -143,9 +181,10 @@ export const createNewUser = async ({
       "usernameUnset",
       "acceptedTos",
       "services",
-      "hideSunshineSidebar"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar]);
+      "hideSunshineSidebar",
+      "reviewedByUserId"
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11, $12)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar, reviewedByUserId]);
 
   return user;
 }
@@ -389,7 +428,55 @@ export const setPostContent = async (page: Page, {
   }
 
   if (body) {
-    await page.locator('.CKEditor-ckWrapper').first().getByRole('textbox').fill("");
-    await page.locator('.CKEditor-ckWrapper').first().getByRole('textbox').fill(body);
+    const postContentEditor = page.locator('#postContent [contenteditable="true"]').first();
+    const bodyEditor = await postContentEditor.count()
+      ? postContentEditor
+      : page.locator('.EditorFormComponent-root [contenteditable="true"]').first();
+    await expect(bodyEditor).toBeVisible();
+    await bodyEditor.click();
+    await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await page.keyboard.press("Backspace");
+    await page.keyboard.type(body);
+    await expect(bodyEditor).toContainText(body);
+    await bodyEditor.evaluate((editor) => {
+      (editor as HTMLElement).blur();
+    });
+    await page.waitForTimeout(100);
   }
+}
+
+export async function publishPostFromPostEditPage({page, context}: {page: Page, context: BrowserContext}) {
+  await page.waitForTimeout(100);
+  if (await page.locator(".MobileEditorBottomBar-publishButton").isVisible()) {
+    // Mobile screen width
+    await expect(page.locator(".MobileEditorBottomBar-publishButton")).toBeVisible();
+    await page.locator(".MobileEditorBottomBar-publishButton").click()
+  } else {
+    // Desktop screen width
+    // Open the publishing panel
+    await expect(page.locator(".PostForm-publishIconButton")).toBeVisible();
+    await page.locator(".PostForm-publishIconButton").click();
+
+    // Click the publish button on the panel that this opened. Disambiguate using visibility
+    // against another, hidden button with the same class name (the mobile version).
+    const visiblePublishButton = page.locator(".PostSubmit-submitButton").filter({ has: page.locator(":visible") }).first();
+    await expect(visiblePublishButton).toBeVisible();
+    await visiblePublishButton.click();
+  }
+}
+
+/**
+ * Assert that there is an element with the given locator which is visible. Allows
+ * for invisible elements that also match (so that nextjs's Activity background DOM
+ * elements don't mess it up).
+ */
+export function expectVisible(locator: Locator) {
+  return expect(locator.filter({ has: locator.locator(":visible") }).first()).toBeVisible();
+}
+
+export const getUserKarma = async (userId: string) => {
+  const karma = await db.get().oneOrNone(`
+    SELECT "karma" FROM "Users" WHERE "_id" = $1
+  `, [userId]);
+  return karma?.karma ?? 0;
 }

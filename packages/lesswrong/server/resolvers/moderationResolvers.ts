@@ -16,12 +16,27 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
-import { createAutomatedContentEvaluation, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
+import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
+import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
     ip: String!
     userIds: [String!]!
+  }
+  
+  type PangramTextEvaluationResult {
+    analyzedText: String!
+    pangramApiVersion: String!
+    pangramScore: Float!
+    pangramMaxScore: Float
+    pangramPrediction: String
+    pangramWindowScores: [PangramWindowScore!]
+  }
+
+  enum PangramModel {
+    pangram3
+    pangram4
   }
   
   enum ContentCollectionName {
@@ -40,6 +55,7 @@ export const moderationGqlTypeDefs = gql`
     approveUserCurrentContentOnly(userId: String!): Boolean!
     rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+    runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
     unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
   }
 `
@@ -311,6 +327,19 @@ export const moderationGqlMutations = {
     }
 
     return ace;
+  },
+  async runPangramOnText(_root: void, args: { text: string, model?: PangramModel | null }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can run Pangram checks");
+    }
+
+    const trimmed = args.text.trim();
+    if (!trimmed) {
+      throw new Error("Text is required");
+    }
+
+    return await getPangramEvaluationForText(trimmed, args.model ?? undefined);
   },
   async unlistLlmPost(_root: void, args: {postId: string, modCommentHtml: string}, context: ResolverContext) {
     const { currentUser } = context;

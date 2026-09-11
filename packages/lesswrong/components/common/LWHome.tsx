@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -13,7 +15,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
-import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import { DismissibleSpotlightItemSuspense } from "@/components/spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
@@ -21,12 +23,33 @@ import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ErrorBoundary from './ErrorBoundary';
+import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
+import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
-const styles = defineStyles("LWHome", () => ({
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  feedSections: {
+    position: "relative",
+  },
+  sideItems: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: "100%",
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_XS,
+    },
+  },
   desktopSpotlight: {
     ['@media(max-width: 1199.95px)']: {
       display: "none",
@@ -39,36 +62,33 @@ const styles = defineStyles("LWHome", () => ({
   },
 }));
 
-const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'j4q2gcjowKqfpdjsR';
-const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-26T00:00:00Z');
+const getMobileSpotlightOverrideId = (now: Date = new Date()): string | null => {
+  return now >= INKHAVEN_RESIDENCY_3_START && now < INKHAVEN_RESIDENCY_3_END
+    ? INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID
+    : null;
+};
 
-const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
-  now.getTime() < LESSONLINE_MOBILE_SPOTLIGHT_UNTIL.getTime()
-    ? LESSONLINE_MOBILE_SPOTLIGHT_ID
-    : null
-);
-
-const getStructuredData = () => ({
+const getStructuredData = (forumType: ForumTypeString) => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
-  "url": `${getSiteUrl()}`,
+  "url": `${getSiteUrl(forumType)}`,
   "potentialAction": {
     "@type": "SearchAction",
-    "target": `${combineUrls(getSiteUrl(), '/search')}?query={search_term_string}`,
+    "target": `${combineUrls(getSiteUrl(forumType), '/search')}?query={search_term_string}`,
     "query-input": "required name=search_term_string"
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": `${getSiteUrl()}`,
+    "@id": `${getSiteUrl(forumType)}`,
   },
-  ...(isLW() && {
+  ...(forumType === 'LessWrong' && {
     "description": [
       "LessWrong is an online forum and community dedicated to improving human reasoning and decision-making.", 
       "We seek to hold true beliefs and to be effective at accomplishing our goals.", 
       "Each day, we aim to be less wrong about the world than the day before."
     ].join(' ')
   }),
-  ...(isAF() && {
+  ...(forumType === 'AlignmentForum' && {
     "description": [
       "The Alignment Forum is a single online hub for researchers to discuss all ideas related to ensuring that transformatively powerful AIs are aligned with human values.", 
       "Discussion ranges from technical models of agency to the strategic landscape, and everything in between."
@@ -77,12 +97,16 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const mobileSpotlightOverrideId = getLessOnlineMobileSpotlightOverrideId();
+  const mobileSpotlightOverrideId = getMobileSpotlightOverrideId();
 
   return (
+    // Wait for spotlight selection and dismissal before revealing the posts
+    // placeholder. The posts and spotlight content can then load independently.
+    <SuspenseWrapper name="LWHome">
       <AnalyticsContext pageContext="homePage">
-        <StructuredData generate={() => getStructuredData()}/>
+        <StructuredData generate={() => getStructuredData(forumType)}/>
         <UpdateLastVisitCookie />
         {reviewIsActive() && <>
           {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
@@ -91,12 +115,12 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
         </>}
-        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
-          <DismissibleSpotlightItem
+        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get(forumType)) && <SingleColumnSection>
+          <DismissibleSpotlightItemSuspense
             loadingStyle="placeholder"
             className={classes.desktopSpotlight}
           />
-          <DismissibleSpotlightItem
+          <DismissibleSpotlightItemSuspense
             loadingStyle="placeholder"
             className={classes.mobileSpotlight}
             spotlightId={mobileSpotlightOverrideId}
@@ -105,22 +129,33 @@ const LWHome = () => {
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>
             <LWHomePosts>
-              <QuickTakesSection />
+              <SideItemsContainer>
+                <div className={classes.feedSections}>
+                  <div className={classes.sideItems}>
+                    <SideItemsSidebar />
+                  </div>
+                  <QuickTakesSection />
 
-              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
-                <SuspenseWrapper name="UltraFeed">
-                  <UltraFeedOrRecentDiscussion/>
-                </SuspenseWrapper>
-              </AnalyticsInViewTracker>
+                  <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
+                    <SuspenseWrapper name="UltraFeed">
+                      <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                        <UltraFeedOrRecentDiscussion/>
+                      </ErrorBoundary>
+                    </SuspenseWrapper>
+                  </AnalyticsInViewTracker>
+                </div>
+              </SideItemsContainer>
             </LWHomePosts>
           </IsReturningVisitorContextProvider>
         </SuspenseWrapper>
       </AnalyticsContext>
+    </SuspenseWrapper>
   )
 }
 
 const UltraFeedOrRecentDiscussion = () => {
-  const ultraFeedEnabled = ultraFeedEnabledSetting.get()
+  const { forumType } = useForumType();
+  const ultraFeedEnabled = ultraFeedEnabledSetting.get(forumType)
   
   return ultraFeedEnabled
     ? <UltraFeed />
@@ -134,13 +169,14 @@ const UltraFeedOrRecentDiscussion = () => {
 }
 
 const UpdateLastVisitCookie = () => {
+  const { forumType } = useForumType();
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
-    if (visitorGetsDynamicFrontpage(null)) {
+    if (visitorGetsDynamicFrontpage(null, forumType)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }
-  }, [setCookie])
+  }, [setCookie, forumType])
 
   return <></>
 }
@@ -148,5 +184,4 @@ const UpdateLastVisitCookie = () => {
 export default registerComponent('LWHome', LWHome, {
   areEqual: "auto",
 });
-
 

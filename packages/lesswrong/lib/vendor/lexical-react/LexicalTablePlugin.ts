@@ -1,0 +1,116 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+import type {JSX} from 'react';
+
+import {Signal, signal} from '@lexical/extension';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {
+  $isScrollableTablesActive,
+  registerTableCellUnmergeTransform,
+  registerTablePlugin,
+  registerTableSelectionObserver,
+  setScrollableTablesActive,
+  TableCellNode,
+  TableNode,
+} from '@lexical/table';
+import {useEffect, useState} from 'react';
+
+export interface TablePluginProps {
+  /**
+   * When `false` (default `true`), merged cell support (colspan and rowspan) will be disabled and all
+   * tables will be forced into a regular grid with 1x1 table cells.
+   */
+  hasCellMerge?: boolean;
+  /**
+   * When `false` (default `true`), the background color of TableCellNode will always be removed.
+   */
+  hasCellBackgroundColor?: boolean;
+  /**
+   * When `true` (default `true`), the tab key can be used to navigate table cells.
+   */
+  hasTabHandler?: boolean;
+  /**
+   * When `true` (default `false`), tables will be wrapped in a `<div>` to enable horizontal scrolling
+   */
+  hasHorizontalScroll?: boolean;
+  /**
+   * When `true` (default `false`), nested tables will be allowed.
+   *
+   * @experimental Nested tables are not officially supported.
+   */
+  hasNestedTables?: boolean;
+}
+
+/**
+ * A plugin to enable all of the features of Lexical's TableNode.
+ *
+ * @param props - See type for documentation
+ * @returns An element to render in your LexicalComposer
+ */
+export function TablePlugin({
+  hasCellMerge = true,
+  hasCellBackgroundColor = true,
+  hasTabHandler = true,
+  hasHorizontalScroll = false,
+  hasNestedTables = false,
+}: TablePluginProps): JSX.Element | null {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    const hadHorizontalScroll = $isScrollableTablesActive(editor);
+    if (hadHorizontalScroll !== hasHorizontalScroll) {
+      setScrollableTablesActive(editor, hasHorizontalScroll);
+      // Registering the transform has the side-effect of marking all existing
+      // TableNodes as dirty. The handler is immediately unregistered.
+      editor.registerNodeTransform(TableNode, () => {})();
+    }
+  }, [editor, hasHorizontalScroll]);
+
+  const hasNestedTablesSignal = usePropSignal(hasNestedTables);
+
+  useEffect(
+    () => registerTablePlugin(editor, {hasNestedTables: hasNestedTablesSignal}),
+    [editor, hasNestedTablesSignal],
+  );
+
+  useEffect(
+    () => registerTableSelectionObserver(editor, hasTabHandler),
+    [editor, hasTabHandler],
+  );
+
+  // Unmerge cells when the feature isn't enabled
+  useEffect(() => {
+    if (!hasCellMerge) {
+      return registerTableCellUnmergeTransform(editor);
+    }
+  }, [editor, hasCellMerge]);
+
+  // Remove cell background color when feature is disabled
+  useEffect(() => {
+    if (hasCellBackgroundColor) {
+      return;
+    }
+    return editor.registerNodeTransform(TableCellNode, node => {
+      if (node.getBackgroundColor() !== null) {
+        node.setBackgroundColor(null);
+      }
+    });
+  }, [editor, hasCellBackgroundColor, hasCellMerge]);
+
+  return null;
+}
+
+function usePropSignal<T>(value: T): Signal<T> {
+  const [configSignal] = useState(() => signal(value));
+  if (configSignal.peek() !== value) {
+    // eslint-disable-next-line react-hooks/immutability
+    configSignal.value = value;
+  }
+  return configSignal;
+}

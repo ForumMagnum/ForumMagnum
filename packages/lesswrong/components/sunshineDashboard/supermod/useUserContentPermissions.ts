@@ -7,6 +7,7 @@ import type { InboxAction } from './inboxReducer';
 import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
 import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import type { MutateResult } from '@apollo/client';
+import { areAllContentPermissionsDisabled } from './helpers';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserContentPermissions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -219,11 +220,73 @@ export function useUserContentPermissions(
     }
   }, [user, currentUser, updateModeratorAction, createModeratorAction, updateUser, dispatch]);
 
+  const toggleAllPermissions = useCallback(() => {
+    if (!user || !currentUser) return;
+
+    const disableAll = !areAllContentPermissionsDisabled(user);
+    const abled = disableAll ? 'disabled' : 'enabled';
+    const modDisplayName = currentUser.displayName ?? 'Unknown';
+    const currentNotes = user.sunshineNotes || '';
+    const newNotes = getSignatureWithNote(modDisplayName, `all permissions ${abled}`) + currentNotes;
+
+    dispatch({
+      type: 'UPDATE_USER',
+      userId: user._id,
+      fields: {
+        sunshineNotes: newNotes,
+        postingDisabled: disableAll,
+        allCommentingDisabled: disableAll,
+        conversationsDisabled: disableAll,
+        votingDisabled: disableAll,
+      },
+    });
+
+    void queueMutation(async () => {
+      if (disableAll) {
+        if (!user.votingDisabled) {
+          await createModeratorAction({
+            variables: {
+              data: {
+                userId: user._id,
+                type: VOTING_DISABLED,
+              },
+            },
+          });
+        }
+      } else {
+        const votingDisabledAction = user.moderatorActions?.find(
+          action => action.type === VOTING_DISABLED && !action.endedAt
+        );
+        if (votingDisabledAction) {
+          await updateModeratorAction({
+            variables: {
+              selector: { _id: votingDisabledAction._id },
+              data: { endedAt: new Date() },
+            },
+          });
+        }
+      }
+
+      await updateUser({
+        variables: {
+          selector: { _id: user._id },
+          data: {
+            postingDisabled: disableAll,
+            allCommentingDisabled: disableAll,
+            conversationsDisabled: disableAll,
+            sunshineNotes: newNotes,
+          },
+        },
+      }).then(debouncedSourceOfTruthUpdate);
+    });
+  }, [user, currentUser, dispatch, queueMutation, createModeratorAction, updateModeratorAction, updateUser, debouncedSourceOfTruthUpdate]);
+
   return {
     toggleDisablePosting,
     toggleDisableCommenting,
     toggleDisableMessaging,
     toggleDisableVoting,
+    toggleAllPermissions,
   };
 }
 

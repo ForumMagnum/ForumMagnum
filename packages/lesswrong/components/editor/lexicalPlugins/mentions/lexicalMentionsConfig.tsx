@@ -8,22 +8,19 @@ import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import type { MentionItem } from './MentionDropdown';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 const MARKER = "@";
 
 export interface MentionFeed {
   /** The marker character that triggers this feed (e.g., '@', '#') */
   marker: string;
-  /** 
-   * Feed data - can be:
-   * - A static array of items
-   * - A function that returns items (sync or async)
-   */
-  feed: MentionItem[] | ((query: string) => MentionItem[] | Promise<MentionItem[]>);
+  /** Async lookup that returns the suggestions for a given query */
+  feed: (query: string) => Promise<MentionItemWithHit[]>;
   /** Minimum characters after marker before showing suggestions (default: 0) */
   minimumCharacters?: number;
   /** Custom item renderer */
-  itemRenderer?: (item: MentionItem) => React.ReactNode;
+  itemRenderer?: (item: MentionItemWithHit) => React.ReactNode;
 }
 
 const styles = defineStyles('LexicalMentionItem', (theme: ThemeType) => ({
@@ -81,7 +78,7 @@ interface MentionItemWithTagHit extends MentionItem {
   hit: SearchTag;
 }
 
-type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
+export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
 
 /**
  * Type guard to check if hit is a SearchUser
@@ -107,17 +104,17 @@ function isSearchTag(hit: SearchUser | SearchPost | SearchTag): hit is SearchTag
 /**
  * Format a search hit into a MentionItem
  */
-function formatSearchHit(hit: SearchUser | SearchPost | SearchTag): MentionItemWithHit | null {
-  const linkPrefix = getSiteUrl();
+function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: ForumTypeString): MentionItemWithHit | null {
+  const linkPrefix = getSiteUrl(forumType);
 
   if (isSearchUser(hit)) {
-    const displayName = MARKER + userGetDisplayName(hit);
+    const displayName = MARKER + userGetDisplayName(hit, forumType);
     const result: MentionItemWithUserHit = {
       type: "Users",
       id: displayName,
       link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
       text: displayName,
-      label: userGetDisplayName(hit),
+      label: userGetDisplayName(hit, forumType),
       description: `${hit.karma || 0} karma`,
       hit,
     };
@@ -156,7 +153,7 @@ const collectionNames = ["Posts", "Users", "Tags"] as const;
 /**
  * Fetch mention suggestions from Algolia
  */
-async function fetchMentionableSuggestions(searchString: string): Promise<MentionItemWithHit[]> {
+async function fetchMentionableSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
   if (!searchString.trim()) {
     return [];
   }
@@ -173,7 +170,7 @@ async function fetchMentionableSuggestions(searchString: string): Promise<Mentio
       },
     }]);
     const hits = response?.results?.[0]?.hits;
-    return Array.isArray(hits) ? filterNonnull(hits.map(formatSearchHit)) : [];
+    return Array.isArray(hits) ? filterNonnull(hits.map(hit => formatSearchHit(hit, forumType))) : [];
   } catch {
     // Search failed - return empty results
     return [];
@@ -228,55 +225,22 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
   );
 }
 
-/**
- * Type guard to check if a MentionItem is a user mention
- */
-function isUserMention(item: MentionItem): item is MentionItemWithUserHit {
-  return 'type' in item && item.type === 'Users' && 'hit' in item;
-}
-
-/**
- * Type guard to check if a MentionItem is a post mention
- */
-function isPostMention(item: MentionItem): item is MentionItemWithPostHit {
-  return 'type' in item && item.type === 'Posts' && 'hit' in item;
-}
-
-/**
- * Type guard to check if a MentionItem is a tag mention
- */
-function isTagMention(item: MentionItem): item is MentionItemWithTagHit {
-  return 'type' in item && item.type === 'Tags' && 'hit' in item;
-}
-
-/**
- * Custom item renderer for mention dropdown
- */
-function mentionItemRenderer(item: MentionItem): React.ReactNode {
-  if (isUserMention(item)) {
-    return <UserMentionItem hit={item.hit} />;
+function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
+  switch (item.type) {
+    case 'Users': return <UserMentionItem hit={item.hit} />;
+    case 'Posts': return <PostMentionItem hit={item.hit} />;
+    case 'Tags': return <TagMentionItem hit={item.hit} />;
   }
-  
-  if (isPostMention(item)) {
-    return <PostMentionItem hit={item.hit} />;
-  }
-  
-  if (isTagMention(item)) {
-    return <TagMentionItem hit={item.hit} />;
-  }
-  
-  // Fallback for items without hit data
-  return <div>{item.label || item.id}</div>;
 }
 
 /**
  * Get the mention feeds configuration for Lexical
  */
-export function getLexicalMentionFeeds(): MentionFeed[] {
+export function getLexicalMentionFeeds(forumType: ForumTypeString): MentionFeed[] {
   return [
     {
       marker: MARKER,
-      feed: fetchMentionableSuggestions,
+      feed: fetchMentionableSuggestions.bind(null, forumType),
       minimumCharacters: 1,
       itemRenderer: mentionItemRenderer,
     },
@@ -284,5 +248,4 @@ export function getLexicalMentionFeeds(): MentionFeed[] {
 }
 
 export default getLexicalMentionFeeds;
-
 

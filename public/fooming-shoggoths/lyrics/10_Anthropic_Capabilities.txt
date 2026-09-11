@@ -1,0 +1,16 @@
+10 Anthropic Capabilities
+=========================
+
+[00:00] We generally don't publish this kind of work because we do not wish to advance the rate of AI capabilities progress. In addition, we aim to be thoughtful about demonstrations of frontier capabilities.
+[00:13] We've subsequently begun deploying Claude now that the gap between it and the public state of the art is smaller.
+[00:24] [Dance music intermission, escalating to a heavy baseline]
+[00:29] Opus, our most intelligent model, outperforms its peers on most of the common evaluation benchmarks for AI systems.
+[00:40] Claude 3 Opus is our most intelligent model, with best-in-market performance on highly complex tasks.
+[00:51] (best-in-market performance on highly complex tasks)
+[00:55] we do not wish to advance the rate of AI capabilities progress.
+[01:09] These new features will include interactive coding, and more advanced agentic capabilities.
+[01:23] And more advanced agentic capabilities.
+[01:30] Our hypothesis is that being at the frontier of AI development is the most effective way to steer.
+[01:41] we do not wish to advance the rate of AI capabilities progress.
+[02:17] we do not wish to advance the rate of AI capabilities progress.
+[02:17] We do not wish to advance the rate of AI capabilities prog

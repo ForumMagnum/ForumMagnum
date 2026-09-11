@@ -2,6 +2,12 @@ import { registerCookie } from "./utils";
 
 // First party cookies
 
+export const FORUM_TYPE_COOKIE = registerCookie({
+  name: "forumType",
+  type: "necessary",
+  description: "Set to AlignmentForum to display the Alignment Forum for debugging",
+});
+
 export const CLIENT_ID_COOKIE = registerCookie({
   name: "clientId",
   type: "necessary",
@@ -200,6 +206,15 @@ export const SHOW_LLM_CHAT_COOKIE = registerCookie({
   description: "Whether the LLM chat conversation UI is open",
 });
 
+export const HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE = registerCookie({
+  name: "home_design_default_public_id",
+  type: "necessary",
+  description: "Stores the user's preferred homepage design publicId for the April Fools homepage",
+});
+
+export const HOME_DESIGN_DEFAULT_CLASSIC_VALUE = "__classic_home__";
+export const HOME_DESIGN_DEFAULT_BUILT_IN_VALUE = "__built_in_home_design__";
+
 export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
   type: "functional",
@@ -290,21 +305,6 @@ registerCookie({
   description: "Miscellaneous cookies which may be set by Intercom",
 });
 
-// Datadog
-registerCookie({
-  name: "dd_cookie_test_",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Cookie used by Datadog to test if cookies are enabled",
-});
-
-registerCookie({
-  name: "_dd_s",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Main cookie used by datadog to track sessions",
-});
-
 // Hotjar
 registerCookie({
   name: "_hjTLDTest",
@@ -387,4 +387,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

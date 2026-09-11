@@ -202,10 +202,12 @@ export default () => createJestConfig({
   moduleNameMapper: {
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
-    "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101
     '^axios$': require.resolve('axios'),
+    // geist's font modules are ESM and call next/font/local at module scope,
+    // which only works under the Next build.
+    "^geist/font/(sans|mono)$": "<rootDir>/packages/lesswrong/stubs/geistFont.ts",
     // react-dom/server.edge is apparently needed instead of react-dom/server to avoid this error:
     // > Uncaught ReferenceError: MessageChannel is not defined
     // See https://github.com/facebook/react/issues/31827#issuecomment-2563094822
@@ -257,6 +259,16 @@ export default () => createJestConfig({
     "@csstools/*",
     "parse5",
     "@truto/turndown-plugin-gfm",
+    "@workflow/serde",
+    // sanitize-html 2.17.7 uses ESM-only htmlparser2 12 and its DOM dependencies.
+    // Include sanitize-html so nested node_modules paths are transformed too.
+    "sanitize-html",
+    "htmlparser2",
+    "domelementtype",
+    "domhandler",
+    "domutils",
+    "dom-serializer",
+    "entities",
   ];
   
   config.transformIgnorePatterns = [

@@ -2,7 +2,6 @@ import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -96,7 +95,7 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): MongoSelector<DbComment> {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): Promise<MongoSelector<DbComment>> {
   return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
@@ -538,10 +537,19 @@ export const tagResolversGraphQLQueries = {
   async TagUpdatesInTimeBlock(root: void, {before,after}: {before: Date, after: Date}, context: ResolverContext) {
     if (!before) throw new Error("Missing graphql parameter: before");
     if (!after) throw new Error("Missing graphql parameter: after");
-    if(moment.duration(moment(before).diff(after)).as('hours') > 30)
-      throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
+    // The wikitag-updates section is only meant to render under the daily
+    // grouping on /allPosts (see PostsTimeBlock). If something asks for a
+    // wider window (e.g. weekly/monthly grouping leaking through, or stale
+    // before/after query params), gracefully return [] instead of throwing
+    // a noisy error into Sentry. Reported in #m_bugs-channel:
+    // https://lworg.slack.com/archives/CJUN2UAFN/p1775779693508829
+    if (moment.duration(moment(before).diff(after)).as('hours') > 30) {
+      // eslint-disable-next-line no-console
+      console.warn(`TagUpdatesInTimeBlock called with a window wider than one day (${after.toISOString?.() ?? after} -> ${before.toISOString?.() ?? before}); returning empty result.`);
+      return [];
+    }
     
-    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
+    const rootCommentsSelector = await getRootCommentsInTimeBlockSelector(before, after, context);
 
     // Get
     // - revisions to tags, lenses, and summaries in the given time interval
@@ -708,7 +716,7 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description", context);
@@ -728,7 +736,7 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
-  const resolverContext = createAdminContext();
+  const resolverContext = createAdminContext({ forumType: "LessWrong" });
   const { Tags } = resolverContext;
 
   const tag = await Tags.findOne({slug: tagSlug});

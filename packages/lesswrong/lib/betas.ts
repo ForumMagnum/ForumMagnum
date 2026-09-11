@@ -6,8 +6,8 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
-import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
+import { type ForumTypeString, isEAForum, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
 type BetaGate = (user: UsersCurrent | DbUser | null) => boolean;
@@ -18,7 +18,6 @@ const moderatorOnly = (user: UsersCurrent|DbUser|null): boolean => !!(user?.isAd
 const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // eslint-disable-line no-unused-vars
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
-const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
 const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,41 +25,40 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || userOverNKarmaOrApproved(1)(user);
+export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
+// TODO: Consider porting EA tag subscriptions (including new-post notifications) to LW/AF.
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
 
 export const userHasAutosummarize = adminOnly
 
-export const visitorGetsDynamicFrontpage: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
+export const visitorGetsDynamicFrontpage = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
 
-export const userHasSubscribeTabFeed: BetaGate = (user) => isLW() ? shippedFeature(user) : disabled(user);
+export const userHasSubscribeTabFeed = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
 
-export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null, forumType: ForumTypeString): currentUser is UsersCurrent|DbUser => {
   if (!currentUser) {
     return false
   }
-  const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
+  const userIdsWithAccess = userIdsWithAccessToLlmChat.get(forumType);
   
-  return isLW() && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
+  return forumType === 'LessWrong' && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
-
-export const userHasPostAutosave: BetaGate = (user) => isLWorAF() ? adminOnly(user) : disabled(user);
 
 // Non-user-specific features
 export const dialoguesEnabled = () => true;
-export const ckEditorUserSessionsEnabled = () => isLWorAF();
+export const ckEditorUserSessionsEnabled = () => true;
 export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 
 export const hasAccountDeletionFlow = () => false;
 export const useElicitApi = false;
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
-export const usesCurationEmailsCron = () => isLW();
-export const hasWikiLenses = () => isLWorAF();
+export const usesCurationEmailsCron = (forumType: ForumTypeString) => forumType === 'LessWrong';
+export const hasWikiLenses = () => true;
 
-export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW() && !!user && user.karma >= 100;
-export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|UpdateUserDataInput|null) => isLW();
-export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW()
+export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString) => forumType === 'LessWrong' && !!user && user.karma >= 100;
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|UpdateUserDataInput|null, forumType: ForumTypeString) => forumType === 'LessWrong';
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString) => forumType === 'LessWrong'
 /* if this is reduced to 0, we need to make sure to handle spam somehow */
-export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW() && !!user && user.karma >= 100
+export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString) => forumType === 'LessWrong' && !!user && user.karma >= 100

@@ -20,7 +20,12 @@ const styles = defineStyles("UsersProfileImage", (theme: ThemeType) => ({
     },
   },
   loadingPlaceholder: {
-    background: theme.palette.panelBackground.userProfileImageLoading,
+    background: `linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 33%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(0,0,0,0) 66%
+    ) ${theme.palette.grey[500]}`,
     backgroundSize: "300% 100%",
     animation: "profile-image-loader 1s infinite",
   },
@@ -32,6 +37,7 @@ const styles = defineStyles("UsersProfileImage", (theme: ThemeType) => ({
   },
 }), {
   stylePriority: -1,
+  allowNonThemeColors: true,
 });
 
 const MIN_HUE = 100;

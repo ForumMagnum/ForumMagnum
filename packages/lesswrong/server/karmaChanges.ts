@@ -1,7 +1,7 @@
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import type { KarmaChangesArgs, AnyKarmaChange } from './collections/users/karmaChangesGraphQL';
+import type { KarmaChangesArgs } from './collections/users/karmaChangesGraphQL';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType } from '@/lib/collections/users/helpers';
 
 // Our graphql type codegen returns output types with Dates as strings because
@@ -53,7 +53,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
-    karmaChangeNotifierDefaultSettings.get();
+    karmaChangeNotifierDefaultSettings.get(context);
 
   const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -138,6 +139,7 @@ const UserPaymentInfoForm = ({
 };
 
 export const EditPaymentInfoPage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
@@ -153,7 +155,7 @@ export const EditPaymentInfoPage = () => {
     <UserPaymentInfoForm
       initialData={currentUser}
       onSuccess={async (user: UsersMinimumInfo | DbUser | null) => {
-        flash(`Payment Info for "${userGetDisplayName(user)}" edited`);
+        flash(`Payment Info for "${userGetDisplayName(user, forumType)}" edited`);
         navigate(userGetProfileUrl(user));
       }}
     />

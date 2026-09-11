@@ -9,7 +9,7 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
-import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
+import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 
 const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
   name: "NotificationDisplays",
@@ -30,7 +30,7 @@ const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs}
       userId: currentUser._id,
       type: args?.type ?? undefined,
       limit,
-    });
+    }, context.forumType);
   },
 });
 
@@ -82,7 +82,7 @@ export const notificationResolversGqlMutations = {
 
     const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id, context) 
 
-    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
+    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post, context)
     
     return true
   },

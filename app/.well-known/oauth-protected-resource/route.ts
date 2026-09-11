@@ -7,6 +7,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     resource: `${siteUrl}/api/mcp`,
     authorization_servers: [siteUrl],
-    scopes_supported: ["lesswrong:access"],
+    scopes_supported: ["lesswrong:access", "lesswrong:home-design"],
   });
 }

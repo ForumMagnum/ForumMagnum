@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useMutation } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery"
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -14,7 +13,6 @@ import { EditablePost } from '@/lib/collections/posts/helpers';
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
-import { IconRight, IconDown } from "../form-components/FormGroupHeader";
 import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";

@@ -62,15 +62,16 @@ import { imageCache, ImageStatus } from './imageCache';
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   imageContainer: {
     position: 'relative',
-    display: 'block',
+    display: 'flex',
+    justifyContent: 'center',
     width: '100%',
-    textAlign: 'center',
   },
   imageWrapper: {
     display: 'inline-block',
     position: 'relative',
   },
   imageElement: {
+    display: 'block',
     height: 'auto',
     maxWidth: '100%',
     minWidth: '100%',
@@ -466,7 +467,15 @@ export default function ImageComponent({
           }
           if ($isRangeSelection(selection) && !selection.isCollapsed()) {
             const selectedNodes = selection.getNodes();
-            if (selectedNodes.some((selected) => $isImageNode(selected))) {
+            // Only intercept when this image is the ONLY thing selected.
+            // If the range also covers paragraphs or other nodes, let
+            // Lexical's default deletion handle the full range so we don't
+            // leave the surrounding text behind.
+            const onlyThisImageSelected =
+              selectedNodes.length === 1 &&
+              $isImageNode(selectedNodes[0]) &&
+              selectedNodes[0].getKey() === imageNodeKey;
+            if (onlyThisImageSelected) {
               event.preventDefault();
               node.remove();
               return true;
@@ -523,7 +532,14 @@ export default function ImageComponent({
             return false;
           }
           const selectedNodes = selection.getNodes();
-          if (selectedNodes.some((selected) => $isImageNode(selected))) {
+          // Only intercept when this image is the ONLY thing selected.
+          // Broader range selections should fall through to default
+          // deletion so the surrounding text also goes away.
+          const onlyThisImageSelected =
+            selectedNodes.length === 1 &&
+            $isImageNode(selectedNodes[0]) &&
+            selectedNodes[0].getKey() === imageNodeKey;
+          if (onlyThisImageSelected) {
             event.preventDefault();
             node.remove();
             return true;

@@ -7,6 +7,8 @@ import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import { useTracking } from '@/lib/analyticsEvents';
 import { FeedType } from './ultraFeedTypes';
 import TabButton from '../common/TabButton';
+import { useCurrentUser } from '../common/withUser';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
   root: {
@@ -96,6 +98,8 @@ const UltraFeedHeader = ({
 }: UltraFeedHeaderProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
+  const currentUser = useCurrentUser();
+  const debugTabVisible = !!feedSettings?.resolverSettings.enableDebug && userIsAdminOrMod(currentUser);
 
   const handleHideReadToggle = useCallback((checked: boolean) => {
     if (updateFeedSettings && feedSettings) {
@@ -135,6 +139,14 @@ const UltraFeedHeader = ({
             onClick={() => onTabChange('following')}
             showTooltip={false}
           />
+          {debugTabVisible && (
+            <TabButton
+              label="Debug"
+              isActive={activeTab === 'debug'}
+              onClick={() => onTabChange('debug')}
+              showTooltip={false}
+            />
+          )}
         </div>
         <div className={classes.controlsContainer}>
           <div className={classes.controls}>

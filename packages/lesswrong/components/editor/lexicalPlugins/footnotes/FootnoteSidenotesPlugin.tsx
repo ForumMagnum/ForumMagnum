@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { mergeRegister } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -99,7 +99,7 @@ function sidenotesAreEqual(
   return true;
 }
 
-const LexicalFootnoteSidenoteItem = ({
+const LexicalFootnoteSidenoteItem = memo(({
   sidenote,
   contentStyleType,
 }: {
@@ -142,7 +142,7 @@ const LexicalFootnoteSidenoteItem = ({
       </div>
     </SideItem>
   );
-};
+});
 
 export const FootnoteSidenotesPlugin = ({
   contentStyleType = 'postHighlight',

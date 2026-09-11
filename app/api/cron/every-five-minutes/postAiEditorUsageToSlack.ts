@@ -3,7 +3,7 @@ import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { postMessage } from '@/server/slack/client';
 import { captureException } from '@/lib/sentryWrapper';
 import { isDevelopment } from '@/lib/executionEnvironment';
-import { environmentDescriptionSetting } from '@/lib/instanceSettings';
+import { environmentDescriptionSetting, type ForumTypeString } from '@/lib/instanceSettings';
 
 interface RawAnalyticsRow {
   event_type: string;
@@ -12,7 +12,7 @@ interface RawAnalyticsRow {
 
 async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string>> {
   if (postIds.length === 0) return new Map();
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   const posts = await context.Posts.find(
     { _id: { $in: postIds } },
     undefined,
@@ -32,7 +32,7 @@ async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string
 
 async function getUserNames(userIds: string[]): Promise<Map<string, string>> {
   if (userIds.length === 0) return new Map();
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   const users = await context.Users.find(
     { _id: { $in: userIds } },
     undefined,
@@ -50,7 +50,6 @@ function getOperationResult(event: RawAnalyticsRow): string | null {
   if (HAPPY_RESULTS.has(result)) return null;
   return result;
 }
-
 
 const onboardingLabels: Record<string, string> = {
   claudeOnboardingStarted: `opened the "Connect Claude to LW Docs" onboarding modal (step 1)`,
@@ -144,6 +143,17 @@ function formatAuthorActivity(
   return lines;
 }
 
+/**
+ * Analytics events are tagged with the environment of the forum they came
+ * through (e.g. "lesswrong.com" vs "alignmentforum.org"), so report across all
+ * forums' environments rather than just the one the cron request resolved to.
+ */
+function getReportedEnvironments(): string[] {
+  if (isDevelopment) return ["development"];
+  const forumTypes: ForumTypeString[] = ["LessWrong", "AlignmentForum"];
+  return [...new Set(forumTypes.map(forumType => environmentDescriptionSetting.get(forumType)))];
+}
+
 export async function postAiEditorUsageToSlack() {
   const connection = getAnalyticsConnection();
   if (!connection) {
@@ -152,17 +162,17 @@ export async function postAiEditorUsageToSlack() {
     return;
   }
 
-  const environment = isDevelopment ? "development" : environmentDescriptionSetting.get();
+  const environments = getReportedEnvironments();
 
   const events: RawAnalyticsRow[] = await connection.any(`
     SELECT event_type, event
     FROM raw
     WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall', 'claudeOnboardingStarted', 'claudeOnboardingSettingsClicked', 'claudeOnboardingConfirmClicked', 'claudeOnboardingConfirmed')
       AND timestamp > NOW() - INTERVAL '5 minutes'
-      AND environment = $(environment)
+      AND environment = ANY($(environments))
     ORDER BY timestamp
     LIMIT 10000
-  `, { environment });
+  `, { environments });
 
   if (events.length === 0) return;
 

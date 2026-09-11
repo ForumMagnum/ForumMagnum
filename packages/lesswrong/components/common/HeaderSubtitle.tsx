@@ -1,10 +1,15 @@
 import React from 'react';
-import HeaderEventSubtitle from "./HeaderEventSubtitle";
-import { defineStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
+  subtitleContainer: {
+    flexShrink: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+  },
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
@@ -15,14 +20,12 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
 }));
 
 const HeaderSubtitle = () => {
-  const { containerRef, hasSubtitleContent } = useSubtitlePortal();
+  const { containerRef } = useSubtitlePortal();
+  const classes = useStyles(headerSubtitleStyles);
 
-  return <>
+  return <div className={classes.subtitleContainer}>
     <span ref={containerRef} />
-    {!hasSubtitleContent && <HeaderEventSubtitle />}
-  </>
+  </div>
 }
 
 export default HeaderSubtitle;
-
-

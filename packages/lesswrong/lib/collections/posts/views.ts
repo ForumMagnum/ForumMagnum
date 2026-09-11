@@ -1,7 +1,8 @@
 import moment from 'moment';
-import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
+import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
+import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { adminAccountSetting, isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
@@ -9,6 +10,7 @@ import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedP
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
+import { getWithCustomLoader } from '@/lib/loaders';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient } from '@apollo/client';
@@ -16,9 +18,7 @@ import type { ApolloClient } from '@apollo/client';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const getEventBuffer = () => isEAForum()
-  ? { startBuffer: 1, endBuffer: null }
-  : { startBuffer: 6, endBuffer: 3 };
+const getEventBuffer = () => ({ startBuffer: 6, endBuffer: 3 });
 
 export const POST_SORTING_MODES = new TupleSet([
   "magic", "top", "topAdjusted", "new", "old", "recentComments"
@@ -103,6 +103,18 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   recentComments: { lastCommentedAt: -1 }
 }
 
+async function getVisitorActivity(context: ResolverContext): Promise<DbUserActivity|null> {
+  const { currentUser, clientId } = context;
+  if ((currentUser || clientId) && visitorGetsDynamicFrontpage(currentUser, context.forumType)) {
+    if (currentUser) {
+      return await context.UserActivities.findOne({visitorId: currentUser._id, type: 'userId'});
+    } else if (clientId) {
+      return await context.UserActivities.findOne({visitorId: clientId, type: 'clientId'});
+    }
+  }
+  return null;
+}
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
@@ -112,12 +124,12 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
+async function defaultView(terms: PostsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = isAF() ? {af: true} : {}
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,
@@ -163,8 +175,14 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
       )
     }
   }
+  // Started before the visitorActivity fetch below so the two can overlap
+  const pendingKarmaInflationSeries = terms.sortedBy === 'topAdjusted' ? getKarmaInflationSeries() : null;
+
   if (terms.filterSettings) {
-    const filterParams = filterSettingsToParams(terms.filterSettings, terms, context);
+    const visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
+      async () => [await getVisitorActivity(context)]
+    );
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -180,8 +198,8 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     };
   }
   if (terms.sortedBy) {
-    if (terms.sortedBy === 'topAdjusted') {
-      params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
+    if (pendingKarmaInflationSeries) {
+      params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField(await pendingKarmaInflationSeries) }
     }
 
     if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
@@ -215,7 +233,7 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     if (!isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
     } else if (!isEmpty(postedAt) && terms.timeField) {
-      const timeFieldSchema = context!.Posts.schema[terms.timeField];
+      const timeFieldSchema = context.Posts.schema[terms.timeField];
       if (timeFieldSchema.graphql?.outputType !== "Date" && timeFieldSchema.graphql?.outputType !== "Date!") {
         throw new Error(`Invalid time field: ${terms.timeField}`);
       }
@@ -263,8 +281,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
   }
 }
 
-export function buildInflationAdjustedField(): any {
-  const karmaInflationSeries = getKarmaInflationSeries();
+export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): any {
   return {
     karmaInflationAdjustedScore: {
       $multiply: [
@@ -289,13 +306,13 @@ export function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags?.map(t =>
     t.filterMode === "TagDefault" ? {
       tagId: t.tagId,
       tagName: t.tagName,
-      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
+      filterMode: defaultVisibilityTags.get(context).find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
     } :
     t
   ) ?? [];
@@ -321,7 +338,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum()) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
+  const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -353,7 +370,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         activityHalfLifeHours: terms.algoActivityHalfLifeHours,
         activityWeight: terms.algoActivityWeight,
         overrideActivityFactor: terms.algoActivityFactor,
-      }, context) : timeDecayExpr()
+      }, visitorActivity) : timeDecayExpr(context.forumType)
     ]}
   }
   
@@ -395,6 +412,13 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
 // Define standalone view functions
 function userPosts(terms: PostsViewTerms) {
   const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
+  const filter = terms.filter && filters[terms.filter] ? filters[terms.filter] : {};
+  if (terms.filter && !filters[terms.filter]) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `Filter '${terms.filter}' not recognized while constructing userPosts view`
+    )
+  }
   return {
     selector: {
       userId: viewFieldAllowAny,
@@ -402,7 +426,8 @@ function userPosts(terms: PostsViewTerms) {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
-      rejected: null
+      rejected: null,
+      ...filter,
     },
     options: {
       limit: 5,
@@ -427,15 +452,8 @@ const stickiesIndexPrefix = {
 };
 
 function magic(terms: PostsViewTerms) {
-  let selector = { isEvent: false };
-  if (isEAForum()) {
-    selector = {
-      ...selector,
-      ...filters.nonSticky,
-    };
-  }
   return {
-    selector,
+    selector: { isEvent: false },
     options: {sort: setStickies(sortings.magic, terms)},
   };
 }
@@ -1043,8 +1061,8 @@ function sunshineNewPosts() {
   }
 }
 
-function sunshineAutoClassifiedPosts() {
-  const adminTeamAccountId = adminAccountSetting.get()?._id;
+function sunshineAutoClassifiedPosts(_terms: PostsViewTerms, _client: ApolloClient, context: ResolverContext) {
+  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
   if (!adminTeamAccountId) {
     throw new Error('Admin team account ID is not set');
   }
@@ -1206,11 +1224,11 @@ function voting2019(terms: PostsViewTerms) {
   }
 }
 
-function stickied(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
+function stickied(terms: PostsViewTerms, _: ApolloClient, context: ResolverContext) {
   return {
     selector: {
       sticky: true,
-      ...(context?.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
+      ...(context.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get(context)}} : {}),
     },
     options: {
       sort: {
@@ -1335,11 +1353,11 @@ function alignmentSuggestedPosts() {
   }
 }
 
-function currentOpenThread(terms: PostsViewTerms) {
+function currentOpenThread(terms: PostsViewTerms, _client: ApolloClient, context: ResolverContext) {
   return {
     selector: {
       sticky: true,
-      [`tagRelevance.${openThreadTagIdSetting.get()}`]: { $gte: 1 }
+      [`tagRelevance.${openThreadTagIdSetting.get(context)}`]: { $gte: 1 }
     },
     options: {
       sort: { postedAt: -1 },

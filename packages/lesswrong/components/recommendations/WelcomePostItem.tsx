@@ -1,5 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
@@ -10,9 +10,9 @@ import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 import { HideIfRepeated } from "../posts/HideRepeatedPostsContext";
 
-const PostsListWithVotesQuery = gql(`
+const WelcomePostQuery = gql(`
   query WelcomePostItem($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(input: { selector: { documentId: $documentId }, allowNull: true }) {
       result {
         ...PostsListWithVotes
       }
@@ -20,14 +20,15 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const WelcomePostItem = ({repeatedPostsPrecedence}: {
+export default function WelcomePostItem({repeatedPostsPrecedence}: {
   repeatedPostsPrecedence?: number
-}) => {
+}) {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const welcomePostId = aboutPostIdSetting.get();
+  const welcomePostId = aboutPostIdSetting.get(forumType);
 
-  const { data } = useQuery(PostsListWithVotesQuery, {
+  const { data } = useQuery(WelcomePostQuery, {
     variables: { documentId: welcomePostId },
   });
   const post = data?.post?.result;
@@ -54,7 +55,5 @@ const WelcomePostItem = ({repeatedPostsPrecedence}: {
     <PostsItem post={post} />
   </HideIfRepeated>
 }
-
-export default registerComponent("WelcomePostItem", WelcomePostItem, {});
 
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
@@ -14,7 +15,7 @@ import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { getTagStructuredData } from "./TagPageRouter";
 import DeferRender from "../common/DeferRender";
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
+import { tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
@@ -41,7 +42,6 @@ import { SideItem, SideItemsContainer } from "../contents/SideItems";
 import { ParentsAndChildrenSmallScreen, ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
 import TagAudioPlayerWrapper from "./TagAudioPlayerWrapper";
 import { LensTabBar } from "./lenses/LensTab";
-import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
 import PostsList2 from "../posts/PostsList2";
 import Loading from "../vulcan-core/Loading";
@@ -51,7 +51,6 @@ import ContentStyles from "../common/ContentStyles";
 import PermanentRedirect from "../common/PermanentRedirect";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
-import CommentsListCondensed from "../common/CommentsListCondensed";
 import SubscribeButton from "./SubscribeButton";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import TagIntroSequence from "./TagIntroSequence";
@@ -524,6 +523,7 @@ function getTagQueryOptions(
 }
 
 const LWTagPage = ({slug}: {slug: string}) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -674,7 +674,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
-  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag) ? () => {
+  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag, forumType) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("audioPlayerToggle", { action, tagId: tag._id });
@@ -717,8 +717,8 @@ const LWTagPage = ({slug}: {slug: string}) => {
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit", forumType)) {
+    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions(forumType).edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts

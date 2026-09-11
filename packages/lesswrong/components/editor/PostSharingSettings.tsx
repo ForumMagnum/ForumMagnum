@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {FC, useCallback, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
@@ -9,12 +10,9 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
-import { EditablePost, postGetEditUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
-import { getCkEditorName } from './Editor';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { EditablePost, PostSubmitMeta, postGetAbsoluteEditUrl } from '../../lib/collections/posts/helpers';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EAButton from "../ea-forum/EAButton";
 import { EditableUsersList } from "./EditableUsersList";
@@ -86,18 +84,10 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  return isFriendlyUI()
-    ? (
-      <ForumIcon icon="Share" {...props} />
-    )
-    : (
-      <PersonAddIcon {...props} />
-    );
+  return <PersonAddIcon {...props} />;
 }
 
-const getNoSharePermissionTooltip = () => isFriendlyUI()
-  ? "You need at least 1 karma or to be approved by a moderator to share this post"
-  : "You need at least 1 karma or to be approved by a mod to share";
+const noSharePermissionTooltip = "You need to be logged in to share";
 
 interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;
@@ -137,7 +127,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
       flash("Edit the document first to enable sharing");
       return;
     } else if (derivedEditorType !== "ckEditorMarkup" && derivedEditorType !== "lexical") {
-      flash(`Change the editor type to ${getCkEditorName()} to enable sharing`);
+      flash(`Change the editor type to LessWrong Docs to enable sharing`);
       return;
     }
     
@@ -172,7 +162,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
   const canUseSharing = userCanUseSharing(currentUser)
 
   const tooltipTitle = !canUseSharing
-    ? getNoSharePermissionTooltip()
+    ? noSharePermissionTooltip
     : iconOnly
       ? "Share"
       : undefined;
@@ -198,6 +188,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
@@ -213,7 +204,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
     setIsChanged(true);
   };
   
-  const collabEditorLink = postGetEditUrl(post._id, true, linkSharingKey)
+  const collabEditorLink = postGetAbsoluteEditUrl(post._id, forumType, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 
@@ -274,7 +265,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
       
       <p className={classes.warning}>
         Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
-        {moderationEmail.get()} if you experience issues
+        {moderationEmail.get(forumType)} if you experience issues
       </p>
 
       <div className={classes.buttonRow}>

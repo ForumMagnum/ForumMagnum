@@ -7,7 +7,6 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
-import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
@@ -15,6 +14,7 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 import { notificationDebouncers } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -122,6 +122,10 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
   switch(notificationTypeName) {
     case "emailVerificationRequired":
       return "/resendVerificationEmail";
+    case "typoSuggestion": {
+      const ctx = await getTypoSuggestionNotificationContext(documentId, context);
+      return ctx?.targetUrl ?? "/notifications";
+    }
     default:
       // Fall through to based on document-type
       break;
@@ -131,7 +135,7 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment, context, false);
+      return await commentGetPageUrlFromDB(document as DbComment, context);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":
@@ -222,7 +226,8 @@ export const createNotification = async ({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
-        af: false, //TODO: Handle AF vs non-AF notifications
+        // Notification emails are always LW-branded; see dispatchEvent in debouncer.ts
+        af: false,
       });
     }
   }
@@ -239,7 +244,7 @@ export const createNotification = async ({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),
-      af: false, //TODO: Handle AF vs non-AF notifications
+      af: false,
     });
   }
 }
@@ -274,9 +279,8 @@ export const createNotifications = ({
    * user setting
    */
   fallbackNotificationTypeSettings?: NotificationTypeSettings,
-  context?: ResolverContext,
+  context: ResolverContext,
 }) => {
-  const nonnullContext = context || createAnonymousContext();
   return Promise.all(
     userIds.map(async userId => {
       await createNotification({
@@ -287,7 +291,7 @@ export const createNotifications = ({
         extraData,
         noEmail,
         fallbackNotificationTypeSettings,
-        context: nonnullContext,
+        context,
       });
     })
   );

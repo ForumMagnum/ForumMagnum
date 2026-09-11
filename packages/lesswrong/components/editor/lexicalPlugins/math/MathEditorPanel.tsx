@@ -1,19 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import { renderEquation } from './loadMathJax';
 
 const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
   panel: {
     position: 'absolute',
     zIndex: 1001,
@@ -74,11 +66,21 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
   },
 }));
 
+/**
+ * Position the panel is anchored to, in document (not viewport) coordinates,
+ * so that the panel scrolls together with the document.
+ */
+export interface MathEditorAnchor {
+  left: number;
+  bottom: number;
+  width: number;
+}
+
 interface MathEditorPanelProps {
   isOpen: boolean;
   initialEquation?: string;
   isInline: boolean;
-  anchorRect: DOMRect | null;
+  anchor: MathEditorAnchor | null;
   onSubmit: (equation: string, inline: boolean) => void;
   onCancel: () => void;
 }
@@ -87,7 +89,7 @@ function MathEditorPanel({
   isOpen,
   initialEquation = '',
   isInline,
-  anchorRect,
+  anchor,
   onSubmit,
   onCancel,
 }: MathEditorPanelProps): React.ReactElement | null {
@@ -140,8 +142,8 @@ function MathEditorPanel({
   }, [equation, isInline, isOpen]);
 
   // Auto-resize textarea
-  useEffect(() => {
-    if (inputRef.current) {
+  useLayoutEffect(() => {
+    if (isOpen && inputRef.current) {
       const textarea = inputRef.current;
       textarea.style.height = 'auto';
       textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
@@ -151,7 +153,7 @@ function MathEditorPanel({
       const maxLength = Math.max(...lines.map(l => l.length), 20);
       textarea.style.width = `${Math.min((maxLength * 8) + 24, 500)}px`;
     }
-  }, [equation]);
+  }, [equation, isOpen]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -170,56 +172,67 @@ function MathEditorPanel({
     }
   }, [equation, isInline, onSubmit, onCancel]);
 
-  const handleOverlayClick = useCallback((e: React.MouseEvent) => {
-    // Only close if clicking the overlay itself, not the panel
-    if (e.target === e.currentTarget) {
+  // Submit (or cancel, if empty) when the user starts a pointer interaction
+  // outside the panel. Listening for pointerdown (rather than click) means a
+  // drag that starts inside the panel can never dismiss it, even if the
+  // pointer is released outside.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (panelRef.current?.contains(target)) return;
+      // Scrollbar interactions target the root element; ignore them so
+      // scrolling the page doesn't dismiss the panel.
+      if (target === document.documentElement) return;
       if (equation.trim()) {
         onSubmit(equation, isInline);
       } else {
         onCancel();
       }
-    }
-  }, [equation, isInline, onSubmit, onCancel]);
+    };
 
-  if (!isOpen || !anchorRect) {
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [isOpen, equation, isInline, onSubmit, onCancel]);
+
+  if (!isOpen || !anchor) {
     return null;
   }
 
   // Calculate position - center below the cursor
   const panelStyle: React.CSSProperties = {
-    left: anchorRect.left + (anchorRect.width / 2),
-    top: anchorRect.bottom + 8,
+    left: anchor.left + (anchor.width / 2),
+    top: anchor.bottom + 8,
     transform: 'translateX(-50%)',
   };
 
   return createPortal(
-    <div className={classes.overlay} onClick={handleOverlayClick}>
-      <div
-        ref={panelRef}
-        className={classes.panel}
-        style={panelStyle}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className={classes.inputContainer}>
-          <textarea
-            ref={inputRef}
-            className={classes.input}
-            value={equation}
-            onChange={(e) => setEquation(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={isInline ? "x^2 + y^2 = z^2" : "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"}
-            rows={1}
-          />
-          <div className={classes.hint}>
-            Enter to submit • Esc to cancel • Shift+Enter for newline
-          </div>
-        </div>
-        <div 
-          ref={previewRef} 
-          className={classes.preview}
-          style={{ display: equation.trim() ? 'flex' : 'none' }}
+    <div
+      ref={panelRef}
+      className={classes.panel}
+      style={panelStyle}
+    >
+      <div className={classes.inputContainer}>
+        <textarea
+          ref={inputRef}
+          className={classes.input}
+          value={equation}
+          onChange={(e) => setEquation(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={isInline ? "x^2 + y^2 = z^2" : "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"}
+          rows={1}
         />
+        <div className={classes.hint}>
+          Enter to submit • Esc to cancel • Shift+Enter for newline
+        </div>
       </div>
+      <div
+        ref={previewRef}
+        className={classes.preview}
+        style={{ display: equation.trim() ? 'flex' : 'none' }}
+      />
     </div>,
     document.body
   );

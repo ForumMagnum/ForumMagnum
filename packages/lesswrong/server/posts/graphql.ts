@@ -14,6 +14,6 @@ export const extraPostResolversGraphQLTypeDefs = gql`
 
 export const extraPostResolversGraphQLMutations = {
   increasePostViewCount(root: void, {postId}: {postId: string}, context: ResolverContext) {
-    return context.Posts.rawUpdateOne({_id: postId}, { $inc: { viewCount: 1 }});
+    //return context.Posts.rawUpdateOne({_id: postId}, { $inc: { viewCount: 1 }});
   }
 }

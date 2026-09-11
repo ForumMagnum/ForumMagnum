@@ -1,11 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { isLWorAF } from '../../lib/instanceSettings';
 import SunshineNewUsersList from "./SunshineNewUsersList";
 import SunshineNewCommentsList from "./SunshineNewCommentsList";
 import SunshineNewTagsList from "./SunshineNewTagsList";
@@ -23,12 +22,7 @@ const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
-    display:"none",
     background: theme.palette.panelBackground.default,
-    width: 210,
-    [theme.breakpoints.up('lg')]: {
-      display:"block"
-    }
   },
   background: {
     background: theme.palette.panelBackground.default,
@@ -59,7 +53,7 @@ const SunshineSidebar = () => {
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
-  const underbellyName = isLWorAF() ? 'the Underbelly' : 'Low Priority'
+  const underbellyName = 'the Underbelly'
 
   return (
     <div className={classes.root}>

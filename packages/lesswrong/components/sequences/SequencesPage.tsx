@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useRef } from 'react';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -185,6 +186,7 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
 const SequencesPage = ({documentId}: {
   documentId: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
@@ -253,7 +255,7 @@ const SequencesPage = ({documentId}: {
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
 
-  const bannerId = document.bannerImageId || defaultSequenceBannerIdSetting.get();
+  const bannerId = document.bannerImageId || defaultSequenceBannerIdSetting.get(forumType);
   const socialImageId = document.gridImageId || document.bannerImageId;
   const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
     c: "fill",
@@ -322,7 +324,7 @@ const SequencesPage = ({documentId}: {
           </section>
           
           {html && <ContentStyles contentType="post" className={classes.description}>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}/>
           </ContentStyles>}
           <div>
             <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
@@ -351,5 +353,4 @@ const SequencesPage = ({documentId}: {
 }
 
 export default SequencesPage
-
 

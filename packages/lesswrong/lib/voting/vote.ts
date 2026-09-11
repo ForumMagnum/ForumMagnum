@@ -2,7 +2,7 @@ import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystemTypes';
-import { collectionNameToTypeName } from '../generated/collectionTypeNames';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { karmaRewarderId100, karmaRewarderId1000 } from '../instanceSettings';
 
 export interface VoteDocTuple {
@@ -109,8 +109,8 @@ export const getVotePower = ({ user, voteType, document }: {
   document: VoteableType,
 }) => {
   const userKarma = user.karma;
-  if (user._id === karmaRewarderId100.get()) return 100;
-  if (user._id === karmaRewarderId1000.get()) return 1000;
+  if (user._id === karmaRewarderId100) return 100;
+  if (user._id === karmaRewarderId1000) return 1000;
   return calculateVotePower(userKarma, voteType);
 };
 

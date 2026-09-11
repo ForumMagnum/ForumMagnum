@@ -8,7 +8,6 @@ import {
   RecommendationsAlgorithm,
   recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
@@ -80,12 +79,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   }
   // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
-    if (isEAForum()) {
-      return {
-        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
-      }
-    }
     return {
       postedAt: {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
@@ -104,9 +97,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewNominations) {
-    if (isEAForum()) {
-      return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
-    }
     return {
       isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
@@ -134,11 +124,12 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, resolverContext: ResolverContext) => {
+const recommendablePostFilter = async (algorithm: DefaultRecommendationsAlgorithm, resolverContext: ResolverContext) => {
+  const defaultViewSelector = await getDefaultViewSelector(PostsViews, resolverContext);
   let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...getDefaultViewSelector(PostsViews, resolverContext),
+    ...defaultViewSelector,
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -165,7 +156,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
       $or: [
         recommendationFilter,
         {
-          ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
+          ...defaultViewSelector, // Ensure drafts are still excluded
           defaultRecommendation: true,
           ...(algorithm.af ? {af: true} : {}),
         },
@@ -197,7 +188,7 @@ const allRecommendablePosts = async ({currentUser, algorithm, resolverContext}: 
         {},
         {joinHook},
       ),
-      recommendablePostFilter(algorithm, resolverContext),
+      await recommendablePostFilter(algorithm, resolverContext),
     ),
     {},
     {projection: scoreRelevantFields},
@@ -408,7 +399,7 @@ export const graphqlMutations = {
       if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
         const newPartiallyRead = currentUser.partiallyReadSequences.filter(
           (s)=>s.nextPostId !== postId);
-        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead, context.forumType);
         return true;
       }
       return false;

@@ -15,7 +15,8 @@ import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
+import { getUserReviewGroup, type TabId } from './groupings';
+import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
@@ -27,51 +28,33 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 
-const SunshineUsersListMultiQuery = gql(`
-  query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
-    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+// All of the moderation inbox's initial data is fetched in a single query so
+// that its root fields (users/posts/classifiedPosts/curation/lastCurated)
+// resolve concurrently server-side, rather than as a serial waterfall of
+// separate useQuery suspends. (directUser is kept separate below because it
+// depends on whether the opened user is already in the users list.)
+const ModerationInboxDataQuery = gql(`
+  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
+    users(selector: $userSelector, limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
-      totalCount
     }
-  }
-`);
-
-const SunshinePostsListMultiQuery = gql(`
-  query multiPostModerationInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+    posts(selector: $postSelector, limit: $postLimit) {
       results {
         ...SunshinePostsList
       }
-      totalCount
     }
-  }
-`);
-
-const SunshineAutoClassifiedPostsListMultiQuery = gql(`
-  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $postLimit) {
       results {
         ...SunshinePostsList
       }
-      totalCount
     }
-  }
-`);
-
-const CurationCandidatePostsQuery = gql(`
-  query CurationCandidatePostsQuery($limit: Int) {
-    CurationCandidatePosts(limit: $limit) {
+    CurationCandidatePosts(limit: $curationLimit) {
       results {
-        ...SunshineCurationPostsList
+        ...SunshineCurationPostsListItem
       }
     }
-  }
-`);
-
-const LastCuratedDateQuery = gql(`
-  query LastCuratedDateQuery {
     LastCuratedDate {
       lastCuratedDate
     }
@@ -80,7 +63,7 @@ const LastCuratedDateQuery = gql(`
 
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
-    user(input: { selector: { documentId: $documentId } }) {
+    user(selector: { documentId: $documentId }) {
       result {
         ...SunshineUsersList
       }
@@ -140,7 +123,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -152,7 +135,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -166,6 +149,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -183,6 +167,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -211,6 +196,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: curationPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -228,6 +214,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: posts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -245,6 +232,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           openedUserId: null,
           focusedPostId: classifiedPosts[0]?._id ?? null,
           focusedContentIndex: 0,
+          sidebarTab: null,
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
@@ -264,6 +252,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         openedUserId: initialOpenedUserId,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -381,12 +370,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
             expiresAt: now + UNDO_QUEUE_DURATION,
             timeoutId,
             executeAction,
+            sourceTab: state.activeTab,
+            wasDetailView: !!state.openedUserId,
           },
         });
         dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
       }
     }
-  }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
+  }, [state.openedUserId, state.focusedUserId, state.activeTab, allOrderedUsers]);
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
@@ -434,6 +425,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           addToUndoQueue={addToUndoQueue}
           undoQueue={state.undoQueue}
           isDetailView={!!state.openedUserId}
+          onFocusRejectTab={() => dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'reject' })}
           dispatch={dispatch}
         />
       )}
@@ -455,6 +447,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
+              sidebarTab={state.sidebarTab}
+              addToUndoQueue={addToUndoQueue}
               dispatch={dispatch}
               state={state}
             />
@@ -464,7 +458,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
-                    history={state.history}
                     dispatch={dispatch}
                   />
                 </div>
@@ -513,45 +506,21 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data: usersData, loading: usersLoading } = useQuery(SunshineUsersListMultiQuery, {
+  const { data, loading } = useQuery(ModerationInboxDataQuery, {
     variables: {
-      selector: { sunshineNewUsers: {} },
-      limit: 100,
-      enableTotal: true,
+      userSelector: { sunshineNewUsers: {} },
+      postSelector: { sunshineNewPosts: {} },
+      classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
+      userLimit: 100,
+      postLimit: 100,
+      curationLimit: 200,
     },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: postsData, loading: postsLoading } = useQuery(SunshinePostsListMultiQuery, {
-    variables: {
-      selector: { sunshineNewPosts: {} },
-      limit: 100,
-      enableTotal: true,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
-    variables: {
-      selector: { sunshineAutoClassifiedPosts: {} },
-      limit: 100,
-      enableTotal: true,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
-    variables: { limit: 200 },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const { data: lastCuratedData } = useQuery(LastCuratedDateQuery, {
     fetchPolicy: 'cache-and-network',
   });
 
   const initialOpenedUserId = query.user || null;
 
-  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
+  const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
@@ -561,12 +530,12 @@ const ModerationInbox = () => {
   });
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
-  useCoreTags();
+  useCoreTags({ ssr: false });
 
-  const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
-  const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
-  const curationPosts = useMemo(() => curationData?.CurationCandidatePosts?.results ?? [], [curationData]);
-  const lastCuratedDate = lastCuratedData?.LastCuratedDate?.lastCuratedDate ?? null;
+  const posts = useMemo(() => data?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [data]);
+  const classifiedPosts = useMemo(() => data?.classifiedPosts?.results ?? [], [data]);
+  const curationPosts = useMemo(() => data?.CurationCandidatePosts?.results ?? [], [data]);
+  const lastCuratedDate = data?.LastCuratedDate?.lastCuratedDate ?? null;
 
   const directUser = useMemo(() => {
     if (!shouldFetchDirectUser) return null;
@@ -580,13 +549,10 @@ const ModerationInbox = () => {
     return null;
   }
 
-  const usersNotReady = usersLoading && !usersData;
-  const postsNotReady = postsLoading && !postsData;
-  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
-  const curationNotReady = curationLoading && !curationData;
+  const dataNotReady = loading && !data;
   const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
 
-  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
+  if (dataNotReady || directUserNotReady) {
     return (
       <div className={classes.loading}>
         <Loading />

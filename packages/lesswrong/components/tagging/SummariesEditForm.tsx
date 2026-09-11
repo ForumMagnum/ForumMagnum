@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
+import { MouseSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import classNames from "classnames";
-import { makeSortableListComponent } from "../form-components/sortableList";
+import { DragHandleProps, makeSortableListComponent } from "../form-components/sortableList";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
@@ -161,7 +162,7 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
     color: theme.palette.grey[500],
   },
   dragHandle: {
-    cursor: 'pointer',
+    cursor: 'grab',
     transform: 'rotate(-90deg)',
     flexShrink: 0,
     alignSelf: 'start',
@@ -246,10 +247,15 @@ const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, 
   </div>
 }
 
-export const SortableRowHandle = ({children}: { children?: React.ReactNode }) => {
+export const SortableRowHandle = ({ dragHandleProps }: { dragHandleProps: DragHandleProps }) => {
   const classes = useStyles(styles);
 
-  return <span className={classes.dragHandle}>
+  return <span
+    ref={dragHandleProps.ref}
+    {...dragHandleProps.attributes}
+    {...dragHandleProps.listeners}
+    className={classes.dragHandle}
+  >
     <LWTooltip title="Drag to reorder" placement='left'>
       <ForumIcon icon="DragIndicator" className={classes.dragIndicatorIcon} />
     </LWTooltip>
@@ -276,6 +282,9 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
+  const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 5 } });
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const sortableSensors = useSensors(mouseSensor, pointerSensor);
 
   const { data, loading, refetch } = useQuery(MultiDocumentContentDisplayMultiQuery, {
     variables: {
@@ -310,10 +319,11 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   // We need to do this inside of the component to get the summary by id, to pass through to SummaryEditorRow
   // Our sortable list wrapper currently only deal with arrays of strings, and it doesn't seem worth refactoring right now.
   const SortableSummaryRowList = makeSortableListComponent({
-    RenderItem: ({contents, removeItem}) => {
+    customDragHandle: true,
+    RenderItem: ({ contents, dragHandleProps }) => {
       const classes = useStyles(styles);
       return <li className={classes.sortableListItem}>
-        <SortableRowHandle />
+        <SortableRowHandle dragHandleProps={dragHandleProps} />
         <SummaryEditorRow summary={summariesById[contents]} refetch={refetch} />
       </li>
     }
@@ -350,6 +360,7 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
       value={displayedSummaries.map((summary) => summary._id)}
       axis="xy"
       className={classes.list}
+      sensors={sortableSensors}
       setValue={(newValue: string[]) => {
         void reorderSummaries({
           variables: {

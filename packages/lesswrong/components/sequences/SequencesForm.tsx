@@ -1,7 +1,7 @@
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";

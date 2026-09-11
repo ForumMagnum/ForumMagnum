@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
@@ -13,6 +14,7 @@ import { usePageVisibility } from './usePageVisibility';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import { useIsMounted } from './useIsMounted';
 import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
+import { getBrowserLocalStorage, safeStorageSetItem } from '../editor/localStorageHandlers';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -26,7 +28,7 @@ const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 // Polling interval in milliseconds (5 seconds)
 const POLLING_INTERVAL = 5 * 1000;
 
-const UnreadNotificationCountsQuery = gql(`
+export const UnreadNotificationCountsQuery = gql(`
     query UnreadNotificationCountQuery {
       unreadNotificationCounts {
         unreadNotifications
@@ -135,7 +137,7 @@ export const UnreadNotificationsContextProvider: FC<{
 
     void refetchBoth();
 
-    window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
+    safeStorageSetItem(getBrowserLocalStorage(), notificationsCheckedAtLocalStorageKey, now.toISOString());
   }, [updateCurrentUser, apolloClient.cache, refetchBoth]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({
@@ -279,13 +281,13 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnrea
  * Reacty way because React doesn't rerender components while the tab is in the
  * background.
  */
-function setFaviconBadge(notificationCount: number) {
+function setFaviconBadge(notificationCount: number, forumType: ForumTypeString) {
   const faviconLinkRel = document.querySelector("link[rel$=icon]");
   if (faviconLinkRel) {
     if (notificationCount > 0) {
-      faviconLinkRel.setAttribute("href", faviconWithBadgeSetting.get() ?? faviconUrlSetting.get());
+      faviconLinkRel.setAttribute("href", faviconWithBadgeSetting.get(forumType) ?? faviconUrlSetting.get(forumType));
     } else {
-      faviconLinkRel.setAttribute("href", faviconUrlSetting.get());
+      faviconLinkRel.setAttribute("href", faviconUrlSetting.get(forumType));
     }
   }
 }

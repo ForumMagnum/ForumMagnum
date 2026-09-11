@@ -169,7 +169,7 @@ class PgCollectionClass<
   async rawInsert(
     data: InsertionRecord<ObjectsByCollectionName[N]>,
     options?: MongoInsertOptions<ObjectsByCollectionName[N]>,
-  ) {
+  ): Promise<string> {
     const insert = new InsertQuery(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;

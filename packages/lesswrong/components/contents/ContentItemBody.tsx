@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
 import * as htmlparser2 from "htmlparser2";
-import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
+import { type ChildNode as DomHandlerChildNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
@@ -19,8 +19,10 @@ import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
-import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
+import { colorToString, invertColorPreservingHue, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
+import { useStyles } from '../hooks/useStyles';
+import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
@@ -30,7 +32,79 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
+export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: Record<string, AnyBecauseHard>): boolean => {
+  if (['p','div','table','figure'].includes(tagName)) {
+    return true;
+  } else if (tagName === "span") {
+    const classes = (attribs.className ?? "").split(" ");
+    return classes.includes("math-tex");
+  } else if (tagName === 'mjx-container') {
+    return attribs.display === 'true';
+  } else {
+    return false;
+  }
+}
+
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
+
+/**
+ * Tags which, when they appear as the first thing inside a block, mean that
+ * block's contents are laid out as blocks rather than as inline content.
+ */
+const blockLevelTagNames = new Set([
+  "address", "article", "aside", "blockquote", "details", "dialog", "div", "dd",
+  "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2",
+  "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "li", "main", "nav", "ol",
+  "p", "pre", "section", "table", "ul",
+]);
+
+/**
+ * Block-level tags which we can't put an id-insertion inside of, either because
+ * they can't have children at all, or because their content model doesn't allow
+ * arbitrary inline content.
+ */
+const dontDescendIntoTagNames = new Set([
+  "hr", "table", "thead", "tbody", "tfoot", "tr",
+]);
+
+/**
+ * Given the children of an element which is the target of an id-insertion,
+ * return the index of the child that the insertion should be moved into, or
+ * null if the insertion should just go at the start of this element.
+ *
+ * Id-insertions (used for side-comment indicators) are inline elements which
+ * are inserted at the start of the block they're attached to. If that block's
+ * contents are themselves blocks (as in `<li><p>...</p></li>`, which is how
+ * list items in posts are usually structured), then inserting an inline element
+ * at the start displaces the first block from matching `:first-child`. Content
+ * styles use that selector to suppress the top margin of the first paragraph in
+ * a block, so the result is a spurious blank line at the start of the list item.
+ * Recursing into the first block child instead avoids this (and the anonymous
+ * block box that an inline element in a block-formatting context would
+ * otherwise generate).
+ */
+function getIdInsertionDescendIndex(childNodes: DomHandlerChildNode[]): number|null {
+  for (let i=0; i<childNodes.length; i++) {
+    const child = childNodes[i];
+    if (child.type === htmlparser2.ElementType.Text) {
+      // Whitespace between tags doesn't count as inline content
+      if (child.data.trim() === "") continue;
+      return null;
+    }
+    if (child.type === htmlparser2.ElementType.Comment) {
+      continue;
+    }
+    if (child.type !== htmlparser2.ElementType.Tag) {
+      return null;
+    }
+    const tagName = child.tagName.toLowerCase();
+    if (!blockLevelTagNames.has(tagName) || dontDescendIntoTagNames.has(tagName)) {
+      return null;
+    }
+    return i;
+  }
+  return null;
+}
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -58,10 +132,13 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * we're walking a parsed HTML tree, this is a better place for the
  * functionality that's currently handled by `truncatize`.
  */
+let nextContentContextId = 0;
+
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const abstractThemeOptions = useAbstractThemeOptions();
+  useStyles(codeHighlightStyles);
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -91,7 +168,34 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
       onContentReady?.(bodyRef.current);
     }
   }, [onContentReady]);
-  
+
+  // Apply CSS Custom Highlights API syntax highlighting to code blocks
+  useEffect(() => {
+    const container = bodyRef.current;
+    if (!container || !getHighlights()) return;
+
+    const codeBlocks = container.querySelectorAll<HTMLElement>('pre.code-block, code.code-block');
+    if (codeBlocks.length === 0) {
+      return;
+    }
+
+    const contextId = `content-${nextContentContextId++}`;
+    const rangesByGroup = new Map<string, Range[]>();
+    codeBlocks.forEach((block) => {
+      const language =
+        block.getAttribute('data-language') ||
+        block.getAttribute('data-highlight-language') ||
+        block.className.match(/\blanguage-([a-z0-9_-]+)\b/i)?.[1] ||
+        undefined;
+      highlightCodeElement(block, language, rangesByGroup);
+    });
+    updateHighlightContext(contextId, rangesByGroup);
+
+    return () => {
+      removeHighlightContext(contextId);
+    };
+  }, [html]);
+
   const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
     themeName: abstractThemeOptions.name,
@@ -112,10 +216,17 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
+
+  /**
+   * An id-insertion which was targeted at an ancestor of this element, but which
+   * was moved down into this element because that ancestor's contents are blocks
+   * rather than inline content. See `getIdInsertionDescendIndex`.
+   */
+  insertedAtStart?: React.ReactNode,
 }) => {
   const { replacedSubstrings, themeName } = passedThroughProps;
   const { captureEvent } = useTracking();
@@ -153,10 +264,25 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
 
+      const ownIdInsertion = (id && passedThroughProps.idInsertions?.[id])
+        ? passedThroughProps.idInsertions[id]
+        : null;
+      const idInsertion: React.ReactNode = (insertedAtStart && ownIdInsertion)
+        ? <>{insertedAtStart}{ownIdInsertion}</>
+        : (insertedAtStart ?? ownIdInsertion);
+
+      // If this element has an insertion but its contents are blocks rather
+      // than inline content, put the insertion inside the first of those
+      // blocks, rather than at the start of this element.
+      const descendIndex = idInsertion
+        ? getIdInsertionDescendIndex(parsedHtml.childNodes)
+        : null;
+
       let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
+        insertedAtStart={i===descendIndex ? idInsertion : undefined}
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
@@ -181,8 +307,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       }
 
       let result: React.ReactNode|React.ReactNode[] = mappedChildren;
-      if (id && passedThroughProps.idInsertions?.[id]) {
-        const idInsertion = passedThroughProps.idInsertions[id];
+      if (idInsertion && descendIndex===null) {
         result = [
           <React.Fragment key="inserted">{idInsertion}</React.Fragment>,
            ...result
@@ -278,7 +403,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         );
       }
 
-      if (root && ['p','div','table','figure'].includes(TagName)) {
+      if (root && rootTagShouldBeHorizontallyScrollable(TagName, attribs)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
@@ -662,7 +787,7 @@ function transformAttributeValueForDarkMode(attributeValue: string): string {
   if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
-      const invertedColor = invertColor(parsedColor);
+      const invertedColor = invertColorPreservingHue(parsedColor);
       getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black

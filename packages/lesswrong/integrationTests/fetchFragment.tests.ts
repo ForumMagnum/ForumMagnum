@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import "./integrationTestSetup";
 import { createDummyPost } from "./utils";
 import { fetchFragmentSingle } from "@/server/fetchFragment";
@@ -7,6 +8,7 @@ describe("fetchFragment", () => {
   it("fetches the entire DB object", async () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsMinimumInfo,
       currentUser: null,
@@ -20,6 +22,7 @@ describe("fetchFragment", () => {
   it("fetches SQL resolver fields", async () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsListBase,
       currentUser: null,
@@ -33,6 +36,7 @@ describe("fetchFragment", () => {
   it("fetches code resolver fields", async () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsDetails,
       currentUser: null,
@@ -46,6 +50,7 @@ describe("fetchFragment", () => {
   it("excludes resolver-only fields missing from the fragment", async () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsMinimumInfo,
       currentUser: null,
@@ -60,6 +65,7 @@ describe("fetchFragment", () => {
     const post = await createDummyPost();
 
     const fetchedFiltered = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsMinimumInfo,
       currentUser: null,
@@ -72,6 +78,7 @@ describe("fetchFragment", () => {
 
     // Now turn off filtering and we should have the field
     const fetchedUnfiltered = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsMinimumInfo,
       currentUser: null,

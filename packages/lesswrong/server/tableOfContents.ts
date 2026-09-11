@@ -1,9 +1,8 @@
 import { CommentsViews, questionAnswersSortings } from '../lib/collections/comments/views';
-import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
+import { extractTableOfContents, getTocAnswers, getTocComments, ToCData } from '../lib/tableOfContents';
 import { parseDocumentFromString } from '../lib/domParser';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
@@ -21,7 +20,7 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
     draft: false,
     deleted:false,
   }
-  if (isAF()) {
+  if (context.forumType === 'AlignmentForum') {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
@@ -32,17 +31,17 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
   const { Comments } = context;
 
   const commentSelector: any = {
-    ...getDefaultViewSelector(CommentsViews, context),
+    ...await getDefaultViewSelector(CommentsViews, context),
     answer: false,
     draft: false,
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && isAF()) {
+  if (document.af && context.forumType === 'AlignmentForum') {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
-  return getTocComments({post: document, commentCount})
+  return getTocComments({post: document, commentCount, forumType: context.forumType})
 }
 
 async function getHtmlWithContributorAnnotations({
@@ -126,18 +125,15 @@ export const getToCforPost = async ({document, version, context}: {
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   
-  if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
-    const tocAnswers = await getTocAnswersServer(document, context)
-    const tocComments = await getTocCommentsServer(document, context)
-    tocSections.push(...tocAnswers)
-    tocSections.push(...tocComments)
-  
-    return {
-      html: tableOfContents?.html||null,
-      sections: tocSections,
-    }
+  const tocAnswers = await getTocAnswersServer(document, context)
+  const tocComments = await getTocCommentsServer(document, context)
+  tocSections.push(...tocAnswers)
+  tocSections.push(...tocComments)
+
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
   }
-  return null;
 }
 
 export const getToCforTag = async ({document, version, context}: {

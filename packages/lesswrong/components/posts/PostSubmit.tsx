@@ -1,9 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
+import { requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -65,6 +66,7 @@ export const PostSubmit = ({
   claudeButton,
   cancelCallback,
 }: PostSubmitProps) => {
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
@@ -84,14 +86,12 @@ export const PostSubmit = ({
     await formApi.handleSubmit();
   };
 
-  const requireConfirmation = isLW() && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
+  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get(forumType)
   const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
-  // EA Forum title is Effective Altruism Forum, which is unecessarily long
-  const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
-  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
+  const feedbackTitle = `Request feedback from our editor.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
 
   return (
     <React.Fragment>
@@ -132,7 +132,7 @@ export const PostSubmit = ({
                           const intercomProps = {
                             title: createdPost.title,
                             _id: createdPost._id,
-                            url: getSiteUrl() + "posts/" + createdPost._id
+                            url: getSiteUrl(forumType) + "posts/" + createdPost._id
                           };
 
                           // eslint-disable-next-line

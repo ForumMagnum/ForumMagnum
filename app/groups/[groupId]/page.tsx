@@ -4,9 +4,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
-import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
+import { cloudinaryCloudName, taglineSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { notFound } from "next/navigation";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -46,15 +45,15 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   
     const localgroup = data?.localgroup?.result;
   
-    if (!localgroup) return notFound();
+    if (!localgroup) return defaultMetadata;
   
-    const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get();
+    const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get(resolverContext);
     const descriptionFields = getMetadataDescriptionFields(description);
   
-    const titleFields = getPageTitleFields(localgroup.name);
+    const titleFields = await getPageTitleFields(localgroup.name);
   
     const imageUrl = localgroup.bannerImageId
-      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
+      ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
       : undefined;
   
     const imagesFields = imageUrl ? getMetadataImagesFields(imageUrl) : {};

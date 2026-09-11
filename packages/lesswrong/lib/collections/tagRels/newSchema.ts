@@ -1,14 +1,8 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { isEAForum } from "@/lib/instanceSettings";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
-import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { getTagBotUserId } from "@/server/languageModels/autoTagCallbacks";
-
-const canReadUser = (user: DbUser | null, tagRel: DbTagRel) => isEAForum()
-  ? userOwns(user, tagRel) || userIsAdminOrMod(user)
-  : true;
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -79,16 +73,13 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
-      // Hide who applied the tag on the EA Forum
-      canRead: [canReadUser],
-      canCreate: ["members"],
+      canRead: ["guests"],
     },
   },
   user: {
     graphql: {
       outputType: "User",
-      canRead: [canReadUser],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },

@@ -3,7 +3,7 @@ import BulkWriter from "@/server/sql/BulkWriter";
 import InsertQuery from "@/server/sql/InsertQuery";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 import DeleteQuery from "@/server/sql/DeleteQuery";
-import { concat, getPgPromiseLib } from "../../server/sqlConnection";
+import { concat } from "../../server/sqlConnection";
 import Query from "@/server/sql/Query";
 
 jest.mock('../../server/sqlConnection', () => {

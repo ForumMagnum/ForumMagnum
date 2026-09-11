@@ -40,7 +40,7 @@ import { $generateNodesFromDOM } from '@lexical/html'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
-import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties, SuggestionType } from './Types'
+import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties } from './Types'
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
 import type { ListItemNode, ListType } from '@lexical/list'
 import { $handleListInsertParagraph, $isListItemNode } from '@lexical/list'
@@ -647,11 +647,19 @@ function $handleInsertTextData(
   const shouldExitInlineCode = isAtEndOfInlineCode && data === ' '
   if (shouldExitInlineCode) {
     const textNode = $createTextNode(data)
-    const node = isInsideExistingInsertSuggestion
-      ? textNode
-      : $createSuggestionNode(suggestionID, 'insert').append(textNode)
-    focusNode.insertAfter(node)
-    node.selectEnd()
+    if (isInsideExistingInsertSuggestion) {
+      focusNode.insertAfter(textNode)
+      textNode.selectEnd()
+      return true
+    }
+    const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
+    suggestionNode.append(textNode)
+    // After the enclosing suggestion wrapper, if any — nesting the insert
+    // inside e.g. a delete suggestion puts the new content inside the deleted
+    // region, where accepting the delete destroys it.
+    ;(existingParentSuggestion ?? focusNode).insertAfter(suggestionNode)
+    suggestionNode.selectEnd()
+    onSuggestionCreation(suggestionID)
     return true
   }
 

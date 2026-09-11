@@ -42,10 +42,14 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
+  pangramApiVersion: string | null
+  pangramFractionAi: number | null
+  pangramFractionAiAssisted: number | null
+  pangramFractionHuman: number | null
   pangramMaxScore: number | null
   pangramPrediction: "AI" | "Human" | "Mixed" | null
   pangramScore: number | null
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null
@@ -434,6 +438,24 @@ interface DbGoogleServiceAccountSession extends DbObject {
   revoked: boolean
 }
 
+type HomePageDesignsCollection = PgCollection<"HomePageDesigns">;
+
+interface DbHomePageDesign extends DbObject {
+  __collectionName?: "HomePageDesigns"
+  autoReviewMessage: string | null
+  autoReviewPassed: boolean | null
+  commentId: string | null
+  conversationHistory: any
+  createdAt: Date
+  html: string
+  modelName: string | null
+  ownerId: string
+  publicId: string
+  source: string
+  title: string
+  verified: boolean
+}
+
 type IframeWidgetSrcdocsCollection = PgCollection<"IframeWidgetSrcdocs">;
 
 interface DbIframeWidgetSrcdoc extends DbObject {
@@ -492,6 +514,32 @@ interface DbLegacyData extends DbObject {
   createdAt: Date
   legacyData: any | null
   objectId: string
+}
+
+type LinkPreviewCachesCollection = PgCollection<"LinkPreviewCaches">;
+
+interface DbLinkPreviewCaches extends DbObject {
+  __collectionName?: "LinkPreviewCaches"
+  cacheVersion: number
+  createdAt: Date
+  debugHtmlSource: string | null
+  debugImageSource: string | null
+  debugTitleSource: string | null
+  error: string | null
+  fetchedAt: Date | null
+  imageHeight: number | null
+  imageUrl: string | null
+  imageWidth: number | null
+  legacyData: any | null
+  mirroredImageUrl: string | null
+  nextRefreshAt: Date
+  originalImageUrl: string | null
+  remoteHtml: string | null
+  requestStartedAt: Date
+  sanitizedHtml: string | null
+  status: string
+  title: string | null
+  url: string
 }
 
 type LlmConversationsCollection = PgCollection<"LlmConversations">;
@@ -1104,6 +1152,88 @@ interface DbReport extends DbObject {
   userId: string
 }
 
+type ResearchConversationEventsCollection = PgCollection<"ResearchConversationEvents">;
+
+interface DbResearchConversationEvent extends DbObject {
+  __collectionName?: "ResearchConversationEvents"
+  claudeMessageUuid: string
+  conversationId: string
+  createdAt: Date
+  kind: string
+  payload: any
+  projectId: string
+  seq: number
+  userId: string
+}
+
+type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
+
+interface DbResearchConversation extends DbObject {
+  __collectionName?: "ResearchConversations"
+  archived: boolean
+  baseEnvironmentId: string | null
+  claudeSessionId: string | null
+  createdAt: Date
+  entrypointDocumentId: string
+  entrypointKind: string
+  icon: string | null
+  lastActivityAt: Date
+  lastReadAt: Date | null
+  presentationHtml: string | null
+  projectId: string
+  runtime: string | null
+  title: string | null
+  userId: string
+}
+
+type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
+
+interface DbResearchDocument extends DbObject {
+  __collectionName?: "ResearchDocuments"
+  archived: boolean
+  contents_latest: string | null
+  createdAt: Date
+  icon: string | null
+  projectId: string
+  sortOrder: number | null
+  title: string | null
+  userId: string
+}
+
+type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
+
+interface DbResearchEnvironment extends DbObject {
+  __collectionName?: "ResearchEnvironments"
+  archived: boolean
+  createdAt: Date
+  label: string
+  projectId: string
+  sourceEventId: string | null
+  userId: string
+  vercelSnapshotId: string
+}
+
+type ResearchProjectsCollection = PgCollection<"ResearchProjects">;
+
+interface DbResearchProject extends DbObject {
+  __collectionName?: "ResearchProjects"
+  createdAt: Date
+  description: string | null
+  settings: any | null
+  title: string
+  userId: string
+}
+
+type ResearchSandboxSessionsCollection = PgCollection<"ResearchSandboxSessions">;
+
+interface DbResearchSandboxSession extends DbObject {
+  __collectionName?: "ResearchSandboxSessions"
+  conversationId: string
+  createdAt: Date
+  devProxySecret: string | null
+  supervisorSecret: string
+}
+
 type ReviewVotesCollection = PgCollection<"ReviewVotes">;
 
 interface DbReviewVote extends DbObject {
@@ -1181,6 +1311,16 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
+}
+
+type SandboxBaselineSnapshotsCollection = PgCollection<"SandboxBaselineSnapshots">;
+
+interface DbSandboxBaselineSnapshot extends DbObject {
+  __collectionName?: "SandboxBaselineSnapshots"
+  builtAt: Date
+  createdAt: Date
+  runtime: string
+  vercelSnapshotId: string
 }
 
 type SequencesCollection = PgCollection<"Sequences">;
@@ -1422,6 +1562,29 @@ interface DbTypingIndicator extends DbObject {
   userId: string
 }
 
+type TypoSuggestionsCollection = PgCollection<"TypoSuggestions">;
+
+interface DbTypoSuggestion extends DbObject {
+  __collectionName?: "TypoSuggestions"
+  appliedRevisionId: string | null
+  authorId: string
+  collectionName: string
+  createdAt: Date
+  documentId: string
+  explanation: string | null
+  fieldName: string
+  llmCanonicalQuote: string | null
+  llmVerdict: string
+  narrowedQuote: string | null
+  narrowedReplacement: string | null
+  proposedReplacement: string | null
+  quote: string
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  status: string
+  voteId: string
+}
+
 type UltraFeedEventsCollection = PgCollection<"UltraFeedEvents">;
 
 interface DbUltraFeedEvent extends DbObject {
@@ -1510,7 +1673,6 @@ interface DbUser extends DbObject {
   allPostsShowLowKarma: boolean | null
   allPostsSorting: string | null
   allPostsTimeframe: string | null
-  allowDatadogSessionReplay: boolean
   autoSubscribeAsOrganizer: boolean
   auto_subscribe_to_my_comments: boolean
   auto_subscribe_to_my_posts: boolean
@@ -1527,7 +1689,9 @@ interface DbUser extends DbObject {
   blueskyProfileURL: string | null
   bookmarksCount: number
   careerStage: Array<string> | null
+  claudeCodeOAuthTokenEncrypted: string | null
   claudeLinkedAt: Date | null
+  coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
   commentCount: number
   commentSorting: string | null
@@ -2009,6 +2173,20 @@ interface DbUser extends DbObject {
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
+  notificationTypoSuggestions: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
   notificationYourTurnMatchForm: {
     onsite: {
       enabled: boolean,
@@ -2085,6 +2263,7 @@ interface DbUser extends DbObject {
   }
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
+  ultraFeedSettings: any | null
   unsubscribeFromAll: boolean | null
   username: string | null
   usernameUnset: boolean
@@ -2124,6 +2303,7 @@ type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
   __collectionName?: "YjsDocuments"
+  collectionName: string
   createdAt: Date
   documentId: string
   updatedAt: Date
@@ -2158,11 +2338,13 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FieldChanges: FieldChangesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
+  HomePageDesigns: HomePageDesignsCollection
   IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
   Images: ImagesCollection
   JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LinkPreviewCaches: LinkPreviewCachesCollection
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
@@ -2192,10 +2374,17 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
   Reports: ReportsCollection
+  ResearchConversationEvents: ResearchConversationEventsCollection
+  ResearchConversations: ResearchConversationsCollection
+  ResearchDocuments: ResearchDocumentsCollection
+  ResearchEnvironments: ResearchEnvironmentsCollection
+  ResearchProjects: ResearchProjectsCollection
+  ResearchSandboxSessions: ResearchSandboxSessionsCollection
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
+  SandboxBaselineSnapshots: SandboxBaselineSnapshotsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
   SideCommentCaches: SideCommentCachesCollection
@@ -2207,6 +2396,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
+  TypoSuggestions: TypoSuggestionsCollection
   UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
@@ -2244,11 +2434,13 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FieldChanges: DbFieldChange
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
+  HomePageDesigns: DbHomePageDesign
   IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
@@ -2278,10 +2470,17 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
   Reports: DbReport
+  ResearchConversationEvents: DbResearchConversationEvent
+  ResearchConversations: DbResearchConversation
+  ResearchDocuments: DbResearchDocument
+  ResearchEnvironments: DbResearchEnvironment
+  ResearchProjects: DbResearchProject
+  ResearchSandboxSessions: DbResearchSandboxSession
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
   Revisions: DbRevision
+  SandboxBaselineSnapshots: DbSandboxBaselineSnapshot
   Sequences: DbSequence
   Sessions: DbSession
   SideCommentCaches: DbSideCommentCache
@@ -2293,6 +2492,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
+  TypoSuggestions: DbTypoSuggestion
   UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
@@ -2330,11 +2530,13 @@ interface ObjectsByTypeName {
   EmailTokens: DbEmailTokens
   FieldChange: DbFieldChange
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
+  HomePageDesign: DbHomePageDesign
   IframeWidgetSrcdoc: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
@@ -2364,10 +2566,17 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
   Report: DbReport
+  ResearchConversationEvent: DbResearchConversationEvent
+  ResearchConversation: DbResearchConversation
+  ResearchDocument: DbResearchDocument
+  ResearchEnvironment: DbResearchEnvironment
+  ResearchProject: DbResearchProject
+  ResearchSandboxSession: DbResearchSandboxSession
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner
   Revision: DbRevision
+  SandboxBaselineSnapshot: DbSandboxBaselineSnapshot
   Sequence: DbSequence
   Session: DbSession
   SideCommentCache: DbSideCommentCache
@@ -2379,6 +2588,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
+  TypoSuggestion: DbTypoSuggestion
   UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
   UserMostValuablePost: DbUserMostValuablePost

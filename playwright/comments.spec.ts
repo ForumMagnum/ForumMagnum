@@ -3,6 +3,7 @@ import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
 
 test("create and edit comment", async ({page, context}) => {
   // Create and visit a new post
+  await page.goto("/");
   await loginNewUser(context);
   const post = await createNewPost();
   await page.goto(post.postPageUrl);

@@ -1,8 +1,8 @@
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
+import type { ForumTypeString } from './instanceSettings';
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
-import { isLWorAF } from "./instanceSettings";
 import maxBy from "lodash/maxBy";
 
 export interface ToCAnswer {
@@ -106,12 +106,27 @@ export function extractTableOfContents({
 
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string, boolean> = {};
+  // Elements that have already been accepted as headings. Used to avoid
+  // counting a heading twice when heading tags are nested, eg
+  // <p><strong><b>Heading</b></strong></p>.
+  const acceptedHeadingElements: HTMLElement[] = [];
 
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
   let headingElements = document.querySelectorAll(headingSelector);
   for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
+      continue;
+    }
+    // Skip headings inside spoiler/collapsible content or code blocks; those
+    // are hidden or literal content and should not appear in the ToC.
+    if (element.closest('.spoilers, .spoiler, .detailsBlockContent, pre, code')) {
+      continue;
+    }
+    // Skip elements nested inside an element that was already counted as a
+    // heading; querySelectorAll returns ancestors before descendants, so the
+    // outer element is always the one that's kept.
+    if (isInsideAcceptedHeading(element, acceptedHeadingElements)) {
       continue;
     }
     let tagName = element.tagName.toLowerCase();
@@ -130,6 +145,7 @@ export function extractTableOfContents({
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
       element.id = anchor;
+      acceptedHeadingElements.push(element);
       headings.push({
         title: title,
         anchor: anchor,
@@ -178,6 +194,10 @@ export function extractTableOfContents({
     html: document.body.innerHTML,
     sections: headings,
   };
+}
+
+function isInsideAcceptedHeading(element: HTMLElement, acceptedHeadingElements: HTMLElement[]): boolean {
+  return acceptedHeadingElements.some(heading => heading !== element && heading.contains(element));
 }
 
 /**
@@ -241,27 +261,9 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
 export function getTocComments({
   post,
   commentCount,
-}: { post?: PostWithCommentCounts | null; commentCount?: number | undefined } = {}) {
-  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
-}
-
-export function shouldShowTableOfContents({
-  sections,
-  post,
-}: {
-  sections: ToCSection[];
-  post?: { question: boolean } | null;
-}): boolean {
-  
-  if (isLWorAF()) return true;
-
-  // Number of headings below which a table of contents won't be generated.
-  // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
-  // it's empty) to keep the horizontal position of things on the page from
-  // being imbalanced.
-  const minHeadingsForToC = 0;
-
-  return sections.length > minHeadingsForToC || (post?.question ?? false);
+  forumType,
+}: { post?: PostWithCommentCounts | null; commentCount?: number; forumType: ForumTypeString }) {
+  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, forumType, commentCount) }];
 }
 
 /**

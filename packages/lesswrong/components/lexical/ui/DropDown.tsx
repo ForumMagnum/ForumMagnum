@@ -23,7 +23,6 @@ import {createPortal} from 'react-dom';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 import {focusNearestDescendant, isKeyboardInput} from '../utils/focusUtils';
-import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
 

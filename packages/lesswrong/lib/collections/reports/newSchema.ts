@@ -20,12 +20,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      inputType: "String",
       canRead: ["guests"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
     },
   },
   user: {

@@ -13,9 +13,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: ["members"],
-      canCreate: ["members"],
     },
   },
   documentId: {

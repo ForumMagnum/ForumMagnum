@@ -1,4 +1,6 @@
 "use client";
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -118,6 +120,13 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
       opacity: 0.84,
       textDecoration: "none",
     },
+  },
+  listArticleAuthors: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    lineHeight: 1.35,
+    color: theme.palette.text.dim,
+    marginTop: -1,
   },
   listArticleSummaryWrapper: {
     flex: "1 1 0",
@@ -247,7 +256,9 @@ const ProfilePostsQuery = gql(`
   }
   fragment UserProfilePost on Post {
     ...PostsMinimumInfo
-    baseScore postedAt
+    baseScore postedAt hideAuthor
+    user { _id displayName }
+    coauthors { _id displayName }
     contents { plaintextDescription }
   }
 `);
@@ -263,6 +274,22 @@ export type ProfilePageAllPostsTabSettings = z.infer<typeof profilePageAllPostsT
 
 export const defaultProfilePageAllPostsTabSettings: ProfilePageAllPostsTabSettings = {
   sortBy: "new",
+};
+
+const formatAuthorNames = (names: string[]) => {
+  if (names.length <= 2) {
+    return names.join(" and ");
+  }
+
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+};
+
+const getProfilePostAuthorLine = (post: UserProfilePost, forumType: ForumTypeString) => {
+  const primaryAuthorName = (!post.user || post.hideAuthor) ? "Deleted user" : userGetDisplayName(post.user, forumType);
+  const coauthorNames = (post.coauthors ?? []).map(user => userGetDisplayName(user, forumType)).filter(Boolean);
+  const authorNames = [primaryAuthorName, ...coauthorNames].filter(Boolean);
+
+  return formatAuthorNames(authorNames);
 };
 
 export function ProfilePageAllPostsTabSettingsForm({
@@ -325,6 +352,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   user: UsersProfile
   settings: ProfilePageAllPostsTabSettings
 }) {
+  const { forumType } = useForumType();
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
@@ -340,12 +368,12 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
     fetchPolicy: "cache-and-network",
   });
   const recentPosts = recentPostsData?.posts?.results ?? [];
-  const hasPosts = user.postCount > 0;
+  const hasPosts = user.postCount + user.coauthoredPostCount > 0;
 
   return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user, forumType)} has not written or coauthored any posts yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-2.png" alt="" />
         </div>
@@ -355,6 +383,9 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
       const summary = getPostSummary(post);
       const imageUrl = getListPostImageUrl(post);
       const hasListImage = !!imageUrl;
+      const isCoauthoredOnly = post.userId !== userId && post.coauthorUserIds.includes(userId);
+      const authorLine = isCoauthoredOnly ? getProfilePostAuthorLine(post, forumType) : null;
+
       return (
         <article key={post._id} className={classes.listArticle}>
           <Link
@@ -367,6 +398,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
                   <h3 className={classes.listArticleTitle}>
                     <span className={classes.listArticleTitleText}>{post.title}</span>
                   </h3>
+                  {authorLine && <div className={classes.listArticleAuthors}>by {authorLine}</div>}
                   {summary && (
                     <div className={classNames(
                       classes.listArticleSummaryWrapper,

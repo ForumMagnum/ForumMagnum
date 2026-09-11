@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/reviewWinnerSections';
+import { CoordinateInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/reviewWinnerSections';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -13,9 +13,8 @@ import range from 'lodash/range';
 import { useCurrentUser } from '../common/withUser';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
-import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, PredictedReviewYear, publishedReviewYears, predictedReviewYears } from '@/lib/reviewUtils';
+import { ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, PredictedReviewYear, publishedReviewYears, predictedReviewYears } from '@/lib/reviewUtils';
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";

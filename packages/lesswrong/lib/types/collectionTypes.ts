@@ -6,11 +6,12 @@
  * --skipLibCheck just ignores all .d.ts files.
  */
 import type DataLoader from 'dataloader';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 import type { CollectionVoteOptions } from '../make_voteable';
 import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 // These server imports are safe as they use `import type`
 // eslint-disable-next-line import/no-restricted-paths
@@ -102,9 +103,9 @@ interface FindResult<T> {
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
   terms: ViewTermsByCollectionName[N],
-  apolloClient?: ApolloClient,
-  context?: ResolverContext,
-) => ViewQueryAndOptions<N>;
+  apolloClient: ApolloClient | undefined,
+  context: ResolverContext,
+) => ViewQueryAndOptions<N> | Promise<ViewQueryAndOptions<N>>;
 
 
 type ViewQueryAndOptions<
@@ -330,20 +331,12 @@ interface PerfMetric {
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
 
 interface ResolverContext extends CollectionsByName {
+  forumType: ForumTypeString,
   searchParams?: URLSearchParams,
   headers?: Headers,
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,
-
-  /**
-   * Hack to make visitorActivity acceptable to posts-list resolvers, in a
-   * non-async context. If missing from the ResolverContext, this hasn't been
-   * queried; if present and null, it's been queried but there's no activity
-   * data. If present it's the return value of getUserActivity.
-   */
-  visitorActivity?: DbUserActivity|null,
-
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,

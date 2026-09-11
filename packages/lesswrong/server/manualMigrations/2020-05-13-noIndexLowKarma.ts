@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { Posts } from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import moment from 'moment'
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { ForumOptions, forumSelect, forumTypeSetting } from '../../lib/forumTypeUtils';
 
 export const LOW_KARMA_THRESHOLD = 5
 
@@ -13,7 +13,7 @@ const launchDateByForum: ForumOptions<string> = {
   EAForum: '2014-09-10',
   default: "ahhhhh",
 }
-const launchDate = () => forumSelect(launchDateByForum)
+const launchDate = () => forumSelect(launchDateByForum, forumTypeSetting.get())
 
 export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbPost> {
   return {

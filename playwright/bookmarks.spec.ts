@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { createNewPost, loginNewUser } from "./playwrightUtils";
 
 test("bookmark a post and view it on bookmarks page", async ({ page, context }) => {
+  await page.goto("/");
   await loginNewUser(context);
 
   const post = await createNewPost();

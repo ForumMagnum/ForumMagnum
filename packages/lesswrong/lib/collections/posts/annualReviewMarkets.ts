@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
 import { getWithCustomLoader, loadByIds } from "../../loaders";
@@ -72,8 +73,8 @@ export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefin
   }
 }
 
-export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boolean =>
-  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
+export const highlightMarket = (info: AnnualReviewMarketInfo | undefined, forumType: ForumTypeString): boolean =>
+  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get(forumType)
 
 
 export const postGetMarketInfoFromManifold = async (marketId: string, year: number): Promise<AnnualReviewMarketInfo | null > => {
@@ -104,16 +105,36 @@ export const postGetMarketInfoFromManifold = async (marketId: string, year: numb
 
   const fullMarket = await result.json()
 
+  // Reject any url that doesn't point at manifold.markets over HTTPS. The url
+  // is rendered as a link and may be passed to other consumers; enforcing
+  // shape here guards every consumer regardless of how it's rendered.
+  let url: string | undefined;
+  if (typeof fullMarket.url === "string") {
+    try {
+      const parsed = new URL(fullMarket.url);
+      const isManifoldHost = parsed.hostname === "manifold.markets"
+        || parsed.hostname.endsWith(".manifold.markets");
+      if (parsed.protocol === "https:" && isManifoldHost) {
+        url = fullMarket.url;
+      }
+    } catch {
+      // Invalid URL — fall through to the rejection below.
+    }
+  }
+  if (!url) {
+    return null;
+  }
+
   return {
     probability: fullMarket.probability,
     isResolved: fullMarket.isResolved,
     year,
-    url: fullMarket.url,
+    url,
   }
 }
 
-export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
-  const manifoldAPIKey = manifoldAPIKeySetting.get()
+export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string, forumType: ForumTypeString): Promise<LiteMarket | undefined> => {
+  const manifoldAPIKey = manifoldAPIKeySetting.get(forumType)
 
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");

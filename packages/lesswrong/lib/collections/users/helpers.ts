@@ -1,7 +1,6 @@
-import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { newUserIconKarmaThresholdSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
-import type { PermissionResult } from '../../make_voteable';
+import { userOwns, userCanDo, userIsAdmin, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
@@ -15,22 +14,39 @@ export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0
 
 export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 export interface PermissionsPostMinimumInfo {
-  shortform: boolean,
+  shortform?: boolean | null,
   user?: PostsAuthors['user'],
   userId: string | null,
-  rejected: boolean | null,
-  commentsLocked: boolean | null,
-  commentsLockedToAccountsCreatedAfter: Date | string | null,
-  bannedUserIds: string[] | null,
-  frontpageDate: Date | string | null,
+  rejected?: boolean | null,
+  commentsLocked?: boolean | null,
+  commentsLockedToAccountsCreatedAfter?: Date | string | null,
+  bannedUserIds?: string[] | null,
+  frontpageDate?: Date | string | null,
+}
+
+type PostModerationAuthor = PermissionableUser & {
+  bannedUserIds?: string[] | null,
+  bannedPersonalUserIds?: string[] | null,
+};
+
+export type AuthorCommentBanReason = "post" | "allPosts" | "allPersonalPosts";
+
+export const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): string => {
+  switch (reason) {
+    case "allPersonalPosts":
+      return "This post's author has blocked you from commenting on any of their personal blog posts.";
+    case "post":
+    case "allPosts":
+      return "This post's author has blocked you from commenting.";
+  }
 }
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null, forumType: ForumTypeString): string => {
   if (!user) {
     return "";
   } else {
-    return (isAF()
+    return (forumType === 'AlignmentForum'
       ? (user.fullName || user.displayName) ?? ""
       : (user.displayName || getUserName(user)) ?? ""
     ).trim();
@@ -56,23 +72,16 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
 /**
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
-export const isNewUser = (user: UsersMinimumInfo): boolean => {
+export const isNewUser = (user: UsersMinimumInfo, forumType: ForumTypeString): boolean => {
   const oneYearInMs = 365*24*60*60*1000;
   const oneWeekInMs = 7*24*60*60*1000;
   const userCreatedAt = new Date(user.createdAt);
 
-  const karmaThreshold = newUserIconKarmaThresholdSetting.get()
+  const karmaThreshold = newUserIconKarmaThresholdSetting.get(forumType)
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 
-  // For the EA forum, return true if either:
-  // 1. the user is below the karma threshold, or
-  // 2. the user was created less than a week ago
-  if (isEAForum()) {
-    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
-  }
-
-  // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
+  // Only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
     return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
   }
@@ -207,7 +216,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
     post.bannedUserIds?.includes(user._id) &&
@@ -223,27 +232,37 @@ export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: Permiss
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   return !!(
-    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
-    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own') &&
     postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   return !!(
-    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
-    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own.personal') &&
     postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PermissionableUser|DbUser|null, isReply: boolean): boolean => {
+export const getAuthorCommentBanReason = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null): AuthorCommentBanReason | null => {
+  if (!post) return null;
+  if (userIsBannedFromPost(user, post, postAuthor)) {
+    return "post";
+  }
+  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
+    return "allPosts";
+  }
+  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+    return "allPersonalPosts";
+  }
+  return null;
+}
+
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
@@ -271,15 +290,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Per
       return false
     }
   
-    if (userIsBannedFromPost(user, post, postAuthor)) {
-      return false
-    }
-  
-    if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-      return false
-    }
-  
-    if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+    if (getAuthorCommentBanReason(user, post, postAuthor)) {
       return false
     }
   }
@@ -312,33 +323,47 @@ export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null): string => {
   if (!user) return "";
   
   if (user.slug) {
-    return userGetProfileUrlFromSlug(user.slug, isAbsolute);
+    return userGetProfileUrlFromSlug(user.slug);
   } else {
     return "";
   }
 }
 
-export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
+export const userGetProfileUrlFromSlug = (userSlug: string): string => {
   if (!userSlug) return "";
   
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/users/${userSlug}`;
+  return `/users/${userSlug}`;
 }
 
-export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+export const userGetAnalyticsUrl = (user: {slug: string}): string => {
   if (!user) return "";
 
   if (user.slug) {
-    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+    return `${userGetProfileUrlFromSlug(user.slug)}/stats`;
   } else {
     return "";
   }
 }
 
+
+export const userGetAbsoluteProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteProfileUrlFromSlug = (userSlug: string, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetProfileUrlFromSlug(userSlug);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
+
+export const userGetAbsoluteAnalyticsUrl = (user: {slug: string}, forumType: ForumTypeString): string => {
+  const relativeUrl = userGetAnalyticsUrl(user);
+  return relativeUrl ? getSiteUrl(forumType).slice(0, -1) + relativeUrl : "";
+};
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|DbUser|null): boolean => {
   if (!user) {
@@ -353,6 +378,10 @@ export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: Has
   // user objects are safe, but if userOwns allowed them it would make the type
   // checks much less safe.
   return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
+}
+
+export const userCanSeeAdminSettingsTab = (user: UsersCurrent|DbUser|null): boolean => {
+  return userIsAdmin(user) || userIsMemberOf(user, 'realAdmins') || userIsMemberOf(user, 'alignmentForumAdmins');
 }
 
 interface UserLocation {
@@ -382,16 +411,16 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   return {lat: placeholderLat, lng: placeholderLng, known: false}
 }
 
-export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetPostCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afPostCount;
   } else {
     return user.postCount;
   }
 }
 
-export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (isAF()) {
+export const userGetCommentCount = (user: UsersMinimumInfo|DbUser, forumType: ForumTypeString): number => {
+  if (forumType === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
     return user.commentCount;
@@ -403,10 +432,10 @@ export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
 }
 
 const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
-export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+export const requireNewUserGuidelinesAck = (user: UsersCurrent, forumType: ForumTypeString) => {
   if (isE2E) return false;
   
-  if (!isLW()) return false;
+  if (forumType !== 'LessWrong') return false;
 
   const userCreatedAfterCutoff = user.createdAt
     ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
@@ -461,7 +490,7 @@ export const socialMediaSiteNameToHref = (
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
-  const shortformName = isEAForum() ? "Quick takes" : "Shortform";
+  const shortformName = "Shortform";
 
   // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');

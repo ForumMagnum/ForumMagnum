@@ -35,7 +35,7 @@ const styles = defineStyles('NotifyMeButton', (theme: ThemeType) => ({
   },
 }))
 
-const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, subscribeMessage, unsubscribeMessage, tooltip, asMenuItem = false, className="", showIcon, hideLabel = false, hideLabelOnMobile = false, hideIfNotificationsDisabled = false, hideForLoggedOutUsers = false, hideFlashes = false, asButton = false, componentIfSubscribed}: {
+const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, subscribeMessage, unsubscribeMessage, tooltip, asMenuItem = false, className="", showIcon, hideLabel = false, hideLabelOnMobile = false, hideIfNotificationsDisabled = false, hideForLoggedOutUsers = false, hideFlashes = false, asButton = false, componentIfSubscribed, optimisticIsSubscribed}: {
   document: AnyBecauseTodo,
   subscriptionType?: SubscriptionType,
   subscribeMessage?: string,
@@ -54,6 +54,8 @@ const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, s
   asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: React.JSX.Element,
+  /** Used as the value of isSubscribed while the subscription state query is loading */
+  optimisticIsSubscribed?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {loading, disabled, isSubscribed, onSubscribe} = useNotifyMe({
@@ -62,6 +64,7 @@ const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, s
     hideIfNotificationsDisabled,
     hideForLoggedOutUsers,
     hideFlashes,
+    optimisticIsSubscribed,
   });
 
   if (disabled) {

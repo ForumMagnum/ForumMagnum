@@ -8,23 +8,30 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles('SubscribedItem', (theme: ThemeType) => ({
   root: {
-    marginLeft: -6,
     display: "flex",
-    padding: 6,
-    borderRadius: 3,
-    ...theme.typography.commentStyle,
+    alignItems: "center",
+    padding: '6px 8px',
+    marginLeft: -8,
+    borderRadius: 4,
+    fontSize: 14,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[800],
     '&:hover': {
-      backgroundColor: theme.palette.grey[200],
+      background: theme.palette.greyAlpha(0.04),
     },
   },
   description: {
     marginLeft: 8,
     fontWeight: 500,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   unsubscribeButton: {
     minWidth: 83,
-    opacity: 0.7,
-    wordBreak: "keep-all"
+    opacity: 0.6,
+    fontSize: 12,
   },
 }));
 
@@ -33,14 +40,16 @@ export default function SubscribedItem<TQuery, TExtractResult>({
   subscription,
   renderDocument,
   extractDocument,
+  readOnly,
 }: {
   query: TypedDocumentNode<TQuery, { documentId: string }>,
   subscription: SubscriptionState,
   renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
   extractDocument: (data: TQuery) => TExtractResult,
+  readOnly: boolean,
 }) {
   const classes = useStyles(styles);
-  
+
   const { data: fetchedResult, loading } = useQuery(query, {
     variables: {
       documentId: subscription.documentId ?? "",
@@ -60,13 +69,14 @@ export default function SubscribedItem<TQuery, TExtractResult>({
 
   return (
     <div className={classes.root}>
-      <NotifyMeButton
+      {!readOnly && <NotifyMeButton
         document={document}
         subscriptionType={(subscription.type ?? undefined) as SubscriptionType | undefined}
         subscribeMessage="Resubscribe"
         unsubscribeMessage="Unsubscribe"
         className={classes.unsubscribeButton}
-      />
+        optimisticIsSubscribed={subscription.state === "subscribed"}
+      />}
       <div className={classes.description}>
         {renderDocument(document)}
       </div>

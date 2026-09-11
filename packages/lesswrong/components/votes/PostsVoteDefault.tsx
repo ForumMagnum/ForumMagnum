@@ -1,7 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -20,6 +20,23 @@ const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
     flexDirection: 'row-reverse',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  voteBlockFooter: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 2,
+    // Inline line boxes differ between browsers; size these rows to the arrows.
+    '& $upvote, & $downvote': {
+      display: 'flex',
+      margin: 0,
+    },
+    '& $downvote': {
+      marginTop: -3,
+    },
+    '& $voteScores': {
+      margin: 0,
+    },
   },
   upvote: {
     marginBottom: -21
@@ -88,6 +105,7 @@ const PostsVoteDefault = ({
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
@@ -103,6 +121,7 @@ const PostsVoteDefault = ({
     <div className={classNames({
       [classes.voteBlock]: !useHorizontalLayout,
       [classes.voteBlockHorizontal]: useHorizontalLayout,
+      [classes.voteBlockFooter]: isFooter && !useHorizontalLayout,
     })}>
       <TooltipRef
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
@@ -142,7 +161,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF() &&
+        {!!post.af && !!post.afBaseScore && !isAF &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}
@@ -181,5 +200,3 @@ const PostsVoteDefault = ({
 }
 
 export default PostsVoteDefault;
-
-

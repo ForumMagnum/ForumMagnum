@@ -1,9 +1,10 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { MouseEvent, useContext } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 
-import { Paper, Card }from '@/components/widgets/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
@@ -15,7 +16,6 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -30,6 +30,8 @@ import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovCo
 import dynamic from 'next/dynamic';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
@@ -101,12 +103,14 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
 }))
 
 const UsersMenu = () => {
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
+  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -119,11 +123,14 @@ const UsersMenu = () => {
     </div>
   }
   
-  const showNewButtons = (!isAF() || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
+  const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
+    ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
+    : null;
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
-    {userGetDisplayName(currentUser)}
+    {userGetDisplayName(currentUser, forumType)}
     {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
       <div>Your account has been deactivated:</div>
       <ul>
@@ -133,10 +140,10 @@ const UsersMenu = () => {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
-  /** Prevent navigation to your profile on mobile, where the only way to open
+  /** Prevent navigation to your dashboard on mobile, where the only way to open
    * the menu is to click the button */
   const menuButtonOnClick = (ev: MouseEvent) => {
     if (isMobile()) {
@@ -149,7 +156,7 @@ const UsersMenu = () => {
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={userGetProfileUrl(currentUser)}>
+      <Link to="/account">
         <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
@@ -171,7 +178,7 @@ const UsersMenu = () => {
               }}
             >
               <div onClick={(ev) => {
-                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+                if (afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)) {
                   ev.preventDefault()
                 }
               }}>
@@ -195,7 +202,7 @@ const UsersMenu = () => {
                   to="/newPost"
                 /> : null}
 
-                {tagUserHasSufficientKarma(currentUser, "new") ? (
+                {tagUserHasSufficientKarma(currentUser, "new", forumType) ? (
                   <NewWikiTagMenu>
                     <DropdownItem
                       title={`New Wikitag`}
@@ -211,7 +218,7 @@ const UsersMenu = () => {
 
               <DropdownDivider />
 
-              {isAF() && !isAfMember &&
+              {isAF && !isAfMember &&
                 <DropdownItem
                   title={"Apply for Membership"}
                   onClick={() => {
@@ -274,7 +281,7 @@ const UsersMenu = () => {
               />}
               <DropdownItem
                 title="Account Settings"
-                to="/account"
+                to="/account?tab=settings-account"
                 icon="Settings"
                 iconClassName={classes.icon}
               />

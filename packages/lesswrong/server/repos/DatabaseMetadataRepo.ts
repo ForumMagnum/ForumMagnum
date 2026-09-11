@@ -10,18 +10,6 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     super(DatabaseMetadata);
   }
 
-  private getByName(name: string): Promise<DbDatabaseMetadata | null> {
-    // We use getRawDb here as this may be executed during server startup
-    // before the collection is properly initialized
-    return this.getRawDb().oneOrNone(`
-      -- DatabaseMetadataRepo.getByName
-      SELECT * from "DatabaseMetadata" WHERE "name" = $1
-    `,
-      [name],
-      `DatabaseMetadata.${name}`,
-    );
-  }
-  
   async getByNames(names: string[]): Promise<Array<DbDatabaseMetadata|null>> {
     const results = (await this.any(`
       -- DatabaseMetadataRepo.getByName
@@ -87,18 +75,6 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       WHERE "name" = $2
     `, [userId, metadataName]);
     return this.getGivingSeasonHearts(electionName);
-  }
-
-  getServerSettings(): Promise<DbDatabaseMetadata | null> {
-    return this.getByName("serverSettings");
-  }
-
-  getPublicSettings(): Promise<DbDatabaseMetadata | null> {
-    return this.getByName("publicSettings");
-  }
-
-  getDatabaseId(): Promise<DbDatabaseMetadata | null> {
-    return this.getByName("databaseId");
   }
 
   upsertKarmaInflationSeries(karmaInflationSeries: TimeSeries): Promise<null> {

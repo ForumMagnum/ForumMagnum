@@ -147,6 +147,40 @@ describe("convertImportedGoogleDoc", () => {
     expect(htmlOutput).not.toContain('<div class="footnote-content" data-footnote-content=""><p><span>First paragraph</span></p><p><span></span></p><p><span>Second paragraph</span></p></div>');
   });
 
+  it("preserves nested lists inside footnotes without duplicating items", async () => {
+    // The third footnote in the source Google Doc uses Google Docs' CSS-based nested-list
+    // representation: two adjacent <ul>s, one at indent level 0 and one at level 1.
+    // A previous bug flattened these to <p>s and duplicated each <p> once per list.
+    const htmlInput = `
+      <html>
+        <body>
+          <p><span>Body</span><sup><a href="#ftnt1" id="ftnt_ref1">[1]</a></sup></p>
+          <hr />
+          <div>
+            <p><a href="#ftnt_ref1" id="ftnt1">[1]</a><span>&nbsp;Lead-in:</span></p>
+            <ul class="lst-kix_abc-0 start"><li><span>Top A</span></li><li><span>Top B</span></li></ul>
+            <ul class="lst-kix_abc-1 start"><li><span>Sub A</span></li><li><span>Sub B</span></li></ul>
+          </div>
+        </body>
+      </html>
+    `;
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+
+    const htmlOutput = await convertImportedGoogleDoc({ zipBuffer, postId: 'dummy' });
+
+    // The footnote content should contain the items exactly once each
+    expect(htmlOutput.match(/<span>Top A<\/span>/g) ?? []).toHaveLength(1);
+    expect(htmlOutput.match(/<span>Top B<\/span>/g) ?? []).toHaveLength(1);
+    expect(htmlOutput.match(/<span>Sub A<\/span>/g) ?? []).toHaveLength(1);
+    expect(htmlOutput.match(/<span>Sub B<\/span>/g) ?? []).toHaveLength(1);
+
+    // The list structure should be preserved (with the second ul nested inside the last <li> of the first)
+    expect(htmlOutput).toContain('class="footnote-content" data-footnote-content');
+    expect(htmlOutput).toMatch(/<ul><li><span>Top A<\/span><\/li><li><span>Top B<\/span><ul><li><span>Sub A<\/span><\/li><li><span>Sub B<\/span><\/li><\/ul><\/li><\/ul>/);
+  });
+
   it("collapses each run of blank Google Docs spacer paragraphs by one", async () => {
     const htmlInput = `
       <html>

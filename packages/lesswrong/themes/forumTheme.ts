@@ -1,27 +1,11 @@
 import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
 import { getUserTheme } from './userThemes/index';
-import { getSiteTheme } from './siteThemes/index';
+import { getSiteTheme } from './siteThemes';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import { forumSelect } from '../lib/forumTypeUtils';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
-export type SiteUIStyle = "book" | "friendly";
-
-/**
- * Is this Forum a muted, dignified book-like experience, or a modern, friendly
- * site with more rounded corners?
- *
- * There are some decisions like "what do you call bookmarked posts" that also
- * hinge on this setting, making a bit like a, "which tribe are you" question,
- * in addition to controlling the basic UI style.
- */
-const getSiteUIStyle = (): SiteUIStyle => forumSelect<SiteUIStyle>({
-  LWAF: "book",
-  EAForum: "friendly",
-  default: "friendly",
-})
 export const isBookUI = () => true
 export const isFriendlyUI = () => false
 
@@ -32,8 +16,8 @@ const themeCache = new Map<string,ThemeType>();
 // important that, given the same theme options, this always return something
 // reference-equal to other versions with the same theme options, or else there
 // will be a memory leak on every pageload.
-export const getForumTheme = (themeOptions: ThemeOptions): ThemeType => {
-  const forumType = getForumType(themeOptions);
+export const getForumTheme = (themeOptions: ThemeOptions, requestForumType: ForumTypeString): ThemeType => {
+  const forumType = getForumType(themeOptions, requestForumType);
   const themeCacheKey = `${forumType}/${themeOptions.name}`;
   
   if (!themeCache.has(themeCacheKey)) {
@@ -54,13 +38,13 @@ const buildTheme = (
 ): ThemeType => {
   const dark = userTheme.dark ?? false;
 
-  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(dark);
+  let componentPalette: ThemePalette = baseTheme.componentPalette(dark, forumType);
   if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
   if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
 
   const palette: ThemePalette = componentPalette;
   
-  let combinedTheme = baseTheme.make(palette);
+  let combinedTheme = baseTheme.make(palette, forumType);
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   

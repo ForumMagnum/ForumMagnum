@@ -15,6 +15,7 @@ import MoveToAnswersDropdownItem from "./MoveToAnswersDropdownItem";
 import ToggleIsModeratorCommentDropdownItem from "./ToggleIsModeratorCommentDropdownItem";
 import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
+import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
 import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
@@ -64,6 +65,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}
       <ReportCommentDropdownItem comment={comment} post={post} />
+      {comment.postId && <CopyMarkdownDropdownItem path={`/api/post/${comment.postId}/comments/${comment._id}`} />}
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
 

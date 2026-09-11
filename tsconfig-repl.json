@@ -3,7 +3,25 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "*": ["./*"],
+      "@/lib/generated/*": ["./packages/lesswrong/stubs/generated/*"],
+      "@/client/*": ["./packages/lesswrong/stubs/client/*"],
+      "@/*": ["./packages/lesswrong/*"],
+      "@lexical/react": ["./packages/lesswrong/lib/vendor/lexical-react"],
+      "@lexical/react/*": ["./packages/lesswrong/lib/vendor/lexical-react/*"],
+      "@lexical/yjs": ["./packages/lesswrong/lib/vendor/lexical-yjs"],
+      "@lexical/yjs/*": ["./packages/lesswrong/lib/vendor/lexical-yjs/*"],
+      "shared/invariant": ["./packages/lesswrong/lib/vendor/lexical-shared/invariant"],
+      "shared/simpleDiffWithCursor": ["./packages/lesswrong/lib/vendor/lexical-shared/simpleDiffWithCursor"],
+      "shared/warnOnlyOnce": ["./packages/lesswrong/lib/vendor/lexical-shared/warnOnlyOnce"],
+      "shared/reactPatches": ["./packages/lesswrong/lib/vendor/lexical-shared/reactPatches"],
+      "shared/useLayoutEffect": ["./packages/lesswrong/lib/vendor/lexical-shared/useLayoutEffect"],
+      "shared/canUseDOM": ["./packages/lesswrong/lib/vendor/lexical-shared/canUseDOM"],
+      "shared/environment": ["./packages/lesswrong/lib/vendor/lexical-shared/environment"],
+      "shared/devInvariant": ["./packages/lesswrong/lib/vendor/lexical-shared/devInvariant"]
+    }
   },
   "ts-node": {
     "transpileOnly": true

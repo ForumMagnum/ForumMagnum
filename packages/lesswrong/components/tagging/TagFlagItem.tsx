@@ -39,7 +39,7 @@ const styles = defineStyles('TagFlagItem', (theme: ThemeType) => ({
     padding: 4,
     margin: 4,
     borderRadius: 5,
-    backgroundColor: theme.palette.panelBackground.tenPercent,
+    backgroundColor: theme.palette.greyAlpha(.1),
     display: 'inline-block'
   },
   black: {

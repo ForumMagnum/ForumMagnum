@@ -55,8 +55,8 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return user && {
         type: documentType,
         document: user,
-        displayName: userGetDisplayName(user),
-        associatedUserName: userGetDisplayName(user),
+        displayName: userGetDisplayName(user, context.forumType),
+        associatedUserName: userGetDisplayName(user, context.forumType),
       };
     case 'message':
       const message = await Messages.findOne(documentId);
@@ -68,7 +68,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: message,
         displayName: conversation?.title ?? undefined,
-        associatedUserName: userGetDisplayName(author),
+        associatedUserName: userGetDisplayName(author, context.forumType),
       };
     case 'localgroup':
       const localgroup = await Localgroups.findOne(documentId);
@@ -97,6 +97,10 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
     case 'dialogueCheck':
       return null;
     case 'dialogueMatchPreference':
+      return null;
+    case 'typoSuggestion':
+      return null;
+    case 'researchDocument':
       return null;
     default:
       //eslint-disable-next-line no-console

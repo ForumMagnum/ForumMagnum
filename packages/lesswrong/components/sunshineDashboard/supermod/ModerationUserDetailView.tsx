@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
@@ -7,6 +7,8 @@ import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
+import type { SelectedSidebarTab } from './sidebarTabs';
+import { getModerationContentItems, isMapPin } from './helpers';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -24,6 +26,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     borderRight: theme.palette.border.normal,
     display: 'flex',
     flexDirection: 'column',
+    height: 'calc(100vh - 64px)',
   },
   contentListColumn: {
     minWidth: 0,
@@ -35,9 +38,11 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     height: 'calc(100vh - 64px)',
     ...prettyScrollbars(theme),
   },
+  // Sits flush against the bottom of the column, taking only the height its
+  // contents need, so the rest goes to the user info above it.
   undoQueueColumn: {
     marginTop: 'auto',
-    marginBottom: 50
+    flexShrink: 0,
   }
 }));
 
@@ -47,6 +52,8 @@ const ModerationUserDetailView = ({
   comments,
   focusedContentIndex,
   runningLlmCheckId,
+  sidebarTab,
+  addToUndoQueue,
   dispatch,
   state,
   currentUser,
@@ -56,20 +63,29 @@ const ModerationUserDetailView = ({
   comments: SunshineCommentsList[];
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
+  sidebarTab: SelectedSidebarTab;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
 
-  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
-    new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-  ), [posts, comments]);
+  const setSidebarTab = useCallback(
+    (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
+    [dispatch]
+  );
 
-  const focusedContent = useMemo(() => 
+  const allContent = useMemo(
+    () => getModerationContentItems(user, posts, comments),
+    [user, posts, comments],
+  );
+
+  const focusedItem = useMemo(() =>
     allContent[focusedContentIndex] || null,
     [allContent, focusedContentIndex]
   );
+  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
 
   return (
     <div className={classes.root}>
@@ -80,11 +96,11 @@ const ModerationUserDetailView = ({
             posts={posts}
             comments={comments}
             currentUser={currentUser}
+            dispatch={dispatch}
           />
           <div className={classes.undoQueueColumn}>
             <ModerationUndoHistory
               undoQueue={state.undoQueue}
-              history={state.history}
               dispatch={dispatch}
             />
           </div>
@@ -92,14 +108,14 @@ const ModerationUserDetailView = ({
         <div className={classes.contentListColumn}>
           <ModerationContentList
             items={allContent}
-            title="Posts & Comments"
+            title="Content"
             focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             runningLlmCheckId={runningLlmCheckId}
             dispatch={dispatch}
           />
         </div>
         <div className={classes.contentListColumn}>
-          <ModerationContentDetail item={focusedContent} />
+          <ModerationContentDetail item={focusedItem} />
         </div>
         <div className={classes.sidebarColumn}>
           <ModerationSidebar
@@ -107,6 +123,10 @@ const ModerationUserDetailView = ({
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
+            addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
           />
         </div>

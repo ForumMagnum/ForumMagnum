@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from "next/server";
 import { GraphQLError, type GraphQLFormattedError, graphql } from "graphql";
 import { inspect } from "util";
@@ -21,7 +22,8 @@ type GraphqlHttpRequestBody = {
 };
 
 function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
+  const forumType = getForumTypeForRequest(request);
+  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get(forumType);
   if (!fmCrosspostBaseUrl) {
     return false;
   }
@@ -212,11 +214,12 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
 }
 
 async function sharedHandler(request: NextRequest) {
-  if (!performanceMetricLoggingEnabled.get()) {
-    const res = await graphqlStreamingHandler(request);
+  const forumType = getForumTypeForRequest(request);
+  if (!performanceMetricLoggingEnabled.get(forumType)) {
+    const res = await asyncLocalStorage.run({ forumType }, () => graphqlStreamingHandler(request));
 
     if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
     return res;
   }
@@ -229,7 +232,7 @@ async function sharedHandler(request: NextRequest) {
     user_agent: request.headers.get("user-agent") ?? undefined,
   });
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, forumType }, async () => {
     let res: Response;
     try {
       res = await graphqlStreamingHandler(request, {
@@ -248,7 +251,7 @@ async function sharedHandler(request: NextRequest) {
     }
 
     if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
 
     return res;
@@ -272,5 +275,4 @@ export async function POST(request: NextRequest) {
 export function OPTIONS(request: NextRequest) {
   return crosspostOptionsHandler(request);
 }
-
 

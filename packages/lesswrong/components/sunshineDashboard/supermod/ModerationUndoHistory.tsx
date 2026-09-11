@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { UndoHistoryItem, InboxAction, HistoryItem } from './inboxReducer';
+import type { UndoHistoryItem, InboxAction } from './inboxReducer';
 import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { UNDO_QUEUE_DURATION } from './constants';
@@ -12,7 +12,6 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 20,
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -20,6 +19,9 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   },
   section: {
     marginBottom: 16,
+    '&:last-child': {
+      marginBottom: 0,
+    },
   },
   sectionTitle: {
     fontSize: 12,
@@ -29,8 +31,27 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     marginBottom: 8,
     letterSpacing: '0.5px',
   },
+  sectionTitleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  markAllDone: {
+    fontSize: 11,
+    fontWeight: 400,
+    color: theme.palette.grey[500],
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
   item: {
     marginBottom: 8,
+    '&:last-child': {
+      marginBottom: 0,
+    },
     borderRadius: 4,
     border: theme.palette.border.faint,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
@@ -90,9 +111,6 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     minWidth: 20,
   },
-  historyItem: {
-    opacity: 0.6,
-  },
   empty: {
     color: theme.palette.grey[500],
     fontSize: 12,
@@ -144,11 +162,9 @@ const TimeRemaining = ({ expiresAt }: { expiresAt: number }) => {
 
 const ModerationUndoHistory = ({
   undoQueue,
-  history,
   dispatch,
 }: {
   undoQueue: UndoHistoryItem[];
-  history: HistoryItem[];
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
@@ -176,10 +192,26 @@ const ModerationUndoHistory = ({
     dispatch({ type: 'UNDO_ACTION', userId });
   };
 
+  const handleMarkAllDone = () => {
+    for (const item of undoQueue) {
+      // Cancel the pending expiration timeout so the action doesn't run twice
+      clearTimeout(item.timeoutId);
+      dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: item.user._id });
+      void item.executeAction();
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Undo Queue</div>
+        <div className={classes.sectionTitleRow}>
+          <div className={classes.sectionTitle}>Undo Queue</div>
+          {undoQueue.length > 0 && (
+            <div className={classes.markAllDone} onClick={handleMarkAllDone}>
+              Mark all done
+            </div>
+          )}
+        </div>
         {undoQueue.length === 0 ? (
           <div className={classes.empty}>No pending actions</div>
         ) : (
@@ -198,24 +230,6 @@ const ModerationUndoHistory = ({
                 <div className={classes.itemRight}>
                   <TimeRemaining expiresAt={item.expiresAt} />
                   {index === 0 && <KeystrokeDisplay keystroke="Ctrl+Z" />}
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>History</div>
-        {history.length === 0 ? (
-          <div className={classes.empty}>No history</div>
-        ) : (
-          history.slice(-5).reverse().map((item) => (
-            <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
-              <div className={classes.itemContent}>
-                <div className={classes.itemLeft}>
-                  <span className={classes.userName}>{item.user.displayName}</span>
-                  <span className={classes.actionLabel}>{item.actionLabel}</span>
                 </div>
               </div>
             </div>

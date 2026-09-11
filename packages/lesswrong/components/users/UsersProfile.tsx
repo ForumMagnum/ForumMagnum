@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -12,7 +13,7 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -42,7 +43,6 @@ import SectionTitle from "../common/SectionTitle";
 import SequencesNewButton from "../sequences/SequencesNewButton";
 import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
-import DialogGroup from "../common/DialogGroup";
 import SettingsButton from "../icons/SettingsButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
@@ -163,6 +163,7 @@ const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
 }) => {
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -187,7 +188,7 @@ const UsersProfileFn = ({terms, slug}: {
   const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (isAF()) {
+    if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -208,19 +209,19 @@ const UsersProfileFn = ({terms, slug}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = !isAF() ? postCount || 0 : afPostCount || 0
-    const userCommentCount = !isAF() ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { !isAF() && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
           <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Karma">
             {userKarma}
           </MetaInfo>
         </TooltipSpan>}
 
-        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF()) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
           <OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Alignment Karma">
             {userAfKarma}
@@ -307,17 +308,17 @@ const UsersProfileFn = ({terms, slug}: {
     postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
     
 
-    const username = userGetDisplayName(user)
-    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+    const username = userGetDisplayName(user, forumType)
+    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get(forumType)} — ${taglineSetting.get(forumType)}`
     
-    const nonAFMember = (isAF() && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
     const showMessageButton = currentUser?._id !== user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <StatusCodeSetter status={200}/>
-        <StructuredData generate={() => getUserStructuredData(user)}/>
+        <StructuredData generate={() => getUserStructuredData(user, forumType)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
@@ -339,7 +340,7 @@ const UsersProfileFn = ({terms, slug}: {
                 </div>
               }
               { currentUser?.isAdmin && <NewFeedButton user={user} /> }
-              { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+              { currentUser && currentUser._id === user._id && <Link to="/account?tab=subscriptions">
                 Manage Subscriptions
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
@@ -370,7 +371,7 @@ const UsersProfileFn = ({terms, slug}: {
             </Typography>
 
             {user.htmlBio && <ContentStyles contentType="post">
-              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get()}/>
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get(forumType)}/>
             </ContentStyles>}
           </SingleColumnSection>
 
@@ -395,7 +396,7 @@ const UsersProfileFn = ({terms, slug}: {
               <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
               <CommentsDraftList userId={user._id} initialLimit={5} sectionTitleStyle />
             </AnalyticsContext>
-            {hasEventsSetting.get() && <LocalGroupsList
+            {hasEventsSetting.get(forumType) && <LocalGroupsList
               view='userInactiveGroups'
               terms={{userId: currentUser?._id}}
               showNoResults={false}

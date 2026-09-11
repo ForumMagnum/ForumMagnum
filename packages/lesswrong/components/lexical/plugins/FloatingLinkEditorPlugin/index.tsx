@@ -31,7 +31,7 @@ import {
   LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
+import {Dispatch, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 
 import {createPortal} from 'react-dom';
 
@@ -43,8 +43,8 @@ import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggesti
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
-import { CloseIcon } from '../../icons/CloseIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import classNames from 'classnames';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -81,19 +81,45 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
       verticalAlign: '-0.25em',
     },
   },
-  linkInput: {
-    display: 'block',
-    width: 'calc(100% - 24px)',
+  // A labelled input row: the pill that used to be the <input> itself is now a
+  // <label> wrapping a persistent field name and a borderless input, so the
+  // name stays visible once the field has content. Clicking anywhere in the
+  // pill focuses the input.
+  fieldRow: {
+    display: 'flex',
+    alignItems: 'center',
     boxSizing: 'border-box',
     margin: '8px 12px',
     padding: '8px 12px',
     borderRadius: 15,
     backgroundColor: theme.palette.grey[200],
-    fontSize: 15,
-    color: theme.palette.grey[700],
+    cursor: 'text',
+  },
+  urlFieldRow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  fieldLabel: {
+    flexShrink: 0,
+    minWidth: 34,
+    marginRight: 8,
+    paddingRight: 8,
+    borderRight: `1px solid ${theme.palette.greyAlpha(0.15)}`,
+    fontSize: 13,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    userSelect: 'none',
+  },
+  linkInput: {
+    flex: 1,
+    minWidth: 0,
+    margin: 0,
+    padding: 0,
     border: 0,
     outline: 0,
-    position: 'relative',
+    backgroundColor: 'transparent',
+    fontSize: 15,
+    color: theme.palette.grey[700],
     fontFamily: 'inherit',
   },
   linkView: {
@@ -141,20 +167,6 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     display: 'flex',
     alignItems: 'center',
   },
-  linkUrlInput: {
-    flex: 1,
-    minWidth: 0,
-    boxSizing: 'border-box',
-    margin: '8px 12px',
-    padding: '8px 12px',
-    borderRadius: 15,
-    backgroundColor: theme.palette.grey[200],
-    fontSize: 15,
-    color: theme.palette.grey[700],
-    border: 0,
-    outline: 0,
-    fontFamily: 'inherit',
-  },
 }));
 
 function preventDefault(
@@ -183,6 +195,12 @@ function FloatingLinkEditor({
   const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Last DOMRect used to position the floating editor. Stored in a ref so we
+  // can re-run positioning when the editor's own height changes (e.g. when
+  // toggling into edit mode, which adds the URL input row) without needing
+  // the Lexical selection to be live -- at that point focus has moved into
+  // our own <input>, so the usual $updateLinkEditor path can't recompute it.
+  const lastTargetRectRef = useRef<DOMRect | null>(null);
   const [linkUrl, setLinkUrl] = useState('');
   const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
@@ -263,6 +281,7 @@ function FloatingLinkEditor({
       }
 
       if (domRect) {
+        lastTargetRectRef.current = domRect;
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
       setLastSelection(selection);
@@ -270,6 +289,7 @@ function FloatingLinkEditor({
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
+      lastTargetRectRef.current = null;
       setLastSelection(null);
       setIsLinkEditMode(false);
       setLinkUrl('');
@@ -344,6 +364,18 @@ function FloatingLinkEditor({
       inputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
+
+  // Toggling into edit mode adds the URL input row, which makes the floating
+  // editor taller. Re-run positioning against the last target rect so the
+  // flip-above logic in setFloatingElemPositionForLinkEditor has a chance to
+  // kick in if the taller editor no longer fits below the link.
+  useLayoutEffect(() => {
+    const editorElem = editorRef.current;
+    const targetRect = lastTargetRectRef.current;
+    if (editorElem && targetRect) {
+      setFloatingElemPositionForLinkEditor(targetRect, editorElem, anchorElem);
+    }
+  }, [isLinkEditMode, anchorElem]);
 
   useEffect(() => {
     const editorElement = editorRef.current;
@@ -453,6 +485,11 @@ function FloatingLinkEditor({
                       children[i].remove();
                     }
                     firstChild.setTextContent(editedLinkText);
+                    // The existing selection may point past the end of the
+                    // newly-shortened text node, which would make Lexical throw
+                    // "$getTextNodeOffset: invalid offset" while reconciling.
+                    // Re-anchor the selection to the rewritten text node.
+                    firstChild.select(editedLinkText.length, editedLinkText.length);
                   }
                 }
               }
@@ -470,28 +507,35 @@ function FloatingLinkEditor({
     <div ref={editorRef} className={classes.linkEditor}>
       {!isLink && !isLinkEditMode ? null : isLinkEditMode ? (
         <div className={classes.editContainer}>
-          <input
-            className={classes.linkInput}
-            placeholder="Link text"
-            value={editedLinkText}
-            onChange={(event) => {
-              setEditedLinkText(event.target.value);
-            }}
-            onKeyDown={handleTextInputKeyDown}
-          />
-          <div className={classes.editUrlRow}>
+          <label className={classes.fieldRow}>
+            <span className={classes.fieldLabel}>Text</span>
             <input
-              ref={inputRef}
-              className={classes.linkUrlInput}
-              placeholder="Link URL"
-              value={editedLinkUrl}
+              className={classes.linkInput}
+              aria-label="Link text"
+              value={editedLinkText}
               onChange={(event) => {
-                setEditedLinkUrl(event.target.value);
+                setEditedLinkText(event.target.value);
               }}
-              onKeyDown={(event) => {
-                monitorInputInteraction(event);
-              }}
+              onKeyDown={handleTextInputKeyDown}
             />
+          </label>
+          <div className={classes.editUrlRow}>
+            <label className={classNames(classes.fieldRow, classes.urlFieldRow)}>
+              <span className={classes.fieldLabel}>URL</span>
+              <input
+                ref={inputRef}
+                className={classes.linkInput}
+                aria-label="Link URL"
+                placeholder="https://example.com"
+                value={editedLinkUrl}
+                onChange={(event) => {
+                  setEditedLinkUrl(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  monitorInputInteraction(event);
+                }}
+              />
+            </label>
             <button
               className={classes.linkAction}
               type="button"

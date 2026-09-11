@@ -1,22 +1,22 @@
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import { Link } from "@/lib/reactRouterWrapper";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState, useRef, useCallback } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditTitle } from "../editor/EditTitle";
 import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useDebouncedFalse } from "../hooks/useDebouncedFalse";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { MultiSelectButtons } from "@/components/form-components/MultiSelectButtons";
-import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -27,8 +27,8 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import MobileEditorBottomBar from "./MobileEditorBottomBar";
+import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
-import { EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { isClient } from "@/lib/executionEnvironment";
 import FormatDate from "../common/FormatDate";
 import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
@@ -414,36 +414,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Like useState<boolean>, but debounces transitions to `false` by `delayMs`.
- * Transitions to `true` are instant and cancel any pending `false` timer.
- */
-function useDebouncedFalse(initialValue: boolean, delayMs: number): [boolean, (value: boolean) => void] {
-  const [value, setValueRaw] = useState(initialValue);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const setValue = useCallback((next: boolean) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (next) {
-      setValueRaw(true);
-    } else {
-      timerRef.current = setTimeout(() => {
-        setValueRaw(false);
-      }, delayMs);
-    }
-  }, [delayMs]);
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
-  return [value, setValue];
-}
-
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
 const SyncTitleToParent = ({ title, onTitleChange }: {
@@ -469,6 +439,7 @@ const PostForm = ({
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string | undefined>(initialData.contents?.originalContents.type);
+  const isAboveMobile = useIsAboveBreakpoint("md", false);
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -740,7 +711,9 @@ const PostForm = ({
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
               by{" "}
-              <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
+              <Link to={userGetProfileUrl(initialData.user ?? currentUser)} className={classes.metaAuthorName}>
+                {initialData.user?.displayName ?? currentUser?.displayName}
+              </Link>
               <form.Field name="coauthorUserIds">
                 {(field) => <>
                   {(field.state.value ?? []).map((userId) => (
@@ -980,18 +953,6 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {!isLWorAF() && <div className={classes.fieldWrapper}>
-          <form.Field name="eventType">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={EVENT_TYPES}
-                label="Event Format"
-              />
-            )}
-          </form.Field>
-        </div>}
-
         <div className={classes.fieldWrapper}>
           <form.Field name="activateRSVPs">
             {(field) => (
@@ -1136,20 +1097,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {isEAForum() && <div className={classes.fieldWrapper}>
-          <form.Field name="eventImageId">
-            {(field) => (
-              <LWTooltip title="Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)" placement="left-start" inlineBlock={false}>
-                <ImageUpload
-                  field={field}
-                  label="Event Image"
-                />
-              </LWTooltip>
-            )}
-          </form.Field>
-        </div>}
-
-        {isLWorAF() && <div className={classes.fieldWrapper}>
+        <div className={classes.fieldWrapper}>
           <form.Field name="types">
             {(field) => (
               <MultiSelectButtons
@@ -1159,7 +1107,7 @@ const PostForm = ({
               />
             )}
           </form.Field>
-        </div>}
+        </div>
       </LegacyFormGroupLayout>}
 
       {canEditMetadata && sidebarPortalTarget && sidebarPanel && createPortal(
@@ -1185,7 +1133,7 @@ const PostForm = ({
           to open it, so this only matters if there aren't already any comments
           and they explicitly want to leave a comment that's not on a quoted segment.
       */}
-      {canEditMetadata && <MobileEditorBottomBar
+      {canEditMetadata && !isAboveMobile && <MobileEditorBottomBar
         form={form}
         initialData={initialData}
         formType={formType}

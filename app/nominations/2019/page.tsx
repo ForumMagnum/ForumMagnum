@@ -7,7 +7,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('2019 Nominations'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('2019 Nominations'));
 }
 
 assertRouteAttributes("/nominations/2019", {

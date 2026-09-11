@@ -1,7 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
 import CommentsNode from "../comments/CommentsNode";
@@ -9,17 +8,20 @@ import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { NoSideItems } from '../contents/SideItems';
 
 const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
+  root: {
+    // Include the expanded comment's margins in the animated height.
+    display: "flow-root",
+  },
   expandedRoot: {
     position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,
-      ...(isLWorAF() ? {
-        paddingTop: 0,
-        // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
-        position: 'relative',
-      } : {}),
+      paddingTop: 0,
+      // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
+      position: 'relative',
 
     },
   },
@@ -35,10 +37,37 @@ const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const heightBeforeExpansionRef = useRef<number|null>(null);
+
+  useLayoutEffect(() => {
+    const element = rootRef.current;
+    const previousHeight = heightBeforeExpansionRef.current;
+    heightBeforeExpansionRef.current = null;
+    if (!expanded || !element || previousHeight === null || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const expandedHeight = element.getBoundingClientRect().height;
+    if (expandedHeight <= previousHeight) {
+      return;
+    }
+
+    const animation = element.animate([
+      { height: `${previousHeight}px`, overflow: 'clip' },
+      { height: `${expandedHeight}px`, overflow: 'clip' },
+    ], { duration: 200, easing: 'ease-out' });
+
+    return () => animation.cancel();
+  }, [expanded]);
+
   const wrappedSetExpanded = useCallback((value: boolean) => {
+    if (value && !expanded) {
+      heightBeforeExpansionRef.current = rootRef.current?.getBoundingClientRect().height ?? null;
+    }
     setExpanded(value);
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
-  }, [captureEvent, setExpanded]);
+  }, [captureEvent, expanded]);
   const CollapsedListItem = isFriendlyUI() ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
@@ -68,10 +97,14 @@ const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
     </div>
   );
 
-  return <>
-    {expandedComment}
-    {collapsedComment}
-  </>;
+  return <div ref={rootRef} className={classes.root}>
+    <NoSideItems when={!expanded}>
+      {expandedComment}
+    </NoSideItems>
+    <NoSideItems>
+      {collapsedComment}
+    </NoSideItems>
+  </div>;
 }
 
 export default QuickTakesListItem;

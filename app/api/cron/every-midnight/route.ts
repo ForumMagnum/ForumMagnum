@@ -1,13 +1,15 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
-import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
 import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
 import PostRecommendationsRepo from '@/server/repos/PostRecommendationsRepo';
 import { expiredRateLimitsReturnToReviewQueue } from '@/server/users/cron';
 import { updateScoreInactiveDocuments } from '@/server/votingCron';
-import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { maybeCreateSeasonalOpenThread } from '@/server/posts/seasonalOpenThreadCron';
 
 export async function GET(request: NextRequest) {
+  const forumType = getForumTypeForRequest(request);
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', { status: 401 });
@@ -18,20 +20,20 @@ export async function GET(request: NextRequest) {
   const postRecommendationsRepo = new PostRecommendationsRepo();
   await postRecommendationsRepo.clearStaleRecommendations();
 
-  await expiredRateLimitsReturnToReviewQueue();
+  await expiredRateLimitsReturnToReviewQueue(forumType);
 
   await updateScoreInactiveDocuments();
 
+  const openThreadResult = await maybeCreateSeasonalOpenThread(new Date(), forumType);
+  if (openThreadResult.status !== "not_due" && openThreadResult.status !== "not_lesswrong") {
+    // eslint-disable-next-line no-console
+    console.log("// Seasonal open thread:", openThreadResult);
+  }
+
   // This one's probably the longest-running, so do it last
-  if (performanceMetricLoggingEnabled.get()) {
+  if (performanceMetricLoggingEnabled.get(forumType)) {
     await pruneOldPerfMetrics();
   }
 
-  // Maintain analytics views (EA Forum only)
-  if (isEAForum()) {
-    // This is a fire-and-forget since the db queries take forever
-    maintainAnalyticsViews();
-  }
-  
   return new Response('OK', { status: 200 });
 }

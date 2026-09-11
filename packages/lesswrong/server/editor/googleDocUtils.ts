@@ -181,14 +181,6 @@ function googleDocConvertFootnotes(html: string): string {
       firstFootnoteSpan.text(firstFootnoteSpan.text().replace(/^[\s\u00A0]+/, ''));
     }
 
-    // Replace bullets in footnotes with regular <p> elements and move them up a level
-    const listParent = footnoteContent.find('li').parent('ul, ol');
-    listParent.children('li').each((_, liElement) => {
-      const liContent = $(liElement).html();
-      $(`<p>${liContent}</p>`).insertBefore(listParent);
-    });
-    listParent.remove();
-
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
 
     const newFootnoteContent = $('<div class="footnote-content" data-footnote-content=""></div>');
@@ -738,9 +730,12 @@ export async function convertImportedGoogleDoc({
     googleDocStripComments,
     googleDocCropImages,
     googleDocTextFormatting,
+    // Nested-bullet conversion runs before footnote conversion so that lists inside
+    // footnotes (which Google Docs emits as a flat sequence of <ul>s indented via CSS)
+    // are collapsed into genuinely nested lists before the footnote converter relocates them.
+    googleDocConvertNestedBullets, // Must come before removeEmptyBodyParagraphs because paragraph breaks are used to determine when to break up a nested list of bullets
     googleDocConvertLinks,
     googleDocRemoveRedirects,
-    googleDocConvertNestedBullets, // Must come before removeEmptyBodyParagraphs because paragraph breaks are used to determine when to break up a nested list of bullets
     removeEmptyBodyParagraphs,
     async (html: string) => await dataToCkEditor(html, "html"),
   ];

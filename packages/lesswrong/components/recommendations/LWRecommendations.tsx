@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -105,6 +106,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 const LWRecommendations = ({configName}: {
   configName: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
@@ -134,7 +136,7 @@ const LWRecommendations = ({configName}: {
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
+    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get(forumType)
 
     const titleText = "Recommendations"
     const titleNode = (
@@ -173,7 +175,7 @@ const LWRecommendations = ({configName}: {
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {bookDisplaySetting.get() && <Book2020FrontpageWidget/>}
+      {bookDisplaySetting.get(forumType) && <Book2020FrontpageWidget/>}
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
         {showSettings &&
@@ -182,7 +184,7 @@ const LWRecommendations = ({configName}: {
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="spotlightItem">
+        {!bookDisplaySetting.get(forumType) && <AnalyticsContext pageSubSectionContext="spotlightItem">
           <DismissibleSpotlightItem />
         </AnalyticsContext>}
 
@@ -197,7 +199,7 @@ const LWRecommendations = ({configName}: {
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {hasCuratedPostsSetting.get() && <div className={classes.curated}>
+            {hasCuratedPostsSetting.get(forumType) && <div className={classes.curated}>
               <CuratedPostsList />
             </div>}
           </div>

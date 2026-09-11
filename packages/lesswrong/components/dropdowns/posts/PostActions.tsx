@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
@@ -15,6 +16,7 @@ import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
 import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
 import ShortformDropdownItem from "./ShortformDropdownItem";
 import DropdownMenu from "../DropdownMenu";
+import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
 import EditTagsDropdownItem from "./EditTagsDropdownItem";
 import EditPostDropdownItem from "./EditPostDropdownItem";
 import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
@@ -48,6 +50,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
   closeMenu: () => void,
   includeBookmark?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -76,9 +79,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
+      <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
-      {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
+      {hasCuratedPostsSetting.get(forumType) && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />

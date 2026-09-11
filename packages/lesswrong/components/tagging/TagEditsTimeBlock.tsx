@@ -19,12 +19,21 @@ const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   },
 }));
 
+// The server-side TagUpdatesInTimeBlock resolver enforces a one-day cap on
+// the (before - after) window. We mirror that here so we can skip the query
+// entirely if a wider range somehow gets passed in, instead of firing a request
+// the server will just refuse / no-op.
+const MAX_TAG_UPDATES_WINDOW_HOURS = 30;
+
 const TagEditsTimeBlock = ({before, after, reportEmpty}: {
   before: Date,
   after: Date,
   reportEmpty: () => void,
 }) => {
   const classes = useStyles(styles);
+
+  const windowHours = (before.getTime() - after.getTime()) / (60 * 60 * 1000);
+  const windowTooWide = windowHours > MAX_TAG_UPDATES_WINDOW_HOURS;
 
   // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql(`
@@ -63,15 +72,20 @@ const TagEditsTimeBlock = ({before, after, reportEmpty}: {
       before, after,
     },
     ssr: true,
+    skip: windowTooWide,
   });
-  
+
   useEffect(() => {
-    if (!loading && !data?.TagUpdatesInTimeBlock?.length) {
+    if (windowTooWide || (!loading && !data?.TagUpdatesInTimeBlock?.length)) {
       reportEmpty();
     }
-  }, [loading, data, reportEmpty]);
+  }, [windowTooWide, loading, data, reportEmpty]);
   const [expanded, setExpanded] = useState(false)
-  
+
+  if (windowTooWide) {
+    return null;
+  }
+
   let tagUpdatesInTimeBlock = [...(data?.TagUpdatesInTimeBlock || [])]
     .sort((update1, update2) => {
       if ((update1.added ?? 0) > (update2.added ?? 0)) return -1

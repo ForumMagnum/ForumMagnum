@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -7,7 +8,6 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
@@ -17,9 +17,8 @@ import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
+import { RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import SettingsButton from "../icons/SettingsButton";
@@ -45,11 +44,23 @@ import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
 import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
 import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
 import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
+import ErrorBoundary from './ErrorBoundary';
+import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 
 
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
+
+const expandedTagFilterSettingsStyles = {
+  gridTemplateRows: "1fr",
+  transitionDelay: "0ms",
+  '& $tagFilterSettingsContent': {
+    opacity: 1,
+    visibility: "visible",
+    transitionDelay: "180ms, 0ms",
+  },
+};
 
 const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   hideOnMobile: {
@@ -71,6 +82,30 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   tabPicker: {
     minWidth: 0,
     marginRight: 10,
+  },
+  tagFilterSettings: {
+    display: "grid",
+    gridTemplateRows: "0fr",
+    // Expand before fading in; fade out before collapsing.
+    transition: "grid-template-rows 180ms ease 120ms",
+    '@media (prefers-reduced-motion: reduce)': {
+      '&, & $tagFilterSettingsContent': {
+        transition: "none",
+      },
+    },
+  },
+  tagFilterSettingsContent: {
+    minHeight: 0,
+    overflow: "hidden",
+    opacity: 0,
+    visibility: "hidden",
+    transition: "opacity 120ms ease, visibility 0ms linear 120ms",
+  },
+  tagFilterSettingsExpandedDesktop: {
+    [theme.breakpoints.up('md')]: expandedTagFilterSettingsStyles,
+  },
+  tagFilterSettingsExpandedMobile: {
+    [theme.breakpoints.down('sm')]: expandedTagFilterSettingsStyles,
   },
   tagFilterSettingsButtonContainerDesktop: {
     [theme.breakpoints.up('md')]: {
@@ -414,6 +449,7 @@ const useHasContinueReadingTab = (currentUser: UsersCurrent|null) => {
 const LWHomePosts = ({ children, }: {
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
@@ -422,7 +458,7 @@ const LWHomePosts = ({ children, }: {
   const now = useCurrentTime();
   const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get(forumType)
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
@@ -493,20 +529,24 @@ const LWHomePosts = ({ children, }: {
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
-      {settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
-        <TagFilterSettings
-          filterSettings={filterSettings} 
-          suggestedTagsQueryRef={suggestedTagsQueryRef}
-          setPersonalBlogFilter={setPersonalBlogFilter} 
-          setTagFilter={setTagFilter} 
-          removeTagFilter={removeTagFilter} 
-          flexWrapEndGrow={false}
-        />
-        {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
-          In the Enriched tab, filters apply only to "Recent" posts, not "Recommended" posts.
-        </div>}
-  
-      </div>}
+      <div className={classNames(classes.tagFilterSettings, {
+        [classes.tagFilterSettingsExpandedDesktop]: desktopSettingsVisible,
+        [classes.tagFilterSettingsExpandedMobile]: mobileSettingsVisible,
+      })}>
+        <div className={classes.tagFilterSettingsContent}>
+          <TagFilterSettings
+            filterSettings={filterSettings}
+            suggestedTagsQueryRef={suggestedTagsQueryRef}
+            setPersonalBlogFilter={setPersonalBlogFilter}
+            setTagFilter={setTagFilter}
+            removeTagFilter={removeTagFilter}
+            flexWrapEndGrow={false}
+          />
+          {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
+            In the Enriched tab, filters apply only to "Recent" posts, not "Recommended" posts.
+          </div>}
+        </div>
+      </div>
     </AnalyticsContext>
   );
 
@@ -555,7 +595,7 @@ const LWHomePosts = ({ children, }: {
     settings = recombeeSettingsElement;
   }
 
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(forumType)*24, 'hours').startOf('hour').toISOString();
 
   const recentPostsTerms: PostsViewTerms = {
     filterSettings,
@@ -601,6 +641,7 @@ const LWHomePosts = ({ children, }: {
                     <PostsList2
                       terms={recentPostsTerms}
                       alwaysShowLoadMore
+                      animateLoadMore
                       hideHiddenFrontPagePosts
                       repeatedPostsPrecedence={3}
                     >
@@ -640,20 +681,22 @@ const LWHomePosts = ({ children, }: {
               </AnalyticsContext>}
 
               {/* FEED */}
-              {(selectedTab === 'ultrafeed') && <UltraFeedWrappers
-                feedType="ultraFeed"
-                incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
-              >
-                <UltraFeedMainFeed
-                  settings={ultraFeedSettings}
-                  fetchPolicy="cache-first"
-                  firstPageSize={15}
-                  pageSize={30}
-                />
-              </UltraFeedWrappers>}
+              {(selectedTab === 'ultrafeed') && <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                <UltraFeedWrappers
+                  feedType="ultraFeed"
+                  incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
+                >
+                  <UltraFeedMainFeed
+                    settings={ultraFeedSettings}
+                    fetchPolicy="cache-first"
+                    firstPageSize={15}
+                    pageSize={30}
+                  />
+                </UltraFeedWrappers>
+              </ErrorBoundary>}
 
               {/* FOLLOWING */}
-              {(selectedTab === 'following') && <>
+              {(selectedTab === 'following') && <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
                 <div className={classes.ultraFeedFollowingHeader}>
                   <SubscribedHideReadCheckbox
                     checked={ultraFeedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false}
@@ -674,13 +717,14 @@ const LWHomePosts = ({ children, }: {
                 >
                   <UltraFeedSubscriptionsFeed embedded={true} settings={ultraFeedSettings} showHideReadToggle={false} />
                 </UltraFeedWrappers>
-               </>}
+              </ErrorBoundary>}
 
               {/* CHRONOLIGCAL FEED */}
               {(selectedTab === 'forum-chronological') && <AnalyticsContext feedType={selectedTab}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
+                  animateLoadMore
                   hideHiddenFrontPagePosts
                 >
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
@@ -707,5 +751,3 @@ function ContinueReadingTab() {
 export default registerComponent("LWHomePosts", LWHomePosts, {
   areEqual: "auto",
 });
-
-

@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from './CoreTagIcon';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -31,31 +31,22 @@ export const smallTagTextStyle = (theme: ThemeType) => ({
   marginBottom: 0
 });
 
-export const coreTagStyle = (theme: ThemeType) => ({
-  backgroundColor: theme.palette.tag.coreTagBackground,
-  border: theme.palette.tag.coreTagBorder,
-  color: theme.palette.tag.coreTagText,
-  "&:hover": {
-    backgroundColor: theme.palette.tag.coreTagBackgroundHover,
-    borderColor: theme.palette.tag.coreTagBackgroundHover,
-  },
-});
-
 const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     ...theme.typography.commentStyle,
     "&:hover": {
       opacity: 1,
-      backgroundColor: theme.palette.tag.backgroundHover,
     },
     "& a:hover": {},
     ...tagStyle(theme)
   },
   tooltip: {
-},
+  },
   core: {
-    ...coreTagStyle(theme),
+    backgroundColor: theme.palette.tag.coreTagBackground,
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.tag.coreTagText,
   },
   coreIcon: {
     position: "relative",
@@ -142,7 +133,7 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
+  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
 
   const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name

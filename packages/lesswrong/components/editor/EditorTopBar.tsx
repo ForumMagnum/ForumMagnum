@@ -18,6 +18,7 @@ const styles = defineStyles("EditorTopBar", (theme: ThemeType) => ({
     padding: 4,
     paddingLeft: 16,
     marginBottom: 16,
+    "@media print": { display: 'none' },
   },
   presenceList: {
     flexGrow: 1,

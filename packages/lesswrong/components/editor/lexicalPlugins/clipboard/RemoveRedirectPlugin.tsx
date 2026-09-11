@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getRoot, $isElementNode, LexicalNode, ElementNode } from 'lexical';
-import { $isLinkNode, LinkNode } from '@lexical/link';
+import { $getRoot, $isElementNode, LexicalNode } from 'lexical';
+import { $isLinkNode } from '@lexical/link';
 
 // Pattern to match Google redirect URLs
 // Examples:

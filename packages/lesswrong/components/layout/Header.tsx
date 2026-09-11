@@ -1,16 +1,16 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
+import { useCurrentUserId, useGetCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { useLocation } from '../../lib/routeUtil';
 import SearchBar from "@/components/common/SearchBar";
@@ -40,7 +40,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 /** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-const getHeaderHeight = () => 64;
+export const getHeaderHeight = () => 64;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 const getMobileHeaderHeight = () => 56;
 
@@ -49,22 +49,10 @@ const textColorOverrideStyles = ({
   theme,
   color,
   contrastColor,
-  loginButtonBackgroundColor,
-  loginButtonHoverBackgroundColor,
-  loginButtonColor,
-  signupButtonBackgroundColor,
-  signupButtonHoverBackgroundColor,
-  signupButtonColor,
 }: {
   theme: ThemeType,
   color: string,
   contrastColor?: string,
-  loginButtonBackgroundColor?: string,
-  loginButtonHoverBackgroundColor?: string,
-  loginButtonColor?: string,
-  signupButtonBackgroundColor?: string,
-  signupButtonHoverBackgroundColor?: string,
-  signupButtonColor?: string,
 }) => ({
   color,
   boxShadow: 'none',
@@ -102,17 +90,17 @@ const textColorOverrideStyles = ({
     color,
   },
   "& .EAButton-variantContained": {
-    backgroundColor: signupButtonBackgroundColor ?? color,
-    color: signupButtonColor ?? contrastColor,
+    backgroundColor: color,
+    color: contrastColor,
     "&:hover": {
-      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+      backgroundColor: `color-mix(in oklab, ${color} 90%, ${contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
-    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
-    color: loginButtonColor ?? color,
+    backgroundColor: `color-mix(in oklab, ${color} 15%, ${contrastColor})`,
+    color: color,
     "&:hover": {
-      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: `color-mix(in oklab, ${color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -154,6 +142,18 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     flexShrink: 0,
     flexDirection: "column",
   },
+  toolbar: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: 24,
+      paddingRight: 24,
+    },
+    minHeight: "var(--header-height)",
+  },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
@@ -172,20 +172,13 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  titleSubtitleContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  titleFundraiserContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   title: {
-    flex: 1,
+    display: "flex",
+    overflow: "hidden",
+    flexGrow: 1,
+    flexShrink: 1,
     position: "relative",
     top: 3,
-    paddingRight: 8,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -228,6 +221,11 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
+      display: "none !important",
+    },
+  },
+  hideSmUp: {
+    [theme.breakpoints.up('sm')]: {
       display: "none !important",
     },
   },
@@ -340,6 +338,7 @@ const Header = ({
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -493,7 +492,10 @@ const Header = ({
           <UsersMenu />
         </AnalyticsContext>
       </div>
-      <KarmaChangeNotifier />
+      <KarmaChangeNotifier
+        onOpen={() => void handleSetNotificationDrawerOpen(false)}
+        notificationOpen={notificationOpen}
+      />
       <NotificationsMenuButton
         toggle={handleNotificationToggle}
         open={notificationOpen}
@@ -550,27 +552,22 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            <Toolbar>
+            <div className={classes.toolbar}>
               {navigationMenuButton}
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <div className={classes.titleFundraiserContainer}>
-                      <Link to="/" className={classes.titleLink}>
-                        {forumHeaderTitleSetting.get()}
-                      </Link>
-                    </div>
-                    <HeaderSubtitle />
-                  </div>
-                </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
-                  <Link to="/" className={classes.titleLink}>
-                    {forumShortTitleSetting.get()}
-                  </Link>
-                </div>
+
+              <Typography className={classNames(classes.title, classes.hideXsDown)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumHeaderTitleSetting.get(forumType)}
+                </Link>
+                <HeaderSubtitle />
+              </Typography>
+              <Typography className={classNames(classes.title, classes.hideSmUp)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumShortTitleSetting.get(forumType)}
+                </Link>
               </Typography>
               {rightHeaderItemsNode}
-            </Toolbar>
+            </div>
           </header>
           {headerNavigationDrawer}
         </Headroom>
@@ -581,11 +578,12 @@ const Header = ({
 }
 
 export const HeaderHeightProvider = ({ children }: { children: React.ReactNode }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
   const hideFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] === "true";
   const pathname = usePrerenderablePathname();
-  const isFrontPage = isHomeRoute(pathname);
+  const isFrontPage = isHomeRoute(pathname, forumType);
   const showFundraiserBanner = false; // !hideFundraiserBanner && isFrontPage;
   const value = useMemo<HeaderHeightContextValue>(() => ({ showFundraiserBanner, }), [showFundraiserBanner]);
 
@@ -604,4 +602,3 @@ export default registerComponent('Header', Header, {
   areEqual: "auto",
   hocs: [withErrorBoundary]
 });
-

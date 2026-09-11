@@ -44,7 +44,7 @@ export function makeGqlCreateMutation<
   };
 }
 
-function getDocumentId(selector: SelectorInput | string) {
+export function getDocumentId(selector: SelectorInput | string) {
   if (typeof selector === 'string') {
     return selector;
   }
@@ -190,7 +190,7 @@ export function getFieldGqlResolvers<N extends CollectionNameString, S extends S
                 : accessFilterSingle;
               return filter(
                 context.currentUser,
-                permissionData.collectionName,
+                permissionData.collectionName as CollectionNameString,
                 existingValue as AnyBecauseHard,
                 context,
               );

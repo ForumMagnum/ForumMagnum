@@ -2,7 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import type { TabId } from './groupings';
-import { getReviewGroupDisplayName } from './groupings';
+import { getReviewGroupDisplayName } from '@/lib/collections/users/reviewGroups';
 import FormatDate from '@/components/common/FormatDate';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 

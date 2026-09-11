@@ -6,6 +6,7 @@
  *
  */
 
+import { useForumType } from "@/components/hooks/useForumType";
 import React, { type JSX } from 'react';
 
 import {
@@ -204,6 +205,7 @@ export function InsertImageUploadedDialogBody({
   onClick: (payload: InsertImagePayload) => void;
   onError?: (error: Error) => void;
 }) {
+  const { forumType } = useForumType();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [altText, setAltText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -231,7 +233,7 @@ export function InsertImageUploadedDialogBody({
     abortControllerRef.current = new AbortController();
 
     try {
-      const result = await uploadToCloudinary(selectedFile, {
+      const result = await uploadToCloudinary(selectedFile, forumType, {
         signal: abortControllerRef.current.signal,
       });
 
@@ -383,6 +385,7 @@ export default function ImagesPlugin({
 }: {
   captionsEnabled?: boolean;
 }): JSX.Element | null {
+  const { forumType } = useForumType();
   const [editor] = useLexicalComposerContext();
   const { flash } = useMessages();
 
@@ -422,7 +425,7 @@ export default function ImagesPlugin({
           if (!isImageFile(payload) || !(payload instanceof File)) {
             return false;
           }
-          uploadToCloudinary(payload)
+          uploadToCloudinary(payload, forumType)
             .then((result) => {
               editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                 altText: payload.name,
@@ -452,7 +455,7 @@ export default function ImagesPlugin({
           }
           event.preventDefault();
           for (const file of imageFiles) {
-            uploadToCloudinary(file)
+            uploadToCloudinary(file, forumType)
               .then((result) => {
                 editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                   altText: file.name || 'Pasted image',
@@ -563,7 +566,7 @@ export default function ImagesPlugin({
 
             fetch(src)
               .then(response => response.blob())
-              .then(blob => uploadToCloudinary(blob))
+              .then(blob => uploadToCloudinary(blob, forumType))
               .then(async (result) => {
                 await preloadImage(result.secure_url);
                 editor.update(() => {
@@ -599,7 +602,7 @@ export default function ImagesPlugin({
         }
       }),
     );
-  }, [captionsEnabled, editor, flash]);
+  }, [captionsEnabled, editor, flash, forumType]);
 
   return null;
 }

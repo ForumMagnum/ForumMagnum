@@ -10,8 +10,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum, isLWorAF } from "../../instanceSettings";
-import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
+import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
@@ -41,10 +40,6 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
   if (!post) return false;
   return !!post.hideCommentKarma;
 };
-
-function canReadUser(user: DbUser | null, comment: DbComment) {
-  return isEAForum() ? documentIsNotDeleted(user, comment) : true;
-}
 
 async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
   const { currentUser, Bookmarks } = context;
@@ -281,9 +276,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      canRead: [canReadUser],
-      canCreate: ["members"],
+      outputType: "String!",
+      inputType: "String",
+      canRead: ["guests"],
+      canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },
@@ -292,7 +288,7 @@ const schema = {
   user: {
     graphql: {
       outputType: "User",
-      canRead: [canReadUser],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -356,7 +352,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
-        return await commentGetPageUrlFromDB(comment, context, true);
+        return await commentGetAbsolutePageUrlFromDB(comment, context);
       },
     },
   },
@@ -365,7 +361,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
-        return await commentGetPageUrlFromDB(comment, context, false);
+        return await commentGetPageUrlFromDB(comment, context);
       },
     },
   },
@@ -464,7 +460,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
         const { currentUser, Comments } = context;
-        const params = viewTermsToQuery(CommentsViews, {
+        const params = await viewTermsToQuery(CommentsViews, {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
         }, undefined, context);
@@ -1346,7 +1342,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (comment, args, context) => {
-        if (!isLWorAF()) return null;
         const { AutomatedContentEvaluations, Revisions } = context;
         const revisionIds = (await Revisions.find({
           documentId: comment._id,

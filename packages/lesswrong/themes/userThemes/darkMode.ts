@@ -1,5 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString } from '../colorUtil';
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:

@@ -20,9 +20,8 @@ export const useNewEvents = () => {
   const [createLWEvent] = useMutationNoCache(newEventFragmentMutation);
   
   const recordEvent = useCallback((name: string, closeOnLeave: boolean, properties: any): string => {
-    const { userId, documentId, important, intercom, ...rest} = properties;
+    const { documentId, important, intercom, ...rest} = properties;
     let event = {
-      userId,
       name,
       documentId,
       important,

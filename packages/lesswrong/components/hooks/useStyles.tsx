@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, forwardRef, use, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from 'jss';
@@ -13,8 +13,7 @@ import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
 import { ThemeContext, ThemeContextType, useTheme } from '../themes/useTheme';
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
-import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
-import { getForumTheme } from "@/themes/forumTheme";
+import { type AbstractThemeOptions } from "@/themes/themeNames";
 import { classNameProxy, defineStyles } from "./defineStyles";
 
 export type RegisterComponentStyles = StyleDefinition<any>;

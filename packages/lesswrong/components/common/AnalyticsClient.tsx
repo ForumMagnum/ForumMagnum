@@ -1,19 +1,17 @@
-import React, {useContext, useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { clientContextVars, throttledFlushClientEvents, captureEvent } from '../../lib/analyticsEvents';
 import { useCurrentUser, useCurrentUserLoading } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
-import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { getBrowserSessionStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   const currentUserLoading = useCurrentUserLoading();
-  const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   
   const currentUserId = currentUser?._id;
   const clientId = cookies[CLIENT_ID_COOKIE];
@@ -21,12 +19,10 @@ export const AnalyticsClient = () => {
     clientContextVars.userId = currentUserId;
     clientContextVars.clientId = clientId;
     clientContextVars.tabId = window.tabId;
-    if (!isLWorAF()) {
-      clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
-    }
+
     // There may be events waiting for the client context vars to be set, so flush them now
     throttledFlushClientEvents(true);
-  }, [currentUserId, clientId, abTestGroupsUsed]);
+  }, [currentUserId, clientId]);
 
   // Fire a one-time per-tab lifecycle event when a new tab/app instance starts
   useEffect(() => {
@@ -35,9 +31,10 @@ export const AnalyticsClient = () => {
     
     const tabId = window.tabId;
     if (!tabId) return;
+    const storage = getBrowserSessionStorage();
     const firedKey = `tabStartedFired:${tabId}`;
-    if (sessionStorage.getItem(firedKey)) return;
-    sessionStorage.setItem(firedKey, "1");
+    if (safeStorageGetItem(storage, firedKey)) return;
+    safeStorageSetItem(storage, firedKey, "1");
 
     const userAgent = navigator.userAgent ?? null;
     const abTestGroups = getAllUserABTestGroups(currentUser ? { user: currentUser } : { clientId });

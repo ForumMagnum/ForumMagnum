@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
-import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
+import { postGetAuthorName, postGetAbsolutePageUrl, postGetAbsoluteEditUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../server/collections/comments/collection';
 import { Localgroups } from '../server/collections/localgroups/collection';
 import { Messages } from '../server/collections/messages/collection';
@@ -10,15 +10,14 @@ import { Conversations } from '../server/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
-import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
+import { userGetDisplayName } from '../lib/collections/users/helpers';
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 import type { NotificationDocument } from './collections/notifications/constants';
-import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
+import { commentGetAbsolutePageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
-import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 import Tags from '../server/collections/tags/collection';
-import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import Sequences from '../server/collections/sequences/collection';
@@ -34,7 +33,7 @@ import { EmailContextType } from './emailComponents/emailContext';
 
 interface ServerNotificationType {
   name: string,
-  from?: () => string | undefined,
+  from?: (context: ResolverContext) => string | undefined,
   canCombineEmails?: boolean,
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<any>,
@@ -287,14 +286,14 @@ export const NewSubforumCommentNotification = createServerNotificationType({
 export const NewDialogueMessageNotification = createServerNotificationType({
   name: "newDialogueMessages",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     const authorId = notifications[0].extraData?.newMessageAuthorId
     const author = authorId && await Users.findOne(authorId)
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
 
     if (author) {
-      return `${userGetDisplayName(author)} left a new reply in your dialogue, ${post.title}`
+      return `${userGetDisplayName(author, context.forumType)} left a new reply in your dialogue, ${post.title}`
     }      
 
     return `New reply in your dialogue, ${post.title}`;
@@ -397,7 +396,7 @@ export const NewDebateReplyNotification = createServerNotificationType({
 export const NewReplyNotification = createServerNotificationType({
   name: "newReply",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     if (notifications.length > 1) {
       return `${notifications.length} replies to comments you're subscribed to`;
     } else {
@@ -405,7 +404,7 @@ export const NewReplyNotification = createServerNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${userGetDisplayName(author)} replied to a comment you're subscribed to`;
+      return `${userGetDisplayName(author, context.forumType)} replied to a comment you're subscribed to`;
     }
   },
   emailBody: async ({ user, notifications, emailContext }) => {
@@ -420,7 +419,7 @@ export const NewReplyNotification = createServerNotificationType({
 export const NewReplyToYouNotification = createServerNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const anyIndirect = notifications.some(n => n.extraData?.direct === false);
 
     if (notifications.length > 1) {
@@ -430,7 +429,7 @@ export const NewReplyToYouNotification = createServerNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return anyIndirect ? `${userGetDisplayName(author)} replied to a thread you participated in` : `${userGetDisplayName(author)} replied to your comment`;
+      return anyIndirect ? `${userGetDisplayName(author, context.forumType)} replied to a thread you participated in` : `${userGetDisplayName(author, context.forumType)} replied to your comment`;
     }
   },
   emailBody: async ({ user, notifications, emailContext }) => {
@@ -451,15 +450,8 @@ export const NewUserNotification = createServerNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null,
 });
 
-const newMessageEmails: ForumOptions<string | null> = {
-  EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
-  default: null,
-}
-const forumNewMessageEmail = () => forumSelect(newMessageEmails) ?? undefined
-
 export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
-  from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications, context }) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
@@ -484,7 +476,7 @@ export const NewMessageNotification = createServerNotificationType({
   emailSubject: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
     const { conversations, otherParticipants } = await this.loadData!({ user, notifications, context });
     
-    const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u)).join(', ');
+    const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u, context.forumType)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },
@@ -505,20 +497,20 @@ export const WrappedNotification = createServerNotificationType({
   emailSubject: async function() {
     return 'Your 2024 EA Forum Wrapped';
   },
-  emailBody: async function({ user }: {user: DbUser}) {
+  emailBody: async function({ user, emailContext }) {
     return <div>
       <p>
         Hi {user.displayName},
       </p>
       <p>
         Thanks for being part of our community this year!{' '}
-        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
+        <a href={`${combineUrls(getSiteUrl(emailContext.resolverContext.forumType), 'wrapped')}?utm_medium=email`}>
           Check out your 2024 EA Forum Wrapped.
         </a>{' '}
         🎁
       </p>
       <p>
-        - The {forumTitleSetting.get()} Team
+        - The {forumTitleSetting.get(emailContext.resolverContext)} Team
       </p>
     </div>
   },
@@ -549,7 +541,7 @@ export const PostSharedWithUserNotification = createServerNotificationType({
   emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
@@ -570,7 +562,7 @@ export const PostAddedAsCoauthorNotification = createServerNotificationType({
   emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetEditUrl(post._id, true);
+    const link = postGetAbsoluteEditUrl(post._id, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
 
@@ -591,7 +583,7 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "Your submission to the Alignment Forum has been approved!";
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     let document: DbPost|DbComment|null 
     document = await Posts.findOne(notifications[0].documentId);
     if (!document) {
@@ -600,13 +592,13 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
     if (!document) throw Error(`Can't find document for notification: ${notifications[0]}`)
 
     if (isComment(document)) {
-      const link = commentGetPageUrlFromIds({postId: document.postId!, commentId: document._id, isAbsolute: true})
+      const link = commentGetAbsolutePageUrlFromIds({postId: document.postId!, commentId: document._id}, emailContext.resolverContext.forumType)
       return <p>
         Your <a href={link}>comment submission</a> to the Alignment Forum has been approved.
       </p>
     }
     else {
-      const link = postGetPageUrl(document, true)
+      const link = postGetAbsolutePageUrl(document, emailContext.resolverContext.forumType)
       return <p>
         Your post, <a href={link}>{document.title}</a>, has been accepted to the Alignment Forum.
       </p>
@@ -654,7 +646,7 @@ export const NewRSVPNotification = createServerNotificationType({
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `New RSVP for your event: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return <div>
@@ -662,7 +654,7 @@ export const NewRSVPNotification = createServerNotificationType({
         {notifications[0].message}
       </p>
       <p>
-        <a href={postGetPageUrl(post,true)}>Event Link</a>
+        <a href={postGetAbsolutePageUrl(post,emailContext.resolverContext.forumType)}>Event Link</a>
       </p>
     </div>
   },
@@ -689,24 +681,24 @@ export const NewGroupOrganizerNotification = createServerNotificationType({
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const localGroup = await Localgroups.findOne(notifications[0].documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     
-    const groupLink = `${getSiteUrl().slice(0,-1)}/groups/${localGroup._id}`
+    const groupLink = `${getSiteUrl(emailContext.resolverContext.forumType).slice(0,-1)}/groups/${localGroup._id}`
     
     return <div>
       <p>
         Hi {user.displayName},
       </p>
       <p>
-        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get()}.
+        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get(emailContext.resolverContext)}.
       </p>
       <p>
         We recommend you check the group's info and update it if necessary. You can also post your group's events on the forum, which get advertised to users based on relevance.
       </p>
       <p>
-        - The {forumTitleSetting.get()} Team
+        - The {forumTitleSetting.get(emailContext.resolverContext)} Team
       </p>
     </div>
   },
@@ -736,7 +728,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     }
     const post = await Posts.findOne({_id: firstNotification.documentId});
     const postTitle = post?.title;
-    const postLink = postGetEditUrl(firstNotification.documentId, true, firstNotification.extraData?.linkSharingKey);
+    const postLink = postGetAbsoluteEditUrl(firstNotification.documentId, emailContext.resolverContext.forumType, firstNotification.extraData?.linkSharingKey);
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
@@ -765,7 +757,7 @@ export const PostCoauthorRequestNotification = createServerNotificationType({
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return (
       <p>
@@ -785,15 +777,40 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
     }
     return `Your co-author request for '${post.title}' was accepted`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType);
     return (
       <p>
         Your co-author request for <a href={link}>{post.title}</a> was accepted.
+      </p>
+    );
+  },
+});
+
+export const TypoSuggestionNotification = createServerNotificationType({
+  name: "typoSuggestion",
+  canCombineEmails: false,
+  emailSubject: async ({ notifications, context }) => {
+    const ctx = await getTypoSuggestionNotificationContext(notifications[0].documentId, context);
+    if (!ctx) return "A reader flagged a possible typo and AI proposed a fix";
+    return `${ctx.reactorName} flagged a possible typo in ${ctx.targetDescription}`;
+  },
+  emailBody: async ({ notifications, emailContext }) => {
+    const notification = notifications[0];
+    const ctx = await getTypoSuggestionNotificationContext(notification.documentId, emailContext.resolverContext);
+    const link = notification.link
+      ? makeAbsolute(notification.link, emailContext.resolverContext.forumType)
+      : makeAbsolute(ctx?.targetUrl ?? "/notifications", emailContext.resolverContext.forumType);
+    const reactorName = ctx?.reactorName ?? "A reader";
+    const targetDescription = ctx?.targetDescription ?? "your content";
+    return (
+      <p>
+        {reactorName} flagged a possible typo in {targetDescription}, and AI proposed a fix.{" "}
+        <a href={link}>Review the suggestion</a> to apply or reject it.
       </p>
     );
   },
@@ -822,7 +839,7 @@ export const NewMentionNotification = createServerNotificationType({
 
     return (
       <p>
-        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notification.link)}>{summary.displayName}</a>.
+        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notification.link, emailContext.resolverContext.forumType)}>{summary.displayName}</a>.
       </p>
     );
   },
@@ -863,6 +880,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
   NewMentionNotification,
+  TypoSuggestionNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 

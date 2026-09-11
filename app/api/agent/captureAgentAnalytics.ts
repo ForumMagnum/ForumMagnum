@@ -1,6 +1,6 @@
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 
-type AgentApiStatus = "success" | "validation_error" | "unauthorized" | "internal_error";
+type AgentApiStatus = "success" | "validation_error" | "unauthorized" | "unsupported_editor" | "internal_error";
 
 interface AgentApiEventProps {
   route: string;
@@ -12,6 +12,7 @@ interface AgentApiEventProps {
   // Set on success to describe what actually happened, especially partial failures
   // e.g. "inserted", "not_inserted", "replaced", "quote_not_found", "anchor_top_level_no_match"
   operationResult?: string;
+  threadId?: string;
 }
 
 function categorizeError(error: unknown): string {

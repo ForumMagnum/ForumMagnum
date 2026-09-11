@@ -1,5 +1,5 @@
 import React from 'react';
-import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
+import { postGetLink, postGetLinkTarget, postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -99,7 +99,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: theme.palette.border.emailHR,
+    borderBottom: "1px solid #aaa",
     marginTop: 50,
     marginBottom: 35,
   },
@@ -155,13 +155,13 @@ export async function PostsEmail({
       <React.Fragment key={post._id}>
         <div className={classes.heading}>
           <h1>
-            <a href={postGetPageUrl(post, true)} className={classes.headingLink}>
+            <a href={postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)} className={classes.headingLink}>
               {post.title}
             </a>
           </h1>
           <hr className={classes.headingHR} />
           <div className={classes.headingRow}>
-            <EmailPostAuthors post={post} />
+            <EmailPostAuthors emailContext={emailContext} post={post} />
           </div>
           <div className={classes.headingRow}>
             <EmailPostDate post={post} emailContext={emailContext} />
@@ -198,7 +198,7 @@ export async function PostsEmail({
           </EmailContentStyles>
         )}
 
-        <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
+        <a href={postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)}>{truncated ? "Read full post" : "Discuss"}</a>
         <hr className={classes.hr} />
       </React.Fragment>
     );

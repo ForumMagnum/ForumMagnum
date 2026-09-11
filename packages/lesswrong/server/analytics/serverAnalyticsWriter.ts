@@ -1,3 +1,5 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { getForumTypeFromAsyncContext } from "../perfMetrics";
 import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
 import { environmentDescriptionSetting } from '@/lib/instanceSettings';
@@ -21,7 +23,7 @@ export const analyticsEventTypeDefs = gql`
 
 export const analyticsEventGraphQLMutations = {
   analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-    backgroundTask(handleAnalyticsEventWriteRequest(events, clientTime));
+    backgroundTask(handleAnalyticsEventWriteRequest(events, clientTime, context.forumType));
   },
 }
 
@@ -47,7 +49,7 @@ export const analyticsEventGraphQLMutations = {
   res.end("ok");
 });*/
 
-export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
+export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo, forumType: ForumTypeString) {
   // Adjust timestamps to account for server-client clock skew
   // The mutation comes with a timestamp on each event from the client
   // clock, and a timestamp representing when events were flushed, also
@@ -67,7 +69,7 @@ export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, c
     
     return {...event, timestamp: adjustedTimestamp};
   });
-  await writeEventsToAnalyticsDB(augmentedEvents);
+  await writeEventsToAnalyticsDB(augmentedEvents, forumType);
   return true;
 }
 
@@ -78,12 +80,12 @@ const analyticsColumnSet = new (getPgPromiseLib().helpers.ColumnSet)(['environme
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
 // Writes an event to the analytics database.
-async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, props: AnyBecauseTodo}[]) {
+async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, props: AnyBecauseTodo}[], forumType: ForumTypeString) {
   const connection = getAnalyticsConnection()
   
   if (connection) {
     try {
-      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get(forumType)
       const valuesToInsert = events.map(ev => ({
         environment: environmentDescription,
         event_type: ev.type,
@@ -98,8 +100,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         console.error(`Warning: ${inFlightRequestCounter.inFlightRequests} in-flight postgres queries. Dropping.`);
         return;
       }
-      
-      
+
       inFlightRequestCounter.inFlightRequests++;
       try {
         await connection.none(query);
@@ -180,7 +181,7 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
       ...props,
       serverId: serverId,
     }
-  }]));
+  }], getForumTypeFromAsyncContext()));
 }
 
 function serverConsoleLogAnalyticsEvent(event: any) {

@@ -1,5 +1,7 @@
 import moment from 'moment';
-import React, { useCallback, useMemo } from 'react';
+import classNames from 'classnames';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import Transition from 'react-transition-group/Transition';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
@@ -28,9 +30,12 @@ const DisplaySpotlightByIdQuery = gql(`
   }
 `);
 
-const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
+// Let the parent suspend until we know which spotlight to show and whether it
+// has been dismissed, so it can position content below the spotlight correctly.
+export const DismissibleSpotlightItemSuspense = ({ className, spotlightId, loadingStyle="spinner" }: {
   className?: string,
   spotlightId?: string | null,
+  loadingStyle?: "placeholder"|"spinner",
 }) => {
   const { captureEvent } = useTracking()
 
@@ -51,6 +56,41 @@ const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const dismissAnimationRef = useRef<Animation|null>(null);
+
+  const cancelDismissAnimation = useCallback(() => {
+    dismissAnimationRef.current?.cancel();
+    dismissAnimationRef.current = null;
+  }, []);
+
+  useEffect(() => cancelDismissAnimation, [cancelDismissAnimation, spotlight?._id]);
+
+  const animateDismissal = useCallback(() => {
+    cancelDismissAnimation();
+    const element = spotlightRef.current;
+    if (!element || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const height = element.getBoundingClientRect().height;
+    if (!height) return;
+
+    const marginBottom = window.getComputedStyle(element).marginBottom;
+    // Keep overflowing artwork visible during the fade; collapse only once it is transparent.
+    dismissAnimationRef.current = element.animate([
+      { opacity: 1, height: `${height}px`, marginBottom, offset: 0, easing: 'ease-out' },
+      { opacity: 0, height: `${height}px`, marginBottom, offset: 0.375, easing: 'ease-in-out' },
+      { opacity: 0, height: '0px', marginBottom: '0px', offset: 1 },
+    ], { duration: 320, fill: 'forwards' });
+  }, [cancelDismissAnimation]);
+
+  const finishDismissal = useCallback((done: () => void) => {
+    const animation = dismissAnimationRef.current;
+    if (!animation || animation.playState === 'finished') {
+      done();
+    } else {
+      animation.onfinish = done;
+    }
+  }, []);
 
   const hideBanner = useCallback(() => {
     setCookie(
@@ -62,29 +102,46 @@ const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
     captureEvent("spotlightItemHideItemClicked", { document: spotlightDocument })
   }, [setCookie, cookieName, spotlightDocument, captureEvent]);
 
-  if (!spotlight || isHidden) {
+  if (!spotlight) {
     return null;
   }
 
   return <AnalyticsContext pageElementContext="spotlightItem">
-    <SpotlightItem
-      key={spotlight._id}
-      spotlight={spotlight}
-      hideBanner={hideBanner}
-      className={className}
-    />
+    <SuspenseWrapper
+      name="SpotlightItem"
+      fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback className={className}/> : <Loading/>}
+    >
+      <Transition
+        key={spotlight._id}
+        nodeRef={spotlightRef}
+        in={!isHidden}
+        mountOnEnter
+        unmountOnExit
+        onEnter={cancelDismissAnimation}
+        onExit={animateDismissal}
+        addEndListener={finishDismissal}
+      >
+        <SpotlightItem
+          ref={spotlightRef}
+          inert={isHidden}
+          spotlight={spotlight}
+          hideBanner={hideBanner}
+          className={className}
+        />
+      </Transition>
+    </SuspenseWrapper>
   </AnalyticsContext>
 }
 
-const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme) => ({
+const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", () => ({
   fallback: {
     height: 181,
   },
 }));
 
-export const SpotlightItemFallback = () => {
+export const SpotlightItemFallback = ({className}: {className?: string}) => {
   const classes = useStyles(spotlightItemFallbackStyles);
-  return <div className={classes.fallback}/>
+  return <div className={classNames(classes.fallback, className)}/>
 }
 
 export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spotlightId}: {
@@ -94,15 +151,14 @@ export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spo
 }) => {
   return <SuspenseWrapper
     name="DismissibleSpotlightItem"
-    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
+    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback className={className}/> : <Loading/>}
   >
-    <DismissibleSpotlightItemInner
+    <DismissibleSpotlightItemSuspense
       className={className}
       spotlightId={spotlightId}
+      loadingStyle={loadingStyle}
     />
   </SuspenseWrapper>
 }
 
 export default DismissibleSpotlightItem;
-
-

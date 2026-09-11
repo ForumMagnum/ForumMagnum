@@ -17,25 +17,8 @@ import Sort from '@/lib/vendor/@material-ui/icons/src/Sort'
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 
 // EA Forum menu icons
-import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
-import HomeSelectedIcon from "@heroicons/react/20/solid/HomeIcon";
-import BestOfIcon from "@heroicons/react/24/outline/StarIcon";
-import BestOfSelectedIcon from "@heroicons/react/24/solid/StarIcon";
-import AllPostsIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
-import AllPostsSelectedIcon from "@heroicons/react/24/solid/ArchiveBoxIcon";
-import TopicsIcon from "@heroicons/react/24/outline/TagIcon";
-import TopicsSelectedIcon from "@heroicons/react/24/solid/TagIcon";
-import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
-import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
-import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
-import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
-import GroupsIcon from "@heroicons/react/24/outline/UserGroupIcon";
-import GroupsSelectedIcon from "@heroicons/react/24/solid/UserGroupIcon";
-import {
-  PeopleDirectoryIcon,
-  PeopleDirectorySelectedIcon,
-} from '../../icons/peopleDirectoryIcon';
-import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+
+
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in

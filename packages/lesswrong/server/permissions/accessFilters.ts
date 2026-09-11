@@ -7,11 +7,18 @@ import { userIsSharedOn } from "@/lib/collections/users/helpers";
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+import { userCanAccessTypoSuggestion } from "@/lib/collections/typoSuggestions/helpers";
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
+
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
+
+const typoSuggestionCheckAccess: CheckAccessFunction<'TypoSuggestions'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  return userCanAccessTypoSuggestion(currentUser, document);
+};
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
@@ -96,6 +103,18 @@ const dialogueMatchPreferenceCheckAccess: CheckAccessFunction<'DialogueMatchPref
   return false;
 };
 
+const homePageDesignCheckAccess: CheckAccessFunction<'HomePageDesigns'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  // Published designs (have a commentId) are visible to everyone
+  if (document.commentId && document.autoReviewPassed) return true;
+  // Unpublished designs are only visible to their owner or admins
+  if (userIsAdmin(currentUser)) return true;
+  const ownerId = document.ownerId;
+  if (currentUser && ownerId === currentUser._id) return true;
+  if (context?.clientId && ownerId === context.clientId) return true;
+  return false;
+};
+
 const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (currentUser, document, context): Promise<boolean> => {
   const post = await context.loaders.Posts.load(document.postId);
 
@@ -116,6 +135,40 @@ const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> 
 
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const researchProjectCheckAccess: CheckAccessFunction<'ResearchProjects'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const researchDocumentCheckAccess: CheckAccessFunction<'ResearchDocuments'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const researchEnvironmentCheckAccess: CheckAccessFunction<'ResearchEnvironments'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const researchConversationCheckAccess: CheckAccessFunction<'ResearchConversations'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const researchConversationEventCheckAccess: CheckAccessFunction<'ResearchConversationEvents'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser) return false;
+  if (userIsAdmin(currentUser)) return true;
+  // Events don't carry their own userId; defer to the parent conversation.
+  const conversation = await context.ResearchConversations.findOne({ _id: document.conversationId });
+  if (!conversation) return false;
+  return userOwns(currentUser, conversation);
+};
+
+const researchSandboxSessionCheckAccess: CheckAccessFunction<'ResearchSandboxSessions'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser) return false;
+  if (userIsAdmin(currentUser)) return true;
+  // The row carries no userId; defer to the conversation it belongs to.
+  const conversation = await context.loaders.ResearchConversations.load(document.conversationId);
+  if (!conversation) return false;
+  return userOwns(currentUser, conversation);
 };
 
 const llmMessageCheckAccess: CheckAccessFunction<'LlmMessages'> = async (currentUser, document, context): Promise<boolean> => {
@@ -404,10 +457,12 @@ const accessFilters = {
   EmailTokens: allowAccess,
   FieldChanges: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  HomePageDesigns: homePageDesignCheckAccess,
   IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
+  LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
@@ -437,11 +492,18 @@ const accessFilters = {
   ReadStatuses: allowAccess,
   RecommendationsCaches: allowAccess,
   Reports: reportCheckAccess,
+  ResearchConversationEvents: researchConversationEventCheckAccess,
+  ResearchConversations: researchConversationCheckAccess,
+  ResearchDocuments: researchDocumentCheckAccess,
+  ResearchEnvironments: researchEnvironmentCheckAccess,
+  ResearchProjects: researchProjectCheckAccess,
+  ResearchSandboxSessions: researchSandboxSessionCheckAccess,
   ReviewVotes: reviewVoteCheckAccess,
   ReviewWinnerArts: allowAccess,
   ReviewWinners: allowAccess,
   Revisions: revisionCheckAccess,
   RSSFeeds: allowAccess,
+  SandboxBaselineSnapshots: denyAll,
   Sequences: sequenceCheckAccess,
   Sessions: sessionCheckAccess,
   SideCommentCaches: allowAccess,
@@ -453,6 +515,7 @@ const accessFilters = {
   TagRels: tagRelCheckAccess,
   Tweets: allowAccess,
   TypingIndicators: typingIndicatorCheckAccess,
+  TypoSuggestions: typoSuggestionCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
   UserMostValuablePosts: allowAccess,

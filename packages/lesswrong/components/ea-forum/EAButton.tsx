@@ -44,7 +44,7 @@ const styles = defineStyles("EAButton", (theme: ThemeType) => ({
     }
   },
   greyOutlined: {
-    border: `1px solid ${theme.palette.border.eaButtonGreyOutline}`,
+    border: "1px solid light-dark(#BCC1C9,#5F5F5F)",
     color: theme.palette.grey[1000],
     "&:hover": {
       border: `1px solid ${theme.palette.grey[400]}`,

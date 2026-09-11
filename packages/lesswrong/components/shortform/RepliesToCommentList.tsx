@@ -49,6 +49,7 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
   return <CommentsList
     treeOptions={{
       post,
+      showCollapseButtons: true,
     }}
     totalComments={results.length}
     comments={nestedComments}

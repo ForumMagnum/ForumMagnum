@@ -8,7 +8,7 @@ let cachedAdminTeamAccount: DbUser | null = null;
 const getCachedAccountById = unstable_cache((_id: string) => Users.findOne({ _id }), undefined, { revalidate: 60 * 60 * 24 });
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {
-  const adminAccountData = adminAccountSetting.get();
+  const adminAccountData = adminAccountSetting.get(context);
   if (!adminAccountData) {
     return null;
   }

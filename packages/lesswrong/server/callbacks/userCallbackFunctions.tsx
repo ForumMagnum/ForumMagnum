@@ -1,12 +1,10 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React from "react";
-import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
-import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { captureException } from "@/lib/sentryWrapper";
 import { userFindOneByEmail } from "../commonQueries";
 import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
@@ -14,7 +12,6 @@ import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { bellNotifyEmailVerificationRequired } from "../notificationCallbacks";
-import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
@@ -24,9 +21,7 @@ import { userDeleteContent } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
-import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
@@ -43,16 +38,16 @@ import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } fr
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 
-
-async function sendWelcomeMessageTo(userId: string) {
-  const context = createAnonymousContext();
-  const postId = welcomeEmailPostId.get();
+async function sendWelcomeMessageTo(userId: string, forumType: ForumTypeString) {
+  const context = createAnonymousContext({ forumType });
+  const postId = welcomeEmailPostId.get(context);
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
     console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
     return;
   }
   const welcomePost = await fetchFragmentSingle({
+    context,
     collectionName: "Posts",
     fragmentDoc: PostsHTML,
     selector: {_id: postId},
@@ -69,7 +64,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // try to use forumTeamUserId as the sender,
   // and default to the admin account if not found
-  const adminUserId = forumTeamUserId.get()
+  const adminUserId = forumTeamUserId.get(context)
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
     adminsAccount = await getAdminTeamAccount(context)
@@ -86,7 +81,7 @@ async function sendWelcomeMessageTo(userId: string) {
     title: subjectLine,
   }
 
-  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR });
+  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR, forumType: context.forumType });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
@@ -104,6 +99,7 @@ async function sendWelcomeMessageTo(userId: string) {
   await createMessage({ data: messageDocument }, adminAccountContext);
   
   await wrapAndSendEmail({
+    forumType,
     user,
     subject: subjectLine,
     body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
@@ -118,23 +114,23 @@ export const welcomeMessageDelayer = new EventDebouncer({
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
-  // LW wants people to see site intro before posting
-  defaultTiming: () => isLW() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
+  defaultTiming: {type: "delayed", delayMinutes: 5},
   
-  callback: (userId: string) => {
-    backgroundTask(sendWelcomeMessageTo(userId));
+  callback: (userId: string, events, forumType) => {
+    backgroundTask(sendWelcomeMessageTo(userId, forumType));
   },
 });
 
-async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+async function sendVerificationEmail(user: DbUser, forumType: ForumTypeString) {
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id, forumType);
   await wrapAndSendEmail({
+    forumType,
     user,
     force: true,
-    subject: `Verify your ${forumTitleSetting.get()} email`,
+    subject: `Verify your ${forumTitleSetting.get(forumType)} email`,
     body: (emailContext) => <div>
       <p>
-        Click here to verify your {forumTitleSetting.get()} email
+        Click here to verify your {forumTitleSetting.get(emailContext.resolverContext)} email
       </p>
       <p>
         <a href={verifyEmailLink}>
@@ -145,7 +141,6 @@ async function sendVerificationEmail(user: DbUser) {
   });
 }
 
-
 const utils = {
   enforceDisplayNameRateLimit: async ({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}, context: ResolverContext) => {
     if (userIsAdminOrMod(currentUser)) return;
@@ -154,10 +149,10 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    const sinceDaysAgo = sinceDaysAgoSetting.get();
+    const sinceDaysAgo = sinceDaysAgoSetting.get(context);
     const MS_PER_DAY = 24*60*60*1000;
     const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))
-    const changesAllowed = changesAllowedSetting.get();
+    const changesAllowed = changesAllowedSetting.get(context);
   
     // Count username changes in the relevant timeframe
     const nameChangeCount = await FieldChanges.find({
@@ -202,10 +197,10 @@ const utils = {
     return user?.groups?.includes('alignmentForum')
   },
 
-  sendVerificationEmailConditional: async (user: DbUser) => {
+  sendVerificationEmailConditional: async (user: DbUser, forumType: ForumTypeString) => {
     if (!isAnyTest) {
-      backgroundTask(sendVerificationEmail(user));
-      await bellNotifyEmailVerificationRequired(user);
+      backgroundTask(sendVerificationEmail(user, forumType));
+      await bellNotifyEmailVerificationRequired(user, createAnonymousContext({ forumType }));
     }
   },
 };
@@ -231,33 +226,35 @@ export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, c
 }
 
 /* CREATE ASYNC */
-export function createRecombeeUser({ document }: {document: DbUser}) {
-  if (!recombeeEnabledSetting.get()) return;
+export function createRecombeeUser({ document }: {document: DbUser}, forumType: ForumTypeString) {
+  if (!recombeeEnabledSetting.get(forumType)) return;
 
   // Skip users without email addresses because that means they're imported
   if (!document.email)
     return;
 
-  backgroundTask(recombeeApi.createUser(document)
+  backgroundTask(recombeeApi.createUser(document, forumType)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }))
   );
 }
 
 /* NEW ASYNC */
-export async function subscribeOnSignup(user: DbUser) {
+export async function subscribeOnSignup(user: DbUser, forumType: ForumTypeString) {
   // Skip email confirmation if no email address is attached to the account.
   // An email address is required when signing up normally, but might not exist
   // for users created by data import, eg importing Arbital
   if (!user.email)
     return;
 
-  await utils.sendVerificationEmailConditional(user);
+  await utils.sendVerificationEmailConditional(user, forumType);
 }
 
-export async function sendWelcomingPM(user: DbUser) {
+export async function sendWelcomingPM(user: Pick<DbUser, '_id'>, context: ResolverContext) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
+    // LW wants people to see the site intro before posting.
+    timing: context.forumType === 'LessWrong' ? {type: "none"} : undefined,
   });
 }
 
@@ -280,18 +277,13 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
-    if (data.shortformFeedId && !isLWorAF()) {
-      backgroundTask(updatePost({
-        data: {title: userShortformPostTitle(newDocument)},
-        selector: { _id: data.shortformFeedId }
-      }, createAnonymousContext()));
-    }
+
   }
   return data;
 }
 
 /* EDIT SYNC */
-export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser) {
+export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser, forumType: ForumTypeString) {
   const { $set: { whenConfirmationEmailSent } } = modifier;
   if (!whenConfirmationEmailSent) {
     return;
@@ -300,7 +292,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser
   const lastSent = user.whenConfirmationEmailSent;
 
   if (!lastSent || (lastSent.getTime() !== whenConfirmationEmailSent.getTime())) {
-    backgroundTask(utils.sendVerificationEmailConditional(user));
+    backgroundTask(utils.sendVerificationEmailConditional(user, forumType));
   }
 }
 
@@ -316,10 +308,9 @@ export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier, u
   return modifier;
 }
 
-export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser) {
+export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser, forumType: ForumTypeString) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
-
     const newEmail = modifier.$set.email;
 
     // check for existing emails and throw error if necessary
@@ -334,11 +325,11 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
         user.emails[0].address = newEmail;
         user.emails[0].verified = false;
         modifier.$set.emails = user.emails;
-        await utils.sendVerificationEmailConditional(user)
+        await utils.sendVerificationEmailConditional(user, forumType)
       }
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
-      await utils.sendVerificationEmailConditional(user)
+      await utils.sendVerificationEmailConditional(user, forumType)
     }
   }
   return modifier;
@@ -365,7 +356,7 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context, oldDocument}: UpdateCallbackProperties<"Users">) {
-  const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
+  const reviewTriggerFields = ['biography', 'mapLocation', 'mapMarkerText', 'profileImageId'] as const;
 
   const updatedField = reviewTriggerFields.find(field => {
     if (!(field in data)) return false;
@@ -380,11 +371,10 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
       return !!fieldValue;
     }
 
-    // I don't want to figure out how to introspect on mapLocation objects;
-    // this come up infrequently enough that I think it's fine to trigger review
-    // if it ever changes for an unreviewed user.  (Note: I don't think we actually
-    // have a way to see the location that they set for themselves in the UI.)
-    if (field === 'mapLocation') {
+    // A map pin's location and public description are reviewed together. In
+    // particular, a description-only edit can contain the spam we're looking
+    // for even when the selected location is unchanged.
+    if (field === 'mapLocation' || field === 'mapMarkerText') {
       return true;
     }
 
@@ -396,13 +386,14 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
   });
 
   if (updatedField) {
-    backgroundTask(triggerReviewIfNeeded(newDocument._id, updatedField, context));
+    const reviewTrigger = updatedField === 'mapMarkerText' ? 'mapLocation' : updatedField;
+    backgroundTask(triggerReviewIfNeeded(newDocument._id, reviewTrigger, context));
   }
 }
 
 export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
-    await nullifyVotesForUser(newDocument);
+    await nullifyVotesForUser(newDocument, context.forumType);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     backgroundTask(userDeleteContent(newDocument, currentUser, context));
@@ -470,21 +461,20 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext());
+    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext({ forumType: context.forumType }));
   }
 }
 
-export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
-  if (!hasType3ApiAccess()) {
+export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser, forumType: ForumTypeString) {
+  if (!hasType3ApiAccess(forumType)) {
     return;
   }
   const deletedChanged = newUser.deleted !== oldUser.deleted;
   const nameChanged = newUser.displayName !== oldUser.displayName;
   if (nameChanged || deletedChanged) {
-    await regenerateAllType3AudioForUser(newUser._id);
+    await regenerateAllType3AudioForUser(newUser._id, forumType);
   }
 }
-
 
 export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
   // if the user is setting up their profile and their username changes from that form,
@@ -518,7 +508,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       title: `Welcome to the AI Alignment Forum!`
     }
 
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
     const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =
@@ -553,7 +543,7 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
     if (newUser.shortformFeedId) {
       await updatePost({ data: {
         af: true
-      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
+      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext({ forumType: context.forumType }))
     }
   }
 }

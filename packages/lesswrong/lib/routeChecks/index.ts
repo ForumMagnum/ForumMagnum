@@ -1,5 +1,5 @@
 import { matchPath } from '../vendor/react-router/matchPath';
-import { isAF } from "../instanceSettings";
+import type { ForumTypeString } from "../instanceSettings";
 import { routePatternToReactRouterPath } from './routePatternFormat';
 import type { ParamMap } from '../../../../.next/types/routes';
 
@@ -9,7 +9,7 @@ function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[])
   return routePaths.some(routePath => pathnameMatchesRoutePath(pathname, routePath));
 }
 
-function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
+export function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
   return !!matchPath(pathname, {
     path: routePatternToReactRouterPath(routePath),
     exact: true,
@@ -17,7 +17,7 @@ function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute
   });
 }
 
-export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF();
+export const isHomeRoute = (pathname: string, forumType: ForumTypeString) => pathnameMatchesRoutePath(pathname, '/') && forumType !== 'AlignmentForum';
 
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 
@@ -30,6 +30,13 @@ export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(path
   "/inbox",
   "/inbox/[conversationId]",
   "/moderatorInbox",
+  "/research",
+  "/research/projects/[projectId]",
+]);
+
+export const isResearchRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  "/research",
+  "/research/projects/[projectId]",
 ]);
 
 const routesWithLeftNavigationColumn = [

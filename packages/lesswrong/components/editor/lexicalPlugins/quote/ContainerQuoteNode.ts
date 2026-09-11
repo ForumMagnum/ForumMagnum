@@ -133,6 +133,23 @@ const blockTags = new Set([
  * QuoteNode has a proper block child.
  */
 function convertBlockquoteElement(domNode: HTMLElement): DOMConversionOutput {
+  // Skip blockquotes with no content (no elements and no non-whitespace
+  // text). Chrome's clipboard serializer emits an empty <blockquote> when a
+  // selection ends at the start of a blockquote (e.g. triple-clicking the
+  // paragraph before it), and importing it would create a childless quote
+  // that can't be edited or escaped.
+  let hasContent = false;
+  for (let i = 0; i < domNode.childNodes.length; i++) {
+    const child = domNode.childNodes[i];
+    if (child.nodeType === 1 || (child.nodeType === 3 && child.textContent?.trim())) {
+      hasContent = true;
+      break;
+    }
+  }
+  if (!hasContent) {
+    return { node: null };
+  }
+
   const node = $createContainerQuoteNode();
 
   // Check if this blockquote has any block-level children
@@ -148,7 +165,7 @@ function convertBlockquoteElement(domNode: HTMLElement): DOMConversionOutput {
   if (!hasBlockChildren && domNode.childNodes.length > 0) {
     // Wrap inline content in a <p> element so Lexical's HTML importer
     // creates a ParagraphNode child for our shadow root
-    const wrapper = document.createElement('p');
+    const wrapper = domNode.ownerDocument.createElement('p');
     while (domNode.firstChild) {
       wrapper.appendChild(domNode.firstChild);
     }

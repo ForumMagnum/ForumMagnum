@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import groupBy from "lodash/groupBy"
 import uniq from "lodash/uniq"
 import moment from "moment"
@@ -36,7 +37,9 @@ export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>)
 
 export function getManualRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   if (!userRateLimit) return null
-  const nextEligible = getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
+  const nextEligible = userRateLimit.actionsPerInterval === 0
+    ? userRateLimit.endedAt
+    : getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
   if (!nextEligible) return null
   return {
     nextEligible,
@@ -203,11 +206,11 @@ export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: R
   return { currentUserKarmaInfo, previousUserKarmaInfo };
 }
 
-export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow) {
+export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow, forumType: ForumTypeString) {
   const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, forumType);
+  const postRateLimits = forumSelect(autoPostRateLimits, forumType);
 
   const activeCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
   const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);

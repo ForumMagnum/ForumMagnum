@@ -56,9 +56,66 @@ export const SHORTCUTS = Object.freeze({
 
 const CONTROL_OR_META = {ctrlKey: !IS_APPLE, metaKey: IS_APPLE};
 
+const PUNCT_TO_CODE: Record<string, string> = {
+  ',': 'Comma',
+  '.': 'Period',
+  '/': 'Slash',
+  ';': 'Semicolon',
+  "'": 'Quote',
+  '[': 'BracketLeft',
+  ']': 'BracketRight',
+  '\\': 'Backslash',
+  '`': 'Backquote',
+  '-': 'Minus',
+  '=': 'Equal',
+};
+
+function expectedKeyToCode(expectedKey: string): string | null {
+  if (/^[a-z]$/i.test(expectedKey)) return 'Key' + expectedKey.toUpperCase();
+  if (/^[0-9]$/.test(expectedKey)) return 'Digit' + expectedKey;
+  return PUNCT_TO_CODE[expectedKey] ?? null;
+}
+
+// Inverse of the OS's shift transform on US-style layouts. We use this to
+// recover the unshifted character so that shortcuts spelled "Cmd+Shift+7" can
+// match an event whose `event.key` is `&`, etc.
+const SHIFTED_KEY_ALIASES: Record<string, string> = {
+  '~': '`',
+  '!': '1',
+  '@': '2',
+  '#': '3',
+  '$': '4',
+  '%': '5',
+  '^': '6',
+  '&': '7',
+  '*': '8',
+  '(': '9',
+  ')': '0',
+  '_': '-',
+  '+': '=',
+  '{': '[',
+  '}': ']',
+  '|': '\\',
+  ':': ';',
+  '"': "'",
+  '<': ',',
+  '>': '.',
+  '?': '/',
+};
+
 /**
- * Vendored from Lexical v0.41.0 (because I didn't want to deal with a version-upgrade right now).
- * Earlier versions contain a function by this name, but it is different/incorrect.
+ * Originally vendored from Lexical v0.41.0, then fixed locally. The upstream
+ * version had two bugs: it constructed the expected `event.code` as
+ * `'Key' + expectedKey.toUpperCase()`, which is only correct for letters
+ * (digits use `Digit*`, punctuation uses `Comma`/`Period`/`BracketLeft`/...);
+ * and it bailed out whenever `event.key` was any ASCII character, which breaks
+ * shortcuts where Shift/Option transforms the produced char (e.g. Cmd+Shift+7
+ * yields `&`, Cmd+Opt+1 on macOS yields `¡`).
+ *
+ * The Dvorak guard below must apply to all single-char ASCII produced keys,
+ * not just letters: e.g. on US Dvorak the V key sits at QWERTY's Period
+ * position, so falling through to `event.code` for the punctuation shortcut
+ * `Ctrl+.` (isSuperscript) would cause `Ctrl+V` to swallow paste.
  */
 export function isExactShortcutMatch(
   event: KeyboardEvent,
@@ -69,26 +126,37 @@ export function isExactShortcutMatch(
     return false;
   }
 
-  if (event.key.toLowerCase() === expectedKey.toLowerCase()) {
-    // For special keys like Enter, Tab, ArrowUp, etc.
-    // For default keys with English-based keyboard layout.
+  if (expectedKey.length > 1) {
+    // Named keys (Enter, Tab, ArrowUp, ...) can only be matched via event.key.
+    return event.key.toLowerCase() === expectedKey.toLowerCase();
+  }
+
+  // Normalize the produced character by inverting the Shift transform (so
+  // `&` → `7`, `>` → `.`, `M` → `m`). After normalization, shifted shortcuts
+  // are matched against their unshifted expected key.
+  const normalizedEventKey =
+    event.key.length === 1
+      ? (SHIFTED_KEY_ALIASES[event.key] ?? event.key).toLowerCase()
+      : event.key;
+
+  if (normalizedEventKey === expectedKey.toLowerCase()) {
     return true;
   }
 
-  if (expectedKey.length > 1) {
-    // For non English-based keyboard layout but the key is a special key, we must not match it by `event.code`.
-    return false;
-  }
-
+  // The produced character is a printable ASCII character that does not match
+  // the shortcut. This is the Dvorak case: the user pressed a key that their
+  // layout maps to a different printable character (e.g. Ctrl+V on Dvorak
+  // produces `v` at QWERTY's Period position). Don't fall through to
+  // event.code — that would cause Ctrl+V on Dvorak to fire isSuperscript and
+  // swallow paste.
   if (event.key.length === 1 && event.key.charCodeAt(0) <= 127) {
-    // For ASCII keys we must not match it by `event.code` because it would break remapped layouts (English (US) Dvorak, etc.).
     return false;
   }
 
-  const expectedCode = 'Key' + expectedKey.toUpperCase();
-
-  // For default keys with not English-based keyboard layouts where `event.key` is non-ASCII, match by `event.code`.
-  return event.code === expectedCode;
+  // The produced character is non-ASCII (macOS Option-modified key, non-Latin
+  // layout, ...). Fall back to physical position so the shortcut still fires.
+  const expectedCode = expectedKeyToCode(expectedKey);
+  return expectedCode !== null && event.code === expectedCode;
 }
 
 export function getFormatHeadingLevel(

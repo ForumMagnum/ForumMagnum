@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useState } from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
@@ -15,7 +17,6 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { forumSelect } from '../../lib/forumTypeUtils';
@@ -59,14 +60,14 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   infoMsg: {},
 }));
 
-const getThresholds = () => forumSelect({
+const getThresholds = (forumType: ForumTypeString) => forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
   AlignmentForum: [2, 30, 45],
   EAForum: [2, 30, 75, 125, 200],
   // We default you off pretty low, you can add more once you get more high
   // karma posts
   default: [2, 30, 45, 75]
-})
+}, forumType)
 
 /**
  * Calculated based on the average number of words posted per post on LW2 as of
@@ -81,7 +82,7 @@ function timePerWeekFromPosts(posts: number) {
 }
 
 /** Posts per week as of May 2022 */
-const getPostsPerWeek = () => forumSelect<Record<string, number>>({
+const getPostsPerWeek = (forumType: ForumTypeString) => forumSelect<Record<string, number>>({
   EAForum: {
     '2': 119,
     '30': 24,
@@ -109,7 +110,7 @@ const getPostsPerWeek = () => forumSelect<Record<string, number>>({
     '45': 2,
     '75': 1,
   }
-});
+}, forumType);
 
 const viewNames = {
   'frontpage': 'Frontpage',
@@ -133,6 +134,7 @@ const SubscribeDialog = (props: {
   onClose: any,
   open: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
@@ -232,7 +234,7 @@ const SubscribeDialog = (props: {
       open={open}
       onClose={onClose}
     >
-      {isLWorAF() && <Tabs
+      <Tabs
         value={method}
         indicatorColor="primary"
         textColor="primary"
@@ -242,7 +244,7 @@ const SubscribeDialog = (props: {
       >
         <Tab label="RSS" key="tabRSS" value="rss" />
         <Tab label="Email" key="tabEmail" value="email" />
-      </Tabs>}
+      </Tabs>
 
       <DialogContent className={classes.content}>
         { method === "rss" && <React.Fragment>
@@ -250,7 +252,7 @@ const SubscribeDialog = (props: {
 
           {(view === "community" || view === "frontpage") && <div>
             <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
-            {getThresholds().map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
+            {getThresholds(forumType).map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
               <FormControlLabel
                 control={<Radio
                   value={radioThreshold}
@@ -265,8 +267,8 @@ const SubscribeDialog = (props: {
               />
             )}
             <DialogContentText className={classes.estimate}>
-              That's roughly { getPostsPerWeek()[threshold] } posts per week
-              ({ timePerWeekFromPosts(getPostsPerWeek()[threshold]) } of reading)
+              That's roughly { getPostsPerWeek(forumType)[threshold] } posts per week
+              ({ timePerWeekFromPosts(getPostsPerWeek(forumType)[threshold]) } of reading)
             </DialogContentText>
           </div>}
 
@@ -275,33 +277,29 @@ const SubscribeDialog = (props: {
             label="RSS Link"
             onFocus={autoselectRSSLink}
             onClick={autoselectRSSLink}
-            value={rssTermsToUrl(rssTerms())}
+            value={rssTermsToUrl(rssTerms(), forumType)}
             key="rssLinkTextField"
             fullWidth />
         </React.Fragment> }
 
         { method === "email" && [
           viewSelector,
-          !!currentUser ? (
-            [
+          !!currentUser ? [
               !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                 Sorry, there's currently no email feed for {viewNames[view]}.
               </DialogContentText>,
-              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum() && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                 We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
               </DialogContentText>
-            ]
-          ) : (
-            <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
+            ] : <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
               You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
             </DialogContentText>
-          )
         ] }
       </DialogContent>
       <DialogActions>
         { method === "rss" &&
           <CopyToClipboard
-            text={rssTermsToUrl(rssTerms())}
+            text={rssTermsToUrl(rssTerms(), forumType)}
             onCopy={ (text, result) => {
               setCopiedRSSLink(result);
               captureEvent("rssLinkCopied")

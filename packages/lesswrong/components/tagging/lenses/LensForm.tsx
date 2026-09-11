@@ -12,7 +12,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import Error404 from "../../common/Error404";
 import SummariesEditForm from "../SummariesEditForm";

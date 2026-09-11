@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useRef, useState, useCallback, createContext} from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
-import { useTheme, useThemeColor } from '@/components/themes/useTheme';
 import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents'
 import { useCurrentUser } from '@/components/common/withUser';
@@ -11,10 +11,9 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
-import { Helmet } from "@/components/layout/Helmet";
-import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
+import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
@@ -35,9 +34,8 @@ import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isResearchRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -47,6 +45,7 @@ import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-stor
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
+import { getHomeDesignActiveSnapshot, subscribeToHomeDesignActive } from '../common/HomeDesignChatContext';
 import { usePathname } from 'next/navigation';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -103,6 +102,52 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    // When the sandboxed home page design is active, hide chrome that the
+    // design replaces (header, intercom, LLM chat launcher). The class is
+    // toggled in PageBackgroundWrapper which lives above the Activity
+    // boundary, so it correctly reflects the current route even when
+    // cacheComponents keeps old page trees in the DOM.
+    '.home-design-active .Header-root': {
+      display: 'none !important',
+    },
+    '.home-design-active .Header-headerHeight': {
+      '--header-height': '0px',
+    },
+    '.home-design-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    '.home-design-active .home-design-hide-llm-chat': {
+      display: 'none !important',
+    },
+    'body:has(.home-design-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
+    },
+    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
+      display: 'none !important',
+    },
+    '.research-active .Header-root': {
+      display: 'none !important',
+    },
+    // Zero out the header-height custom property for the whole research
+    // subtree. `--header-height` is declared 64px on the HeaderHeightProvider
+    // span that *wraps* the page, so `.research-active` (on
+    // PageBackgroundWrapper) is a descendant of it — a `.research-active
+    // .Header-headerHeight` selector can never match. Declaring the property
+    // on `.research-active` itself overrides the inherited value for
+    // everything inside, so the full-viewport editor's
+    // `min-height: calc(100vh - var(--header-height))` fills the pane instead
+    // of leaving a 64px gap at the bottom.
+    '.research-active': {
+      '--header-height': '0px',
+    },
+    '.research-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    'body:has(.research-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
+    },
   },
   searchResultsArea: {
     position: "absolute",
@@ -118,9 +163,13 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
 }));
 
+const isPathnameWithHiddenFloatingButtons = (pathname: string) =>
+  pathname.startsWith('/inbox') || pathname.startsWith('/research') || pathname.startsWith('/admin/supermod');
+
 const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
@@ -135,9 +184,9 @@ const Layout = ({children}: {
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
 
-  // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // isLW && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
   let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
@@ -159,7 +208,6 @@ const Layout = ({children}: {
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
-      <AutosaveEditorStateContextProvider>
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
@@ -173,12 +221,12 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isInbox} />
+                <MaybeCookieBanner hideIntercomButton={hideIntercom} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
               {!isStandaloneRoute(prerenderablePathname) && <SuspenseWrapper name="Header">
                 <Header
@@ -198,7 +246,7 @@ const Layout = ({children}: {
                 <FlashMessages />
               </ErrorBoundary>
 
-              {isLW() && <LWBackgroundImage />}
+              {isLW && <LWBackgroundImage />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
@@ -211,7 +259,6 @@ const Layout = ({children}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>
-      </AutosaveEditorStateContextProvider>
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
@@ -223,7 +270,6 @@ const Layout = ({children}: {
     </AnalyticsContext>
   )
 }
-
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
@@ -249,10 +295,11 @@ export const IsLlmChatSidebarOpenContext = createContext(false);
 const LlmSidebarWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideLlmChatButton = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
@@ -261,7 +308,7 @@ const LlmSidebarWrapper = ({children}: {
     setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
   }, [setCookie]);
 
-  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !isInbox;
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser, forumType) && !hideLlmChatButton;
 
   return <div className={classes.topLevelContainer}>
     <div className={classes.pageContent}>
@@ -270,7 +317,7 @@ const LlmSidebarWrapper = ({children}: {
       </IsLlmChatSidebarOpenContext.Provider>
     </div>
     {renderLanguageModelChatLauncher && (
-      <div className={classes.llmChatColumn}>
+      <div className={classNames(classes.llmChatColumn, 'home-design-hide-llm-chat')}>
         <DeferRender ssr={false}>
           {showLlmChatSidebar ? (
             <SuspenseWrapper name="SidebarLanguageModelChat">
@@ -302,14 +349,23 @@ const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme
 function PageBackgroundWrapper({children}: {
   children: React.ReactNode
 }) {
+  const { isAF, isLW, forumType } = useForumType();
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
+  const { query } = useLocation();
+  const isHomeDesignActive = useSyncExternalStore(
+    subscribeToHomeDesignActive,
+    getHomeDesignActiveSnapshot,
+    () => false
+  );
+  const isSandboxedHomePage = isLW && isHomeRoute(pathname, forumType) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
-    "wrapper", {
-      'alignment-forum': isAF(),
+    "wrapper", classes.wrapper, {
+      'alignment-forum': isAF,
       [classes.fullscreen]: isFullscreenRoute(pathname),
-      [classes.wrapper]: isLWorAF(),
+      'home-design-active': isSandboxedHomePage,
+      'research-active': isResearchRoute(pathname),
     },
   )}>
     {children}
@@ -317,5 +373,3 @@ function PageBackgroundWrapper({children}: {
 }
 
 export default Layout;
-
-

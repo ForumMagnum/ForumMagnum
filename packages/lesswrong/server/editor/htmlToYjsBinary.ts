@@ -12,7 +12,7 @@ import { createBinding, syncLexicalUpdateToYjs } from '@lexical/yjs';
 import type { Provider } from '@lexical/yjs';
 import * as Y from 'yjs';
 import { JSDOM } from 'jsdom';
-import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
+import allLexicalNodes from '@/components/lexical/nodes/allLexicalNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { withDomGlobals } from './withDomGlobals';
 
@@ -37,7 +37,7 @@ export function htmlToYjsBinary(html: string): Uint8Array {
   return withDomGlobals(() => {
     const ydoc = new Y.Doc();
     const editor = createEditor({
-      nodes: [...PlaygroundNodes],
+      nodes: allLexicalNodes,
       theme: PlaygroundEditorTheme,
       onError: (error) => {
         // eslint-disable-next-line no-console

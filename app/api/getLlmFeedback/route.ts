@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { generateText, tool } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { anthropicApiKey } from "@/lib/instanceSettings";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 const commentSchema = z.object({
@@ -48,15 +46,8 @@ export async function POST(req: NextRequest) {
 
   const markdown = htmlToMarkdown(content);
 
-  const apiKey = anthropicApiKey.get();
-  if (!apiKey) {
-    return NextResponse.json({ error: "Anthropic API key not configured" }, { status: 500 });
-  }
-
-  const anthropic = createAnthropic({ apiKey });
-
   const result = await generateText({
-    model: anthropic('claude-sonnet-4-5'),
+    model: 'anthropic/claude-sonnet-4-5',
     prompt: `${prompt}\n\n<Post>${markdown}</Post>`,
     tools: {
       suggestedEdits: tool({

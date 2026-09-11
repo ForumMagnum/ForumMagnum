@@ -33,6 +33,7 @@ import range from 'lodash/range';
 import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
 import { descriptionStyles } from './SpotlightDescriptionStyles';
+import { INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML, INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID } from '../seasonal/Inkhaven2026Banner';
 
 import dynamic from 'next/dynamic';
 const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
@@ -309,6 +310,19 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
     filter: "brightness(1.2)",
   },
+  splashImageFlush: {
+    transform: "none",
+    filter: "none",
+    [theme.breakpoints.down('xs')]: {
+      // Mobile cards drop the body, so the splash is otherwise a thin strip.
+      // Zoom into the typewriter (lower-right of this splash).
+      height: "240%",
+      width: "auto",
+      top: "auto",
+      bottom: "calc(-42% + 8px)",
+      right: "-6%",
+    },
+  },
   splashImageContainer: {
     position: "absolute",
     top: 0,
@@ -385,6 +399,8 @@ export const SpotlightItem = ({
   isDraftProcessing,
   className,
   children,
+  ref,
+  inert,
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
@@ -395,6 +411,8 @@ export const SpotlightItem = ({
   isDraftProcessing?: boolean,
   className?: string,
   children?: React.ReactNode,
+  ref?: React.Ref<HTMLDivElement>,
+  inert?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
@@ -475,7 +493,12 @@ export const SpotlightItem = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
+  const isInkhavenEarlyBird = spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID;
+  const displaySubtitle = isInkhavenEarlyBird ? INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE : spotlight.customSubtitle;
+  const descriptionHtml = isInkhavenEarlyBird
+    ? INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML
+    : (spotlight.description?.html ?? '');
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{displaySubtitle}</Link> : displaySubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = getSpotlightDisplayReviews(spotlight);
@@ -484,6 +507,8 @@ export const SpotlightItem = ({
       <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
         <div
           id={spotlight._id}
+          ref={ref}
+          inert={inert}
           style={style}
           className={classNames(classes.root, className)}
       >
@@ -502,7 +527,7 @@ export const SpotlightItem = ({
                   </LWTooltip>}
                 </span>
               </div>
-              {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+              {displaySubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
               <div className={classes.description}>
@@ -516,7 +541,7 @@ export const SpotlightItem = ({
                   </div>
                   :
                   <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                    dangerouslySetInnerHTML={{__html: descriptionHtml}}
                     description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                   />
                 }
@@ -530,7 +555,9 @@ export const SpotlightItem = ({
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
+              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage, {
+                [classes.splashImageFlush]: spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID,
+              })}/>
             </div>}
             {spotlight.spotlightImageId && <CloudinaryImage2
               publicId={spotlight.spotlightImageId}
@@ -637,4 +664,3 @@ const SpotlightReviewComment = ({id}: {
     />
   </div>
 }
-

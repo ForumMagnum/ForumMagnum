@@ -9,10 +9,6 @@ export const nullKarmaInflationSeries: TimeSeries = {
     interval: 1,
     values: [1]
 }
-let karmaInflationCache: TimeSeries = nullKarmaInflationSeries
-
-export const getKarmaInflationSeries = () => karmaInflationCache;
-export const setKarmaInflationSeries = (newKarmaInflationSeries: TimeSeries) => { karmaInflationCache = newKarmaInflationSeries };
 
 /**
  * 

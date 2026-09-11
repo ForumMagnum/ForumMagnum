@@ -6,7 +6,7 @@
  *
  */
 
-import React, { type JSX, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { type JSX, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $canShowPlaceholderCurry } from '@lexical/text';
 import { mergeRegister } from '@lexical/utils';

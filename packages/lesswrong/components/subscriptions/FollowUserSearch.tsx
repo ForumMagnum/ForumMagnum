@@ -5,15 +5,15 @@ import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/
 import type { SearchState } from 'react-instantsearch-core';
 import { isLeftClick } from '../search/UsersSearchHit';
 import { SearchHitComponentProps } from '../search/types';
-import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from '../search/useSearchAnalytics';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -97,9 +97,13 @@ const FollowUserSearch = ({onUserSelected, currentUser}: {
 }) => {
   const classes = useStyles(styles);
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const indexName = getSearchIndexName("Users");
+  const captureSearchState = useCaptureSearchStateChange("followUserSearch", "Users", indexName);
+  const captureResultSelected = useCaptureSearchResultSelected();
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
-  }, []);
+    captureSearchState(searchState);
+  }, [captureSearchState]);
 
   //get all existing subscriptions
   const { data } = useQuery(SubscriptionStateMultiQuery, {
@@ -148,13 +152,19 @@ const FollowUserSearch = ({onUserSelected, currentUser}: {
   const handleSelectUser = (hit: AnyBecauseTodo) => {
     // check that hit has HasIdType & UserDisplayNameInfo
     if (hit._id && hit.displayName) {
+      captureResultSelected({
+        resultId: hit._id,
+        resultType: "Users",
+        indexName,
+        context: "followUserSearch",
+      });
       onUserSelected(hit);
     }
   }
 
-  return <div className={classes.root} ref={containerRef}>
+  return <AnalyticsContext pageElementContext="followUserSearch"><div className={classes.root} ref={containerRef}>
     <InstantSearch
-      indexName={getSearchIndexName("Users")}
+      indexName={indexName}
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
@@ -173,7 +183,7 @@ const FollowUserSearch = ({onUserSelected, currentUser}: {
         />
       }/>
     </InstantSearch>
-  </div>
+  </div></AnalyticsContext>
 }
 
 export default FollowUserSearch;

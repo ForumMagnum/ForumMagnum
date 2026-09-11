@@ -1,5 +1,4 @@
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
-import { cheerioParse } from "@/server/utils/htmlUtil";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
@@ -10,6 +9,14 @@ import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { updateComment } from "@/server/collections/comments/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { stripExcludedContentForAIDetection } from "./preprocessing";
+import {
+  DEFAULT_PANGRAM_MODEL,
+  PANGRAM_AUTOREJECT_THRESHOLD,
+  PANGRAM_MAX_CHARS,
+  type PangramModel,
+} from "@/lib/collections/automatedContentEvaluations/constants";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -22,80 +29,109 @@ const saplingResponseSchema = z.object({
 });
 
 const pangramResponseSchema = z.object({
-  avg_ai_likelihood: z.number(),
-  max_ai_likelihood: z.number().optional(),
+  text: z.string(),
+  fraction_human: z.number(),
+  fraction_ai: z.number(),
+  fraction_ai_assisted: z.number(),
   prediction_short: z.enum(["AI", "Human", "Mixed"]).optional(),
   windows: z.array(z.object({
     text: z.string(),
-    ai_likelihood: z.number(),
+    ai_assistance_score: z.number(),
     start_index: z.number(),
     end_index: z.number(),
+    label: z.string().optional(),
+    confidence: z.string().optional(),
+    word_count: z.number().optional(),
   })).optional(),
 });
 
+const pangramTaskSubmissionSchema = z.object({
+  task_id: z.string().min(1),
+});
+
+const pangramTaskStageSchema = z.object({
+  stage: z.string().min(1),
+  error: z.string().optional(),
+  headline: z.string().optional(),
+  detail: z.string().optional(),
+});
+
+const PANGRAM_V3_URL = "https://text.api.pangram.com/v3";
+const PANGRAM_TASK_URL = "https://text.external-api.pangram.com/task";
+const PANGRAM_TASK_POLL_INTERVAL_MS = 2_000;
+const PANGRAM_TASK_REQUEST_TIMEOUT_MS = 10_000;
+
+// The GraphQL route has a 120-second limit. Leave time for request overhead and
+// for GraphQL to return a useful timeout error.
+const PANGRAM_TASK_TIMEOUT_MS = 90_000;
+
 export interface PangramEvaluationResult {
+  analyzedText: string;
+  pangramApiVersion: string;
   pangramScore: number;
+  pangramFractionAi: number | null;
+  pangramFractionAiAssisted: number | null;
+  pangramFractionHuman: number | null;
   pangramMaxScore: number | null;
   pangramPrediction: "AI" | "Human" | "Mixed" | null;
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null;
+  pangramWindowScores: {
+    text: string;
+    score: number;
+    startIndex: number;
+    endIndex: number;
+    label?: string;
+    confidence?: string;
+    wordCount?: number;
+  }[] | null;
 }
 
-/**
- * Strip elements from HTML that should not be included in AI detection scoring.
- * This includes:
- * - LLM content blocks (`div.llm-content-block`): explicitly labeled as AI-generated
- * - Collapsible sections (`.detailsBlock`): our policy permits AI content in collapsible sections
- * - Iframe widgets (`iframe[data-lexical-iframe-widget]`): contain code/HTML, not prose
- * - Code blocks (`.code-block`): contain code, not prose
- */
-function stripExcludedContentForAIDetection(html: string): string {
-  const $ = cheerioParse(html);
-  $('div.llm-content-block').remove();
-  $('.detailsBlock').remove();
-  $('iframe[data-lexical-iframe-widget]').remove();
-  $('.code-block').remove();
-  return $.html();
-}
-
-export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
-  const key = process.env.PANGRAM_API_KEY;
-  if (!key) {
-    throw new Error("PANGRAM_API_KEY is not configured");
+async function fetchPangramJson(
+  url: string,
+  key: string,
+  deadline: number | null,
+  body?: unknown,
+): Promise<unknown> {
+  const remainingTime = deadline === null ? null : deadline - Date.now();
+  if (remainingTime !== null && remainingTime <= 0) {
+    throw new Error("Pangram API request timed out");
   }
 
-  const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
-  
-  const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
-  // This should get the first 4-5k words.  There are longer posts but
-  // it doesn't seem like it'll often be useful to check them in their
-  // entirety, and every 1k words is more $$$.
-  const textToCheck = markdown.slice(0, 30_000);
-
-  const response = await fetch('https://text-extended.api.pangram.com', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-    },
-    body: JSON.stringify({ text: textToCheck }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: body === undefined ? "GET" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+      },
+      ...(remainingTime === null
+        ? {}
+        : { signal: AbortSignal.timeout(Math.min(PANGRAM_TASK_REQUEST_TIMEOUT_MS, remainingTime)) }),
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+  } catch (e) {
+    const error = new Error(`Pangram API request failed: ${e instanceof Error ? e.message : "Unknown error"}`);
+    captureException(error);
+    throw error;
+  }
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unable to read error response');
+    const errorText = await response.text().catch(() => "Unable to read error response");
     const error = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
     captureException(error);
     throw error;
   }
 
-  let pangramResponse;
   try {
-    pangramResponse = await response.json();
+    return await response.json();
   } catch (e) {
-    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : "Unknown error"}`);
     captureException(error);
     throw error;
   }
+}
 
+function parsePangramResponse(pangramResponse: unknown, apiVersion: string): PangramEvaluationResult {
   const validatedResponse = pangramResponseSchema.safeParse(pangramResponse);
   if (!validatedResponse.success) {
     const error = new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
@@ -105,17 +141,110 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
     throw error;
   }
 
+  const pangramWindowScores = validatedResponse.data.windows?.map(w => ({
+    text: w.text,
+    score: w.ai_assistance_score,
+    startIndex: w.start_index,
+    endIndex: w.end_index,
+    ...(w.label ? { label: w.label } : {}),
+    ...(w.confidence ? { confidence: w.confidence } : {}),
+    ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
+  })) ?? null;
   return {
-    pangramScore: validatedResponse.data.avg_ai_likelihood,
-    pangramMaxScore: validatedResponse.data.max_ai_likelihood ?? null,
+    analyzedText: validatedResponse.data.text,
+    pangramApiVersion: apiVersion,
+    pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
+    pangramFractionAi: validatedResponse.data.fraction_ai,
+    pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
+    pangramFractionHuman: validatedResponse.data.fraction_human,
+    pangramMaxScore: pangramWindowScores?.length
+      ? Math.max(...pangramWindowScores.map(w => w.score))
+      : null,
     pangramPrediction: validatedResponse.data.prediction_short ?? null,
-    pangramWindowScores: validatedResponse.data.windows?.map(w => ({
-      text: w.text,
-      score: w.ai_likelihood,
-      startIndex: w.start_index,
-      endIndex: w.end_index,
-    })) ?? null,
+    pangramWindowScores,
   };
+}
+
+async function pollPangramTask(taskId: string, key: string, deadline: number): Promise<unknown> {
+  while (Date.now() < deadline) {
+    const taskResponse = await fetchPangramJson(
+      `${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`,
+      key,
+      deadline,
+    );
+    const validatedStage = pangramTaskStageSchema.safeParse(taskResponse);
+    if (!validatedStage.success) {
+      const error = new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
+      captureException(error);
+      throw error;
+    }
+
+    if (validatedStage.data.stage === "STAGE_SUCCESS") {
+      return taskResponse;
+    }
+    if (validatedStage.data.stage === "STAGE_FAILED") {
+      const failureMessage = validatedStage.data.error
+        || validatedStage.data.headline
+        || validatedStage.data.detail
+        || "no error message given";
+      const error = new Error(`Pangram task failed: ${failureMessage}`);
+      captureException(error);
+      throw error;
+    }
+
+    const remainingTime = deadline - Date.now();
+    if (remainingTime > 0) {
+      await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
+    }
+  }
+
+  const error = new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
+  captureException(error);
+  throw error;
+}
+
+export async function getPangramEvaluationForText(
+  text: string,
+  model: PangramModel = DEFAULT_PANGRAM_MODEL,
+): Promise<PangramEvaluationResult> {
+  const key = process.env.PANGRAM_API_KEY;
+  if (!key) {
+    throw new Error("PANGRAM_API_KEY is not configured");
+  }
+
+  const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
+  if (model === "pangram4") {
+    const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
+    const submission = await fetchPangramJson(
+      PANGRAM_TASK_URL,
+      key,
+      deadline,
+      { text: textToCheck, model: "pangram-4" },
+    );
+    const validatedSubmission = pangramTaskSubmissionSchema.safeParse(submission);
+    if (!validatedSubmission.success) {
+      const error = new Error(`Invalid Pangram task submission response: ${validatedSubmission.error.message}`);
+      captureException(error);
+      throw error;
+    }
+
+    const result = await pollPangramTask(validatedSubmission.data.task_id, key, deadline);
+    return parsePangramResponse(result, "pangram-4");
+  }
+
+  const result = await fetchPangramJson(
+    PANGRAM_V3_URL,
+    key,
+    null,
+    { text: textToCheck },
+  );
+  return parsePangramResponse(result, "v3");
+}
+
+export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
+  const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
+  const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
+  return await getPangramEvaluationForText(markdown);
 }
 
 export async function getSaplingEvaluation(revision: DbRevision) {
@@ -200,7 +329,7 @@ async function rejectContentForLLM(
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
     const lwAccount = await getAdminTeamAccount(context);
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     await updateComment({
       selector: { _id: documentId },
@@ -250,13 +379,17 @@ export async function createAutomatedContentEvaluation(
     aiChoice: null,
     aiReasoning: null,
     aiCoT: null,
+    pangramApiVersion: pangramEvaluation.pangramApiVersion,
     pangramScore: pangramEvaluation.pangramScore,
+    pangramFractionAi: pangramEvaluation.pangramFractionAi,
+    pangramFractionAiAssisted: pangramEvaluation.pangramFractionAiAssisted,
+    pangramFractionHuman: pangramEvaluation.pangramFractionHuman,
     pangramMaxScore: pangramEvaluation.pangramMaxScore,
     pangramPrediction: pangramEvaluation.pangramPrediction,
     pangramWindowScores: pangramEvaluation.pangramWindowScores,
   });
 
-  if (autoreject && (pangramEvaluation.pangramScore ?? 0) > .25) {
+  if (autoreject && (pangramEvaluation.pangramScore ?? 0) > PANGRAM_AUTOREJECT_THRESHOLD) {
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
@@ -315,7 +448,11 @@ export async function rerunLlmCheck(
       { _id: existingAce._id },
       {
         $set: {
+          pangramApiVersion: pangramResult.pangramApiVersion,
           pangramScore: pangramResult.pangramScore,
+          pangramFractionAi: pangramResult.pangramFractionAi,
+          pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+          pangramFractionHuman: pangramResult.pangramFractionHuman,
           pangramMaxScore: pangramResult.pangramMaxScore,
           pangramPrediction: pangramResult.pangramPrediction,
           pangramWindowScores: pangramResult.pangramWindowScores,
@@ -339,7 +476,11 @@ export async function rerunLlmCheck(
       aiChoice: null,
       aiReasoning: null,
       aiCoT: null,
+      pangramApiVersion: pangramResult.pangramApiVersion,
       pangramScore: pangramResult.pangramScore,
+      pangramFractionAi: pangramResult.pangramFractionAi,
+      pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+      pangramFractionHuman: pangramResult.pangramFractionHuman,
       pangramMaxScore: pangramResult.pangramMaxScore,
       pangramPrediction: pangramResult.pangramPrediction,
       pangramWindowScores: pangramResult.pangramWindowScores,

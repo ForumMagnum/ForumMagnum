@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcpServer";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
@@ -43,7 +44,7 @@ async function handleMcpRequest(req: NextRequest): Promise<Response> {
   }
 
   // Create a fresh server + transport per request
-  const server = createMcpServer();
+  const server = createMcpServer(getForumTypeForRequest(req));
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,

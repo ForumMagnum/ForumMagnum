@@ -19,7 +19,6 @@ import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_A
 import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
 import { captureException } from "@/lib/sentryWrapper";
-import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
 import type { TagCommentType } from "../comments/types";
 import { CommentsViews } from "../comments/views";
@@ -565,7 +564,7 @@ const schema = {
         const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
         const comments = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews, context),
+          ...await getDefaultViewSelector(CommentsViews, context),
           tagId: tag._id,
           score: { $gt: 0 },
           draft: false,
@@ -593,7 +592,7 @@ const schema = {
       inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [(user) => isLW() ? userIsMemberOf(user, 'members') : true, 'sunshineRegiment', 'admins'],
+      canCreate: [(user, context) => context.forumType === 'LessWrong' ? userIsMemberOf(user, 'members') : true, 'sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
@@ -8,6 +9,7 @@ import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
+import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview';
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
@@ -38,6 +40,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   className?: string,
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const URLClass = getUrlClass()
   const location = useLocation();
   href = href ? href.trim() : href;
@@ -68,7 +71,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   }
 
   try {
-    const currentURL = new URLClass(location.url, getSiteUrl());
+    const currentURL = new URLClass(location.url, getSiteUrl(forumType));
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
@@ -142,9 +145,9 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
           {children}
         </ViewpointsPreview>
       }
-      return <DefaultPreview href={href} id={id} rel={rel} className={className}>
+      return <CrossSiteLinkPreview href={href} id={id} rel={rel} className={className}>
         {children}
-      </DefaultPreview>
+      </CrossSiteLinkPreview>
     }
     return <a href={href} id={id} rel={rel} className={className}>
       {children}

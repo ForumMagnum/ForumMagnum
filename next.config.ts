@@ -36,14 +36,21 @@ function loadTsConfig(configPath: string) {
   }
 }
 
+const isE2E = (process.env.E2E === "true");
+
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
-  cacheComponents: true,
+  // Keep our repository-maintained agent instructions unchanged by next dev.
+  agentRules: false,
+  cacheComponents: !isE2E,
   reactStrictMode: false,
+  // Lets a second dev instance run from the same checkout (next dev holds a
+  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
 
   compiler: {
     define: {
-      ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
+      ...(isE2E ? { 'process.env.E2E': 'true' } : {}),
       'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
       ...(process.env.VERCEL_DEPLOYMENT_ID ? { 'process.env.VERCEL_DEPLOYMENT_ID': 'true' } : {}),
       ...(process.env.HOCUSPOCUS_URL ? { 'process.env.NEXT_PUBLIC_HOCUSPOCUS_URL': process.env.HOCUSPOCUS_URL } : {}),
@@ -51,6 +58,13 @@ const nextConfig: NextConfig = {
   },
   productionBrowserSourceMaps: true,
   typedRoutes: true,
+  outputFileTracingIncludes: {
+    '/**': [
+      './packages/lesswrong/server/research/sandbox/dist/supervisor.js',
+      './packages/lesswrong/server/research/sandbox/dist/research-tool.cjs',
+      './packages/lesswrong/server/research/sandbox/supervisor/agentInstructions.md',
+    ],
+  },
   experimental: {
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
@@ -60,7 +74,6 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       // Replicate the path mappings from tsconfig-client.json
       '@/server/*': { browser: './packages/lesswrong/stubs/server/*' },
-      '@/viteClient/*': { browser: './packages/lesswrong/stubs/viteClient/*' },
       '@/client/*': { browser: './packages/lesswrong/client/*', default: './packages/lesswrong/stubs/client/*' },
       '@/allComponents': './packages/lesswrong/lib/generated/allComponents.ts',
       ...(process.env.NODE_ENV === 'production' ? {
@@ -238,7 +251,7 @@ module.exports = nextConfig;
 // eslint-disable-next-line no-restricted-imports
 import { withSentryConfig } from "@sentry/nextjs";
 
-module.exports = process.env.E2E ? module.exports : withSentryConfig(
+module.exports = isE2E ? module.exports : withSentryConfig(
   module.exports,
   {
     // For all available options, see:

@@ -1,9 +1,11 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
-import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
+import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
@@ -255,7 +257,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -394,7 +397,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -404,6 +408,10 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "end",
     justifyContent: "space-between",
+    gap: 8,
+    "& .EditableUsersList-listEditor": {
+      minWidth: 0,
+    },
   },
   sharingDivider: {
     height: 1,
@@ -782,11 +790,11 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -804,11 +812,9 @@ const STICKY_PRIORITIES: Record<number, string> = {
 const CLAUDE_BUTTON_TOOLTIP_ENABLED = "Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)";
 const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" below to enable this button.";
 
-function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
-  const postUrl = postGetEditUrl(postId, true, linkSharingKey);
-  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
-
-Please remember to follow the guidelines and review structure in LessWrong's SKILL.md (https://www.lesswrong.com/api/SKILL.md).`;
+function getFeedbackQuery(postId: string, linkSharingKey: string | undefined, forumType: ForumTypeString) {
+  const postUrl = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
+  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is at ${postUrl} and documentation for interacting with the site's API is at https://www.lesswrong.com/api/SKILL.md.`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
@@ -884,11 +890,12 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
   panel: "sharing" | "publish";
   className?: string;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const isConnected = !!currentUser?.claudeLinkedAt;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
-  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
+  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey, forumType))}`;
   const tooltip = isConnected ? CLAUDE_BUTTON_TOOLTIP_ENABLED : CLAUDE_BUTTON_TOOLTIP_DISABLED;
 
   const inner = (
@@ -968,6 +975,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const postId = form.state.values._id;
@@ -988,9 +996,11 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               const linkEnabled = settings.anyoneWithLinkCan !== "none";
 
               if (!postId) {
-                return <div className={classes.disabledMessage}>
+                return (
+                  <div className={classes.disabledMessage}>
                   Save this post first to share a link
-                </div>;
+                </div>
+                );
               }
 
               const shareWithClaudeButton = (
@@ -1007,7 +1017,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
                       anyoneWithLinkCan: "edit",
                     });
                     // Copy link after enabling
-                    const url = postGetEditUrl(postId, true, linkSharingKey);
+                    const url = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
                     void navigator.clipboard.writeText(url)
                       .then(() => flash("Link sharing enabled & link copied"))
                       .catch(() => flash("Failed to copy link"));
@@ -1027,7 +1037,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
               const copyLinkButton = (
                 <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
+                  text={postGetAbsoluteEditUrl(postId, forumType, linkSharingKey)}
                   onCopy={() => flash("Link copied")}
                 >
                   <button type="button" className={classes.shareLinkButton}>
@@ -1057,7 +1067,12 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
             {(field) => (
               <EditableUsersList
                 value={field.state.value ?? []}
-                setValue={(newUsers) => field.handleChange(newUsers)}
+                setValue={(newUsers) => {
+                  field.handleChange(newUsers);
+                  if (form.state.values.sharingSettings == null) {
+                    form.setFieldValue('sharingSettings', defaultSharingSettings);
+                  }
+                }}
                 label="Add people by name"
               />
             )}
@@ -1087,7 +1102,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
         </>}
       </> : (
         <div className={classes.disabledMessage}>
-          You need at least 1 karma to use sharing features
+          You need to be logged in to use sharing features
         </div>
       )}
     </div>
@@ -1143,7 +1158,7 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
         const result = data?.ImportGoogleDoc;
         if (!result) return;
 
-        const editPostUrl = postGetEditUrl(result._id, false, result.linkSharingKey ?? undefined);
+        const editPostUrl = postGetEditUrl(result._id, result.linkSharingKey ?? undefined);
 
         captureEvent("googleDocImportSubmitted", {
           success: true,
@@ -1296,6 +1311,7 @@ const EditorSettingsSidebar = ({
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
 }: EditorSettingsSidebarProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { flash } = useMessages();
@@ -1309,8 +1325,8 @@ const EditorSettingsSidebar = ({
   const canSeeHighlight = isAdminOrMod;
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
-  const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
-  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeTags = !initialData.isEvent && !initialData.collabEditorDialogue;
+  const canSeeSocialPreview = !initialData.collabEditorDialogue;
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
@@ -1424,7 +1440,7 @@ const EditorSettingsSidebar = ({
           </AccordionSection>
         )}
 
-        {hasGoogleDocImportSetting.get() && (
+        {hasGoogleDocImportSetting.get(forumType) && (
           <GoogleDocImportSection postId={initialData._id} />
         )}
 
@@ -1568,8 +1584,7 @@ const EditorSettingsSidebar = ({
         )}
         </AccordionSection>
 
-        {canSeeAdmin && (
-          <AccordionSection title="Admin Controls">
+        {canSeeAdmin && <AccordionSection title="Admin Controls">
           <div className={classes.fieldWrapper}>
             <form.Field name="sticky">
               {(field) => <SidebarToggle field={field} label="Sticky" />}
@@ -1584,13 +1599,11 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && (
-            <div className={classes.fieldWrapper}>
+          {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && <div className={classes.fieldWrapper}>
               <form.Field name="afSticky">
                 {(field) => <SidebarToggle field={field} label="Sticky (Alignment)" />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="stickyPriority">
@@ -1701,13 +1714,11 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
               <form.Field name="manifoldReviewMarketId">
                 {(field) => <MuiTextField field={field} label="Manifold review market ID" updateOnBlur />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="noIndex">
@@ -1738,7 +1749,7 @@ const EditorSettingsSidebar = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}
@@ -1798,16 +1809,7 @@ const EditorSettingsSidebar = ({
               </form.Field>
             </div>
           )}
-
-          {userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
-              <form.Field name="swrCachingEnabled">
-                {(field) => <SidebarToggle field={field} label="stale-while-revalidate caching enabled" />}
-              </form.Field>
-            </div>
-          )}
-          </AccordionSection>
-        )}
+          </AccordionSection>}
 
         {canSeeAudio && (
           <AccordionSection title="Audio">

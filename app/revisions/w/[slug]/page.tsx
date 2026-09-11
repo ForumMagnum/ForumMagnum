@@ -13,12 +13,13 @@ assertRouteAttributes("/revisions/w/[slug]", {
   hasMarkdownVersion: false,
 });
 
-export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
+export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { noIndex: true });
 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   return <RouteRoot subtitle={TagPageSubtitle}>
     <TagPageRevisionSelect slug={slug} />
   </RouteRoot>;

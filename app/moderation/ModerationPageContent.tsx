@@ -3,9 +3,8 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Link } from '@/lib/reactRouterWrapper';
-import { userGetProfileUrl as _userGetProfileUrl, userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
+import { userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 
 // Helper to handle our custom user types
 const userGetProfileUrl = (user: { slug: string } | null): string => {
@@ -665,6 +664,8 @@ interface Props {
   deletedComments: ModerationComment[];
   deletedCommentsCount: number;
   deletedCommentsOffset: number;
+  hideAdminDeletions: boolean;
+  hideSelfDeletions: boolean;
   rejectedPosts: ModerationPost[];
   rejectedPostsCount: number;
   rejectedPostsOffset: number;
@@ -698,6 +699,8 @@ export default function ModerationPageContent(props: Props) {
     deletedComments,
     deletedCommentsCount,
     deletedCommentsOffset,
+    hideAdminDeletions,
+    hideSelfDeletions,
     rejectedPosts,
     rejectedPostsCount,
     rejectedPostsOffset,
@@ -788,6 +791,13 @@ export default function ModerationPageContent(props: Props) {
         dangerouslySetInnerHTML={{ __html: reason }}
       />
     );
+  };
+
+  // deletedReason is plain text (not rich text); render it as such to avoid XSS,
+  // since it's writable by ordinary members on their own comments.
+  const renderPlainTextReason = (reason: string | null | undefined) => {
+    if (!reason) return '—';
+    return <div className={classes.reason}>{reason}</div>;
   };
 
   const buildPaginationUrl = (section: string, page: number) => {
@@ -1067,9 +1077,30 @@ export default function ModerationPageContent(props: Props) {
       </div>
 
       {/* Deleted Comments Table */}
-      {deletedComments.length > 0 && (
+      {(deletedComments.length > 0 || hideAdminDeletions || hideSelfDeletions) && (
         <div className={classes.section}>
-          <div className={classes.sectionHeader}>Deleted Comments ({deletedCommentsCount})</div>
+          <div className={`${classes.sectionHeader} ${classes.sectionHeaderFlex}`}>
+            <span>Deleted Comments ({deletedCommentsCount})</span>
+            <div className={classes.filterGroup}>
+              <Link to={buildToggleUrl('hideAdminDeletions', hideAdminDeletions, 'deletedCommentsOffset')} className={classes.filterCheckbox} scroll={false}>
+                <input
+                  type="checkbox"
+                  checked={hideAdminDeletions}
+                  readOnly
+                />{' '}
+                Hide admin deletions
+              </Link>
+              <Link to={buildToggleUrl('hideSelfDeletions', hideSelfDeletions, 'deletedCommentsOffset')} className={classes.filterCheckbox} scroll={false}>
+                <input
+                  type="checkbox"
+                  checked={hideSelfDeletions}
+                  readOnly
+                />{' '}
+                Hide self-deletions
+              </Link>
+            </div>
+          </div>
+          {deletedComments.length > 0 ? (
           <table className={classes.table}>
             <thead>
               <tr>
@@ -1078,6 +1109,7 @@ export default function ModerationPageContent(props: Props) {
                 <th className={classes.th}>Post</th>
                 <th className={classes.th}>Reason</th>
                 <th className={classes.th}>Deleted By</th>
+                <th className={classes.th}>Public</th>
               </tr>
             </thead>
             <tbody>
@@ -1103,7 +1135,7 @@ export default function ModerationPageContent(props: Props) {
                         </a>
                       ) : '—'}
                     </td>
-                    <td className={classes.td} data-label="Reason">{renderReason(comment.deletedReason)}</td>
+                    <td className={classes.td} data-label="Reason">{renderPlainTextReason(comment.deletedReason)}</td>
                     <td className={classes.td} data-label="Deleted By">
                       {comment.deletedByUser ? (
                         <a href={userGetProfileUrl(comment.deletedByUser)} className={classes.link}>
@@ -1111,16 +1143,22 @@ export default function ModerationPageContent(props: Props) {
                         </a>
                       ) : '—'}
                     </td>
+                    <td className={classes.td} data-label="Public">
+                      {comment.deletedPublic ? 'Yes' : 'No'}
+                    </td>
                   </tr>
                   {expandedRows.has(comment._id) && (
                     <tr>
-                      <td colSpan={5}>{renderContent(comment.contents)}</td>
+                      <td colSpan={6}>{renderContent(comment.contents)}</td>
                     </tr>
                   )}
                 </React.Fragment>
               ))}
             </tbody>
           </table>
+          ) : (
+            <div className={classes.empty}>No deleted comments match the current filters</div>
+          )}
           {renderPagination('deletedComments', deletedCommentsCount, deletedCommentsOffset)}
         </div>
       )}

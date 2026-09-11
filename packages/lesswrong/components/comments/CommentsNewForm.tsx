@@ -1,11 +1,12 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings, type ForumTypeString } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { PermissionsPostMinimumInfo, requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
@@ -26,6 +27,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import CantCommentExplanation from './CantCommentExplanation';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -84,7 +86,7 @@ const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
   },
   moderationGuidelinesWrapper: {
-    backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
+    backgroundColor: theme.palette.greyAlpha(.07),
   }
 }));
 
@@ -95,10 +97,11 @@ export type CommentSuccessCallback = ((
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
 const shouldOpenNewUserGuidelinesDialog = (
-  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
+  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo },
+  forumType: ForumTypeString,
+): maybeProps is { user: UsersCurrent, post: PostsMinimumInfo } => {
   const { user, post } = maybeProps;
-  return !!user && requireNewUserGuidelinesAck(user) && !!post;
+  return !!user && requireNewUserGuidelinesAck(user, forumType) && !!post;
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
@@ -107,7 +110,7 @@ const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
-  post?: PostsMinimumInfo & { question?: boolean },
+  post?: PostsMinimumInfo & PermissionsPostMinimumInfo & { question?: boolean },
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
@@ -134,6 +137,7 @@ export type CommentsNewFormProps = {
 }
 
 const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSION", parentComment, successCallback, interactionType, cancelCallback, removeFields, formProps, enableGuidelines=true, padding=true, formStyle="default", overrideHintText, quickTakesSubmitButtonAtBottom, isAnswer, cancelLabel, hideAlignmentForumCheckbox, className}: CommentsNewFormProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -162,7 +166,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
-    af: commentDefaultToAlignment(currentUser, post, parentComment),
+    af: commentDefaultToAlignment(currentUser, post, forumType, parentComment),
   };
   
   const isQuickTake = !!prefilledProps.shortform
@@ -184,12 +188,12 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
       // TODO: user field for showing new user guidelines
       // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
       const dialogProps = { user: currentUser, post };
-      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps, forumType)) {
         openDialog({
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
             onClose={onClose}
-            {...dialogProps}
+            post={dialogProps.post}
           />
         });
       }
@@ -254,7 +258,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     answer: !!isAnswer,
   };
 
-  const hideDate = hideUnreviewedAuthorCommentsSettings.get();
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get(forumType);
   const commentWillBeHidden = (
     hideDate
     && new Date(hideDate) < now
@@ -294,9 +298,11 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     loading,
   }), [formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, loading]);
   
-  // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
-  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
-  ) {
+  const permissionPost = post ?? prefilledProps;
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, permissionPost, post?.user ?? null, !!parentComment)) {
+    if (post) {
+      return <CantCommentExplanation post={post} />
+    }
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   return (
@@ -323,7 +329,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
             rateLimitMessage={rateLimitMessage}
           />}
           <div onFocus={(ev) => {
-            afNonMemberDisplayInitialPopup(currentUser, openDialog)
+            afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)
             ev.preventDefault()
           }}>
             <CommentForm

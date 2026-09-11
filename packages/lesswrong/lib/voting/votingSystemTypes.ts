@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '../instanceSettings';
 import type React from 'react';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '@/components/contents/contentBodyUtil';
 import type { VotingProps } from '@/components/votes/votingProps';
@@ -43,7 +44,7 @@ export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
   name: VotingSystemName;
   description: string;
   hasInlineReacts?: boolean;
-  userCanActivate?: () => boolean; // toggles whether non-admins use this voting system
+  userCanActivate?: (forumType: ForumTypeString) => boolean; // toggles whether non-admins use this voting system
   addVoteClient: (props: {
     voteType: string | null;
     document: VoteableTypeClient;

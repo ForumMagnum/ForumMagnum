@@ -46,7 +46,6 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ['guests'],
-      canCreate: ['members'],
     },
   },
 

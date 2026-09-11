@@ -1,5 +1,5 @@
 import React from 'react';
-import { getThemeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
+import { getThemeMetadata, defaultThemeOptions } from '../../themes/themeNames';
 import { useAbstractThemeOptions } from '../themes/useTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
@@ -13,7 +13,7 @@ const getValue = (field: TypedFieldApi<ThemeField>): string => {
     return window.themeOptions.name;
   }
 
-  return getDefaultThemeOptions().name;
+  return defaultThemeOptions.name;
 }
 
 interface ThemeField {

@@ -210,7 +210,7 @@ function _WeightedHeap(this: any, items: any) {
 }
 
 _WeightedHeap.prototype = {
-  pop: function() {
+  pop: function(this: any) {
     // Start with a random amount of gas
     var gas = this.heap[1].total * Math.random();
     

@@ -27,7 +27,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 }
 
 // note: if no context is passed, default to running requests with full admin privileges
-export const runQuery = async <TData extends Record<string, any>, TVariables extends OperationVariables>(query: string | TypedDocumentNode<TData, TVariables>, variables: TVariables = {} as TVariables, context?: Partial<ResolverContext>) => {
+export const runQueryNonThrowing = async <TData extends Record<string, any>, TVariables extends OperationVariables>(query: string | TypedDocumentNode<TData, TVariables>, variables: TVariables = {} as TVariables, context?: Partial<ResolverContext>) => {
   const { getExecutableSchema } = await import('./apollo-server/initGraphQL');
 
   const executableSchema = getExecutableSchema();
@@ -48,6 +48,16 @@ export const runQuery = async <TData extends Record<string, any>, TVariables ext
 
   if (result.errors) {
     onGraphQLError(result.errors);
+  }
+
+  return result;
+};
+
+// note: if no context is passed, default to running requests with full admin privileges
+export const runQuery = async <TData extends Record<string, any>, TVariables extends OperationVariables>(query: string | TypedDocumentNode<TData, TVariables>, variables: TVariables = {} as TVariables, context?: Partial<ResolverContext>) => {
+  const result = await runQueryNonThrowing(query, variables, context);
+
+  if (result.errors) {
     throw new Error(result.errors?.[0]?.message);
   }
 

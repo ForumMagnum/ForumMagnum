@@ -1,6 +1,5 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('SettingsSelectRow', (theme: ThemeType) => ({
   root: {
@@ -74,19 +73,16 @@ interface SelectOption {
 }
 
 interface SettingsSelectRowProps {
-  field: {
-    name: TypedFieldApi<string | number | null | undefined>['name'];
-    state: Pick<TypedFieldApi<string | number | null | undefined>['state'], 'value' | 'meta'>;
-    handleChange: TypedFieldApi<string | number | null | undefined>['handleChange'];
-    handleBlur: TypedFieldApi<string | number | null | undefined>['handleBlur'];
-  };
+  value: string | number | null | undefined;
+  onChange: (value: string) => void;
   label: string;
   description?: string;
   options: SelectOption[] | readonly SelectOption[];
 }
 
 const SettingsSelectRow = ({
-  field,
+  value,
+  onChange,
   label,
   description,
   options,
@@ -102,9 +98,8 @@ const SettingsSelectRow = ({
       <div className={classes.selectWrapper}>
         <select
           className={classes.select}
-          value={field.state.value ?? ''}
-          onChange={(e) => field.handleChange(e.target.value)}
-          onBlur={field.handleBlur}
+          value={value ?? ''}
+          onChange={(e) => onChange(e.target.value)}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>

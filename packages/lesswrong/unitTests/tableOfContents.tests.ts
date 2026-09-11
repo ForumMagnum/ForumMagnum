@@ -115,6 +115,28 @@ describe("extractTableOfContents", () => {
     });
   });
 
+  it("Regression: <b> nested inside <strong> counts as a single heading", () => {
+    const html = normalizeHtml(`
+      <p><strong><b>Doubly bold</b></strong></p>
+      <p>Some content</p>
+      <p><b><strong>Bold twice again</strong></b></p>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <p><strong id="Doubly_bold"><b>Doubly bold</b></strong></p>
+        <p>Some content</p>
+        <p><b id="Bold_twice_again"><strong>Bold twice again</strong></b></p>
+      `),
+      sections: [
+        { title: "Doubly bold", anchor: "Doubly_bold", level: 1 },
+        { title: "Bold twice again", anchor: "Bold_twice_again", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
+
   it("Regression: Trailing whitespace counts towards anchor", () => {
     const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
@@ -130,6 +152,40 @@ describe("extractTableOfContents", () => {
           anchor: expectedAnchor,
           level: 1,
         },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
+
+  it("ignores headings inside collapsible-section content and code blocks", () => {
+    const html = normalizeHtml(`
+      <h1>Visible heading</h1>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle"><p>Expandable example</p></summary>
+        <div class="detailsBlockContent">
+          <h2>Hidden heading</h2>
+          <code><strong>Code block heading</strong></code>
+        </div>
+      </details>
+      <h2>Another visible heading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <h1 id="Visible_heading">Visible heading</h1>
+        <details class="detailsBlock">
+          <summary class="detailsBlockTitle"><p>Expandable example</p></summary>
+          <div class="detailsBlockContent">
+            <h2>Hidden heading</h2>
+            <code><strong>Code block heading</strong></code>
+          </div>
+        </details>
+        <h2 id="Another_visible_heading">Another visible heading</h2>
+      `),
+      sections: [
+        { title: "Visible heading", anchor: "Visible_heading", level: 1 },
+        { title: "Another visible heading", anchor: "Another_visible_heading", level: 2 },
         { anchor: "postHeadingsDivider", divider: true, level: 0 },
       ],
     });

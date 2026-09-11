@@ -1,6 +1,5 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useRecommendations } from '../../components/recommendations/withRecommendations';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, emailUseStyles } from "./emailContext";
@@ -49,7 +48,7 @@ export const EmailFooterRecommendations = async ({emailContext}: {
     <h2 className={classes.recommendedPostsHeader}>Other Recommended Posts</h2>
     <ul>
       {/* TODO: Watch for this referrer */}
-      {recommendations?.map(post => <li key={post._id}><a href={`${postGetPageUrl(post, true)}?referrer=emailfooter`}>{post.title}</a></li>)}
+      {recommendations?.map(post => <li key={post._id}><a href={`${postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)}?referrer=emailfooter`}>{post.title}</a></li>)}
     </ul>
   </>
 }

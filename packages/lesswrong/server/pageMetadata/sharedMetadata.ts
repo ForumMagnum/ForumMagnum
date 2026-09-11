@@ -1,3 +1,5 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -5,7 +7,6 @@ import { CombinedGraphQLErrors } from '@apollo/client';
 import { captureException } from '@/lib/sentryWrapper';
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from 'next/navigation';
 import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
 import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
 
@@ -35,43 +36,45 @@ export const noIndexMetadata = { robots: { index: false } };
  * https://nextjs.org/docs/app/getting-started/metadata-and-og-images#default-fields
  */
 export async function getDefaultMetadata() {
+  const forumType = await getForumTypeForPage();
   const headersList = await headers();
   const userAgent = headersList.get("user-agent");
   return {
-    title: tabLongTitleSetting.get() || tabTitleSetting.get(),
-    description: taglineSetting.get(),
+    title: tabLongTitleSetting.get(forumType) || tabTitleSetting.get(forumType),
+    description: taglineSetting.get(forumType),
     twitter: {
-      description: taglineSetting.get(),
-      images: siteImageSetting.get(),
+      description: taglineSetting.get(forumType),
+      images: siteImageSetting.get(forumType),
       ...(userAgent?.startsWith("Slackbot-LinkExpanding") ? { card: "summary_large_image" } : { card: "summary" }),
     },
     openGraph: {
-      title: tabLongTitleSetting.get() || tabTitleSetting.get(),
+      title: tabLongTitleSetting.get(forumType) || tabTitleSetting.get(forumType),
       type: 'article',
-      url: getSiteUrl(),
-      description: taglineSetting.get(),
-      images: siteImageSetting.get(),
+      url: getSiteUrl(forumType),
+      description: taglineSetting.get(forumType),
+      images: siteImageSetting.get(forumType),
     },
     alternates: {
-      canonical: getSiteUrl(),
+      canonical: getSiteUrl(forumType),
       types: {
-        'application/rss+xml': `${getSiteUrl()}feed.xml`,
+        'application/rss+xml': `${getSiteUrl(forumType)}feed.xml`,
       }
     },
-    ...(noIndexSetting.get() ? noIndexMetadata : {})
+    ...(noIndexSetting.get(forumType) ? noIndexMetadata : {})
   } satisfies Metadata;
 }
 
-function getPageTitleString(title: string) {
-  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
+function getPageTitleString(title: string, forumType: ForumTypeString) {
+  const siteName = tabTitleSetting.get(forumType) ?? tabLongTitleSetting.get(forumType);
   return `${title} — ${siteName}`;
 }
 
-export function getPageTitleFields(title: string): Metadata {
+export async function getPageTitleFields(title: string): Promise<Metadata> {
+  const forumType = await getForumTypeForPage();
   return {
-    title: getPageTitleString(title),
+    title: getPageTitleString(title, forumType),
     openGraph: {
-      title: getPageTitleString(title),
+      title: getPageTitleString(title, forumType),
     },
   };
 }
@@ -132,17 +135,23 @@ function shouldIgnoreError(error: unknown) {
   return false;
 }
 
-export function handleMetadataError(prefix: string, error: unknown) {
-  // Don't log on noisy permission/not found errors; we have a lot of scrapers which 
+/**
+ * Handle an error thrown while generating page metadata by falling back to the
+ * site-default metadata. Deliberately not `notFound()`: that would put a 404
+ * digest in the RSC payload, which makes the client render the not-found page
+ * regardless of what the page's own SSR decided, while being unable to affect
+ * the HTTP status (metadata streams in after the status is committed). The
+ * page component owns the error UI and status code (via StatusCodeSetter).
+ */
+export function handleMetadataError(prefix: string, error: unknown): Promise<Metadata> {
+  // Don't log on noisy permission/not found errors; we have a lot of scrapers which
   // end up hitting posts that are now drafts, don't exist, etc.
-  if (shouldIgnoreError(error)) {
-    return notFound();
+  if (!shouldIgnoreError(error)) {
+    //eslint-disable-next-line no-console
+    console.error(`${prefix}:`, error);
+    captureException(error);
   }
-
-  //eslint-disable-next-line no-console
-  console.error(`${prefix}:`, error);
-  captureException(error);
-  return notFound();
+  return getDefaultMetadata();
 }
 
 /**

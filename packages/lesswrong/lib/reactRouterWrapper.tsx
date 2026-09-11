@@ -1,6 +1,6 @@
 'use client';
 
-import React, { CSSProperties, FC, useState } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
@@ -47,7 +47,6 @@ const getLinkPrefetch = (to: string, everHovered: boolean) => {
 }
 
 export const Link = ({eventProps, ...props}: LinkProps) => {
-  const [hovered, setHovered] = useState(false);
   
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
@@ -71,9 +70,7 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    const prefetch = getLinkPrefetch(to, hovered);
-    const propsWithPrefetch = { ...props, prefetch };
-    return <HashLink {...propsWithPrefetch} onMouseDown={handleClick} onMouseEnter={() => setHovered(true)}/>
+    return <HashLink {...props} prefetch={false} onMouseDown={handleClick} />
   }
 }
 

@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-export const defaultNotificationsView: ViewFunction<"Notifications"> = (terms: NotificationsViewTerms) => {
+export const defaultNotificationsView = (terms: NotificationsViewTerms) => {
   // const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {

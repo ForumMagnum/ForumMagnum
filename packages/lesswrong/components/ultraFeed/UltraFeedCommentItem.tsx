@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -5,7 +6,7 @@ import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS, readCommentsInitialWords } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
-import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
@@ -323,6 +324,7 @@ export const UltraFeedCommentItem = ({
   threadIndex,
   commentIndex,
 }: UltraFeedCommentItemProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -521,7 +523,7 @@ export const UltraFeedCommentItem = ({
                   maxWordCount={truncationParams.maxWordCount}
                   wordCount={comment.contents?.wordCount ?? 0}
                   continueReadingUrl={continueReadingUrl}
-                  nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                  nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get(forumType)}
                   clampOverride={displaySettings.lineClampNumberOfLines}
                   onExpand={handleContentExpand}
                   hideSuffix={false}

@@ -10,7 +10,6 @@ import type {
   RankableItem,
   PostScoreBreakdown,
   ThreadScoreBreakdown,
-  ScoreBreakdown,
   RankedItemMetadata,
   MappablePreparedThread,
 } from './ultraFeedRankingTypes';
@@ -142,6 +141,7 @@ function scorePost(
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
   
   let karmaBonus = 0;
+  let timeDecayKarmaDetails: PostScoreBreakdown["timeDecayKarmaDetails"] | undefined;
 
   if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
     karmaBonus = Math.min(
@@ -152,7 +152,12 @@ function scorePost(
     const denominator = Math.pow(post.ageHrs + postConfig.timeDecayBias, postConfig.timeDecayExponent);
     const numerator = Math.pow(postConfig.timeDecayScale, postConfig.timeDecayExponent);
     if (denominator > 0 && Number.isFinite(denominator)) {
-      karmaBonus = Math.min(post.karma * numerator / denominator, postConfig.karmaMaxBonus);
+      const timeDecayMultiplier = numerator / denominator;
+      karmaBonus = Math.min(post.karma * timeDecayMultiplier, postConfig.karmaMaxBonus);
+      timeDecayKarmaDetails = {
+        karma: post.karma,
+        timeDecayMultiplier,
+      };
     }
   }
 
@@ -168,6 +173,7 @@ function scorePost(
         karmaBonus,
         topicAffinityBonus,
       },
+      timeDecayKarmaDetails,
       typeMultiplier: postConfig.typeMultiplier,
     },
   };
@@ -209,14 +215,38 @@ function scoreThread(
   const yourPostActivityBonus = isYourPost ? cfg.yourPostBonus : 0;
 
   const unreadComments = thread.comments.filter(c => !c.isRead);
-  let overallKarmaBonus = 0;
   const numerator = Math.pow(cfg.timeDecayScale, cfg.timeDecayExponent);
-  for (const comment of unreadComments) {
-    const denominator = Math.pow(comment.ageHrs + cfg.timeDecayBias, cfg.timeDecayExponent);
-    if (denominator > 0 && Number.isFinite(denominator)) {
-      overallKarmaBonus += comment.karma * numerator / denominator;
+  const decayedCommentScores = unreadComments
+    .map(comment => {
+      const denominator = Math.pow(comment.ageHrs + cfg.timeDecayBias, cfg.timeDecayExponent);
+      if (denominator <= 0 || !Number.isFinite(denominator)) {
+        return null;
+      }
+
+      const timeDecayMultiplier = numerator / denominator;
+      return {
+        karma: comment.karma,
+        decayedKarma: comment.karma * timeDecayMultiplier,
+      };
+    })
+    .filter((commentScore): commentScore is { karma: number; decayedKarma: number } => !!commentScore)
+    .sort((a, b) => b.decayedKarma - a.decayedKarma);
+
+  let rankWeightedKarma = 0;
+  let rankWeightedDecayedKarma = 0;
+  decayedCommentScores.forEach((commentScore, index) => {
+    const rankWeight = Math.pow(0.5, index);
+    rankWeightedKarma += commentScore.karma * rankWeight;
+    rankWeightedDecayedKarma += commentScore.decayedKarma * rankWeight;
+  });
+
+  const timeDecayKarmaDetails: ThreadScoreBreakdown["timeDecayKarmaDetails"] | undefined = decayedCommentScores.length > 0
+    ? {
+      karma: rankWeightedKarma,
+      timeDecayMultiplier: rankWeightedKarma === 0 ? 0 : rankWeightedDecayedKarma / rankWeightedKarma,
     }
-  }
+    : undefined;
+  let overallKarmaBonus = rankWeightedDecayedKarma;
   overallKarmaBonus = Math.min(overallKarmaBonus, cfg.karmaMaxBonus);
 
   const topicAffinityBonus = 0;
@@ -224,6 +254,7 @@ function scoreThread(
   const isQuicktake = thread.stats.hasShortform;
   const topLevelCommentIsUnread = topLevelComment ? !topLevelComment.isRead : false;
   const quicktakeBonus = (isQuicktake && topLevelCommentIsUnread) ? cfg.quicktakeBonus : 0;
+  const typeMultiplier = isQuicktake ? 1.0 : cfg.typeMultiplier;
 
   const isReadPost = engagement?.isOnReadPost ?? false;
   const readPostContextBonus = isReadPost ? cfg.readPostContextBonus : 0;
@@ -240,7 +271,7 @@ function scoreThread(
     }
   }
 
-  const total = additiveTotal * repetitionPenaltyMultiplier * cfg.typeMultiplier;
+  const total = additiveTotal * repetitionPenaltyMultiplier * typeMultiplier;
 
   return {
     score: total,
@@ -256,18 +287,30 @@ function scoreThread(
         quicktakeBonus,
         readPostContextBonus,
       },
+      timeDecayKarmaDetails,
       repetitionPenaltyMultiplier,
-      typeMultiplier: cfg.typeMultiplier,
+      typeMultiplier,
     },
   };
 }
 
-interface ScoredItem {
+interface PostScoredItem {
+  itemType: 'post';
   id: string;
   score: number;
-  item: RankableItem;
-  breakdown: ScoreBreakdown;
+  item: PostRankableItem;
+  breakdown: PostScoreBreakdown;
 }
+
+interface ThreadScoredItem {
+  itemType: 'commentThread';
+  id: string;
+  score: number;
+  item: ThreadRankableItem;
+  breakdown: ThreadScoreBreakdown;
+}
+
+type ScoredItem = PostScoredItem | ThreadScoredItem;
 
 /**
  * Normalize sources array for comparison by sorting.
@@ -430,35 +473,61 @@ export function scoreItems(
   config: RankingConfig = DEFAULT_RANKING_CONFIG
 ): ScoredItem[] {
   return items.map(item => {
-    let scoreResult: { score: number; breakdown: ScoreBreakdown };
-    
     if (item.itemType === 'post') {
-      scoreResult = scorePost(item, config);
-    } else if (item.itemType === 'commentThread') {
-      scoreResult = scoreThread(item, config);
-    } else {
-      // Spotlights get baseline score with minimal breakdown
-      scoreResult = {
-        score: 1,
-        breakdown: {
-          total: 1,
-          terms: {
-            subscribedBonus: 0,
-            karmaBonus: 0,
-            topicAffinityBonus: 0,
-          },
-          typeMultiplier: 1.0,
-        },
+      const scoreResult = scorePost(item, config);
+      return {
+        itemType: 'post',
+        id: item.id,
+        score: scoreResult.score,
+        item,
+        breakdown: scoreResult.breakdown,
       };
     }
-    
+
+    const scoreResult = scoreThread(item, config);
     return { 
+      itemType: 'commentThread',
       id: item.id, 
       score: scoreResult.score, 
       item,
       breakdown: scoreResult.breakdown,
     };
   });
+}
+
+function scoredItemToMetadata(
+  scoredItem: ScoredItem,
+  selectionConstraints: string[],
+  position: number,
+): RankedItemMetadata {
+  if (scoredItem.itemType === 'commentThread') {
+    return {
+      rankedItemType: 'commentThread',
+      scoreBreakdown: scoredItem.breakdown,
+      selectionConstraints,
+      position,
+    };
+  }
+
+  return {
+    rankedItemType: 'post',
+    scoreBreakdown: scoredItem.breakdown,
+    selectionConstraints,
+    position,
+  };
+}
+
+export function scoreAllUltraFeedItems(
+  items: RankableItem[],
+  config: RankingConfig = DEFAULT_RANKING_CONFIG,
+): Array<{ id: string; metadata: RankedItemMetadata }> {
+  const scoredItems = scoreItems(items, config);
+  scoredItems.sort((a, b) => b.score - a.score);
+
+  return scoredItems.map((scoredItem, position) => ({
+    id: scoredItem.id,
+    metadata: scoredItemToMetadata(scoredItem, [], position),
+  }));
 }
 
 export function rankUltraFeedItems(
@@ -480,26 +549,9 @@ export function rankUltraFeedItems(
       throw new Error(`rankUltraFeedItems: Could not find scored item for id ${id}`);
     }
     
-    if (scoredItem.item.itemType === 'commentThread') {
-      return {
-        id,
-        metadata: {
-          rankedItemType: 'commentThread' as const,
-          scoreBreakdown: scoredItem.breakdown as ThreadScoreBreakdown,
-          selectionConstraints: appliedConstraints,
-          position,
-        },
-      };
-    }
-    
     return {
       id,
-      metadata: {
-        rankedItemType: 'post' as const,
-        scoreBreakdown: scoredItem.breakdown as PostScoreBreakdown,
-        selectionConstraints: appliedConstraints,
-        position,
-      },
+      metadata: scoredItemToMetadata(scoredItem, appliedConstraints, position),
     };
   });
 }

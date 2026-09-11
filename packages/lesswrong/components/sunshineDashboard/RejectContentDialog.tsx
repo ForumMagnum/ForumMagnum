@@ -2,7 +2,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Paper, Card }from '@/components/widgets/Paper';
 import classNames from 'classnames';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
@@ -18,6 +18,7 @@ import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { focusLexicalEditor } from '../editor/focusLexicalEditor';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
+import { standardRejectionIntroHtml } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import dynamic from 'next/dynamic';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
@@ -258,6 +259,53 @@ const TemplateRowContent = ({
   );
 };
 
+interface SortableTemplateRowContextValue {
+  templatesById: Record<string, ModerationTemplateFragment>;
+  visibleTemplateIds: string[];
+  selectedIndex: number;
+  selections: Record<string, boolean>;
+  displayName?: string;
+  onCheckboxChange: (label: string, checked: boolean) => void;
+  onHide: (templateId: string) => void;
+}
+
+const SortableTemplateRowContext = createContext<SortableTemplateRowContextValue | null>(null);
+
+// Reads from context, not a closure, so SortableTemplateList can be built
+// once at module scope; rebuilding it per render remounts the dnd tree.
+const SortableTemplateRow = ({ contents: templateId }: { contents: string }) => {
+  const classes = useStyles(styles);
+  const context = useContext(SortableTemplateRowContext);
+  if (!context) return null;
+
+  const { templatesById, visibleTemplateIds, selectedIndex, selections, displayName, onCheckboxChange, onHide } = context;
+  const template = templatesById[templateId];
+  if (!template) return null;
+
+  const originalIndex = visibleTemplateIds.indexOf(templateId);
+
+  return (
+    <div className={classes.templateRow}>
+      <span className={classes.dragHandle}>
+        <LWTooltip title="Drag to reorder" placement="left">
+          <ForumIcon icon="DragIndicator" className={classes.dragIndicatorIcon} />
+        </LWTooltip>
+      </span>
+      <TemplateRowContent
+        template={template}
+        displayName={displayName}
+        isTop6={originalIndex < 6}
+        selections={selections}
+        onCheckboxChange={onCheckboxChange}
+        onHide={onHide}
+        selected={originalIndex === selectedIndex}
+      />
+    </div>
+  );
+};
+
+const SortableTemplateList = makeSortableListComponent({ RenderItem: SortableTemplateRow });
+
 const STORAGE_KEY_PREFIX = 'rejectionTemplateConfig_';
 
 const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displayName}: {
@@ -270,7 +318,11 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   const currentUser = useCurrentUser();
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
-  const [rejectedReason, setRejectedReason] = useState('');
+  // Live editor contents go in a ref so typing doesn't re-render the template
+  // list; editorHtml is only the value the editor is (re)mounted with.
+  const rejectedReasonRef = useRef('');
+  const [editorHtml, setEditorHtml] = useState('');
+  const [hasRejectedReason, setHasRejectedReason] = useState(false);
   const [lexicalEditorVersion, setLexicalEditorVersion] = useState(0);
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [templateOrder, setTemplateOrder] = useState<string[]>([]);
@@ -283,22 +335,34 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   const templateListRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   
-  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, getDraftMessageHtml({ html: contents?.html ?? "", displayName })]));
+  const rejectionReasons = useMemo(
+    () => Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, getDraftMessageHtml({ html: contents?.html ?? "", displayName })])),
+    [rejectionTemplates, displayName]
+  );
 
   // Create a map for quick template lookup
-  const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
+  const templatesById = useMemo(
+    () => Object.fromEntries(rejectionTemplates.map(t => [t._id, t])),
+    [rejectionTemplates]
+  );
 
-  const orderedTemplates = templateOrder
-    .map(id => templatesById[id])
-    .filter(template => !!template);
-  
-  const matchesSearch = (template: ModerationTemplateFragment) => {
-    if (!searchQuery) return true;
-    return template.name.toLowerCase().includes(searchQuery.toLowerCase());
-  };
-  
-  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id) && matchesSearch(t));
-  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id) && matchesSearch(t));  
+  const { visibleTemplates, hiddenTemplates } = useMemo(() => {
+    const orderedTemplates = templateOrder
+      .map(id => templatesById[id])
+      .filter(template => !!template);
+
+    const lowercaseQuery = searchQuery.toLowerCase();
+    const matching = lowercaseQuery
+      ? orderedTemplates.filter(t => t.name.toLowerCase().includes(lowercaseQuery))
+      : orderedTemplates;
+
+    return {
+      visibleTemplates: matching.filter(t => !hiddenTemplateIds.has(t._id)),
+      hiddenTemplates: matching.filter(t => hiddenTemplateIds.has(t._id)),
+    };
+  }, [templateOrder, templatesById, searchQuery, hiddenTemplateIds]);
+
+  const visibleTemplateIds = useMemo(() => visibleTemplates.map(t => t._id), [visibleTemplates]);
 
   useEffect(() => {
     const ls = getBrowserLocalStorage();
@@ -405,9 +469,15 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   }, [hiddenTemplateIds, templateOrder, saveConfig]);
 
   const handleClick = useCallback(() => {
-    rejectContent(rejectedReason);
+    rejectContent(rejectedReasonRef.current);
     onClose?.();
-  }, [rejectContent, rejectedReason, onClose]);
+  }, [rejectContent, onClose]);
+
+  const handleEditorChange = useCallback((html: string) => {
+    rejectedReasonRef.current = html;
+    // Same-value setState bails out, so typing doesn't re-render the list.
+    setHasRejectedReason(!!html);
+  }, []);
 
   const composeRejectedReason = useCallback((label: string, checked: boolean) => {
     const newSelections = {...selections, [label]: checked};
@@ -420,17 +490,12 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
         .join('')
     }</ul>`;
 
-    setRejectedReason(composedReason);
+    rejectedReasonRef.current = composedReason;
+    setEditorHtml(composedReason);
+    setHasRejectedReason(!!composedReason);
     setLexicalEditorVersion((prev) => prev + 1);
     focusLexicalEditor(editorContainerRef.current);
   }, [rejectionReasons, selections]);
-
-  // Standard rejection intro that will be prepended to the message
-  const standardIntroHtml = `
-    <p>Unfortunately, I rejected your [content].</p>
-    <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>
-    <p>Your content didn't meet the bar for at least the following reason(s):</p>
-  `;
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     switch (e.key) {
@@ -445,7 +510,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
       case 'Enter':
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
-          if (rejectedReason) {
+          if (hasRejectedReason) {
             handleClick();
           }
         } else {
@@ -472,46 +537,26 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
         }, 0);
         break;
     }
-  }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, rejectedReason, hideTextField, handleClick]);
+  }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, hasRejectedReason, hideTextField, handleClick]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      if (rejectedReason) {
+      if (hasRejectedReason) {
         e.preventDefault();
         handleClick();
       }
     }
-  }, [rejectedReason, handleClick]));
+  }, [hasRejectedReason, handleClick]));
 
-  const SortableTemplateList = makeSortableListComponent({
-    RenderItem: ({ contents: templateId }) => {
-      const template = templatesById[templateId];
-      if (!template) return null;
-
-      const originalIndex = visibleTemplates.findIndex(t => t._id === templateId);
-      const top6 = originalIndex < 6;
-      const isSelected = originalIndex === selectedIndex;
-
-      return (
-        <div className={classes.templateRow}>
-          <span className={classes.dragHandle}>
-            <LWTooltip title="Drag to reorder" placement="left">
-              <ForumIcon icon="DragIndicator" className={classes.dragIndicatorIcon} />
-            </LWTooltip>
-          </span>
-          <TemplateRowContent
-            template={template}
-            displayName={displayName}
-            isTop6={top6}
-            selections={selections}
-            onCheckboxChange={composeRejectedReason}
-            onHide={hideTemplate}
-            selected={isSelected}
-          />
-        </div>
-      );
-    }
-  });
+  const sortableRowContext: SortableTemplateRowContextValue = useMemo(() => ({
+    templatesById,
+    visibleTemplateIds,
+    selectedIndex,
+    selections,
+    displayName,
+    onCheckboxChange: composeRejectedReason,
+    onHide: hideTemplate,
+  }), [templatesById, visibleTemplateIds, selectedIndex, selections, displayName, composeRejectedReason, hideTemplate]);
 
   const dialogContent = <>
     <input
@@ -529,11 +574,13 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
       style={initialHeight !== null ? { minHeight: initialHeight } : undefined}
     >
     <div ref={templateListRef}>
-      <SortableTemplateList
-        value={visibleTemplates.map(t => t._id)}
-        setValue={updateTemplateOrder}
-        axis="y"
-      />
+      <SortableTemplateRowContext.Provider value={sortableRowContext}>
+        <SortableTemplateList
+          value={visibleTemplateIds}
+          setValue={updateTemplateOrder}
+          axis="y"
+        />
+      </SortableTemplateRowContext.Provider>
     </div>
     
     {hiddenTemplates.length > 0 && (
@@ -572,17 +619,16 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
     <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })} ref={editorContainerRef}>
       <div className={classes.defaultIntroMessage}>
         <ContentStyles contentType='comment'>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
+          <ContentItemBody dangerouslySetInnerHTML={{__html: standardRejectionIntroHtml}} />
         </ContentStyles>
       </div>
 
       <ContentStyles contentType='comment'>
         <LexicalEditor
           key={lexicalEditorVersion}
-          data={rejectedReason}
+          data={editorHtml}
           placeholder="Enter rejection reason..."
-          onChange={setRejectedReason}
-          onReady={() => {}}
+          onChange={handleEditorChange}
           commentEditor
         />
       </ContentStyles>
@@ -593,7 +639,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   const dialogElement = <Paper>
     <div className={classes.dialogContent}>
       {dialogContent}
-      <Button onClick={handleClick} disabled={!rejectedReason}>
+      <Button onClick={handleClick} disabled={!hasRejectedReason}>
         Reject
         <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
       </Button>

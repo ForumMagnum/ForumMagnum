@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
@@ -7,9 +8,10 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
 import ModerationPageContent from "./ModerationPageContent";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { adminAccountSetting, type ForumTypeString } from "@/lib/instanceSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Moderation Log'), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Moderation Log'), {
     robots: { index: false },
   });
 }
@@ -27,6 +29,7 @@ export default async function Page({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const forumType = await getForumTypeForPage();
   const defaultLimit = 20;
   const params = await searchParams;
 
@@ -44,6 +47,8 @@ export default async function Page({
   const showExpiredRateLimits = params?.showExpiredRateLimits === 'true';
   const showNewUserRateLimits = params?.showNewUserRateLimits === 'true';
   const showExpiredBans = params?.showExpiredBans === 'true';
+  const hideAdminDeletions = params?.hideAdminDeletions === 'true';
+  const hideSelfDeletions = params?.hideSelfDeletions === 'true';
 
   const limit = defaultLimit;
   const db = getSqlClientOrThrow();
@@ -73,7 +78,8 @@ export default async function Page({
   );
 
   const getCachedDeletedComments = unstable_cache(
-    async (limit: number, offset: number) => fetchDeletedComments(db, limit, offset),
+    async (limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean, forumType: ForumTypeString) =>
+      fetchDeletedComments(db, limit, offset, hideAdminDeletions, hideSelfDeletions, forumType),
     [`moderation-deleted-comments-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-deleted-comments'] }
   );
@@ -112,7 +118,7 @@ export default async function Page({
   const { comments: moderatorCommentIds, count: moderatorCommentsCount } = await getCachedModeratorCommentIds(limit, moderatorCommentsOffset);
   const moderatorPosts = await getCachedModeratorPosts();
   const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = await getCachedActiveRateLimits(limit, activeRateLimitsOffset, showExpiredRateLimits, showNewUserRateLimits);
-  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset);
+  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset, hideAdminDeletions, hideSelfDeletions, forumType);
   const { posts: rejectedPosts, count: rejectedPostsCount } = await getCachedRejectedPosts(limit, rejectedPostsOffset);
   const { comments: rejectedComments, count: rejectedCommentsCount } = await getCachedRejectedComments(limit, rejectedCommentsOffset);
   const { posts: postsWithBannedUsers, count: postsWithBannedUsersCount } = await getCachedPostsWithBannedUsers(limit, bannedFromPostsOffset);
@@ -134,6 +140,8 @@ export default async function Page({
         deletedComments={deletedComments}
         deletedCommentsCount={deletedCommentsCount}
         deletedCommentsOffset={deletedCommentsOffset}
+        hideAdminDeletions={hideAdminDeletions}
+        hideSelfDeletions={hideSelfDeletions}
         rejectedPosts={rejectedPosts}
         rejectedPostsCount={rejectedPostsCount}
         rejectedPostsOffset={rejectedPostsOffset}
@@ -460,7 +468,21 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
   return { rateLimits, count: activeRateLimitsCountResult.count };
 }
 
-async function fetchDeletedComments(db: SqlClient, limit: number, offset: number) {
+async function fetchDeletedComments(db: SqlClient, limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean, forumType: ForumTypeString) {
+  // A comment with no deletedByUserId (older data) counts as neither an admin
+  // deletion nor a self-deletion, so it stays visible under both filters. The
+  // admin team account isn't flagged isAdmin but only deletes on behalf of
+  // admins (e.g. deleteUserContent), so it counts as an admin deletion.
+  const adminAccountId = adminAccountSetting.get(forumType)?._id ?? null;
+  const deletionFilters = `
+    ${hideSelfDeletions ? `AND c."deletedByUserId" IS DISTINCT FROM c."userId"` : ''}
+    ${hideAdminDeletions ? `AND NOT EXISTS (
+      SELECT 1 FROM "Users" au
+      WHERE au._id = c."deletedByUserId"
+        AND (au."isAdmin" IS TRUE OR au._id = $(adminAccountId))
+    )` : ''}
+  `;
+
   const [deletedCommentsData, deletedCommentsCountResult] = await Promise.all([
     db.manyOrNone<DeletedCommentRow>(`
       WITH paginated_comments AS (
@@ -468,9 +490,10 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
           c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
           c."deletedPublic", c.contents, c."deletedByUserId"
         FROM "Comments" c
-        WHERE c.deleted = TRUE AND c."deletedPublic" = TRUE
+        WHERE c.deleted IS TRUE
+        ${deletionFilters}
         ORDER BY c."deletedDate" DESC NULLS LAST
-        LIMIT $1 OFFSET $2
+        LIMIT $(limit) OFFSET $(offset)
       )
       SELECT
         c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
@@ -483,12 +506,13 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
       LEFT JOIN "Users" du ON c."deletedByUserId" = du._id
       LEFT JOIN "Posts" p ON c."postId" = p._id
       ORDER BY c."deletedDate" DESC NULLS LAST
-    `, [limit, offset]),
+    `, { limit, offset, adminAccountId }),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count
-      FROM "Comments"
-      WHERE deleted = TRUE AND "deletedPublic" = TRUE
-    `)
+      FROM "Comments" c
+      WHERE c.deleted IS TRUE
+      ${deletionFilters}
+    `, { adminAccountId })
   ]);
 
   const comments = deletedCommentsData.map(row => ({

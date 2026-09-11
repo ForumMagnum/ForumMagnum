@@ -39,7 +39,13 @@ function tryConvertTripleBackticksToCodeBlockInUpdateContext(): boolean {
   if ($isRootNode(anchorNode)) {
     return false;
   }
-  const block = anchorNode.getTopLevelElementOrThrow();
+  // getTopLevelElement returns null if the selection points at a node that
+  // is no longer attached under the root (e.g. after a failed update);
+  // don't throw on Enter in that case.
+  const block = anchorNode.getTopLevelElement();
+  if (!block) {
+    return false;
+  }
   const text = block.getTextContent();
   // Allow optional language (```js, ```python, etc)
   if (!/^```[\w-]*$/.test(text)) {

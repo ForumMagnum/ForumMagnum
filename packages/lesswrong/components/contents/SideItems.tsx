@@ -195,8 +195,25 @@ export const SideItemsSidebar = () => {
     // reflow if layout is invalidated.)
     for (let i=0; i<displayContext.sideItems.length; i++) {
       const sideItem = displayContext.sideItems[i];
-      sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
-      sideItem.anchorLeft = sideItem.anchorEl.offsetLeft;
+      let anchorEl = sideItem.anchorEl;
+
+      // If the anchor is inside hidden content (e.g. a collapsed section with
+      // display:none), offsetParent is null and getOffsetChainTop returns 0,
+      // which would place the side comment at the top of the page. Walk up to
+      // find the nearest visible ancestor so the comment appears next to the
+      // collapsed section instead.
+      if (anchorEl.offsetParent === null && anchorEl !== document.body && anchorEl.isConnected) {
+        let ancestor = anchorEl.parentElement;
+        while (ancestor && ancestor.offsetParent === null && ancestor !== document.body) {
+          ancestor = ancestor.parentElement;
+        }
+        if (ancestor) {
+          anchorEl = ancestor;
+        }
+      }
+
+      sideItem.anchorTop = getOffsetChainTop(anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
+      sideItem.anchorLeft = anchorEl.offsetLeft;
       sideItem.sideItemHeight = sideItem.options.measuredElement?.current?.clientHeight ?? sideItem.container.clientHeight;
     }
     
@@ -321,11 +338,15 @@ export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | 
   return ctx?.setFocusedAnchor ?? null;
 }
 
-export const NoSideItems = ({children}: {
+export const NoSideItems = ({children, when = true}: {
   children: React.ReactNode
+  when?: boolean
 }) => {
-  return <SideItemsPlacementContext.Provider value={null}>
-    <SideItemsDisplayContext.Provider value={null}>
+  const placementContext = useContext(SideItemsPlacementContext);
+  const displayContext = useContext(SideItemsDisplayContext);
+
+  return <SideItemsPlacementContext.Provider value={when ? null : placementContext}>
+    <SideItemsDisplayContext.Provider value={when ? null : displayContext}>
       {children}
     </SideItemsDisplayContext.Provider>
   </SideItemsPlacementContext.Provider>

@@ -6,7 +6,7 @@ import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { darken, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { ClearInput } from './ClearInput';
 
 const styles = defineStyles("DatePicker", (theme: ThemeType) => {
@@ -821,7 +821,7 @@ export const DatePicker = ({label, name, value, below, onChange}: {
 
 
 export const FormComponentDatePicker = ({ field, label, name, below }: {
-  field: TypedFieldApi<Date | null | undefined>,
+  field: FieldValueBinding<Date | null | undefined, AnyBecauseHard>,
   label: string,
   name?: string,
   below?: boolean,

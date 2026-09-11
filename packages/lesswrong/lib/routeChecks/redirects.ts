@@ -462,6 +462,14 @@ export const redirects = [
     source: "/collaborateOnPost",
     destination: "/editPost",
     permanent: true,
+  }, {
+    source: "/auth/login",
+    destination: "/login",
+    permanent: true,
+  }, {
+    source: "/manageSubscriptions",
+    destination: "/account?tab=subscriptions",
+    permanent: true,
   },
 ] satisfies Redirect[];
 

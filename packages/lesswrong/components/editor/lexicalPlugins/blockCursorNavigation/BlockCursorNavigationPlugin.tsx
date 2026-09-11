@@ -24,6 +24,7 @@ import {
   $getSelection,
   $isDecoratorNode,
   $isElementNode,
+  $isParagraphNode,
   $isRangeSelection,
   $isRootNode,
   COMMAND_PRIORITY_LOW,
@@ -457,7 +458,8 @@ export default function BlockCursorNavigationPlugin(): null {
           }
 
           // Case 2: cursor at start of a non-sentinel block whose previous
-          // sibling is a sentinel — move cursor into the sentinel instead of
+          // sibling is a sentinel — delete the block if it's an empty
+          // paragraph, otherwise move cursor into the sentinel instead of
           // merging across it
           if (selection.anchor.offset === 0) {
             const block = $isElementNode(anchorNode)
@@ -467,6 +469,9 @@ export default function BlockCursorNavigationPlugin(): null {
               const prevSibling = block.getPreviousSibling();
               if ($isSentinelParagraphNode(prevSibling)) {
                 event.preventDefault();
+                if ($isParagraphNode(block) && block.isEmpty()) {
+                  block.remove();
+                }
                 prevSibling.selectEnd();
                 return true;
               }

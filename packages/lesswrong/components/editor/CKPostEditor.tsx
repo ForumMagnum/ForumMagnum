@@ -1,8 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '@/lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
@@ -18,8 +19,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { Command, Editor } from '@ckeditor/ckeditor5-core';
 import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
@@ -338,7 +338,7 @@ export type ConnectedUserInfo = {
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 const readOnlyLlmFeedbackLoadingLock = Symbol("ckEditorReadOnlyLlmFeedbackLoading");
 
-const getPostEditorToolbarConfig = () => ({
+const postEditorToolbarConfig = {
   blockToolbar: {
     items: [
       'imageUpload',
@@ -346,10 +346,9 @@ const getPostEditorToolbarConfig = () => ({
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
-      //...(isLWorAF() ? ['conditionallyVisibleSectionButton'] : []),
+      'collapsibleSectionButton',
       'footnote',
-      ...(isLWorAF() ? ['insertClaimButton'] : []),
+      'insertClaimButton',
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -377,13 +376,12 @@ const getPostEditorToolbarConfig = () => ({
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
       'footnote',
-      ...(isLWorAF() ? ['insertClaimButton'] : []),
+      'insertClaimButton',
     ],
     shouldNotGroupWhenFull: true,
   },
-});
+};
 
 
 /**
@@ -393,7 +391,6 @@ const CKPostEditor = ({
   data,
   collectionName,
   fieldName,
-  onSave,
   onChange,
   onFocus,
   documentId,
@@ -408,7 +405,6 @@ const CKPostEditor = ({
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
-  onSave?: any,
   onChange?: any,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   documentId?: string,
@@ -423,6 +419,7 @@ const CKPostEditor = ({
   placeholder?: string,
   document?: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -464,7 +461,7 @@ const CKPostEditor = ({
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
@@ -554,21 +551,16 @@ const CKPostEditor = ({
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
   const editorConfig = makeEditorConfig({
-    ...getPostEditorToolbarConfig(),
-    autosave: {
-      save (editor: any) {
-        return onSave && onSave(editor.getData())
-      }
-    },
+    ...postEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
-      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, key),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       webSocketUrl: webSocketUrl,
-      documentId: getCKEditorDocumentId(documentId, userId, formType),
+      documentId: getCKEditorDocumentId(documentId),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
     collaboration: ckEditorCloudConfigured ? {
-      channelId: getCKEditorDocumentId(documentId, userId, formType),
+      channelId: getCKEditorDocumentId(documentId),
     } : undefined,
     comments: {
       editorConfig: {
@@ -582,10 +574,10 @@ const CKPostEditor = ({
     },
     initialData: initData,
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    mention: mentionPluginConfiguration(portalContext, forumType),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
-    ...cloudinaryConfig,
+    ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),
   });
 

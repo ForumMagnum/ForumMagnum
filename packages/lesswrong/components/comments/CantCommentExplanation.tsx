@@ -1,6 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
+import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '@/lib/instanceSettings';
 import CalendarDate from "../common/CalendarDate";
@@ -25,16 +26,9 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostP
     return <>Can't recognize user</>
   }
 
-  if (userIsBannedFromPost(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting on any of their personal blog posts.</>
+  const authorBanReason = getAuthorCommentBanReason(user, post, postAuthor);
+  if (authorBanReason) {
+    return <>{getAuthorCommentBanMessage(authorBanReason)}</>
   }
 
   if (post?.commentsLocked) {
@@ -55,10 +49,11 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostP
 const CantCommentExplanation = ({post}: {
   post: PostPermissionsMinimumInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
-  const email = moderationEmail.get()
+  const email = moderationEmail.get(forumType)
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { userBlockedCommentingReason(currentUser, post, author)}{" "}

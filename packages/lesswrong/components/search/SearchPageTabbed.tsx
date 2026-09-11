@@ -1,16 +1,15 @@
 "use client";
-import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
+import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback, useContext } from 'react';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import moment from 'moment';
-import { useSearchAnalytics } from './useSearchAnalytics';
+import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchAnalytics';
 import {
   getSearchClient,
   SearchIndexCollectionName,
@@ -24,8 +23,7 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
+import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
 import ErrorBoundary from "../common/ErrorBoundary";
 import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
@@ -37,8 +35,48 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { usePathname } from 'next/navigation';
 
 const hitsPerPage = 10
+
+const hitComponentsByTab = {
+  'Posts': ExpandedPostsSearchHit,
+  'Comments': ExpandedCommentsSearchHit,
+  'Tags': ExpandedTagsSearchHit,
+  'Sequences': ExpandedSequencesSearchHit,
+  'Users': ExpandedUsersSearchHit,
+};
+
+interface TrackedHitContextValue {
+  tab: SearchIndexCollectionName;
+  indexName: string;
+  queryRef: React.RefObject<string | undefined>;
+}
+
+const TrackedHitContext = React.createContext<TrackedHitContextValue | null>(null);
+
+// Stable module-level hit component for <Hits hitComponent={...}>.
+// Reads tab/indexName/query from TrackedHitContext so identity stays stable
+// across query changes (avoids remounting the Hits subtree on every keystroke).
+const TrackedHitComponent = ({hit}: {hit: {_id: string, __position?: number}}) => {
+  const ctx = useContext(TrackedHitContext);
+  const captureResultSelected = useCaptureSearchResultSelected();
+  if (!ctx) return null;
+  const { tab, indexName, queryRef } = ctx;
+  const InnerHitComponent = hitComponentsByTab[tab];
+  const handleClickCapture = (event: React.MouseEvent) => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    captureResultSelected({
+      query: queryRef.current,
+      resultId: hit._id,
+      resultType: tab,
+      position: hit.__position,
+      indexName,
+      context: "searchPageTabbed",
+    });
+  };
+  return <div onClickCapture={handleClickCapture}><InnerHitComponent hit={hit} /></div>;
+};
 
 const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   root: {
@@ -90,12 +128,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: 'none'
     },
-  },
-  funnelIconLW: {
-    fill: theme.palette.grey[1000],
-  },
-  funnelIconEA: {
-    stroke: theme.palette.grey[1000],
   },
   searchInputArea: {
     flex: 1,
@@ -240,6 +272,8 @@ const ScrollTo: FC<{
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = () => {
+  // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
+  const pathname = usePathname();
   const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -345,23 +379,18 @@ const SearchPageTabbed = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.query]);
 
+  const indexName = getElasticIndexNameWithSorting(tab, sorting)
+  const queryRef = useRef<string | undefined>(searchState.query);
+  queryRef.current = searchState.query;
+  const trackedHitContextValue = React.useMemo(() => ({ tab, indexName, queryRef }), [tab, indexName])
+
   if (!isSearchEnabled()) {
     return <div className={classes.root}>
       Search is disabled (ElasticSearch not configured on server)
     </div>
   }
-  
-  // component for search results depends on which content type tab we're on
-  const hitComponents = {
-    'Posts': ExpandedPostsSearchHit,
-    'Comments': ExpandedCommentsSearchHit,
-    'Tags': ExpandedTagsSearchHit,
-    'Sequences': ExpandedSequencesSearchHit,
-    'Users': ExpandedUsersSearchHit
-  }
-  const HitComponent = hitComponents[tab]
 
-  return <div className={classes.root}>
+  return <div key={pathname} className={classes.root}>
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
@@ -391,7 +420,7 @@ const SearchPageTabbed = () => {
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum()})}/>
+                <ForumIcon icon="Funnel"/>
               </IconButton>
             </div>
           </div>
@@ -444,7 +473,9 @@ const SearchPageTabbed = () => {
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
           <CustomScrollTo targetRef={scrollToRef}>
-            <Hits hitComponent={HitComponent} />
+            <TrackedHitContext.Provider value={trackedHitContextValue}>
+              <Hits hitComponent={TrackedHitComponent} />
+            </TrackedHitContext.Provider>
           </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
