@@ -13,8 +13,9 @@ const styles = defineStyles('AnimatedExpansion', () => ({
 }));
 
 /** Animate expansion, including content that arrives asynchronously after opening. */
-const AnimatedExpansion = ({ expanded, children }: {
+const AnimatedExpansion = ({ expanded, duration=100, children }: {
   expanded: boolean,
+  duration?: number,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
