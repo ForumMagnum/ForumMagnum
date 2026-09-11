@@ -17,7 +17,11 @@ const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
     "@media (pointer: coarse)": {minHeight: 40},
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
-  chevron: {width: 16, height: 16, flexShrink: 0, color: theme.palette.text.dim},
+  chevron: {
+    width: 16, height: 16, flexShrink: 0, color: theme.palette.text.dim,
+    transition: "transform 200ms ease-out",
+    "@media (prefers-reduced-motion: reduce)": {transition: "none"},
+  },
   expanded: {transform: "rotate(90deg)"},
   expandedUp: {transform: "rotate(-90deg)"},
   label: {minWidth: 82, fontWeight: 500, fontSize: 13},

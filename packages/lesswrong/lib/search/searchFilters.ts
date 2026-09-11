@@ -14,8 +14,8 @@ export const searchPostTypeLabels: Record<SearchPostType, string> = {
 export type SearchEventFilter = "include" | "exclude" | "only";
 export type SearchTagMatch = "any" | "all";
 
-/** The selectable non-event post types. Events have an independent control. */
-export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event");
+/** The selectable post types. Events have an independent control; shortform has no filter. */
+export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event" && type !== "shortform");
 
 /** Epoch milliseconds. An absent bound is open. */
 export interface SearchDateRange {

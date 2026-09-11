@@ -101,7 +101,7 @@ const SearchAuthorsBar = ({authorIds, onChange}: {
     if (!authorIds.includes(userId)) onChange([...authorIds, userId]);
   };
   const remove = (userId: string) => onChange(authorIds.filter(id => id !== userId));
-  return <div className={classes.root} role="group" aria-label="Authors">
+  return <div className={classes.root} role="group" aria-label="Author">
     {!!authorIds.length && <div className={classes.selectedAuthors}>
       {authorIds.map(userId => <SingleUsersItem key={userId} userId={userId} removeItem={remove} />)}
     </div>}
