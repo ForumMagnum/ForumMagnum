@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, Suspense, useState } from "react";
 import { PROFILE_TAB_SETTINGS_COOKIE, SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import ForumIcon from "@/components/common/ForumIcon";
 import classNames from 'classnames';
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
@@ -494,8 +495,9 @@ export function ProfilePageTabbedSection({user}: {
               className={classNames(classes.sortIconButton, settingsButtonDisabled && classes.sortIconDisabled)}
               onClick={!settingsButtonDisabled ? handleSettingsPanelToggle : undefined}
               type="button"
+              aria-label="Settings"
             >
-              <span className={classes.sortIcon}>⚙</span>
+              <ForumIcon icon="Settings" className={classes.sortIcon} />
             </button>
           </div>
         )}
