@@ -8,7 +8,6 @@ import ContentStyles from "../common/ContentStyles";
 import TagSmallPostLink from "../tagging/TagSmallPostLink";
 import FollowUserButton from "./FollowUserButton";
 import UserMetaInfo from "./UserMetaInfo";
-import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -84,6 +83,27 @@ const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
     borderTop: theme.palette.border.extraFaint,
     overflow: "hidden",
   },
+  postPlaceholder: {
+    // Match TagSmallPostLink's line height and its 2px top/bottom margins.
+    height: `calc(${theme.typography.body2.lineHeight} + 4px)`,
+    display: "flex",
+    alignItems: "center",
+    '&::before': {
+      content: '""',
+      width: "100%",
+      height: 14,
+      borderRadius: 3,
+      background: theme.palette.greyAlpha(0.08),
+      animation: '$postPlaceholderPulse 1.8s ease-in-out infinite',
+      '@media (prefers-reduced-motion: reduce)': {
+        animation: "none",
+      },
+    },
+  },
+  '@keyframes postPlaceholderPulse': {
+    '0%, 100%': { opacity: 1 },
+    '50%': { opacity: 0.5 },
+  },
 }));
 
 export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
@@ -115,7 +135,11 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
     : user;
 
   const results = data?.posts?.results;
-
+  // postCount only counts owned, approved, non-draft, non-rejected posts.
+  // userPosts includes coauthors and has different visibility filters, so this
+  // is an estimate, particularly for users with fewer than three visible posts.
+  const placeholderPostCount = Math.min(3, Math.max(0, user.postCount));
+  const showPosts = results ? results.some(post => !!post) : loading && placeholderPostCount > 0;
 
   return (
     <div className={classes.root}>
@@ -130,21 +154,20 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
       {truncatedBio && <ContentStyles className={classes.bio} contentType='postHighlight'>
         <div className={classes.bioText } dangerouslySetInnerHTML={{__html: truncatedBio}}/>
       </ContentStyles>}
-      {results && <div className={classes.posts}>
-        {results.map((post) => post &&
+      {showPosts && <div className={classes.posts}>
+        {results ? results.map((post) => post &&
           <TagSmallPostLink
             key={post._id}
             post={post}
             hideAuthor
             disableHoverPreview
           />
+        ) : Array.from({length: placeholderPostCount}, (_, index) =>
+          <div key={index} className={classes.postPlaceholder} aria-hidden="true" />
         )}
       </div>}
-      {loading && <Loading />}
     </div>
 );
 }
 
 export default LWUserTooltipContent;
-
-
