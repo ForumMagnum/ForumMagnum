@@ -15,9 +15,15 @@ import KeyboardShortcut from './KeyboardShortcut';
 import { usePrimaryShortcutModifier } from '../hooks/usePrimaryShortcutModifier';
 
 const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
-  root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0},
+  root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0, marginTop: 5},
   searchIcon: {'--icon-size': '24px'},
-  searchIconButton: {color: theme.palette.header.text, flexShrink: 0, borderRadius: 0},
+  searchIconButton: {
+    color: theme.palette.header.text,
+    flexShrink: 0,
+    borderRadius: 4,
+    height: 36,
+    padding: '6px 12px',
+  },
   shortcut: {
     '&&': {
       fontSize: 10,
