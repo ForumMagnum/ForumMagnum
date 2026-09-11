@@ -23,7 +23,7 @@ const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
   match: {display: 'flex', gap: 2},
 }));
 
-/** Restricts posts, comments and users to the chosen wikitags. */
+/** Filters to content tagged with the chosen wikitags, including the wikitags themselves. */
 const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
   tagIds: string[],
   match: SearchTagMatch,
