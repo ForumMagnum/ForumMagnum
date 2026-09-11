@@ -19,6 +19,7 @@ import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import uniqBy from 'lodash/uniqBy';
+import { useLoadMoreExpansion } from '../hooks/useLoadMoreExpansion';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -150,6 +151,10 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   
   //exclude posts with hiddenPostIds
   const filteredResults = uniqueResults?.filter(({ post }) => !hiddenPostIds.includes(post._id));
+  const { listRef, prepareForLoadMore } = useLoadMoreExpansion({
+    loading: loading || networkStatus === NetworkStatus.fetchMore,
+    itemCount: filteredResults?.length ?? 0,
+  });
 
   const postIds = filteredResults?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }, idx) => {
@@ -192,7 +197,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   }
 
   return <div>
-    <div>
+    <div ref={listRef}>
       {filteredResults.map(({ post, recommId, curated, stickied }) => <IsRecommendationContext.Provider key={post._id} value={!!recommId}>
         <PostsItem 
           post={post} 
@@ -207,6 +212,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
+          prepareForLoadMore();
           const loadMoreSettings = getLoadMoreSettings(resolverName, filteredResults, loadMoreCount);
           void fetchMore({
             variables: {
@@ -252,4 +258,3 @@ export const RecombeePostsList = registerComponent("RecombeePostsList", Recombee
     settings: "deep",
   },
 });
-

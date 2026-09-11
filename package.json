@@ -334,7 +334,6 @@
     "glob": "^11.0.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "knip": "^5.44.4",
     "sql-formatter": "^15.3.1",
     "ts-jest": "^27.0.7",
     "ts-loader": "^8.0.5",
@@ -357,23 +356,6 @@
   },
   "engines": {
     "node": ">=24.13.0"
-  },
-  "knip": {
-    "entry": [
-      "packages/lesswrong/server/scripts/**/*.ts",
-      "ckEditor/src/ckeditor-cloud.ts",
-      "ckEditor/src/ckeditor-client.ts",
-      "ckEditor/src/augmentation.ts",
-      "ckEditor/webpack-common.config.js"
-    ],
-    "project": [
-      "app/**",
-      "ckEditor/**",
-      "packages/lesswrong/**",
-      "!packages/lesswrong/stubs/**",
-      "!packages/lesswrong/server/migrations/**",
-      "!packages/lesswrong/lib/generated/gql-codegen/graphql.ts"
-    ]
   },
   "graphql": {
     "schema": "packages/lesswrong/lib/generated/gqlSchema.gql",
