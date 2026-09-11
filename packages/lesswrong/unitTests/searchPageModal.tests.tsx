@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import SearchPage from '../components/search/SearchPage';
 
 const mockNavigate = jest.fn();
@@ -25,7 +25,13 @@ jest.mock('../components/search/useSearchAnalytics', () => ({useSearchAnalytics:
 jest.mock('../components/search/useSearchHistory', () => ({useSearchHistory: () => ({resetNavigation: jest.fn(), recordSearch: jest.fn()})}));
 jest.mock('../components/search/useSearchResults', () => ({useSearchResults: () => ({hits: [], total: 0, hasMore: false, loading: false})}));
 jest.mock('../components/search/SearchWikitagsBar', () => ({__esModule: true, default: () => null}));
-jest.mock('../components/search/SearchAuthorsBar', () => ({__esModule: true, default: () => null}));
+jest.mock('../components/search/UsersSearchAutoComplete', () => ({__esModule: true, default: ({clickAction}: {clickAction: (id: string) => void}) => <>
+  <button type="button" onClick={() => clickAction('alice')}>Select Alice</button>
+  <button type="button" onClick={() => clickAction('bob')}>Select Bob</button>
+</>}));
+jest.mock('../components/form-components/SingleUsersItem', () => ({__esModule: true, default: ({userId, removeItem}: {userId: string, removeItem: (id: string) => void}) =>
+  <button type="button" onClick={() => removeItem(userId)}>Remove {userId}</button>,
+}));
 jest.mock('../components/search/ExpandedUsersSearchHit', () => ({__esModule: true, default: () => null}));
 jest.mock('../components/search/ExpandedPostsSearchHit', () => ({__esModule: true, default: () => null}));
 jest.mock('../components/search/ExpandedCommentsSearchHit', () => ({__esModule: true, default: () => null}));
@@ -227,4 +233,32 @@ it('persists clearing filters without clearing the query', () => {
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('alignment');
   expect(screen.getByRole('checkbox', {name: 'All'}).getAttribute('aria-checked')).toBe('true');
   expect(screen.queryByRole('button', {name: 'Clear filters'})).toBeNull();
+});
+
+it('keeps author pills at the end of the search field synchronized with the author filter', () => {
+  const {unmount} = render(<SearchPage presentation="modal" />);
+  const input = screen.getByRole('searchbox');
+  fireEvent.change(input, {target: {value: 'alignment'}});
+  fireEvent.click(screen.getByRole('button', {name: 'Select Alice'}));
+  fireEvent.click(screen.getByRole('button', {name: 'Select Bob'}));
+  const field = within(input.parentElement!);
+  const authors = within(screen.getByRole('group', {name: 'Author'}));
+  const alice = field.getByRole('button', {name: 'Remove alice'});
+  expect(input.compareDocumentPosition(alice) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  fireEvent.click(alice);
+  expect(authors.queryByRole('button', {name: 'Remove alice'})).toBeNull();
+  expect(field.queryByRole('button', {name: 'Remove alice'})).toBeNull();
+  expect(authors.getByRole('button', {name: 'Remove bob'})).toBeTruthy();
+  expect(document.activeElement).toBe(input);
+  fireEvent.click(authors.getByRole('button', {name: 'Remove bob'}));
+  expect(field.queryByRole('button', {name: 'Remove bob'})).toBeNull();
+  expect(input.getAttribute('value')).toBe('alignment');
+  fireEvent.click(screen.getByRole('button', {name: 'Select Bob'}));
+  unmount();
+  render(<SearchPage presentation="modal" />);
+  const restoredField = within(screen.getByRole('searchbox').parentElement!);
+  expect(restoredField.queryByRole('button', {name: 'Remove alice'})).toBeNull();
+  expect(restoredField.getByRole('button', {name: 'Remove bob'})).toBeTruthy();
+  fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
+  expect(restoredField.queryByRole('button', {name: 'Remove bob'})).toBeNull();
 });

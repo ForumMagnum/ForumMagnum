@@ -32,6 +32,7 @@ import SearchTimeframeBar from './SearchTimeframeBar';
 import SearchEventsBar from './SearchEventsBar';
 import SearchPostTypeBar from './SearchPostTypeBar';
 import SearchAuthorsBar from './SearchAuthorsBar';
+import SingleUsersItem from '../form-components/SingleUsersItem';
 import SearchKarmaBar from './SearchKarmaBar';
 import SearchFilterRow from './SearchFilterRow';
 import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
@@ -254,9 +255,10 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     flex: 1,
     display: "flex",
     alignItems: "center",
-    height: 44,
-    gap: 10,
-    padding: "0 14px",
+    minHeight: 44,
+    flexWrap: "wrap",
+    gap: "4px 10px",
+    padding: "2px 14px",
     boxSizing: "border-box",
     border: theme.palette.greyBorder("1px", 0.08),
     borderRadius: 8,
@@ -278,8 +280,8 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
   input: {
     minWidth: 0,
     ...theme.typography.body2,
-    flex: 1,
-    height: "100%",
+    flex: "1 1 120px",
+    height: 38,
     padding: 0,
     border: "none",
     outline: "none",
@@ -296,6 +298,24 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
       mask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M4 4l8 8M12 4l-8 8\' stroke=\'black\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E") center / contain no-repeat',
     },
     "-webkit-appearance": "none",
+  },
+  authorPills: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 6,
+    maxWidth: "100%",
+    minWidth: 0,
+    '& .users-item': {minWidth: 0, maxWidth: '100%'},
+    '& .SingleUsersItem-chip': {
+      margin: 0,
+      minHeight: 32,
+      borderRadius: 4,
+      '@media (pointer: coarse)': {minHeight: 40},
+      '&:focus-visible': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: 2,
+      },
+    },
   },
   clearFilters: {
     ...theme.typography.body2,
@@ -507,6 +527,11 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     setState(previous => ({...previous, filters: {...previous.filters, ...patch}}));
   };
 
+  const removeAuthor = (userId: string) => {
+    setFilters({authorIds: state.filters.authorIds.filter(id => id !== userId)});
+    inputRef.current?.focus();
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.nativeEvent.isComposing) return;
     if (currentUser && event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
@@ -639,6 +664,9 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
                     setState(previous => ({...previous, query}));
                   }}
                 />
+                {!!state.filters.authorIds.length && <div className={classes.authorPills} role="group" aria-label="Selected authors">
+                  {state.filters.authorIds.map(userId => <SingleUsersItem key={userId} userId={userId} removeItem={removeAuthor} />)}
+                </div>}
               </div>
               {onClose && <button type="button" className={classes.closeButton} aria-label="Close search" onClick={onClose}>✕</button>}
             </form>
