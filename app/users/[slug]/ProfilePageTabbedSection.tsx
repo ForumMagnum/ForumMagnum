@@ -138,6 +138,13 @@ const profilePageTabbedSectionUnsharedStyles = defineStyles("ProfilePageTabbedSe
       gap: 30,
     },
   },
+  mobileFullWidthContent: {
+    "@media (max-width: 630px)": {
+      // Cancel profileMain's padding, leaving the page's standard mobile gutter.
+      marginLeft: -20,
+      marginRight: -20,
+    },
+  },
   sortPanel: {
     background: theme.palette.greyAlpha(0.03),
     padding: "20px 24px",
@@ -515,7 +522,10 @@ export function ProfilePageTabbedSection({user}: {
     )}
 
     <Suspense>
-      <div className={classes.allPostsContainer}>
+      <div className={classNames(
+        classes.allPostsContainer,
+        activeTab !== "posts" && activeTab !== "sequences" && classes.mobileFullWidthContent,
+      )}>
         {renderActiveTabContents()}
       </div>
     </Suspense>
