@@ -1,6 +1,7 @@
 import moment from 'moment';
 import classNames from 'classnames';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import Transition from 'react-transition-group/Transition';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
@@ -55,6 +56,41 @@ export const DismissibleSpotlightItemSuspense = ({ className, spotlightId, loadi
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const dismissAnimationRef = useRef<Animation|null>(null);
+
+  const cancelDismissAnimation = useCallback(() => {
+    dismissAnimationRef.current?.cancel();
+    dismissAnimationRef.current = null;
+  }, []);
+
+  useEffect(() => cancelDismissAnimation, [cancelDismissAnimation, spotlight?._id]);
+
+  const animateDismissal = useCallback(() => {
+    cancelDismissAnimation();
+    const element = spotlightRef.current;
+    if (!element || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const height = element.getBoundingClientRect().height;
+    if (!height) return;
+
+    const marginBottom = window.getComputedStyle(element).marginBottom;
+    // Keep overflowing artwork visible during the fade; collapse only once it is transparent.
+    dismissAnimationRef.current = element.animate([
+      { opacity: 1, height: `${height}px`, marginBottom, offset: 0, easing: 'ease-out' },
+      { opacity: 0, height: `${height}px`, marginBottom, offset: 0.375, easing: 'ease-in-out' },
+      { opacity: 0, height: '0px', marginBottom: '0px', offset: 1 },
+    ], { duration: 320, fill: 'forwards' });
+  }, [cancelDismissAnimation]);
+
+  const finishDismissal = useCallback((done: () => void) => {
+    const animation = dismissAnimationRef.current;
+    if (!animation || animation.playState === 'finished') {
+      done();
+    } else {
+      animation.onfinish = done;
+    }
+  }, []);
 
   const hideBanner = useCallback(() => {
     setCookie(
@@ -66,7 +102,7 @@ export const DismissibleSpotlightItemSuspense = ({ className, spotlightId, loadi
     captureEvent("spotlightItemHideItemClicked", { document: spotlightDocument })
   }, [setCookie, cookieName, spotlightDocument, captureEvent]);
 
-  if (!spotlight || isHidden) {
+  if (!spotlight) {
     return null;
   }
 
@@ -75,12 +111,24 @@ export const DismissibleSpotlightItemSuspense = ({ className, spotlightId, loadi
       name="SpotlightItem"
       fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback className={className}/> : <Loading/>}
     >
-      <SpotlightItem
+      <Transition
         key={spotlight._id}
-        spotlight={spotlight}
-        hideBanner={hideBanner}
-        className={className}
-      />
+        nodeRef={spotlightRef}
+        in={!isHidden}
+        mountOnEnter
+        unmountOnExit
+        onEnter={cancelDismissAnimation}
+        onExit={animateDismissal}
+        addEndListener={finishDismissal}
+      >
+        <SpotlightItem
+          ref={spotlightRef}
+          inert={isHidden}
+          spotlight={spotlight}
+          hideBanner={hideBanner}
+          className={className}
+        />
+      </Transition>
     </SuspenseWrapper>
   </AnalyticsContext>
 }
@@ -114,4 +162,3 @@ export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spo
 }
 
 export default DismissibleSpotlightItem;
-

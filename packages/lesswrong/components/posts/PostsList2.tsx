@@ -13,6 +13,7 @@ import PostsItem from "./PostsItem";
 import PostsLoading from "./PostsLoading";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { HideIfRepeated } from './HideRepeatedPostsContext';
+import { useLoadMoreExpansion } from '../hooks/useLoadMoreExpansion';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -40,7 +41,9 @@ const styles = defineStyles("PostsList2", (theme: ThemeType) => ({
   },
 }));
 
-type PostsList2Props = PostsListConfig;
+interface PostsList2Props extends PostsListConfig {
+  animateLoadMore?: boolean,
+}
 
 const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => {
   if (props.noSuspenseBoundary) {
@@ -87,6 +90,15 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
     repeatedPostsPrecedence,
   } = usePostsList(props);
   const classes = useStyles(styles);
+  const { listRef, prepareForLoadMore } = useLoadMoreExpansion({
+    loading,
+    itemCount: orderedResults?.length ?? 0,
+    enabled: props.animateLoadMore ?? false,
+  });
+  const handleLoadMore = () => {
+    prepareForLoadMore();
+    loadMore();
+  };
 
   if (!orderedResults && loading) {
     return (
@@ -118,7 +130,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
         {orderedResults && !orderedResults.length && <PostsNoResults/>}
 
         <AnalyticsContext viewType={viewType}>
-          <div className={classNames(
+          <div ref={listRef} className={classNames(
             boxShadow && classes.postsBoxShadow,
             showPlacement && classes.postsGrid,
           )}>
@@ -137,7 +149,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
           <LoadMore
             {...loadMoreProps}
             loading={loading}
-            loadMore={loadMore}
+            loadMore={handleLoadMore}
             hideLoading={dimWhenLoading || !showLoading}
             // It's important to use hidden here rather than not rendering the component,
             // because LoadMore has an "isFirstRender" check that prevents it from showing loading dots
@@ -157,5 +169,3 @@ export default registerComponent('PostsList2', PostsList2, {
     terms: "deep",
   },
 });
-
-

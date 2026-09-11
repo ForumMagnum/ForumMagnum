@@ -40,6 +40,7 @@ import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import AnimatedExpansion from '../common/AnimatedExpansion';
 
 export const KARMA_WIDTH = 32;
 
@@ -95,6 +96,10 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     width: "100%",
     background: theme.palette.panelBackground.translucent,
     backdropFilter: "blur(1px)"
+  },
+  metadataRow: {
+    // Anchor the trailing buttons to the post row, excluding expanded comments.
+    position: "relative",
   },
   postsItem: {
     display: "flex",
@@ -508,7 +513,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
             [classes.isRead]: isRead && !showReadCheckbox  // readCheckbox and post-title read-status don't aesthetically match
           })}
         >
-          <div {...eventHandlers}>
+          <div className={classes.metadataRow} {...eventHandlers}>
             <PostsItemTooltipWrapper
               post={post}
               placement={tooltipPlacement}
@@ -654,31 +659,32 @@ const LWPostsItem = (props: PostsItemConfig) => {
                 </div>
               }
             </PostsItemTooltipWrapper>
-          </div>
-
-          <PostsItemTrailingButtons
-            {...{
-              post,
-              showTrailingButtons,
-              showMostValuableCheckbox,
-              showDismissButton,
-              showArchiveButton,
-              resumeReading,
-              onDismiss,
-              onArchive,
-            }}
-          />
-
-          {renderComments && <div className={classes.newCommentsSection}>
-            <PostsItemNewCommentsWrapper
-              terms={commentTerms}
-              post={post}
-              treeOptions={{
-                highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
-                condensed: condensedAndHiddenComments,
+            <PostsItemTrailingButtons
+              {...{
+                post,
+                showTrailingButtons,
+                showMostValuableCheckbox,
+                showDismissButton,
+                showArchiveButton,
+                resumeReading,
+                onDismiss,
+                onArchive,
               }}
             />
-          </div>}
+          </div>
+
+          <AnimatedExpansion expanded={renderComments && !condensedAndHiddenComments}>
+            {renderComments && <div className={classes.newCommentsSection}>
+              <PostsItemNewCommentsWrapper
+                terms={commentTerms}
+                post={post}
+                treeOptions={{
+                  highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
+                  condensed: condensedAndHiddenComments,
+                }}
+              />
+            </div>}
+          </AnimatedExpansion>
 
           {renderDialogueMessages && <div className={classes.newCommentsSection}>
             <PostsItemNewDialogueResponses postId={post._id} unreadCount={post.unreadDebateResponseCount} />
