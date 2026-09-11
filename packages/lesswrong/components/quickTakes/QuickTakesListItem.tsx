@@ -8,6 +8,7 @@ import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { NoSideItems } from '../contents/SideItems';
 
 const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   root: {
@@ -97,8 +98,12 @@ const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
   );
 
   return <div ref={rootRef} className={classes.root}>
-    {expandedComment}
-    {collapsedComment}
+    <NoSideItems when={!expanded}>
+      {expandedComment}
+    </NoSideItems>
+    <NoSideItems>
+      {collapsedComment}
+    </NoSideItems>
   </div>;
 }
 

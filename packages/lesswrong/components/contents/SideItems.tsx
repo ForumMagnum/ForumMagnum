@@ -338,11 +338,15 @@ export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | 
   return ctx?.setFocusedAnchor ?? null;
 }
 
-export const NoSideItems = ({children}: {
+export const NoSideItems = ({children, when = true}: {
   children: React.ReactNode
+  when?: boolean
 }) => {
-  return <SideItemsPlacementContext.Provider value={null}>
-    <SideItemsDisplayContext.Provider value={null}>
+  const placementContext = useContext(SideItemsPlacementContext);
+  const displayContext = useContext(SideItemsDisplayContext);
+
+  return <SideItemsPlacementContext.Provider value={when ? null : placementContext}>
+    <SideItemsDisplayContext.Provider value={when ? null : displayContext}>
       {children}
     </SideItemsDisplayContext.Provider>
   </SideItemsPlacementContext.Provider>

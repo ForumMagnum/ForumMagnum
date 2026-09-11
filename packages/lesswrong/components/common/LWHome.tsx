@@ -25,13 +25,31 @@ import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ErrorBoundary from './ErrorBoundary';
 import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
-const styles = defineStyles("LWHome", () => ({
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  feedSections: {
+    position: "relative",
+  },
+  sideItems: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: "100%",
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_XS,
+    },
+  },
   desktopSpotlight: {
     ['@media(max-width: 1199.95px)']: {
       display: "none",
@@ -111,15 +129,22 @@ const LWHome = () => {
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>
             <LWHomePosts>
-              <QuickTakesSection />
+              <SideItemsContainer>
+                <div className={classes.feedSections}>
+                  <div className={classes.sideItems}>
+                    <SideItemsSidebar />
+                  </div>
+                  <QuickTakesSection />
 
-              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
-                <SuspenseWrapper name="UltraFeed">
-                  <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
-                    <UltraFeedOrRecentDiscussion/>
-                  </ErrorBoundary>
-                </SuspenseWrapper>
-              </AnalyticsInViewTracker>
+                  <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
+                    <SuspenseWrapper name="UltraFeed">
+                      <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                        <UltraFeedOrRecentDiscussion/>
+                      </ErrorBoundary>
+                    </SuspenseWrapper>
+                  </AnalyticsInViewTracker>
+                </div>
+              </SideItemsContainer>
             </LWHomePosts>
           </IsReturningVisitorContextProvider>
         </SuspenseWrapper>
