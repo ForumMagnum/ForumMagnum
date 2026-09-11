@@ -34,6 +34,7 @@ import SearchPostTypeBar from './SearchPostTypeBar';
 import SearchAuthorsBar from './SearchAuthorsBar';
 import SearchKarmaBar from './SearchKarmaBar';
 import SearchFilterRow from './SearchFilterRow';
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 import ExpandedUsersSearchHit from './ExpandedUsersSearchHit';
 import ExpandedPostsSearchHit from './ExpandedPostsSearchHit';
 import ExpandedCommentsSearchHit from './ExpandedCommentsSearchHit';
@@ -294,6 +295,13 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     color: theme.palette.primary.main, cursor: "pointer", padding: "0 8px",
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
+  clearFiltersButton: {
+    fontWeight: 600,
+    backgroundColor: theme.palette.greyAlpha(0.08),
+    borderRadius: 4,
+    padding: "0 12px",
+    "&:hover": {backgroundColor: theme.palette.greyAlpha(0.14)},
+  },
   filters: {
     marginTop: 0,
     marginBottom: 0,
@@ -385,6 +393,8 @@ function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
     .join(",");
 }
 
+const lastModalSearchKey = 'search.lastModalState';
+
 interface SearchPageProps {
   presentation?: 'page' | 'modal',
   onClose?: () => void,
@@ -421,7 +431,18 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   useEffect(() => {
     if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
   }, [timeframeOpen, presentation]);
-  const [state, setState] = useState<SearchPageState>(() => searchPageStateFromQuery(presentation === 'page' || pathname === '/search' ? urlQuery : {}));
+  const [state, setState] = useState<SearchPageState>(() => {
+    if (presentation === 'modal') {
+      const saved = safeStorageGetItem(getBrowserLocalStorage(), lastModalSearchKey);
+      if (saved !== null) return searchPageStateFromQuery(Object.fromEntries(new URLSearchParams(saved)));
+    }
+    return searchPageStateFromQuery(presentation === 'page' || pathname === '/search' ? urlQuery : {});
+  });
+  useEffect(() => {
+    if (presentation === 'modal') {
+      safeStorageSetItem(getBrowserLocalStorage(), lastModalSearchKey, qs.stringify(searchPageStateToQuery(state)));
+    }
+  }, [state, presentation]);
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
   // The indexed archive includes material from 2003, before the configured site origin.
@@ -577,7 +598,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <SearchFilterRow label="Karma" summary={hasKarmaFilter ? `${state.filters.karmaRange.min ?? "Any"} to ${state.filters.karmaRange.max ?? "any"}` : "Any karma"} active={hasKarmaFilter} expanded={expandedFilters.includes("karma")} onToggle={() => toggleFilter("karma")} onReset={() => setFilters({karmaRange: {}})}>
               <SearchKarmaBar value={state.filters.karmaRange} onChange={(karmaRange) => setFilters({karmaRange})} />
             </SearchFilterRow>
-            {hasFilters && <button type="button" className={classes.clearFilters} onClick={clearFilters}>Clear filters</button>}
+            {hasFilters && <button type="button" className={classNames(classes.clearFilters, classes.clearFiltersButton)} onClick={clearFilters}>Clear filters</button>}
           </div>
           {hasHistory && <button type="button" className={classes.clearFilters} onClick={() => { void clearHistory(); }}>Clear search history</button>}
           {historyError && <div role="status">Could not update search history.</div>}
@@ -665,7 +686,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               {!loading && !error && total !== null && !hits.length && <div className={classes.status}>
                 <div>No results found. Try a broader query or remove a filter.</div>
                 {hasDateFilter && <button type="button" className={classes.clearFilters} onClick={() => setFilters({dateRange: {}})}>Remove timeframe</button>}
-                {hasFilters && <button type="button" className={classes.clearFilters} onClick={clearFilters}>Clear filters</button>}
+                {hasFilters && <button type="button" className={classNames(classes.clearFilters, classes.clearFiltersButton)} onClick={clearFilters}>Clear filters</button>}
               </div>}
             </ErrorBoundary>
           </div>

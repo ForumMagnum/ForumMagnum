@@ -33,6 +33,7 @@ jest.mock('../components/search/ExpandedTagsSearchHit', () => ({__esModule: true
 jest.mock('../components/search/ExpandedSequencesSearchHit', () => ({__esModule: true, default: () => null}));
 
 beforeEach(() => {
+  localStorage.clear();
   mockNavigate.mockClear();
   wideScreen = true;
 });
@@ -198,4 +199,32 @@ it('cancels interrupted holds and supports holding Space to add a kind', async (
   } finally {
     jest.useRealTimers();
   }
+});
+
+it('restores the last modal query and filters after unmounting', () => {
+  const {unmount} = render(<SearchPage presentation="modal" />);
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});
+  fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
+  fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
+  fireEvent.change(screen.getByLabelText('From date'), {target: {value: '2020-01-01'}});
+  unmount();
+
+  render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('alignment');
+  expect(screen.getByRole('checkbox', {name: 'Post'}).getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByRole('button', {name: /Timeframe/}).textContent).toContain('2020-01-01');
+  expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+it('persists clearing filters without clearing the query', () => {
+  const {unmount} = render(<SearchPage presentation="modal" />);
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});
+  fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
+  fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
+  unmount();
+
+  render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('alignment');
+  expect(screen.getByRole('checkbox', {name: 'All'}).getAttribute('aria-checked')).toBe('true');
+  expect(screen.queryByRole('button', {name: 'Clear filters'})).toBeNull();
 });
