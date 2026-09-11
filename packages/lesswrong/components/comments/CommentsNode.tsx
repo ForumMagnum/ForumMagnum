@@ -17,6 +17,7 @@ import AnalyticsTracker from "../common/AnalyticsTracker";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import AnimatedExpansion from '../common/AnimatedExpansion';
+import AnimatedCollapse from '../common/AnimatedCollapse';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -257,7 +258,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
   
-  const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
+  const childrenSection = childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
     {showExtraChildrenButton}
     {childComments.map(child => <CommentsNode
@@ -361,18 +362,20 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
         }
       </div>}
 
-      {childrenSection}
+      <AnimatedCollapse expanded={!collapsed}>
+        {childrenSection}
 
-      {!isSingleLine && loadChildrenSeparately &&
-        <div className="comments-children">
-          <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
-          <RepliesToCommentList
-            parentCommentId={comment._id}
-            post={post as PostsBase}
-            directReplies={loadDirectReplies}
-          />
-        </div>
-      }
+        {!isSingleLine && loadChildrenSeparately &&
+          <div className="comments-children">
+            <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
+            <RepliesToCommentList
+              parentCommentId={comment._id}
+              post={post as PostsBase}
+              directReplies={loadDirectReplies}
+            />
+          </div>
+        }
+      </AnimatedCollapse>
     </CommentFrame>
   );
   
