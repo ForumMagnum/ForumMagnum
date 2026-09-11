@@ -11,17 +11,30 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useGlobalKeydown } from './withGlobalKeydown';
 import SearchModal from '../search/SearchModal';
+import KeyboardShortcut from './KeyboardShortcut';
+import { usePrimaryShortcutModifier } from '../hooks/usePrimaryShortcutModifier';
 
 const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
   root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0},
   searchIcon: {'--icon-size': '24px'},
-  searchIconButton: {color: theme.palette.header.text, flexShrink: 0},
+  searchIconButton: {color: theme.palette.header.text, flexShrink: 0, borderRadius: 4},
+  shortcut: {
+    '&&': {
+      fontSize: 10,
+      color: 'inherit',
+      backgroundColor: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+    },
+    [theme.breakpoints.down('xs')]: {display: 'none'},
+  },
 }));
 
 const SearchBar = ({onSetIsActive}: {
   onSetIsActive: (active: boolean) => void,
 }) => {
   const classes = useStyles(styles);
+  const shortcutModifier = usePrimaryShortcutModifier();
   const [inputOpen, setInputOpen] = useState(false);
   const closeSearch = () => {
     setInputOpen(false);
@@ -56,8 +69,10 @@ const SearchBar = ({onSetIsActive}: {
 
   return <div className={classes.root}>
     <IconButton aria-label="Search" aria-haspopup="dialog" aria-expanded={inputOpen}
+      aria-keyshortcuts="Meta+k Control+k"
       onClick={handleSearchTap} className={classes.searchIconButton}>
       <ForumIcon icon="Search" className={classes.searchIcon} />
+      <KeyboardShortcut className={classes.shortcut}>{shortcutModifier}+K</KeyboardShortcut>
     </IconButton>
     {inputOpen && <SearchModal onClose={closeSearch} />}
   </div>;
