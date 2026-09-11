@@ -71,6 +71,19 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     overscrollBehavior: 'contain',
     margin: 0,
     padding: '0 24px 24px',
+    // Inset the scrollbar without moving the search controls or results.
+    '&::-webkit-scrollbar, & $layout::-webkit-scrollbar': {
+      width: 12,
+    },
+    '&::-webkit-scrollbar-track, & $layout::-webkit-scrollbar-track': {
+      marginTop: 64,
+    },
+    '&::-webkit-scrollbar-thumb, & $layout::-webkit-scrollbar-thumb': {
+      backgroundColor: theme.palette.greyAlpha(0.45),
+      borderRadius: 6,
+      border: '2px solid transparent',
+      backgroundClip: 'padding-box',
+    },
     '& $sidebar': {maxHeight: 'calc(var(--search-viewport-height, 100dvh) - 56px)'},
     '& $layout': {
       flex: 1,
@@ -126,7 +139,7 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     minHeight: 0,
     overflowY: 'auto',
     border: 'none',
-    borderRadius: '12px 12px 0 0',
+    borderRadius: '6px 6px 0 0',
     boxShadow: `0 0 40px ${theme.palette.boxShadowColor(0.3)}`,
     clipPath: 'inset(-48px -48px 0)',
   },
