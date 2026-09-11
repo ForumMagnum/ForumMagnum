@@ -1,11 +1,9 @@
+import SearchResultLink from "./SearchResultLink";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -15,15 +13,11 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
     position: "relative",
     maxWidth: 600,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18,
     cursor: 'pointer',
-  },
-  link: {
-    '&:hover': {
-      opacity: 1
-    }
   },
   title: {
     fontSize: 18,
@@ -64,24 +58,21 @@ const ExpandedPostsSearchHit = ({hit, icon}: {
   icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
   const post: SearchPost = hit
   
-  const handleClick = () => {
-    navigate(postGetPageUrl(post))
-  }
 
-  return <div className={classes.root} onClick={handleClick}>
+  return <div className={classes.root}>
+    <SearchResultLink href={postGetPageUrl(post)} label={post.title ?? "Post"} />
     {icon}
     <div className={classes.title}>
-      <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
+      <span>
         <SearchHighlight hit={hit} attribute="title">{post.title}</SearchHighlight>
-      </Link>
+      </span>
     </div>
     <div className={classes.metaInfoRow}>
-      {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
+      {post.authorSlug ? <span>
         <SearchHighlight hit={hit} attribute="authorDisplayName">{post.authorDisplayName}</SearchHighlight>
-      </Link> : <UserNameDeleted />}
+      </span> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
       <span>{post.commentCount ?? 0} comment{post.commentCount === 1 ? "" : "s"}</span>
       <FormatDate date={post.postedAt} />
