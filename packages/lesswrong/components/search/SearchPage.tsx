@@ -420,7 +420,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
   // The indexed archive includes material from 2003, before the configured site origin.
-  const scale = {originMs: Math.min(new Date(searchOriginDate.get()).getTime(), Date.UTC(2003, 0, 1)), nowMs};
+  const scale = {originMs: Math.min(new Date(searchOriginDate).getTime(), Date.UTC(2003, 0, 1)), nowMs};
   const {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory, error: historyError} = useSearchHistory(currentUser?._id, true);
 
   // External navigation wins before writing local refinements back to the URL.

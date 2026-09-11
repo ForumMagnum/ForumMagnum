@@ -15,7 +15,7 @@ jest.mock('@/components/hooks/defineStyles', () => ({defineStyles: () => ({})}))
 let wideScreen = true;
 jest.mock('@/components/hooks/useScreenWidth', () => ({useIsAboveBreakpoint: () => wideScreen}));
 jest.mock('@/lib/utils/componentsWithChildren', () => ({InstantSearch: ({children}: {children: React.ReactNode}) => <>{children}</>}));
-jest.mock('@/lib/instanceSettings', () => ({searchOriginDate: {get: () => '2009-01-01'}}));
+jest.mock('@/lib/instanceSettings', () => ({searchOriginDate: '2003-01-01T01:00:00Z'}));
 jest.mock('@/lib/search/searchUtil', () => ({collectionIsSearchIndexed: () => true, isSearchEnabled: () => true, getSearchClient: jest.fn(), getSearchIndexName: (name: string) => name}));
 jest.mock('../components/common/withUser', () => ({useCurrentUser: () => null}));
 jest.mock('../components/common/ForumIcon', () => ({__esModule: true, default: () => null}));
