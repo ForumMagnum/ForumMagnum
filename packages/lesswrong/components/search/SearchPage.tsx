@@ -287,6 +287,14 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     fontSize: 16,
     "&::placeholder": {color: theme.palette.text.dim, opacity: 1},
+    "&::-webkit-search-cancel-button": {
+      WebkitAppearance: "none",
+      width: 16,
+      height: 16,
+      cursor: "pointer",
+      backgroundColor: theme.palette.text.dim,
+      mask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M4 4l8 8M12 4l-8 8\' stroke=\'black\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E") center / contain no-repeat',
+    },
     "-webkit-appearance": "none",
   },
   clearFilters: {
@@ -566,10 +574,10 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
           <SearchFilterRow label="Timeframe" expandDirection={isDesktop ? "up" : "down"} summary={dateSummary} active={hasDateFilter} expanded={timeframeOpen}
             controlsId={timeframeId} onToggle={() => toggleFilter('time')} onReset={() => setFilters({dateRange: {}})} />
           {!isDesktop && timeframePanel}
-          <SearchFilterRow label="Authors" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
+          <SearchFilterRow label="Author" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
             <SearchAuthorsBar authorIds={state.filters.authorIds} onChange={(authorIds) => setFilters({authorIds})} />
           </SearchFilterRow>
-          <SearchFilterRow
+          {presentation === "page" && <SearchFilterRow
             label="Tune the sorting"
             summary={searchSortToUrlParam(state.sort) ? "Custom sorting" : ""}
             active={searchSortToUrlParam(state.sort) !== undefined}
@@ -583,7 +591,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               sort={state.sort}
               onChange={(sort) => setState(previous => ({...previous, sort}))}
             />
-          </SearchFilterRow>
+          </SearchFilterRow>}
 
           <div className={classes.filters}>
             <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
@@ -650,13 +658,14 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
               aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
               onClick={() => setMobileFiltersOpen(previous => !previous)}>
-              {mobileFiltersOpen ? 'Hide filters' : 'Filters and sorting'}
+              {mobileFiltersOpen ? 'Hide filters' : presentation === 'modal' ? 'Filters' : 'Filters and sorting'}
             </button>
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>
               {total !== null && <div className={classes.resultCount} aria-live="polite">
-                <span><strong>{total.toLocaleString()}</strong> result{total === 1 ? '' : 's'}</span><span className={classes.sortDescription}>Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>
+                <span><strong>{total.toLocaleString()}</strong> result{total === 1 ? '' : 's'}</span>
+                {presentation === "page" && <span className={classes.sortDescription}>Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>}
               </div>}
               <div ref={resultsRef} role="group" aria-label="Search results" aria-busy={loading}>
                 {hits.map((hit, position) => {

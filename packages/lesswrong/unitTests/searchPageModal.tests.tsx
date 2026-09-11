@@ -57,7 +57,7 @@ it('still synchronizes full-page searches to the URL', () => {
 it('toggles mobile filters and offers an explicit close control', () => {
   const onClose = jest.fn();
   render(<SearchPage presentation="modal" onClose={onClose} />);
-  const toggle = screen.getByRole('button', {name: /Filters and sorting/});
+  const toggle = screen.getByRole('button', {name: 'Filters'});
   expect(toggle.getAttribute('aria-expanded')).toBe('false');
   fireEvent.click(toggle);
   expect(toggle.getAttribute('aria-expanded')).toBe('true');
@@ -84,9 +84,9 @@ it('closes after a result link handles navigation even when it stops propagation
 it('starts with Authors expanded directly below Timeframe and other sections collapsed', () => {
   render(<SearchPage presentation="modal" />);
   const toggles = screen.getByRole('complementary', {name: 'Search options'}).querySelectorAll('button[aria-expanded]');
-  expect(toggles.length).toBe(7);
+  expect(toggles.length).toBe(6);
   expect(toggles[0].textContent).toContain('Timeframe');
-  expect(toggles[1].textContent).toContain('Authors');
+  expect(toggles[1].textContent).toContain('Author');
   for (const [index, toggle] of toggles.entries()) {
     expect(toggle.getAttribute('aria-expanded')).toBe(index === 1 ? 'true' : 'false');
   }
@@ -138,7 +138,7 @@ it('keeps the timeframe inside mobile filters even when the modal offers a slot'
   const panel = screen.getByRole('region', {name: 'Timeframe'});
   expect(slot.contains(panel)).toBe(false);
   expect(screen.getByRole('complementary', {name: 'Search options'}).contains(panel)).toBe(true);
-  expect(panel.compareDocumentPosition(screen.getByRole('button', {name: /Authors/})) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(panel.compareDocumentPosition(screen.getByRole('button', {name: /Author/})) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   fireEvent.click(screen.getByRole('button', {name: 'Done with timeframe'}));
   expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
   expect(slot.childElementCount).toBe(0);
