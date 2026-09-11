@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 mkdir -p ./combined-coverage
 rm -rf ./combined-coverage/*

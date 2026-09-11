@@ -3892,6 +3892,7 @@ type Mutation = {
   answerResearchConversationQuestion?: Maybe<AnswerResearchQuestionOutput>;
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   cancelResearchConversation?: Maybe<ResearchConversationOutput>;
+  clearSearchHistory: Scalars['Boolean']['output'];
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
   continueResearchConversation?: Maybe<ResearchConversationOutput>;
@@ -3961,6 +3962,7 @@ type Mutation = {
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
+  recordSearch: Array<Scalars['String']['output']>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   rejectTypoSuggestion: TypoSuggestion;
   reorderResearchDocuments?: Maybe<ReorderResearchDocumentsOutput>;
@@ -4549,6 +4551,11 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 
 type MutationpublishHomePageDesignArgs = {
   input: PublishHomePageDesignInput;
+};
+
+
+type MutationrecordSearchArgs = {
+  query: Scalars['String']['input'];
 };
 
 
@@ -11946,6 +11953,7 @@ type User = {
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
+  searchHistory?: Maybe<Array<Scalars['String']['output']>>;
   sequenceCount: Scalars['Float']['output'];
   sequenceDraftCount: Scalars['Float']['output'];
   services?: Maybe<Scalars['JSON']['output']>;
@@ -19248,6 +19256,38 @@ type createRSSFeedNewFeedButtonMutationVariables = Exact<{
 
 
 type createRSSFeedNewFeedButtonMutation = createRSSFeedNewFeedButtonMutation_Mutation;
+
+type SearchHistoryQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, searchHistory: Array<string> | null };
+
+type SearchHistoryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: SearchHistoryQuery_user_SingleUserOutput_result_User | null };
+
+type SearchHistoryQuery_Query = { __typename?: 'Query', user: SearchHistoryQuery_user_SingleUserOutput | null };
+
+
+type SearchHistoryQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type SearchHistoryQuery = SearchHistoryQuery_Query;
+
+type RecordSearchMutation_Mutation = { __typename?: 'Mutation', recordSearch: Array<string> };
+
+
+type RecordSearchMutationVariables = Exact<{
+  query: Scalars['String']['input'];
+}>;
+
+
+type RecordSearchMutation = RecordSearchMutation_Mutation;
+
+type ClearSearchHistoryMutation_Mutation = { __typename?: 'Mutation', clearSearchHistory: boolean };
+
+
+type ClearSearchHistoryMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+type ClearSearchHistoryMutation = ClearSearchHistoryMutation_Mutation;
 
 type HomepageCommunityMapQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

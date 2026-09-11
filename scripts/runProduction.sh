@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 echo "Running Production Site"
 
 # Not setting bash strict flags because set -u makes the script abort if some

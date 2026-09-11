@@ -209,20 +209,28 @@ export class ElasticExporter {
     
     // eslint-disable-next-line no-console
     console.log(`Creating index: ${collectionName}`);
+    const synonyms = await this.getExistingSynonyms(oldIndexName);
     await this.createIndex(newIndexName, collectionName);
+    await this.updateSynonymsForIndex(newIndexName, synonyms);
     
     console.log(`Loading data into index: ${collectionName}`);
     await this.exportCollection(collectionName, newIndexName);
 
+    const refreshed = await client.indices.refresh({index: newIndexName});
+    if (refreshed._shards.failed) {
+      throw new Error(`Failed to refresh ${newIndexName}; alias unchanged`);
+    }
+    const indexed = await client.count({index: newIndexName});
+    const expectedCount = Number(await this.getRepoByCollectionName(collectionName).countSearchDocuments());
+    if (indexed._shards.failed || indexed.count !== expectedCount) {
+      throw new Error(`Cannot switch ${aliasName}: indexed ${indexed.count} of ${expectedCount} database documents (${indexed._shards.failed} failed shards); alias unchanged`);
+    }
+
     console.log(`Switching alias`);
-    await client.indices.putAlias({
-      index: newIndexName,
-      name: aliasName,
-    });
-    await client.indices.deleteAlias({
-      index: oldIndexName,
-      name: aliasName,
-    });
+    await client.indices.updateAliases({actions: [
+      {remove: {index: oldIndexName, alias: aliasName}},
+      {add: {index: newIndexName, alias: aliasName}},
+    ]});
   }
 
   async deleteIndex(collectionName: SearchIndexCollectionName) {
@@ -473,6 +481,7 @@ export class ElasticExporter {
     if (totalErrors.length) {
       // eslint-disable-next-line no-console
       console.error(`${collectionName} indexing errors:`, totalErrors);
+      throw new Error(`Failed to index ${totalErrors.length} ${collectionName} documents`);
     } else {
       // eslint-disable-next-line no-console
       console.log("No errors found when indexing", collectionName)
@@ -510,10 +519,10 @@ export class ElasticExporter {
     return erroredDocuments;
   }
 
-  async getExistingSynonyms(): Promise<string[]> {
+  async getExistingSynonyms(index = "posts"): Promise<string[]> {
     const client = this.client.getClient();
     const settings = await client.indices.getSettings({
-      index: "posts", // All the indexes use the same synonym list
+      index,
     });
     const indexName = Object.keys(settings)[0]; // Get the alias target
     const filters = settings[indexName]?.settings?.index?.analysis?.filter;

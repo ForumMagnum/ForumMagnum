@@ -20,10 +20,17 @@ export const querySchema = z.object({
     numericFilters: z.optional(z.array(z.string())),
     existsFilters: z.optional(z.array(z.string())),
     aroundLatLng: z.optional(z.string()),
+    // Unified (multi-index) search only. Validated further by the server.
+    sort: z.optional(z.array(z.string())),
+    tagMatch: z.optional(z.enum(["any", "all"])),
+    tagIds: z.optional(z.array(z.string())),
+    authorIds: z.optional(z.array(z.string())),
+    postTypes: z.optional(z.array(z.string())),
   }),
 });
 
 const searchOptionsSchema = z.object({
+  unifiedSearch: z.optional(z.boolean()),
   emptyStringSearchResults: z.union([z.literal("default"), z.literal("empty")]),
 });
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;
@@ -82,12 +89,14 @@ class NativeSearchClient implements Client {
         },
         body,
       }).then((response) => {
+        if (!response.ok) throw new Error(`Search failed: ${response.status}`);
         response.json().then((results) => {
           resolve({results});
         }).catch(reject);
       }).catch(reject);
     });
     this.cache.set(body, promise);
+    void promise.catch(() => { this.cache.del(body); });
     if (cb) {
       promise.then((result) => cb(null, result)).catch((err) => cb(err, null));
     } else {

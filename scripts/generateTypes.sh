@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Use the first argument as the environment, and the second as the forumType, or dev/lw if not provided
 export BROWSERSLIST_IGNORE_OLD_DATA=1

@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -91,7 +92,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, onSelect
         )}
         <div>
           <div className={classes.displayNameRow}>
-            <span className={classes.displayName}>{user.displayName}</span>
+            <span className={classes.displayName}><SearchHighlight hit={hit} attribute="displayName">{user.displayName}</SearchHighlight></span>
             <FormatDate date={user.createdAt} />
             <span className={classes.metaInfo}>
               <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma}

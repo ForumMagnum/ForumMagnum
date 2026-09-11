@@ -14,12 +14,14 @@ const styles = defineStyles("UsersSearchInput", (theme: ThemeType) => ({
   }
 }))
 
-const UsersSearchInput = ({inputProps}: {
+const UsersSearchInput = ({inputProps, disableUnderline}: {
   inputProps: InputBaseComponentProps;
+  disableUnderline?: boolean;
 }) => {
   const classes = useStyles(styles);
 
   return <Input
+    disableUnderline={disableUnderline}
     inputProps={inputProps}
     className={classes.input}
     startAdornment={

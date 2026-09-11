@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
@@ -11,6 +12,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
@@ -65,18 +67,20 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedUsersSearchHit = ({hit}: {
+const ExpandedUsersSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return <div className={classes.root}>
+    {icon}
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>
-            {user.displayName}
+            <SearchHighlight hit={hit} attribute="displayName">{user.displayName}</SearchHighlight>
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>

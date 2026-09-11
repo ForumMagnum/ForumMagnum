@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -14,14 +15,12 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18,
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
   },
   link: {
     '&:hover': {
@@ -69,8 +68,9 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
   }
 }))
 
-const ExpandedCommentsSearchHit = ({hit}: {
+const ExpandedCommentsSearchHit = ({hit, icon}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
@@ -93,6 +93,7 @@ const ExpandedCommentsSearchHit = ({hit}: {
   }
 
   return <div className={classes.root} onClick={handleClick}>
+    {icon}
     <Link to={url} className={classes.link} onClick={(e) => e.stopPropagation()}>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
@@ -107,7 +108,7 @@ const ExpandedCommentsSearchHit = ({hit}: {
     </Link>
     <div className={classes.authorRow}>
       {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {comment.authorDisplayName}
+        <SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight>
       </Link> : <UserNameDeleted />}
       <span>{comment.baseScore ?? 0} karma</span>
       <FormatDate date={comment.createdAt} />

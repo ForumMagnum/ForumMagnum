@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run eslint and the typescript typechecker on the main project, and eslint and
 # the typescript typechecker on CkEditor plugins, in parallel. To keep the
 # outputs from awkwardly intermingling, three of these four jobs run run

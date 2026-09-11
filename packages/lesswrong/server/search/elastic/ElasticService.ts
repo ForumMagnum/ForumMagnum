@@ -9,6 +9,15 @@ import {
 } from "./ElasticQuery";
 import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
+import { parseSearchSort } from "@/lib/search/searchSorting";
+import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
+
+export interface UnifiedFilterParams {
+  tagIds?: string[],
+  tagMatch?: "any" | "all",
+  authorIds?: string[],
+  postTypes?: string[],
+}
 
 type SanitizedIndexName = {
   index: string | string[],
@@ -50,9 +59,13 @@ class ElasticService {
           hits: [],
         }}
       : await (
-        Array.isArray(index)
+        (Array.isArray(index) || options.unifiedSearch)
           ? this.client.multiSearch({
-            indexes: index,
+            indexes: Array.isArray(index) ? index : [index],
+            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
+            sort: params.sort ? parseSearchSort(params.sort) : undefined,
+            preTag: params.highlightPreTag,
+            postTag: params.highlightPostTag,
             search,
             offset: page * hitsPerPage,
             limit: hitsPerPage,
@@ -131,6 +144,7 @@ class ElasticService {
     facetFilters?: string[][],
     numericFilters?: string[],
     existsFilters?: string[],
+    unified?: UnifiedFilterParams,
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -191,6 +205,23 @@ class ElasticService {
         type: "exists",
         field: filter,
       });
+    }
+
+    if (unified?.tagIds?.length) {
+      result.push({type: "tag", field: "tags", value: unified.tagIds, match: unified.tagMatch});
+    }
+    if (unified?.authorIds?.length) {
+      result.push({type: "author", field: "author", value: unified.authorIds});
+    }
+    if (unified?.postTypes?.length) {
+      const postTypes: SearchPostType[] = [];
+      for (const postType of unified.postTypes) {
+        if (!searchPostTypes.has(postType)) {
+          throw new Error("Invalid post type: " + postType);
+        }
+        postTypes.push(postType);
+      }
+      result.push({type: "postType", field: "postType", value: postTypes});
     }
 
     return result;
@@ -260,28 +291,24 @@ class ElasticService {
     indexName: string | string[],
     hits: ElasticSearchHit[],
   ): SearchDocument[] {
-    if (Array.isArray(indexName)) {
-      return hits.map(({_id, _source, _index}) => ({
+    return hits.map(({_id, _source, _index, _score, highlight}) => {
+      const hitIndex = Array.isArray(indexName) ? _index.split("_")[0] : indexName;
+      const config = indexNameToConfig(hitIndex);
+      return {
         ..._source,
         _id,
-        _index: _index.split("_")[0],
-      }))
-    } else {
-      const config = indexNameToConfig(indexName);
-      return hits.map(({_id, _source, highlight}) => ({
-        ..._source,
-        _id,
-        _index: indexName,
+        _index: hitIndex,
+        _score,
         _snippetResult: {
           [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
         ...(config.highlight && {
-          _highlightResult: {
-            [config.highlight]: extractNamedHighlight(highlight, config.highlight),
-          },
+          _highlightResult: Object.fromEntries(config.highlight.map(name => [
+            name, extractNamedHighlight(highlight, name),
+          ])),
         }),
-      }));
-    }
+      };
+    });
   }
 }
 
