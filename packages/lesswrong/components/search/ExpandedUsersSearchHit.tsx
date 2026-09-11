@@ -1,6 +1,6 @@
+import SearchResultLink from "./SearchResultLink";
 import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -14,6 +14,7 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
     position: "relative",
     maxWidth: 600,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -75,8 +76,9 @@ const ExpandedUsersSearchHit = ({hit, icon}: {
   const user = hit as SearchUser;
 
   return <div className={classes.root}>
+    <SearchResultLink href={`${userGetProfileUrl(user)}?from=search_page`} label={user.displayName} />
     {icon}
-    <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
+    <div className={classes.link}>
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>
@@ -97,7 +99,7 @@ const ExpandedUsersSearchHit = ({hit, icon}: {
           <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
         </div>
       </div>
-    </Link>
+    </div>
   </div>
 }
 

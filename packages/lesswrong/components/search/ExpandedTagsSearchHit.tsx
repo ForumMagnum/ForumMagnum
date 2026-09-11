@@ -1,5 +1,5 @@
+import SearchResultLink from "./SearchResultLink";
 import SearchHighlight from "./SearchHighlight";
-import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -13,6 +13,7 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
     position: "relative",
     maxWidth: 700,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
@@ -71,11 +72,9 @@ const ExpandedTagsSearchHit = ({hit, icon}: {
   } : {}
 
   return <div className={classes.root} style={style}>
+    <SearchResultLink href={tagGetUrl(tag)} label={tag.name} />
     {icon}
-    <Link
-      to={tagGetUrl(tag)}
-      className={classes.link}
-    >
+    <div className={classes.link}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
           <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
@@ -86,7 +85,7 @@ const ExpandedTagsSearchHit = ({hit, icon}: {
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="description" hit={tag} tagName="mark" />
       </div>
-    </Link>
+    </div>
   </div>
 }
 

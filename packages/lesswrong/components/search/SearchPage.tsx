@@ -49,7 +49,7 @@ const hitComponents: Record<SearchIndexCollectionName, React.ComponentType<{hit:
   Sequences: ExpandedSequencesSearchHit,
 };
 
-const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
+const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
   root: {
     width: "100%",
     margin: "auto",
@@ -341,7 +341,8 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     display: "flex",
     position: "absolute",
     top: "50%",
-    left: -38,
+    left: 20,
+    [theme.breakpoints.down('sm')]: {left: 8},
     transform: "translateY(-50%)",
     fontSize: 20,
     color: theme.palette.text.dim,
@@ -351,7 +352,8 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     flex: 1,
     minWidth: 0,
     paddingLeft: 38,
-    "& > div": {marginBottom: 0},
+    // Anchor the result link and copy button to the entire padded row.
+    "& > div": {marginBottom: 0, position: "static"},
   },
   sortingHelp: {
     ...theme.typography.body2,
@@ -641,6 +643,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
                   return <ErrorBoundary key={`${hit._index}:${hit._id}`}>
                     <div className={classes.result} data-search-result onClickCapture={(event) => {
                       if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                      if (event.target instanceof Element && event.target.closest('button')) return;
                       selectHit(kind.type, hit, position);
                     }}>
                       <div className={classes.resultBody}>

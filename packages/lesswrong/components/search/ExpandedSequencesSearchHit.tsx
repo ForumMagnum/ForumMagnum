@@ -1,12 +1,9 @@
+import SearchResultLink from "./SearchResultLink";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudName } from '@/lib/instanceSettings';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { useThemeColor } from '../themes/useTheme';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -16,11 +13,13 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
   root: {
     position: "relative",
     maxWidth: 700,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18
   },
   body: {
+    position: 'relative',
     display: 'block',
     maxWidth: 600,
     cursor: 'pointer',
@@ -28,10 +27,18 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
       maxWidth: '80%',
     }
   },
-  link: {
-    '&:hover': {
-      opacity: 1
-    }
+  banner: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 140,
+    maxWidth: '30%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'right center',
+    pointerEvents: 'none',
+    maskImage: `linear-gradient(to right, transparent, ${theme.palette.text.alwaysBlack})`,
+    WebkitMaskImage: `linear-gradient(to right, transparent, ${theme.palette.text.alwaysBlack})`,
   },
   titleRow: {
     display: "flex",
@@ -71,31 +78,27 @@ const ExpandedSequencesSearchHit = ({hit, icon}: {
   icon?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
   const sequence: SearchSequence = hit
-  const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
-  const greyBackground = useThemeColor(theme => theme.palette.grey[0]);
 
-  const handleClick = () => {
-    navigate(`/sequences/${sequence._id}`)
-  }
   
-  const style = sequence.bannerImageId ? {
-    background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId})`
-  } : {}
-
-  return <div className={classes.root} style={style}>
+  return <div className={classes.root}>
+    {sequence.bannerImageId && <img
+      className={classes.banner}
+      src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId}`}
+      alt=""
+    />}
+    <SearchResultLink href={`/sequences/${sequence._id}`} label={sequence.title ?? "Sequence"} />
     {icon}
-    <div className={classes.body} onClick={handleClick}>
+    <div className={classes.body}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
-          <Link to={`/sequences/${sequence._id}`} className={classes.link} onClick={(e) => e.stopPropagation()}>
+          <span>
             <SearchHighlight hit={hit} attribute="title">{sequence.title}</SearchHighlight>
-          </Link>
+          </span>
         </span>
-        {sequence.authorSlug ? <Link to={userGetProfileUrlFromSlug(sequence.authorSlug)} onClick={(e) => e.stopPropagation()}>
+        {sequence.authorSlug ? <span>
           <SearchHighlight hit={hit} attribute="authorDisplayName">{sequence.authorDisplayName}</SearchHighlight>
-        </Link> : <UserNameDeleted />}
+        </span> : <UserNameDeleted />}
         <span>{Math.round(sequence.baseScore ?? 0)} average post karma</span>
         <FormatDate date={sequence.createdAt} />
       </div>
@@ -107,4 +110,3 @@ const ExpandedSequencesSearchHit = ({hit, icon}: {
 }
 
 export default ExpandedSequencesSearchHit;
-
