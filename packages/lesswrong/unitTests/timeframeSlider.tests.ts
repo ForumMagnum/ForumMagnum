@@ -1,5 +1,6 @@
 import {
   dayMs,
+  expandTimeframeView,
   defaultTimeframeView,
   keyboardTimeframeView,
   keyboardRange,
@@ -107,14 +108,32 @@ it("reduces detail on narrow tracks and skips labels that would overlap", () => 
 });
 
 
-it("defaults to the last six calendar years, bounded by the archive", () => {
-  expect(defaultTimeframeView(scale)).toEqual({originMs: Date.UTC(2020, 8, 10, 12), nowMs: scale.nowMs});
-  const short = {originMs: Date.UTC(2025, 0, 1), nowMs: scale.nowMs};
-  expect(defaultTimeframeView(short)).toEqual(short);
+it("shows the full archive with room around both handles", () => {
+  const view = defaultTimeframeView(scale);
+  expect(view.originMs).toBeLessThan(scale.originMs);
+  expect(view.nowMs).toBe(scale.nowMs);
+});
+
+it.each<"day" | "week" | "month" | "year">(["day", "week", "month", "year"])("fits the %s preset with left padding and no future dates", preset => {
+  const range = presetDateRange(preset, scale.nowMs);
+  const view = zoomToRange(range, scale);
+  expect(msToFraction(range.start!, view)).toBeCloseTo(0.15 / 1.15);
+  expect(msToFraction(scale.nowMs, view)).toBe(1);
+});
+
+it("expands only the approached edge and stops at archive bounds", () => {
+  const view = {originMs: Date.UTC(2020, 0, 1), nowMs: Date.UTC(2021, 0, 1)};
+  expect(expandTimeframeView(view, scale, 0).originMs).toBeLessThan(view.originMs);
+  expect(expandTimeframeView(view, scale, 0).nowMs).toBe(view.nowMs);
+  expect(expandTimeframeView(view, scale, 1)).toEqual(view);
+  expect(expandTimeframeView(view, scale, 1).originMs).toBe(view.originMs);
+  expect(expandTimeframeView(view, scale, 0.5)).toEqual(view);
+  expect(expandTimeframeView(scale, scale, 0)).toEqual(scale);
+  expect(expandTimeframeView(scale, scale, 1)).toEqual(scale);
 });
 
 it("pans the viewport without changing its span and clamps at archive boundaries", () => {
-  const view = defaultTimeframeView(scale);
+  const view = {originMs: Date.UTC(2020, 8, 10, 12), nowMs: scale.nowMs};
   const left = keyboardTimeframeView(view, scale, "ArrowLeft", true, false)!;
   expect(left.originMs).toBeLessThan(view.originMs);
   expect(left.nowMs - left.originMs).toBe(view.nowMs - view.originMs);
@@ -125,7 +144,7 @@ it("pans the viewport without changing its span and clamps at archive boundaries
 });
 
 it("zooms within the archive and stops at a one-day viewport", () => {
-  const view = defaultTimeframeView(scale);
+  const view = {originMs: Date.UTC(2020, 8, 10, 12), nowMs: scale.nowMs};
   const zoomed = keyboardTimeframeView(view, scale, "ArrowRight", false, true)!;
   expect(zoomed.nowMs - zoomed.originMs).toBeLessThan(view.nowMs - view.originMs);
   expect(keyboardTimeframeView(view, scale, "ArrowLeft", false, true)!.originMs).toBeLessThan(view.originMs);
@@ -134,4 +153,18 @@ it("zooms within the archive and stops at a one-day viewport", () => {
   expect(smallest.nowMs - smallest.originMs).toBe(dayMs);
   expect(keyboardTimeframeView(scale, scale, "ArrowDown", false, true)).toEqual(scale);
   expect(keyboardTimeframeView(view, scale, "ArrowLeft", false, false)).toBeUndefined();
+});
+
+it("limits empty dates before the archive to one year in overview and fitted selections", () => {
+  const archive = {originMs: Date.UTC(2003, 0, 1), nowMs: scale.nowMs};
+  const earliestVisible = Date.UTC(2002, 0, 1);
+  const views = [
+    defaultTimeframeView(archive),
+    zoomToRange({}, archive),
+    zoomToRange({start: archive.originMs, end: archive.nowMs}, archive),
+  ];
+  for (const view of views) {
+    expect(view.originMs).toBeGreaterThanOrEqual(earliestVisible);
+    expect(view.originMs).toBeLessThan(archive.originMs);
+  }
 });

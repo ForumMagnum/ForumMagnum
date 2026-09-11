@@ -1,6 +1,7 @@
 import type { SearchDateRange } from "@/lib/search/searchFilters";
 
 export const dayMs = 24 * 60 * 60 * 1000;
+const maxArchivePaddingMs = 365 * dayMs;
 
 /** The horizontal track spans the search origin (left) to now (right). */
 export interface TimeframeScale {
@@ -47,9 +48,9 @@ function endOfDay(ms: number): number {
 }
 
 /** A drag between two track positions selects whole UTC days, in either direction. */
-export function dragToRange(anchorFraction: number, currentFraction: number, scale: TimeframeScale): SearchDateRange {
-  const a = positionToMs(anchorFraction, scale);
-  const b = positionToMs(currentFraction, scale);
+export function dragToRange(anchorFraction: number, currentFraction: number, scale: TimeframeScale, bounds: TimeframeScale = scale): SearchDateRange {
+  const a = Math.max(bounds.originMs, Math.min(bounds.nowMs, positionToMs(anchorFraction, scale)));
+  const b = Math.max(bounds.originMs, Math.min(bounds.nowMs, positionToMs(currentFraction, scale)));
   return {start: startOfDay(Math.min(a, b)), end: endOfDay(Math.max(a, b))};
 }
 
@@ -163,16 +164,25 @@ export function overviewScale(scale: TimeframeScale, range: SearchDateRange): Ti
 export function zoomToRange(range: SearchDateRange, scale: TimeframeScale): TimeframeScale {
   const start = range.start ?? scale.originMs;
   const end = range.end ?? scale.nowMs;
-  const padding = Math.max(7 * dayMs, (end - start) * 0.15);
-  return {originMs: Math.max(scale.originMs, startOfDay(start - padding)), nowMs: Math.min(scale.nowMs, endOfDay(end + padding))};
+  const padding = Math.max(dayMs / 24, (end - start) * 0.15);
+  return {originMs: Math.max(scale.originMs - maxArchivePaddingMs, start - padding), nowMs: Math.min(scale.nowMs, end + padding)};
 }
 
-
-/** The initial viewport is independent of the selected dates. */
+/** Show the entire archive with enough room to grab either endpoint. */
 export function defaultTimeframeView(scale: TimeframeScale): TimeframeScale {
-  const start = new Date(scale.nowMs);
-  start.setUTCFullYear(start.getUTCFullYear() - 6);
-  return {originMs: Math.max(scale.originMs, start.getTime()), nowMs: scale.nowMs};
+  const padding = Math.min(maxArchivePaddingMs, (scale.nowMs - scale.originMs) * 0.05);
+  return {originMs: scale.originMs - padding, nowMs: scale.nowMs};
+}
+
+/** Expand toward the left handle, keeping the right edge stationary. */
+export function expandTimeframeView(view: TimeframeScale, bounds: TimeframeScale, fraction: number): TimeframeScale {
+  const margin = 0.08;
+  const direction = fraction < margin ? -1 : 0;
+  const amount = (view.nowMs - view.originMs) * 0.08;
+  return {
+    originMs: direction < 0 ? Math.min(view.originMs, Math.max(bounds.originMs, view.originMs - amount)) : view.originMs,
+    nowMs: view.nowMs,
+  };
 }
 
 /** Shift pans by a tenth of the view; Ctrl zooms around its center. */
@@ -199,7 +209,7 @@ function moveTimeframeView(view: TimeframeScale, bounds: TimeframeScale, panFrac
   const span = view.nowMs - view.originMs;
   const fullSpan = bounds.nowMs - bounds.originMs;
   const nextSpan = Math.min(fullSpan, Math.max(dayMs, span * zoomFactor));
-  const start = zoomFactor !== 1 ? view.originMs + (span - nextSpan) / 2 : view.originMs + panFraction * span;
+  const start = zoomFactor !== 1 ? view.originMs + ((span - nextSpan) / 2) : view.originMs + (panFraction * span);
   const originMs = Math.max(bounds.originMs, Math.min(bounds.nowMs - nextSpan, start));
   return {originMs, nowMs: originMs + nextSpan};
 }
