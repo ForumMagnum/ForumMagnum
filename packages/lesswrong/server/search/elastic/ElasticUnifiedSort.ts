@@ -26,8 +26,14 @@ function compileSortKey({key, direction}: SearchSortSpec): SortCombinations {
   }
 }
 
-/** Exact values in priority order: subsequent keys only break ties. */
-export function compileUnifiedSort(sort: SearchSortSpec[] | undefined): Sort {
+/** Curated sequences first when supplied, then exact sort values and stable tie-breakers. */
+export function compileUnifiedSort(sort: SearchSortSpec[] | undefined, curatedSequenceIds: string[] = []): Sort {
   const specs: SearchSortSpec[] = sort ?? [{key: "relevance", direction: "desc"}];
-  return [...specs.map(compileSortKey), ...stableTiebreakers];
+  const curatedFirst: SortCombinations[] = curatedSequenceIds.length ? [{_script: {
+    type: "number", order: "desc", script: {
+      source: "return doc['_index'].value.startsWith('sequences') && params.ids.contains(doc['objectID'].value) ? 1 : 0;",
+      params: {ids: curatedSequenceIds},
+    },
+  }}] : [];
+  return [...curatedFirst, ...specs.map(compileSortKey), ...stableTiebreakers];
 }

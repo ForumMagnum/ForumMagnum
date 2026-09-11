@@ -459,7 +459,7 @@ function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
   return {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility], must: [{dis_max: {queries: interpretations, tie_breaker: 0}}]}};
 }
 
-export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, sort}: MultiQueryData): SearchRequest {
+export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds, sort}: MultiQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
@@ -493,7 +493,7 @@ export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 
     size: limit,
     track_total_hits: true,
     query: {dis_max: {queries}},
-    sort: compileUnifiedSort(sort),
+    sort: compileUnifiedSort(sort, indexes.length === 1 && indexes[0] === "sequences" ? curatedSequenceIds : undefined),
     highlight: {fields: highlightFields, number_of_fragments: 1, fragment_size: 140, no_match_size: 140},
     _source: {excludes: [...excludes]},
   };

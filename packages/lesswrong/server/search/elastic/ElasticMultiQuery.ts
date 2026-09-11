@@ -51,7 +51,7 @@ export function compileMultiQuery(data: MultiQueryData): SearchRequest {
 }
 
 // Tiered ranking: relationship tiers never overlap; text and karma reorder within a tier.
-function compileTieredMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, featuredSequenceIds = [], sort}: MultiQueryData): SearchRequest {
+function compileTieredMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, featuredSequenceIds = [], curatedSequenceIds, sort}: MultiQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const queries: QueryDslQueryContainer[] = [];
   const excludes = new Set<string>();
@@ -101,7 +101,7 @@ function compileTieredMultiQuery({indexes, search, offset = 0, limit = 10, filte
     size: limit,
     track_total_hits: true,
     query: {dis_max: {queries}},
-    sort: compileUnifiedSort(sort),
+    sort: compileUnifiedSort(sort, indexes.length === 1 && indexes[0] === "sequences" ? curatedSequenceIds : undefined),
     highlight: {fields: highlightFields, number_of_fragments: 1, fragment_size: 140, no_match_size: 140},
     _source: {excludes: [...excludes]},
   };

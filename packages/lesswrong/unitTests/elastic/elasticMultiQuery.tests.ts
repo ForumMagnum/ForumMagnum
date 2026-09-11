@@ -3,6 +3,29 @@ import { compilePersonLookup, resolvePersonSearch } from "../../server/search/el
 
 const eliezer = {objectID: "ey", displayName: "Eliezer Yudkowsky", slug: "eliezer-yudkowsky", karma: 10000};
 
+it.each(["tiered", "additive"] as const)("puts curated sequences first before pagination in %s ranking", ranking => {
+  const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
+  const data = {ranking, indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
+  const regular = compileMultiQuery({...data, curatedSequenceIds: []});
+  const request = compileMultiQuery({...data, offset: 10, limit: 5, sort: [{key: "date", direction: "asc"}]});
+  now.mockRestore();
+  expect(request.query).toEqual(regular.query);
+  expect(request).toMatchObject({from: 10, size: 5});
+  expect(request.sort).toEqual([
+    {_script: {type: "number", order: "desc", script: {
+      source: expect.stringContaining("params.ids.contains(doc['objectID'].value)"),
+      params: {ids: ["curated"]},
+    }}},
+    {publicDateMs: {order: "asc", missing: "_last", unmapped_type: "long"}},
+    {objectID: "asc"}, {_index: "asc"},
+  ]);
+});
+
+it.each(["tiered", "additive"] as const)("does not promote curated sequences in mixed %s results", ranking => {
+  const request = compileMultiQuery({ranking, indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
+  expect(request.sort).toEqual([{_score: {order: "desc"}}, {objectID: "asc"}, {_index: "asc"}]);
+});
+
 it.each(["tags", "posts", "sequences"])("uses the same karma scale for %s, including empty searches", (index) => {
   const request = compileMultiQuery({ranking: "tiered", indexes: [index], search: ""});
   const branches = request.query?.dis_max?.queries[0]?.bool?.must;
