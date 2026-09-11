@@ -17,6 +17,8 @@ const styles = defineStyles('AnimatedCollapse', () => ({
   },
   content: {
     display: 'flow-root',
+    // Let single-line comments shrink below their intrinsic text width after clipping is released.
+    minWidth: 0,
     minHeight: 0,
     overflow: 'hidden',
   },
