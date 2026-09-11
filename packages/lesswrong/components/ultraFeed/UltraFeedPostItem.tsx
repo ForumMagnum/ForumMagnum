@@ -404,7 +404,7 @@ const UltraFeedPostItem = ({
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openInNewTab, feedType } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
@@ -450,7 +450,8 @@ const UltraFeedPostItem = ({
         feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId, index]);
+    return () => { if (currentElement) unobserve(currentElement); };
+  }, [observe, unobserve, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -474,7 +475,9 @@ const UltraFeedPostItem = ({
       wordCount,
     });
 
-    if (!hasRecordedViewOnExpand) {
+    // Standard expansion analytics above remain enabled, but incognito must not
+    // write post read state or send a Recombee detail view through recordPostView.
+    if (expanded && !settings.resolverSettings.incognitoMode && !hasRecordedViewOnExpand) {
       void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
       setHasRecordedViewOnExpand(true);
     }
@@ -484,7 +487,8 @@ const UltraFeedPostItem = ({
     post, 
     captureEvent, 
     recordPostView, 
-    hasRecordedViewOnExpand, 
+    hasRecordedViewOnExpand,
+    settings.resolverSettings.incognitoMode,
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,

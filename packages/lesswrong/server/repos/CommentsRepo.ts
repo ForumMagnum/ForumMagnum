@@ -1,3 +1,4 @@
+import { ultraFeedReadIsCurrentSql } from "../ultraFeed/ultraFeedReadState";
 import Comments from "../../server/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "@/server/sql/SelectQuery";
@@ -8,7 +9,7 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ForumTypeString } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
-import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import { feedCommentSourceTypesArray, FeedItemSourceType, FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
@@ -454,6 +455,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     initialCandidateLookbackDays: number,
     commentServedEventRecencyHours: number,
     restrictCandidatesToSubscribed = false,
+    enabledSources: FeedItemSourceType[] = [...feedCommentSourceTypesArray],
   ): Promise<FeedCommentFromDb[]> {
     const initialCandidateLimit = 500;
 
@@ -492,6 +494,11 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."userId" != $(userIdOrClientId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
+              AND (CASE
+                WHEN c.shortform IS TRUE THEN 'quicktakes'
+                WHEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") THEN 'subscriptionsComments'
+                ELSE 'recentComments'
+              END) = ANY($(enabledSources)::text[])
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY 
               (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
@@ -530,39 +537,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
-      "ReadStatusViews" AS (
-        -- Generate implied view events from ReadStatuses table
-        SELECT
-          c._id AS "documentId",
-          rs."lastUpdated" AS "createdAt",
-          'viewed' AS "eventType"
-        FROM "AllRelevantComments" c
-        JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
-        WHERE rs."userId" = $(userIdOrClientId)
-          AND rs."isRead" IS TRUE
-          AND c."postedAt" < rs."lastUpdated"
-      ),
       "UsersEvents" AS (
-        -- Select from the combined and ordered events
-        SELECT * FROM (
-          -- Combine both real events and implied events from read statuses
-          SELECT
-            ue."documentId",
-            ue."createdAt",
-            ue."eventType"
-          FROM "UltraFeedEvents" ue
-          WHERE ue."collectionName" = 'Comments'
-            AND "userId" = $(userIdOrClientId)
-            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
-            AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
-          
-          UNION ALL
-          
-          -- Add the implied view events from ReadStatuses
-          SELECT * FROM "ReadStatusViews"
-        ) AS CombinedEvents -- Treat the UNION result as a derived table
-        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
-        LIMIT 5000
+        -- A post visit is not evidence that any of its comments were seen.
+        -- Only comment-specific feed events determine comment read state.
+        SELECT
+          ue."documentId",
+          ue."createdAt",
+          ue."eventType"
+        FROM "UltraFeedEvents" ue
+        WHERE ue."collectionName" = 'Comments'
+          AND ue."userId" = $(userIdOrClientId)
+          AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
+          AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
+        -- Bound work by candidate IDs, not by event count: truncation loses seen state.
       ),
       "CommentEvents" AS (
           -- Aggregate the user's latest events for each comment
@@ -604,6 +591,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
       restrictCandidatesToSubscribed,
+      enabledSources,
       reviewYear: REVIEW_YEAR.toString(),
     });
 
@@ -769,6 +757,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             WHERE ufe_posts."userId" = $(userIdOrClientId)
               AND ufe_posts."collectionName" = 'Posts'
               AND ufe_posts."eventType" != 'served'
+              AND ufe_posts.event->>'action' IS DISTINCT FROM 'markUnread'
+              AND ${ultraFeedReadIsCurrentSql('$(userIdOrClientId)', 'ufe_posts."documentId"', 'ufe_posts."createdAt"')}
               AND ufe_posts."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
           ) "readPosts_subquery" ON c_read."postId" = "readPosts_subquery"."postId"
           WHERE c_read."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
@@ -784,38 +774,63 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             )
         ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
       LEFT JOIN
-        ( -- get repeated thread exposures to calculate repetition penalty
+        ( -- Count a card exposure once, not once per comment or duration milestone.
           SELECT
-            COALESCE(c_repetition."topLevelCommentId", c_repetition._id) AS "threadTopLevelId",
-            COUNT(DISTINCT ufe_repetition."createdAt") AS "recentServingCount",
+            exposures."threadTopLevelId",
+            COUNT(*) AS "recentServingCount",
             ARRAY_AGG(
-              EXTRACT(EPOCH FROM (NOW() - ufe_repetition."createdAt")) / 3600 
-              ORDER BY ufe_repetition."createdAt" DESC
+              EXTRACT(EPOCH FROM (NOW() - exposures."exposedAt")) / 3600
+              ORDER BY exposures."exposedAt" DESC
             ) AS "servingHoursAgo"
-          FROM "UltraFeedEvents" ufe_repetition
-          JOIN "Comments" c_repetition ON ufe_repetition."documentId" = c_repetition._id
-          WHERE ufe_repetition."userId" = $(userIdOrClientId)
-            AND ufe_repetition."collectionName" = 'Comments'
-            AND ufe_repetition."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
-            AND (
-              (
-                ufe_repetition."eventType" = 'served'
-                AND $(sessionId) IS NOT NULL
-                AND ufe_repetition.event->>'sessionId' = $(sessionId)
+          FROM (
+            SELECT
+              COALESCE(c_repetition."topLevelCommentId", c_repetition._id) AS "threadTopLevelId",
+              CASE
+                WHEN served.event->>'exposureId' IS NOT NULL
+                  THEN jsonb_build_array('exposure', served.event->>'exposureId')
+                -- Compatibility with For You events written before exposureId existed.
+                WHEN served.event->>'sessionId' IS NOT NULL AND served.event->>'itemIndex' IS NOT NULL
+                  THEN jsonb_build_array('card', served.event->>'sessionId', served.event->>'itemIndex')
+                -- For older events without card metadata, at least merge a comment's
+                -- short/long views. Unlinked events remain separate observations.
+                ELSE jsonb_build_array('event', COALESCE(ufe_repetition."feedItemId", ufe_repetition._id))
+              END AS "exposureKey",
+              COALESCE(
+                MIN(ufe_repetition."createdAt") FILTER (WHERE ufe_repetition."eventType" = 'viewed'),
+                MIN(ufe_repetition."createdAt")
+              ) AS "exposedAt"
+            FROM "UltraFeedEvents" ufe_repetition
+            JOIN "Comments" c_repetition ON ufe_repetition."documentId" = c_repetition._id
+            LEFT JOIN "UltraFeedEvents" served
+              ON served._id = COALESCE(ufe_repetition."feedItemId", ufe_repetition._id)
+              AND served."eventType" = 'served'
+              AND served."userId" = ufe_repetition."userId"
+              AND served."collectionName" = 'Comments'
+              AND served."documentId" = ufe_repetition."documentId"
+            WHERE ufe_repetition."userId" = $(userIdOrClientId)
+              AND ufe_repetition."collectionName" = 'Comments'
+              AND ufe_repetition."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
+              AND (
+                (
+                  ufe_repetition."eventType" = 'served'
+                  AND $(sessionId) IS NOT NULL
+                  AND ufe_repetition.event->>'sessionId' = $(sessionId)
+                )
+                OR ufe_repetition."eventType" = 'viewed'
               )
-              OR ufe_repetition."eventType" = 'viewed'
-            )
-            AND COALESCE(c_repetition."topLevelCommentId", c_repetition._id) IN (
-                SELECT "threadTopLevelId_inner_rat" FROM (
-                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
-                    FROM "Comments" c_inner
-                    WHERE ${getViewableCommentsFilter('c_inner')}
-                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
-                    ORDER BY "lastCommentActivity_inner" DESC
-                    LIMIT $(threadCandidateLimit)
-                ) recent_threads_filter_for_servings
-            )
-          GROUP BY COALESCE(c_repetition."topLevelCommentId", c_repetition._id)
+              AND COALESCE(c_repetition."topLevelCommentId", c_repetition._id) IN (
+                  SELECT "threadTopLevelId_inner_rat" FROM (
+                      SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                      FROM "Comments" c_inner
+                      WHERE ${getViewableCommentsFilter('c_inner')}
+                      GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                      ORDER BY "lastCommentActivity_inner" DESC
+                      LIMIT $(threadCandidateLimit)
+                  ) recent_threads_filter_for_servings
+              )
+            GROUP BY COALESCE(c_repetition."topLevelCommentId", c_repetition._id), "exposureKey"
+          ) exposures
+          GROUP BY exposures."threadTopLevelId"
         ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
       userIdOrClientId,

@@ -1,11 +1,10 @@
+import { calculateFetchLimits } from "../ultraFeed/ultraFeedFetchLimits";
 import {
   FeedItemSourceType, UltraFeedResolverType,
   FeedSpotlight, FeedFullPost, FeedCommentMetaInfo,
   PreDisplayFeedComment,
   FeedCommentsThread,
   FeedCommentsThreadResolverType,
-  feedCommentSourceTypesArray,
-  feedSpotlightSourceTypesArray,
   FeedPostStub,
   UserOrClientId,
   ThreadEngagementStats,
@@ -29,7 +28,6 @@ import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import {
   loadMultipleEntitiesById,
   createUltraFeedResponse,
-  UltraFeedEventInsertData,
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
 import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
@@ -41,6 +39,7 @@ import {
 import { scoreAllUltraFeedItems } from '../ultraFeed/ultraFeedRanking';
 import { buildRankingConfigFromSettings } from '../ultraFeed/ultraFeedRankingConfig';
 import UltraFeedEvents from "../collections/ultraFeedEvents/collection";
+import { createUltraFeedEvents } from "../ultraFeed/ultraFeedEvents";
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
 
@@ -199,7 +198,7 @@ function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
 const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
 
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
-  let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS;
+  let parsedSettings: UltraFeedResolverSettings = cloneDeep(DEFAULT_RESOLVER_SETTINGS);
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
@@ -472,76 +471,6 @@ const transformItemsForResolver = (
   }));
 };
 
-const createUltraFeedEvents = (
-  results: UltraFeedResolverType[],
-  userOrClientId: UserOrClientId,
-  sessionId: string,
-  offset: number
-): UltraFeedEventInsertData[] => {
-  const eventsToCreate: UltraFeedEventInsertData[] = [];
-  const userId = userOrClientId.id;
-  const isLoggedOut = userOrClientId.type === 'client';
-  
-  results.forEach((item, index) => {
-    const actualItemIndex = offset + index;
-    
-    if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
-      const servedEventId = item.feedSpotlight.spotlightMetaInfo.servedEventId;
-      eventsToCreate.push({
-        _id: servedEventId,
-        userId,
-        eventType: "served",
-        collectionName: "Spotlights",
-        documentId: item.feedSpotlight.spotlight._id,
-        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"], ...(isLoggedOut ? { loggedOut: true } : {}) }
-      });
-    } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
-        const threadData = item.feedCommentThread;
-        const comments = threadData?.comments;
-        const commentMetaInfos = threadData?.commentMetaInfos;
-        const sources = threadData?.commentMetaInfos?.[comments?.[0]?._id ?? ""]?.sources ?? [];
-        comments?.forEach((comment: DbComment, commentIndex) => {
-          if (comment?._id) {
-            const displayStatus = commentMetaInfos?.[comment._id]?.displayStatus;
-            const servedEventId = commentMetaInfos?.[comment._id]?.servedEventId;
-            if (servedEventId) {
-              eventsToCreate.push({ 
-                 _id: servedEventId,
-                 userId, 
-                 eventType: "served", 
-                 collectionName: "Comments", 
-                 documentId: comment._id, 
-                 event: { 
-                  sessionId, 
-                  itemIndex: actualItemIndex, 
-                  commentIndex, 
-                  displayStatus,
-                  sources,
-                  ...(isLoggedOut ? { loggedOut: true } : {})
-                }
-                });
-            }
-          }
-        });
-    } else if (item.type === "feedPost" && item.feedPost?.post?._id) {
-      const feedItem = item.feedPost;
-      const servedEventId = feedItem.postMetaInfo?.servedEventId;
-      const sources = feedItem.postMetaInfo?.sources ?? [];
-      if (feedItem.post._id && servedEventId) { 
-        eventsToCreate.push({ 
-          _id: servedEventId,
-          userId, 
-          eventType: "served", 
-          collectionName: "Posts", 
-          documentId: feedItem.post._id,
-          event: { sessionId, itemIndex: actualItemIndex, sources, ...(isLoggedOut ? { loggedOut: true } : {}) }
-        });
-      }
-    }
-  });
-  
-  return eventsToCreate;
-};
 
 interface UltraFeedArgs {
   limit?: number;
@@ -551,52 +480,6 @@ interface UltraFeedArgs {
   settings: string;
 }
 
-const calculateFetchLimits = (
-  sourceWeights: Record<string, number>,
-  totalLimit: number,
-  offset: number = 0,
-  bufferMultiplier = 3.6,
-  latestAndSubscribedPostMultiplier = 3.0,
-  recombeeMultiplier = 3.6,
-): {
-  totalWeight: number;
-  recombeePostFetchLimit: number;
-  hackerNewsPostFetchLimit: number;
-  subscribedPostFetchLimit: number;
-  commentFetchLimit: number;
-  spotlightFetchLimit: number;
-  bookmarkFetchLimit: number;
-  bufferMultiplier: number;
-} => {
-  const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
-  
-  const recombeePostWeight = sourceWeights['recombee-lesswrong-ultrafeed'] ?? 0;
-  const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
-  const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
-  const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
-  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
-  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
-
-  const baseCommentFetchLimit = Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier);
-  
-  // Scale up comment fetch limit based on offset to reduce repetition in subsequent calls: grows incrementally with each call, capped at 200
-  const commentFetchLimit = Math.min(baseCommentFetchLimit + Math.round(offset / 2), 200);
-  
-  if (offset > 0 && commentFetchLimit > baseCommentFetchLimit) {
-    ultraFeedLog(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
-  }
-
-  return {
-    totalWeight,
-    recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * recombeeMultiplier),
-    hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
-    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
-    commentFetchLimit,
-    spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
-    bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
-    bufferMultiplier
-  };
-};
 
 /**
  * UltraFeed resolver
@@ -623,6 +506,7 @@ export const ultraFeedGraphQLQueries = {
     }
 
     const parsedSettings = parseUltraFeedSettings(settingsJson);
+    parsedSettings.debugMode = !!parsedSettings.debugMode && userIsAdminOrMod(currentUser);
     const sourceWeights = parsedSettings.sourceWeights;
     const incognitoMode = parsedSettings.incognitoMode;
 
@@ -787,7 +671,7 @@ export const ultraFeedGraphQLQueries = {
       const sampledItems = insertSubscriptionSuggestions(sampledItemsDeduped, (): SampledItem => ({
         type: "feedSubscriptionSuggestions",
         feedSubscriptionSuggestions: { suggestedUserIds: [] }
-      }), 0.2, 4);
+      }), 0.2, sampledItemsDeduped.length);
       
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 

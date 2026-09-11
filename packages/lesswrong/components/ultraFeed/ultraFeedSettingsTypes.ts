@@ -4,6 +4,7 @@
  */
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { ZodFormattedError } from 'zod';
+import type { UltraFeedDiversityContext } from '@/lib/ultraFeedDiversity';
 
 
 export interface UltraFeedDisplaySettings {
@@ -20,12 +21,15 @@ export type UltraFeedAlgorithm = 'scoring' | 'sampling';
 export interface UnifiedScoringSettings {
   subscribedBonusSetting: number;
   quicktakeBonus: number;
+  /** Persisted legacy name: scales karma bonuses, not the relative decay rate or half-life. */
   timeDecayHalfLifeHours: number;
   postsMultiplier: number;
   threadsMultiplier: number;
 }
 
 export interface UltraFeedResolverSettings {
+  /** Per-request pagination context, supplied by the feed rather than persisted settings. */
+  diversityContext?: UltraFeedDiversityContext;
   incognitoMode: boolean;
   enableDebug: boolean;
   debugMode?: boolean;

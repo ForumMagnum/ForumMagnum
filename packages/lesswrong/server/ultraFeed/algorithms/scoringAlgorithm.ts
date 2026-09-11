@@ -13,6 +13,7 @@ import type { RankableItem, RankedItemMetadata } from '../ultraFeedRankingTypes'
 import type { UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { rankUltraFeedItems } from '../ultraFeedRanking';
 import { buildRankingConfigFromSettings } from '../ultraFeedRankingConfig';
+import { parseUltraFeedDiversityContext } from '@/lib/ultraFeedDiversity';
 
 export const scoringAlgorithm: UltraFeedAlgorithm = {
   name: 'scoring',
@@ -24,7 +25,7 @@ export const scoringAlgorithm: UltraFeedAlgorithm = {
   ): Array<{ id: string; metadata?: RankedItemMetadata }> {
     const config = buildRankingConfigFromSettings(settings.unifiedScoring);
     
-    return rankUltraFeedItems(items, totalItems, config);
+    const enabledItems = items.filter(item => item.sources.some(source => settings.sourceWeights[source] > 0));
+    return rankUltraFeedItems(enabledItems, totalItems, config, undefined, parseUltraFeedDiversityContext(settings.diversityContext));
   },
 };
-

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { randomId } from '@/lib/random';
 
 export const markAsUnreadTypeDefs = gql`
   extend type Mutation {
@@ -12,7 +13,14 @@ export const markAsUnreadMutations = {
     const { currentUser } = context;
     if (!currentUser) return isRead;
 
-    await context.repos.readStatuses.upsertReadStatus(currentUser._id, postId, isRead);
+    const readStatus = await context.repos.readStatuses.upsertReadStatus(currentUser._id, postId, isRead);
+    if (!isRead) {
+      await context.UltraFeedEvents.rawInsertMany([{
+        _id: randomId(), userId: currentUser._id, documentId: postId,
+        collectionName: 'Posts', eventType: 'interacted',
+        createdAt: readStatus.lastUpdated, feedItemId: null, event: { action: 'markUnread' },
+      }]);
+    }
     
     // TODO: Create an entry in LWEvents
     

@@ -52,6 +52,7 @@ export type RankedItemMetadata =
     }
   | {
       rankedItemType: 'commentThread';
+      preselection?: ThreadPreselectionInfo;
       scoreBreakdown: ThreadScoreBreakdown;
       selectionConstraints: string[];
       position: number;
@@ -154,10 +155,19 @@ export interface PreDisplayFeedComment {
 export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
+  preselection?: ThreadPreselectionInfo;
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
   postSources?: FeedItemSourceType[];
   rankingMetadata?: RankedItemMetadata;
+}
+
+export interface ThreadPreselectionInfo {
+  score: number;
+  rank: number;
+  candidateLimit: number;
+  selected: boolean;
+  reasons: string[];
 }
 
 export interface FeedPostStub {
@@ -275,6 +285,7 @@ export interface ThreadEngagementStats {
 }
 
 export interface ServedEventData {
+  exposureId?: string; // Shared by all comments in one served card
   sessionId: string;    // The session ID for the feed load
   itemIndex: number;    // The index of the item in the served results array
   commentIndex?: number; // The index of the comment within a thread, if applicable

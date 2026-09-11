@@ -1046,7 +1046,7 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
     {
       key: 'timeDecayHalfLifeHours' as const,
       label: "Time Decay Scale",
-      description: `Controls time decay rate (applies to posts and comments). Higher = slower decay. Formula: scale^0.25 / (ageHrs + 12)^0.25. At ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours}hrs: 1day old = 78%, 1week old = 56%. Default: ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours} hours`,
+      description: `Higher values increase the karma bonus for recent posts and comments relative to other bonuses, up to the karma cap. They do not change how quickly older content loses priority relative to newer content. This setting is a scale, not a half-life. Default: ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours}.`,
       min: 1, max: 48, step: 1,
     },
   ];

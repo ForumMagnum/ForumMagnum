@@ -7,6 +7,7 @@ import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import type { FeedType } from './ultraFeedTypes';
 import type { WatchQueryFetchPolicy } from '@apollo/client';
 import { randomId } from '../../lib/random';
+import { buildUltraFeedDiversityContext } from '@/lib/ultraFeedDiversity';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import {
   compareUltraFeedDebugResults,
@@ -70,7 +71,12 @@ const UltraFeedMainFeed = ({
   }), [actualSessionId, settings, debugMode]);
 
   const renderers = useMemo(() => createUltraFeedRenderers({ settings, debugMode }), [settings, debugMode]);
+  const getPaginationVariables = useCallback((results: Array<{ type: string; [key: string]: unknown }>) => ({
+    settings: JSON.stringify({ ...settings.resolverSettings, debugMode, diversityContext: buildUltraFeedDiversityContext(results) }),
+  }), [settings, debugMode]);
   const debugHeader = useMemo(() => debugMode ? (
+    <>
+    <p>Thread candidates show their preselection score and exclusion reasons. This shows the best path per root from the initial candidate pool, including threads excluded before final ranking. Earlier database filters and discarded alternative paths are not shown. Topic affinity, replies-to-you, and own-post bonuses are not implemented.</p>
     <UltraFeedDebugHeader
       sortField={debugSortField}
       sortDirection={debugSortDirection}
@@ -79,6 +85,7 @@ const UltraFeedMainFeed = ({
         setDebugSortDirection(direction);
       }}
     />
+    </>
   ) : undefined, [debugMode, debugSortField, debugSortDirection]);
   const debugSortResults = useMemo(() => debugMode
     ? (a: UltraFeedDebugResult, b: UltraFeedDebugResult) => compareUltraFeedDebugResults(a, b, debugSortField, debugSortDirection)
@@ -91,6 +98,7 @@ const UltraFeedMainFeed = ({
       <MixedTypeFeed
         query={UltraFeedQuery}
         variables={variables}
+        getPaginationVariables={getPaginationVariables}
         firstPageSize={firstPageSize}
         pageSize={pageSize}
         refetchRef={refetchRef}
@@ -109,5 +117,3 @@ const UltraFeedMainFeed = ({
 };
 
 export default UltraFeedMainFeed;
-
-
