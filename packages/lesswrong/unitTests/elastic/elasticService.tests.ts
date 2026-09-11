@@ -1,9 +1,14 @@
 import ElasticClient from "../../server/search/elastic/ElasticClient";
 import ElasticService from "../../server/search/elastic/ElasticService";
+import Sequences from "../../server/collections/sequences/collection";
 
 jest.mock("../../server/search/elastic/ElasticClient");
+const mockSequenceFetch = jest.fn();
+jest.mock("../../server/collections/sequences/collection", () => ({__esModule: true, default: {find: jest.fn(() => ({fetch: mockSequenceFetch}))}}));
 
 beforeEach(() => {
+  jest.clearAllMocks();
+  mockSequenceFetch.mockReset();
   // @ts-ignore
   ElasticClient.mockClear();
 });
@@ -43,6 +48,31 @@ describe("ElasticService", () => {
 });
 
 describe("ElasticService unified requests", () => {
+  it("loads curated sequence IDs for sequence searches and forwards them to server sorting", async () => {
+    const client = new ElasticClient();
+    const multiSearch = jest.spyOn(client, "multiSearch").mockResolvedValue({hits: {total: 0, hits: []}});
+    mockSequenceFetch.mockResolvedValue([{_id: "curated"}]);
+    await new ElasticService(client).runQuery({indexName: "sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default", unifiedSearch: true});
+    expect(Sequences.find).toHaveBeenCalledWith({curatedOrder: {$exists: true}}, {}, {_id: 1});
+    expect(multiSearch).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: ["curated"]}));
+  });
+
+  it("reports a failed curation lookup instead of silently returning the wrong order", async () => {
+    const client = new ElasticClient();
+    mockSequenceFetch.mockRejectedValue(new Error("Curation lookup failed"));
+    await expect(new ElasticService(client).runQuery({indexName: "sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default", unifiedSearch: true}))
+      .rejects.toThrow("Curation lookup failed");
+    expect(client.multiSearch).not.toHaveBeenCalled();
+  });
+
+  it("does not load or promote curated sequences in the All view", async () => {
+    const client = new ElasticClient();
+    const multiSearch = jest.spyOn(client, "multiSearch").mockResolvedValue({hits: {total: 0, hits: []}});
+    await new ElasticService(client).runQuery({indexName: "posts,comments,users,tags,sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default", unifiedSearch: true});
+    expect(Sequences.find).not.toHaveBeenCalled();
+    expect(multiSearch).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: []}));
+  });
+
   it("parses the sort and forwards it with the new filters to the multi search", async () => {
     const service = new ElasticService();
     // @ts-ignore
@@ -60,6 +90,7 @@ describe("ElasticService unified requests", () => {
         {type: "postType", field: "postType", value: ["question"]},
       ],
     }));
+    expect(Sequences.find).not.toHaveBeenCalled();
   });
 
   it("rejects invalid sorts and post types", async () => {

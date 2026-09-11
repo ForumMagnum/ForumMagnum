@@ -11,6 +11,7 @@ import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 import { parseSearchSort } from "@/lib/search/searchSorting";
 import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
+import Sequences from "@/server/collections/sequences/collection";
 
 export interface UnifiedFilterParams {
   tagIds?: string[],
@@ -53,15 +54,21 @@ class ElasticService {
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
     const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
+    const indexes = Array.isArray(index) ? index : [index];
+    const unifiedSearch = Array.isArray(index) || options.unifiedSearch;
+    const curatedSequences = !skipSearch && unifiedSearch && indexes.length === 1 && indexes[0] === "sequences"
+      ? await Sequences.find({curatedOrder: {$exists: true}}, {}, {_id: 1}).fetch()
+      : [];
     const result = skipSearch
       ? {hits: {
           total: 0,
           hits: [],
         }}
       : await (
-        (Array.isArray(index) || options.unifiedSearch)
+        unifiedSearch
           ? this.client.multiSearch({
-            indexes: Array.isArray(index) ? index : [index],
+            indexes,
+            curatedSequenceIds: curatedSequences.map(sequence => sequence._id),
             filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
             sort: params.sort ? parseSearchSort(params.sort) : undefined,
             preTag: params.highlightPreTag,
