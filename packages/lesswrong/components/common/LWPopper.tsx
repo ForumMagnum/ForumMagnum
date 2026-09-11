@@ -101,6 +101,9 @@ const LWPopper = ({
           // levels, this causes ugly resampling. (This has no effect on whether
           // GPU acceleration is used or on performance.)
           gpuAcceleration: false,
+          // Bottom/right offsets drift when the containing block changes size,
+          // such as while a settings panel expands. Keep coordinates relative to top/left.
+          adaptive: false,
         },
       },
       ...(distance>0 ? [{
@@ -173,4 +176,3 @@ export const PopperPortalProvider = ({children}: {
 }
 
 export default LWPopper;
-

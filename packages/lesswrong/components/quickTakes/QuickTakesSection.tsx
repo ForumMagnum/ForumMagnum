@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
@@ -43,6 +43,10 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.16rem',
   },
+  loading: {
+    // Include the dots' overflow and preserve the space normally occupied by the footer.
+    padding: '16px 0 24px',
+  },
 }));
 
 const QuickTakesSectionLoaded = ({showCommunity}: {
@@ -62,19 +66,49 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   });
 
   const results = data?.comments?.results;
+  const listRef = useRef<HTMLDivElement>(null);
+  const heightBeforeLoadMoreRef = useRef<number|null>(null);
+
+  useLayoutEffect(() => {
+    const element = listRef.current;
+    const previousHeight = heightBeforeLoadMoreRef.current;
+    if (!element || previousHeight === null) return;
+
+    if (loading) {
+      // Measure with the centered spinner in place while waiting for the new items.
+      heightBeforeLoadMoreRef.current = element.getBoundingClientRect().height;
+      return;
+    }
+
+    heightBeforeLoadMoreRef.current = null;
+    const expandedHeight = element.getBoundingClientRect().height;
+    if (expandedHeight <= previousHeight || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const animation = element.animate([
+      { height: `${previousHeight}px`, overflow: 'clip' },
+      { height: `${expandedHeight}px`, overflow: 'clip' },
+    ], { duration: 200, easing: 'ease-out' });
+
+    return () => animation.cancel();
+  }, [loading, results]);
+
+  const handleLoadMore = () => {
+    heightBeforeLoadMoreRef.current = listRef.current?.getBoundingClientRect().height ?? null;
+    return loadMoreProps.loadMore();
+  };
 
   const showLoadMore = !loadMoreProps.hidden;
 
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
-    <div className={classes.list}>
+    <div ref={listRef} className={classes.list}>
       {results?.map((result: FrontpageShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
-      {loading && <Loading />}
-      {showLoadMore && (
+      {loading && <div className={classes.loading}><Loading /></div>}
+      {showLoadMore && !loading && (
         <SectionFooter>
-          <LoadMore {...loadMoreProps} sectionFooterStyles />
+          <LoadMore {...loadMoreProps} loadMore={handleLoadMore} sectionFooterStyles />
         </SectionFooter>
       )}
     </div>
@@ -132,5 +166,3 @@ const QuickTakesSection = () => {
 export default registerComponent("QuickTakesSection", QuickTakesSection, {
   areEqual: "auto"
 });
-
-

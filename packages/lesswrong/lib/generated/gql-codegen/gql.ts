@@ -219,7 +219,6 @@ type Documents = {
     "\n  query LlmChatWrapper($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": typeof types.LlmChatWrapperDocument,
     "\n  query multiLlmConversationLlmConversationsViewingPageQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    llmConversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...LlmConversationsViewingPageFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiLlmConversationLlmConversationsViewingPageQueryDocument,
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": typeof types.LlmConversationsViewingPageDocument,
-    "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": typeof types.PostSummaryDialogDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
     "\n  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {\n    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n": typeof types.HocuspocusAuthQueryDocument,
     "\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n": typeof types.GetReviewResultsTableDataDocument,
@@ -769,7 +768,6 @@ type Documents = {
     "\n  fragment WithVotePost on Post {\n    __typename\n    _id\n    currentUserVote\n    currentUserExtendedVote\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n  }\n": typeof types.WithVotePostDoc,
     "\n  fragment HighlightWithHash on Post {\n    _id\n    contents {\n      _id\n      htmlHighlightStartingAtHash(hash: $hash)\n    }\n  }\n": typeof types.HighlightWithHashDoc,
     "\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n": typeof types.PostWithDialogueMessageDoc,
-    "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": typeof types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": typeof types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": typeof types.PostsRSSFeedDoc,
     "\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n": typeof types.PostsOriginalContentsDoc,
@@ -1106,7 +1104,6 @@ const documents: Documents = {
     "\n  query LlmChatWrapper($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": types.LlmChatWrapperDocument,
     "\n  query multiLlmConversationLlmConversationsViewingPageQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    llmConversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...LlmConversationsViewingPageFragment\n      }\n      totalCount\n    }\n  }\n": types.multiLlmConversationLlmConversationsViewingPageQueryDocument,
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": types.LlmConversationsViewingPageDocument,
-    "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": types.PostSummaryDialogDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
     "\n  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {\n    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n": types.HocuspocusAuthQueryDocument,
     "\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n": types.GetReviewResultsTableDataDocument,
@@ -1656,7 +1653,6 @@ const documents: Documents = {
     "\n  fragment WithVotePost on Post {\n    __typename\n    _id\n    currentUserVote\n    currentUserExtendedVote\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n  }\n": types.WithVotePostDoc,
     "\n  fragment HighlightWithHash on Post {\n    _id\n    contents {\n      _id\n      htmlHighlightStartingAtHash(hash: $hash)\n    }\n  }\n": types.HighlightWithHashDoc,
     "\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n": types.PostWithDialogueMessageDoc,
-    "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": types.PostsRSSFeedDoc,
     "\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n": types.PostsOriginalContentsDoc,
@@ -2622,10 +2618,6 @@ export function gql(source: "\n  query multiLlmConversationLlmConversationsViewi
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4822,10 +4814,6 @@ export function gql(source: "\n  fragment HighlightWithHash on Post {\n    _id\n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n"): (typeof documents)["\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n"): (typeof documents)["\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

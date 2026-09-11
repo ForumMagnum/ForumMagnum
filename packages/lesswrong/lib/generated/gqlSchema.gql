@@ -4417,7 +4417,6 @@ type Post {
   commentCount: Float!
   topLevelCommentCount: Float!
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment!]
-  languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
   totalDialogueResponseCount: Int!

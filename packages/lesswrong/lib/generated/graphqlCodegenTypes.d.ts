@@ -5333,7 +5333,6 @@ type Post = {
   isFuture: Scalars['Boolean']['output'];
   isRead?: Maybe<Scalars['Boolean']['output']>;
   joinEventLink?: Maybe<Scalars['String']['output']>;
-  languageModelSummary?: Maybe<Scalars['String']['output']>;
   lastCommentPromotedAt?: Maybe<Scalars['Date']['output']>;
   lastCommentedAt: Scalars['Date']['output'];
   lastPromotedComment?: Maybe<Comment>;
@@ -15993,23 +15992,6 @@ type LlmConversationsViewingPageQueryVariables = Exact<{
 
 type LlmConversationsViewingPageQuery = LlmConversationsViewingPageQuery_Query;
 
-type PostSummaryDialogQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostWithGeneratedSummary
-);
-
-type PostSummaryDialogQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostSummaryDialogQuery_post_SinglePostOutput_result_Post | null };
-
-type PostSummaryDialogQuery_Query = { __typename?: 'Query', post: PostSummaryDialogQuery_post_SinglePostOutput | null };
-
-
-type PostSummaryDialogQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostSummaryDialogQuery = PostSummaryDialogQuery_Query;
-
 type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent
@@ -24661,8 +24643,6 @@ type HighlightWithHash_Post_contents_Revision = { __typename?: 'Revision', _id: 
 type HighlightWithHash = { __typename?: 'Post', _id: string, contents: HighlightWithHash_Post_contents_Revision | null };
 
 type PostWithDialogueMessage = { __typename?: 'Post', _id: string, dialogueMessageContents: string | null };
-
-type PostWithGeneratedSummary = { __typename?: 'Post', _id: string, languageModelSummary: string | null };
 
 type PostsBestOfList_Post_podcastEpisode_PodcastEpisode_podcast_Podcast = { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null };
 

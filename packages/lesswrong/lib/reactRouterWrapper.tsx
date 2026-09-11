@@ -66,7 +66,8 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
     return <span>Broken Link</span>
   }
 
-  const {to, ...otherProps} = props;
+  // These navigation options are only used by HashLink, not native anchors.
+  const {to, smooth, doOnDown, scroll, ...otherProps} = props;
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {

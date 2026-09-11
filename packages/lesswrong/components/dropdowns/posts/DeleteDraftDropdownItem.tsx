@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { postCanDelete } from '../../../lib/collections/posts/helpers';
+import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
@@ -31,7 +31,7 @@ const DeleteDraftDropdownItem = ({ post }: {
     }
   }, [post, updatePost])
 
-  if (currentUser && postCanDelete(currentUser, post)) {
+  if (post.draft && userOwns(currentUser, post)) {
     return (
       <DropdownItem
         title={"Archive Draft"}

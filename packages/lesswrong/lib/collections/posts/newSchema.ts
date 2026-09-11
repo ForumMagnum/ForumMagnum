@@ -62,9 +62,7 @@ import {
 import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
-import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
-import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
 import { getLocalTime } from "@/server/mapsUtils";
 import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getPostHTML, getDialogueResponseIds } from "@/server/posts/utils";
 import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
@@ -3845,41 +3843,6 @@ const schema = {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
         });
         return await accessFilterMultiple(currentUser, "Comments", comments, context);
-      },
-    },
-  },
-  languageModelSummary: {
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-      resolver: async (post, _args, context) => {
-        if (!post.contents_latest) {
-          return "";
-        }
-
-        // This replaced the use of a `fetchFragmentSingle` for getting the post contents,
-        // in order to eliminate a dependency cycle
-        // TODO: test that this works correctly!
-        const postWithContents = await context.repos.posts.getPostWithContents(post._id);
-
-        if (!postWithContents?.contents?.originalContents) {
-          return "";
-        }
-        const markdownPostBody = dataToMarkdown(
-          postWithContents.contents?.originalContents?.data,
-          postWithContents.contents?.originalContents?.type
-        );
-        const authorName = "Authorname"; //TODO
-        return await languageModelGenerateText({
-          taskName: "summarize",
-          inputs: {
-            title: post.title,
-            author: authorName,
-            text: markdownPostBody,
-          },
-          maxTokens: 1000,
-          context,
-        });
       },
     },
   },

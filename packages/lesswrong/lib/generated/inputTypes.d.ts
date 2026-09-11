@@ -3977,7 +3977,6 @@ interface Post {
   commentCount: number;
   topLevelCommentCount: number;
   recentComments: Array<Comment> | null;
-  languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
   totalDialogueResponseCount: number;
