@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import SearchPage from '../components/search/SearchPage';
 
 const mockNavigate = jest.fn();
@@ -138,4 +138,60 @@ it('keeps the timeframe inline on phones even when the modal offers a slot', () 
   expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
   expect(slot.childElementCount).toBe(0);
   slot.remove();
+});
+
+it('selects one content kind on click and adds another only after holding', async () => {
+  jest.useFakeTimers();
+  try {
+    render(<SearchPage presentation="modal" />);
+    const post = screen.getByRole('checkbox', {name: 'Post'});
+    const user = screen.getByRole('checkbox', {name: 'User'});
+    fireEvent.click(post);
+    fireEvent.click(user);
+    expect(post.getAttribute('aria-checked')).toBe('false');
+    expect(user.getAttribute('aria-checked')).toBe('true');
+    fireEvent(post, new MouseEvent('pointerdown', {bubbles: true, button: 0}));
+    await act(() => jest.advanceTimersByTime(499));
+    expect(post.getAttribute('aria-checked')).toBe('false');
+    await act(() => jest.advanceTimersByTime(1));
+    expect(post.getAttribute('aria-checked')).toBe('true');
+    fireEvent.pointerUp(post);
+    fireEvent.click(post);
+    expect(user.getAttribute('aria-checked')).toBe('true');
+    fireEvent.click(post);
+    expect(user.getAttribute('aria-checked')).toBe('false');
+    fireEvent.click(screen.getByRole('checkbox', {name: 'All'}));
+    expect(post.getAttribute('aria-checked')).toBe('false');
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
+it('cancels interrupted holds and supports holding Space to add a kind', async () => {
+  jest.useFakeTimers();
+  try {
+    const {unmount} = render(<SearchPage presentation="modal" />);
+    const post = screen.getByRole('checkbox', {name: 'Post'});
+    const user = screen.getByRole('checkbox', {name: 'User'});
+    fireEvent.click(user);
+    for (const cancel of [fireEvent.pointerLeave, fireEvent.pointerCancel, fireEvent.blur]) {
+      fireEvent(post, new MouseEvent('pointerdown', {bubbles: true, button: 0}));
+      cancel(post);
+      await act(() => jest.advanceTimersByTime(500));
+      expect(post.getAttribute('aria-checked')).toBe('false');
+    }
+    fireEvent.keyDown(post, {key: ' '});
+    await act(() => jest.advanceTimersByTime(500));
+    fireEvent.keyUp(post, {key: ' '});
+    expect(post.getAttribute('aria-checked')).toBe('true');
+    expect(user.getAttribute('aria-checked')).toBe('true');
+    fireEvent.keyDown(post, {key: 'Enter'});
+    fireEvent.keyUp(post, {key: 'Enter'});
+    expect(user.getAttribute('aria-checked')).toBe('false');
+    fireEvent(post, new MouseEvent('pointerdown', {bubbles: true, button: 0}));
+    unmount();
+    await act(() => jest.advanceTimersByTime(500));
+  } finally {
+    jest.useRealTimers();
+  }
 });
