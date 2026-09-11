@@ -53,7 +53,11 @@ const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
     paddingLeft: 10,
     paddingRight: 10,
     backgroundColor: theme.palette.panelBackground.default,
-    border: theme.palette.tag.border,
+    ...(theme.dark && {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    }),
+    border: theme.dark ? theme.palette.greyBorder("1px", 0.07) : theme.palette.tag.border,
     borderRadius: 3,
     ...theme.typography.commentStyle,
     display: "inline-block",

@@ -30,8 +30,6 @@ export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
 
-export const userHasAutosummarize = adminOnly
-
 export const visitorGetsDynamicFrontpage = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
 
 export const userHasSubscribeTabFeed = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
