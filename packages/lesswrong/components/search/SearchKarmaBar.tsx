@@ -15,14 +15,16 @@ const thumbStyle = {
 
 const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
   root: {
-    display: "flex",
+    ...theme.typography.body2,
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
     alignItems: "center",
-    flexWrap: "wrap",
-    gap: 12,
+    gap: 8,
     flex: 1,
     minWidth: 0,
   },
   slider: {
+    gridColumn: "1 / -1",
     position: "relative",
     flex: 1,
     minWidth: 160,
@@ -74,9 +76,13 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
     },
   },
   numberInput: {
-    width: 90,
-    minHeight: 40,
-    padding: "4px 8px",
+    ...theme.typography.body2,
+    width: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
+    minHeight: 32,
+    padding: "2px 10px",
+    "@media (pointer: coarse)": {minHeight: 40},
     border: theme.palette.greyBorder("1px", 0.2),
     borderRadius: 4,
     background: theme.palette.background.default,
@@ -84,6 +90,7 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
     fontVariantNumeric: "tabular-nums",
   },
   label: {
+    gridColumn: "1 / -1",
     ...theme.typography.body2,
     fontSize: 13,
     color: theme.palette.grey[700],

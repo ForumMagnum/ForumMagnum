@@ -30,9 +30,11 @@ const trackHeight = 40;
 
 const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
   root: {
+    "--timeframe-label": theme.palette.text.dim,
+    "--timeframe-selected-label": theme.palette.text.alwaysWhite,
     display: "flex",
     flexDirection: "column",
-    gap: 6,
+    gap: 8,
     minWidth: 0,
     flex: 1,
   },
@@ -59,12 +61,17 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
   dateInput: {
     ...theme.typography.body2,
     fontSize: 13,
-    padding: "2px 4px",
-    minHeight: 40,
-    border: theme.palette.border.slightlyIntense2,
+    padding: "2px 10px",
+    minHeight: 32,
+    boxSizing: "border-box",
+    border: "none",
     borderRadius: 3,
-    background: "transparent",
+    background: theme.palette.greyAlpha(0.04),
     color: theme.palette.text.normal,
+    "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
+    "&:disabled": {opacity: 0.45},
+    "&:enabled:hover": {background: theme.palette.greyAlpha(0.08)},
+    "@media (pointer: coarse)": {minHeight: 40},
   },
   track: {
     position: "relative",
@@ -80,30 +87,35 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     bottom: 0,
-    borderLeft: theme.palette.greyBorder("1px", 0.15),
     pointerEvents: "none",
   },
   tickAlternate: {
-    backgroundColor: theme.palette.greyAlpha(0.06),
+    backgroundColor: theme.palette.greyAlpha(0.08),
   },
   tickLabel: {
     ...theme.typography.body2,
     position: "absolute",
-    bottom: 2,
-    left: 3,
-    fontSize: 10,
+    top: 0,
+    display: "flex",
+    alignItems: "center",
+    height: 28,
+    left: 8,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    fontWeight: 500,
     fontVariantNumeric: "tabular-nums",
     pointerEvents: "none",
-    color: theme.palette.grey[600],
+    color: "transparent",
+    backgroundClip: "text",
     whiteSpace: "nowrap",
   },
   band: {
     position: "absolute",
     top: 0,
     bottom: 0,
-    backgroundColor: theme.palette.primaryAlpha(0.25),
-    borderLeft: `2px solid ${theme.palette.primary.main}`,
-    borderRight: `2px solid ${theme.palette.primary.main}`,
+    backgroundColor: theme.palette.primary.dark,
+    opacity: 0.9,
+    borderRadius: 3,
     boxSizing: "border-box",
     minWidth: 2,
   },
@@ -115,9 +127,19 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
     transform: "translateX(-50%)",
     border: "none",
     background: "transparent",
-    color: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
     cursor: "ew-resize",
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: -2},
+  },
+  grip: {
+    position: "absolute",
+    bottom: 3,
+    width: 3,
+    height: 10,
+    borderRadius: 2,
+    background: theme.palette.text.alwaysWhite,
+    boxShadow: `0 0 0 1px ${theme.palette.primary.dark}`,
+    pointerEvents: "none",
   },
   startEndpoint: {top: 0},
   endEndpoint: {bottom: 0},
@@ -317,32 +339,42 @@ const SearchTimeframeBar = ({value, onChange, scale}: {
       onPointerCancel={cancelDrag}
       onLostPointerCapture={cancelDrag}
     >
-      {ticks.map(({startMs, fraction, endFraction, alternate}) => <div
-        key={startMs}
-        className={classNames(classes.tick, {[classes.tickAlternate]: alternate})}
-        style={{left: `${fraction * 100}%`, width: `${(endFraction - fraction) * 100}%`}}
-      />)}
       {mounted && (shown.start ?? overview.originMs) <= viewScale.nowMs && (shown.end ?? overview.nowMs) >= viewScale.originMs && <div
         data-band=""
         className={classNames(classes.band, {[classes.bandShiftable]: isClosed(value)})}
         style={{left: `${startFraction * 100}%`, width: `${Math.max(0, endFraction - startFraction) * 100}%`}}
       />}
-      {ticks.filter(tick => tick.showLabel).map(({startMs, fraction, label}) => <span
+      {ticks.map(({startMs, fraction, endFraction, alternate}) => <div
         key={startMs}
-        className={classes.tickLabel}
-        style={{left: `calc(${fraction * 100}% + 3px)`}}
-      >{label}</span>)}
+        className={classNames(classes.tick, {[classes.tickAlternate]: alternate})}
+        style={{left: `${fraction * 100}%`, width: `${(endFraction - fraction) * 100}%`}}
+      />)}
+      {ticks.filter(tick => tick.showLabel).map(({startMs, fraction, label}) => {
+        const selectionStart = Math.max(0, ((startFraction - fraction) * trackWidth) - 8);
+        const selectionEnd = Math.max(0, ((endFraction - fraction) * trackWidth) - 8);
+        return <span
+          key={startMs}
+          className={classes.tickLabel}
+          style={{
+            left: `calc(${fraction * 100}% + 8px)`,
+            // Clip the text color at the exact selection edges, including partial labels.
+            backgroundImage: `linear-gradient(to right, var(--timeframe-label) ${selectionStart}px, var(--timeframe-selected-label) ${selectionStart}px, var(--timeframe-selected-label) ${selectionEnd}px, var(--timeframe-label) ${selectionEnd}px)`,
+          }}
+        >{label}</span>;
+      })}
       {mounted && <>
+        <span aria-hidden="true" className={classes.grip} style={{left: `clamp(0px, ${startFraction * 100}%, calc(100% - 3px))`}} />
+        <span aria-hidden="true" className={classes.grip} style={{left: `clamp(0px, calc(${endFraction * 100}% - 3px), calc(100% - 3px))`}} />
         <button type="button" role="slider" aria-label="Start date" data-endpoint="start"
           aria-valuemin={overview.originMs} aria-valuemax={shown.end ?? overview.nowMs}
           aria-valuenow={shown.start ?? overview.originMs} aria-valuetext={toIsoDay(shown.start ?? overview.originMs)}
           className={classNames(classes.endpoint, classes.startEndpoint)} style={{left: `clamp(20px, ${startFraction * 100}%, calc(100% - 20px))`}}
-          onKeyDown={event => onEndpointKey(event, "start")}>◀</button>
+          onKeyDown={event => onEndpointKey(event, "start")} />
         <button type="button" role="slider" aria-label="End date" data-endpoint="end"
           aria-valuemin={shown.start ?? overview.originMs} aria-valuemax={overview.nowMs}
           aria-valuenow={shown.end ?? overview.nowMs} aria-valuetext={toIsoDay(shown.end ?? overview.nowMs)}
           className={classNames(classes.endpoint, classes.endEndpoint)} style={{left: `clamp(20px, ${endFraction * 100}%, calc(100% - 20px))`}}
-          onKeyDown={event => onEndpointKey(event, "end")}>▶</button>
+          onKeyDown={event => onEndpointKey(event, "end")} />
       </>}
     </div>
   </div>;

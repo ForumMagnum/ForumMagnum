@@ -21,8 +21,6 @@ import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { useCurrentUser } from '../common/withUser';
 import ErrorBoundary from '../common/ErrorBoundary';
 import ForumIcon from '../common/ForumIcon';
-import LWTooltip from '../common/LWTooltip';
-import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchAnalytics';
 import { useSearchHistory } from './useSearchHistory';
 import { useSearchPageNavigation } from './useSearchPageNavigation';
@@ -88,11 +86,11 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
       maxHeight: '100%',
       margin: 0,
       padding: '0 max(8px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left))',
-      '& $timeframePanel': {maxHeight: '45%', overflowY: 'auto'},
       '& $layout': {
         height: 'auto',
-        flex: 1,
-        minHeight: 160,
+        flex: '0 0 auto',
+        minHeight: 0,
+        overflow: 'visible',
         gridTemplateColumns: 'minmax(0, 1fr)',
         gridTemplateAreas: '"controls" "sidebar" "hits"',
       },
@@ -114,7 +112,7 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     '& .SearchTimeframeBar-controls': {paddingRight: 60},
     boxSizing: 'border-box',
     backgroundColor: theme.palette.background.paper,
-    border: theme.palette.greyBorder('1px', 0.12),
+    border: "none",
     borderRadius: 4,
     scrollMarginTop: 'calc(var(--header-height) + 8px)',
     [theme.breakpoints.down('sm')]: {padding: '4px 8px 8px', marginTop: 8},
@@ -168,6 +166,7 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     padding: "16px 0 12px",
     [theme.breakpoints.down('sm')]: {
       gridArea: "controls",
+      position: "static",
     },
     backgroundColor: theme.palette.background.paper,
 
@@ -187,6 +186,8 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: "minmax(0, 1fr)",
       gridTemplateAreas: '"controls" "sidebar" "hits"',
+      gridAutoRows: "max-content",
+      alignContent: "start",
       gap: 8,
     },
   },
@@ -203,15 +204,17 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     overflowY: "auto",
     overscrollBehavior: "contain",
     scrollbarGutter: "stable",
-    padding: "6px 12px 8px",
+    padding: "4px 0 8px",
     backgroundColor: theme.palette.background.paper,
-    border: theme.palette.greyBorder("1px", 0.08),
+    border: "none",
     borderRadius: 4,
     zIndex: 9,
     [theme.breakpoints.down('sm')]: {
       position: "static",
       maxWidth: "none",
       maxHeight: "none",
+      overflow: "visible",
+      scrollbarGutter: "auto",
       display: "none",
       marginTop: 0,
     },
@@ -236,8 +239,8 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     width: "100%",
     display: "flex",
     alignItems: "center",
-    gap: 16,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 10,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
     },
@@ -247,30 +250,40 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     flex: 1,
     display: "flex",
     alignItems: "center",
-    height: 48,
-    border: theme.palette.border.slightlyIntense2,
-    borderRadius: 3,
-    backgroundColor: theme.palette.panelBackground.default,
+    height: 44,
+    gap: 10,
+    padding: "0 14px",
+    boxSizing: "border-box",
+    border: theme.palette.greyBorder("1px", 0.08),
+    borderRadius: 8,
+    backgroundColor: theme.palette.greyAlpha(0.035),
+    transition: "background-color 150ms, border-color 150ms, box-shadow 150ms",
+    "&:hover": {borderColor: theme.palette.greyAlpha(0.18)},
+    "&:focus-within": {
+      backgroundColor: theme.palette.background.paper,
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 1px ${theme.palette.primary.main}, 0 2px 8px ${theme.palette.boxShadowColor(0.06)}`,
+      "& $searchIcon": {color: theme.palette.primary.main},
+    },
   },
   searchIcon: {
-    marginLeft: 12,
+    fontSize: 20,
+    flexShrink: 0,
+    color: theme.palette.text.dim,
   },
   input: {
     minWidth: 0,
     ...theme.typography.body2,
     flex: 1,
     height: "100%",
-    marginLeft: 12,
+    padding: 0,
     border: "none",
     outline: "none",
     background: "transparent",
     color: theme.palette.text.normal,
     fontSize: 16,
+    "&::placeholder": {color: theme.palette.text.dim, opacity: 1},
     "-webkit-appearance": "none",
-  },
-  infoIcon: {
-    fontSize: 20,
-    fill: theme.palette.grey[800],
   },
   clearFilters: {
     ...theme.typography.body2,
@@ -283,10 +296,10 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     marginBottom: 0,
   },
   kinds: {
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 4,
+    marginBottom: 4,
     justifyContent: "flex-start",
-    gap: 8,
+    gap: 4,
     [theme.breakpoints.down('sm')]: {
       margin: 0,
       padding: "16px 0",
@@ -295,24 +308,32 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
   },
   postTypes: {flexWrap: "wrap"},
   sortDescription: {
+    fontSize: 13,
+    color: theme.palette.text.dim,
     [theme.breakpoints.down('sm')]: {display: 'none'},
   },
   resultCount: {
     ...theme.typography.body2,
     fontSize: 14,
-    color: theme.palette.grey[700],
-    marginBottom: 24,
+    color: theme.palette.text.normal,
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    gap: "4px 16px",
+    padding: "8px 20px 12px",
+    marginBottom: 4,
+    fontVariantNumeric: "tabular-nums",
   },
   result: {
     position: "relative",
     display: "flex",
-    // Redistribute the row and hit's former bottom margins as vertical padding.
-    padding: "12px 16px",
+    padding: "8px 20px",
+    borderRadius: 5,
     [theme.breakpoints.down('sm')]: {padding: '8px'},
     scrollMarginTop: 'calc(var(--header-height) + 160px)',
     scrollMarginBottom: 16,
     "&:hover, &:focus-within, &[data-search-selected]": {
-      backgroundColor: theme.palette.greyAlpha(0.12),
+      backgroundColor: theme.palette.greyAlpha(0.05),
     },
     "& a:hover": {opacity: 1},
   },
@@ -322,7 +343,7 @@ const styles = defineStyles("SearchPage", (theme: ThemeType) => ({
     top: "50%",
     left: -38,
     transform: "translateY(-50%)",
-    fontSize: 24,
+    fontSize: 20,
     color: theme.palette.text.dim,
     "& > svg": {fontSize: "inherit"},
   },
@@ -379,8 +400,9 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const filtersId = useId();
   const timeframeId = useId();
   const timeframeRef = useRef<HTMLElement>(null);
-  // Phones keep the timeline inline, where the layout stacks anyway.
-  const timeframeSlot = useIsAboveBreakpoint('md') ? providedTimeframeSlot : null;
+  // Match down('sm'): mobile filters and results share a single scroll flow.
+  const isDesktop = useIsAboveBreakpoint('md');
+  const timeframeSlot = isDesktop ? providedTimeframeSlot : null;
   const layoutRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -389,7 +411,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const resultsRef = useRef<HTMLDivElement>(null);
   const writtenSearch = useRef<string | null>(null);
   const observedSearch = useRef(location.search);
-  const [expandedFilters, setExpandedFilters] = useState<string[]>([]);
+  const [expandedFilters, setExpandedFilters] = useState<string[]>(['authors']);
   const timeframeOpen = expandedFilters.includes('time');
   useEffect(() => {
     if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
@@ -436,10 +458,10 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     if (!target || loading || error || !hasMore) return;
     const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) void loadMore();
-    }, {root: presentation === 'modal' ? layoutRef.current : null, rootMargin: "0px 0px 400px 0px"});
+    }, {root: presentation === 'modal' ? (isDesktop ? layoutRef.current : scrollRef.current) : null, rootMargin: "0px 0px 400px 0px"});
     observer.observe(target);
     return () => observer.disconnect();
-  }, [loading, error, hasMore, loadMore, presentation]);
+  }, [loading, error, hasMore, loadMore, presentation, isDesktop]);
 
   useEffect(() => {
     if (state.query) {
@@ -513,11 +535,15 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   }}>
     {/* Snippet widgets in the hit components need this context. Its static empty query does not search Elasticsearch. */}
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
-      {timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
+      {isDesktop && timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
       <div ref={layoutRef} className={classes.layout}>
         <aside id={filtersId} className={classNames(classes.sidebar, {[classes.mobileFiltersOpen]: mobileFiltersOpen})} aria-label="Search options">
-          <SearchFilterRow label="Timeframe" summary={dateSummary} active={hasDateFilter} expanded={timeframeOpen}
+          <SearchFilterRow label="Timeframe" expandDirection={isDesktop ? "up" : "down"} summary={dateSummary} active={hasDateFilter} expanded={timeframeOpen}
             controlsId={timeframeId} onToggle={() => toggleFilter('time')} onReset={() => setFilters({dateRange: {}})} />
+          {!isDesktop && timeframePanel}
+          <SearchFilterRow label="Authors" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
+            <SearchAuthorsBar authorIds={state.filters.authorIds} onChange={(authorIds) => setFilters({authorIds})} />
+          </SearchFilterRow>
           <SearchFilterRow
             label="Tune the sorting"
             summary={searchSortToUrlParam(state.sort) ? "Custom sorting" : ""}
@@ -543,9 +569,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             </SearchFilterRow>
             <SearchFilterRow label="Post types" summary={hasPostFilter ? state.filters.postTypes.map(type => searchPostTypeLabels[type]).join(", ") : "All post types"} active={hasPostFilter} expanded={expandedFilters.includes("types")} onToggle={() => toggleFilter("types")} onReset={() => setFilters({postTypes: defaultSearchPostTypes})}>
               <SearchPostTypeBar className={classes.postTypes} selected={state.filters.postTypes} onChange={(postTypes) => setFilters({postTypes})} />
-            </SearchFilterRow>
-            <SearchFilterRow label="Authors" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
-              <SearchAuthorsBar authorIds={state.filters.authorIds} onChange={(authorIds) => setFilters({authorIds})} />
             </SearchFilterRow>
             <SearchFilterRow label="Karma" summary={hasKarmaFilter ? `${state.filters.karmaRange.min ?? "Any"} to ${state.filters.karmaRange.max ?? "any"}` : "Any karma"} active={hasKarmaFilter} expanded={expandedFilters.includes("karma")} onToggle={() => toggleFilter("karma")} onReset={() => setFilters({karmaRange: {}})}>
               <SearchKarmaBar value={state.filters.karmaRange} onChange={(karmaRange) => setFilters({karmaRange})} />
@@ -584,9 +607,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
                   }}
                 />
               </div>
-              <LWTooltip title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or wikitag:"Expected value" to filter by user or wikitag.`}>
-                <InfoIcon className={classes.infoIcon} />
-              </LWTooltip>
               {onClose && <button type="button" className={classes.closeButton} aria-label="Close search" onClick={onClose}>✕</button>}
             </form>
             {showHistoryHint && <div id={hintId} className={classes.historyHint}>Shift+↑ / Shift+↓: search history</div>}
@@ -605,13 +625,13 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
               aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
               onClick={() => setMobileFiltersOpen(previous => !previous)}>
-              {mobileFiltersOpen ? 'Hide filters' : 'Filters and sorting'}{hasFilters ? ' · Active' : ''}
+              {mobileFiltersOpen ? 'Hide filters' : 'Filters and sorting'}
             </button>
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>
               {total !== null && <div className={classes.resultCount} aria-live="polite">
-                {total} result{total === 1 ? '' : 's'}<span className={classes.sortDescription}> · Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>
+                <span><strong>{total.toLocaleString()}</strong> result{total === 1 ? '' : 's'}</span><span className={classes.sortDescription}>Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>
               </div>}
               <div ref={resultsRef} role="group" aria-label="Search results" aria-busy={loading}>
                 {hits.map((hit, position) => {

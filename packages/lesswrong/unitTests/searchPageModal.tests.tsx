@@ -80,12 +80,15 @@ it('closes after a result link handles navigation even when it stops propagation
   await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
 });
 
-it('starts with all filter sections collapsed and Timeframe first', () => {
+it('starts with Authors expanded directly below Timeframe and other sections collapsed', () => {
   render(<SearchPage presentation="modal" />);
   const toggles = screen.getByRole('complementary', {name: 'Search options'}).querySelectorAll('button[aria-expanded]');
   expect(toggles.length).toBe(7);
   expect(toggles[0].textContent).toContain('Timeframe');
-  for (const toggle of toggles) expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(toggles[1].textContent).toContain('Authors');
+  for (const [index, toggle] of toggles.entries()) {
+    expect(toggle.getAttribute('aria-expanded')).toBe(index === 1 ? 'true' : 'false');
+  }
 });
 
 it('opens timeframe in a separate bar above the search layout and retains its selection when closed', () => {
@@ -124,7 +127,7 @@ it('keeps the modal timeframe mounted in the slot above the dialog and reveals i
   slot.remove();
 });
 
-it('keeps the timeframe inline on phones even when the modal offers a slot', () => {
+it('keeps the timeframe inside mobile filters even when the modal offers a slot', () => {
   wideScreen = false;
   const slot = document.createElement('div');
   document.body.append(slot);
@@ -133,7 +136,8 @@ it('keeps the timeframe inline on phones even when the modal offers a slot', () 
   fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
   const panel = screen.getByRole('region', {name: 'Timeframe'});
   expect(slot.contains(panel)).toBe(false);
-  expect(panel.compareDocumentPosition(screen.getByRole('search')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.getByRole('complementary', {name: 'Search options'}).contains(panel)).toBe(true);
+  expect(panel.compareDocumentPosition(screen.getByRole('button', {name: /Authors/})) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   fireEvent.click(screen.getByRole('button', {name: 'Done with timeframe'}));
   expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
   expect(slot.childElementCount).toBe(0);

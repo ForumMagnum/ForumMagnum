@@ -4,6 +4,7 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import SearchChip from './SearchChip';
+import GlobeAltIcon from '@heroicons/react/24/outline/GlobeAltIcon';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
@@ -20,7 +21,7 @@ export interface SearchKind {
 export const searchKinds: SearchKind[] = [
   { type: "Users", label: "User", Icon: PersonIcon },
   { type: "Posts", label: "Post", Icon: DescriptionIcon },
-  { type: "Tags", label: "Wiki entry", Icon: LocalOfferOutlinedIcon },
+  { type: "Tags", label: "Wikitag", Icon: LocalOfferOutlinedIcon },
   { type: "Comments", label: "Comment", Icon: ChatBubbleOutlineIcon },
   { type: "Sequences", label: "Sequence", Icon: LocalLibraryIcon },
 ];
@@ -58,7 +59,7 @@ const SearchKindBar = ({enabled, onToggle, onSelect, onAdd, onClear, className}:
 }) => {
   const classes = useStyles(styles);
   return <div className={classNames(classes.root, className)} role="group" aria-label="Search content kinds">
-    {onClear && <SearchChip selected={!enabled.length || enabled.length === searchKinds.length} onToggle={onClear}>All</SearchChip>}
+    {onClear && <SearchChip Icon={GlobeAltIcon} selected={!enabled.length || enabled.length === searchKinds.length} onToggle={onClear}>All</SearchChip>}
     {searchKinds.map(({type, label, Icon}) => <SearchChip
       key={type}
       Icon={Icon}
