@@ -11,7 +11,6 @@ import DeleteDraftDropdownItem from "./DeleteDraftDropdownItem";
 import SetSideItemVisibility from "./SetSideItemVisibility";
 import { ResyncRssDropdownItem } from "./ResyncRssDropdownItem";
 import MarkAsReadDropdownItem from "./MarkAsReadDropdownItem";
-import SummarizeDropdownItem from "./SummarizeDropdownItem";
 import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
 import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
 import ShortformDropdownItem from "./ShortformDropdownItem";
@@ -80,7 +79,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <CopyMarkdownDropdownItem path={`/api/post/${post._id}`} />
-      <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
       {hasCuratedPostsSetting.get(forumType) && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
