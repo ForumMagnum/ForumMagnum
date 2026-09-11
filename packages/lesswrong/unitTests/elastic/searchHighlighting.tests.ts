@@ -9,6 +9,20 @@ const cases = [
   {index: "sequences", fields: ["title", "authorDisplayName"]},
 ];
 
+it("requests a comment preview when the search text is empty", () => {
+  const request = new ElasticQuery({index: "comments", search: "", filters: []}).compile();
+  expect(request.body.highlight?.fields.body).toEqual(expect.objectContaining({
+    highlight_query: {match_all: {}},
+  }));
+  expect(request.body.highlight?.no_match_size).toBe(140);
+});
+
+it.each(["tiered", "additive"] as const)("requests comment previews in empty %s mixed search", ranking => {
+  const request = compileMultiQuery({indexes: ["posts", "comments"], search: "", ranking});
+  expect(request.highlight?.fields?.body).toBeDefined();
+  expect(request.highlight?.no_match_size).toBe(140);
+});
+
 it.each(cases)("returns complete highlighted labels for $index", ({index, fields}) => {
   for (const search of ["alignment", '"alignment"']) {
     const request = new ElasticQuery({index, search, filters: []}).compile();

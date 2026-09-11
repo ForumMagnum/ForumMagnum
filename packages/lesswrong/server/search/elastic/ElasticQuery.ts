@@ -556,7 +556,7 @@ class ElasticQuery {
       searchQuery: {
         match_all: {},
       },
-      snippetName: "",
+      snippetName: this.config.snippet,
     };
   }
 
