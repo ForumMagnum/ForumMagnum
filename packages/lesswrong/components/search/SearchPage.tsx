@@ -5,7 +5,6 @@ import qs from 'qs';
 import classNames from 'classnames';
 import { usePathname } from 'next/navigation';
 import { InstantSearch } from '@/lib/utils/componentsWithChildren';
-import { searchOriginDate } from '@/lib/instanceSettings';
 import {
   SearchIndexCollectionName,
   getSearchClient,
@@ -109,7 +108,6 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     position: 'relative',
     margin: '8px auto 0',
     padding: '8px 12px 0px',
-    '& .SearchTimeframeBar-controls': {paddingRight: 60},
     boxSizing: 'border-box',
     backgroundColor: theme.palette.background.paper,
     border: "none",
@@ -134,14 +132,6 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
   },
   timeframePanelCollapsed: {
     visibility: 'hidden',
-  },
-  timeframeHeading: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    ...theme.typography.body2,
-    fontWeight: 500,
-    fontSize: 14,
   },
   mobileFiltersToggle: {
     display: 'none',
@@ -422,7 +412,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
   // The indexed archive includes material from 2003, before the configured site origin.
-  const scale = {originMs: Math.min(new Date(searchOriginDate).getTime(), Date.UTC(2003, 0, 1)), nowMs};
+  const scale = {originMs: Date.UTC(2003, 0, 1), nowMs};
   const {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory, error: historyError} = useSearchHistory(currentUser?._id, true);
 
   // External navigation wins before writing local refinements back to the URL.
@@ -521,10 +511,9 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     className={classNames(classes.timeframePanel, {[classes.timeframePanelModal]: !!timeframeSlot, [classes.timeframePanelCollapsed]: !timeframeOpen})}
     inert={!timeframeOpen} aria-hidden={!timeframeOpen}
   >
-    <div className={classes.timeframeHeading}>
+    <SearchTimeframeBar value={state.filters.dateRange} onChange={(dateRange) => setFilters({dateRange})} scale={scale}>
       <button type="button" className={classes.clearFilters} aria-label="Done with timeframe" onClick={closeTimeframe}>Done</button>
-    </div>
-    <SearchTimeframeBar value={state.filters.dateRange} onChange={(dateRange) => setFilters({dateRange})} scale={scale} />
+    </SearchTimeframeBar>
   </section>;
 
   return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal'})} onClickCapture={event => {
