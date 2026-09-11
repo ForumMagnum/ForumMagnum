@@ -594,6 +594,11 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <SearchKindBar
               className={classes.kinds}
               enabled={state.kinds}
+              onSelect={presentation === "modal" ? type => setState(previous => ({...previous, kinds: [type]})) : undefined}
+              onAdd={presentation === "modal" ? type => setState(previous => ({
+                ...previous,
+                kinds: previous.kinds.includes(type) ? previous.kinds : [...previous.kinds, type],
+              })) : undefined}
               onClear={() => setState(previous => ({...previous, kinds: []}))}
               onToggle={(type) => setState(previous => ({...previous, kinds: toggleSearchKind(previous.kinds, type)}))}
             />

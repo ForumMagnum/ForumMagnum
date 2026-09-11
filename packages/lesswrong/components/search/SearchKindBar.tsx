@@ -48,9 +48,11 @@ const styles = defineStyles("SearchKindBar", (theme: ThemeType) => ({
 }));
 
 /** An empty selection means every kind. */
-const SearchKindBar = ({enabled, onToggle, onClear, className}: {
+const SearchKindBar = ({enabled, onToggle, onSelect, onAdd, onClear, className}: {
   enabled: SearchIndexCollectionName[],
   onClear?: () => void,
+  onSelect?: (type: SearchIndexCollectionName) => void,
+  onAdd?: (type: SearchIndexCollectionName) => void,
   onToggle: (type: SearchIndexCollectionName) => void,
   className?: string,
 }) => {
@@ -61,7 +63,8 @@ const SearchKindBar = ({enabled, onToggle, onClear, className}: {
       key={type}
       Icon={Icon}
       selected={enabled.includes(type)}
-      onToggle={() => onToggle(type)}
+      onToggle={() => (onSelect ?? onToggle)(type)}
+      onHold={onAdd ? () => onAdd(type) : undefined}
     >
       {label}
     </SearchChip>)}
