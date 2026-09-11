@@ -1,3 +1,5 @@
+import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward';
+import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter, DragEndEvent, DragStartEvent, DragOverlay, KeyboardCoordinateGetter } from '@dnd-kit/core';
@@ -40,7 +42,7 @@ const styles = defineStyles("SearchSorterBar", (theme: ThemeType) => ({
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    padding: "0 4px 0 6px",
+    padding: "0 4px 0 10px",
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.text.normal,
@@ -107,7 +109,7 @@ const styles = defineStyles("SearchSorterBar", (theme: ThemeType) => ({
     borderRadius: 3,
     background: "transparent",
     color: theme.palette.primary.main,
-    fontSize: 16,
+    "& > svg": {width: 22, height: 22},
     cursor: "pointer",
     "&:hover": {
       backgroundColor: theme.palette.greyAlpha(0.1),
@@ -160,7 +162,7 @@ const SorterPill = ({spec, onToggle}: {
       aria-label={`${label}: ${descending ? "descending" : "ascending"}. Reverse`}
       onClick={() => onToggle(spec.key)}
     >
-      {descending ? "↓" : "↑"}
+      {descending ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
     </button>
   </div>;
 };
