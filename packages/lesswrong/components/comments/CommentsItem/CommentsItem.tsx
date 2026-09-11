@@ -64,6 +64,11 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     borderStyle: "none",
     padding: 0,
     ...theme.typography.commentStyle,
+    '& > .CommentsItemMeta-root + .AnimatedCollapse-root .CommentBody-root.ContentStyles-commentBody': {
+      // The animation wrapper prevents these margins from collapsing. The metadata
+      // already supplies 8px, so retain only any excess from the body's .5em margin.
+      marginTop: 'max(0px, calc(0.5em - 8px))',
+    },
   },
   sideComment: {
     "& blockquote": {
