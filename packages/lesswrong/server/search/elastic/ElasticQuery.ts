@@ -40,7 +40,7 @@ export type QueryFilter = {
 } | {
   type: "exists"
 } | {
-  /** Restricts to kinds that carry tags. */
+  /** Matches tagged content and the selected wikitags themselves. */
   type: "tag",
   value: string[],
   match?: "any" | "all",
@@ -207,8 +207,10 @@ class ElasticQuery {
   }
 
   private compileTagFilter(ids: string[], match: "any" | "all" = "any"): QueryDslQueryContainer {
-    if (!["Posts", "Users", "Comments"].includes(this.collectionName)) return {match_none: {}};
-    const field = this.collectionName === "Comments" ? "tags" : "tags._id";
+    if (!["Posts", "Users", "Comments", "Tags"].includes(this.collectionName)) return {match_none: {}};
+    // Wikitags count as tagged with themselves only for search filtering.
+    const field = this.collectionName === "Tags" ? "objectID"
+      : this.collectionName === "Comments" ? "tags" : "tags._id";
     return match === "all"
       ? {bool: {should: [], filter: ids.map(id => ({term: {[field]: id}}))}}
       : {terms: {[field]: ids}};

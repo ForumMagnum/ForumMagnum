@@ -118,14 +118,27 @@ describe("ElasticQuery unified filters", () => {
     expect(filterClauses("posts", tag)).toContain('{"terms":{"tags._id":["t1","t2"]}}');
     expect(filterClauses("users", tag)).toContain('{"terms":{"tags._id":["t1","t2"]}}');
     expect(filterClauses("comments", tag)).toContain('{"terms":{"tags":["t1","t2"]}}');
-    expect(filterClauses("tags", tag)).toContain('{"match_none":{}}');
+    expect(filterClauses("tags", tag)).toContain('{"terms":{"objectID":["t1","t2"]}}');
     expect(filterClauses("sequences", tag)).toContain('{"match_none":{}}');
+  });
+
+  it.each(["any", "all"] as const)("treats a wikitag as tagged with itself in match-%s searches", (match) => {
+    const filters: QueryData["filters"] = [{type: "tag", field: "tags", value: ["t1"], match}];
+    const expected = match === "all"
+      ? {bool: {should: [], filter: [{term: {objectID: "t1"}}]}}
+      : {terms: {objectID: ["t1"]}};
+    for (const search of ["", "alignment"]) {
+      const query = new ElasticQuery({index: "tags", search, filters});
+      expect(query.compile().body.query.script_score.query.bool.filter).toContainEqual(expected);
+      expect(query.compileAdditiveRecall().filters).toContainEqual(expected);
+    }
   });
 
   it("requires every tag in match-all mode", () => {
     const tags: QueryData["filters"] = [{type: "tag", field: "tags", value: ["t1", "t2"], match: "all"}];
     expect(filterClauses("posts", tags)).toContain('"filter":[{"term":{"tags._id":"t1"}},{"term":{"tags._id":"t2"}}]');
     expect(filterClauses("comments", tags)).toContain('"filter":[{"term":{"tags":"t1"}},{"term":{"tags":"t2"}}]');
+    expect(filterClauses("tags", tags)).toContain('"filter":[{"term":{"objectID":"t1"}},{"term":{"objectID":"t2"}}]');
   });
 
   it("requires both numeric bounds, instead of accepting either", () => {
