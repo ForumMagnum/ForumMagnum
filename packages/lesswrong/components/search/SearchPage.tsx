@@ -442,7 +442,7 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {padding: '8px'},
     scrollMarginTop: 'calc(var(--header-height) + 160px)',
     scrollMarginBottom: 16,
-    "&:hover, &:focus-within, &[data-search-selected]": {
+    "&[data-search-selected]": {
       backgroundColor: theme.palette.greyAlpha(0.05),
     },
     "& a:hover": {opacity: 1},
