@@ -31,7 +31,7 @@ const LoginPopup = ({onClose}: {
       className={classes.dialog}
       paperClassName={classes.paper}
     >
-      <LoginForm />
+      <LoginForm autoFocus />
     </LWDialog>
   );
 }
