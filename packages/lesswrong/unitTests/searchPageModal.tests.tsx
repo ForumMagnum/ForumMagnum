@@ -69,7 +69,7 @@ it('still synchronizes full-page searches to the URL', () => {
 it('toggles mobile filters and offers an explicit close control', () => {
   const onClose = jest.fn();
   render(<SearchPage presentation="modal" onClose={onClose} />);
-  const toggle = screen.getByRole('button', {name: 'Filters'});
+  const toggle = screen.getByRole('button', {name: 'Filter results'});
   expect(toggle.getAttribute('aria-expanded')).toBe('false');
   fireEvent.click(toggle);
   expect(toggle.getAttribute('aria-expanded')).toBe('true');
@@ -95,21 +95,31 @@ it('keeps search open while a result link starts navigation, even when it stops 
   expect(screen.getByRole('searchbox')).toBeTruthy();
 });
 
-it('starts with Authors expanded directly below Timeframe and other sections collapsed', () => {
+it.each([true, false])('reveals every filter and timeline together on the pull tab (desktop: %s)', desktop => {
+  wideScreen = desktop;
   render(<SearchPage presentation="modal" />);
-  const toggles = screen.getByRole('complementary', {name: 'Search options'}).querySelectorAll('button[aria-expanded]');
+  const tab = screen.getByRole('button', {name: 'Filter results'});
+  expect(tab.getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
+  expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
+  fireEvent.click(tab);
+  const sidebar = screen.getByRole('complementary', {name: 'Search options'});
+  const toggles = sidebar.querySelectorAll('button[aria-expanded]');
   expect(toggles.length).toBe(6);
-  expect(toggles[0].textContent).toContain('Timeframe');
-  expect(toggles[1].textContent).toContain('Author');
-  for (const [index, toggle] of toggles.entries()) {
-    expect(toggle.getAttribute('aria-expanded')).toBe(index === 1 ? 'true' : 'false');
-  }
+  for (const toggle of toggles) expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByLabelText('From date')).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('From date'), {target: {value: '2020-01-01'}});
+  fireEvent.click(tab);
+  expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
+  expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
+  fireEvent.click(tab);
+  expect(screen.getByLabelText('From date').getAttribute('value')).toBe('2020-01-01');
 });
 
 it('opens timeframe in a separate bar above the search layout and retains its selection when closed', () => {
   render(<SearchPage presentation="modal" />);
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
   const toggle = screen.getByRole('button', {name: /Timeframe/});
-  fireEvent.click(toggle);
   const panel = screen.getByRole('region', {name: 'Timeframe'});
   expect(panel.id).toBe(toggle.getAttribute('aria-controls'));
   expect(panel.contains(screen.getByLabelText('From date'))).toBe(true);
@@ -126,12 +136,13 @@ it('keeps the modal timeframe mounted in the slot above the dialog and reveals i
   const slot = document.createElement('div');
   document.body.append(slot);
   render(<SearchPage presentation="modal" timeframeSlot={slot} />);
-  const toggle = screen.getByRole('button', {name: /Timeframe/});
+  const tab = screen.getByRole('button', {name: 'Filter results'});
   const section = slot.querySelector('section')!;
-  expect(section.id).toBe(toggle.getAttribute('aria-controls'));
   expect(section.hasAttribute('inert')).toBe(true);
   expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
-  fireEvent.click(toggle);
+  fireEvent.click(tab);
+  const toggle = screen.getByRole('button', {name: /Timeframe/});
+  expect(section.id).toBe(toggle.getAttribute('aria-controls'));
   expect(screen.getByRole('region', {name: 'Timeframe'})).toBe(section);
   expect(section.hasAttribute('inert')).toBe(false);
   fireEvent.click(screen.getByRole('button', {name: 'Done with timeframe'}));
@@ -148,7 +159,7 @@ it('keeps the timeframe inside mobile filters even when the modal offers a slot'
   document.body.append(slot);
   render(<SearchPage presentation="modal" timeframeSlot={slot} />);
   expect(slot.childElementCount).toBe(0);
-  fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
   const panel = screen.getByRole('region', {name: 'Timeframe'});
   expect(slot.contains(panel)).toBe(false);
   expect(screen.getByRole('complementary', {name: 'Search options'}).contains(panel)).toBe(true);
@@ -219,7 +230,7 @@ it('restores the last modal query and filters after unmounting', () => {
   const {unmount} = render(<SearchPage presentation="modal" />);
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});
   fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
-  fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
   fireEvent.change(screen.getByLabelText('From date'), {target: {value: '2020-01-01'}});
   mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search ?? ''}`;
   unmount();
@@ -235,7 +246,7 @@ it.each([true, false])('clearing all filters restores the timeline overview (dat
   jest.useFakeTimers();
   try {
     render(<SearchPage presentation="modal" />);
-    fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
+    fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
     const track = screen.getByRole('group', {name: 'Timeframe selection'});
     const overview = track.textContent;
     fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
@@ -255,10 +266,30 @@ it.each([true, false])('clearing all filters restores the timeline overview (dat
   }
 });
 
+it('treats excluded events as the default on the first search', () => {
+  render(<SearchPage presentation="modal" />);
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
+  expect(screen.getByRole('button', {name: 'Events Excluded (default)'})).toBeTruthy();
+  expect(screen.queryByRole('button', {name: 'Reset events'})).toBeNull();
+  expect(screen.queryByRole('button', {name: 'Clear filters'})).toBeNull();
+});
+
+it.each(['Include events', 'Only events'])('resets %s to excluded events', selection => {
+  render(<SearchPage presentation="modal" />);
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
+  fireEvent.click(screen.getByRole('checkbox', {name: selection}));
+  fireEvent.click(screen.getByRole('button', {name: 'Reset events'}));
+  expect(screen.getByRole('checkbox', {name: 'Exclude events'}).getAttribute('aria-checked')).toBe('true');
+  expect(screen.queryByRole('button', {name: 'Reset events'})).toBeNull();
+  expect(screen.queryByRole('button', {name: 'Clear filters'})).toBeNull();
+});
+
 it('persists clearing filters without clearing the query', () => {
   const {unmount} = render(<SearchPage presentation="modal" />);
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});
   fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
+  fireEvent.click(screen.getByRole('checkbox', {name: 'Include events'}));
   fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
   mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search ?? ''}`;
   unmount();
@@ -267,10 +298,12 @@ it('persists clearing filters without clearing the query', () => {
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('alignment');
   expect(screen.getByRole('checkbox', {name: 'All'}).getAttribute('aria-checked')).toBe('true');
   expect(screen.queryByRole('button', {name: 'Clear filters'})).toBeNull();
+  expect(screen.getByRole('button', {name: 'Events Excluded (default)'})).toBeTruthy();
 });
 
 it('keeps author pills at the end of the search field synchronized with the author filter', () => {
   const {unmount} = render(<SearchPage presentation="modal" />);
+  fireEvent.click(screen.getByRole('button', {name: 'Filter results'}));
   const input = screen.getByRole('searchbox');
   fireEvent.change(input, {target: {value: 'alignment'}});
   fireEvent.click(screen.getByRole('button', {name: 'Select Alice'}));
@@ -303,7 +336,7 @@ it('restores URL panels and starts fresh at a destination without search state',
   mockLocation.search = '?context=one&context=two&query=shared&expanded=time,tags&mobileFilters=1';
   const {unmount} = render(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('shared');
-  expect(screen.getByRole('button', {name: 'Hide filters'}).getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByRole('button', {name: 'Filter results'}).getAttribute('aria-expanded')).toBe('true');
   expect(screen.getByRole('region', {name: 'Timeframe'})).toBeTruthy();
   expect(screen.getByRole('button', {name: /Wikitags/}).getAttribute('aria-expanded')).toBe('true');
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'edited'}});
@@ -313,7 +346,7 @@ it('restores URL panels and starts fresh at a destination without search state',
   mockLocation.search = '?context=another-page';
   render(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('');
-  expect(screen.getByRole('button', {name: 'Filters'}).getAttribute('aria-expanded')).toBe('false');
+  expect(screen.getByRole('button', {name: 'Filter results'}).getAttribute('aria-expanded')).toBe('false');
   expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
 });
 
@@ -325,7 +358,7 @@ it('reloads external query changes without overwriting them with the previous st
   rerender(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('second');
   expect(screen.getByRole('checkbox', {name: 'Comment'}).getAttribute('aria-checked')).toBe('true');
-  expect(screen.getByRole('button', {name: /Author/}).getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
   expect(mockNavigate).not.toHaveBeenCalled();
 });
 
@@ -366,4 +399,18 @@ it('acknowledges its URL writes without resetting a query containing spaces and 
   rerender(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('a & b?');
   expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+it('places the modal latch outside the clipped results area and controls both filter regions', () => {
+  const slot = document.createElement('div');
+  document.body.append(slot);
+  const {unmount} = render(<SearchPage presentation="modal" filterTabSlot={slot} />);
+  const tab = within(slot).getByRole('button', {name: 'Filter results'});
+  expect(screen.getByRole('search').contains(tab)).toBe(false);
+  fireEvent.click(tab);
+  const controlledIds = tab.getAttribute('aria-controls')!.split(' ');
+  expect(controlledIds).toContain(screen.getByRole('complementary', {name: 'Search options'}).id);
+  expect(controlledIds).toContain(screen.getByRole('region', {name: 'Timeframe'}).id);
+  unmount();
+  slot.remove();
 });

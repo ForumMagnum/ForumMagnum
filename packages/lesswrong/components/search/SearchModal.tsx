@@ -16,35 +16,64 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     left: 0,
     right: 0,
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 12,
+    padding: '12px 12px 12px 152px',
     boxSizing: 'border-box',
     height: 'var(--search-viewport-height, 100dvh)',
     top: 'var(--search-viewport-top, 0px)',
     [theme.breakpoints.down('sm')]: {
-      padding: 'max(8px, env(safe-area-inset-top)) 0 0',
+      padding: 'max(8px, env(safe-area-inset-top)) 8px 8px 48px',
       alignItems: 'stretch',
     },
   },
-  // The frame is the modal's screen-anchored box. The timeline always keeps
-  // its place above the dialog box, so opening or closing it moves nothing.
-  // While the timeline shows, the dialog box's top corners meet it squarely.
+  // Keep the results box anchored at the right; the timeline unfolds above it.
   frame: {
+    position: 'relative',
+    isolation: 'isolate',
     width: '100%',
-    maxWidth: 1200,
-    height: '100%',
+    maxWidth: 600,
+    transition: 'max-width 320ms cubic-bezier(0.2, 0, 0, 1)',
+    '&:has(button[aria-label="Filter results"][aria-expanded="true"])': {maxWidth: 1200},
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+    marginTop: 128,
+    height: 'calc(100% - 128px)',
+    [theme.breakpoints.down('sm')]: {marginTop: 0, height: '100%'},
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    '& $timeframe:has([aria-label="Timeframe"]:not([inert])) + $dialog': {
+    '& $timeframe:has([aria-label="Timeframe"]:not([inert])) + $dialogFrame $dialog': {
       borderTopLeftRadius: 0,
       borderTopRightRadius: 0,
     },
   },
   timeframe: {
-    display: 'contents',
+    position: 'absolute',
+    bottom: '100%', left: 0, right: 0,
+    maxHeight: 128,
+    display: 'grid',
+    gridTemplateRows: '0fr',
+    flexShrink: 0,
+    opacity: 0,
+    transition: 'grid-template-rows 320ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out',
+    '&:has([aria-label="Timeframe"]:not([inert]))': {gridTemplateRows: '1fr', opacity: 1},
+
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
   },
+  timeframeContent: {
+    minHeight: 0, overflow: 'hidden',
+    '& > section': {maxHeight: 128, boxSizing: 'border-box'},
+  },
+  filterTabSlot: {
+    position: 'absolute', left: 0, right: 0, top: 0, zIndex: -1,
+    [theme.breakpoints.down('sm')]: {
+      '& button': {
+        '&:hover, &:focus-visible': {transform: 'none'},
+      },
+    },
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+  },
+  dialogFrame: {position: 'relative', flex: 1, minHeight: 0, display: 'flex'},
   dialog: {
     flex: 1,
     minHeight: 0,
@@ -89,6 +118,7 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
   const classes = useStyles(styles);
   const viewportRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const [filterTabSlot, setFilterTabSlot] = useState<HTMLDivElement | null>(null);
   const [timeframeSlot, setTimeframeSlot] = useState<HTMLDivElement | null>(null);
   const [previousFocus] = useState(() => document.activeElement);
 
@@ -139,9 +169,14 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
   }}>
     <div ref={viewportRef} className={classes.viewport}>
       <div ref={frameRef} className={classes.frame} role="dialog" aria-modal="true" aria-label="Search" onKeyDown={containSearchFocus}>
-        <div ref={setTimeframeSlot} className={classes.timeframe} />
-        <div className={classes.dialog}>
-          <SearchPage presentation="modal" onClose={onClose} timeframeSlot={timeframeSlot} />
+        <div className={classes.timeframe}>
+          <div ref={setTimeframeSlot} className={classes.timeframeContent} />
+        </div>
+        <div className={classes.dialogFrame}>
+          <div ref={setFilterTabSlot} className={classes.filterTabSlot} />
+          <div className={classes.dialog}>
+            <SearchPage presentation="modal" onClose={onClose} timeframeSlot={timeframeSlot} filterTabSlot={filterTabSlot} />
+          </div>
         </div>
       </div>
     </div>

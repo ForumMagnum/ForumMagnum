@@ -6,15 +6,16 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
   root: {marginBottom: 2},
-  header: {display: "flex", alignItems: "center", minWidth: 0},
+  header: {
+    display: "flex", alignItems: "center", width: "fit-content", maxWidth: "100%", minWidth: 0,
+    borderRadius: 4,
+  },
   toggle: {
     ...theme.typography.body2,
-    display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0,
-    minHeight: 36, padding: "2px 10px", border: "none", background: "transparent",
+    display: "flex", alignItems: "center", gap: 8, flex: "0 1 auto", minWidth: 0,
+    minHeight: 40, padding: "2px 10px", border: "none", background: "transparent",
     color: theme.palette.text.normal, textAlign: "left", cursor: "pointer",
     borderRadius: 4,
-    "&:hover": {backgroundColor: theme.palette.greyAlpha(0.04)},
-    "@media (pointer: coarse)": {minHeight: 40},
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
   chevron: {
@@ -28,7 +29,8 @@ const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
   summary: {fontSize: 13, color: theme.palette.text.dim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"},
   active: {color: theme.palette.primary.main},
   reset: {
-    ...theme.typography.body2, minHeight: 40, padding: "0 8px", border: "none",
+    ...theme.typography.body2, minHeight: 40, padding: "0 8px", border: "none", flexShrink: 0,
+    borderRadius: 4,
     background: "transparent", color: theme.palette.primary.main, cursor: "pointer",
     "&:focus-visible": {outline: `2px solid ${theme.palette.primary.main}`},
   },
