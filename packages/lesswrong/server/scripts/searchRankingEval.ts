@@ -365,6 +365,11 @@ interface StressCase {
  * export. Target positions are proposals for review, not measured truth.
  */
 export const stressSuite: StressCase[] = [
+  {query: "Anna S", targets: ["pnFbJAtNHGDK8PHQx"], within: 1, note: "prominent author name completion"},
+  {query: "Anna Sa", targets: ["pnFbJAtNHGDK8PHQx"], within: 1, note: "prominent author name completion"},
+  {query: "John", targets: ["MEu8MdhruX5jfGsFQ"], within: 1, note: "prominent author name completion"},
+  {query: "John W", targets: ["MEu8MdhruX5jfGsFQ"], within: 1, note: "prominent author name completion"},
+  {query: "John We", targets: ["MEu8MdhruX5jfGsFQ"], within: 1, note: "prominent author name completion"},
   {query: "A Pragmatic Vision for Interpretability", targets: ["StENzDcD3kpfGJssR"], within: 1, note: "distinctive full title"},
   {query: "a pragmatic vision for interpretability", targets: ["StENzDcD3kpfGJssR"], within: 1, note: "case variant"},
   {query: "navier", targets: ["yekQKwmQJNk7thDtQ"], within: 3, note: "popular known post fragment"},

@@ -141,3 +141,44 @@ it("resolves misspelled handles even when the display name differs", () => {
     .toMatchObject({userIds: ["jw"], confidence: "weak"});
   expect(JSON.stringify(compilePersonLookup("johnswentwroth"))).toContain('"slug.exact"');
 });
+
+
+describe("name completion", () => {
+  const anna = {objectID: "pnFbJAtNHGDK8PHQx", displayName: "AnnaSalamon", karma: 21291};
+  const john = {objectID: "MEu8MdhruX5jfGsFQ", displayName: "johnswentworth", karma: 64994};
+  it.each(["Anna S", "Anna Sa"])("resolves %s as a complete profile query", search => {
+    expect(resolvePersonSearch(search, [anna])).toMatchObject({userIds: [anna.objectID], topic: "", confidence: "weak"});
+  });
+  it.each(["John", "John W", "John We"])("resolves %s through a handle prefix", search => {
+    expect(resolvePersonSearch(search, [john])).toMatchObject({userIds: [john.objectID], topic: "", confidence: "weak"});
+  });
+  it.each(["John We should cooperate", "John AI", "John x"])("preserves topic words in %s", search => {
+    expect(resolvePersonSearch(search, [john])?.topic).toBe(search.toLowerCase().split(" ").slice(1).join(" "));
+  });
+  it("keeps equally fitting candidates and rejects mismatched initials", () => {
+    const candidates = [anna, {objectID: "smith", displayName: "Anna Smith", karma: 5000}, {objectID: "jones", displayName: "Anna Jones", karma: 50000}];
+    expect(resolvePersonSearch("Anna S", candidates)?.userIds).toEqual([anna.objectID, "smith"]);
+    expect(resolvePersonSearch("Anna Sa", candidates)?.userIds).toEqual([anna.objectID]);
+  });
+});
+
+
+it("ignores spaces without losing exact handle navigation", () => {
+  const user = {objectID: "mira", displayName: "MiraPatel", karma: 5000};
+  expect(resolvePersonSearch("Mira P", [user])).toMatchObject({userIds: ["mira"], topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("mirapatel", [user])).toMatchObject({userIds: ["mira"], topic: "", confidence: "exact"});
+  expect(resolvePersonSearch("Mira P", [{...user, karma: 10}])).toBeUndefined();
+});
+
+
+it("allows one inserted handle character without changing short initials", () => {
+  const user = {objectID: "sam", displayName: "samuelrpatel", karma: 8000};
+  expect(resolvePersonSearch("Samuel P", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("SamuelP", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(JSON.stringify(compilePersonLookup("SamuelP"))).toContain('"value":"samu"');
+  expect(resolvePersonSearch("Samuel Pa", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("Samuel T", [user])?.topic).toBe("t");
+  expect(resolvePersonSearch("Samuel P", [{...user, displayName: "samuelrrpatel"}])?.topic).toBe("p");
+  expect(resolvePersonSearch("Samuel P on AI", [user])?.topic).toBe("p on ai");
+  expect(resolvePersonSearch("Sam P", [user])).toBeUndefined();
+});

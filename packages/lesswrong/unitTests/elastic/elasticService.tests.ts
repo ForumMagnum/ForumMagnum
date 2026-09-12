@@ -1,3 +1,4 @@
+import { compileMultiQuery } from "../../server/search/elastic/ElasticMultiQuery";
 import ElasticClient from "../../server/search/elastic/ElasticClient";
 import ElasticService from "../../server/search/elastic/ElasticService";
 import Sequences from "../../server/collections/sequences/collection";
@@ -48,6 +49,17 @@ describe("ElasticService", () => {
 });
 
 describe("ElasticService unified requests", () => {
+  it("uses additive ranking for UI requests without an explicit ranking", async () => {
+    const client = new ElasticClient();
+    const multiSearch = jest.spyOn(client, "multiSearch").mockResolvedValue({hits: {total: 0, hits: []}});
+    await new ElasticService(client).runQuery({indexName: "posts,comments,users,tags,sequences", params: {query: "John W"}}, {emptyStringSearchResults: "default", unifiedSearch: true});
+    const request = multiSearch.mock.calls[0][0];
+    expect(request.ranking).toBeUndefined();
+    const compiled = JSON.stringify(compileMultiQuery(request));
+    expect(compiled).toContain('"function_score"');
+    expect(compiled).not.toContain('"tier"');
+  });
+
   it("loads curated sequence IDs for sequence searches and forwards them to server sorting", async () => {
     const client = new ElasticClient();
     const multiSearch = jest.spyOn(client, "multiSearch").mockResolvedValue({hits: {total: 0, hits: []}});

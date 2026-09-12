@@ -17,7 +17,7 @@ it("resolves people and reserves sequences before applying the requested page", 
     .mockResolvedValueOnce(response([{objectID: "ey", displayName: "Eliezer Yudkowsky", karma: 10000}]))
     .mockResolvedValueOnce(response([{objectID: "sequence"}]))
     .mockResolvedValueOnce(final);
-  const result = await executeMultiSearch(client, {indexes: ["users", "posts", "sequences"], search: "Eliezer", offset: 10, limit: 5});
+  const result = await executeMultiSearch(client, {ranking: "tiered", indexes: ["users", "posts", "sequences"], search: "Eliezer", offset: 10, limit: 5});
   expect(result).toBe(final);
   expect(search).toHaveBeenCalledTimes(3);
   expect(search.mock.calls[0][0]).toMatchObject({index: "users"});
@@ -34,13 +34,13 @@ it("sends advanced searches directly to the established filtered query", async (
   expect(JSON.stringify(search.mock.calls[0][0])).toContain("authorSlug.sort");
 });
 
-it("runs one lookup and one ranked search for the additive ranking, with no sequence pre-query", async () => {
+it.each([undefined, "additive"] as const)("runs one lookup and one ranked search for ranking %s, with no sequence pre-query", async ranking => {
   const client = new Client({node: "http://localhost:9200"});
   const final = response([{objectID: "post"}], 42);
   const search = jest.spyOn(client, "search")
     .mockResolvedValueOnce(response([{objectID: "ey", displayName: "Eliezer Yudkowsky", karma: 10000}]))
     .mockResolvedValueOnce(final);
-  const result = await executeMultiSearch(client, {ranking: "additive", indexes: ["users", "posts", "sequences"], search: "Eliezer", offset: 10, limit: 5});
+  const result = await executeMultiSearch(client, {ranking, indexes: ["users", "posts", "sequences"], search: "Eliezer", offset: 10, limit: 5});
   expect(result).toBe(final);
   expect(search).toHaveBeenCalledTimes(2);
   expect(search.mock.calls[0][0]).toMatchObject({index: "users"});
