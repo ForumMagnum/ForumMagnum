@@ -260,10 +260,10 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
   }, []);
   useEffect(() => stopZoom, [stopZoom]);
 
-  const animateZoom = (target: TimeframeScale | null) => {
+  const animateZoom = useCallback((target: TimeframeScale | null) => {
     stopZoom();
     const from = viewRef.current;
-    const to = target ?? defaultTimeframeView(overview);
+    const to = target ?? defaultTimeframeView({originMs: overview.originMs, nowMs: overview.nowMs});
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       viewRef.current = to;
       setZoom(target);
@@ -272,7 +272,17 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
     zoomFrame.current = requestAnimationFrame(advanceZoom.bind(null, {
       from, to, target, started: null, viewRef, zoomFrame, setZoom,
     }));
-  };
+  }, [overview.originMs, overview.nowMs, stopZoom]);
+
+  const previousValue = useRef(value);
+  useEffect(() => {
+    // An external clear also resets a manually panned or zoomed all-time view.
+    if (previousValue.current !== value && isEmpty(value)) {
+      animateZoom(null);
+      setDateError("");
+    }
+    previousValue.current = value;
+  }, [value, animateZoom]);
 
   const ticks = mounted ? calendarBands(viewScale, trackWidth) : [];
   const draftRef = useRef<SearchDateRange | null>(null);

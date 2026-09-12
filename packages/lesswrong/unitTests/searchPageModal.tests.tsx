@@ -224,6 +224,30 @@ it('restores the last modal query and filters after unmounting', () => {
   expect(mockNavigate).not.toHaveBeenCalled();
 });
 
+it.each([true, false])('clearing all filters restores the timeline overview (date filter: %s)', withDateFilter => {
+  jest.useFakeTimers();
+  try {
+    render(<SearchPage presentation="modal" />);
+    fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
+    const track = screen.getByRole('group', {name: 'Timeframe selection'});
+    const overview = track.textContent;
+    fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
+    if (withDateFilter) {
+      fireEvent.click(screen.getByRole('checkbox', {name: 'Past month'}));
+      act(() => {jest.advanceTimersByTime(500);});
+    } else {
+      fireEvent.wheel(track, {deltaY: -1000});
+    }
+    expect(track.textContent).not.toBe(overview);
+    fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
+    act(() => {jest.advanceTimersByTime(500);});
+    expect(track.textContent).toBe(overview);
+    expect(screen.getByRole('checkbox', {name: 'All time'}).getAttribute('aria-checked')).toBe('true');
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
 it('persists clearing filters without clearing the query', () => {
   const {unmount} = render(<SearchPage presentation="modal" />);
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});

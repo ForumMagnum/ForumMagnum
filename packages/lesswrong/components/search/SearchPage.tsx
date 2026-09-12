@@ -553,7 +553,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     toggleFilter('time');
     scrollRef.current?.querySelector<HTMLButtonElement>(`button[aria-controls="${timeframeId}"]`)?.focus({preventScroll: true});
   };
-  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes}}));
+  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...emptySearchFilters, dateRange: {}, postTypes: defaultSearchPostTypes}}));
   const {dateRange, karmaRange} = state.filters;
   const hasDateFilter = dateRange.start !== undefined || dateRange.end !== undefined;
   const hasKarmaFilter = karmaRange.min !== undefined || karmaRange.max !== undefined;
