@@ -59,7 +59,10 @@ import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
 import Loading from '@/components/vulcan-core/Loading';
 import { imageCache, ImageStatus } from './imageCache';
 import { ImagePickerDialogContent } from '../plugins/ImagesPlugin/ImageDialog';
-import type { InsertImagePayload } from '../plugins/ImagesPlugin/commands';
+import {
+  REPLACE_IMAGE_COMMAND,
+  type InsertImagePayload,
+} from '../plugins/ImagesPlugin/commands';
 
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
@@ -663,13 +666,11 @@ export default function ImageComponent({
   };
 
   const replaceImage = (payload: InsertImagePayload) => {
-    editor.update(() => {
-      const node = $getNodeByKey(imageNodeKey);
-      if ($isImageNode(node)) {
-        node.setSrc(payload.src);
-        node.setSrcset(payload.srcset ?? null);
-        node.setAltText(payload.altText);
-      }
+    editor.dispatchCommand(REPLACE_IMAGE_COMMAND, {
+      nodeKey: imageNodeKey,
+      src: payload.src,
+      srcset: payload.srcset ?? null,
+      altText: payload.altText,
     });
   };
 

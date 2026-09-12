@@ -135,6 +135,11 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       if (!$isImageNode(imageNode)) {
         continue
       }
+      if (Object.prototype.hasOwnProperty.call(changedProperties, 'src')) {
+        imageNode.setSrc(changedProperties.src)
+        imageNode.setSrcset(changedProperties.srcset ?? null)
+        imageNode.setAltText(changedProperties.altText ?? '')
+      }
       if (Object.prototype.hasOwnProperty.call(changedProperties, 'widthPercent')) {
         const initialWidthPercent = changedProperties.widthPercent ?? null
         imageNode.setWidthPercent(initialWidthPercent)

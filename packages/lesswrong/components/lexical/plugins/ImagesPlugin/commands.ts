@@ -8,6 +8,17 @@ export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCo
   'INSERT_IMAGE_COMMAND',
 );
 
+export interface ReplaceImagePayload {
+  nodeKey: NodeKey;
+  src: string;
+  srcset: string | null;
+  altText: string;
+}
+
+export const REPLACE_IMAGE_COMMAND: LexicalCommand<ReplaceImagePayload> = createCommand(
+  'REPLACE_IMAGE_COMMAND',
+);
+
 export type SetImageSizePayload = {
   nodeKey: NodeKey;
   widthPercent: number | null;

@@ -79,7 +79,7 @@ export function $replaceImageInEditor({
   };
 }
 
-async function replaceImageInMainDoc({
+export async function replaceImageInMainDoc({
   postId,
   token,
   currentSrc,

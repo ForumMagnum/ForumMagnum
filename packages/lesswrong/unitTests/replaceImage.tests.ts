@@ -1,6 +1,9 @@
 import { $getRoot, type LexicalEditor } from "lexical";
 import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
 import { $replaceImageInEditor } from "../../../app/api/agent/replaceImage/route";
+import { $handleImageReplacementAsSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/imageHandling";
+import { $rejectSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/rejectSuggestion";
+import type { Logger } from "@/lib/vendor/proton/logger";
 import {
   runEditorUpdate,
   setupEditorWithHtml,
@@ -11,6 +14,7 @@ const CURRENT_SRC = "https://example.com/current.png";
 const REPLACEMENT_SRC = "https://example.com/replacement.png";
 
 interface ImageSnapshot {
+  key: string;
   src: string;
   srcset: string | null;
   altText: string;
@@ -25,6 +29,7 @@ function getImageSnapshots(editor: LexicalEditor): ImageSnapshot[] {
     walkLexicalNodes($getRoot(), (node) => {
       if ($isImageNode(node)) {
         images.push({
+          key: node.getKey(),
           src: node.getSrc(),
           srcset: node.getSrcset(),
           altText: node.getAltText(),
@@ -37,6 +42,12 @@ function getImageSnapshots(editor: LexicalEditor): ImageSnapshot[] {
   });
   return images;
 }
+
+const silentLogger: Logger = {
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+};
 
 describe("replaceImage agent edit", () => {
   it("replaces the source while preserving caption, alt text, and display size", async () => {
@@ -58,6 +69,7 @@ describe("replaceImage agent edit", () => {
 
     expect(replaced).toBe(true);
     expect(getImageSnapshots(editor)).toEqual([{
+      key: expect.any(String),
       src: REPLACEMENT_SRC,
       srcset: null,
       altText: "Existing alt",
@@ -107,5 +119,42 @@ describe("replaceImage agent edit", () => {
       CURRENT_SRC,
       CURRENT_SRC,
     ]);
+  });
+});
+
+describe("replaceImage editor suggestion", () => {
+  it("restores the original image and preserves its caption when rejected", async () => {
+    const editor = await setupEditorWithHtml(
+      `<figure class="image"><img src="${CURRENT_SRC}" alt="Old alt">` +
+      `<figcaption><p>Caption text</p></figcaption></figure>`,
+    );
+    const imageKey = getImageSnapshots(editor)[0].key;
+    const suggestionIds: string[] = [];
+
+    await runEditorUpdate(editor, () => {
+      $handleImageReplacementAsSuggestion({
+        nodeKey: imageKey,
+        src: REPLACEMENT_SRC,
+        srcset: null,
+        altText: "New alt",
+      }, (suggestionId) => suggestionIds.push(suggestionId), silentLogger);
+    });
+
+    expect(getImageSnapshots(editor)[0]).toMatchObject({
+      src: REPLACEMENT_SRC,
+      altText: "New alt",
+      caption: "Caption text",
+    });
+    expect(suggestionIds).toHaveLength(1);
+
+    await runEditorUpdate(editor, () => {
+      $rejectSuggestion(suggestionIds[0], silentLogger);
+    });
+
+    expect(getImageSnapshots(editor)[0]).toMatchObject({
+      src: CURRENT_SRC,
+      altText: "Old alt",
+      caption: "Caption text",
+    });
   });
 });

@@ -56,12 +56,14 @@ import { $handleLinkChangeSuggestion } from './handleLinkChangeSuggestion'
 import { generateSuggestionSummary } from './generateSuggestionSummary'
 import {
   INSERT_IMAGE_COMMAND,
+  REPLACE_IMAGE_COMMAND,
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
   SET_IMAGE_SIZE_COMMAND,
   type InsertImagePayload,
 } from '@/components/lexical/plugins/ImagesPlugin/commands'
 import {
   $handleImageDragAndDropAsSuggestion,
+  $handleImageReplacementAsSuggestion,
   $handleImageSizeChangeAsSuggestion,
   $handleImageCaptionToggleAsSuggestion,
   $handleImageDeleteAsSuggestion,
@@ -964,6 +966,11 @@ export function SuggestionModePlugin({
           const imageNode = $createImageNode(payload)
           return $selectionInsertClipboardNodes([imageNode], addCreatedIDtoSet, suggestionModeLogger)
         },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        REPLACE_IMAGE_COMMAND,
+        (payload) => $handleImageReplacementAsSuggestion(payload, addCreatedIDtoSet, suggestionModeLogger),
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(

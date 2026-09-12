@@ -60,9 +60,11 @@ import { preloadImage } from '../../nodes/imageCache';
 
 import {
   INSERT_IMAGE_COMMAND,
+  REPLACE_IMAGE_COMMAND,
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
   SET_IMAGE_SIZE_COMMAND,
   type InsertImagePayload,
+  type ReplaceImagePayload,
   type SetImageCaptionVisibilityPayload,
   type SetImageSizePayload,
 } from './commands';
@@ -141,6 +143,20 @@ export default function ImagesPlugin({
     }
 
     return mergeRegister(
+      editor.registerCommand<ReplaceImagePayload>(
+        REPLACE_IMAGE_COMMAND,
+        ({ nodeKey, src, srcset, altText }) => {
+          const node = $getNodeByKey(nodeKey);
+          if (!$isImageNode(node)) {
+            return false;
+          }
+          node.setSrc(src);
+          node.setSrcset(srcset);
+          node.setAltText(altText);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
       editor.registerCommand<SetImageSizePayload>(
         SET_IMAGE_SIZE_COMMAND,
         ({ nodeKey, widthPercent }) => {

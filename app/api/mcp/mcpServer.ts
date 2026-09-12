@@ -8,6 +8,7 @@ import { runQuery } from "@/server/vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
 import { insertCollabCommentThread } from "../agent/collabCommentThreads";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
+import { replaceImageInMainDoc } from "../agent/replaceImage/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
@@ -19,6 +20,7 @@ import {
   commentOnDraftToolSchema,
   deleteBlockToolSchema,
   insertBlockToolSchema,
+  replaceImageToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
   validateReplaceWidgetExclusivity,
@@ -42,6 +44,7 @@ const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   read_post: [REQUIRED_SCOPE],
   comment_on_draft: [REQUIRED_SCOPE],
   replace_text: [REQUIRED_SCOPE],
+  replace_image: [REQUIRED_SCOPE],
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
   insert_block: [REQUIRED_SCOPE],
@@ -210,6 +213,36 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
         mode: args.mode ?? "suggest",
         authorName,
         authorId,
+      });
+
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "replace_image",
+    {
+      description: "Replace one image in a post draft, identified by its exact current URL. The image's caption and display size are preserved, and alt text can optionally be updated.",
+      inputSchema: replaceImageToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async (args, extra) => {
+      assertToolScopes("replace_image", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const result = await replaceImageInMainDoc({
+        postId: args.postId,
+        token,
+        currentSrc: args.currentSrc,
+        replacementSrc: args.replacementSrc,
+        altText: args.altText,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };

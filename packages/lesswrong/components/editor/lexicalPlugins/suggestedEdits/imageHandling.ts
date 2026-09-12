@@ -4,6 +4,7 @@ import { $createRangeSelection, $getNodeByKey, $getSelection, $setSelection } fr
 import { $generateNodesFromSerializedNodes } from '@lexical/clipboard'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import type {
+  ReplaceImagePayload,
   SetImageCaptionVisibilityPayload,
   SetImageSizePayload,
 } from '@/components/lexical/plugins/ImagesPlugin/commands'
@@ -61,6 +62,42 @@ export function $handleImageSizeChangeAsSuggestion(
     $createSuggestionNode(suggestionID, 'image-change', {
       widthPercent: initialWidthPercent ?? null,
     }),
+  )
+  onSuggestionCreation(suggestionID)
+  return true
+}
+
+export function $handleImageReplacementAsSuggestion(
+  payload: ReplaceImagePayload,
+  onSuggestionCreation: (id: string) => void,
+  logger: Logger,
+): boolean {
+  const { nodeKey, src, srcset, altText } = payload
+  logger.info('Handling image replacement', payload)
+  const node = $getNodeByKey(nodeKey)
+  if (!$isImageNode(node)) {
+    logger.info('Node is not image node')
+    return true
+  }
+
+  const existingSuggestionParent = $findMatchingParent(node, $isSuggestionNode)
+  if (existingSuggestionParent) {
+    logger.info('Image already has a pending suggestion')
+    return true
+  }
+
+  const initialProperties = {
+    src: node.getSrc(),
+    srcset: node.getSrcset(),
+    altText: node.getAltText(),
+  }
+  node.setSrc(src)
+  node.setSrcset(srcset)
+  node.setAltText(altText)
+
+  const suggestionID = randomId()
+  $wrapNodeInElement(node, () =>
+    $createSuggestionNode(suggestionID, 'image-change', initialProperties),
   )
   onSuggestionCreation(suggestionID)
   return true
