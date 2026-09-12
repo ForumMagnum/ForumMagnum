@@ -116,6 +116,11 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
       '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
       gridTemplateAreas: '"sidebar results"',
     },
+    // Wide screens have room to spare: let the kind buttons share the row.
+    [theme.breakpoints.up('md')]: {
+      '& $kinds': {gap: 4},
+      '& $kinds > button': {flex: '1 1 0', justifyContent: 'center', maxWidth: 160},
+    },
     [theme.breakpoints.down('sm')]: {
       height: '100%',
       maxHeight: '100%',
