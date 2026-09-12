@@ -414,3 +414,20 @@ it('places the modal latch outside the clipped results area and controls both fi
   unmount();
   slot.remove();
 });
+
+
+it.each<'modal' | 'page'>(['modal', 'page'])('places the mobile filter toggle after the selection bar in %s search', presentation => {
+  wideScreen = false;
+  const slot = document.createElement('div');
+  document.body.append(slot);
+  render(<SearchPage presentation={presentation} filterTabSlot={slot} />);
+  const tab = screen.getByRole('button', {name: 'Filter results'});
+  expect(slot.childElementCount).toBe(0);
+  expect(screen.getByRole('search').contains(tab)).toBe(false);
+  expect(screen.getByRole('checkbox', {name: 'Post'}).compareDocumentPosition(tab) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  fireEvent.click(tab);
+  expect(screen.getByRole('complementary', {name: 'Search options'}).contains(screen.getByRole('region', {name: 'Timeframe'}))).toBe(true);
+  fireEvent.click(tab);
+  expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
+  slot.remove();
+});

@@ -191,6 +191,14 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: -2},
     '&[aria-expanded="true"]': {width: 144, '& $filterTabLabel': {opacity: 1}},
     '@media (hover: none)': {width: 144, '& $filterTabLabel': {opacity: 1}},
+    [theme.breakpoints.down('sm')]: {
+      width: '100%', minHeight: 44, marginTop: 4, borderRadius: 4,
+      backgroundColor: theme.palette.greyAlpha(0.04),
+      '& $filterTabLabel': {opacity: 1},
+      '& $filterTabIcon': {transform: 'rotate(90deg)'},
+      '&:hover, &:focus-visible, &[aria-expanded="true"]': {width: '100%'},
+      '&[aria-expanded="true"] $filterTabIcon': {transform: 'rotate(-90deg)'},
+    },
     '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
   },
   filterTabModal: {
@@ -498,7 +506,7 @@ interface SearchPageProps {
   filterTabSlot?: HTMLElement | null,
 }
 
-const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot, filterTabSlot}: SearchPageProps) => {
+const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot, filterTabSlot: providedFilterTabSlot}: SearchPageProps) => {
   // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
   const pathname = usePathname();
   const classes = useStyles(styles);
@@ -514,6 +522,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   // Match down('sm'): mobile filters and results share a single scroll flow.
   const isDesktop = useIsAboveBreakpoint('md');
   const timeframeSlot = isDesktop ? providedTimeframeSlot : null;
+  const filterTabSlot = isDesktop ? providedFilterTabSlot : null;
   const layoutRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -699,7 +708,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               recordSearch(state.query);
               inputRef.current?.blur();
             }}>
-              {!filterTabSlot && filterTab}
+              {isDesktop && !filterTabSlot && filterTab}
               <div className={classes.searchInputArea}>
                 <ForumIcon icon="Search" className={classes.searchIcon} />
                 <input
@@ -740,6 +749,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               onClear={() => setState(previous => ({...previous, kinds: []}))}
               onToggle={(type) => setState(previous => ({...previous, kinds: toggleSearchKind(previous.kinds, type)}))}
             />
+            {!isDesktop && filterTab}
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>
