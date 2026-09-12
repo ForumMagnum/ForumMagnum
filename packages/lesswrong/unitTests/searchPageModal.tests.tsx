@@ -71,7 +71,7 @@ it('toggles mobile filters and offers an explicit close control', () => {
   expect(onClose).toHaveBeenCalledTimes(1);
 });
 
-it('closes after a result link handles navigation even when it stops propagation', async () => {
+it('keeps search open while a result link starts navigation, even when it stops propagation', async () => {
   const onClose = jest.fn();
   render(<SearchPage presentation="modal" onClose={onClose} />);
   const link = document.createElement('a');
@@ -84,7 +84,9 @@ it('closes after a result link handles navigation even when it stops propagation
   screen.getByRole('group', {name: 'Search results'}).append(link);
   fireEvent.click(link);
   expect(navigate).toHaveBeenCalledTimes(1);
-  await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+  await act(async () => { await Promise.resolve(); });
+  expect(onClose).not.toHaveBeenCalled();
+  expect(screen.getByRole('searchbox')).toBeTruthy();
 });
 
 it('starts with Authors expanded directly below Timeframe and other sections collapsed', () => {
