@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import qs from 'qs';
 import classNames from 'classnames';
 import { usePathname } from 'next/navigation';
 import { InstantSearch } from '@/lib/utils/componentsWithChildren';
@@ -24,7 +23,7 @@ import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchA
 import { useSearchHistory } from './useSearchHistory';
 import { useSearchPageNavigation } from './useSearchPageNavigation';
 import { SearchBarHit, useSearchResults } from './useSearchResults';
-import { SearchPageState, searchPageStateFromQuery, searchPageStateToQuery } from './searchPageUrl';
+import { SearchPageState, searchPageStateFromQuery, searchPageStateToQuery, mergeSearchPageParams } from './searchPageUrl';
 import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
 import SearchWikitagsBar from './SearchWikitagsBar';
 import SearchTimeframeBar from './SearchTimeframeBar';
@@ -34,7 +33,6 @@ import SearchAuthorsBar from './SearchAuthorsBar';
 import SingleUsersItem from '../form-components/SingleUsersItem';
 import SearchKarmaBar from './SearchKarmaBar';
 import SearchFilterRow from './SearchFilterRow';
-import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 import ExpandedUsersSearchHit from './ExpandedUsersSearchHit';
 import ExpandedPostsSearchHit from './ExpandedPostsSearchHit';
 import ExpandedCommentsSearchHit from './ExpandedCommentsSearchHit';
@@ -421,8 +419,6 @@ function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
     .join(",");
 }
 
-const lastModalSearchKey = 'search.lastModalState';
-
 interface SearchPageProps {
   presentation?: 'page' | 'modal',
   onClose?: () => void,
@@ -435,7 +431,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const pathname = usePathname();
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const {location, query: urlQuery} = useSubscribedLocation();
+  const {location} = useSubscribedLocation();
   const currentUser = useCurrentUser();
   const captureSearch = useSearchAnalytics();
   const captureResultSelected = useCaptureSearchResultSelected();
@@ -448,29 +444,19 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const timeframeSlot = isDesktop ? providedTimeframeSlot : null;
   const layoutRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const writtenSearch = useRef<string | null>(null);
   const observedSearch = useRef(location.search);
-  const [expandedFilters, setExpandedFilters] = useState<string[]>(['authors']);
+  const openedPathname = useRef(location.pathname);
+  const [state, setState] = useState<SearchPageState>(() =>
+    searchPageStateFromQuery(Object.fromEntries(new URLSearchParams(location.search))));
+  const {expandedFilters, mobileFiltersOpen} = state;
   const timeframeOpen = expandedFilters.includes('time');
   useEffect(() => {
     if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
   }, [timeframeOpen, presentation]);
-  const [state, setState] = useState<SearchPageState>(() => {
-    if (presentation === 'modal') {
-      const saved = safeStorageGetItem(getBrowserLocalStorage(), lastModalSearchKey);
-      if (saved !== null) return searchPageStateFromQuery(Object.fromEntries(new URLSearchParams(saved)));
-    }
-    return searchPageStateFromQuery(presentation === 'page' || pathname === '/search' ? urlQuery : {});
-  });
-  useEffect(() => {
-    if (presentation === 'modal') {
-      safeStorageSetItem(getBrowserLocalStorage(), lastModalSearchKey, qs.stringify(searchPageStateToQuery(state)));
-    }
-  }, [state, presentation]);
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
   // The indexed archive includes material from 2003, before the configured site origin.
@@ -479,21 +465,22 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
 
   // External navigation wins before writing local refinements back to the URL.
   useEffect(() => {
-    if (presentation === 'modal') return;
+    // A destination URL controls its own modal and search state. Leave it untouched.
+    if (presentation === 'modal' && location.pathname !== openedPathname.current) return;
     if (location.search !== observedSearch.current) {
       observedSearch.current = location.search;
       if (location.search !== writtenSearch.current) {
-        setState(searchPageStateFromQuery(urlQuery));
+        setState(searchPageStateFromQuery(Object.fromEntries(new URLSearchParams(location.search))));
         return;
       }
     }
-    const search = qs.stringify(searchPageStateToQuery(state));
+    const search = mergeSearchPageParams(location.search, state);
     const targetSearch = search ? `?${search}` : "";
     writtenSearch.current = targetSearch;
     if (location.search !== targetSearch) navigate({...location, search}, {replace: true, skipRouter: true});
-  // URL query and location are snapshots of location.search; other URL parts are read at write time.
+  // Read the current location snapshot whenever search state or the URL changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, navigate, location.search, presentation]);
+  }, [state, navigate, location.search, location.pathname, presentation]);
 
   const sortParam = formatSearchSort(state.sort);
   const request = {
@@ -560,7 +547,12 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     </div>;
   }
 
-  const toggleFilter = (key: string) => setExpandedFilters(previous => previous.includes(key) ? previous.filter(item => item !== key) : [...previous, key]);
+  const toggleFilter = (key: string) => setState(previous => ({
+    ...previous,
+    expandedFilters: previous.expandedFilters.includes(key)
+      ? previous.expandedFilters.filter(item => item !== key)
+      : [...previous.expandedFilters, key],
+  }));
   const closeTimeframe = () => {
     toggleFilter('time');
     scrollRef.current?.querySelector<HTMLButtonElement>(`button[aria-controls="${timeframeId}"]`)?.focus({preventScroll: true});
@@ -663,7 +655,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             />
             <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
               aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
-              onClick={() => setMobileFiltersOpen(previous => !previous)}>
+              onClick={() => setState(previous => ({...previous, mobileFiltersOpen: !previous.mobileFiltersOpen}))}>
               {mobileFiltersOpen ? 'Hide filters' : 'Filters'}
             </button>
           </div>

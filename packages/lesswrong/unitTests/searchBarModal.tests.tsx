@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import SearchBar from '../components/common/SearchBar';
 
@@ -9,7 +9,27 @@ jest.mock('@/components/hooks/defineStyles', () => ({defineStyles: () => ({})}))
 jest.mock('../lib/vulcan-lib/components', () => ({registerComponent: (_name: string, component: unknown) => component}));
 jest.mock('../components/common/withErrorBoundary', () => ({__esModule: true, default: (component: unknown) => component}));
 jest.mock('../components/common/ForumIcon', () => ({__esModule: true, default: () => null}));
-jest.mock('../components/hooks/useOnNavigate', () => ({useOnNavigate: () => {}}));
+const mockNavigate = jest.fn();
+const mockLocation = {pathname: '/posts/example', search: '', hash: '#comment'};
+jest.mock('@/lib/routeUtil', () => ({
+  useNavigate: () => mockNavigate,
+  useSubscribedLocation: () => {
+    React.useSyncExternalStore(
+      (notify) => {window.addEventListener('popstate', notify); return () => window.removeEventListener('popstate', notify);},
+      () => JSON.stringify(mockLocation),
+      () => JSON.stringify(mockLocation),
+    );
+    return {location: {...mockLocation}};
+  },
+}));
+beforeEach(() => {
+  mockLocation.pathname = '/posts/example';
+  mockLocation.search = '';
+  mockNavigate.mockReset().mockImplementation((location) => {
+    Object.assign(mockLocation, location, {search: location.search ? `?${location.search}` : ''});
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+});
 jest.mock('../lib/search/searchUtil', () => ({isSearchEnabled: () => true}));
 jest.mock('@/lib/vendor/@material-ui/core/src/IconButton', () => ({
   __esModule: true,
@@ -75,4 +95,38 @@ it('leaves the editor link shortcut alone', () => {
   fireEvent.keyDown(editor, {key: 'k', metaKey: true});
   expect(screen.queryByRole('dialog')).toBeNull();
   editor.remove();
+});
+
+it('restores open state from the URL after loading and defers the modal until hydration', () => {
+  mockLocation.search = '?searchOpen=1&query=alignment';
+  const markup = renderToString(<SearchBar onSetIsActive={jest.fn()} />);
+  expect(markup).not.toContain('role="dialog"');
+  const active = jest.fn();
+  render(<SearchBar onSetIsActive={active} />);
+  expect(screen.getByRole('dialog')).toBeTruthy();
+  expect(active).toHaveBeenLastCalledWith(true);
+  expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+it('replaces open state while preserving search state, repeated parameters, and the anchor', () => {
+  mockLocation.search = '?query=alignment&context=one&context=two';
+  render(<SearchBar onSetIsActive={jest.fn()} />);
+  fireEvent.click(screen.getByRole('button', {name: 'Search'}));
+  expect(mockNavigate).toHaveBeenLastCalledWith({pathname: '/posts/example', search: 'query=alignment&context=one&context=two&searchOpen=1', hash: '#comment'}, {replace: true, skipRouter: true});
+  fireEvent.click(screen.getByRole('button', {name: 'Close search'}));
+  expect(mockLocation.search).toBe('?query=alignment&context=one&context=two');
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+it('follows history changes, stays open on refinements, and closes at a fresh destination', () => {
+  const active = jest.fn();
+  render(<SearchBar onSetIsActive={active} />);
+  for (const search of ['?searchOpen=1&query=first', '?query=first', '?searchOpen=1&query=second']) {
+    act(() => {mockLocation.search = search; window.dispatchEvent(new PopStateEvent('popstate'));});
+    expect(!!screen.queryByRole('dialog')).toBe(search.includes('searchOpen=1'));
+  }
+  act(() => {mockLocation.pathname = '/posts/destination'; mockLocation.search = ''; window.dispatchEvent(new PopStateEvent('popstate'));});
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(active).toHaveBeenLastCalledWith(false);
+  expect(mockNavigate).not.toHaveBeenCalled();
 });
