@@ -12,6 +12,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const PostsListMultiQuery = gql(`
   query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -194,7 +196,9 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        <div className={classes.name}>{displayName}</div>
+        <div className={classes.name}>
+          <Link to={userGetProfileUrl(user)}>{displayName}</Link>
+        </div>
         <div className={classes.metaRow}>
           <UserMetaInfo user={enrichedUser} className={classes.userMetaInfo} />
           {!hideFollowButton && userHasSubscribeTabFeed(currentUser, forumType) && <FollowUserButton user={user} />}

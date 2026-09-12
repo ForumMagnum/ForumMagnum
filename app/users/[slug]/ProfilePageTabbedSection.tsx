@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, Suspense, useState } from "react";
 import { PROFILE_TAB_SETTINGS_COOKIE, SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import ForumIcon from "@/components/common/ForumIcon";
 import classNames from 'classnames';
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
@@ -135,6 +136,13 @@ const profilePageTabbedSectionUnsharedStyles = defineStyles("ProfilePageTabbedSe
       display: "flex",
       flexDirection: "column",
       gap: 30,
+    },
+  },
+  mobileFullWidthContent: {
+    "@media (max-width: 630px)": {
+      // Cancel profileMain's padding, leaving the page's standard mobile gutter.
+      marginLeft: -20,
+      marginRight: -20,
     },
   },
   sortPanel: {
@@ -494,8 +502,9 @@ export function ProfilePageTabbedSection({user}: {
               className={classNames(classes.sortIconButton, settingsButtonDisabled && classes.sortIconDisabled)}
               onClick={!settingsButtonDisabled ? handleSettingsPanelToggle : undefined}
               type="button"
+              aria-label="Settings"
             >
-              <span className={classes.sortIcon}>⚙</span>
+              <ForumIcon icon="Settings" className={classes.sortIcon} />
             </button>
           </div>
         )}
@@ -513,7 +522,10 @@ export function ProfilePageTabbedSection({user}: {
     )}
 
     <Suspense>
-      <div className={classes.allPostsContainer}>
+      <div className={classNames(
+        classes.allPostsContainer,
+        activeTab !== "posts" && activeTab !== "sequences" && classes.mobileFullWidthContent,
+      )}>
         {renderActiveTabContents()}
       </div>
     </Suspense>
