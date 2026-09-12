@@ -11,7 +11,7 @@ import {
   getSearchIndexName,
   isSearchEnabled,
 } from '@/lib/search/searchUtil';
-import { defaultSearchSort, searchSortLabels, searchSortToUrlParam, formatSearchSort } from '@/lib/search/searchSorting';
+import { formatSearchSort } from '@/lib/search/searchSorting';
 import { searchFiltersToParams, SearchFilterState, emptySearchFilters, defaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
 import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -26,7 +26,6 @@ import { useSearchPageNavigation } from './useSearchPageNavigation';
 import { SearchBarHit, useSearchResults } from './useSearchResults';
 import { SearchPageState, searchPageStateFromQuery, searchPageStateToQuery } from './searchPageUrl';
 import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
-import SearchSorterBar from './SearchSorterBar';
 import SearchWikitagsBar from './SearchWikitagsBar';
 import SearchTimeframeBar from './SearchTimeframeBar';
 import SearchEventsBar from './SearchEventsBar';
@@ -346,11 +345,6 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     },
   },
   postTypes: {flexWrap: "wrap"},
-  sortDescription: {
-    fontSize: 13,
-    color: theme.palette.text.dim,
-    [theme.breakpoints.down('sm')]: {display: 'none'},
-  },
   resultCount: {
     ...theme.typography.body2,
     fontSize: 14,
@@ -393,12 +387,6 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     paddingLeft: 38,
     // Anchor the result link and copy button to the entire padded row.
     "& > div": {marginBottom: 0, position: "static"},
-  },
-  sortingHelp: {
-    ...theme.typography.body2,
-    fontSize: 13,
-    color: theme.palette.text.dim,
-    margin: "4px 0 8px",
   },
   status: {
     ...theme.typography.body2,
@@ -602,21 +590,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
           <SearchFilterRow label="Author" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
             <SearchAuthorsBar authorIds={state.filters.authorIds} onChange={(authorIds) => setFilters({authorIds})} />
           </SearchFilterRow>
-          {presentation === "page" && <SearchFilterRow
-            label="Tune the sorting"
-            summary={searchSortToUrlParam(state.sort) ? "Custom sorting" : ""}
-            active={searchSortToUrlParam(state.sort) !== undefined}
-            expanded={expandedFilters.includes("sorting")}
-            onToggle={() => toggleFilter("sorting")}
-            onReset={() => setState(previous => ({...previous, sort: defaultSearchSort}))}
-          >
-            <p className={classes.sortingHelp}>Drag a label to change priority; use its arrow to reverse the order. Later criteria only break ties.</p>
-            <SearchSorterBar
-              vertical
-              sort={state.sort}
-              onChange={(sort) => setState(previous => ({...previous, sort}))}
-            />
-          </SearchFilterRow>}
 
           <div className={classes.filters}>
             <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
@@ -686,14 +659,13 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
               aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
               onClick={() => setMobileFiltersOpen(previous => !previous)}>
-              {mobileFiltersOpen ? 'Hide filters' : presentation === 'modal' ? 'Filters' : 'Filters and sorting'}
+              {mobileFiltersOpen ? 'Hide filters' : 'Filters'}
             </button>
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>
               {total !== null && <div className={classes.resultCount} aria-live="polite">
                 <span><strong>{total.toLocaleString()}</strong> result{total === 1 ? '' : 's'}</span>
-                {presentation === "page" && <span className={classes.sortDescription}>Sorted by {state.sort.map(spec => `${searchSortLabels[spec.key].toLowerCase()} ${spec.direction === 'desc' ? '↓' : '↑'}`).join(', then ')}</span>}
               </div>}
               <div ref={resultsRef} role="group" aria-label="Search results" aria-busy={loading}>
                 {hits.map((hit, position) => {

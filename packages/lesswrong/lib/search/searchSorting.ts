@@ -14,13 +14,6 @@ export interface SearchSortSpec {
   direction: SearchSortDirection;
 }
 
-export const searchSortLabels: Record<SearchSortKey, string> = {
-  relevance: "Relevance",
-  date: "Date",
-  karma: "Karma",
-  comments: "Comments",
-};
-
 export const defaultSearchSort: SearchSortSpec[] = Array.from(searchSortKeys).map(key => ({key, direction: "desc"}));
 
 const invalid = (value: string) => new Error(`Invalid search sort: ${value}`);
@@ -67,20 +60,4 @@ export function searchSortFromUrlParam(param: string | undefined): SearchSortSpe
   }
   const missing = defaultSearchSort.filter(spec => !specs.some(given => given.key === spec.key));
   return [...specs, ...missing];
-}
-
-export function moveSearchSort(specs: SearchSortSpec[], fromKey: SearchSortKey, toKey: SearchSortKey): SearchSortSpec[] {
-  const fromIndex = specs.findIndex(spec => spec.key === fromKey);
-  const toIndex = specs.findIndex(spec => spec.key === toKey);
-  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return specs;
-  const result = specs.slice();
-  const [moved] = result.splice(fromIndex, 1);
-  result.splice(toIndex, 0, moved);
-  return result;
-}
-
-export function toggleSearchSortDirection(specs: SearchSortSpec[], key: SearchSortKey): SearchSortSpec[] {
-  return specs.map(spec => spec.key === key
-    ? {...spec, direction: spec.direction === "desc" ? "asc" : "desc"}
-    : spec);
 }
