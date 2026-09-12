@@ -17,11 +17,13 @@ const styles = defineStyles('SearchResultLink', (theme: ThemeType) => ({
   button: {
     position: 'absolute',
     right: 4,
-    top: 4,
+    // Stay near the top, but center the hit area vertically in short results.
+    top: 'min(4px, calc(50% - 20px))',
     zIndex: 2,
     width: 40,
     height: 40,
     display: 'grid',
+    [theme.breakpoints.down('md')]: {display: 'none'},
     placeItems: 'center',
     padding: 0,
     border: 0,

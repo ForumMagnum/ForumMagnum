@@ -46,7 +46,7 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
     color: theme.palette.grey[500],
   },
   displayName: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
