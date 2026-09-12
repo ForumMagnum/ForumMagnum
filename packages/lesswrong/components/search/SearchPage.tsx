@@ -571,14 +571,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     </SearchTimeframeBar>
   </section>;
 
-  return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal'})} onClickCapture={event => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
-    if (onClose && link && link.getAttribute('target') !== '_blank' && !link.hasAttribute('download')) {
-      // Result links stop propagation. Let their navigation handler run before unmounting search.
-      queueMicrotask(onClose);
-    }
-  }}>
+  return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal'})}>
     {/* Snippet widgets in the hit components need this context. Its static empty query does not search Elasticsearch. */}
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
       {isDesktop && timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
