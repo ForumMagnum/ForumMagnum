@@ -58,9 +58,9 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.title.fontFamily,
     color: theme.palette.grey[800],
-    fontWeight: 600,
+    fontWeight: 400,
   },
   snippet: {
     overflowWrap: "break-word",

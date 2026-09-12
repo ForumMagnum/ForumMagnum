@@ -17,8 +17,25 @@ const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
   tags: {
     flex: '1 1 140px',
     minWidth: 0,
-    '& .TagMultiselect-inputContainer': {marginBottom: 0, boxSizing: 'border-box'},
-    '& input': {minWidth: 0, boxSizing: 'border-box'},
+    '& .TagMultiselect-inputContainer': {
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      padding: '0 12px',
+      border: 'none',
+      borderRadius: 3,
+      backgroundColor: theme.palette.background.paper,
+      transition: 'background-color 150ms',
+      '&:focus-within': {backgroundColor: theme.palette.greyAlpha(0.04)},
+    },
+    '& input': {
+      minWidth: 0,
+      minHeight: 40,
+      boxSizing: 'border-box',
+      border: 'none',
+      borderRadius: 3,
+      outline: 'none',
+      background: 'transparent',
+    },
   },
   match: {display: 'flex', gap: 2},
 }));

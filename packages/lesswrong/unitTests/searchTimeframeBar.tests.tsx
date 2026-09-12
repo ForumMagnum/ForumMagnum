@@ -13,6 +13,20 @@ beforeEach(() => {
 const scale = {originMs: Date.UTC(2014, 0, 1), nowMs: Date.UTC(2026, 8, 10)};
 const value = {start: Date.UTC(2020, 0, 1), end: Date.UTC(2020, 0, 31, 23, 59, 59, 999)};
 
+it("does not paint green stripes after the selected range", () => {
+  const {container} = render(<SearchTimeframeBar value={value} scale={scale} onChange={jest.fn()} />);
+  fireEvent.click(screen.getByText("All years"));
+  const band = container.querySelector<HTMLElement>("[data-band]")!;
+  const selectionEnd = parseFloat(band.style.left) + parseFloat(band.style.width);
+  const laterStripes = Array.from(band.parentElement!.children).filter(
+    element => element instanceof HTMLElement && parseFloat(element.style.left) > selectionEnd && element.tagName === "DIV"
+  );
+  expect(laterStripes.length).toBeGreaterThan(0);
+  for (const stripe of laterStripes) {
+    expect(stripe.getAttribute("style")).not.toContain("--timeframe-green-alternate");
+  }
+});
+
 it("adjusts endpoints independently with keyboard controls", () => {
   const onChange = jest.fn();
   render(<SearchTimeframeBar value={value} scale={scale} onChange={onChange} />);

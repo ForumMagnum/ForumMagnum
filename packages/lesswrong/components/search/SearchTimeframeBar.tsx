@@ -34,6 +34,8 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
   root: {
     "--timeframe-label": theme.palette.text.dim,
     "--timeframe-selected-label": theme.palette.text.alwaysWhite,
+    "--timeframe-green": `color-mix(in srgb, ${theme.palette.primary.main} 85%, ${theme.palette.background.paper})`,
+    "--timeframe-green-alternate": theme.palette.primary.main,
     display: "flex",
     flexDirection: "column",
     gap: 8,
@@ -124,8 +126,7 @@ const styles = defineStyles("SearchTimeframeBar", (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     bottom: 0,
-    backgroundColor: theme.palette.primary.dark,
-    opacity: 0.9,
+    backgroundColor: "var(--timeframe-green)",
     borderRadius: 3,
     boxSizing: "border-box",
     minWidth: 2,
@@ -456,10 +457,16 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
           className={classNames(classes.band, {[classes.bandShiftable]: isClosed(value)})}
           style={{left: `${startFraction * 100}%`, width: `${Math.max(0, endFraction - startFraction) * 100}%`}}
         />}
-        {ticks.map(({startMs, fraction, endFraction, alternate}) => <div
+        {ticks.map(({startMs, fraction, endFraction: tickEndFraction, alternate}) => <div
           key={startMs}
           className={classNames(classes.tick, {[classes.tickAlternate]: alternate})}
-          style={{left: `${fraction * 100}%`, width: `${(endFraction - fraction) * 100}%`}}
+          style={{
+            left: `${fraction * 100}%`,
+            width: `${(tickEndFraction - fraction) * 100}%`,
+            backgroundImage: mounted && alternate && fraction < endFraction && tickEndFraction > startFraction
+              ? `linear-gradient(to right, transparent ${Math.max(0, (startFraction - fraction) * trackWidth)}px, var(--timeframe-green-alternate) ${Math.max(0, (startFraction - fraction) * trackWidth)}px, var(--timeframe-green-alternate) ${Math.max(0, (endFraction - fraction) * trackWidth)}px, transparent ${Math.max(0, (endFraction - fraction) * trackWidth)}px)`
+              : undefined,
+          }}
         />)}
         {ticks.filter(tick => tick.showLabel).map(({startMs, fraction, label}) => {
           const selectionStart = Math.max(0, ((startFraction - fraction) * trackWidth) - 8);

@@ -14,6 +14,7 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     position: "relative",
     maxWidth: 600,
     paddingRight: 44,
+    [theme.breakpoints.down('sm')]: {paddingRight: 0},
     paddingTop: 2,
     paddingBottom: 2,
     marginBottom: 18,
@@ -22,9 +23,9 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.title.fontFamily,
     color: theme.palette.grey[800],
-    fontWeight: 600,
+    fontWeight: 400,
     marginBottom: 2
   },
   metaInfoRow: {
@@ -84,6 +85,5 @@ const ExpandedPostsSearchHit = ({hit, icon}: {
 }
 
 export default ExpandedPostsSearchHit;
-
 
 
