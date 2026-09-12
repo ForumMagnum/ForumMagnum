@@ -50,11 +50,11 @@ it.each([
   ['iPad', 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X)', 'Cmd'],
   ['Android', 'Mozilla/5.0 (Linux; Android 15)', 'Ctrl'],
   ['unknown platform', '', 'Ctrl'],
-])('shows the shortcut for %s and opens search with it', (_platform, userAgent, modifier) => {
+])('supports the shortcut for %s without a visible badge', (_platform, userAgent, modifier) => {
   jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
   render(<SearchBar onSetIsActive={jest.fn()} />);
   const button = screen.getByRole('button', {name: 'Search'});
-  expect(button.querySelector('kbd')?.textContent).toBe(modifier === 'Cmd' ? '⌘K' : 'Ctrl+K');
+  expect(button.querySelector('kbd')).toBeNull();
   fireEvent.keyDown(document, {key: 'k', metaKey: modifier === 'Cmd', ctrlKey: modifier === 'Ctrl'});
   expect(screen.getByRole('dialog')).toBeTruthy();
 });
@@ -69,7 +69,7 @@ it('hydrates cached server markup on a Mac without a mismatch', () => {
   document.body.append(container);
   const onRecoverableError = jest.fn();
   render(<SearchBar onSetIsActive={jest.fn()} />, {container, hydrate: true, onRecoverableError});
-  expect(container.querySelector('kbd')?.textContent).toBe('⌘K');
+  expect(container.querySelector('kbd')).toBeNull();
   expect(onRecoverableError).not.toHaveBeenCalled();
 });
 
