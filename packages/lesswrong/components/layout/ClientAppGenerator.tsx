@@ -23,6 +23,7 @@ import { initClientOnce } from '@/client/initClient';
 import { TimeProvider } from '@/lib/utils/TimeProvider';
 import { ForumTypeProvider } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
+import PhoneZoomControl from './PhoneZoomControl';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -151,6 +152,7 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, children }
           <CookiesProvider>
             <UserContextProvider>
               <ThemeContextProvider>
+                <PhoneZoomControl/>
                 <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
                   <HelmetProvider>
                     <LocationContextProvider>
