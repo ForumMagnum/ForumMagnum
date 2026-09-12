@@ -221,6 +221,19 @@ If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If
 the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
 
+To replace an image while preserving its caption and display size:
+    POST /api/agent/replaceImage
+    with JSON body: {
+      postId, key, agentName?,
+      currentSrc: string,
+      replacementSrc: string,
+      altText?: string
+    }
+Copy currentSrc exactly from the image URL in the latest editPost markdown
+response. It must identify exactly one image in the draft. The replacement is
+applied directly; omit altText to keep the existing alt text, or provide it to
+update the image description.
+
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
     with JSON body: { postId, key, agentName?, location: "start"|"end"|{ before: string }|{ after: string }, markdown, mode?: "edit"|"suggest" }

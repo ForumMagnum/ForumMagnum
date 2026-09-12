@@ -297,6 +297,9 @@ export const routeTrie = {
             "ping": {
               "hasRoute": true
             },
+            "replaceImage": {
+              "hasRoute": true
+            },
             "replaceText": {
               "hasRoute": true
             },
@@ -316,6 +319,7 @@ export const routeTrie = {
             "insertllmblock": "insertLLMBlock",
             "insertwidget": "insertWidget",
             "ping": "ping",
+            "replaceimage": "replaceImage",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
             "replytocomment": "replyToComment"

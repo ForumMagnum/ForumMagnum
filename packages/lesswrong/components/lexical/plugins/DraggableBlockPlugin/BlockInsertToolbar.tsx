@@ -8,7 +8,7 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
-import { InsertImageDialog } from '../ImagesPlugin';
+import { InsertImageDialog } from '../ImagesPlugin/ImageDialog';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { useDialog } from '@/components/common/withDialog';
 import { TableIcon } from '../../icons/TableIcon';

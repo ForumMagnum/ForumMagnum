@@ -7,7 +7,7 @@
  */
 
 import { useForumType } from "@/components/hooks/useForumType";
-import React, { type JSX } from 'react';
+import { type JSX } from 'react';
 
 import {
   $isAutoLinkNode,
@@ -32,19 +32,17 @@ import {
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_NORMAL,
-  createCommand,
   DRAGOVER_COMMAND,
   DRAGSTART_COMMAND,
   DROP_COMMAND,
   LexicalNode,
-  LexicalCommand,
   LexicalEditor,
   NodeKey,
   PASTE_COMMAND,
   ParagraphNode,
   TextNode,
 } from 'lexical';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect} from 'react';
 
 
 import {
@@ -56,14 +54,15 @@ import {
   $isImageRenderNode,
   ImageCaptionNode,
   ImageNode,
-  ImagePayload,
 } from '../../nodes/ImageNode';
 import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
 import { preloadImage } from '../../nodes/imageCache';
 
 import {
+  INSERT_IMAGE_COMMAND,
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
   SET_IMAGE_SIZE_COMMAND,
+  type InsertImagePayload,
   type SetImageCaptionVisibilityPayload,
   type SetImageSizePayload,
 } from './commands';
@@ -74,45 +73,6 @@ import {
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import { useMessages } from '@/components/common/withMessages'
 import { WithMessagesMessage } from '@/components/layout/FlashMessages';
-import LWDialog from '@/components/common/LWDialog';
-import { DialogTitle } from '@/components/widgets/DialogTitle';
-import { DialogContent } from '@/components/widgets/DialogContent';
-import { DialogActions } from '@/components/widgets/DialogActions';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-
-const imageDialogStyles = defineStyles('InsertImageDialog', (theme: ThemeType) => ({
-  paper: {
-    width: 400,
-  },
-  fileInputWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  fileInputLabel: {
-    color: theme.palette.grey[600],
-    marginRight: 12,
-    fontSize: 14,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  errorText: {
-    color: theme.palette.error.main,
-    marginTop: 8,
-    fontSize: 14,
-  },
-  modeButtonsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-  },
-}));
-
-export type InsertImagePayload = Readonly<ImagePayload>;
-
-export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCommand('INSERT_IMAGE_COMMAND');
 
 function findCaptionAncestor(node: LexicalNode | null): ImageCaptionNode | null {
   let current: LexicalNode | null = node;
@@ -153,220 +113,6 @@ function updateCaptionEmptyFromMutations(
       }
     }
   });
-}
-
-export function InsertImageUriDialogBody({
-  onClick,
-}: {
-  onClick: (payload: InsertImagePayload) => void;
-}) {
-  const [src, setSrc] = useState('');
-  const [altText, setAltText] = useState('');
-
-  const isDisabled = src === '';
-
-  return (
-    <>
-      <TextField
-        label="Image URL"
-        placeholder="i.e. https://source.unsplash.com/random"
-        onChange={(e) => setSrc(e.target.value)}
-        value={src}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-url-input"
-      />
-      <TextField
-        label="Alt Text"
-        placeholder="Random unsplash image"
-        onChange={(e) => setAltText(e.target.value)}
-        value={altText}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-alt-text-input"
-      />
-      <DialogActions>
-        <Button
-          color="primary"
-          data-test-id="image-modal-confirm-btn"
-          disabled={isDisabled}
-          onClick={() => onClick({altText, src})}>
-          Confirm
-        </Button>
-      </DialogActions>
-    </>
-  );
-}
-
-export function InsertImageUploadedDialogBody({
-  onClick,
-  onError,
-}: {
-  onClick: (payload: InsertImagePayload) => void;
-  onError?: (error: Error) => void;
-}) {
-  const { forumType } = useForumType();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [altText, setAltText] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const isDisabled = !selectedFile || isUploading;
-
-  const handleFileSelect = (files: FileList | null) => {
-    setUploadError(null);
-    if (files && files[0]) {
-      setSelectedFile(files[0]);
-      if (!altText) {
-        setAltText(files[0].name);
-      }
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!selectedFile) return;
-
-    setIsUploading(true);
-    setUploadError(null);
-
-    abortControllerRef.current = new AbortController();
-
-    try {
-      const result = await uploadToCloudinary(selectedFile, forumType, {
-        signal: abortControllerRef.current.signal,
-      });
-
-      onClick({
-        altText,
-        src: result.secure_url,
-        width: result.width,
-        height: result.height,
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return;
-      }
-
-      const errorMessage = error instanceof ImageUploadError && error.isUserFacing
-        ? error.message
-        : 'Failed to upload image. Please try again.';
-      
-      setUploadError(errorMessage);
-      
-      if (onError && error instanceof Error) {
-        onError(error);
-      }
-    } finally {
-      setIsUploading(false);
-      abortControllerRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  const classes = useStyles(imageDialogStyles);
-
-  return (
-    <>
-      <div className={classes.fileInputWrapper}>
-        <label className={classes.fileInputLabel}>Image Upload</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileSelect(e.target.files)}
-          data-test-id="image-modal-file-upload"
-        />
-      </div>
-      <TextField
-        label="Alt Text"
-        placeholder="Descriptive alternative text"
-        onChange={(e) => setAltText(e.target.value)}
-        value={altText}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-alt-text-input"
-      />
-      {uploadError && (
-        <div className={classes.errorText}>
-          {uploadError}
-        </div>
-      )}
-      <DialogActions>
-        <Button
-          color="primary"
-          data-test-id="image-modal-file-upload-btn"
-          disabled={isDisabled}
-          onClick={handleConfirm}>
-          {isUploading ? 'Uploading...' : 'Confirm'}
-        </Button>
-      </DialogActions>
-    </>
-  );
-}
-
-export function InsertImageDialog({
-  activeEditor,
-  onClose,
-  onError,
-}: {
-  activeEditor: LexicalEditor;
-  onClose: () => void;
-  onError?: (error: Error) => void;
-}): JSX.Element {
-  const [mode, setMode] = useState<null | 'url' | 'file'>(null);
-  const classes = useStyles(imageDialogStyles);
-  const hasModifier = useRef(false);
-
-  useEffect(() => {
-    hasModifier.current = false;
-    const handler = (e: KeyboardEvent) => {
-      hasModifier.current = e.altKey;
-    };
-    document.addEventListener('keydown', handler);
-    return () => {
-      document.removeEventListener('keydown', handler);
-    };
-  }, [activeEditor]);
-
-  const onClick = (payload: InsertImagePayload) => {
-    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
-    onClose();
-  };
-
-  return (
-    <LWDialog open={true} onClose={onClose} maxWidth={false} paperClassName={classes.paper}>
-      <DialogTitle>Insert Image</DialogTitle>
-      <DialogContent>
-        {!mode && (
-          <div className={classes.modeButtonsContainer}>
-            <Button
-              variant="outlined"
-              data-test-id="image-modal-option-url"
-              onClick={() => setMode('url')}>
-              URL
-            </Button>
-            <Button
-              variant="outlined"
-              data-test-id="image-modal-option-file"
-              onClick={() => setMode('file')}>
-              File
-            </Button>
-          </div>
-        )}
-        {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-        {mode === 'file' && (
-          <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
-        )}
-      </DialogContent>
-    </LWDialog>
-  );
 }
 
 function flashUploadError(

@@ -31,6 +31,15 @@ export const replaceTextToolSchema = z.object({
   mode: modeSchema,
 });
 
+export const replaceImageToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name of the agent replacing the image"),
+  currentSrc: z.string().url().describe("The exact current image URL from the draft markdown"),
+  replacementSrc: z.string().url().describe("The URL of the replacement image"),
+  altText: z.string().optional().describe("New alt text; omit to preserve the existing alt text"),
+});
+
 export const replaceWidgetToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

@@ -53,10 +53,13 @@ import {DialogActions} from '../ui/Dialog';
 import { ChatLeftTextIcon } from '../icons/ChatLeftTextIcon';
 import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
 import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
+import { FileImageIcon } from '../icons/FileImageIcon';
 import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
 import Loading from '@/components/vulcan-core/Loading';
 import { imageCache, ImageStatus } from './imageCache';
+import { ImagePickerDialogContent } from '../plugins/ImagesPlugin/ImageDialog';
+import type { InsertImagePayload } from '../plugins/ImagesPlugin/commands';
 
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
@@ -659,6 +662,29 @@ export default function ImageComponent({
     ));
   };
 
+  const replaceImage = (payload: InsertImagePayload) => {
+    editor.update(() => {
+      const node = $getNodeByKey(imageNodeKey);
+      if ($isImageNode(node)) {
+        node.setSrc(payload.src);
+        node.setSrcset(payload.srcset ?? null);
+        node.setAltText(payload.altText);
+      }
+    });
+  };
+
+  const openReplaceImageModal = () => {
+    showModal('Replace Image', (onClose) => (
+      <ImagePickerDialogContent
+        initialAltText={altText}
+        onClick={(payload) => {
+          replaceImage(payload);
+          onClose();
+        }}
+      />
+    ));
+  };
+
   const openCommentInput = () => {
     const imageElement = imageRef.current;
     if (!imageElement) {
@@ -673,6 +699,14 @@ export default function ImageComponent({
       <div className={classes.imageContainer}>
         {showToolbar && (
           <div className={classes.toolbar}>
+            <button
+              type="button"
+              className={classes.toolbarButton}
+              onClick={openReplaceImageModal}
+              title="Replace image">
+              <FileImageIcon className={classes.toolbarIcon} />
+              Replace
+            </button>
             <button
               type="button"
               className={classes.toolbarButton}

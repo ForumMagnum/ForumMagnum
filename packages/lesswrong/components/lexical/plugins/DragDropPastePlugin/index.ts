@@ -13,7 +13,7 @@ import {isMimeType} from '@lexical/utils';
 import {COMMAND_PRIORITY_LOW} from 'lexical';
 import {useEffect, useRef} from 'react';
 
-import {INSERT_IMAGE_COMMAND} from '../ImagesPlugin';
+import {INSERT_IMAGE_COMMAND} from '../ImagesPlugin/commands';
 import {
   uploadToCloudinary,
   ImageUploadError,

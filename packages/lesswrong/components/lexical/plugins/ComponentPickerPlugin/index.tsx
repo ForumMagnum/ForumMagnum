@@ -36,7 +36,7 @@ import { useDialog, type OpenDialogContextType } from '@/components/common/withD
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
-import {InsertImageDialog} from '../ImagesPlugin';
+import {InsertImageDialog} from '../ImagesPlugin/ImageDialog';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';

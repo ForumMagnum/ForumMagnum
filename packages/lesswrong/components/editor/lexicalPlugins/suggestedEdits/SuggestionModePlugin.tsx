@@ -54,10 +54,11 @@ import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
 import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
 import { $handleLinkChangeSuggestion } from './handleLinkChangeSuggestion'
 import { generateSuggestionSummary } from './generateSuggestionSummary'
-import { INSERT_IMAGE_COMMAND, type InsertImagePayload } from '@/components/lexical/plugins/ImagesPlugin'
 import {
+  INSERT_IMAGE_COMMAND,
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
   SET_IMAGE_SIZE_COMMAND,
+  type InsertImagePayload,
 } from '@/components/lexical/plugins/ImagesPlugin/commands'
 import {
   $handleImageDragAndDropAsSuggestion,

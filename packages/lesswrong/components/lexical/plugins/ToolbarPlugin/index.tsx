@@ -120,11 +120,11 @@ import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
+import { InsertImageDialog } from '../ImagesPlugin/ImageDialog';
 import {
   INSERT_IMAGE_COMMAND,
-  InsertImageDialog,
-  InsertImagePayload,
-} from '../ImagesPlugin';
+  type InsertImagePayload,
+} from '../ImagesPlugin/commands';
 // import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 // import {InsertPollDialog} from '../PollPlugin';
 import {SHORTCUTS} from '../ShortcutsPlugin/shortcuts';
