@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useOnNavigate } from '../hooks/useOnNavigate';
+import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from './withErrorBoundary';
 import { isSearchEnabled } from '../../lib/search/searchUtil';
@@ -56,16 +56,22 @@ const SearchBar = ({onSetIsActive}: {
 }) => {
   const classes = useStyles(styles);
   const shortcutModifier = usePrimaryShortcutModifier();
-  const [inputOpen, setInputOpen] = useState(false);
+  const navigate = useNavigate();
+  const {location} = useSubscribedLocation();
+  const inputOpen = new URLSearchParams(location.search).get('searchOpen') === '1';
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {setMounted(true);}, []);
+  useEffect(() => {onSetIsActive(inputOpen);}, [inputOpen, onSetIsActive]);
   const closeSearch = () => {
-    setInputOpen(false);
-    onSetIsActive(false);
+    const params = new URLSearchParams(location.search);
+    params.delete('searchOpen');
+    navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
   };
   const handleSearchTap = () => {
-    setInputOpen(true);
-    onSetIsActive(true);
+    const params = new URLSearchParams(location.search);
+    params.set('searchOpen', '1');
+    navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
   };
-  useOnNavigate(closeSearch);
 
   useGlobalKeydown((event) => {
     if (event.defaultPrevented || !isSearchEnabled() || event.isComposing
@@ -105,7 +111,7 @@ const SearchBar = ({onSetIsActive}: {
         </> : 'Ctrl+K'}
       </KeyboardShortcut>
     </IconButton>
-    {inputOpen && <SearchModal onClose={closeSearch} />}
+    {mounted && inputOpen && <SearchModal key={location.pathname} onClose={closeSearch} />}
   </div>;
 };
 

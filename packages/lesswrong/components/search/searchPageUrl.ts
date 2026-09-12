@@ -18,14 +18,30 @@ export interface SearchPageState {
   kinds: SearchIndexCollectionName[];
   sort: SearchSortSpec[];
   filters: SearchFilterState;
+  expandedFilters: string[];
+  mobileFiltersOpen: boolean;
 }
 
 export const defaultSearchPageState: SearchPageState = {
   query: "",
+  expandedFilters: ["authors"],
+  mobileFiltersOpen: false,
   kinds: [],
   sort: searchSortFromUrlParam(undefined),
   filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes, events: "exclude"},
 };
+
+const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types", "karma"]);
+const searchParameterNames = ["query", "kinds", "contentType", "sort", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
+
+/** Preserve unrelated parameters, including repeated values, while replacing search state. */
+export function mergeSearchPageParams(search: string, state: SearchPageState): string {
+  const params = new URLSearchParams(search);
+  for (const key of searchParameterNames) params.delete(key);
+  const query = searchPageStateToQuery(state);
+  for (const [key, value] of Object.entries(query)) params.set(key, value);
+  return params.toString();
+}
 
 const dayMs = 24 * 60 * 60 * 1000;
 const karmaPattern = /^(-?\d+)?-(-?\d+)?$/;
@@ -80,6 +96,8 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
   return {
     query: query.query ?? "",
+    expandedFilters: query.expanded === undefined ? ["authors"] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
+    mobileFiltersOpen: query.mobileFilters === "1",
     kinds,
     sort: searchSortFromUrlParam(query.sort),
     filters: {
@@ -101,6 +119,8 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
   const {filters} = state;
   const entries: [string, string | undefined][] = [
     ["query", state.query || undefined],
+    ["expanded", state.expandedFilters.length === 1 && state.expandedFilters[0] === "authors" ? undefined : state.expandedFilters.join(",")],
+    ["mobileFilters", state.mobileFiltersOpen ? "1" : undefined],
     ["kinds", state.kinds.length ? state.kinds.join(",") : undefined],
     ["sort", searchSortToUrlParam(state.sort)],
     ["tags", filters.tagIds.length ? filters.tagIds.join(",") : undefined],

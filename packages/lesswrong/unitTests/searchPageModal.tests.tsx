@@ -1,13 +1,13 @@
 /** @jest-environment jsdom */
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import SearchPage from '../components/search/SearchPage';
 
 const mockNavigate = jest.fn();
 const mockLocation = {pathname: '/posts/example', search: '?context=keep-me', hash: '#comment'};
 jest.mock('@/lib/routeUtil', () => ({
   useNavigate: () => mockNavigate,
-  useSubscribedLocation: () => ({location: mockLocation, query: {context: 'keep-me', query: 'unrelated'}}),
+  useSubscribedLocation: () => ({location: mockLocation, query: Object.fromEntries(new URLSearchParams(mockLocation.search))}),
 }));
 jest.mock('next/navigation', () => ({usePathname: () => '/posts/example'}));
 jest.mock('@/components/hooks/useStyles', () => ({useStyles: () => ({}), defineStyles: () => ({})}));
@@ -40,17 +40,23 @@ jest.mock('../components/search/ExpandedSequencesSearchHit', () => ({__esModule:
 
 beforeEach(() => {
   localStorage.clear();
-  mockNavigate.mockClear();
+  mockLocation.pathname = '/posts/example';
+  mockLocation.search = '?context=keep-me';
+  mockNavigate.mockReset();
   wideScreen = true;
 });
 
-it('keeps modal searches separate from the underlying page URL', () => {
+it('writes modal searches while preserving the underlying page URL and open state', () => {
+  mockLocation.search = '?context=keep-me&searchOpen=1';
   render(<SearchPage presentation="modal" onClose={jest.fn()} />);
   const input = screen.getByRole('searchbox');
   expect(input.getAttribute('value')).toBe('');
   fireEvent.change(input, {target: {value: 'alignment'}});
   fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
-  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(mockNavigate).toHaveBeenLastCalledWith(expect.objectContaining({pathname: '/posts/example', hash: '#comment', search: expect.stringContaining('context=keep-me')}), {replace: true, skipRouter: true});
+  expect(mockNavigate.mock.calls.at(-1)?.[0].search).toContain('query=alignment');
+  expect(mockNavigate.mock.calls.at(-1)?.[0].search).toContain('searchOpen=1');
+  expect(mockNavigate.mock.calls.at(-1)?.[0].search).toContain('kinds=Posts');
   expect(input.getAttribute('value')).toBe('alignment');
 });
 
@@ -215,13 +221,14 @@ it('restores the last modal query and filters after unmounting', () => {
   fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
   fireEvent.click(screen.getByRole('button', {name: /Timeframe/}));
   fireEvent.change(screen.getByLabelText('From date'), {target: {value: '2020-01-01'}});
+  mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search ?? ''}`;
   unmount();
 
   render(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('alignment');
   expect(screen.getByRole('checkbox', {name: 'Post'}).getAttribute('aria-checked')).toBe('true');
   expect(screen.getByRole('button', {name: /Timeframe/}).textContent).toContain('2020-01-01');
-  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(screen.getByRole('region', {name: 'Timeframe'})).toBeTruthy();
 });
 
 it.each([true, false])('clearing all filters restores the timeline overview (date filter: %s)', withDateFilter => {
@@ -253,6 +260,7 @@ it('persists clearing filters without clearing the query', () => {
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'alignment'}});
   fireEvent.click(screen.getByRole('checkbox', {name: 'Post'}));
   fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
+  mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search ?? ''}`;
   unmount();
 
   render(<SearchPage presentation="modal" />);
@@ -280,6 +288,7 @@ it('keeps author pills at the end of the search field synchronized with the auth
   expect(field.queryByRole('button', {name: 'Remove bob'})).toBeNull();
   expect(input.getAttribute('value')).toBe('alignment');
   fireEvent.click(screen.getByRole('button', {name: 'Select Bob'}));
+  mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search ?? ''}`;
   unmount();
   render(<SearchPage presentation="modal" />);
   const restoredField = within(screen.getByRole('searchbox').parentElement!);
@@ -287,4 +296,74 @@ it('keeps author pills at the end of the search field synchronized with the auth
   expect(restoredField.getByRole('button', {name: 'Remove bob'})).toBeTruthy();
   fireEvent.click(screen.getAllByRole('button', {name: 'Clear filters'})[0]);
   expect(restoredField.queryByRole('button', {name: 'Remove bob'})).toBeNull();
+});
+
+it('restores URL panels and starts fresh at a destination without search state', () => {
+  localStorage.setItem('search.lastModalState', 'query=stale&authors=alice');
+  mockLocation.search = '?context=one&context=two&query=shared&expanded=time,tags&mobileFilters=1';
+  const {unmount} = render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('shared');
+  expect(screen.getByRole('button', {name: 'Hide filters'}).getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByRole('region', {name: 'Timeframe'})).toBeTruthy();
+  expect(screen.getByRole('button', {name: /Wikitags/}).getAttribute('aria-expanded')).toBe('true');
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'edited'}});
+  const search = mockNavigate.mock.calls.at(-1)?.[0].search;
+  expect(new URLSearchParams(search).getAll('context')).toEqual(['one', 'two']);
+  unmount();
+  mockLocation.search = '?context=another-page';
+  render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('');
+  expect(screen.getByRole('button', {name: 'Filters'}).getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByRole('region', {name: 'Timeframe'})).toBeNull();
+});
+
+it('reloads external query changes without overwriting them with the previous state', () => {
+  const {rerender} = render(<SearchPage presentation="modal" />);
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'first'}});
+  mockNavigate.mockClear();
+  mockLocation.search = '?query=second&expanded=&kinds=Comments';
+  rerender(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('second');
+  expect(screen.getByRole('checkbox', {name: 'Comment'}).getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByRole('button', {name: /Author/}).getAttribute('aria-expanded')).toBe('false');
+  expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+it('leaves the destination untouched when navigation reaches another page before unmounting', () => {
+  const {rerender, unmount} = render(<SearchPage presentation="modal" />);
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'remember me'}});
+  mockNavigate.mockClear();
+  mockLocation.pathname = '/posts/destination';
+  mockLocation.search = '?context=destination';
+  rerender(<SearchPage presentation="modal" />);
+  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(localStorage.getItem('search.lastModalState')).toBeNull();
+  unmount();
+});
+
+it('never reads or writes local storage for modal state', () => {
+  localStorage.setItem('search.lastModalState', 'query=older');
+  const getItem = jest.spyOn(Storage.prototype, 'getItem');
+  const setItem = jest.spyOn(Storage.prototype, 'setItem');
+  try {
+    const {unmount} = render(<SearchPage presentation="modal" />);
+    expect(screen.getByRole('searchbox').getAttribute('value')).toBe('');
+    fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'new'}});
+    unmount();
+    expect(getItem).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
+  } finally {
+    getItem.mockRestore();
+    setItem.mockRestore();
+  }
+});
+
+it('acknowledges its URL writes without resetting a query containing spaces and punctuation', () => {
+  const {rerender} = render(<SearchPage presentation="modal" />);
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'a & b?'}});
+  mockLocation.search = `?${mockNavigate.mock.calls.at(-1)?.[0].search}`;
+  mockNavigate.mockClear();
+  rerender(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('a & b?');
+  expect(mockNavigate).not.toHaveBeenCalled();
 });

@@ -1,5 +1,5 @@
 import { emptySearchFilters, defaultSearchPostTypes, searchFiltersToParams } from "../lib/search/searchFilters";
-import { searchPageStateFromQuery, searchPageStateToQuery, defaultSearchPageState, searchPageLink } from "../components/search/searchPageUrl";
+import { searchPageStateFromQuery, searchPageStateToQuery, defaultSearchPageState, searchPageLink, mergeSearchPageParams } from "../components/search/searchPageUrl";
 import { defaultSearchSort } from "../lib/search/searchSorting";
 
 it("reads a bare query and writes back only non-default state", () => {
@@ -48,8 +48,8 @@ it("drops unknown kinds, post types and malformed ranges instead of guessing", (
 });
 
 it("treats absent post types as the default and writes every other selection", () => {
-  expect(searchPageStateFromQuery({}).filters.postTypes).toEqual(["article", "question", "linkpost", "shortform"]);
-  expect(searchPageStateFromQuery({types: "poem"}).filters.postTypes).toEqual(["article", "question", "linkpost", "shortform"]);
+  expect(searchPageStateFromQuery({}).filters.postTypes).toEqual(defaultSearchPostTypes);
+  expect(searchPageStateFromQuery({types: "poem"}).filters.postTypes).toEqual(defaultSearchPostTypes);
   const everything = ["article", "question", "linkpost", "shortform", "event"] as const;
   const state = {...defaultSearchPageState, filters: {...defaultSearchPageState.filters, postTypes: [...everything]}};
   expect(searchPageStateToQuery(state)).toEqual({types: everything.join(",")});
@@ -99,4 +99,18 @@ it("preserves sidebar content kinds and safely encodes the query in advanced lin
   expect(url.pathname).toBe("/search");
   expect(searchPageStateFromQuery(Object.fromEntries(url.searchParams))).toMatchObject({query: "a & b?", kinds: ["Posts", "Comments"]});
   expect(new URL(searchPageLink("x", []), "https://example.com").searchParams.has("kinds")).toBe(false);
+});
+
+it("round-trips collapsed panels and the mobile filters toggle", () => {
+  const query = {expanded: "", mobileFilters: "1"};
+  const state = searchPageStateFromQuery(query);
+  expect(state).toMatchObject({expandedFilters: [], mobileFiltersOpen: true});
+  expect(searchPageStateToQuery(state)).toEqual(query);
+  expect(searchPageStateFromQuery({expanded: "time,unknown,tags,time"})).toMatchObject({expandedFilters: ["time", "tags"]});
+});
+
+it("clears default search state without adding a persistence marker or losing modal visibility", () => {
+  expect(mergeSearchPageParams("?query=old&searchOpen=1&context=one&context=two", defaultSearchPageState))
+    .toBe("searchOpen=1&context=one&context=two");
+  expect(mergeSearchPageParams("?query=old", defaultSearchPageState)).toBe("");
 });
