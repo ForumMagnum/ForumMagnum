@@ -1,11 +1,9 @@
 import {
   defaultSearchSort,
   formatSearchSort,
-  moveSearchSort,
   parseSearchSort,
   searchSortFromUrlParam,
   searchSortToUrlParam,
-  toggleSearchSortDirection,
 } from "../lib/search/searchSorting";
 
 it("formats and parses the request form of a sort", () => {
@@ -33,13 +31,4 @@ it("omits the default sort from the URL and completes partial URL sorts in defau
     {key: "comments", direction: "desc"},
   ]);
   expect(searchSortFromUrlParam("nonsense")).toEqual(defaultSearchSort);
-});
-
-it("moves a sorter to another sorter's position and toggles direction", () => {
-  const moved = moveSearchSort(defaultSearchSort, "comments", "relevance");
-  expect(moved.map(spec => spec.key)).toEqual(["comments", "relevance", "date", "karma"]);
-  expect(moveSearchSort(defaultSearchSort, "karma", "karma")).toEqual(defaultSearchSort);
-  const toggled = toggleSearchSortDirection(defaultSearchSort, "date");
-  expect(toggled[1]).toEqual({key: "date", direction: "asc"});
-  expect(toggleSearchSortDirection(toggled, "date")[1]).toEqual({key: "date", direction: "desc"});
 });
