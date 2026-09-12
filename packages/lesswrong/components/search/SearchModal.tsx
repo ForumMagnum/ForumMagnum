@@ -23,7 +23,7 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     height: 'var(--search-viewport-height, 100dvh)',
     top: 'var(--search-viewport-top, 0px)',
     [theme.breakpoints.down('sm')]: {
-      padding: 'max(8px, env(safe-area-inset-top)) 8px 8px 48px',
+      padding: 'max(8px, env(safe-area-inset-top)) 8px 8px',
       alignItems: 'stretch',
     },
   },
