@@ -2,6 +2,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
+import ChevronDoubleRightIcon from '@heroicons/react/20/solid/ChevronDoubleRightIcon';
 import { usePathname } from 'next/navigation';
 import { InstantSearch } from '@/lib/utils/componentsWithChildren';
 import {
@@ -11,7 +12,7 @@ import {
   isSearchEnabled,
 } from '@/lib/search/searchUtil';
 import { formatSearchSort } from '@/lib/search/searchSorting';
-import { searchFiltersToParams, SearchFilterState, emptySearchFilters, defaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
+import { searchFiltersToParams, SearchFilterState, defaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
 import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -23,7 +24,7 @@ import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchA
 import { useSearchHistory } from './useSearchHistory';
 import { useSearchPageNavigation } from './useSearchPageNavigation';
 import { SearchBarHit, useSearchResults } from './useSearchResults';
-import { SearchPageState, searchPageStateFromQuery, searchPageStateToQuery, mergeSearchPageParams } from './searchPageUrl';
+import { defaultSearchPageState, SearchPageState, searchPageStateFromQuery, searchPageStateToQuery, mergeSearchPageParams } from './searchPageUrl';
 import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
 import SearchWikitagsBar from './SearchWikitagsBar';
 import SearchTimeframeBar from './SearchTimeframeBar';
@@ -84,6 +85,11 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
       backgroundClip: 'padding-box',
     },
     '& $sidebar': {
+      minWidth: 0,
+      '&[hidden]': {
+        display: 'block', visibility: 'hidden',
+        [theme.breakpoints.down('sm')]: {display: 'none'},
+      },
       maxHeight: 'calc(var(--search-viewport-height, 100dvh) - 56px)',
       top: 8,
       marginTop: 8,
@@ -106,6 +112,8 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
       overflowY: 'auto',
       overscrollBehavior: 'contain',
       gridTemplateColumns: '340px minmax(0, 1fr)',
+      transition: 'grid-template-columns 320ms cubic-bezier(0.2, 0, 0, 1)',
+      '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
       gridTemplateAreas: '"sidebar results"',
     },
     [theme.breakpoints.down('sm')]: {
@@ -145,7 +153,7 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {padding: '4px 8px 8px', marginTop: 8},
   },
   // Rendered into the modal's slot above the dialog box. It stays mounted while
-  // collapsed so the dialog box keeps the same place on screen.
+  // collapsed so its containing grid can animate the timeline's height.
   // It sits flush on the dialog box and paints above it. The clip drops the
   // shadow below its bottom edge so the two boxes read as one.
   timeframePanelModal: {
@@ -162,10 +170,51 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
   timeframePanelCollapsed: {
     visibility: 'hidden',
   },
-  mobileFiltersToggle: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {display: 'inline-flex', alignItems: 'center'},
+  filterTab: {
+    ...theme.typography.body2,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-start',
+    minHeight: 40, width: 40, padding: '0 10px', gap: 8,
+    overflow: 'hidden', whiteSpace: 'nowrap', flexShrink: 0,
+    border: 'none', borderRadius: '0 4px 4px 0', background: 'transparent',
+    color: theme.palette.text.dim, cursor: 'pointer',
+    transition: 'width 200ms ease-out, background-color 200ms ease-out',
+    '&:hover, &:focus-visible': {
+      width: 144,
+      backgroundColor: theme.palette.greyAlpha(0.04),
+      '& $filterTabLabel': {opacity: 1},
+    },
+    '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: -2},
+    '&[aria-expanded="true"]': {width: 144, '& $filterTabLabel': {opacity: 1}},
+    '@media (hover: none)': {width: 144, '& $filterTabLabel': {opacity: 1}},
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
   },
+  filterTabModal: {
+    position: 'absolute', right: 'calc(100% - 104px)', top: 8,
+    width: 144, padding: '0 10px', borderRadius: '4px 0 0 4px',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: `-4px 2px 12px ${theme.palette.boxShadowColor(0.12)}`,
+    transition: 'transform 220ms cubic-bezier(0.2, 0, 0, 1)',
+    '& $filterTabIcon': {transform: 'rotate(180deg)'},
+    '&:hover, &:focus-visible': {
+      transform: 'translateX(-104px)',
+      backgroundColor: theme.palette.background.paper,
+    },
+    '&[aria-expanded="true"]': {
+      '& $filterTabLabel': {opacity: 0},
+      '& $filterTabIcon': {transform: 'rotate(0deg)'},
+      '&:hover $filterTabLabel, &:focus-visible $filterTabLabel': {opacity: 1},
+    },
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+  },
+  filterTabLabel: {
+    opacity: 0, fontSize: 13, transition: 'opacity 150ms ease-out',
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+  },
+  filterTabIcon: {
+    width: 20, height: 20, flexShrink: 0, transition: 'transform 200ms ease-out',
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+  },
+  filterTabIconOpen: {transform: 'rotate(180deg)'},
   closeButton: {
     ...theme.typography.body2,
     border: 'none',
@@ -212,6 +261,7 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
   },
   sidebar: {
     gridArea: "sidebar",
+    "&[hidden]": {display: "none"},
     position: "sticky",
     top: "calc(var(--header-height) + 16px)",
     marginTop: 16,
@@ -234,12 +284,28 @@ const styles = defineStyles("SearchPageResults", (theme: ThemeType) => ({
       maxHeight: "none",
       overflow: "visible",
       scrollbarGutter: "auto",
-      display: "none",
       marginTop: 0,
     },
   },
-  mobileFiltersOpen: {
-    [theme.breakpoints.down('sm')]: {display: 'block'},
+  filtersClosed: {
+    '&$modal $layout': {
+      gridTemplateColumns: '0px minmax(0, 1fr)',
+      gridTemplateAreas: '"sidebar results"',
+      gap: 0,
+      [theme.breakpoints.down('sm')]: {
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        gridTemplateAreas: '"controls" "hits"',
+      },
+    },
+    '& $layout': {
+      gridTemplateColumns: 'minmax(0, 760px)',
+      gridTemplateAreas: '"results"',
+      justifyContent: 'center',
+      [theme.breakpoints.down('sm')]: {
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        gridTemplateAreas: '"controls" "hits"',
+      },
+    },
   },
   results: {
     gridArea: "results",
@@ -424,9 +490,10 @@ interface SearchPageProps {
   onClose?: () => void,
   /** Where the modal shows the timeline on wide screens: above its dialog box instead of inside the search layout. */
   timeframeSlot?: HTMLElement | null,
+  filterTabSlot?: HTMLElement | null,
 }
 
-const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot}: SearchPageProps) => {
+const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot, filterTabSlot}: SearchPageProps) => {
   // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
   const pathname = usePathname();
   const classes = useStyles(styles);
@@ -452,8 +519,8 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const openedPathname = useRef(location.pathname);
   const [state, setState] = useState<SearchPageState>(() =>
     searchPageStateFromQuery(Object.fromEntries(new URLSearchParams(location.search))));
-  const {expandedFilters, mobileFiltersOpen} = state;
-  const timeframeOpen = expandedFilters.includes('time');
+  const {expandedFilters, mobileFiltersOpen: filtersOpen} = state;
+  const timeframeOpen = filtersOpen && expandedFilters.includes('time');
   useEffect(() => {
     if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
   }, [timeframeOpen, presentation]);
@@ -557,12 +624,12 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     toggleFilter('time');
     scrollRef.current?.querySelector<HTMLButtonElement>(`button[aria-controls="${timeframeId}"]`)?.focus({preventScroll: true});
   };
-  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...emptySearchFilters, dateRange: {}, postTypes: defaultSearchPostTypes}}));
+  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...defaultSearchPageState.filters}}));
   const {dateRange, karmaRange} = state.filters;
   const hasDateFilter = dateRange.start !== undefined || dateRange.end !== undefined;
   const hasKarmaFilter = karmaRange.min !== undefined || karmaRange.max !== undefined;
   const hasPostFilter = state.filters.postTypes.length > 0 && state.filters.postTypes.length !== defaultSearchPostTypes.length;
-  const hasFilters = hasDateFilter || hasKarmaFilter || hasPostFilter || state.filters.events !== "include" || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
+  const hasFilters = hasDateFilter || hasKarmaFilter || hasPostFilter || state.filters.events !== defaultSearchPageState.filters.events || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
   const dateSummary = hasDateFilter ? `${dateRange.start === undefined ? "Beginning" : new Date(dateRange.start).toISOString().slice(0, 10)} – ${dateRange.end === undefined ? "Today" : new Date(dateRange.end).toISOString().slice(0, 10)}` : "All time";
   const showHistoryHint = !!currentUser && inputFocused && !state.query;
   const timeframePanel = (timeframeOpen || !!timeframeSlot) && <section
@@ -575,12 +642,26 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     </SearchTimeframeBar>
   </section>;
 
-  return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal'})}>
+  const filterTab = (
+    <button type="button" className={classNames(classes.filterTab, {[classes.filterTabModal]: !!filterTabSlot})} aria-label="Filter results"
+      aria-expanded={filtersOpen} aria-controls={`${filtersId} ${timeframeId}`}
+      onClick={() => setState(previous => ({
+        ...previous,
+        mobileFiltersOpen: !previous.mobileFiltersOpen,
+        expandedFilters: previous.mobileFiltersOpen ? previous.expandedFilters : [...defaultSearchPageState.expandedFilters],
+      }))}>
+      <ChevronDoubleRightIcon aria-hidden="true" className={classNames(classes.filterTabIcon, {[classes.filterTabIconOpen]: filtersOpen})} />
+      <span className={classes.filterTabLabel}>filter results</span>
+    </button>
+  );
+
+  return <div key={pathname} ref={scrollRef} className={classNames(classes.root, {[classes.modal]: presentation === 'modal', [classes.filtersClosed]: !filtersOpen})}>
     {/* Snippet widgets in the hit components need this context. Its static empty query does not search Elasticsearch. */}
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
+      {filterTabSlot && createPortal(filterTab, filterTabSlot)}
       {isDesktop && timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
       <div ref={layoutRef} className={classes.layout}>
-        <aside id={filtersId} className={classNames(classes.sidebar, {[classes.mobileFiltersOpen]: mobileFiltersOpen})} aria-label="Search options">
+        <aside id={filtersId} className={classes.sidebar} hidden={!filtersOpen} aria-label="Search options">
           <SearchFilterRow label="Timeframe" expandDirection={isDesktop ? "up" : "down"} summary={dateSummary} active={hasDateFilter} expanded={timeframeOpen}
             controlsId={timeframeId} onToggle={() => toggleFilter('time')} onReset={() => setFilters({dateRange: {}})} />
           {!isDesktop && timeframePanel}
@@ -592,7 +673,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
               <SearchWikitagsBar match={state.filters.tagMatch} onMatchChange={(tagMatch) => setFilters({tagMatch})} tagIds={state.filters.tagIds} onChange={(tagIds) => setFilters({tagIds})} />
             </SearchFilterRow>
-            <SearchFilterRow label="Events" summary={state.filters.events === "include" ? "Included" : state.filters.events === "exclude" ? "Excluded" : "Only events"} active={state.filters.events !== "include"} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: "include"})}>
+            <SearchFilterRow label="Events" summary={state.filters.events === "include" ? "Included" : state.filters.events === "exclude" ? "Excluded (default)" : "Only events"} active={state.filters.events !== defaultSearchPageState.filters.events} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: defaultSearchPageState.filters.events})}>
               <SearchEventsBar value={state.filters.events} onChange={(events) => setFilters({events})} />
             </SearchFilterRow>
             <SearchFilterRow label="Post types" summary={hasPostFilter ? state.filters.postTypes.map(type => searchPostTypeLabels[type]).join(", ") : "All post types"} active={hasPostFilter} expanded={expandedFilters.includes("types")} onToggle={() => toggleFilter("types")} onReset={() => setFilters({postTypes: defaultSearchPostTypes})}>
@@ -613,6 +694,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               recordSearch(state.query);
               inputRef.current?.blur();
             }}>
+              {!filterTabSlot && filterTab}
               <div className={classes.searchInputArea}>
                 <ForumIcon icon="Search" className={classes.searchIcon} />
                 <input
@@ -653,11 +735,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
               onClear={() => setState(previous => ({...previous, kinds: []}))}
               onToggle={(type) => setState(previous => ({...previous, kinds: toggleSearchKind(previous.kinds, type)}))}
             />
-            <button type="button" className={classNames(classes.clearFilters, classes.mobileFiltersToggle)}
-              aria-expanded={mobileFiltersOpen} aria-controls={filtersId}
-              onClick={() => setState(previous => ({...previous, mobileFiltersOpen: !previous.mobileFiltersOpen}))}>
-              {mobileFiltersOpen ? 'Hide filters' : 'Filters'}
-            </button>
           </div>
           <div className={classes.resultsContent}>
             <ErrorBoundary>

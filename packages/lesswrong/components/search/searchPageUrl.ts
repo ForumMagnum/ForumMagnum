@@ -19,12 +19,13 @@ export interface SearchPageState {
   sort: SearchSortSpec[];
   filters: SearchFilterState;
   expandedFilters: string[];
+  /** Controls the whole filter drawer; the name preserves the existing URL format. */
   mobileFiltersOpen: boolean;
 }
 
 export const defaultSearchPageState: SearchPageState = {
   query: "",
-  expandedFilters: ["authors"],
+  expandedFilters: ["time", "authors", "tags", "events", "types", "karma"],
   mobileFiltersOpen: false,
   kinds: [],
   sort: searchSortFromUrlParam(undefined),
@@ -96,7 +97,7 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
   return {
     query: query.query ?? "",
-    expandedFilters: query.expanded === undefined ? ["authors"] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
+    expandedFilters: query.expanded === undefined ? [...defaultSearchPageState.expandedFilters] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
     mobileFiltersOpen: query.mobileFilters === "1",
     kinds,
     sort: searchSortFromUrlParam(query.sort),
@@ -119,7 +120,7 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
   const {filters} = state;
   const entries: [string, string | undefined][] = [
     ["query", state.query || undefined],
-    ["expanded", state.expandedFilters.length === 1 && state.expandedFilters[0] === "authors" ? undefined : state.expandedFilters.join(",")],
+    ["expanded", state.expandedFilters.length === searchFilterPanels.size && state.expandedFilters.every(key => searchFilterPanels.has(key)) ? undefined : state.expandedFilters.join(",")],
     ["mobileFilters", state.mobileFiltersOpen ? "1" : undefined],
     ["kinds", state.kinds.length ? state.kinds.join(",") : undefined],
     ["sort", searchSortToUrlParam(state.sort)],
