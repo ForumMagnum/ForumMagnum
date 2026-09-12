@@ -46,14 +46,14 @@ const styles = defineStyles('ReviewPostComments', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse}: {
+const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, hideReviewVoteButtons, showCollapseButtons}: {
   terms: CommentsViewTerms,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
   placeholderCount?: number,
   hideReviewVoteButtons?: boolean
-  singleLineCollapse?: boolean
+  showCollapseButtons?: boolean
 }) => {
   const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
@@ -99,7 +99,7 @@ const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, h
             highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
             hideSingleLineMeta: true,
             hideReviewVoteButtons: hideReviewVoteButtons,
-            singleLineCollapse: singleLineCollapse,
+            showCollapseButtons,
             enableHoverPreview: false,
             post: post,
             forceSingleLine: true

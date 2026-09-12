@@ -204,14 +204,11 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
             post: quickTake.post ?? undefined,
             hideParentCommentToggle: true,
             showCollapseButtons: false,
-            onToggleCollapsed: () => setExpanded(true),
           },
           comment: quickTake,
           showCommentTitle: false,
           showParentState,
           toggleShowParent,
-          collapsed: false,
-          toggleCollapse: () => setExpanded(true),
           setShowEdit,
           rightSectionElements: <div className={classes.commenterInfo}>
             {commentersElement}

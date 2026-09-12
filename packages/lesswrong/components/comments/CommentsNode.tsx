@@ -19,14 +19,17 @@ import { useStyles } from '@/components/hooks/useStyles';
 import AnimatedExpansion from '../common/AnimatedExpansion';
 import AnimatedCollapse from '../common/AnimatedCollapse';
 
+/**
+ * Comments with karma below this threshold start out collapsed to a single
+ * line, with their replies hidden.
+ */
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
 export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
   condensed: true,
-  singleLineCollapse: true,
   hideSingleLineMeta: true,
   forceSingleLine: true,
-  showCollapseButtons: false,
+  showCollapseButtons: true,
   initialShowEdit: true,
   hideReply: true
 };
@@ -67,6 +70,10 @@ export interface CommentsNodeProps {
    * expanded state to child comments
    */
   forceUnTruncated?: boolean,
+  /**
+   * If set, this comment does not start out collapsed to a single line because
+   * of low karma or being deleted. Not passed to child comments.
+   */
   forceUnCollapsed?: boolean,
   expandNewComments?: boolean,
   isChild?: boolean,
@@ -79,12 +86,6 @@ export interface CommentsNodeProps {
   loadDirectReplies?: boolean,
   showPinnedOnProfile?: boolean,
   enableGuidelines?: boolean,
-  /**
-   * Determines the karma threshold used to decide whether to collapse a comment.
-   * 
-   * Currently only overriden in the comment moderation tab.
-   */
-  karmaCollapseThreshold?: number,
   /**
    * Determines whether to expand this comment's parent comment (if it exists) by default.
    * 
@@ -101,19 +102,24 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const heightBeforeExpansionRef = useRef<number|null>(null);
+  // Height of the comment before it was expanded or collapsed, so the change can be animated
+  const heightBeforeResizeRef = useRef<number|null>(null);
+  // Whether the comment was collapsed with its [-] button (as opposed to
+  // starting out collapsed), in which case the single line appears under the
+  // mouse cursor and shouldn't immediately show its hover preview.
+  const collapsedWithButtonRef = useRef(false);
 
   const hasInContextLinks = commentPermalinkStyleSetting.get(forumType) === 'in-context';
 
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
 
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onCollapse } = treeOptions;
   const animateWholeThread = forceSingleLine && loadChildrenSeparately;
 
   const shouldUncollapseForAutoScroll = useCallback(() => {
@@ -126,9 +132,9 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
 
-  const beginCollapsed = useCallback(() => {
-    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
-  }, [comment.baseScore, comment.deleted, forceUnCollapsed, karmaCollapseThreshold, shouldUncollapseForAutoScroll])
+  const beginCollapsedToSingleLine = useCallback(() => {
+    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < KARMA_COLLAPSE_THRESHOLD)
+  }, [comment.baseScore, comment.deleted, forceUnCollapsed, shouldUncollapseForAutoScroll])
 
   const beginSingleLine = useCallback((): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -160,8 +166,12 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     return !shouldExpandAndScrollTo && !!startThreadTruncated
   }, [shouldExpandAndScrollTo, startThreadTruncated])
 
-  // Whether the comment is completely hidden (with the toggle arrow closed)
-  const [collapsed, setCollapsed] = useState<boolean>(beginCollapsed);
+  // Whether the comment has been collapsed to a single line with its replies
+  // hidden behind a comment-count icon, either with the [-] button or because
+  // it started out that way (deleted, or karma below the threshold). This
+  // overrides the ordinary single-line logic below, which only applies to
+  // truncated threads and leaves replies visible.
+  const [collapsedToSingleLine, setCollapsedToSingleLine] = useState<boolean>(beginCollapsedToSingleLine);
   
   const [singleLine, setSingleLine] = useState(beginSingleLine());
   const [truncatedState, setTruncated] = useState(beginTruncated);
@@ -196,8 +206,8 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   useEffect(() => {
     // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
-    if (collapsed && shouldUncollapseForAutoScroll()) {
-      setCollapsed(false);
+    if (collapsedToSingleLine && shouldUncollapseForAutoScroll()) {
+      setCollapsedToSingleLine(false);
     }
 
     if (shouldExpandAndScrollTo) {
@@ -206,13 +216,12 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollToCommentId]);
 
-  const toggleCollapse = useCallback(
-    () => {
-      onToggleCollapsed?.();
-      setCollapsed(!collapsed)
-    },
-    [collapsed, onToggleCollapsed]
-  );
+  const collapseToSingleLine = useCallback(() => {
+    onCollapse?.();
+    heightBeforeResizeRef.current = animateWholeThread ? null : scrollTargetRef.current?.getBoundingClientRect().height ?? null;
+    collapsedWithButtonRef.current = true;
+    setCollapsedToSingleLine(true);
+  }, [onCollapse, animateWholeThread]);
 
   const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
@@ -224,6 +233,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
 
   const isSingleLine = ((): boolean => {
+    if (collapsedToSingleLine) return true;
     if (!singleLine || currentUserNoSingleLineCommentsSetting) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
@@ -233,21 +243,21 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   useLayoutEffect(() => {
     const element = scrollTargetRef.current;
-    const previousHeight = heightBeforeExpansionRef.current;
-    heightBeforeExpansionRef.current = null;
+    const previousHeight = heightBeforeResizeRef.current;
+    heightBeforeResizeRef.current = null;
     if (!element || previousHeight === null || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
 
-    const expandedHeight = element.getBoundingClientRect().height;
-    if (expandedHeight <= previousHeight) {
+    const newHeight = element.getBoundingClientRect().height;
+    if (newHeight === previousHeight) {
       return;
     }
 
     // Measure the full content before paint, and release the height once the animation ends.
     const animation = element.animate([
       { height: `${previousHeight}px`, overflow: 'clip' },
-      { height: `${expandedHeight}px`, overflow: 'clip' },
+      { height: `${newHeight}px`, overflow: 'clip' },
     ], { duration: 200, easing: 'ease-out' });
 
     return () => animation.cancel();
@@ -255,7 +265,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
+  const passedThroughItemProps = { comment, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
   
   const childrenSection = childComments && childComments.length > 0 && <div className={classes.children}>
@@ -295,10 +305,11 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       event?.stopPropagation();
     }
     if (isTruncated || isSingleLine) {
-      heightBeforeExpansionRef.current = animateWholeThread ? null : scrollTargetRef.current?.getBoundingClientRect().height ?? null;
+      heightBeforeResizeRef.current = animateWholeThread ? null : scrollTargetRef.current?.getBoundingClientRect().height ?? null;
       captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);
       setSingleLine(false);
+      setCollapsedToSingleLine(false);
       setTruncatedStateSet(true);
     }
 
@@ -339,8 +350,9 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
-                  showDescendentCount={loadChildrenSeparately}
+                  showDescendentCount={loadChildrenSeparately || collapsedToSingleLine}
                   displayTagIcon={displayTagIcon}
+                  startsHovered={collapsedWithButtonRef.current}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -351,10 +363,9 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
                 nestingLevel={updatedNestingLevel}
                 parentCommentId={parentCommentId}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
-                toggleCollapse={toggleCollapse}
+                collapseToSingleLine={collapseToSingleLine}
                 key={comment._id}
                 scrollIntoView={scrollIntoView}
-                setSingleLine={setSingleLine}
                 displayTagIcon={displayTagIcon}
                 { ...passedThroughItemProps}
               />
@@ -362,7 +373,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
         }
       </div>}
 
-      <AnimatedCollapse expanded={!collapsed}>
+      <AnimatedCollapse expanded={!collapsedToSingleLine}>
         {childrenSection}
 
         {!isSingleLine && loadChildrenSeparately &&

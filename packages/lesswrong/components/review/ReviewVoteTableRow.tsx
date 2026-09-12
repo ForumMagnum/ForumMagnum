@@ -314,7 +314,7 @@ const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, h
           <ReviewPostComments
             singleLine
             hideReviewVoteButtons
-            singleLineCollapse
+            showCollapseButtons
             placeholderCount={post.reviewCount}
             terms={{
               view: "reviews",

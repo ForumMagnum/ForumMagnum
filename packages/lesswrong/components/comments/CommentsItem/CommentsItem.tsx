@@ -24,7 +24,6 @@ import CommentBody from "./CommentBody";
 import CommentsNewForm from "../CommentsNewForm";
 import ParentCommentSingle from "../ParentCommentSingle";
 import AnimatedExpansion from "../../common/AnimatedExpansion";
-import AnimatedCollapse from "../../common/AnimatedCollapse";
 import ForumIcon from "../../common/ForumIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import LWTooltip from "../../common/LWTooltip";
@@ -64,11 +63,6 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     borderStyle: "none",
     padding: 0,
     ...theme.typography.commentStyle,
-    '& > .CommentsItemMeta-root + .AnimatedCollapse-root .CommentBody-root.ContentStyles-commentBody': {
-      // The animation wrapper prevents these margins from collapsing. The metadata
-      // already supplies 8px, so retain only any excess from the body's .5em margin.
-      marginTop: 'max(0px, calc(0.5em - 8px))',
-    },
   },
   sideComment: {
     "& blockquote": {
@@ -170,12 +164,10 @@ export const CommentsItem = ({
   comment,
   nestingLevel=1,
   isChild,
-  collapsed,
   isParentComment,
   parentCommentId,
   scrollIntoView,
-  toggleCollapse,
-  setSingleLine,
+  collapseToSingleLine,
   truncated,
   showPinnedOnProfile,
   parentAnswerId,
@@ -189,12 +181,14 @@ export const CommentsItem = ({
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
   isChild?: boolean,
-  collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
   scrollIntoView?: () => void,
-  toggleCollapse?: () => void,
-  setSingleLine?: (singleLine: boolean) => void,
+  /**
+   * Collapses the comment to a single line, hiding its replies. Used by the
+   * [-] button, and to return a draft to its single-line form after editing.
+   */
+  collapseToSingleLine?: () => void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string,
@@ -242,7 +236,7 @@ export const CommentsItem = ({
   const editCancelCallback = () => {
     setShowEditState(false);
     if (comment.draft) {
-      setSingleLine?.(true);
+      collapseToSingleLine?.();
     }
   }
 
@@ -259,7 +253,7 @@ export const CommentsItem = ({
     }
     setShowEditState(false);
     if (comment.draft) {
-      setSingleLine?.(true);
+      collapseToSingleLine?.();
     }
   }
 
@@ -384,9 +378,7 @@ export const CommentsItem = ({
               toggleShowParent,
               scrollIntoView,
               parentAnswerId,
-              setSingleLine,
-              collapsed,
-              toggleCollapse,
+              collapseToSingleLine,
               setShowEdit,
             }}
           />
@@ -394,31 +386,27 @@ export const CommentsItem = ({
             Pinned by {comment.promotedByUser.displayName}
           </div>}
           {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
-          {comment.deleted ? renderBodyOrEditor(voteProps) : <AnimatedCollapse expanded={!collapsed}>
-            {renderBodyOrEditor(voteProps)}
-            {!showEditState && <CommentBottom
-              comment={comment}
-              post={post}
-              treeOptions={treeOptions}
-              votingSystem={votingSystem}
-              voteProps={voteProps}
-              commentBodyRef={commentBodyRef}
-              replyButton={replyButton}
-            />}
-          </AnimatedCollapse>}
+          {renderBodyOrEditor(voteProps)}
+          {!comment.deleted && !showEditState && <CommentBottom
+            comment={comment}
+            post={post}
+            treeOptions={treeOptions}
+            votingSystem={votingSystem}
+            voteProps={voteProps}
+            commentBodyRef={commentBodyRef}
+            replyButton={replyButton}
+          />}
         </div>
-        {(displayReviewVoting || replyFormIsOpen) && <AnimatedCollapse expanded={!collapsed}>
-          {displayReviewVoting && <div className={classes.reviewVotingButtons}>
-            <div className={classes.updateVoteMessage}>
-              <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
-                Update your {getReviewNameInSitu()} vote for this post.
-                <LWHelpIcon/>
-              </LWTooltip>
-            </div>
-            {post && <ReviewVotingWidget post={post} showTitle={false}/>}
-          </div>}
-          {replyFormIsOpen && renderReply()}
-        </AnimatedCollapse>}
+        {displayReviewVoting && <div className={classes.reviewVotingButtons}>
+          <div className={classes.updateVoteMessage}>
+            <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
+              Update your {getReviewNameInSitu()} vote for this post.
+              <LWHelpIcon/>
+            </LWTooltip>
+          </div>
+          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+        </div>}
+        {replyFormIsOpen && renderReply()}
       </div>
     </HoveredReactionContextProvider>
     </AnalyticsContext>

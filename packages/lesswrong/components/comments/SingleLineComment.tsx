@@ -1,6 +1,6 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -134,6 +134,10 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     ...metaNoticeStyles(theme),
     marginRight: 20
   },
+  descendentCount: {
+    // Keep the count at the right edge even when there's no text preview to fill the row
+    marginLeft: "auto",
+  },
   preview: {
     width: 400,
   },
@@ -142,7 +146,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   }
 }))
 
-const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, startsHovered=false }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
@@ -150,12 +154,26 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
+  /**
+   * If set, the single line appeared under the mouse cursor (eg because the
+   * comment was just collapsed with its [-] button), so the hover preview is
+   * not shown until the mouse leaves and re-enters.
+   */
+  startsHovered?: boolean,
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const {anchorEl, hover, eventHandlers} = useHover();
+  const hoverPreviewSuppressedRef = useRef(startsHovered);
+  const {anchorEl, hover, eventHandlers} = useHover({
+    getIsEnabled: () => !hoverPreviewSuppressedRef.current,
+  });
   
   if (!comment) return null
+
+  const onMouseLeave = (event: React.MouseEvent) => {
+    hoverPreviewSuppressedRef.current = false;
+    eventHandlers.onMouseLeave(event);
+  };
   
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
@@ -171,7 +189,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId ?? '')
 
   return (
-    <div className={classes.root} {...eventHandlers}>
+    <div className={classes.root} onMouseOver={eventHandlers.onMouseOver} onMouseLeave={onMouseLeave}>
       <ContentStyles
         contentType={comment.answer ? "post" : "comment"}
         className={classNames(
@@ -212,12 +230,14 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
           {contentToRender}
         </ContentStyles>}
-        {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
-          small={true}
-          commentCount={comment.descendentCount}
-          unreadComments={false}
-          newPromotedComments={false}
-        />}
+        {showDescendentCount && comment.descendentCount>0 && <span className={classes.descendentCount}>
+          <PostsItemComments
+            small={true}
+            commentCount={comment.descendentCount}
+            unreadComments={false}
+            newPromotedComments={false}
+          />
+        </span>}
       </ContentStyles>
       <LWPopper
         open={displayHoverOver}
@@ -241,6 +261,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
                 showEditInContext: false
               }}
               hoverPreview
+              forceUnCollapsed
               noAutoScroll
             />
           </div>

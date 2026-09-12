@@ -65,13 +65,6 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
       fontFamily: "monospace",
     },
   },
-  collapseChevron: {
-    width: 15,
-    transition: "transform 0.2s",
-  },
-  collapseChevronOpen: {
-    transform: "rotate(90deg)",
-  },
   collapseCharacter: {
     transform: 'translateY(0.75px)',
   },
@@ -145,9 +138,7 @@ export const CommentsItemMeta = ({
   toggleShowParent,
   scrollIntoView,
   parentAnswerId,
-  setSingleLine,
-  collapsed,
-  toggleCollapse,
+  collapseToSingleLine,
   setShowEdit,
   rightSectionElements,
 }: {
@@ -160,9 +151,12 @@ export const CommentsItemMeta = ({
   toggleShowParent: () => void,
   scrollIntoView?: () => void,
   parentAnswerId?: string,
-  setSingleLine?: (singleLine: boolean) => void,
-  collapsed?: boolean,
-  toggleCollapse?: () => void,
+  /**
+   * Collapses the comment to a single line, hiding its replies. Called by the
+   * [-] button, which is only shown if this is provided (and
+   * `treeOptions.showCollapseButtons` is set).
+   */
+  collapseToSingleLine?: () => void,
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
 }) => {
@@ -172,7 +166,7 @@ export const CommentsItemMeta = ({
   const { scrollToCommentId } = useCommentLinkState();
 
   const {
-    postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
+    postPage, showCollapseButtons, post, tag, isSideComment,
     hideActionsMenu, hideParentCommentToggle, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
@@ -241,16 +235,11 @@ export const CommentsItemMeta = ({
           onClick={toggleShowParent}
         />
       }
-      {(showCollapseButtons || collapsed) &&
-        <a className={classes.collapse} onClick={toggleCollapse}>
-          <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
+      {showCollapseButtons && collapseToSingleLine &&
+        <a className={classes.collapse} onClick={collapseToSingleLine}>
+          <>[<span className={classes.collapseCharacter}>-</span>]</>
         </a>
       }
-      {singleLineCollapse && <a className={classes.collapse} onClick={() =>
-        setSingleLine && setSingleLine(true)
-      }>
-        [<span>{collapsed ? "+" : "-"}</span>]
-      </a>}
       <CommentUserName
         comment={comment}
         className={classes.username}

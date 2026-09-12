@@ -44,10 +44,9 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
   },
 }))
 
-const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
+const CommentBody = ({comment, commentBodyRef, truncated, postPage, voteProps, className}: {
   comment: CommentsList,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
-  collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
   voteProps?: VotingProps<VoteableTypeClient>
@@ -68,7 +67,6 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   );
 
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
-  if (collapsed) { return null }
 
   const innerHtml = (truncated && !truncationDisabledByUserConfig) ? commentExcerptFromHTML(comment, postPage) : (html ?? '')
 

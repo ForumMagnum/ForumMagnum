@@ -655,7 +655,7 @@ const SpotlightReviewComment = ({id}: {
     <CommentByIdSuspense
       commentId={id}
       treeOptions={{
-        singleLineCollapse: true,
+        showCollapseButtons: true,
         forceSingleLine: true,
         hideSingleLineMeta: true,
       }}

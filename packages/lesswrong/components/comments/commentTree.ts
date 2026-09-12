@@ -23,16 +23,16 @@ export interface CommentTreeOptions {
   postPage?: boolean,
   
   /**
-   * Whether to show a [-] button in the top-left of each comment. (Note
-   * the distinction between this collapsing mechanism, and single-line
-   * comments; these are separate.)
+   * Whether to show a [-] button in the top-left of each comment, which
+   * collapses the comment to a single line and hides its replies behind a
+   * comment-count icon. (Clicking the single line expands it again.)
    */
   showCollapseButtons?: boolean,
 
   /**
-   * Called when a comment is collapsed or expanded (by clicking the little icon by the author's name)
+   * Called when a comment is collapsed by clicking its [-] button.
    */
-  onToggleCollapsed?: () => void,
+  onCollapse?: () => void,
 
   /**
    * In certain special contexts, the ID of the most recent comment in
@@ -77,12 +77,6 @@ export interface CommentTreeOptions {
    * mode. (Default true).
    */
   enableHoverPreview?: boolean,
-  
-  /**
-   * If passed, a [-] button will be added which shrinks the comment to
-   * single line. Mutually exclusive with showCollapseButtons.
-   */
-  singleLineCollapse?: boolean,
   
   /**
    * If passed, the Reply link will be hidden from the bottom of

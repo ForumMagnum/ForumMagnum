@@ -80,7 +80,7 @@ const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
           treeOptions={{
             post: quickTake.post ?? undefined,
             showCollapseButtons: isFriendlyUI(),
-            onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+            onCollapse: () => wrappedSetExpanded(false),
           }}
           comment={quickTake}
           loadChildrenSeparately

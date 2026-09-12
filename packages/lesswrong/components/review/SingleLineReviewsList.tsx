@@ -32,7 +32,7 @@ const SingleLineReviewsList = () => {
           <CommentsNode
             treeOptions={{
               condensed: true,
-              singleLineCollapse: true,
+              showCollapseButtons: true,
               hideSingleLineMeta: true,
               singleLinePostTitle: true,
               showPostTitle: true,

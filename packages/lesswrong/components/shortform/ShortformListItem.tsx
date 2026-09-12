@@ -109,7 +109,7 @@ const ShortformListItem = ({comment, hideTag}: {
   const treeOptions = {
     post: comment.post || undefined,
     showCollapseButtons: true,
-    onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+    onCollapse: () => wrappedSetExpanded(false),
   };
   if (expanded) {
     return (
