@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
@@ -12,8 +11,6 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useGlobalKeydown } from './withGlobalKeydown';
 import SearchModal from '../search/SearchModal';
-import KeyboardShortcut from './KeyboardShortcut';
-import { usePrimaryShortcutModifier } from '../hooks/usePrimaryShortcutModifier';
 
 const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
   root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0, marginTop: 5},
@@ -25,37 +22,12 @@ const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
     height: 36,
     padding: '6px 12px',
   },
-  shortcut: {
-    '&&': {
-      fontSize: 12,
-      letterSpacing: 'normal',
-      opacity: 0.5,
-      marginLeft: 0,
-      padding: '2px 2px',
-      color: 'inherit',
-      backgroundColor: 'transparent',
-      border: 'none',
-      borderRadius: 0,
-      boxShadow: 'none',
-    },
-    [theme.breakpoints.down('xs')]: {display: 'none'},
-  },
-  nonAppleShortcut: {
-    '&&': {letterSpacing: '-1px'},
-  },
-  commandIcon: {
-    width: 10,
-    height: 10,
-    flexShrink: 0,
-    transform: 'translateY(-1.5px)',
-  },
 }));
 
 const SearchBar = ({onSetIsActive}: {
   onSetIsActive: (active: boolean) => void,
 }) => {
   const classes = useStyles(styles);
-  const shortcutModifier = usePrimaryShortcutModifier();
   const navigate = useNavigate();
   const {location} = useSubscribedLocation();
   const inputOpen = new URLSearchParams(location.search).get('searchOpen') === '1';
@@ -99,17 +71,6 @@ const SearchBar = ({onSetIsActive}: {
       aria-keyshortcuts="Meta+k Control+k"
       onClick={handleSearchTap} className={classes.searchIconButton}>
       <ForumIcon icon="Search" className={classes.searchIcon} />
-      <KeyboardShortcut className={classNames(classes.shortcut, {
-        [classes.nonAppleShortcut]: shortcutModifier !== 'Cmd',
-      })}>
-        {shortcutModifier === 'Cmd' ? <>
-          <svg className={classes.commandIcon} width="10" height="10" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <title>⌘</title>
-            <path d="M9 7V17A3 3 0 1 1 6 14H18A3 3 0 1 1 15 17V7A3 3 0 1 1 18 10H6A3 3 0 1 1 9 7Z" />
-          </svg>K
-        </> : 'Ctrl+K'}
-      </KeyboardShortcut>
     </IconButton>
     {mounted && inputOpen && <SearchModal key={location.pathname} onClose={closeSearch} />}
   </div>;
