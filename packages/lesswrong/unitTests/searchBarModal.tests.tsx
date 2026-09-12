@@ -34,7 +34,7 @@ it.each([
   jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
   render(<SearchBar onSetIsActive={jest.fn()} />);
   const button = screen.getByRole('button', {name: 'Search'});
-  expect(button.querySelector('kbd')?.textContent).toBe(`${modifier}+K`);
+  expect(button.querySelector('kbd')?.textContent).toBe(modifier === 'Cmd' ? '⌘K' : 'Ctrl+K');
   fireEvent.keyDown(document, {key: 'k', metaKey: modifier === 'Cmd', ctrlKey: modifier === 'Ctrl'});
   expect(screen.getByRole('dialog')).toBeTruthy();
 });
@@ -49,7 +49,7 @@ it('hydrates cached server markup on a Mac without a mismatch', () => {
   document.body.append(container);
   const onRecoverableError = jest.fn();
   render(<SearchBar onSetIsActive={jest.fn()} />, {container, hydrate: true, onRecoverableError});
-  expect(container.querySelector('kbd')?.textContent).toBe('Cmd+K');
+  expect(container.querySelector('kbd')?.textContent).toBe('⌘K');
   expect(onRecoverableError).not.toHaveBeenCalled();
 });
 

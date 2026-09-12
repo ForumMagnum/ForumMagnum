@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
@@ -26,9 +27,11 @@ const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
   },
   shortcut: {
     '&&': {
-      fontSize: 10,
+      fontSize: 12,
+      letterSpacing: 'normal',
+      opacity: 0.5,
       marginLeft: 0,
-      padding: 0,
+      padding: '2px 2px',
       color: 'inherit',
       backgroundColor: 'transparent',
       border: 'none',
@@ -36,6 +39,15 @@ const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
       boxShadow: 'none',
     },
     [theme.breakpoints.down('xs')]: {display: 'none'},
+  },
+  nonAppleShortcut: {
+    '&&': {letterSpacing: '-1px'},
+  },
+  commandIcon: {
+    width: 10,
+    height: 10,
+    flexShrink: 0,
+    transform: 'translateY(-1.5px)',
   },
 }));
 
@@ -81,7 +93,17 @@ const SearchBar = ({onSetIsActive}: {
       aria-keyshortcuts="Meta+k Control+k"
       onClick={handleSearchTap} className={classes.searchIconButton}>
       <ForumIcon icon="Search" className={classes.searchIcon} />
-      <KeyboardShortcut className={classes.shortcut}>{shortcutModifier}+K</KeyboardShortcut>
+      <KeyboardShortcut className={classNames(classes.shortcut, {
+        [classes.nonAppleShortcut]: shortcutModifier !== 'Cmd',
+      })}>
+        {shortcutModifier === 'Cmd' ? <>
+          <svg className={classes.commandIcon} width="10" height="10" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <title>⌘</title>
+            <path d="M9 7V17A3 3 0 1 1 6 14H18A3 3 0 1 1 15 17V7A3 3 0 1 1 18 10H6A3 3 0 1 1 9 7Z" />
+          </svg>K
+        </> : 'Ctrl+K'}
+      </KeyboardShortcut>
     </IconButton>
     {inputOpen && <SearchModal onClose={closeSearch} />}
   </div>;
