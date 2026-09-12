@@ -109,6 +109,16 @@ function prefixSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] 
   return spans;
 }
 
+/** Ignore spaces and one inserted handle character after a literal four-character anchor. */
+function compactPrefixMatch(query: string, name: string): boolean {
+  if (query.length < 4 || query.slice(0, 4) !== name.slice(0, 4)) return false;
+  if (name.startsWith(query)) return true;
+  for (let skip = 4; skip < query.length; skip++) {
+    if ((name.slice(0, skip) + name.slice(skip + 1)).startsWith(query)) return true;
+  }
+  return false;
+}
+
 function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
   const names = [words(candidate.displayName), ...(candidate.fullName ? [words(candidate.fullName)] : [])];
   const spans = names.flatMap(name => exactSpans(tokens, name, "exact"));
@@ -122,6 +132,11 @@ function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch
   }
   if (candidate.slug) spans.push(...fuzzySpans(tokens, words(candidate.slug)));
   spans.push(...prefixSpans(tokens, candidate));
+  const compact = tokens.join("");
+  const compactNames = [...names, ...(candidate.slug ? [words(candidate.slug)] : [])];
+  if (compactNames.some(name => compactPrefixMatch(compact, name.join("")))) {
+    spans.push({start: 0, length: tokens.length, confidence: "weak"});
+  }
   return spans;
 }
 
@@ -152,7 +167,13 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {term: {"slug.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"fullName.sort": {value, case_insensitive: true, boost: 100}}},
   ]);
+  const anchor = tokens.join("").slice(0, 4);
   const partial: QueryDslQueryContainer[] = [
+    // Compact queries can omit an internal handle character. Retrieve the literal
+    // anchor, then let person resolution enforce the full bounded prefix match.
+    ...(anchor.length === 4 ? ["displayName.sort", "slug.sort", "fullName.sort"].map(field => ({
+      prefix: {[field]: {value: anchor, case_insensitive: true}},
+    })) : []),
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: 0, boost: 10}}},
     {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: 0, boost: 10}}},
     {prefix: {"displayName.sort": {value: joined, case_insensitive: true, boost: 5}}},

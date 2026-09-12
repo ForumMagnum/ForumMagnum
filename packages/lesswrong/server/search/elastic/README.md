@@ -26,10 +26,10 @@ an existing index.
 ## Unified search ranking
 
 `ElasticMultiQuery.compileMultiQuery` accepts `ranking: "tiered" | "additive"`.
-The default remains `tiered` pending broader relevance judgments. The additive
-implementation and evaluator are available for explicit comparisons; changing
-`defaultUnifiedRanking` enables it for callers that omit the option. This work
-has not deployed a production ranking or rebuilt production indexes.
+The default is `additive`, including UI requests that omit a ranking option.
+The `tiered` compiler remains explicitly selectable for comparisons. This change
+is enabled in the working tree; it has not been deployed to production or
+rebuilt production indexes.
 
 ### Additive scoring
 
@@ -38,7 +38,7 @@ Each candidate receives bounded points on a shared scale:
 ```
 score = T + H + N + A + P × G(T) + C + 2
 T = 3 × BM25² / (BM25² + k²) + allTerms + phrase
-P = min(4, 0.8 × log2(1 + max(karma, 0) / popularityPivot))
+P = min(popularityCap, popularitySlope × log2(1 + max(karma, 0) / popularityPivot))
 G(T) = 0.1 + 0.9 × min(T / 5, 1)²
 ```
 
@@ -51,8 +51,9 @@ G(T) = 0.1 + 0.9 × min(T / 5, 1)²
 | C, context | Curated posts add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
 
 The constant 2 keeps Elasticsearch function scores nonnegative and does not
-change ordering. Popularity pivots are posts 15, comments 4, users 100, tags 5,
-sequences 15. Raw BM25 pivots are posts 8.1, comments 7.6, users 12.9, tags 5.9,
+change ordering. Popularity pivots are posts 15, comments 4, users 3,000, tags 5,
+sequences 15. User popularity has slope 2 and cap 10; content popularity keeps
+slope 0.8 and cap 4. Raw BM25 pivots are posts 8.1, comments 7.6, users 12.9, tags 5.9,
 sequences 3.8, calibrated from 150 deterministically selected development queries
 using multi-index DFS. A raw score equal to its pivot earns 1.5 points. These
 are initial measured development parameters, not universal relevance constants.
@@ -94,6 +95,20 @@ by maximum; only that author's documents qualify for the residual branch.
 coauthors and related sequences cannot accumulate repeated relationship points.
 Resolved profile IDs receive the full popularity gate; unrelated profile hits
 do not inherit it.
+
+User karma reaches its ten-point cap at 93,000 karma. This gives prominence
+more weight while retaining differences among established accounts. Text scores
+and existing confidence bonuses continue to apply normally.
+
+A general handle-prefix match ignores spaces and allows one extra character in
+the indexed name after a literal four-character anchor. It matches the entire
+query as a prefix, retaining weak confidence and the existing prominence
+threshold. The short trailing letters must still match literally: “Samuel P”
+can match `samuelrpatel`, but “Samuel T” cannot. This rule also applies to compact
+queries such as “SamuelP”. Candidate lookup retrieves the literal anchor; person
+resolution then enforces the bounded prefix match. There are no account-specific
+aliases or scores. The [name-completion report](ranking-name-completion-2026-09-11.md)
+records the five regression queries, validation, and remaining search issues.
 
 Event freshness requires an event-related query or positive event filter. Only
 future `startTime` values receive a bonus, flat for seven days and decaying with
@@ -138,10 +153,10 @@ to establish broad discovery quality. The [final measured report](ranking-evalua
 comparison, limitations and release decision; detailed JSON artifacts remain in
 `/tmp/forum-search-report`.
 
-Keep the tiered default until a broader independently judged pool demonstrates
-discovery improvement without navigation regressions, and latency is validated
-under representative load. The existing tiered compiler remains the comparison
-baseline, including its rigid post/comment and relationship boundaries.
+The additive default was enabled at the user's request after the name-completion
+regressions passed. Broader independently judged relevance and representative-load
+latency remain useful follow-up validation. The tiered compiler remains the
+comparison baseline, including its rigid post/comment and relationship boundaries.
 
 ### Rollout
 

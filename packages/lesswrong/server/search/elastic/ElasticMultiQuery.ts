@@ -6,8 +6,8 @@ import { compileAdditiveMultiQuery } from "./ElasticAdditiveRanking";
 import { compileUnifiedSort } from "./ElasticUnifiedSort";
 import type { MultiQueryData, UnifiedRanking } from "./unifiedSearchTypes";
 
-/** Ranking used when a caller does not choose. Switch after the evaluation in the README. */
-export const defaultUnifiedRanking: UnifiedRanking = "tiered";
+/** Ranking used by UI requests and other callers that do not choose explicitly. */
+export const defaultUnifiedRanking: UnifiedRanking = "additive";
 
 // Tier intervals never overlap: text relevance and karma only reorder within a tier.
 // Saturating the product preserves meaningful karma differences without allowing

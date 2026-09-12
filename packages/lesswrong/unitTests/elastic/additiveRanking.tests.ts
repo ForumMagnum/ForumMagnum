@@ -184,3 +184,16 @@ describe("bounded compound recovery", () => {
     expect(JSON.stringify(interpretations("posts", '"infrabayesiansism"'))).not.toContain("span_near");
   });
 });
+
+
+it("gives established user karma more weight without changing content popularity", () => {
+  const {pivots, userSlope, userCap} = rankingWeights.popularity;
+  const john = popularityPoints(64994, pivots.users, userSlope, userCap);
+  const anna = popularityPoints(21291, pivots.users, userSlope, userCap);
+  const established = popularityPoints(5000, pivots.users, userSlope, userCap);
+  expect(john).toBeGreaterThan(anna);
+  expect(anna).toBeGreaterThan(established);
+  expect(anna - established).toBeGreaterThan(3);
+  expect(popularityPoints(1000000000, pivots.users, userSlope, userCap)).toBe(10);
+  expect(popularityPoints(1000000000, pivots.posts)).toBe(4);
+});

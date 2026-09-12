@@ -18,10 +18,11 @@ import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
  *
  *   score = T (topical match, 0..5) + H (title coverage, 0..1)
  *         + N (navigation) + A (person relationship)
- *         + P_eff (popularity gated by T, 0..4) + C (context)
+ *         + P_eff (popularity gated by T, 0..4 for content, 0..10 for users) + C (context)
  *
- * Popularity can therefore overcome a modest text difference but never a large
- * one. Identifier queries retrieve only their target; ordinary navigation is a
+ * Content popularity can overcome modest text differences. User popularity has
+ * more weight so established authors remain discoverable through partial handles.
+ * Identifier queries retrieve only their target; ordinary navigation is a
  * bounded preference. Original and author-plus-topic interpretations compete by max.
  * See the search README for the full rationale and the calibration procedure.
  */
@@ -58,9 +59,13 @@ export const rankingWeights = {
   },
   popularity: {
     slope: 0.8,
+    userSlope: 2.0,
+    userCap: 10.0,
     cap: 4.0,
     gateFloor: 0.1,
-    pivots: {posts: 15, comments: 4, tags: 5, sequences: 15, users: 100} satisfies RankingPivots,
+    // User karma spans much larger totals than content scores; saturation starts
+    // at 93,000 rather than 3,100 so established authors remain distinguishable.
+    pivots: {posts: 15, comments: 4, tags: 5, sequences: 15, users: 3000} satisfies RankingPivots,
   },
   context: {
     comment: 0.0,
@@ -86,8 +91,7 @@ export function matchPoints(bm25: number, pivot: number): number {
   return rankingWeights.match.bm25 * squared / (squared + (pivot * pivot));
 }
 
-export function popularityPoints(karma: number, pivot: number): number {
-  const {slope, cap} = rankingWeights.popularity;
+export function popularityPoints(karma: number, pivot: number, slope = rankingWeights.popularity.slope, cap = rankingWeights.popularity.cap): number {
   return Math.min(cap, slope * Math.log2(1 + (Math.max(karma, 0) / pivot)));
 }
 
@@ -409,7 +413,7 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
   if (index === "posts") outerFunctions.push({weight: context.curated, filter: {term: {curated: true}}});
   const typeOffset = index === "comments" ? context.comment : index === "users" ? context.unresolvedUser : 0;
   const params = {
-    karmaField: karmaField(index), pivot: pivots[index], cap: popularity.cap, slope: popularity.slope,
+    karmaField: karmaField(index), pivot: pivots[index], cap: index === "users" ? popularity.userCap : popularity.cap, slope: index === "users" ? popularity.userSlope : popularity.slope,
     gateFloor: popularity.gateFloor, matchMax: rankingWeights.match.topicalMax,
     baseline: context.baseline, typeOffset,
     eventWeight: index === "posts" && eventIntent ? context.event : 0,
