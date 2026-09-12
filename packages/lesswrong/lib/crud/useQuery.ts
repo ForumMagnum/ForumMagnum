@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, use, useContext, useMemo, useRef, useSyncExternalStore } from "react";
+import { createContext, use, useContext, useId, useMemo, useRef, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";
@@ -51,6 +51,20 @@ declare global {
  * both functions return `true`, and communicate the actual result through
  * side effects.
  */
+/**
+ * On the client, apollo's query hooks are wrapped by the streaming transport
+ * from `@apollo/client-react-streaming`, which calls `useId` on every render.
+ * React folds "this component used an id" into the tree ids of all of its
+ * descendants, so a component that calls a query hook gets different `useId`
+ * values below it on the server than on the client unless the server branch
+ * also consumes an id. Without this, every `useId` under a query-using
+ * component (which includes the current-user provider around the whole app)
+ * produces a hydration mismatch.
+ */
+function useMatchClientTransportId(): void {
+  useId();
+}
+
 function useIsHydrationWithNoRerender(): boolean {
   const isHydrationRef = useRef(false);
   isHydrationRef.current = false;
@@ -230,6 +244,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer) {
+    useMatchClientTransportId();
     const injectHTML = useInjectHTML();
     const ssrCache = useSsrQueryCache();
     const resolverContext = useSSRResolverContext();
