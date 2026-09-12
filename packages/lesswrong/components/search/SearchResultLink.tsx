@@ -31,6 +31,8 @@ const styles = defineStyles('SearchResultLink', (theme: ThemeType) => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     cursor: 'pointer',
+    opacity: 0,
+    '*:hover > &, *:focus-within > &, [data-search-selected] &': {opacity: 1},
     transition: 'color 150ms ease',
     '&:hover, &:focus-visible': {color: theme.palette.grey[700]},
     '&::before': {
