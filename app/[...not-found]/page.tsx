@@ -3,6 +3,10 @@ import Error404 from '@/components/common/Error404';
 import RouteRoot from '@/components/layout/RouteRoot';
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
+// Inherited site metadata reads request headers and cookies to select the forum.
+// Allow this catch-all route to wait for that metadata during navigation.
+export const instant = false;
+
 assertRouteAttributes("/[...not-found]", {
   whiteBackground: false,
   hasLinkPreview: false,
