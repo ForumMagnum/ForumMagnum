@@ -32,6 +32,36 @@ function expectSelected(id: string) {
   expect(document.querySelectorAll('[data-search-selected]')).toHaveLength(1);
 }
 
+it('transfers selection between mouse movement and arrow keys, then opens the selected row', () => {
+  render(<SearchHarness />);
+  const input = screen.getByRole('textbox');
+  input.focus();
+  fireEvent.keyDown(input, {key: 'ArrowDown'});
+  expectSelected('b');
+  const author = screen.getByRole('link', {name: 'Author c'});
+  fireEvent.mouseMove(author);
+  expectSelected('c');
+  expect(document.activeElement).toBe(input);
+  fireEvent.keyDown(input, {key: 'ArrowUp'});
+  expectSelected('b');
+  fireEvent.keyDown(input, {key: 'ArrowDown'});
+  expectSelected('c');
+  fireEvent.keyDown(input, {key: 'ArrowUp'});
+  fireEvent.mouseMove(author);
+  expectSelected('c');
+  fireEvent.keyDown(input, {key: 'Enter'});
+  expect(openResult).toHaveBeenCalledWith('c');
+  expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledTimes(4);
+});
+
+it('selects tab-focused links and ignores mouse movement outside result rows', () => {
+  render(<SearchHarness />);
+  screen.getByRole('link', {name: 'Author b'}).focus();
+  expectSelected('b');
+  fireEvent.mouseMove(screen.getByRole('button'));
+  expectSelected('b');
+});
+
 it('selects the first result, skips metadata links, stops at both ends, and opens with Enter', () => {
   render(<SearchHarness />);
   const input = screen.getByRole('textbox');

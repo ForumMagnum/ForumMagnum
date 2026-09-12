@@ -20,6 +20,15 @@ function highlightResult(rows: HTMLElement[], selected: HTMLElement | undefined)
   }
 }
 
+function selectResultFromEvent(event: Event) {
+  const area = event.currentTarget;
+  const target = event.target;
+  if (!(area instanceof HTMLDivElement) || !(target instanceof Node)) return;
+  const rows = getResultRows(area);
+  const selected = rows.find(row => row.contains(target));
+  if (selected) highlightResult(rows, selected);
+}
+
 export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore}: SearchPageNavigationOptions) {
   const previousSearchKey = useRef(searchKey);
 
@@ -31,6 +40,15 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
       highlightResult(rows, rows[0]);
     }
     previousSearchKey.current = searchKey;
+    const area = resultsRef.current;
+    // Movement lets the mouse reclaim selection even within the same row.
+    // A stationary pointer must not override arrow navigation or its scrolling.
+    area?.addEventListener('mousemove', selectResultFromEvent);
+    area?.addEventListener('focusin', selectResultFromEvent);
+    return () => {
+      area?.removeEventListener('mousemove', selectResultFromEvent);
+      area?.removeEventListener('focusin', selectResultFromEvent);
+    };
   });
 
   return (event: KeyboardEvent<HTMLDivElement>) => {
