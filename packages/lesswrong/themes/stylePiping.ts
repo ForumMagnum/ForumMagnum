@@ -6,6 +6,10 @@ const hideSpoilers = (theme: ThemeType) => ({
   '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
+  // Blockquotes set their own text color instead of inheriting from the wrapper.
+  '& blockquote': {
+    color: theme.palette.panelBackground.spoilerBlock,
+  },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
   },
