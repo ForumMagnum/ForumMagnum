@@ -24,6 +24,7 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
+import SpoilerBlock, { containsSpoilerClassName, removeSpoilerClassNames } from './SpoilerBlock';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -120,6 +121,7 @@ function getIdInsertionDescendIndex(childNodes: DomHandlerChildNode[]): number|n
  *   markElicitBlocks
  *   collapseFootnotes
  *   wrapStrawPoll
+ *   renderSpoilerBlocks
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
  *   exposeInternalIds
@@ -216,10 +218,11 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart, insideSpoiler=false}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
+  insideSpoiler?: boolean,
 
   /**
    * An id-insertion which was targeted at an ancestor of this element, but which
@@ -263,6 +266,15 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+      const isSpoilerElement = containsSpoilerClassName(classNames);
+      if (insideSpoiler || isSpoilerElement) {
+        const nonSpoilerClassNames = removeSpoilerClassNames(classNames);
+        if (nonSpoilerClassNames.length > 0) {
+          attribs.className = nonSpoilerClassNames.join(" ");
+        } else {
+          delete attribs.className;
+        }
+      }
 
       const ownIdInsertion = (id && passedThroughProps.idInsertions?.[id])
         ? passedThroughProps.idInsertions[id]
@@ -283,6 +295,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
         insertedAtStart={i===descendIndex ? idInsertion : undefined}
+        insideSpoiler={insideSpoiler || isSpoilerElement}
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
@@ -401,6 +414,15 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
             {result}
           </ContentCodeBlockWithMenu>
         );
+      }
+
+      if (isSpoilerElement && !insideSpoiler) {
+        return <SpoilerBlock
+          attributes={attribs}
+          inline={!blockLevelTagNames.has(TagName)}
+        >
+          {result}
+        </SpoilerBlock>
       }
 
       if (root && rootTagShouldBeHorizontallyScrollable(TagName, attribs)) {
