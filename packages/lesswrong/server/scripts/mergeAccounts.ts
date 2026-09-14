@@ -6,6 +6,7 @@ import { Votes } from '../../server/collections/votes/collection';
 import { Conversations } from '../../server/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
+import uniq from 'lodash/uniq';
 import ConversationsRepo from '../repos/ConversationsRepo';
 import LocalgroupsRepo from '../repos/LocalgroupsRepo';
 import PostsRepo from '../repos/PostsRepo';
@@ -520,7 +521,8 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun, deadlin
     await transferServices(sourceUser, targetUser, dryRun)
   }})
   
-  // Change slug of source account by appending "old" and reset oldSlugs array
+  // Change slug of source account by appending "old", and move its oldSlugs onto
+  // the target account so that stale URLs redirect to the surviving account
   // eslint-disable-next-line no-console
   console.log("Change slugs of source account")
   try {
@@ -529,16 +531,20 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun, deadlin
       await Users.rawUpdateOne(
         {_id: sourceUserId},
         {$set: {
-          slug: await getUnusedSlugByCollectionName("Users", `${sourceUser.slug}-old`, true)
+          slug: await getUnusedSlugByCollectionName("Users", `${sourceUser.slug}-old`, true),
+          // Cleared because the target account takes them over below; leaving them
+          // here would make the same slug resolve to two different profiles, and
+          // would make it permanently unclaimable by anyone else
+          oldSlugs: []
         }}
       );
     
       // Add slug to oldSlugs array of target account
-      const newOldSlugs = [
+      const newOldSlugs = uniq([
         ...(targetUser.oldSlugs || []), 
         ...(sourceUser.oldSlugs || []), 
         sourceUser.slug
-      ]
+      ])
       // eslint-disable-next-line no-console
       console.log("Changing slugs of target account", sourceUser.slug, newOldSlugs)
       
