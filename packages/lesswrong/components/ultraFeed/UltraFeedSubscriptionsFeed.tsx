@@ -10,6 +10,7 @@ import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import SuggestedFeedSubscriptions from '../subscriptions/SuggestedFeedSubscriptions';
 import { getFeedScrollTargetTop } from './ultraFeedHelpers';
+import LoginPopupButton from '../users/LoginPopupButton';
 
 const FEED_MIN_HEIGHT = 1500;
 
@@ -52,6 +53,40 @@ const styles = defineStyles('UltraFeedSubscriptionsFeed', (theme: ThemeType) => 
       opacity: 0.8,
     },
   },
+  loggedOutPrompt: {
+    ...theme.typography.body2,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '48px 24px 72px',
+    textAlign: 'center',
+  },
+  loggedOutTitle: {
+    ...theme.typography.postStyle,
+    color: theme.palette.text.primary,
+    fontSize: 24,
+    lineHeight: 1.3,
+    marginBottom: 8,
+  },
+  loggedOutDescription: {
+    color: theme.palette.grey[600],
+    fontSize: 15,
+    lineHeight: 1.5,
+    maxWidth: 420,
+    marginBottom: 20,
+  },
+  loginButton: {
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: 4,
+    color: theme.palette.primary.contrastText,
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    padding: '10px 18px',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
 
 }));
 
@@ -84,7 +119,15 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   if (!currentUser) {
     return (
       <SingleColumnSection>
-        <SuggestedFeedSubscriptions enableDismissButton={false} />
+        <div className={classes.loggedOutPrompt}>
+          <div className={classes.loggedOutTitle}>Follow people</div>
+          <div className={classes.loggedOutDescription}>
+            Log in or create an account to follow users and see their new posts and comments here.
+          </div>
+          <LoginPopupButton className={classes.loginButton}>
+            Log in or sign up
+          </LoginPopupButton>
+        </div>
       </SingleColumnSection>
     );
   }
