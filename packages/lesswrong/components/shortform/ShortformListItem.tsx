@@ -4,7 +4,6 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
 import { useHover } from "../common/withHover";
-import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -126,7 +125,7 @@ const ShortformListItem = ({comment, hideTag}: {
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
-  const displayHoverOver = hover && (karma > -5) && !isMobile();
+  const displayHoverOver = hover && (karma > -5);
 
   return (
     <div

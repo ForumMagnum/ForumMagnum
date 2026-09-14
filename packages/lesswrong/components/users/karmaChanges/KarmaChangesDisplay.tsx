@@ -407,7 +407,6 @@ function KarmaChangeRow({link, scoreChange, addedReacts, description, tooltipTit
     As="div"
     clickable
     tooltip={false}
-    hideOnTouchScreens
   >
     {row}
   </LWTooltip>

@@ -31,11 +31,6 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   noMouseEvents: {
     pointerEvents: "none",
   },
-  hideOnTouchScreens: {
-    "@media (pointer:coarse)": {
-      display: "none",
-    },
-  },
 }))
 
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
@@ -53,7 +48,6 @@ const LWPopper = ({
   distance=0,
   placement,
   clickable = true,
-  hideOnTouchScreens,
   updateRef
 }: {
   children: ReactNode,
@@ -69,7 +63,6 @@ const LWPopper = ({
   distance?: number,
   className?: string,
   clickable?: boolean,
-  hideOnTouchScreens?: boolean,
   updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
   const classes = useStyles(styles);
@@ -148,8 +141,7 @@ const LWPopper = ({
         className={classNames({
           [classes.tooltip]: tooltip,
           [classes.default]: !tooltip,
-          [classes.noMouseEvents]: !clickable,
-          [classes.hideOnTouchScreens]: hideOnTouchScreens},
+          [classes.noMouseEvents]: !clickable},
           className
         )}
         style={popperStyles.popper}

@@ -5,7 +5,6 @@ import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
-import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
 import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
@@ -160,7 +159,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
+  const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
   const parentTag = comment.tag;

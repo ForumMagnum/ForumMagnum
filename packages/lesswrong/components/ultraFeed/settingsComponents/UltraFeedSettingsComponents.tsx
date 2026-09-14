@@ -255,7 +255,7 @@ const CollapsibleSettingGroup: React.FC<CollapsibleSettingGroupProps> = ({
         onClick={toggleExpanded}
       >
         <div className={classNames(classes.collapsibleTitle)}>{title}</div>
-        <LWTooltip title={isExpanded ? "Collapse" : "Expand"} hideOnTouchScreens>
+        <LWTooltip title={isExpanded ? "Collapse" : "Expand"}>
           <ForumIcon
             icon="ThickChevronRight"
             className={classNames(classes.collapsibleIcon, {

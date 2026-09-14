@@ -185,7 +185,6 @@ const TagsChecklist = ({onTagSelected = () => {}, onTagRemoved = () => {}, selec
                 {!!tagChecklistItem.tag.parentTag && <span>. Its parent {"wikitag"} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
               </div>
             }
-            hideOnTouchScreens
           >
             <div
               className={classNames(classes.tag, {

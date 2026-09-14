@@ -2,7 +2,7 @@
 import React, { Activity, StrictMode, useState } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { SubscribeLocationContext } from '../lib/locationContexts';
-import { useHover } from '../components/common/withHover';
+import { useHover, HoverTouchBehavior } from '../components/common/withHover';
 import { useOnNavigateOrHide } from '../components/hooks/useOnNavigateOrHide';
 import LWTooltip from '../components/common/LWTooltip';
 import { TooltipSpan } from '../components/common/FMTooltip';
@@ -14,7 +14,6 @@ jest.mock('../lib/analyticsEvents', () => ({
 jest.mock('../lib/routeUtil', () => ({
   useSubscribedLocation: () => React.useContext(SubscribeLocationContext),
 }));
-jest.mock('../lib/utils/isMobile', () => ({ isMobile: () => false }));
 jest.mock('../components/hooks/useStyles', () => ({
   defineStyles: () => ({}),
   useStyles: () => ({}),
@@ -48,11 +47,33 @@ function Page({ url = '/', visible = true, children }: {
   </StrictMode>;
 }
 
-function HoverTarget({ onLeave }: { onLeave?: () => void }) {
-  const { eventHandlers, hover, anchorEl, everHovered } = useHover({ onLeave });
-  return <button {...eventHandlers} data-hovered={hover} data-anchored={!!anchorEl} data-ever-hovered={everHovered}>
+function HoverTarget({ onLeave, touch, onClick }: {
+  onLeave?: () => void,
+  touch?: HoverTouchBehavior,
+  onClick?: () => void,
+}) {
+  const { eventHandlers, hover, anchorEl, everHovered } = useHover({ onLeave, touch });
+  return <button {...eventHandlers} onClick={onClick} data-hovered={hover} data-anchored={!!anchorEl} data-ever-hovered={everHovered}>
     Hover me
   </button>;
+}
+
+// jsdom has no PointerEvent, so fireEvent.pointerOver etc. would dispatch a
+// plain Event with no pointerType. Provide the minimum needed to distinguish
+// touch from mouse.
+class TestPointerEvent extends MouseEvent {
+  pointerType: string;
+  constructor(type: string, init: MouseEventInit & { pointerType?: string } = {}) {
+    super(type, init);
+    this.pointerType = init.pointerType ?? "mouse";
+  }
+}
+
+function tap(el: Element) {
+  fireEvent.pointerDown(el, { pointerType: "touch" });
+  fireEvent.pointerOver(el, { pointerType: "touch" });
+  fireEvent.pointerLeave(el, { pointerType: "touch" });
+  fireEvent.click(el);
 }
 
 function PinnedTooltip() {
@@ -67,6 +88,7 @@ describe('hover navigation', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     captureEvent.mockClear();
+    Object.assign(window, { PointerEvent: TestPointerEvent });
   });
 
   afterEach(() => {
@@ -78,7 +100,7 @@ describe('hover navigation', () => {
     const onLeave = jest.fn();
     const { rerender } = render(<Page><HoverTarget onLeave={onLeave}/></Page>);
     const target = screen.getByRole('button');
-    fireEvent.mouseOver(target);
+    fireEvent.pointerOver(target);
     expect(target.getAttribute('data-hovered')).toBe('true');
 
     rerender(<Page url={url}><HoverTarget onLeave={onLeave}/></Page>);
@@ -89,10 +111,10 @@ describe('hover navigation', () => {
     await act(() => jest.advanceTimersByTime(3000));
     expect(captureEvent).not.toHaveBeenCalled();
 
-    fireEvent.mouseLeave(target);
+    fireEvent.pointerLeave(target);
     expect(onLeave).toHaveBeenCalledTimes(1);
     expect(captureEvent).not.toHaveBeenCalled();
-    fireEvent.mouseOver(target);
+    fireEvent.pointerOver(target);
     expect(target.getAttribute('data-hovered')).toBe('true');
   });
 
@@ -100,7 +122,7 @@ describe('hover navigation', () => {
     const oldOnLeave = jest.fn();
     const onLeave = jest.fn();
     const { rerender } = render(<Page><HoverTarget onLeave={oldOnLeave}/></Page>);
-    fireEvent.mouseOver(screen.getByRole('button'));
+    fireEvent.pointerOver(screen.getByRole('button'));
     rerender(<Page><HoverTarget onLeave={onLeave}/></Page>);
     expect(screen.getByRole('button').getAttribute('data-hovered')).toBe('true');
     expect(oldOnLeave).not.toHaveBeenCalled();
@@ -115,14 +137,14 @@ describe('hover navigation', () => {
     expect(target.getAttribute('data-hovered')).toBe('false');
     expect(target.getAttribute('data-anchored')).toBe('false');
     expect(onLeave).toHaveBeenCalledTimes(1);
-    fireEvent.mouseOver(target);
+    fireEvent.pointerOver(target);
     expect(target.getAttribute('data-hovered')).toBe('true');
   });
 
   it.each([LWTooltip, TooltipSpan])('closes %p across a cached forward/back navigation', async Tooltip => {
     const content = <Tooltip title="User preview" clickable><button>User</button></Tooltip>;
     const { rerender } = render(<Page>{content}</Page>);
-    fireEvent.mouseOver(screen.getByRole('button'));
+    fireEvent.pointerOver(screen.getByRole('button'));
     await act(() => jest.advanceTimersByTime(200));
     expect(screen.getByRole('tooltip').getAttribute('data-clickable')).toBe('true');
 
@@ -131,7 +153,7 @@ describe('hover navigation', () => {
     rerender(<Page>{content}</Page>);
     expect(screen.queryByRole('tooltip')).toBeNull();
 
-    fireEvent.mouseOver(screen.getByRole('button'));
+    fireEvent.pointerOver(screen.getByRole('button'));
     expect(screen.getByRole('tooltip').getAttribute('data-clickable')).toBe('false');
     await act(() => jest.advanceTimersByTime(200));
     expect(screen.getByRole('tooltip').getAttribute('data-clickable')).toBe('true');
@@ -150,5 +172,71 @@ describe('hover navigation', () => {
     expect(screen.queryByRole('tooltip')).toBeNull();
     fireEvent.click(screen.getByRole('button'));
     expect(screen.getByRole('tooltip')).toBeTruthy();
+  });
+
+  it('ignores touch pointer events by default and lets the tap through', () => {
+    const onClick = jest.fn();
+    render(<Page><HoverTarget onClick={onClick}/></Page>);
+    const target = screen.getByRole('button');
+    tap(target);
+    expect(target.getAttribute('data-hovered')).toBe('false');
+    expect(target.getAttribute('data-ever-hovered')).toBe('false');
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('in toggle mode, a tap opens without activating, a tap away closes, and a second tap on the anchor closes and activates', () => {
+    const onClick = jest.fn();
+    const onLeave = jest.fn();
+    render(<Page><HoverTarget touch="toggle" onClick={onClick} onLeave={onLeave}/><p>Elsewhere</p></Page>);
+    const target = screen.getByRole('button');
+
+    tap(target);
+    expect(target.getAttribute('data-hovered')).toBe('true');
+    expect(target.getAttribute('data-anchored')).toBe('true');
+    expect(onClick).not.toHaveBeenCalled();
+
+    fireEvent.pointerDown(screen.getByText('Elsewhere'), { pointerType: "touch" });
+    expect(target.getAttribute('data-hovered')).toBe('false');
+    expect(onLeave).toHaveBeenCalledTimes(1);
+
+    tap(target);
+    expect(target.getAttribute('data-hovered')).toBe('true');
+    expect(onClick).not.toHaveBeenCalled();
+    tap(target);
+    expect(target.getAttribute('data-hovered')).toBe('false');
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onLeave).toHaveBeenCalledTimes(2);
+  });
+
+  it('in toggle mode, a mouse click on the anchor is not swallowed', () => {
+    const onClick = jest.fn();
+    render(<Page><HoverTarget touch="toggle" onClick={onClick}/></Page>);
+    const target = screen.getByRole('button');
+    fireEvent.pointerOver(target, { pointerType: "mouse" });
+    expect(target.getAttribute('data-hovered')).toBe('true');
+    fireEvent.pointerDown(target, { pointerType: "mouse" });
+    fireEvent.click(target);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(target.getAttribute('data-hovered')).toBe('true');
+  });
+
+  it.each([LWTooltip, TooltipSpan])('%p in toggle mode opens on tap and swallows the wrapped click', Tooltip => {
+    const onClick = jest.fn();
+    render(<Page><Tooltip title="Karma breakdown" touch="toggle"><button onClick={onClick}>12</button></Tooltip><p>Elsewhere</p></Page>);
+    tap(screen.getByRole('button'));
+    expect(screen.getByRole('tooltip')).toBeTruthy();
+    expect(onClick).not.toHaveBeenCalled();
+    fireEvent.pointerDown(screen.getByText('Karma breakdown'), { pointerType: "touch" });
+    expect(screen.getByRole('tooltip')).toBeTruthy();
+    fireEvent.pointerDown(screen.getByText('Elsewhere'), { pointerType: "touch" });
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it.each([LWTooltip, TooltipSpan])('%p ignores taps by default', Tooltip => {
+    const onClick = jest.fn();
+    render(<Page><Tooltip title="Back"><button onClick={onClick}>Back</button></Tooltip></Page>);
+    tap(screen.getByRole('button'));
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

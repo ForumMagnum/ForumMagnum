@@ -149,7 +149,6 @@ const PostsVoteDefault = ({
           title={`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "Vote" : "Votes"}`}
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
-          hideOnTouchScreens
         >
           <Typography
             variant="headline"

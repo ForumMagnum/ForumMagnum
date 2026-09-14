@@ -148,19 +148,19 @@ const PostsBottomBar = () => {
         pinStart={-999999} // In contrast to the header where we want to switch postion from fixed to relative, doing this for the bottom bar would make it disappear since it is no longer fixed to the viewport. -999999 prevents this.
       >
         <div className={classes.root}>
-          <LWTooltip title="Back" placement="top" disabledOnMobile>
+          <LWTooltip title="Back" placement="top">
             <div className={classes.button} onClick={handleBackClick}>
               <ForumIcon icon="ArrowForward" className={classNames(classes.icon, classes.backArrow)} />
             </div>
           </LWTooltip>
 
-          <LWTooltip title="Scroll to top" placement="top" disabledOnMobile>
+          <LWTooltip title="Scroll to top" placement="top">
             <div className={classes.button} onClick={handleScrollToTop}>
               <ForumIcon icon="ArrowForward" className={classNames(classes.icon, classes.upArrow)} />
             </div>
           </LWTooltip>
 
-          <LWTooltip title="Comments" placement="top" disabledOnMobile>
+          <LWTooltip title="Comments" placement="top">
             <div className={classes.button} onClick={handleCommentsClick}>
               <div className={classes.commentsButton}>
                 <CommentIcon className={classes.commentIcon} />

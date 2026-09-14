@@ -100,7 +100,6 @@ const UsersNameWithModal = ({
           title={<UltraFeedUserCard user={user} />}
           placement={tooltipPlacement}
           clickable
-          disabledOnMobile
           flip
           popperClassName={classes.cardWrapper}
         >

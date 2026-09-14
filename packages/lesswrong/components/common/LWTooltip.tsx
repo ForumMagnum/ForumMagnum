@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { useHover } from './withHover';
+import { useHover, type HoverTouchBehavior } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
@@ -23,6 +23,8 @@ const styles = defineStyles("LWTooltip", (_theme: ThemeType) => ({
 
 export const TooltipSuggestedWidth = 270;
 
+function noop() {}
+
 export type LWTooltipProps = {
   title?: ReactNode,
   placement?: PopperPlacementType,
@@ -32,8 +34,14 @@ export type LWTooltipProps = {
   inlineBlock?: boolean,
   As?: 'span' | 'div',
   disabled?: boolean,
-  disabledOnMobile?: boolean,
-  hideOnTouchScreens?: boolean,
+  /**
+   * How the tooltip responds to touch input. Defaults to "hidden", which is
+   * right for hints on buttons. Use "toggle" when the tooltip's content is only
+   * available in the tooltip (user cards, tag previews, karma breakdowns): a
+   * tap then opens it instead of activating the wrapped element, and a tap
+   * elsewhere closes it. See HoverTouchBehavior.
+   */
+  touch?: HoverTouchBehavior,
   className?: string,
   /** Distance in px between the anchor and the tooltip, along the placement axis */
   distance?: number,
@@ -63,8 +71,7 @@ const LWTooltip = ({
   inlineBlock=true,
   As="span",
   disabled=false,
-  disabledOnMobile=false,
-  hideOnTouchScreens=false,
+  touch="hidden",
   distance,
   analyticsProps,
   otherEventProps,
@@ -101,7 +108,7 @@ const LWTooltip = ({
       ...analyticsProps,
       ...otherEventProps,
     },
-    disabledOnMobile,
+    touch,
     onEnter: onShow,
     onLeave: () => {
       onHide?.();
@@ -130,10 +137,18 @@ const LWTooltip = ({
 
   if (!title) return <>{children}</>
 
-  return <As className={classNames(
-    inlineBlock && classes.root,
-    className
-  )} {...eventHandlers} ref={defaultAnchorElRef}>
+  return <As
+    className={classNames(
+      inlineBlock && classes.root,
+      className
+    )}
+    {...eventHandlers}
+    // iOS Safari only dispatches click events to elements that have a click
+    // handler of their own, so a tap-to-toggle tooltip on a plain span needs
+    // one for the capture-phase handler above to ever run.
+    onClick={touch === "toggle" ? noop : undefined}
+    ref={defaultAnchorElRef}
+  >
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -145,7 +160,6 @@ const LWTooltip = ({
       allowOverflow={!flip}
       distance={distance}
       clickable={delayedClickable}
-      hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
     >
       <div className={classNames(

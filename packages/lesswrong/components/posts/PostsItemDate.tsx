@@ -82,6 +82,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   if (post.isEvent && post.startTime) {
     return <LWTooltip
       placement="right"
+      touch="toggle"
       title={<span>
         <div className={classes.tooltipSmallText}>Event starts at</div>
         <EventTime post={post} />
@@ -99,6 +100,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   if (post.isEvent && !post.startTime) {
     return <LWTooltip
       placement="right"
+      touch="toggle"
       title={<span>To Be Determined</span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
@@ -131,6 +133,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   if (post.curatedDate) {
     return <LWTooltip
       placement="right"
+      touch="toggle"
       title={<div>
         <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
         <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -142,6 +145,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
 
   return <LWTooltip
     placement="right"
+    touch="toggle"
     title={<ExpandedDate date={post.postedAt}/>}
   >
     {dateElement}

@@ -242,7 +242,6 @@ const CondensedFooterReactionsDesktop = ({
           clickable
           placement="top-end" 
           tooltip={false}
-          hideOnTouchScreens={true}
         >
           <span 
             className={classNames(classes.reactsAndCount)}

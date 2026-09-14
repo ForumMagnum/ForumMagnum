@@ -1,7 +1,6 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useState } from "react";
 import { useHover } from "../common/withHover";
-import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
@@ -108,7 +107,7 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
-  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5;
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`

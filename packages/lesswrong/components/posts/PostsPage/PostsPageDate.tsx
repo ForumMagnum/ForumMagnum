@@ -42,7 +42,7 @@ const PostsPageDate = ({ post, hasMajorRevision }: {
     )
   }
   
-  return <LWTooltip title={tooltip} placement="bottom">
+  return <LWTooltip title={tooltip} placement="bottom" touch="toggle">
     <span className={classes.date}>
       <FormatDate date={post.postedAt} format={"Do MMM YYYY"} tooltip={false} />
     </span>

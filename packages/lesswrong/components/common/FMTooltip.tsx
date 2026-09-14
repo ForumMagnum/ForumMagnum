@@ -1,7 +1,7 @@
 import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsProps } from '@/lib/analyticsEvents';
-import { useHover } from './withHover';
+import { useHover, type HoverTouchBehavior } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import LWPopper from "./LWPopper";
@@ -30,7 +30,8 @@ interface FMTooltipProps {
   flip?: boolean,
   clickable?: boolean,
   disabled?: boolean,
-  hideOnTouchScreens?: boolean,
+  /** How the tooltip responds to touch input. Defaults to "hidden". See HoverTouchBehavior. */
+  touch?: HoverTouchBehavior,
   analyticsProps?: AnalyticsProps,
   otherEventProps?: Record<string, Json | undefined>,
   className?: string,
@@ -51,7 +52,7 @@ interface FMTooltipProps {
 
 export const TooltipRef = <T extends HTMLElement>({
   title, placement="bottom", distance=16, styling="tooltip", flip, clickable,
-  disabled, hideOnTouchScreens, analyticsProps, otherEventProps, className,
+  disabled, touch, analyticsProps, otherEventProps, className,
   popperClassName, forceOpen, preserve, children
 }: FMTooltipProps & {
   children: (hoveredElementRef: Ref<T>) => React.ReactNode
@@ -75,7 +76,7 @@ export const TooltipRef = <T extends HTMLElement>({
       ...analyticsProps,
       ...otherEventProps,
     },
-    disabledOnMobile: hideOnTouchScreens,
+    touch,
     //onEnter: onShow,
     onLeave: () => {
       //onHide?.();
@@ -104,11 +105,16 @@ export const TooltipRef = <T extends HTMLElement>({
   useEffect(() => {
     const hoveredElement = hoveredElementRef.current;
     if (hoveredElement) {
-      hoveredElement.addEventListener("mouseover", eventHandlers.onMouseOver);
-      hoveredElement.addEventListener("mouseleave", eventHandlers.onMouseLeave);
+      const { onPointerOver, onPointerLeave, onPointerDown, onClickCapture } = eventHandlers;
+      hoveredElement.addEventListener("pointerover", onPointerOver);
+      hoveredElement.addEventListener("pointerleave", onPointerLeave);
+      hoveredElement.addEventListener("pointerdown", onPointerDown);
+      hoveredElement.addEventListener("click", onClickCapture, {capture: true});
       return () => {
-        hoveredElement.removeEventListener("mouseover", eventHandlers.onMouseOver);
-        hoveredElement.removeEventListener("mouseleave", eventHandlers.onMouseLeave);
+        hoveredElement.removeEventListener("pointerover", onPointerOver);
+        hoveredElement.removeEventListener("pointerleave", onPointerLeave);
+        hoveredElement.removeEventListener("pointerdown", onPointerDown);
+        hoveredElement.removeEventListener("click", onClickCapture, {capture: true});
       }
     }
   });
@@ -122,14 +128,19 @@ export const TooltipRef = <T extends HTMLElement>({
       tooltip={styling==="tooltip"}
       allowOverflow={!flip}
       clickable={delayedClickable}
-      hideOnTouchScreens={hideOnTouchScreens}
       distance={distance}
       className={popperClassName}
     >
-      <div className={classNames(
-        styling==="tooltip" && classes.tooltip,
-        className
-      )}>
+      { /* The popper is not a React child of the hovered element here, so taps
+           inside it must be marked as "inside" explicitly or they would count
+           as tap-away and close it. */ }
+      <div
+        className={classNames(
+          styling==="tooltip" && classes.tooltip,
+          className
+        )}
+        onPointerDown={eventHandlers.onPointerDown}
+      >
         {title}
       </div>
     </LWPopper>}

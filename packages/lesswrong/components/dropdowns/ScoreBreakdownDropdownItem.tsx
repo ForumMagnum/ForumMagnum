@@ -54,7 +54,7 @@ const ScoreBreakdownDropdownItem = ({
   }
 
   return (
-    <LWTooltip title={tooltipContent} placement="auto" popperClassName={classes.tooltip} clickable className={classes.tooltipWrapper}>
+    <LWTooltip title={tooltipContent} placement="auto" popperClassName={classes.tooltip} clickable touch="toggle" className={classes.tooltipWrapper}>
       <MenuItem>
         <ListItemIcon>
           <ForumIcon icon="Insights" />

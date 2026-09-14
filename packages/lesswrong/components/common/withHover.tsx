@@ -1,6 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { EventProps, useTracking } from "../../lib/analyticsEvents";
-import { isMobile } from '../../lib/utils/isMobile'
 import { useOnNavigateOrHide } from '../hooks/useOnNavigateOrHide';
 
 function datesDifference(a: Date, b: Date): number {
@@ -44,10 +43,33 @@ function getSegmentAnchor(el: HTMLElement, clientX: number, clientY: number): Ho
   return el;
 }
 
+/**
+ * How a hover responds to touch input, where there is no real hover. Touch
+ * browsers synthesize mouse events on tap, so without special handling a tap
+ * both opens the hover and activates whatever was tapped, and nothing closes
+ * the hover afterwards.
+ *
+ * - "hidden": touch never opens the hover. The right choice for hints that
+ *   explain a button, where the tap should just perform the action.
+ * - "toggle": a tap opens the hover and that tap's click is swallowed, so a
+ *   wrapped link does not navigate and a wrapped button does not fire. A tap
+ *   outside the anchor and the popper closes it. While it is open, a tap on the
+ *   anchor closes it and passes through normally. The right choice for content
+ *   that is only available in the hover, such as user cards, tag previews and
+ *   karma breakdowns.
+ */
+export type HoverTouchBehavior = "hidden" | "toggle";
+
 export interface UseHoverEventHandlers {
-  onMouseOver: (ev: MouseEvent|React.MouseEvent) => void,
-  onMouseLeave: (ev: MouseEvent|React.MouseEvent) => void,
+  onPointerOver: (ev: PointerEvent|React.PointerEvent) => void,
+  onPointerLeave: (ev: PointerEvent|React.PointerEvent) => void,
+  onPointerDown: (ev: PointerEvent|React.PointerEvent) => void,
+  onClickCapture: (ev: MouseEvent|React.MouseEvent) => void,
 };
+
+function isTouchPointer(ev: PointerEvent|React.PointerEvent): boolean {
+  return ev.pointerType === "touch";
+}
 
 /**
  * Returns a set of event handlers for implementing a hover effect. Spread
@@ -69,11 +91,10 @@ export const useHover = (options?: {
    */
   getIsEnabled?: () => boolean,
   /**
-   * Whether to disable this hover on touch devices (note, it's specifically
-   * about whether it's a touch device, _not_ about screen size). Equivalent to
-   * passing getIsEnabled={() => !isMobile()}.
+   * How this hover responds to touch input. Defaults to "hidden". See
+   * HoverTouchBehavior.
    */
-  disabledOnMobile?: boolean,
+  touch?: HoverTouchBehavior,
 }): {
   eventHandlers: UseHoverEventHandlers,
   hover: boolean,
@@ -81,33 +102,34 @@ export const useHover = (options?: {
   anchorEl: HoverAnchor | null,
   forceUnHover: () => void,
 } => {
-  const {eventProps, onEnter, onLeave, disabledOnMobile, getIsEnabled} = options ?? {};
+  const {eventProps, onEnter, onLeave, getIsEnabled, touch="hidden"} = options ?? {};
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<HoverAnchor | null>(null)
   const delayTimer = useRef<NodeJS.Timeout | null>(null)
   const mouseOverStart = useRef<Date|null>(null)
   const hoveredRef = useRef(false);
+  // The pointer type of the most recent pointerdown on the anchor (or inside
+  // its popper), so that the following click can tell whether it came from a
+  // touch. Click events don't reliably carry pointerType across browsers.
+  const lastPointerTypeRef = useRef<string|null>(null);
+  // The most recent native pointerdown that happened inside the anchor or its
+  // popper. The document-level tap-away listener uses this to tell inside from
+  // outside, which works across portals because React propagates events
+  // through the React tree rather than the DOM tree.
+  const insidePointerDownRef = useRef<Event|null>(null);
 
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
   
   const captureHoverEvent = useCallback(() => {
-    if (!isMobile()) {
-      captureEvent("hoverEventTriggered",
-        {timeToCapture: new Date()}
-      )
-    }
+    captureEvent("hoverEventTriggered",
+      {timeToCapture: new Date()}
+    )
     if (delayTimer.current) clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event: MouseEvent|React.MouseEvent) => {
-    const target = event.currentTarget;
-    if (!(target instanceof HTMLElement)) return;
-    if ((disabledOnMobile && isMobile()) || (getIsEnabled && !getIsEnabled())) {
-      return;
-    }
-
-    // Mouseover also fires when moving between children. Keep callbacks outside
+  const open = useCallback((target: HTMLElement, clientX: number, clientY: number) => {
+    // Pointerover also fires when moving between children. Keep callbacks outside
     // state updaters so React cannot replay them, including during restoration.
     if (!hoveredRef.current) {
       hoveredRef.current = true;
@@ -119,11 +141,22 @@ export const useHover = (options?: {
     // lines, anchor the popper to the specific line segment the mouse is over
     // rather than to the overall bounding box. For non-wrapping elements this
     // is a no-op (getClientRects returns a single rect).
-    setAnchorEl(getSegmentAnchor(target, event.clientX, event.clientY));
+    setAnchorEl(getSegmentAnchor(target, clientX, clientY));
+  }, [onEnter]);
+
+  const handlePointerOver = useCallback((event: PointerEvent|React.PointerEvent) => {
+    const target = event.currentTarget;
+    if (!(target instanceof HTMLElement)) return;
+    // Touch has no hover; a touch pointerover is just the start of a tap. The
+    // tap is handled in handleClickCapture according to the touch behavior.
+    if (isTouchPointer(event)) return;
+    if (getIsEnabled && !getIsEnabled()) return;
+
+    open(target, event.clientX, event.clientY);
     mouseOverStart.current = new Date()
     if (delayTimer.current) clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent, onEnter, disabledOnMobile, getIsEnabled])
+  }, [captureHoverEvent, open, getIsEnabled])
 
   /**
    * Simulate un-hovering, making this effectively not-hovered until the mouse
@@ -142,7 +175,10 @@ export const useHover = (options?: {
 
   useOnNavigateOrHide(forceUnHover);
 
-  const handleMouseLeave = useCallback(() => {
+  const handlePointerLeave = useCallback((event: PointerEvent|React.PointerEvent) => {
+    // A touch pointer "leaves" as soon as the finger lifts, which must not
+    // close a hover that was opened by that tap (or by a real mouse).
+    if (isTouchPointer(event)) return;
     const hoverStart = mouseOverStart.current;
     forceUnHover();
     if (hoverStart) {
@@ -153,10 +189,54 @@ export const useHover = (options?: {
     }
   }, [captureEvent, forceUnHover]);
 
+  const handlePointerDown = useCallback((event: PointerEvent|React.PointerEvent) => {
+    lastPointerTypeRef.current = event.pointerType;
+    insidePointerDownRef.current = "nativeEvent" in event ? event.nativeEvent : event;
+  }, []);
+
+  // Runs in the capture phase, before any click handler on the tapped element,
+  // so that the tap which opens a "toggle" hover can be swallowed entirely.
+  const handleClickCapture = useCallback((event: MouseEvent|React.MouseEvent) => {
+    const pointerType = lastPointerTypeRef.current;
+    lastPointerTypeRef.current = null;
+    if (pointerType !== "touch") return;
+    if (touch !== "toggle") return;
+    if (getIsEnabled && !getIsEnabled()) return;
+    const anchor = event.currentTarget;
+    if (!(anchor instanceof HTMLElement)) return;
+    // Clicks inside the popper also arrive here (React propagates through
+    // portals). Those belong to the popper's contents; only taps on the anchor
+    // itself toggle the hover.
+    if (!(event.target instanceof Node) || !anchor.contains(event.target)) return;
+
+    if (hoveredRef.current) {
+      forceUnHover();
+      return;
+    }
+    open(anchor, event.clientX, event.clientY);
+    event.preventDefault();
+    event.stopPropagation();
+  }, [touch, getIsEnabled, open, forceUnHover]);
+
+  // While open, a pointerdown anywhere other than the anchor or its popper
+  // closes the hover. This is what lets touch users dismiss a hover; for mouse
+  // users it is redundant with pointerleave and harmless.
+  useEffect(() => {
+    if (!hover) return;
+    const onDocumentPointerDown = (event: PointerEvent) => {
+      if (event === insidePointerDownRef.current) return;
+      forceUnHover();
+    };
+    document.addEventListener("pointerdown", onDocumentPointerDown);
+    return () => document.removeEventListener("pointerdown", onDocumentPointerDown);
+  }, [hover, forceUnHover]);
+
   return {
     eventHandlers: {
-      onMouseOver: handleMouseOver,
-      onMouseLeave: handleMouseLeave,
+      onPointerOver: handlePointerOver,
+      onPointerLeave: handlePointerLeave,
+      onPointerDown: handlePointerDown,
+      onClickCapture: handleClickCapture,
     },
     hover,
     everHovered,

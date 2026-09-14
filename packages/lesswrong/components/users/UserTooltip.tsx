@@ -35,6 +35,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
       clickable
+      touch="toggle"
       disabled={disabled}
     >
       {children}

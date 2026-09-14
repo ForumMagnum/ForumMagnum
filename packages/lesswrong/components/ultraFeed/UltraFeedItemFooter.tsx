@@ -377,7 +377,7 @@ const UltraFeedItemFooterCore = ({
         }
       )}
     >
-      <LWTooltip title={commentIconTooltip} disabledOnMobile>
+      <LWTooltip title={commentIconTooltip}>
         <span className={classNames(
           classes.commentCountInner,
           { [classes.commentCountInnerActive]: isReplying }
@@ -398,7 +398,7 @@ const UltraFeedItemFooterCore = ({
 
   const showAllCommentsButton = commentsUrl ? (
     <div className={classes.showAllCommentsWrapper}>
-      <LWTooltip title={showAllCommentsTooltip} disabledOnMobile>
+      <LWTooltip title={showAllCommentsTooltip}>
         <Link to={commentsUrl} className={classes.showAllComments}>
           <DebateIconOutline />
           {(commentCount ?? 0) > 0 && <span className={classes.showAllCommentsCount}>{commentCount}</span>}

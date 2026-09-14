@@ -19,6 +19,7 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
     <LWTooltip
       placement={placement}
       clickable={!!linkItem}
+      touch="toggle"
       title={
         <div>
           <div>{baseScore ?? 0} karma</div>

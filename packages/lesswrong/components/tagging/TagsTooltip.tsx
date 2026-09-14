@@ -245,6 +245,7 @@ const TagsTooltip = ({
         </LWClickAwayListener>
       }
       clickable
+      touch="toggle"
       As={As}
       inlineBlock={inlineBlock}
       analyticsProps={{

@@ -153,7 +153,6 @@ const PostsTooltip = ({
       title={renderTitle()}
       placement={placement}
       tooltip={false}
-      hideOnTouchScreens
       inlineBlock={inlineBlock}
       As={As}
       clickable={clickable}

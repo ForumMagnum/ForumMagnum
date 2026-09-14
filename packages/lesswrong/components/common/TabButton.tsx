@@ -130,7 +130,6 @@ const TabButton = ({
       <LWTooltip
         title={description}
         popperClassName={classes.tagDescriptionTooltip}
-        hideOnTouchScreens
       >
         {buttonContent}
       </LWTooltip>

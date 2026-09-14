@@ -52,7 +52,7 @@ const SequencesNavigationLink = ({ post, direction }: {
       </Link>
     )
     if (post.title) {
-      return <TooltipSpan title={post.title} placement="top" hideOnTouchScreens>{button}</TooltipSpan>
+      return <TooltipSpan title={post.title} placement="top">{button}</TooltipSpan>
     } else {
       return button;
     }

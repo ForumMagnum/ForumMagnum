@@ -98,7 +98,6 @@ const ExpandableSection = ({
               {title}
               <LWTooltip
                 title={expanded ? "Collapse" : "Expand"}
-                hideOnTouchScreens
               >
                 <ForumIcon
                   icon="ThickChevronRight"

@@ -392,11 +392,17 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
   footerReactionClassName?: string,
 }) => {
   const classes = useStyles(styles);
-  const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
+  const setHoveredReaction = useContext(SetHoveredReactionContext);
+  const { hover, eventHandlers } = useHover({
+    // On touch, the summary of who reacted is only reachable by tapping the
+    // reaction, so a tap opens it rather than applying the reaction.
+    touch: "toggle",
+    onEnter: () => setHoveredReaction?.({reactionName: react, isHovered: true, quote: null}),
+    onLeave: () => setHoveredReaction?.({reactionName: react, isHovered: false, quote: null}),
+  });
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react, quote);
   const currentUserReaction = getCurrentUserReaction(react, quote)
-  const setHoveredReaction = useContext(SetHoveredReactionContext);
 
   const alreadyUsedReactions: NamesAttachedReactionsList|undefined = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
   const reactions: UserReactInfo[] = alreadyUsedReactions?.[react] ?? []
@@ -404,21 +410,13 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
   const quotesWithUndefinedRemoved = filter(quotes, q => q !== undefined) as string[]
 
   function reactionClicked(reaction: EmojiReactName) {
-    // The only way to "hover" over reactions to see who left them on mobile is to click on them
-    // So let's not actually have clicking on a reaction cause the user to apply it, when on mobile
-    // They can still apply it from the displayed summary card, if they want
+    // On mobile, tapping a reaction opens the summary of who left it (see the
+    // touch behavior of the hover above). This fires on mousedown, which touch
+    // browsers synthesize before the click that the hover swallows, so it has
+    // to skip applying the reaction itself. Users can still apply it from the
+    // summary card.
     if (isMobile() || currentUserReaction?.quotes?.length) return
     toggleReaction(reaction, quote);
-  }
-
-  function handleMouseEnter (e: any) {
-    setHoveredReaction?.({reactionName: react, isHovered: true, quote: null});
-    onMouseOver(e);
-  }
-  
-  function handleMouseLeave (ev: React.MouseEvent<HTMLElement>) {
-    setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
-    onMouseLeave(ev);
   }
 
   const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
@@ -426,7 +424,7 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
 
   const reactionOnMessage = style === 'message';
 
-  return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+  return <span {...eventHandlers}>
     <span
       className={classNames(
         classes.footerReaction,

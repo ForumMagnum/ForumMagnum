@@ -163,7 +163,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
       href,
     },
     getIsEnabled: () => {
-      return !isMobile() && window.innerWidth >= minScreenWidthForTooltips;
+      return window.innerWidth >= minScreenWidthForTooltips;
     },
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();

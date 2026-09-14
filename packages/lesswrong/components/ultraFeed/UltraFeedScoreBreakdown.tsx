@@ -137,6 +137,7 @@ const UltraFeedScoreBreakdown = ({ metadata, sources, commentMetaInfo, postMetaI
         placement="top"
         popperClassName={classes.tooltip}
         clickable={true}
+        touch="toggle"
       >
         {children ?? (
           <span>

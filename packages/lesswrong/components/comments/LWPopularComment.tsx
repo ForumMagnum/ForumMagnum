@@ -7,7 +7,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import { useHover } from "../common/withHover";
-import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import LWPopper from "../common/LWPopper";
@@ -121,7 +120,7 @@ const useParentCommentLinkAndTooltip = ({ comment }: {
     return {};
   }
 
-  const displayHoverOver = hover && !isMobile();
+  const displayHoverOver = hover;
 
   const parentCommentTooltip = (
     <LWPopper
