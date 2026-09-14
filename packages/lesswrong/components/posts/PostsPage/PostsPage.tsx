@@ -448,7 +448,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   // loaded, then drop the parameter so reloads and shared links don't reprint
   const clearPrintQueryParam = useCallback(() => {
     const newQuery = {...query, [POST_PRINT_QUERY_PARAM]: undefined};
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, {replace: true});
+    const search = qs.stringify(newQuery);
+    // An empty `search: "?"` would leave a bare "?" on the URL
+    navigate({...location.location, search: search ? `?${search}` : ""}, {replace: true});
   }, [navigate, location.location, query]);
   usePrintOnLoad(isPrintView && !!fullPost, clearPrintQueryParam);
 

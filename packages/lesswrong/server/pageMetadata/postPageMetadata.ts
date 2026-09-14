@@ -1,5 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { isLWorAF } from '@/lib/forumTypeUtils';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
@@ -112,8 +113,9 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
       const noIndex = postNoIndex || commentId || options?.noIndex;
       // Don't advertise unlisted posts, or non-canonical views of a post such
-      // as old revisions, as citable works
-      const includeCitationTags = !postNoIndex && !options?.noIndex;
+      // as old revisions, as citable works. Citation tools are LessWrong /
+      // Alignment Forum only.
+      const includeCitationTags = isLWorAF() && !postNoIndex && !options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);
       const descriptionFields = getMetadataDescriptionFields(description);

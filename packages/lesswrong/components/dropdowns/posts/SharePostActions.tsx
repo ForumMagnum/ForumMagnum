@@ -68,7 +68,7 @@ const SharePostActions = ({post, onClick}: {
         icon="Link"
         onClick={copyLink}
       />
-      <CitePostDropdownItem postId={post._id} closeMenu={onClick} />
+      <CitePostDropdownItem post={post} closeMenu={onClick} />
       <DropdownDivider/>
       <DropdownItem
         title={isFriendlyUI() ? "Share on Twitter" : "Twitter"}
