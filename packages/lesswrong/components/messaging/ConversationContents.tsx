@@ -12,6 +12,8 @@ import MessageItem from "./MessageItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SideItemsContainer } from "../contents/SideItems.tsx";
+import { Link } from "../../lib/reactRouterWrapper";
+import ConversationDetails from "./ConversationDetails";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -27,53 +29,91 @@ const messageListFragmentMultiQuery = gql(`
 `);
 
 const styles = defineStyles("ConversationContents", (theme: ThemeType) => ({
-  conversationTitle: {
-    ...theme.typography.commentStyle,
-    marginTop: 8,
-    marginBottom: 12,
+  root: {
+    flex: "1 1 auto",
+    minHeight: 0,
+    display: "flex",
+    flexDirection: "column",
+  },
+  // The scrolling region. The editor sits below it as a separate flex item, so
+  // a taller editor shrinks this region rather than covering part of it.
+  scrollArea: {
+    flex: "1 1 auto",
+    minHeight: 0,
+    overflowY: "auto",
+    padding: "0px 16px",
+    [theme.breakpoints.down('xs')]: {
+      padding: "0px 24px",
+    },
+  },
+  backButton: {
+    ...theme.typography.body2,
+    color: theme.palette.lwTertiary.main,
+    width: 'fit-content',
+    padding: "12px 0 0 0",
+    fontWeight: 600,
+    display: "none",
+    // Only show on mobile
+    [theme.breakpoints.down('xs')]: {
+      display: "block",
+    }
+  },
+  messages: {
+    [theme.breakpoints.down("xs")]: {
+      width: "calc(100% - 5px)",
+    },
   },
   editor: {
-    position: "sticky",
-    bottom: 0,
-    width: "100%",
+    flex: "0 0 auto",
     '& .form-submit': {
       // form-submit has display: block by default, which for some reason makes it take up 0 height
       // on mobile. This fixes that.
       display: "flex",
     },
-    padding: '8px 0px',
+    // Cap the height of the text area (but not the send button next to it) so
+    // that a very long unsent message scrolls inside the input box rather than
+    // pushing the message history off-screen entirely.
+    '& .form-component-EditorFormComponent': {
+      maxHeight: "50vh",
+      overflowY: "auto",
+    },
+    padding: '8px 16px',
     backgroundColor: theme.palette.background.paper,
-  },
-  backButton: {
-    color: theme.palette.lwTertiary.main,
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  messagesContainer: {
-    height: '100%',
-  },
-  messagesColumn: {
-    position: "relative",
-    height: "100%",
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    [theme.breakpoints.down("xs")]: {
-      width: "calc(100% - 5px)",
+    [theme.breakpoints.down('xs')]: {
+      padding: "8px 24px",
     },
   },
 }));
 
-const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail = true}: {
+/**
+ * Keep the messages that are visible just above the editor in place when the
+ * editor changes height (e.g. because the user typed a multi-line message):
+ * when the editor grows by N pixels, the scroll area shrinks by N pixels from
+ * the bottom, so scrolling down by N pixels pushes the message history up
+ * rather than hiding the bottom of it.
+ */
+function keepScrollAnchoredAboveEditor(scrollEl: HTMLElement, editorEl: HTMLElement): () => void {
+  let lastHeight: number | null = null;
+  const observer = new ResizeObserver((entries) => {
+    const newHeight = entries[0]?.contentRect.height;
+    if (newHeight === undefined) return;
+    if (lastHeight !== null && newHeight !== lastHeight) {
+      scrollEl.scrollTop += newHeight - lastHeight;
+    }
+    lastHeight = newHeight;
+  });
+  observer.observe(editorEl);
+  return () => observer.disconnect();
+}
+
+const ConversationContents = ({conversation, currentUserId, sendEmail = true}: {
   conversation: ConversationsList;
   currentUserId: string;
-  scrollRef?: React.RefObject<HTMLDivElement|null>;
   sendEmail?: boolean;
 }) => {
   const classes = useStyles(styles);
+  const scrollRef = useRef<HTMLDivElement|null>(null);
+  const editorRef = useRef<HTMLDivElement|null>(null);
 
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works
@@ -94,6 +134,14 @@ const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail
   });
 
   const results = data?.messages?.results;
+  const showLoading = loading && !results;
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    const editorEl = editorRef.current;
+    if (showLoading || !scrollEl || !editorEl) return;
+    return keepScrollAnchoredAboveEditor(scrollEl, editorEl);
+  }, [showLoading]);
 
   const { query } = useLocation();
   const { captureEvent } = useTracking();
@@ -118,12 +166,12 @@ const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail
         window.scroll({top: document.body.scrollHeight-scrollPadding, behavior: 'smooth'})
 
         // Also scroll the exact element we are embedded in, if we have a ref to it
-        if (scrollRef?.current) {
+        if (scrollRef.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
       }, 0);
     }
-  }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
+  }, [stateSignatureRef, results?.length, conversation._id]);
 
   // TODO: replace this functionality without SSE
   // useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
@@ -147,7 +195,7 @@ const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail
     if (!results?.length) return null;
 
     return (
-      <div data-testid="conversation-messages">
+      <div data-testid="conversation-messages" className={classes.messages}>
         {results.map((message, idx) => (
           <SideItemsContainer key={message._id} hideBlockSideItems>
             <MessageItem message={message} />
@@ -157,45 +205,49 @@ const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail
     );
   };
 
-  if (loading && !results) return <Loading />;
+  if (showLoading) return <Loading />;
   if (!conversation) return <Error404 />;
 
   return (
-    <div className={classes.messagesContainer}>
-      <div className={classes.messagesColumn}>
+    <div className={classes.root}>
+      <div className={classes.scrollArea} ref={scrollRef}>
+        <Link to="/inbox" className={classes.backButton}>
+          Go back to Inbox
+        </Link>
+        <ConversationDetails conversation={conversation} hideOptions />
         {renderMessages()}
-        <div className={classes.editor}>
-          <MessagesNewForm
-            key={`sendMessage-${conversation._id}-${messageSentCount}`}
-            conversationId={conversation._id}
-            templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-            formStyle="minimalist"
-            sendEmail={sendEmail}
-            successEvent={(newMessage) => {
-              setMessageSentCount(messageSentCount + 1);
-              captureEvent("messageSent", {
-                conversationId: conversation._id,
-                sender: currentUserId,
-                participantIds: conversation.participantIds,
-                messageCount: (conversation.messageCount || 0) + 1,
-                ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
-              });
-              updateQuery((_, { previousData }) => {
-                const previousResults = previousData?.messages?.results ?? [];
-                const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+      </div>
+      <div className={classes.editor} ref={editorRef}>
+        <MessagesNewForm
+          key={`sendMessage-${conversation._id}-${messageSentCount}`}
+          conversationId={conversation._id}
+          templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+          formStyle="minimalist"
+          sendEmail={sendEmail}
+          successEvent={(newMessage) => {
+            setMessageSentCount(messageSentCount + 1);
+            captureEvent("messageSent", {
+              conversationId: conversation._id,
+              sender: currentUserId,
+              participantIds: conversation.participantIds,
+              messageCount: (conversation.messageCount || 0) + 1,
+              ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
+            });
+            updateQuery((_, { previousData }) => {
+              const previousResults = previousData?.messages?.results ?? [];
+              const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
 
-                return {
-                  __typename: "Query" as const,
-                  messages: {
-                    __typename: "MultiMessageOutput" as const,
-                    results: [...previousMessages, newMessage],
-                    totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
-                  },
-                }
-              })
-            }}
-          />
-        </div>
+              return {
+                __typename: "Query" as const,
+                messages: {
+                  __typename: "MultiMessageOutput" as const,
+                  results: [...previousMessages, newMessage],
+                  totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                },
+              }
+            })
+          }}
+        />
       </div>
     </div>
   );
