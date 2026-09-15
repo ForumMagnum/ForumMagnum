@@ -100,9 +100,11 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const LoginForm = ({ startingState = "login", returnTo }: {
+const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   startingState?: possibleActions,
-  returnTo?: string
+  returnTo?: string,
+  /** Only enable when the form is opened by a user interaction. */
+  autoFocus?: boolean,
 }) => {
   const { isAF } = useForumType();
   const classes = useStyles(styles);
@@ -222,6 +224,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         <input
           value={username} type="text" name="username"
           autoComplete="username"
+          autoFocus={autoFocus}
           placeholder={currentAction === "signup" ? "username" : "username or email"}
           className={classes.input}
           onChange={event => setUsername(event.target.value)}
