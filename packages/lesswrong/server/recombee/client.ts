@@ -423,7 +423,7 @@ const helpers = {
     const attributionId = recResponse.recommId;
     const ttlMs = recombeeCacheTtlMsSetting.get(context);
 
-    backgroundTask(context.RecommendationsCaches.rawInsertMany(
+    backgroundTask(context.repos.recommendationsCaches.insertRecommendations(
       recResponse.recomms.map((rec) => ({
         _id: randomId(),
         userId,
