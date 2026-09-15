@@ -77,6 +77,12 @@ export const insertLLMBlockToolSchema = z.object({
   location: insertLocationSchema,
 });
 
+export const uploadImageMetadataSchema = z.object({
+  postId: z.string().min(1).describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name of the agent uploading the image"),
+});
+
 export const insertWidgetToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

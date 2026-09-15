@@ -203,6 +203,19 @@ To reply to an existing comment thread on the draft:
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
 
+To upload a local image for use in the draft, make a multipart request to:
+    POST /api/agent/uploadImage
+with form fields \`postId\`, \`key\`, optional \`agentName\`, and \`file\`:
+    curl -X POST ${urlPrefix}/api/agent/uploadImage \\
+      -F 'postId=...' \\
+      -F 'key=...' \\
+      -F 'agentName=...' \\
+      -F 'file=@/path/to/image.png'
+The caller must have edit access to the draft. The file must have an image MIME
+type and be no larger than 4MB. The response contains the permanent hosted
+\`url\` plus its \`width\` and \`height\`. Uploading does not change the draft;
+use the returned URL in image markdown with insertBlock or replaceText.
+
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }

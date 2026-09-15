@@ -305,6 +305,9 @@ export const routeTrie = {
             },
             "replyToComment": {
               "hasRoute": true
+            },
+            "uploadImage": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
@@ -318,7 +321,8 @@ export const routeTrie = {
             "ping": "ping",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
-            "replytocomment": "replyToComment"
+            "replytocomment": "replyToComment",
+            "uploadimage": "uploadImage"
           }
         },
         "autocomplete": {
