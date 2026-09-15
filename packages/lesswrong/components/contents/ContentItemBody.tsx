@@ -59,6 +59,26 @@ const blockLevelTagNames = new Set([
   "p", "pre", "section", "table", "ul",
 ]);
 
+function isWhitespaceTextNode(node: DomHandlerChildNode): boolean {
+  return node.type === htmlparser2.ElementType.Text && node.data.trim() === '';
+}
+
+/**
+ * Whether all of an element's children are block-level elements (ignoring
+ * whitespace-only text between them). Used for spoiler blocks, whose
+ * children are revealed one at a time on hover when they're blocks.
+ */
+function childrenAreBlockLevel(childNodes: DomHandlerChildNode[]): boolean {
+  let sawBlock = false;
+  for (const child of childNodes) {
+    if (isWhitespaceTextNode(child)) continue;
+    if (child.type !== htmlparser2.ElementType.Tag) return false;
+    if (!blockLevelTagNames.has(child.tagName.toLowerCase())) return false;
+    sawBlock = true;
+  }
+  return sawBlock;
+}
+
 /**
  * Block-level tags which we can't put an id-insertion inside of, either because
  * they can't have children at all, or because their content model doesn't allow
@@ -290,13 +310,23 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         ? getIdInsertionDescendIndex(parsedHtml.childNodes)
         : null;
 
-      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
-        key={i}
-        parsedHtml={c}
-        passedThroughProps={passedThroughProps}
-        insertedAtStart={i===descendIndex ? idInsertion : undefined}
-        insideSpoiler={insideSpoiler || isSpoilerElement}
-      />)
+      // A spoiler block whose children are all blocks wraps each child in its
+      // own element, so drop the whitespace between them rather than giving it
+      // a wrapper of its own.
+      const spoilerWithBlockChildren = isSpoilerElement && !insideSpoiler
+        && blockLevelTagNames.has(TagName) && childrenAreBlockLevel(parsedHtml.childNodes);
+
+      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => (
+        (spoilerWithBlockChildren && isWhitespaceTextNode(c))
+          ? null
+          : <ContentItemBodyInner
+              key={i}
+              parsedHtml={c}
+              passedThroughProps={passedThroughProps}
+              insertedAtStart={i===descendIndex ? idInsertion : undefined}
+              insideSpoiler={insideSpoiler || isSpoilerElement}
+            />
+      ))
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
@@ -420,6 +450,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         return <SpoilerBlock
           attributes={attribs}
           inline={!blockLevelTagNames.has(TagName)}
+          hasBlockChildren={spoilerWithBlockChildren}
         >
           {result}
         </SpoilerBlock>
