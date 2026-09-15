@@ -1,6 +1,6 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 
-const hideSpoilers = (theme: ThemeType) => ({
+export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
   '& a, & a:hover, & a:focus, & a::after, & li': {
