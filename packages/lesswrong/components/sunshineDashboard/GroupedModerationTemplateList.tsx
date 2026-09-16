@@ -17,6 +17,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
+import { REJECTION_TEMPLATE_CONFIG_PREFIX, type RejectionTemplateConfig } from './RejectContentDialog';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { useCurrentUser } from '../common/withUser';
@@ -48,29 +49,60 @@ const UpdateModerationTemplateGroupMutation = gql(`
 const UNGROUPED_TEMPLATES_LABEL = "Other";
 const HIDDEN_TEMPLATES_LABEL = "Hidden";
 
-// Hiding is per-moderator, so it lives in localStorage
+// Hiding is per-moderator, so it lives in localStorage. Rejections use the key the
+// rejection dialog has always used, rather than one of their own, so a template
+// hidden in either list stays hidden in both.
 const HIDDEN_TEMPLATES_STORAGE_PREFIX = 'hiddenModerationTemplates_';
 
 function getHiddenTemplatesStorageKey(userId: string, collectionName: TemplateType) {
-  return `${HIDDEN_TEMPLATES_STORAGE_PREFIX}${collectionName}_${userId}`;
+  return collectionName === 'Rejections'
+    ? `${REJECTION_TEMPLATE_CONFIG_PREFIX}${userId}`
+    : `${HIDDEN_TEMPLATES_STORAGE_PREFIX}${collectionName}_${userId}`;
 }
 
-function loadHiddenTemplateIds(userId: string, collectionName: TemplateType): string[] {
+function readStoredTemplateConfig(userId: string, collectionName: TemplateType): unknown {
   const ls = getBrowserLocalStorage();
   const stored = ls?.getItem(getHiddenTemplatesStorageKey(userId, collectionName));
-  if (!stored) return [];
+  if (!stored) return null;
   try {
-    const parsed: unknown = JSON.parse(stored);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((id): id is string => typeof id === 'string');
+    return JSON.parse(stored);
   } catch {
-    return [];
+    return null;
   }
+}
+
+function filterTemplateIds(templateIds: unknown): string[] {
+  if (!Array.isArray(templateIds)) return [];
+  return templateIds.filter((id): id is string => typeof id === 'string');
+}
+
+// Rejections are stored as the dialog's `{hiddenTemplateIds, templateOrder}` config;
+// the other template types as a bare array of ids
+function loadHiddenTemplateIds(userId: string, collectionName: TemplateType): string[] {
+  const stored = readStoredTemplateConfig(userId, collectionName);
+  if (typeof stored === 'object' && stored !== null && 'hiddenTemplateIds' in stored) {
+    return filterTemplateIds(stored.hiddenTemplateIds);
+  }
+  return filterTemplateIds(stored);
 }
 
 function saveHiddenTemplateIds(userId: string, collectionName: TemplateType, hiddenTemplateIds: Set<string>) {
   const ls = getBrowserLocalStorage();
-  ls?.setItem(getHiddenTemplatesStorageKey(userId, collectionName), JSON.stringify([...hiddenTemplateIds]));
+  if (!ls) return;
+  const storageKey = getHiddenTemplatesStorageKey(userId, collectionName);
+
+  if (collectionName !== 'Rejections') {
+    ls.setItem(storageKey, JSON.stringify([...hiddenTemplateIds]));
+    return;
+  }
+
+  // Keep the dialog's custom template order, which this list has no equivalent of
+  const stored = readStoredTemplateConfig(userId, collectionName);
+  const templateOrder = typeof stored === 'object' && stored !== null && 'templateOrder' in stored
+    ? filterTemplateIds(stored.templateOrder)
+    : [];
+  const config: RejectionTemplateConfig = { hiddenTemplateIds: [...hiddenTemplateIds], templateOrder };
+  ls.setItem(storageKey, JSON.stringify(config));
 }
 
 function getModerationTemplatesQueryVariables(collectionName: TemplateType) {
