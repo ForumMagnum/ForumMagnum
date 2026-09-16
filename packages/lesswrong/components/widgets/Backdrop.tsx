@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
@@ -28,27 +28,56 @@ const styles = defineStyles("Backdrop", (theme: ThemeType) => ({
   allowNonThemeColors: true,
 })
 
-export const Backdrop = ({visible, style="darken"}: {
+/**
+ * Full-viewport darkening/blur overlay for modals. The opacity fades in when
+ * mounted with `visible`, and fades out when `visible` becomes false; the
+ * parent is responsible for keeping it mounted for the duration of the
+ * fade-out. `fadeDurationMs` overrides the default 300ms fade.
+ */
+export const Backdrop = ({visible, style="darken", fadeDurationMs}: {
   visible: boolean
   style?: "darken"|"blur"
+  fadeDurationMs?: number
 }) => {
   const classes = useStyles(styles);
+  const nodeRef = useRef<HTMLDivElement|null>(null);
+  // `ready` gates mounting the portal; `fadedIn` is set one commit later so
+  // the element is first painted at opacity 0 and then transitions to visible.
   const [ready,setReady] = useState(false);
+  const [fadedIn,setFadedIn] = useState(false);
   
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setReady(true);
     }, 0);
+    return () => clearTimeout(timer);
   }, []);
+
+  useLayoutEffect(() => {
+    if (!ready || !nodeRef.current) return;
+    // Force a style computation while the backdrop is still at opacity 0, so
+    // that adding the visible class starts the CSS transition instead of the
+    // element appearing at full opacity.
+    forceStyleRecalc(nodeRef.current);
+    setFadedIn(true);
+  }, [ready]);
   
   if (!ready) {
     return null;
   }
   
   return <>{createPortal(
-    <div className={classNames(classes.root, {
-      [classes.visible]: visible && ready,
-      [classes.blur]: style==="blur" && ready,
-    })}/>, document.body
+    <div
+      ref={nodeRef}
+      className={classNames(classes.root, {
+        [classes.visible]: visible && fadedIn,
+        [classes.blur]: style==="blur" && fadedIn,
+      })}
+      style={fadeDurationMs !== undefined ? {transitionDuration: `${fadeDurationMs}ms`} : undefined}
+    />, document.body
   )}</>;
+}
+
+function forceStyleRecalc(element: HTMLElement) {
+  element.getBoundingClientRect();
 }
