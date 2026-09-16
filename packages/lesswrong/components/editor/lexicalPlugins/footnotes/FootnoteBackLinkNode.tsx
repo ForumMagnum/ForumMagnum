@@ -84,6 +84,15 @@ export class FootnoteBackLinkNode extends DecoratorNode<JSX.Element> {
           priority: 2,
         };
       },
+      a: (domNode: HTMLAnchorElement) => {
+        if (!domNode.classList.contains('footnote-backref')) {
+          return null;
+        }
+        return {
+          conversion: convertMarkdownFootnoteBackLinkElement,
+          priority: 2,
+        };
+      },
     };
   }
 
@@ -121,6 +130,16 @@ function convertFootnoteBackLinkElement(domNode: HTMLElement): DOMConversionOutp
 
   const node = $createFootnoteBackLinkNode(footnoteId);
   return { node };
+}
+
+function convertMarkdownFootnoteBackLinkElement(domNode: HTMLAnchorElement): DOMConversionOutput | null {
+  const href = domNode.getAttribute('href');
+  const footnoteId = href?.startsWith('#fnref') ? href.slice('#fnref'.length) : null;
+  if (!footnoteId) {
+    return null;
+  }
+
+  return { node: $createFootnoteBackLinkNode(footnoteId) };
 }
 
 export function $createFootnoteBackLinkNode(footnoteId: string): FootnoteBackLinkNode {

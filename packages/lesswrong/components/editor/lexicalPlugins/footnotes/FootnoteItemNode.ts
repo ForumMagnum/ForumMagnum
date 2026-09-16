@@ -1,4 +1,5 @@
 import {
+  $isElementNode,
   ElementNode,
   DOMConversionMap,
   DOMConversionOutput,
@@ -9,6 +10,8 @@ import {
   Spread,
 } from 'lexical';
 import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from './constants';
+import { $createFootnoteBackLinkNode, $isFootnoteBackLinkNode, type FootnoteBackLinkNode } from './FootnoteBackLinkNode';
+import { $createFootnoteContentNode, $isFootnoteContentNode } from './FootnoteContentNode';
 
 export type SerializedFootnoteItemNode = Spread<
   {
@@ -144,7 +147,42 @@ function convertFootnoteItemElement(domNode: HTMLElement): DOMConversionOutput |
   }
 
   const node = $createFootnoteItemNode(footnoteId, footnoteIndex);
-  return { node };
+  return {
+    node,
+    after: normalizeImportedFootnoteItemChildren.bind(null, footnoteId),
+  };
+}
+
+function removeImportedFootnoteBackLinks(nodes: LexicalNode[]): FootnoteBackLinkNode | null {
+  let firstBackLink: FootnoteBackLinkNode | null = null;
+  for (const node of nodes) {
+    if ($isFootnoteBackLinkNode(node)) {
+      firstBackLink ??= node;
+      node.remove();
+    } else if ($isElementNode(node)) {
+      const nestedBackLink = removeImportedFootnoteBackLinks(node.getChildren());
+      firstBackLink ??= nestedBackLink;
+    }
+  }
+  return firstBackLink;
+}
+
+// markdown-it-footnote emits the definition paragraphs and trailing backlink
+// directly inside the <li>. Lexical footnotes require one backlink followed by
+// a FootnoteContentNode, so normalize that reader-facing HTML during import.
+function normalizeImportedFootnoteItemChildren(footnoteId: string, children: LexicalNode[]): LexicalNode[] {
+  if (children.some($isFootnoteContentNode)) {
+    return children;
+  }
+
+  const importedBackLink = removeImportedFootnoteBackLinks(children);
+  const content = $createFootnoteContentNode();
+  content.append(...children.filter((child) => child !== importedBackLink));
+
+  return [
+    importedBackLink ?? $createFootnoteBackLinkNode(footnoteId),
+    content,
+  ];
 }
 
 export function $createFootnoteItemNode(
