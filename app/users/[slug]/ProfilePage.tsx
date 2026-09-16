@@ -236,7 +236,7 @@ function ProfileHeaderActions({user}: {
       {canEditProfile && (
         <LWTooltip title="Edit profile" placement="bottom">
           <Link
-            to={userGetEditUrl(user)}
+            to={userGetEditUrl(user, currentUser)}
             className={classes.profileActionIconLink}
             aria-label={`Edit ${username}'s profile`}
           >

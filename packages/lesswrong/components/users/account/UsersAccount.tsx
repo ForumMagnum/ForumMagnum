@@ -1,7 +1,7 @@
 "use client";
 import { useForumType } from '@/components/hooks/useForumType';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { userCanEditUser, userCanSeeAdminSettingsTab, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
@@ -150,12 +150,25 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
     }, { replace: true });
   }, [navigate]);
 
-  const slugWithFallback = slug ?? currentUser?.slug;
-  const isOwnAccount = slug === null || slug === currentUser?.slug;
-  const hasEditAccess = !!slugWithFallback && !!currentUser && userCanEditUser(currentUser, {slug: slugWithFallback});
+  // A slug in the URL that matches one of the current user's old slugs is
+  // still their own account: changing displayName changes the slug, and
+  // the page they were on when they did it has the old slug in its URL.
+  const isOwnAccount = slug === null
+    || slug === currentUser?.slug
+    || !!(slug && currentUser?.oldSlugs?.includes(slug));
+  const targetSlug = isOwnAccount ? currentUser?.slug : slug;
+  const hasEditAccess = !!currentUser && !!targetSlug && (isOwnAccount || userCanEditUser(currentUser, {slug: targetSlug}));
+
+  // Own-account settings live at the slug-free /account route. Replace a
+  // slug-based URL for the current user with that, preserving query and hash.
+  useEffect(() => {
+    if (slug !== null && isOwnAccount) {
+      navigate({ pathname: '/account' }, { replace: true });
+    }
+  }, [slug, isOwnAccount, navigate]);
 
   const { data: targetUserData, loading: loadingTargetUser } = useQuery(TargetUserBySlugQuery, {
-    variables: { slug: slugWithFallback ?? '' },
+    variables: { slug: targetSlug ?? '' },
     skip: isOwnAccount || !hasEditAccess,
   });
 
@@ -164,7 +177,7 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
   const [settingsFormMounted, setSettingsFormMounted] = useState(false);
   const [lastSettingsTab, setLastSettingsTab] = useState<SettingsTabId>('account');
 
-  if (!hasEditAccess || !currentUser) {
+  if (!hasEditAccess || !currentUser || !targetSlug) {
     return <ErrorAccessDenied />;
   }
 
@@ -204,7 +217,7 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
   }
 
   const accountManagement = hasAccountDeletionFlow()
-    ? <UsersAccountManagement terms={{slug: slugWithFallback}} />
+    ? <UsersAccountManagement terms={{slug: targetSlug}} />
     : null;
 
   return (
@@ -255,7 +268,7 @@ const UsersAccount = ({slug}: {slug: string | null}) => {
           {settingsFormMounted && (
             <div className={classNames(!onSettingsTab && classes.hiddenTab)}>
               <UsersEditForm
-                terms={{slug: slugWithFallback}}
+                terms={{slug: targetSlug}}
                 accountManagement={accountManagement}
                 activeSettingsTab={activeSettingsTab}
               />

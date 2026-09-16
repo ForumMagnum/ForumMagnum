@@ -379,7 +379,9 @@ export const graphqlQueries = {
   async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
     const { Users } = context;
 
-    const userBySlug = await Users.findOne({ slug });
+    // Prefer an exact slug match; fall back to oldSlugs so links to a user's
+    // settings page keep working after a displayName change alters their slug
+    const userBySlug = await Users.findOne({ slug }) ?? await Users.findOne({ oldSlugs: slug });
 
     if (!userBySlug) {
       return null;
