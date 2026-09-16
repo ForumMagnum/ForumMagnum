@@ -56,7 +56,7 @@ import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
 import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
 import Loading from '@/components/vulcan-core/Loading';
-import { imageCache, ImageStatus } from './imageCache';
+import { clearImageStatus, imageCache, type ImageStatus } from './imageCache';
 
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
@@ -139,6 +139,33 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     animation: '$imagePlaceholderPulse 2s ease-in-out infinite',
+  },
+  loadErrorPlaceholder: {
+    minWidth: 240,
+    minHeight: 120,
+    padding: 16,
+    border: theme.palette.greyBorder('1px', 0.2),
+    borderRadius: 4,
+    background: theme.palette.greyAlpha(0.04),
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  retryButton: {
+    border: theme.palette.greyBorder('1px', 0.3),
+    borderRadius: 4,
+    padding: '4px 10px',
+    background: theme.palette.grey[0],
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+    '&:hover': {
+      background: theme.palette.grey[100],
+    },
   },
 }));
 
@@ -297,6 +324,16 @@ export default function ImageComponent({
   const [modal, showModal] = useModal();
   const srcRef = useRef(src);
 
+  const onImageLoadError = useCallback(() => {
+    clearImageStatus(src);
+    setIsLoadError(true);
+  }, [src]);
+
+  const retryImageLoad = useCallback(() => {
+    clearImageStatus(src);
+    setIsLoadError(false);
+  }, [src]);
+
   useEffect(() => {
     if (srcRef.current !== src) {
       srcRef.current = src;
@@ -310,14 +347,8 @@ export default function ImageComponent({
         return;
       }
       flash({ messageString: 'Failed to load image', type: 'error' });
-      editor.update(() => {
-        const node = $getNodeByKey(imageNodeKey);
-        if ($isImageNode(node)) {
-          node.remove();
-        }
-      });
     }
-  }, [isLoadError, editor, imageNodeKey, flash, src]);
+  }, [isLoadError, flash, src]);
 
   const isInNodeSelection = useMemo(
     () =>
@@ -717,6 +748,16 @@ export default function ImageComponent({
             <div className={classes.uploadingPlaceholder}>
               <Loading />
             </div>
+          ) : isLoadError ? (
+            <div className={classes.loadErrorPlaceholder}>
+              <span>Failed to load image</span>
+              <button
+                type="button"
+                className={classes.retryButton}
+                onClick={retryImageLoad}>
+                Retry
+              </button>
+            </div>
           ) : !isLoadError ? (
             <LazyImage
               className={classNames(
@@ -731,7 +772,7 @@ export default function ImageComponent({
               imageRef={imageRef}
               width={width}
               maxWidth={maxWidth}
-              onError={() => setIsLoadError(true)}
+              onError={onImageLoadError}
             />
           ) : null}
           {resizable && isInNodeSelection && isFocused && (
