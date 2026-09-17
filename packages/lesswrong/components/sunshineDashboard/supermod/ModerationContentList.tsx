@@ -34,6 +34,12 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     letterSpacing: '0.5px',
   },
+  queues: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    color: theme.palette.grey[600],
+  },
   queue: {
     ...theme.typography.commentStyle,
     fontSize: 12,
@@ -72,6 +78,7 @@ const ModerationContentList = ({
   items,
   title,
   activeTab,
+  reviewGroup,
   focusedItemId,
   runningLlmCheckId,
   dispatch,
@@ -79,6 +86,7 @@ const ModerationContentList = ({
   items: ModerationContentItem[];
   title: string;
   activeTab: TabId;
+  reviewGroup: ReviewGroup;
   focusedItemId: string | null;
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
@@ -92,7 +100,13 @@ const ModerationContentList = ({
           {title}
           <span className={classes.count}>({items.length})</span>
         </span>
-        <span className={classes.queue} data-queue={activeTab} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
+        <span className={classes.queues}>
+          {activeTab === 'all' && <>
+            <span className={classes.queue} data-queue={reviewGroup} title="User review group">{getReviewGroupDisplayName(reviewGroup)}</span>
+            ⊂
+          </>}
+          <span className={classes.queue} data-queue={activeTab} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
+        </span>
       </div>
       {items.length === 0 ? (
         <div className={classes.empty}>

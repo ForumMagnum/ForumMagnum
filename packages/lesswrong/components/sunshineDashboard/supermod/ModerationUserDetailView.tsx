@@ -110,6 +110,7 @@ const ModerationUserDetailView = ({
             items={allContent}
             title="Content"
             activeTab={state.activeTab}
+            reviewGroup={user.reviewGroup ?? 'unknown'}
             focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             runningLlmCheckId={runningLlmCheckId}
             dispatch={dispatch}
