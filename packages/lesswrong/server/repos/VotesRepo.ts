@@ -563,14 +563,14 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         author_id AS "userId",
         SUM(power) AS "netKarma"
       FROM (
-        SELECT
+        SELECT DISTINCT
+          "_id" AS vote_id,
           UNNEST("authorIds") AS author_id,
           "power"
         FROM "Votes"
         WHERE
           "votedAt" >= NOW() - INTERVAL '$1 days'
-          AND "cancelled" IS NOT TRUE
-          AND "isUnvote" IS NOT TRUE
+          AND NOT ("authorIds" @> ARRAY["userId"])
           -- This is necessary both because votes on other collections
           -- don't affect karma, and because without it postgres decides
           -- to use a table scan instead of an index.
