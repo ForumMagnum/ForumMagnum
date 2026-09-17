@@ -41,7 +41,7 @@ interface UserReviewEvent {
 }
 
 interface UserReviewHistory {
-  // undefined: outside the queue; null: queued, but the entry predates known history.
+  // undefined: outside the queue; null: queued, but the entry time is unknown.
   queuedAt: Date | null | undefined;
   handled: UserReview[];
 }
@@ -59,8 +59,12 @@ export interface SupermodStatusData {
   postReviews: ReviewChange[];
 }
 
+function isTrueValue(value: unknown): boolean {
+  return value === true || value === 'true';
+}
+
 function isReviewEntry(change: ReviewChange): boolean {
-  return change.newValue === true || change.newValue === 'true';
+  return isTrueValue(change.newValue);
 }
 
 function isReviewClear(change: ReviewChange): boolean {
@@ -91,9 +95,14 @@ export function getUserReviewHistory(
   ], 'createdAt');
   const firstClear = events[0]?.clear;
   const currentlyQueued = user.needsReview && !user.reviewedByUserId && !user.banned && !user.deleted;
-  let queuedAt: Date | null | undefined = user.createdAt < windowEnd && (
-    (!events.length && currentlyQueued) || firstClear?.oldValue === true || firstClear?.oldValue === 'true'
-  ) ? null : undefined;
+  // Entries into the queue are usually unlogged, so the first event after the cutoff
+  // (or, failing that, the current state) is what says whether the user was queued then.
+  const firstLaterEvent = events.find(event => event.createdAt >= windowEnd);
+  const queuedAtCutoff = firstLaterEvent ? Boolean(firstLaterEvent.clear && isTrueValue(firstLaterEvent.clear.oldValue)) : currentlyQueued;
+  let queuedAt: Date | null | undefined = (user.createdAt < windowEnd && firstClear && isTrueValue(firstClear.oldValue))
+    ? null
+    : undefined;
+
   let previousClear: Date | null = null;
   const handled: UserReview[] = [];
 
@@ -103,7 +112,7 @@ export function getUserReviewHistory(
       if (queuedAt === undefined) queuedAt = event.createdAt;
       continue;
     }
-    if (event.clear.oldValue === true || event.clear.oldValue === 'true') {
+    if (isTrueValue(event.clear.oldValue)) {
       const actionsAtHandle = triggers.filter(action => action.createdAt <= event.createdAt).map(action => ({
         ...action,
         active: !action.endedAt || action.endedAt >= event.createdAt,
@@ -119,6 +128,7 @@ export function getUserReviewHistory(
     queuedAt = undefined;
     previousClear = event.createdAt;
   }
+  if (queuedAt === undefined && queuedAtCutoff && user.createdAt < windowEnd) queuedAt = null;
   return { queuedAt, handled };
 }
 
@@ -241,8 +251,7 @@ export async function getSupermodStatus(
     adminTeamAccountId,
     usersById: keyBy(users, '_id'),
     moderatorsById: keyBy(moderators, '_id'),
-    // Match the inbox's 100-user page, applying its database sort only once.
-    queuedUsers: histories.flatMap(history => history.queuedAt === undefined ? [] : [history.queuedAt]).slice(0, 100),
+    queuedUsers: histories.flatMap(history => history.queuedAt === undefined ? [] : [history.queuedAt]),
     queuedPosts: posts.flatMap(post => {
       const firstLaterChange = postChanges[post._id]?.find(change => change.createdAt >= windowEnd);
       const reviewerAtCutoff = firstLaterChange ? firstLaterChange.oldValue : post.reviewedByUserId;
