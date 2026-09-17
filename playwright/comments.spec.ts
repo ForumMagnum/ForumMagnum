@@ -1,5 +1,21 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
+import { createNewPost, createNewUser, loginNewUser } from "./playwrightUtils";
+
+test("submits a comment after logging in from the comment form", async ({page}) => {
+  const post = await createNewPost();
+  const commenter = await createNewUser();
+  await page.goto(post.postPageUrl);
+
+  const contents = "Comment written before logging in";
+  await page.getByRole("textbox").fill(contents);
+  await page.getByRole("button", {name: "Submit"}).click();
+
+  await page.getByPlaceholder("username or email").fill(commenter.email);
+  await page.getByPlaceholder("password").fill(commenter.password);
+  await page.getByRole("button", {name: "Log In"}).click();
+
+  await expect(page.locator(".CommentsItem-root").getByText(contents)).toHaveCount(1, { timeout: 20_000 });
+});
 
 test("create and edit comment", async ({page, context}) => {
   // Create and visit a new post

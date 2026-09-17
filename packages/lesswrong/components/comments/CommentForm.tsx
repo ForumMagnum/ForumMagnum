@@ -2,7 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -134,7 +134,7 @@ interface CommentSubmitProps {
 
   disableSubmitDropdown?: boolean;
   submitLabel: React.ReactNode;
-  handleSubmit: (meta: {draft: boolean}) => Promise<void>,
+  handleSubmit: (meta: {draft: boolean}) => Promise<boolean>,
   cancelLabel?: React.ReactNode;
   cancelCallback?: () => (void | Promise<void>);
 
@@ -211,7 +211,16 @@ const CommentSubmit = ({
             if (!currentUser) {
               openDialog({
                 name: "LoginPopup",
-                contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
+                contents: ({onClose}) => (
+                  <LoginPopup
+                    onClose={onClose}
+                    onLoginSuccess={async () => {
+                      const submitted = await handleSubmit({ draft: false });
+                      if (!submitted) onClose();
+                      return submitted;
+                    }}
+                  />
+                ),
               });
               ev.preventDefault();
             }
@@ -299,6 +308,7 @@ export const CommentForm = ({
   const [mutate] = useMutation(CommentsListUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
+  const submitSucceededRef = useRef(false);
 
   const form = useForm({
     defaultValues: {
@@ -309,6 +319,7 @@ export const CommentForm = ({
       draft: false,
     },
     onSubmit: async ({ formApi, meta }) => {
+      submitSucceededRef.current = false;
       await onSubmitCallback.current?.();
       onSubmit?.();
 
@@ -349,6 +360,7 @@ export const CommentForm = ({
           result = data.updateComment.data;
         }
 
+        submitSucceededRef.current = true;
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
@@ -361,6 +373,12 @@ export const CommentForm = ({
       }
     },
   });
+
+  const handleSubmit = useCallback(async (meta: { draft: boolean }) => {
+    submitSucceededRef.current = false;
+    await form.handleSubmit(meta);
+    return submitSucceededRef.current;
+  }, [form]);
 
   const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 
@@ -397,7 +415,7 @@ export const CommentForm = ({
             disableSubmitDropdown={disableSubmitDropdown}
             showCancelButton={showCancelButton}
             submitLabel={submitLabel}
-            handleSubmit={form.handleSubmit}
+            handleSubmit={handleSubmit}
             cancelLabel={cancelLabel}
             cancelCallback={onCancel}
             formCanSubmit={canSubmit}

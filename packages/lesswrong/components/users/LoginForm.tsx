@@ -14,6 +14,7 @@ import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
+import { useRefetchCurrentUser } from '../common/withUser.tsx';
 
 const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
@@ -100,11 +101,13 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
+const LoginForm = ({ startingState = "login", returnTo, autoFocus = false, onLoginSuccess }: {
   startingState?: possibleActions,
   returnTo?: string,
   /** Only enable when the form is opened by a user interaction. */
   autoFocus?: boolean,
+  /** Runs after the login cookie is set and before navigation or reload. */
+  onLoginSuccess?: () => boolean | void | Promise<boolean | void>,
 }) => {
   const { isAF } = useForumType();
   const classes = useStyles(styles);
@@ -119,6 +122,7 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
   const [_, setCookie] = useCookies(["loginToken"]);
+  const refetchCurrentUser = useRefetchCurrentUser();
 
   const saveLoginToken = useCallback((token: string) => {
     // The graphql request with a "login" or "signup" mutation returns a login
@@ -160,13 +164,19 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
     setDisplayedError(error.message);
   }
   
-  const loginSuccess = useCallback(() => {
+  const loginSuccess = useCallback(async () => {
+    if (onLoginSuccess) {
+      await refetchCurrentUser();
+    }
+    const shouldContinue = await onLoginSuccess?.();
+    if (shouldContinue === false) return;
+
     if (returnTo) {
       window.location.href = returnTo;
     } else {
       location.reload()
     }
-  }, [returnTo])
+  }, [onLoginSuccess, refetchCurrentUser, returnTo])
 
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
@@ -181,7 +191,7 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
       }
       if (data?.login?.token) {
         saveLoginToken(data.login.token);
-        loginSuccess();
+        await loginSuccess();
       }
     } else if (currentAction === 'signup') {
       const { data, error } = await signupMutation({
@@ -197,7 +207,7 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
       }
       if (data?.signup?.token) {
         saveLoginToken(data.signup.token);
-        loginSuccess();
+        await loginSuccess();
       }
     } else if (currentAction === 'pwReset') {
       const { data, error } = await pwResetMutation({

@@ -54,7 +54,7 @@ const styles = defineStyles('CommentsSubmitDropdown', (theme: ThemeType) => ({
 }));
 
 export const CommentsSubmitDropdown = ({handleSubmit}: {
-  handleSubmit: (meta: {draft: boolean}) => Promise<void>,
+  handleSubmit: (meta: {draft: boolean}) => Promise<boolean>,
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -96,7 +96,16 @@ export const CommentsSubmitDropdown = ({handleSubmit}: {
                   if (!currentUser) {
                     openDialog({
                       name: "LoginPopup",
-                      contents: ({onClose}) => <LoginPopup onClose={onClose}/>
+                      contents: ({onClose}) => (
+                        <LoginPopup
+                          onClose={onClose}
+                          onLoginSuccess={async () => {
+                            const submitted = await handleSubmit({ draft: true });
+                            if (!submitted) onClose();
+                            return submitted;
+                          }}
+                        />
+                      ),
                     });
                     return;
                   }

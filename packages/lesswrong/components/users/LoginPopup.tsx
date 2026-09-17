@@ -19,8 +19,9 @@ const styles = defineStyles('LoginPopup', (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose}: {
+const LoginPopup = ({onClose, onLoginSuccess}: {
   onClose?: () => void,
+  onLoginSuccess?: () => boolean | void | Promise<boolean | void>,
 }) => {
   const classes = useStyles(styles);
 
@@ -31,7 +32,7 @@ const LoginPopup = ({onClose}: {
       className={classes.dialog}
       paperClassName={classes.paper}
     >
-      <LoginForm autoFocus />
+      <LoginForm autoFocus onLoginSuccess={onLoginSuccess} />
     </LWDialog>
   );
 }
