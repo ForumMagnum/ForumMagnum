@@ -7364,6 +7364,7 @@ export type Post = {
   sideCommentVisibility: Maybe<Scalars['String']['output']>;
   sideComments: Maybe<Scalars['JSON']['output']>;
   sideCommentsCache: Maybe<SideCommentCache>;
+  skipRejectionPM: Maybe<Scalars['Boolean']['output']>;
   slug: Scalars['String']['output'];
   socialPreview: Maybe<SocialPreviewOutput>;
   socialPreviewData: SocialPreviewType;
@@ -13159,6 +13160,7 @@ export type UpdatePostDataInput = {
   sharingSettings?: InputMaybe<Scalars['JSON']['input']>;
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sideCommentVisibility?: InputMaybe<Scalars['String']['input']>;
+  skipRejectionPM?: InputMaybe<Scalars['Boolean']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   socialPreview?: InputMaybe<SocialPreviewInput>;
   socialPreviewImageAutoUrl?: InputMaybe<Scalars['String']['input']>;

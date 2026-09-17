@@ -4434,6 +4434,7 @@ type Post {
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
   rejected: Boolean!
+  skipRejectionPM: Boolean
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
@@ -9049,6 +9050,7 @@ input UpdatePostDataInput {
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
   rejected: Boolean
+  skipRejectionPM: Boolean
   rejectedReason: String
   rejectedByUserId: String
   subforumTagId: String

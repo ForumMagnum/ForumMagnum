@@ -10,6 +10,7 @@ import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isPost, type ContentItem } from './helpers';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
@@ -241,12 +242,13 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 
   const hasRejectedReason = editorOpen || addedTemplates.length > 0;
 
-  const handleReject = useCallback(() => {
+  const submitRejection = useCallback((skipRejectionPM: boolean) => {
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
-    if (!reason) return;
+    if (!reason && !skipRejectionPM) return;
+    if (focusedContent.rejected) return;
 
     if (isPost(focusedContent)) {
-      void rejectContent({ collectionName: 'Posts', document: focusedContent, reason });
+      void rejectContent({ collectionName: 'Posts', document: focusedContent, reason, skipRejectionPM });
     } else {
       void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
     }
@@ -256,6 +258,9 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     setEditorHtml('');
     setLexicalEditorVersion(prev => prev + 1);
   }, [editorOpen, addedTemplates, focusedContent, rejectContent]);
+
+  const handleReject = useCallback(() => submitRejection(false), [submitRejection]);
+  const handleRejectWithoutDM = useCallback(() => submitRejection(true), [submitRejection]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
@@ -281,7 +286,10 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         />
       </ContentStyles>
     </ComposerKeydownWrapper>}
-    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason} onClick={handleReject} />
+    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason || focusedContent.rejected} onClick={handleReject} />
+    {isPost(focusedContent) && <Button onClick={handleRejectWithoutDM} disabled={focusedContent.rejected}>
+      Reject without DM
+    </Button>}
   </div>;
 };
 

@@ -3945,6 +3945,16 @@ const schema = {
       },
     },
   },
+  // Mutation-only option: consumed by updatePost and never stored on the post.
+  skipRejectionPM: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [],
+      canUpdate: ["sunshineRegiment", "admins"],
+      resolver: () => null,
+      validation: { optional: true },
+    },
+  },
   rejectedReason: {
     database: {
       type: "TEXT",

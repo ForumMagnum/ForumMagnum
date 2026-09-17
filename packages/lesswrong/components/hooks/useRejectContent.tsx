@@ -46,6 +46,7 @@ export type RejectContentWithReason = {
   collectionName: "Posts",
   document: SunshinePostsList
   reason: string
+  skipRejectionPM?: boolean
 } | {
   collectionName: "Comments",
   document: CommentsListWithParentMetadata
@@ -78,23 +79,27 @@ export function useRejectContent() {
     return newMutation;
   }, []);
   
-  const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
+  const rejectContent = useCallback((params: RejectContentWithReason) => {
+    const { document, reason } = params;
     return queueMutation(async () => {
       const variables = {
         selector: { _id: document._id },
         data: { rejected: true, rejectedReason: reason }
       };
 
-      if (collectionName === "Posts") {
+      if (params.collectionName === "Posts") {
         await updatePost({
-          variables,
-          optimisticResponse: { updatePost: { data: { ...document, rejected: true, rejectedReason: reason } } },
+          variables: {
+            ...variables,
+            data: { ...variables.data, skipRejectionPM: params.skipRejectionPM ?? false },
+          },
+          optimisticResponse: { updatePost: { data: { ...params.document, rejected: true, rejectedReason: reason } } },
           onError: () => {},
         });
       } else {
         await updateComment({
           variables,
-          optimisticResponse: { updateComment: { data: { ...document, rejected: true, rejectedReason: reason } } },
+          optimisticResponse: { updateComment: { data: { ...params.document, rejected: true, rejectedReason: reason } } },
           onError: () => {}
         });
       }
