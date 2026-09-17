@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
@@ -48,15 +49,15 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     padding: '2px 6px',
     borderRadius: 4,
     backgroundColor: theme.palette.greyAlpha(0.1),
-    '&[data-queue="newContent"]': {
-      backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
-    },
-    '&[data-queue="maybeSpam"], &[data-queue="offboard"]': {
-      backgroundColor: theme.palette.panelBackground.sunshineWarningHighlight,
-    },
-    '&[data-queue="highContext"], &[data-queue="automod"], &[data-queue="snoozeExpired"]': {
-      backgroundColor: theme.palette.panelBackground.sunshineNewComments,
-    },
+  },
+  queueNewContent: {
+    backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
+  },
+  queueWarning: {
+    backgroundColor: theme.palette.panelBackground.sunshineWarningHighlight,
+  },
+  queueReview: {
+    backgroundColor: theme.palette.panelBackground.sunshineNewComments,
   },
   count: {
     fontSize: 13,
@@ -73,6 +74,22 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     fontSize: 14,
   },
 }));
+
+function getQueueClassName(classes: Record<'queueNewContent' | 'queueWarning' | 'queueReview', string>, queue: TabId): string | undefined {
+  switch (queue) {
+    case 'newContent':
+      return classes.queueNewContent;
+    case 'maybeSpam':
+    case 'offboard':
+      return classes.queueWarning;
+    case 'highContext':
+    case 'automod':
+    case 'snoozeExpired':
+      return classes.queueReview;
+    default:
+      return undefined;
+  }
+}
 
 const ModerationContentList = ({
   items,
@@ -102,10 +119,10 @@ const ModerationContentList = ({
         </span>
         <span className={classes.queues}>
           {activeTab === 'all' && <>
-            <span className={classes.queue} data-queue={reviewGroup} title="User review group">{getReviewGroupDisplayName(reviewGroup)}</span>
+            <span className={classNames(classes.queue, getQueueClassName(classes, reviewGroup))} title="User review group">{getReviewGroupDisplayName(reviewGroup)}</span>
             ⊂
           </>}
-          <span className={classes.queue} data-queue={activeTab} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
+          <span className={classNames(classes.queue, getQueueClassName(classes, activeTab))} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
         </span>
       </div>
       {items.length === 0 ? (
