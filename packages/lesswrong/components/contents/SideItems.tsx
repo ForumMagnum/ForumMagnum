@@ -338,17 +338,26 @@ export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | 
   return ctx?.setFocusedAnchor ?? null;
 }
 
+interface SideItemsScopeProps {
+  children: React.ReactNode
+  enabled: boolean
+}
+
+export const SideItemsScope = ({children, enabled}: SideItemsScopeProps) => {
+  const placementContext = useContext(SideItemsPlacementContext);
+  const displayContext = useContext(SideItemsDisplayContext);
+
+  return <SideItemsPlacementContext.Provider value={enabled ? placementContext : null}>
+    <SideItemsDisplayContext.Provider value={enabled ? displayContext : null}>
+      {children}
+    </SideItemsDisplayContext.Provider>
+  </SideItemsPlacementContext.Provider>
+}
+
 export const NoSideItems = ({children, when = true}: {
   children: React.ReactNode
   when?: boolean
 }) => {
-  const placementContext = useContext(SideItemsPlacementContext);
-  const displayContext = useContext(SideItemsDisplayContext);
-
-  return <SideItemsPlacementContext.Provider value={when ? null : placementContext}>
-    <SideItemsDisplayContext.Provider value={when ? null : displayContext}>
-      {children}
-    </SideItemsDisplayContext.Provider>
-  </SideItemsPlacementContext.Provider>
+  return <SideItemsScope enabled={!when}>{children}</SideItemsScope>
 }
 
