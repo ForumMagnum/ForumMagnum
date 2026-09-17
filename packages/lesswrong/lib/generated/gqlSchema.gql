@@ -3770,6 +3770,7 @@ enum ModeratorActionType {
   stricterPostAutomodRateLimit
   manualRateLimitExpired
   votingDisabled
+  aiDetectedObviousSpam
 }
 
 input SingleModeratorActionInput {
