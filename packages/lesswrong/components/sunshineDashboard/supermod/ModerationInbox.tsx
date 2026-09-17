@@ -27,6 +27,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { getModerationInboxSearch, parseModerationQueue } from './inboxUrl';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -131,20 +132,21 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { query, location } = useLocation();
+  const { query } = useLocation();
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
     { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
+      const initialQueue = parseModerationQueue(query.queue);
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
         return {
           users: [],
           posts: [],
           classifiedPosts: [],
           curationPosts: [],
-          activeTab: 'curation',
+          activeTab: initialQueue ?? 'curation',
           focusedUserId: null,
           openedUserId: null,
           focusedPostId: null,
@@ -162,7 +164,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           posts,
           classifiedPosts,
           curationPosts,
-          activeTab: 'all',
+          activeTab: initialQueue && initialQueue !== 'posts' && initialQueue !== 'classifiedPosts' && initialQueue !== 'curation' ? initialQueue : 'all',
           focusedUserId: initialOpenedUserId,
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
@@ -183,7 +185,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       const firstNonEmptyTab = curationNoticeCount === 0
         ? undefined
         : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
+      const firstTab = initialQueue ?? firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
         return { 
@@ -260,23 +262,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   );
 
-  // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
+  // Persist the queue alongside the user so reloads and shared links retain context.
   useEffect(() => {
-    const currentUrlUser = query.user;
-    const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
-    }
-  }, [state.openedUserId, query.user, location, navigate]);
+    navigate(currentLocation => ({
+      ...currentLocation.location,
+      search: getModerationInboxSearch(currentLocation.location.search, state.activeTab, state.openedUserId),
+    }), { replace: true, skipRouter: true });
+  }, [state.openedUserId, state.activeTab, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 

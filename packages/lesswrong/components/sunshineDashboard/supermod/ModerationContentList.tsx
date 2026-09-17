@@ -4,6 +4,7 @@ import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
 import { isMapPin, type ModerationContentItem } from './helpers';
 import { ModerationMapPinListItem } from './ModerationMapPin';
+import { getReviewGroupDisplayName, type TabId } from './groupings';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   root: {
@@ -13,6 +14,10 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     height: 'fit-content',
   },
   header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
     padding: '12px 20px',
     borderBottom: theme.palette.border.normal,
     position: 'sticky',
@@ -27,6 +32,24 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
     letterSpacing: '0.5px',
+  },
+  queue: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    fontWeight: 500,
+    color: theme.palette.grey[800],
+    padding: '2px 6px',
+    borderRadius: 4,
+    backgroundColor: theme.palette.greyAlpha(0.1),
+    '&[data-queue="newContent"]': {
+      backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
+    },
+    '&[data-queue="maybeSpam"], &[data-queue="offboard"]': {
+      backgroundColor: theme.palette.panelBackground.sunshineWarningHighlight,
+    },
+    '&[data-queue="highContext"], &[data-queue="automod"], &[data-queue="snoozeExpired"]': {
+      backgroundColor: theme.palette.panelBackground.sunshineNewComments,
+    },
   },
   count: {
     fontSize: 13,
@@ -47,12 +70,14 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
 const ModerationContentList = ({
   items,
   title,
+  activeTab,
   focusedItemId,
   runningLlmCheckId,
   dispatch,
 }: {
   items: ModerationContentItem[];
   title: string;
+  activeTab: TabId;
   focusedItemId: string | null;
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
@@ -66,6 +91,7 @@ const ModerationContentList = ({
           {title}
           <span className={classes.count}>({items.length})</span>
         </span>
+        <span className={classes.queue} data-queue={activeTab} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
       </div>
       {items.length === 0 ? (
         <div className={classes.empty}>

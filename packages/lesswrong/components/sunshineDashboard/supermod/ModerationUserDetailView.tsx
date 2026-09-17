@@ -109,6 +109,7 @@ const ModerationUserDetailView = ({
           <ModerationContentList
             items={allContent}
             title="Content"
+            activeTab={state.activeTab}
             focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             runningLlmCheckId={runningLlmCheckId}
             dispatch={dispatch}
