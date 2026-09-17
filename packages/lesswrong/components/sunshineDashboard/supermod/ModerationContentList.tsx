@@ -4,7 +4,8 @@ import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
 import { isMapPin, type ModerationContentItem } from './helpers';
 import { ModerationMapPinListItem } from './ModerationMapPin';
-import { getReviewGroupDisplayName, type TabId } from './groupings';
+import type { TabId } from './groupings';
+import { getReviewGroupDisplayName } from '@/lib/collections/users/reviewGroups';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   root: {
