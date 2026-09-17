@@ -13,6 +13,7 @@ import { useModeratedUserContents } from '@/components/hooks/useModeratedUserCon
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
+import ErrorMessage from '@/components/common/ErrorMessage';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
@@ -567,7 +568,7 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data, loading } = useQuery(ModerationInboxDataQuery, {
+  const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
     variables: {
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
@@ -620,7 +621,12 @@ const ModerationInbox = () => {
     );
   }
 
-  if (!data?.moderationUserQueueCounts) throw new Error('Unable to load moderation queue counts');
+  if (error) {
+    return <ErrorMessage message={error.message} />;
+  }
+  if (!data?.moderationUserQueueCounts) {
+    return <ErrorMessage message="Unable to load moderation queue counts" />;
+  }
 
   return <ModerationInboxInner
     users={users}
