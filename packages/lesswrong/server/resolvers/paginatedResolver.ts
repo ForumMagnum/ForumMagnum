@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { DocumentNode } from "graphql";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { getCollectionByTypeName } from "../collections/allCollections";
@@ -60,10 +61,11 @@ export const createPaginatedResolver = <
   ) => Promise<ReturnType[]>,
   /**
    * Optional cache TTL in milliseconds - if undefined or 0 no cache is used.
-   * Note that the cache is _global_ and not per-user.
+   * Note that the cache is shared within each forum and not per-user.
    */
   cacheMaxAgeMs?: number,
 }): {Query: {[name: string]: QueryType}, typeDefs: DocumentNode} => {
+  let cachedForumType: ForumTypeString | undefined;
   let cachedAt = Date.now();
   let cached: ReturnType[] = [];
 
@@ -96,6 +98,7 @@ export const createPaginatedResolver = <
         const limit = args.limit;
         if (
           cacheMaxAgeMs > 0 &&
+          cachedForumType === context.forumType &&
           Date.now() - cachedAt < cacheMaxAgeMs &&
           cached.length >= limit
         ) {
@@ -106,6 +109,7 @@ export const createPaginatedResolver = <
         cachedAt = Date.now();
         if (cacheMaxAgeMs) {
           cached = results;
+          cachedForumType = context.forumType;
         }
         const filteredResults = await accessFilterFunction?.(results as (ReturnType & DbObject)[]) ?? results;
         return {results: filteredResults as ReturnType[]};

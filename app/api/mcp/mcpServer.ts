@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { z } from "zod";
@@ -66,11 +67,11 @@ function assertToolScopes(toolName: string, authInfo: AuthInfo | undefined): voi
   }
 }
 
-async function contextFromAuth(authInfo: AuthInfo | undefined): Promise<ResolverContext> {
+async function contextFromAuth(authInfo: AuthInfo | undefined, forumType: ForumTypeString): Promise<ResolverContext> {
   const bearerToken = getBearerToken(authInfo);
   const { userId } = await validateAccessToken(bearerToken);
   const user = await Users.findOne({ _id: userId });
-  return computeContextFromUser({ user: user ?? null, isSSR: false });
+  return computeContextFromUser({ user: user ?? null, isSSR: false, forumType });
 }
 
 function toolError(message: string) {
@@ -85,7 +86,7 @@ function toolError(message: string) {
  * A new instance is needed per-request because McpServer.connect()
  * takes ownership of the transport and replaces its callbacks.
  */
-function createMcpServer(): McpServer {
+function createMcpServer(forumType: ForumTypeString): McpServer {
   const server = new McpServer(
     {
       name: "LessWrong",
@@ -114,7 +115,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("read_post", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       if (args.version && args.version !== "draft") {
         return {
           content: [{
@@ -159,7 +160,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("comment_on_draft", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -194,7 +195,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("replace_text", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -227,7 +228,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("replace_widget", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -266,7 +267,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("delete_block", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -296,7 +297,7 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       assertToolScopes("insert_block", extra.authInfo);
-      const context = await contextFromAuth(extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo, forumType);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, use, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, use, useContext, useMemo, useRef, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";

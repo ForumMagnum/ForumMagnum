@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -8,20 +8,18 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
 import { useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
-import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
-import { isLWorAF } from '@/lib/instanceSettings';
+import { ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { getClassName, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
-import { useContainerReadProgress } from '../../hooks/useContainerReadProgress';
+import { useTocProgressLine } from './useTocProgressLine';
 import { defineStyles } from '@/components/hooks/defineStyles';
 
 function normalizeToCScale({containerPosition, sections}: {
@@ -195,39 +193,21 @@ const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
     flexGrow: 1,
   },
   progressBarContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    '--scrollAmount': '0%',
+    position: 'relative',
     marginRight: -4,
-    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
-    overflowY: 'clip',
   },
+  // The segment of the progress bar corresponding to the part of the post that's
+  // in the viewport. Positioned by useTocProgressLine, via CSS variables set on
+  // the container.
   progressBar: {
-    flex: 'var(--scrollAmount)',
-    display: 'flex',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8
-    },
-    "&:after": {
-      content: "''",
-      marginLeft: -0.5,
-      paddingLeft: 2,
-      alignSelf: 'end',
-      height: 'var(--windowHeight)',
-      background: theme.palette.grey[600],
-    }
-  },
-  unfilledProgressBar: {
-    width: 1,
-    flex: 'calc(100% - var(--scrollAmount))',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8
-    },
+    position: 'absolute',
+    left: -0.5,
+    width: 2,
+    top: 'var(--windowTop, 0px)',
+    height: 'var(--windowHeight, 0px)',
+    background: theme.palette.grey[600],
   },
   rows: {
     display: 'flex',
@@ -262,19 +242,15 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = ((!isLWorAF() && !postContext) || isServer || postContext?.shortform);
+  const disableProgressBar = isServer || postContext?.shortform;
 
-  const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar || !hasLoaded || !!scrollContainerRef,
-    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
-  });
-
-  // If we have a custom scroll container, delegate progress bar management to the hook
-  useContainerReadProgress({
+  const progressBarRef = useRef<HTMLDivElement|null>(null);
+  const rowsRef = useRef<HTMLDivElement|null>(null);
+  useTocProgressLine({
+    progressBarRef,
+    rowsRef,
     scrollContainerRef,
-    readingProgressBarRef,
-    disabled: disableProgressBar || !scrollContainerRef,
+    disabled: disableProgressBar || !hasLoaded,
   });
 
   const jumpToAnchor = (anchor: string) => {
@@ -318,11 +294,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
 
-      if (!isLWorAF()) {
-        scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
-      } else {
-        jumpToY(sectionYdocumentSpace);
-      }
+      jumpToY(sectionYdocumentSpace);
     }
   }
 
@@ -463,7 +435,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     return (
       <div className={classes.rowWrapper} style={scaleStyling} key={section.anchor}>
         <div className={classes.rowDotContainer}>
-          <div className={classes.rowDot}>•</div>
+          <div className={classes.rowDot} data-toc-anchor={section.anchor}>•</div>
           <span className={classNames(classes.rowOpacity, HOVER_CLASSNAME)}>
             {tocRow}
           </span>
@@ -477,11 +449,10 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
 
   return <div className={classNames(classes.root, { [classes.hover]: hover })}>
     <div className={classes.wrapper}>
-      <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
+      <div className={classes.progressBarContainer} ref={progressBarRef}>
         <div className={classes.progressBar} />
-        <div className={classes.unfilledProgressBar}/>
       </div>
-      <div className={classes.rows}>
+      <div className={classes.rows} ref={rowsRef}>
         {titleRow}
         <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
           {heading}

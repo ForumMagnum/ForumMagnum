@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext } from "react";
+import { createContext } from "react";
 import type { RouterLocation } from "./routeChecks/parseRoute";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 

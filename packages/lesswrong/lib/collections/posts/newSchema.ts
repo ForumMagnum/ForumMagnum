@@ -27,15 +27,16 @@ import {
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
-  getDefaultVotingSystem,
+  defaultVotingSystem,
   type RSVPType,
+  postGetAbsolutePageUrl,
 } from "./helpers";
 import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { isEAForum, isLWorAF, reviewUserBotSetting } from "../../instanceSettings";
+import { reviewUserBotSetting } from "../../instanceSettings";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -44,7 +45,6 @@ import {
   getPrevPostIdFromPrevSequence,
   getNextPostIdFromNextSequence,
 } from '../sequences/sequenceServerHelpers';
-import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
@@ -62,9 +62,7 @@ import {
 import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
-import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
-import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
 import { getLocalTime } from "@/server/mapsUtils";
 import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getPostHTML, getDialogueResponseIds } from "@/server/posts/utils";
 import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
@@ -214,10 +212,6 @@ async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: R
   const lastTimestamp = messageTimestamps[messageTimestamps.length - 1];
   return lastTimestamp;
 };
-
-function adminOnlyOnEAForum(user: DbUser | null) {
-  return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
-}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -591,7 +585,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: post }) => {
-        if (!isEAForum() && !post.sticky) {
+        if (!post.sticky) {
           return false;
         }
       },
@@ -709,14 +703,14 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, true),
+      resolver: (post, args, context) => postGetAbsolutePageUrl(post, context.forumType),
     },
   },
   pageUrlRelative: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, false),
+      resolver: (post, args, context) => postGetPageUrl(post),
     },
   },
   linkUrl: {
@@ -724,7 +718,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? post.url : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetAbsolutePageUrl(post, context.forumType);
       },
     },
   },
@@ -741,21 +735,21 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetEmailShareUrl(post),
+      resolver: (post, args, context) => postGetEmailShareUrl(post, context.forumType),
     },
   },
   twitterShareUrl: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetTwitterShareUrl(post),
+      resolver: (post, args, context) => postGetTwitterShareUrl(post, context.forumType),
     },
   },
   facebookShareUrl: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetFacebookShareUrl(post),
+      resolver: (post, args, context) => postGetFacebookShareUrl(post, context.forumType),
     },
   },
   // DEPRECATED: use socialPreview.imageUrl instead
@@ -763,7 +757,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => getSocialPreviewImage(post),
+      resolver: (post, args, context) => getSocialPreviewImage(post, context.forumType),
     },
   },
   question: {
@@ -1258,9 +1252,6 @@ const schema = {
       outputType: "Float",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.probability;
       },
@@ -1271,9 +1262,6 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return false;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.isResolved;
       },
@@ -1284,9 +1272,6 @@ const schema = {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.year;
       },
@@ -1297,9 +1282,6 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.url;
       },
@@ -1315,7 +1297,7 @@ const schema = {
         // Forum-gating/beta-gating is done here, rather than just client side,
         // so that users don't have to download the glossary if it isn't going
         // to be displayed.
-        if (!userCanViewJargonTerms(context.currentUser)) {
+        if (!userCanViewJargonTerms(context.currentUser, context.forumType)) {
           return [];
         }
         const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 } }).fetch();
@@ -1840,9 +1822,6 @@ const schema = {
       outputType: "ReviewVote",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { ReviewVotes, currentUser } = context;
         if (!currentUser) return null;
         const votes = await getWithLoader(
@@ -1876,9 +1855,6 @@ const schema = {
       outputType: "ReviewWinner",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { currentUser } = context;
         const winner = await getPostReviewWinnerInfo(post._id, context);
         return accessFilterSingle(currentUser, "ReviewWinners", winner, context);
@@ -1928,10 +1904,10 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: async ({ document }) => {
+      onCreate: async ({ document, context }) => {
         const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
-          : getDefaultVotingSystem();
+          : defaultVotingSystem;
 
         return votingSystem;
       },
@@ -2152,8 +2128,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [userIsAdminOrMod],
+      canCreate: [userIsAdminOrMod],
       validation: {
         optional: true,
       },
@@ -2381,7 +2357,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context): Promise<SocialPreviewType> => {
         const { imageId = null, text = null } = post.socialPreview || {};
-        const imageUrl = getSocialPreviewImage(post);
+        const imageUrl = getSocialPreviewImage(post, context.forumType);
         return {
           _id: post._id,
           imageId,
@@ -2403,8 +2379,8 @@ const schema = {
       inputType: "CrosspostInput",
       validation: { blackbox: true },
       canRead: [documentIsNotDeleted],
-      canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
-      canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
+      canUpdate: [(user, post, context) => userOwns(user, post) && userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
+      canCreate: [(user, context) => userPassesCrosspostingKarmaThreshold(user, context.forumType), "admins"],
       // Users aren't allowed to directly select the foreignPostId of a crosspost
       onCreate: (args) => {
         const { document, context } = args;
@@ -2924,7 +2900,7 @@ const schema = {
       inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [userCanModeratePost],
+      canCreate: [(user) => userCanModeratePost(user)],
       validation: {
         optional: true,
       },
@@ -3078,8 +3054,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [userIsAdminOrMod],
+      canCreate: [userIsAdminOrMod],
       validation: {
         optional: true,
       },
@@ -3769,8 +3745,8 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["admins", postCanEditHideCommentKarma],
-      canCreate: ["admins", postCanEditHideCommentKarma],
+      canUpdate: ["admins", (user, post, context) => postCanEditHideCommentKarma(user, context.forumType, post)],
+      canCreate: ["admins", (user) => !!user?.showHideKarmaOption],
       validation: {
         optional: true,
       },
@@ -3861,47 +3837,12 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          ...(isLWorAF() ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
+          userId: { $ne: reviewUserBotSetting.get(context) },
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
         });
         return await accessFilterMultiple(currentUser, "Comments", comments, context);
-      },
-    },
-  },
-  languageModelSummary: {
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-      resolver: async (post, _args, context) => {
-        if (!post.contents_latest) {
-          return "";
-        }
-
-        // This replaced the use of a `fetchFragmentSingle` for getting the post contents,
-        // in order to eliminate a dependency cycle
-        // TODO: test that this works correctly!
-        const postWithContents = await context.repos.posts.getPostWithContents(post._id);
-
-        if (!postWithContents?.contents?.originalContents) {
-          return "";
-        }
-        const markdownPostBody = dataToMarkdown(
-          postWithContents.contents?.originalContents?.data,
-          postWithContents.contents?.originalContents?.type
-        );
-        const authorName = "Authorname"; //TODO
-        return await languageModelGenerateText({
-          taskName: "summarize",
-          inputs: {
-            title: post.title,
-            author: authorName,
-            text: markdownPostBody,
-          },
-          maxTokens: 1000,
-          context,
-        });
       },
     },
   },
@@ -4368,7 +4309,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) return null;
         return await getWithCustomLoader(context, "latestAutomatedContentEvaluations", post._id, (postIds) =>
           context.repos.automatedContentEvaluations.getLatestEvaluationsForPosts(postIds)
         );

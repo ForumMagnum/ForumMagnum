@@ -1,4 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useEffect, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
@@ -16,7 +17,6 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
-import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -111,6 +111,7 @@ const TagVersionHistory = ({tagId, onClose}: {
   tagId: string,
   onClose: () => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
@@ -124,7 +125,7 @@ const TagVersionHistory = ({tagId, onClose}: {
     }
   `));
   const [revertLoading, setRevertLoading] = useState(false);
-  const canRevert = tagUserHasSufficientKarma(currentUser, 'edit');
+  const canRevert = tagUserHasSufficientKarma(currentUser, 'edit', forumType);
 
   const { data: dataRevisions, loading: loadingRevisions, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {

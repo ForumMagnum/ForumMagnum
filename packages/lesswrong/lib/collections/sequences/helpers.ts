@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { getWithLoader } from '@/lib/loaders';
 
@@ -10,18 +11,23 @@ export interface SequencePostId {
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
-  return `${prefix}/s/${sequence._id}`;
+export const sequenceGetPageUrl = function(sequence: {_id: string}){
+  return `/s/${sequence._id}`;
 };
 
-export const getCollectionOrSequenceUrl = function (sequence: Pick<DbSequence, '_id'|'canonicalCollectionSlug'>, isAbsolute = false) {
-  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
+export const getCollectionOrSequenceUrl = function (sequence: Pick<DbSequence, '_id'|'canonicalCollectionSlug'>) {
+  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence)
   
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/${sequence.canonicalCollectionSlug}#${sequence._id}`
+  return `/${sequence.canonicalCollectionSlug}#${sequence._id}`
 }
+
+export const sequenceGetAbsolutePageUrl = (sequence: {_id: string}, forumType: ForumTypeString): string => {
+  return getSiteUrl(forumType).slice(0, -1) + sequenceGetPageUrl(sequence);
+};
+
+export const getAbsoluteCollectionOrSequenceUrl = (sequence: Pick<DbSequence, '_id'|'canonicalCollectionSlug'>, forumType: ForumTypeString): string => {
+  return getSiteUrl(forumType).slice(0, -1) + getCollectionOrSequenceUrl(sequence);
+};
 
 export const getCollectionBySlug = async (slug: string, context: ResolverContext) => {
   const { Collections } = context;

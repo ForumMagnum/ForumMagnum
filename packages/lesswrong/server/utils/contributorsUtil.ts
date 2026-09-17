@@ -3,7 +3,8 @@ import groupBy from 'lodash/groupBy';
 import { computeAttributions } from '../attributeEdits';
 import { compareVersionNumbers } from '@/lib/editor/utils';
 import toDictionary from '@/lib/utils/toDictionary';
-import { isLWorAF } from '@/lib/instanceSettings';
+
+
 
 export type ContributorStats = {
   contributionScore: number;
@@ -120,7 +121,6 @@ interface GetContributorsListOptions {
 }
 
 function contributionStatsNeedInvalidation(contributionStats: ContributorStatsMap): boolean {
-  if (!isLWorAF()) return false;
 
   return Object.values(contributionStats).some(stats => stats?.currentAttributionCharCount === undefined);
 }

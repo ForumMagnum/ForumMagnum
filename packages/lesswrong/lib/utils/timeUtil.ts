@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 import moment from '../moment-timezone';
 import { useCurrentTime } from './TimeProvider';
 

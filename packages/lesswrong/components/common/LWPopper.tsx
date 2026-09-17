@@ -1,5 +1,5 @@
 "use client";
-import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, RefObject, useEffect, useLayoutEffect} from 'react';
+import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, RefObject} from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
@@ -46,6 +46,7 @@ const LWPopper = ({
   tooltip=false,
   allowOverflow,
   overflowPadding,
+  preventOverflowOnBothAxes,
   flip,
   open,
   anchorEl,
@@ -59,6 +60,8 @@ const LWPopper = ({
   tooltip?: boolean,
   allowOverflow?: boolean,
   overflowPadding?: number,
+  /** Also shift along the placement axis when there is not enough space beside the anchor. */
+  preventOverflowOnBothAxes?: boolean,
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
@@ -83,7 +86,7 @@ const LWPopper = ({
     {
       name: 'preventOverflow',
       enabled: !allowOverflow,
-      options: {padding: overflowPadding},
+      options: {padding: overflowPadding, altAxis: preventOverflowOnBothAxes},
     }
   ];
 
@@ -98,6 +101,9 @@ const LWPopper = ({
           // levels, this causes ugly resampling. (This has no effect on whether
           // GPU acceleration is used or on performance.)
           gpuAcceleration: false,
+          // Bottom/right offsets drift when the containing block changes size,
+          // such as while a settings panel expands. Keep coordinates relative to top/left.
+          adaptive: false,
         },
       },
       ...(distance>0 ? [{
@@ -170,4 +176,3 @@ export const PopperPortalProvider = ({children}: {
 }
 
 export default LWPopper;
-

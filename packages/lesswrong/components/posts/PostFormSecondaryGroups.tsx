@@ -1,8 +1,9 @@
-import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
+import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
-import { allOf } from "@/lib/utils/functionUtils";
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
 import classNames from "classnames";
@@ -106,16 +107,16 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
+function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument, forumType: ForumTypeString) {
+  return userIsAdmin(user) || (userOwns(user, document) && userPassesCrosspostingKarmaThreshold(user, forumType));
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
 
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -149,6 +150,7 @@ const PostFormSecondaryGroups = ({
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const isEvent = !!initialData.isEvent;
@@ -161,8 +163,8 @@ const PostFormSecondaryGroups = ({
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
   const canSeeModeration = true;
   // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
-  const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
-  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeTags = !initialData.isEvent && !initialData.collabEditorDialogue;
+  const canSeeSocialPreview = !initialData.collabEditorDialogue;
 
   type formGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Audio' | 'Glossary';
 
@@ -202,10 +204,10 @@ const PostFormSecondaryGroups = ({
 
   const [expandedFormGroup, setExpandedFormGroup] = useState<formGroupType>(secondaryFormGroups[0].label);
 
-  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
+  const hideSocialPreviewGroup = !!initialData.collabEditorDialogue;
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
+  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get(forumType) || isEvent;
+  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get(forumType)?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
 
@@ -309,7 +311,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
+          {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
             <form.Field name="afSticky">
               {(field) => (
                 <FormComponentCheckbox
@@ -389,17 +391,6 @@ const PostFormSecondaryGroups = ({
               )}
             </form.Field>
           </div>
-
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="hideFromPopularComments">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="Hide comments on this post from Popular Comments"
-                />
-              )}
-            </form.Field>
-          </div>}
 
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="slug">
@@ -483,7 +474,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="manifoldReviewMarketId">
               {(field) => (
                 <MuiTextField
@@ -543,7 +534,7 @@ const PostFormSecondaryGroups = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}
@@ -572,8 +563,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {/* On the EA forum, only admins can set the curated date, not mods */}
-          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+          <div className={classes.fieldWrapper}>
             <form.Field name="curatedDate">
               {(field) => (
                 <FormComponentDatePicker
@@ -582,7 +572,7 @@ const PostFormSecondaryGroups = ({
                 />
               )}
             </form.Field>
-          </div>}
+          </div>
 
           <div className={classes.fieldWrapper}>
             <form.Field name="metaDate">
@@ -595,7 +585,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>
 
-          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+          <div className={classes.fieldWrapper}>
             <form.Field name="reviewForCuratedUserId">
               {(field) => (
                 <MuiTextField
@@ -604,7 +594,7 @@ const PostFormSecondaryGroups = ({
                 />
               )}
             </form.Field>
-          </div>}
+          </div>
 
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="commentSortOrder">
@@ -627,22 +617,11 @@ const PostFormSecondaryGroups = ({
               )}
             </form.Field>
           </div>}
-
-          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-            <form.Field name="swrCachingEnabled">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="stale-while-revalidate caching enabled"
-                />
-              )}
-            </form.Field>
-          </div>}
         </div>}
 
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Options</h3>
-            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
+            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }, forumType) && <div className={classes.fieldWrapper}>
               <form.Field name="fmCrosspost">
                 {(field) => (
                   <LWTooltip title={crosspostControlTooltip}>
@@ -727,7 +706,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {!isEAForum() && !isDialogue && <div className={classes.fieldWrapper}>
+          {!isDialogue && <div className={classes.fieldWrapper}>
             <form.Field name="ignoreRateLimits">
               {(field) => (
                 <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
@@ -773,7 +752,8 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
+          {/* TODO: Consider porting comment-karma visibility controls together with the account preference. */}
+          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, forumType, form.state.values)) && <div className={classes.fieldWrapper}>
             <form.Field name="hideCommentKarma">
               {(field) => (
                 <FormComponentCheckbox

@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { Sequences } from '../server/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '@/lib/collections/sequences/sequenceServerHelpers';
 import { Collections } from '../server/collections/collections/collection';
@@ -71,7 +72,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
     // entry for this sequence or for the collection that cotntains it, and
     // adding a new entry for this sequence to the end.
     const newPartiallyReadSequences = [...partiallyReadMinusThis, sequenceReadStatus];
-    await setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
+    await setUserPartiallyReadSequences(userId, newPartiallyReadSequences, context.forumType);
     return;
   }
   
@@ -105,7 +106,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
       // if you are part-way through sequence A, and finish sequence B, A and
       // B in the same collection.
       const newPartiallyReadSequences = [...partiallyReadMinusThis, collectionReadStatus];
-      await setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
+      await setUserPartiallyReadSequences(userId, newPartiallyReadSequences, context.forumType);
       return;
     }
   }
@@ -113,15 +114,15 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
   // Done reading! If the user previously had a partiallyReadSequences entry
   // for this sequence, remove it and update the user object.
   if (user.partiallyReadSequences?.some(s=>s.sequenceId === sequenceId)) {
-    await setUserPartiallyReadSequences(userId, partiallyReadMinusThis);
+    await setUserPartiallyReadSequences(userId, partiallyReadMinusThis, context.forumType);
   }
 }
 
-export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences: AnyBecauseTodo) => {
+export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences: AnyBecauseTodo, forumType: ForumTypeString) => {
   await updateUser({
     data: { partiallyReadSequences: newPartiallyReadSequences },
     selector: { _id: userId }
-  }, createAnonymousContext());
+  }, createAnonymousContext({ forumType }));
 }
 
 const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {

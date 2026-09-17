@@ -260,6 +260,15 @@ export default () => createJestConfig({
     "parse5",
     "@truto/turndown-plugin-gfm",
     "@workflow/serde",
+    // sanitize-html 2.17.7 uses ESM-only htmlparser2 12 and its DOM dependencies.
+    // Include sanitize-html so nested node_modules paths are transformed too.
+    "sanitize-html",
+    "htmlparser2",
+    "domelementtype",
+    "domhandler",
+    "domutils",
+    "dom-serializer",
+    "entities",
   ];
   
   config.transformIgnorePatterns = [

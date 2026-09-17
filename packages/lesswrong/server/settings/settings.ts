@@ -10,11 +10,11 @@ import { testSettings } from "./test";
 import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest, isProduction } from "@/lib/executionEnvironment";
-import { isAF } from "@/lib/forumTypeUtils";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 const validEnvNames = z.enum(["test", "testCrosspost", "baserates","localLwDevDb", "prodLw"]);
 
-function getPublicSettings() {
+function getPublicSettings(forumType: ForumTypeString) {
   if (isAnyTest) {
     return testSettings;
   }
@@ -22,14 +22,14 @@ function getPublicSettings() {
   if (!envName) {
     // eslint-disable-next-line no-console
     console.error("ENV_NAME is not set");
-    return localLwDevDb;
+    return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
   }
 
   const parsedEnvName = validEnvNames.safeParse(envName);
   if (!parsedEnvName.success) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ENV_NAME: ${envName}`);
-    return localLwDevDb;
+    return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
   }
 
   const validEnvName = parsedEnvName.data;
@@ -40,20 +40,20 @@ function getPublicSettings() {
     case "testCrosspost":
       return testCrosspostSettings;
     case "baserates":
-      return baserates;
+      return forumType === 'AlignmentForum' ? localAfDevDb : baserates;
     // We're running a local dev instance against the dev db, or in the deployed dev environment
     case "localLwDevDb":
-      return isAF() ? localAfDevDb : localLwDevDb;
+      return forumType === 'AlignmentForum' ? localAfDevDb : localLwDevDb;
     // TODO: figure out what to do about preview environments (i.e. whether they should hit the prod db).
     // Even if they do, they should probably not run with "prod" settings (rather "local prod").
     case "prodLw": {
       // We're running in production, or a local prod build against the prod db
       if (isProduction) {
-        return isAF() ? prodAf : prodLw;
+        return forumType === 'AlignmentForum' ? prodAf : prodLw;
       }
 
       // We're running a local dev instance against the prod db
-      return isAF() ? localAfProdDb : localLwProdDb;
+      return forumType === 'AlignmentForum' ? localAfProdDb : localLwProdDb;
     }
   }
 }
@@ -83,9 +83,9 @@ export function getPrivateSettings() {
   return privateSettings;
 }
 
-export function getSettings() {
+export function getSettings(forumType: ForumTypeString) {
   return {
-    public: getPublicSettings(),
+    public: getPublicSettings(forumType),
     private: getPrivateSettings(),
   };
 }

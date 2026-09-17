@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
@@ -21,6 +22,7 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
   isSeeLessMode?: boolean,
   commentMetaInfo?: FeedCommentMetaInfo,
 }) => {
+  const { forumType } = useForumType();
   const currentUserId = useCurrentUserId();
   const url = comment.postId
     ? `${postGetPageUrl({ _id: comment.postId, slug: post?.slug ?? "" })}#${comment._id}`
@@ -49,7 +51,7 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
       {!isOwnComment &&
         <NotifyMeToggleDropdownItem
           document={comment.user}
-          title={`Follow ${userGetDisplayName(comment.user)}`}
+          title={`Follow ${userGetDisplayName(comment.user, forumType)}`}
           subscriptionType="newActivityForFeed"
         />}
       {commentMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem

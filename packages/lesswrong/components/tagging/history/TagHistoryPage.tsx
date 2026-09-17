@@ -5,7 +5,7 @@ import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
-import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import { RevealHiddenBlocks } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';

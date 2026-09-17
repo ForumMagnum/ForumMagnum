@@ -1,4 +1,3 @@
-import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
 
 type PostgresViewRefreshSpec = {

@@ -19,7 +19,11 @@ const styles = defineStyles('ShowParentComment', (theme: ThemeType) => ({
   },
   icon: {
     fontSize: 12,
-    transform: "rotate(90deg)"
+    transform: "rotate(90deg)",
+    transition: "transform 200ms ease-out",
+    "@media (prefers-reduced-motion: reduce)": {
+      transition: "none",
+    },
   },
   parentComment: { // UNUSED
     background: theme.palette.panelBackground.default,
@@ -61,6 +65,5 @@ const ShowParentComment = ({comment, active, onClick}: {
 };
 
 export default ShowParentComment;
-
 
 

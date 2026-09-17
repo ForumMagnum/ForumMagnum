@@ -27,7 +27,7 @@ async function postReportsToSunshine(report: DbReport, context: ResolverContext)
   const contentSlug = report.commentId ? `a comment on ${post?.title}` : report.postId ? `the post ${post?.title}` : `user ${reportedUser?.displayName}`;
   const description = report.description ?? '';
   const userLink = user ? `${baseUrl}/users/${user.slug}` : '';
-  const userName = userGetDisplayName(user);
+  const userName = userGetDisplayName(user, context.forumType);
   const url = `${baseUrl}${report.link}`;
 
   try {

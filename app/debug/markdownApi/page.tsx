@@ -1,3 +1,5 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import React from "react";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
@@ -54,8 +56,8 @@ const renderMarkdownWithDebugLinks = (markdown: string): string => {
   return applyBasicMarkdownSyntaxHighlight(output.join(""));
 };
 
-const resolveMarkdownUrl = (urlParam: string | undefined): URL => {
-  const baseUrl = getSiteUrl();
+const resolveMarkdownUrl = (urlParam: string | undefined, forumType: ForumTypeString): URL => {
+  const baseUrl = getSiteUrl(forumType);
   const resolved = new URL(urlParam ?? DEFAULT_MARKDOWN_URL, baseUrl);
   const baseOrigin = new URL(baseUrl).origin;
   if (resolved.origin !== baseOrigin) {
@@ -73,9 +75,10 @@ export default async function DebugMarkdownApiPage({
   let errorMessage = "";
   let resolvedUrl: URL | null = null;
   const searchParamsValue = await searchParams;
+  const forumType = await getForumTypeForPage();
 
   try {
-    resolvedUrl = resolveMarkdownUrl(searchParamsValue?.url);
+    resolvedUrl = resolveMarkdownUrl(searchParamsValue?.url, forumType);
     const response = await fetch(resolvedUrl.toString(), { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Request failed: ${response.status} ${response.statusText}`);

@@ -354,9 +354,10 @@ export const SideItemsScope = ({children, enabled}: SideItemsScopeProps) => {
   </SideItemsPlacementContext.Provider>
 }
 
-export const NoSideItems = ({children}: {
+export const NoSideItems = ({children, when = true}: {
   children: React.ReactNode
+  when?: boolean
 }) => {
-  return <SideItemsScope enabled={false}>{children}</SideItemsScope>
+  return <SideItemsScope enabled={!when}>{children}</SideItemsScope>
 }
 

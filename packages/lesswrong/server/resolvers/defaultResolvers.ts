@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@/lib/sentryWrapper";
-import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { Kind, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
@@ -151,7 +151,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Don't allow API requests with an arbitrarily large offset. This
     // prevents some extremely-slow queries.
-    const maxAllowedSkip = maxAllowedApiSkip.get();
+    const maxAllowedSkip = maxAllowedApiSkip.get(context);
     if (
       terms.offset &&
       maxAllowedSkip !== null &&

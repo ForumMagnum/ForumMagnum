@@ -6,7 +6,7 @@
  *
  */
 
-import React, { createContext, useCallback, useContext } from 'react';
+import { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
 import {Doc, encodeStateAsUpdate} from 'yjs';

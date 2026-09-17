@@ -2,6 +2,12 @@ import { registerCookie } from "./utils";
 
 // First party cookies
 
+export const FORUM_TYPE_COOKIE = registerCookie({
+  name: "forumType",
+  type: "necessary",
+  description: "Set to AlignmentForum to display the Alignment Forum for debugging",
+});
+
 export const CLIENT_ID_COOKIE = registerCookie({
   name: "clientId",
   type: "necessary",
@@ -297,21 +303,6 @@ registerCookie({
   type: "functional",
   thirdPartyName: "Intercom",
   description: "Miscellaneous cookies which may be set by Intercom",
-});
-
-// Datadog
-registerCookie({
-  name: "dd_cookie_test_",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Cookie used by Datadog to test if cookies are enabled",
-});
-
-registerCookie({
-  name: "_dd_s",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Main cookie used by datadog to track sessions",
 });
 
 // Hotjar

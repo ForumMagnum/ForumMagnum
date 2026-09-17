@@ -1,8 +1,9 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { ConnectCrossposterRequestValidator, ConnectCrossposterResponseValidator, CrosspostRequestValidator, CrosspostResponseValidator, CrosspostTokenResponseValidator, GetCrosspostRequestValidator, GetCrosspostResponseValidator, UnlinkCrossposterRequestValidator, UnlinkedCrossposterResponseValidator, UpdateCrosspostRequestValidator, UpdateCrosspostResponseValidator } from "./types";
 
-export const makeApiUrl = (route: ApiRoute) => combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", route);
+export const makeApiUrl = (route: ApiRoute, forumType: ForumTypeString) => combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", route);
 
 export const validatedGetRoutes = {
   crosspostToken: {
@@ -38,7 +39,6 @@ export const validatedPostRoutes = {
     responseValidator: GetCrosspostResponseValidator
   }
 } as const;
-
 
 type ValidatedGetRouteName = keyof typeof validatedGetRoutes;
 type ValidatedGetRoutes = typeof validatedGetRoutes;

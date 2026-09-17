@@ -1,5 +1,4 @@
 import { Type, IdType } from "./Type";
-import { ForumTypeString } from "@/lib/instanceSettings";
 import type PgCollection from "./PgCollection";
 
 /**

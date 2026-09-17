@@ -1,7 +1,10 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import type { NextRequest } from "next/server";
 import { testServerSetting } from "@/lib/instanceSettings";
 
-export async function POST() {
-  if (!testServerSetting.get()) {
+export async function POST(req: NextRequest) {
+  const forumType = getForumTypeForRequest(req);
+  if (!testServerSetting.get(forumType)) {
     return new Response("Not allowed", { status: 403 });
   }
 

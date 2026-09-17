@@ -1,5 +1,5 @@
 import Users from "../collections/users/collection";
-import { dropIndex, dropIndexByName } from "./meta/utils";
+import { dropIndexByName } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   await db.none(`DROP MATERIALIZED VIEW IF EXISTS "UserLoginTokens"`);

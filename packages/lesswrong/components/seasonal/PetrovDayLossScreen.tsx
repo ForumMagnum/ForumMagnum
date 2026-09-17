@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { petrovPostIdSetting } from '@/lib/instanceSettings';
@@ -35,6 +36,7 @@ const styles = defineStyles('PetrovDayLossScreen', (theme: ThemeType) => ({
 }), { allowNonThemeColors: true })
 
 const PetrovDayLossScreen = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   return (
@@ -42,7 +44,7 @@ const PetrovDayLossScreen = () => {
       <Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
       </Typography>
-      <Link className={classes.link} to={"/posts/" + petrovPostIdSetting.get()}>What happened?</Link>
+      <Link className={classes.link} to={"/posts/" + petrovPostIdSetting.get(forumType)}>What happened?</Link>
     </div>
   )
 }

@@ -8,7 +8,6 @@ import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/Visibili
 import { MANUAL_FLAG_ALERT } from '@/lib/collections/moderatorActions/constants';
 import classNames from 'classnames';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
-import ForumIcon from '@/components/common/ForumIcon';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';

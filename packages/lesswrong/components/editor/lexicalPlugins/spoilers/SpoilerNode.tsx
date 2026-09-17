@@ -4,7 +4,6 @@ import {
   SerializedElementNode,
   $createParagraphNode,
   $isParagraphNode,
-  $isElementNode,
   RangeSelection,
   EditorConfig,
   DOMConversionMap,

@@ -101,7 +101,6 @@ const ModerationUserDetailView = ({
           <div className={classes.undoQueueColumn}>
             <ModerationUndoHistory
               undoQueue={state.undoQueue}
-              history={state.history}
               dispatch={dispatch}
             />
           </div>

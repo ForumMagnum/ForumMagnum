@@ -1,5 +1,5 @@
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 declare global {
   interface UserMostValuablePostsViewTerms extends ViewTermsBase {

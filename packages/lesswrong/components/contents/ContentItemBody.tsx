@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
 import * as htmlparser2 from "htmlparser2";
-import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
+import { type ChildNode as DomHandlerChildNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
 import pick from 'lodash/pick';
 import { MaybeScrollableBlock } from './HorizScrollBlock';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
@@ -24,6 +24,7 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
+import SpoilerBlock, { containsSpoilerClassName, removeSpoilerClassNames } from './SpoilerBlock';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -57,6 +58,26 @@ const blockLevelTagNames = new Set([
   "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "li", "main", "nav", "ol",
   "p", "pre", "section", "table", "ul",
 ]);
+
+function isWhitespaceTextNode(node: DomHandlerChildNode): boolean {
+  return node.type === htmlparser2.ElementType.Text && node.data.trim() === '';
+}
+
+/**
+ * Whether all of an element's children are block-level elements (ignoring
+ * whitespace-only text between them). Used for spoiler blocks, whose
+ * children are revealed one at a time on hover when they're blocks.
+ */
+function childrenAreBlockLevel(childNodes: DomHandlerChildNode[]): boolean {
+  let sawBlock = false;
+  for (const child of childNodes) {
+    if (isWhitespaceTextNode(child)) continue;
+    if (child.type !== htmlparser2.ElementType.Tag) return false;
+    if (!blockLevelTagNames.has(child.tagName.toLowerCase())) return false;
+    sawBlock = true;
+  }
+  return sawBlock;
+}
 
 /**
  * Block-level tags which we can't put an id-insertion inside of, either because
@@ -120,6 +141,7 @@ function getIdInsertionDescendIndex(childNodes: DomHandlerChildNode[]): number|n
  *   markElicitBlocks
  *   collapseFootnotes
  *   wrapStrawPoll
+ *   renderSpoilerBlocks
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
  *   exposeInternalIds
@@ -216,10 +238,11 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart, insideSpoiler=false}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
+  insideSpoiler?: boolean,
 
   /**
    * An id-insertion which was targeted at an ancestor of this element, but which
@@ -263,6 +286,15 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+      const isSpoilerElement = containsSpoilerClassName(classNames);
+      if (insideSpoiler || isSpoilerElement) {
+        const nonSpoilerClassNames = removeSpoilerClassNames(classNames);
+        if (nonSpoilerClassNames.length > 0) {
+          attribs.className = nonSpoilerClassNames.join(" ");
+        } else {
+          delete attribs.className;
+        }
+      }
 
       const ownIdInsertion = (id && passedThroughProps.idInsertions?.[id])
         ? passedThroughProps.idInsertions[id]
@@ -278,12 +310,23 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         ? getIdInsertionDescendIndex(parsedHtml.childNodes)
         : null;
 
-      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
-        key={i}
-        parsedHtml={c}
-        passedThroughProps={passedThroughProps}
-        insertedAtStart={i===descendIndex ? idInsertion : undefined}
-      />)
+      // A spoiler block whose children are all blocks wraps each child in its
+      // own element, so drop the whitespace between them rather than giving it
+      // a wrapper of its own.
+      const spoilerWithBlockChildren = isSpoilerElement && !insideSpoiler
+        && blockLevelTagNames.has(TagName) && childrenAreBlockLevel(parsedHtml.childNodes);
+
+      let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => (
+        (spoilerWithBlockChildren && isWhitespaceTextNode(c))
+          ? null
+          : <ContentItemBodyInner
+              key={i}
+              parsedHtml={c}
+              passedThroughProps={passedThroughProps}
+              insertedAtStart={i===descendIndex ? idInsertion : undefined}
+              insideSpoiler={insideSpoiler || isSpoilerElement}
+            />
+      ))
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
@@ -401,6 +444,16 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
             {result}
           </ContentCodeBlockWithMenu>
         );
+      }
+
+      if (isSpoilerElement && !insideSpoiler) {
+        return <SpoilerBlock
+          attributes={attribs}
+          inline={!blockLevelTagNames.has(TagName)}
+          hasBlockChildren={spoilerWithBlockChildren}
+        >
+          {result}
+        </SpoilerBlock>
       }
 
       if (root && rootTagShouldBeHorizontallyScrollable(TagName, attribs)) {

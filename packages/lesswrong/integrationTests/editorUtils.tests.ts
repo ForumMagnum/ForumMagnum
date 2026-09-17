@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import "./integrationTestSetup";
 import { createDummyPost, createDummyUser } from "./utils";
 import Revisions from "../server/collections/revisions/collection";
@@ -40,6 +41,7 @@ describe("syncDocumentWithLatestRevision", () => {
     await updatePost(user, post._id, '<p>Post version 3</p>')
 
     const postAfterUpdate = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: user, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsOriginalContents,
       currentUser: user,
@@ -60,6 +62,7 @@ describe("syncDocumentWithLatestRevision", () => {
     await syncDocumentWithLatestRevision(Posts, post, 'contents', createAnonymousContext())
 
     const postAfterSync = await fetchFragmentSingle({
+      context: computeContextFromUser({ user: user, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsOriginalContents,
       currentUser: user,

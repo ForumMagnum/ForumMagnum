@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
@@ -167,6 +167,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
     },
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
+  const footnoteAnchorRef = useRef<HTMLAnchorElement|null>(null);
   const eitherHovered = anchorHovered || sidenoteHovered;
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
   const memoizedEmptyArray = useMemo(() => [], []);
@@ -195,11 +196,15 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
     const openModalOnClick = isMobile() || !isWideEnoughForTooltips;
     if (isRegularClick(ev) && openModalOnClick && footnoteHTML !== null) {
       setDisableHover(true);
+      // Anchor the dialog to the footnote reference in the text (also when
+      // opened from the side-item indicator, which sits beside the same line).
+      const anchorEl = footnoteAnchorRef.current;
       openDialog({
         name: "FootnoteDialog",
         contents: ({onClose}) => <FootnoteDialog
           onClose={onClose}
           footnoteHTML={footnoteHTML}
+          anchorEl={anchorEl}
         />
       });
       ev.preventDefault();
@@ -242,6 +247,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
 
       <a
         {...anchorEventHandlers}
+        ref={footnoteAnchorRef}
         href={hasCollapsedFootnotes ? undefined : href}
         id={id}
         rel={rel}

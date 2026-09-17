@@ -1,4 +1,5 @@
-import { openThreadTagIdSetting, seasonalOpenThreadAuthorSlugSetting, isLW } from "@/lib/instanceSettings";
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { openThreadTagIdSetting, seasonalOpenThreadAuthorSlugSetting } from "@/lib/instanceSettings";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
@@ -43,14 +44,14 @@ const unpinOtherOpenThreads = async (
 const createOrUpdateSeasonalOpenThread = async (
   info: SeasonalOpenThreadInfo,
 ): Promise<SeasonalOpenThreadCronResult> => {
-  const authorSlug = seasonalOpenThreadAuthorSlugSetting.get();
+  const authorSlug = seasonalOpenThreadAuthorSlugSetting.get("LessWrong");
   const author = await Users.findOne({ slug: authorSlug });
   if (!author) {
     return { status: "missing_author", title: info.title };
   }
 
-  const context = await computeContextFromUser({ user: author, isSSR: false });
-  const openThreadTagId = openThreadTagIdSetting.get();
+  const context = await computeContextFromUser({ user: author, isSSR: false, forumType: "LessWrong" });
+  const openThreadTagId = openThreadTagIdSetting.get(context);
   const existingPost = await Posts.findOne({
     title: info.title,
     [`tagRelevance.${openThreadTagId}`]: { $gte: 1 },
@@ -95,12 +96,12 @@ const createOrUpdateSeasonalOpenThread = async (
   };
 };
 
-export const maybeCreateSeasonalOpenThread = async (date = new Date()): Promise<SeasonalOpenThreadCronResult> => {
+export const maybeCreateSeasonalOpenThread = async (date = new Date(), forumType: ForumTypeString = "LessWrong"): Promise<SeasonalOpenThreadCronResult> => {
   const info = getSeasonalOpenThreadInfo(date);
   if (!info) {
     return { status: "not_due" };
   }
-  if (!isLW()) {
+  if (forumType !== 'LessWrong') {
     return { status: "not_lesswrong", title: info.title };
   }
 

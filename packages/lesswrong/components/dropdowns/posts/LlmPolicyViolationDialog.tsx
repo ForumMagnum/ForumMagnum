@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useRef, useCallback } from 'react';
 import LWDialog from '../../common/LWDialog';
 import { DialogContent } from '../../widgets/DialogContent';
@@ -84,10 +85,11 @@ const LlmPolicyViolationDialog = ({post, onClose, onSubmit}: {
   onClose: () => void,
   onSubmit: (modCommentHtml: string) => Promise<void>,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
-  const authorDisplayName = userGetDisplayName(post.user);
+  const authorDisplayName = userGetDisplayName(post.user, forumType);
   const authorSlug = post.user?.slug ?? '';
 
   const { data: templateData, loading: templateLoading } = useQuery(llmPolicyViolationTemplateQuery, {

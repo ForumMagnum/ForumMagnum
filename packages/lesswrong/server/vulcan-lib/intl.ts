@@ -1,5 +1,6 @@
 // see https://github.com/apollographql/graphql-tools/blob/master/docs/source/schema-directives.md#marking-strings-for-internationalization
 
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { localeSetting } from '@/lib/instanceSettings';
 import { loggerConstructor } from '../../lib/utils/logging';
 
@@ -12,7 +13,7 @@ Take a header object, and figure out the locale
 Also accepts userLocale to indicate the current user's preferred locale
 
 */
-export const getHeaderLocale = (headers: Headers|undefined, userLocale: string|null) => {
+export const getHeaderLocale = (headers: Headers|undefined, userLocale: string|null, forumType: ForumTypeString) => {
   let cookieLocale, acceptedLocale, locale, localeMethod;
 
   // get locale from cookies
@@ -44,7 +45,7 @@ export const getHeaderLocale = (headers: Headers|undefined, userLocale: string|n
     locale = acceptedLocale;
     localeMethod = 'browser';
   } else {
-    locale = localeSetting.get();
+    locale = localeSetting.get(forumType);
     localeMethod = 'setting';
   }
 

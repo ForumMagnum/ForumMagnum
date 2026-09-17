@@ -1,5 +1,4 @@
 import moment from 'moment';
-import { isServer } from '@/lib/executionEnvironment';
 
 
 // Get relative link to conversation of message (conversations are only linked to relatively)

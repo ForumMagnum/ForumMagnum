@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
@@ -48,10 +49,11 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostP
 const CantCommentExplanation = ({post}: {
   post: PostPermissionsMinimumInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
-  const email = moderationEmail.get()
+  const email = moderationEmail.get(forumType)
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { userBlockedCommentingReason(currentUser, post, author)}{" "}

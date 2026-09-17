@@ -1,10 +1,11 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../server/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../server/collections/users/collection';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import gql from 'graphql-tag';
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
 import { updateUser } from '../collections/users/mutations';
 import type { EmailTokenResult } from '@/components/users/EmailTokenResult';
@@ -21,14 +22,14 @@ export type EmailTokenResultComponentName = keyof emailTokenResultComponents;
 
 export class EmailTokenType<T extends EmailTokenResultComponentName> {
   name: DbEmailTokens['tokenType']
-  onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<emailTokenResultComponents[T]>>
+  onUseAction: (user: DbUser, params: any, args: any, context: ResolverContext) => Promise<ComponentProps<emailTokenResultComponents[T]>>
   resultComponentName: T
   reusable: boolean
   path: string
   
   constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
     name: DbEmailTokens['tokenType'],
-    onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<emailTokenResultComponents[T]>>,
+    onUseAction: (user: DbUser, params: any, args: any, context: ResolverContext) => Promise<ComponentProps<emailTokenResultComponents[T]>>,
     resultComponentName: T,
     reusable?: boolean,
     path?: string,
@@ -57,11 +58,11 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     return token;
   }
 
-  generateLink = async (userId: string) => {
+  generateLink = async (userId: string, forumType: ForumTypeString) => {
     if (!userId) throw new Error("Missing required argument: userId");
 
     const token = await this.generateToken(userId);
-    const prefix = getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl(forumType).slice(0,-1);
     return `${prefix}/${this.path}/${token}`;
   }
 
@@ -81,18 +82,18 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     return this.generateToken(userId);
   }
 
-  getOrGenerateLink = async (userId: string) => {
+  getOrGenerateLink = async (userId: string, forumType: ForumTypeString) => {
     if (!userId) throw new Error("Missing required argument: userId");
 
     const token = await this.getOrGenerateToken(userId);
-    const prefix = getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl(forumType).slice(0,-1);
     return `${prefix}/${this.path}/${token}`;
   }
   
-  handleToken = async (token: DbEmailTokens, args: any) => {
+  handleToken = async (token: DbEmailTokens, args: any, context: ResolverContext) => {
     const user = await Users.findOne({_id: token.userId});
     if (!user) throw new Error(`Invalid userId on email token ${token._id}`);
-    const actionResult = await this.onUseAction(user, token.params, args);
+    const actionResult = await this.onUseAction(user, token.params, args, context);
     return {
       componentName: this.resultComponentName,
       props: {...actionResult}
@@ -122,13 +123,14 @@ async function getAndValidateToken(token: string) {
  * Core logic for validating and executing an email token. Shared between the
  * GraphQL mutation and the API route handler.
  */
-export async function executeEmailToken(token: string, args?: any): Promise<UseEmailTokenResult & { userId: string }> {
+export async function executeEmailToken(token: string, context: ResolverContext, args?: any): Promise<UseEmailTokenResult & { userId: string }> {
   const { tokenObj, tokenType } = await getAndValidateToken(token);
-  const resultProps = await tokenType.handleToken(tokenObj, args);
+  const tokenContext = createAnonymousContext({forumType: context.forumType});
+  const resultProps = await tokenType.handleToken(tokenObj, args, tokenContext);
   await updateEmailToken({
     data: { usedAt: new Date() },
     selector: { _id: tokenObj._id }
-  }, createAnonymousContext());
+  }, tokenContext);
   return { ...resultProps, userId: tokenObj.userId };
 }
 
@@ -140,9 +142,9 @@ export const emailTokensGraphQLTypeDefs = gql`
 `
 
 export const emailTokensGraphQLMutations = {
-  async useEmailToken(root: void, {token, args}: {token: string, args: any}, _context: ResolverContext) {
+  async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
       try {
-        const { userId, ...resultProps } = await executeEmailToken(token, args);
+        const { userId, ...resultProps } = await executeEmailToken(token, context, args);
         return resultProps;
       } catch(e) {
         //eslint-disable-next-line no-console
@@ -159,19 +161,19 @@ export const emailTokensGraphQLMutations = {
   async getClaudeAccessLink(root: void, _args: {}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser) throw new Error("Must be logged in");
-    return emailTokenTypesByName.confirmClaudeAccess.getOrGenerateLink(currentUser._id);
+    return emailTokenTypesByName.confirmClaudeAccess.getOrGenerateLink(currentUser._id, context.forumType);
   },
 };
 
 export const emailTokenTypesByName = {
   unsubscribeAll: new EmailTokenType({
     name: "unsubscribeAll",
-    onUseAction: async (user: DbUser) => {
+    onUseAction: async (user: DbUser, _params, _args, context) => {
       await updateUser({
         data: { unsubscribeFromAll: true },
         selector: { _id: user._id }
-      }, createAnonymousContext());
-      return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
+      }, context);
+      return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get(context)}.` };
     },
     resultComponentName: "EmailTokenResult",
   }),

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useDialog } from '../common/withDialog';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
@@ -10,7 +11,6 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
-import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import LoginPopup from "../users/LoginPopup";
@@ -123,11 +123,12 @@ const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
  * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
  */
 export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
+  const { forumType } = useForumType();
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
   const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds?.includes(currentUser._id)));
-  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit", forumType);
   const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
@@ -144,6 +145,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   toggleEmbeddedPlayer?: () => void;
   showEmbeddedPlayer?: boolean;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
@@ -194,10 +196,9 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   const canCreateLens = !editing
     && canEdit
     && (!!refetchTag && !!updateSelectedLens)
-    && (undeletedLensCount < 5)
-    && isLWorAF();
+    && (undeletedLensCount < 5);
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF()) || beginnersGuideContentTag
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
@@ -207,17 +208,11 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
     </>}
     {noEditKarmaTooLow && <>
       <div>
-      You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
+      You must have at least {getTagMinimumKarmaPermissions(forumType).edit} karma to edit this topic
     </div>
     <br />
     </>}
-    {!!numFlags && !isLWorAF() && <>
-      <div>
-        This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
-        {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i + 1) < tag.tagFlags?.length && ", "}</span>)}
-      </div>
-      <br />
-    </>}
+
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
@@ -225,7 +220,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   </>;
 
   // Audio toggle element
-  const audioToggle = isTagAllowedType3Audio(tag) && toggleEmbeddedPlayer && (
+  const audioToggle = isTagAllowedType3Audio(tag, forumType) && toggleEmbeddedPlayer && (
     <LWTooltip title={'Listen to this page'} className={classes.togglePodcastContainer}>
       <a href="#" onClick={(e) => {
         e.preventDefault();
@@ -261,14 +256,14 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
           </span>
         </a>)}
       </LWTooltip>}
-      {<Link
+      <Link
         className={classes.button}
         to={tagGetHistoryUrl(tag)}
       >
         <HistoryIcon /><span className={classes.buttonLabel}>
           {!hideLabels && "History"}
         </span>
-      </Link>}
+      </Link>
       {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
         <NotifyMeButton
           document={tag}
@@ -281,7 +276,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
           subscriptionType={subscriptionTypes.newTagPosts}
         />
       </LWTooltip>}
-      {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile hideParens /></div>}
+      <div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile hideParens /></div>
       {selectedLens && <div className={classes.likeButtonWrapper}>
         <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
       </div>}
@@ -294,11 +289,11 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
         </a>
       </LWTooltip>}
       
-      {isLWorAF() && <TagPageActionsMenuButton
+      <TagPageActionsMenuButton
         tagOrLens={selectedLens}
         createLens={canCreateLens ? handleNewLensClick : null}
         handleEditClick={!editing && canEdit ? handleEditClick : null}
-      />}
+      />
     </div>
   </AnalyticsContext>
 }

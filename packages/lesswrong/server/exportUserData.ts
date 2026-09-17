@@ -98,7 +98,7 @@ export const exportUserData = async (
     [Votes, Votes.find({userId})],
   ];
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   context.currentUser = user;
 
   const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>

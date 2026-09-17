@@ -12,7 +12,6 @@ import {LexicalEditor} from 'lexical';
 
 import {useState} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import classNames from 'classnames';
 
 import Button from '../../ui/Button';
 import DropDown, {DropDownItem, DropDownItemText} from '../../ui/DropDown';

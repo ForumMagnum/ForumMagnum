@@ -11,7 +11,7 @@ import { backgroundTask } from '../utils/backgroundTask';
 export const nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();
   users.forEach((user) => {
-    backgroundTask(nullifyVotesForUser(user));
+    backgroundTask(nullifyVotesForUser(user, "LessWrong"));
   })
   //eslint-disable-next-line no-console
   console.warn(`Nullified votes for ${users.length} users`);

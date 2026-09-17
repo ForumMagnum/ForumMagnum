@@ -3,23 +3,25 @@ import stringify from "json-stringify-deterministic";
 import { type GraphQLSchema, print, execute } from "graphql";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { SwrCache } from "@/lib/utils/swrCache";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 const loggedOutQueryCache: Record<string, SwrCache<FetchResult, []>> = {};
 
-async function executeWithCache({ schema, document, rootValue, variableValues, operationName }: {
+async function executeWithCache({ schema, document, rootValue, variableValues, operationName, forumType }: {
   schema: GraphQLSchema,
   document: DocumentNode,
   rootValue: any,
   variableValues: any,
   operationName: string,
+  forumType: ForumTypeString,
 }): Promise<FetchResult> {
   const queryString = print(document);
-  const cacheKey = stringify({ queryString, variableValues });
+  const cacheKey = stringify({ queryString, variableValues, forumType });
   
   if (!loggedOutQueryCache[cacheKey]) {
     loggedOutQueryCache[cacheKey] = new SwrCache({
       generate: async () => {
-        const context = createAnonymousContext();
+        const context = createAnonymousContext({ forumType });
         return await execute({
           schema, document, rootValue, contextValue: context, variableValues, operationName
         });
@@ -41,10 +43,12 @@ async function executeWithCache({ schema, document, rootValue, variableValues, o
  */
 export class LoggedOutCacheLink extends ApolloLink {
   schema: GraphQLSchema
+  forumType: ForumTypeString
 
-  constructor(schema: GraphQLSchema) {
+  constructor(schema: GraphQLSchema, forumType: ForumTypeString) {
     super();
     this.schema = schema;
+    this.forumType = forumType;
   }
 
   public request(operation: Operation, forward: ApolloLink.ForwardFunction): Observable<ApolloLink.Result> {
@@ -61,6 +65,7 @@ export class LoggedOutCacheLink extends ApolloLink {
           rootValue: undefined,
           variableValues: operation.variables,
           operationName: operation.operationName ?? "",
+          forumType: this.forumType,
         }));
       })
         .then((data) => {
@@ -77,4 +82,3 @@ export class LoggedOutCacheLink extends ApolloLink {
     });
   }
 }
-

@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { MARKETPLACE_POST_ID } from "@/lib/collections/homePageDesigns/constants";
 import { publishHomePageDesign } from "@/server/collections/homePageDesigns/mutations";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
@@ -92,7 +93,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const context = computeContextFromUser({ user, isSSR: false });
+  const context = computeContextFromUser({ user, isSSR: false, forumType: getForumTypeForRequest(req) });
 
   try {
     const design = await publishHomePageDesign({

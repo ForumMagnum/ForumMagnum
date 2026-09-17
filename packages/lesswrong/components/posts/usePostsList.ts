@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import {useState, useCallback, ReactNode} from 'react'
 import { useCurrentUser } from "../common/withUser";
 import sortBy from 'lodash/sortBy';
@@ -145,6 +146,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   order,
   ...restProps
 }: PostsListConfig) => {
+  const { forumType } = useForumType();
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId
@@ -236,7 +238,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   let orderedResults = (order && uniqueResults) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && orderedResults) {
     orderedResults = sortBy(orderedResults, (post) => {
-      const postLastCommentedAt = postGetLastCommentedAt(post)
+      const postLastCommentedAt = postGetLastCommentedAt(post, forumType)
       return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
   }

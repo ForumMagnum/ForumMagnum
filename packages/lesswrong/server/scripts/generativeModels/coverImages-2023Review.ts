@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 // eslint-disable-next-line no-restricted-imports
 import type OpenAI from 'openai';
 import { z } from "zod";
@@ -150,6 +151,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   .filter(p => reviewArts.filter(a => a.postId === p.postId).length < (targetAmountOfArt * .9))
 
   const essays = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: {$in: postIdsWithoutEnoughArt.map(p => p.postId)}},
@@ -212,7 +214,7 @@ const getFalClient = (() => {
     if (!fal) {
       fal = _fal;
       fal.config({
-        credentials: () => falApiKey.get()
+        credentials: () => falApiKey.get("LessWrong")
       });
     }
     return fal;
@@ -345,6 +347,7 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
   console.time('running generateCoverImagesForPost');
   
   const post = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: postId},

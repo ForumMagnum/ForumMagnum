@@ -1,3 +1,5 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import type { NextRequest } from 'next/server';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { captureException } from '@/lib/sentryWrapper';
@@ -10,8 +12,8 @@ interface CurationStatus {
   averageDaysPerCuration: number | null;
 }
 
-async function getCurationStatus(): Promise<CurationStatus> {
-  const context = createAnonymousContext();
+async function getCurationStatus(forumType: ForumTypeString): Promise<CurationStatus> {
+  const context = createAnonymousContext({ forumType });
   // Days since most recent curation
   const mostRecentCuration = await context.Posts.findOne(
     { curatedDate: { $gt: new Date(0) } },
@@ -156,7 +158,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const status = await getCurationStatus();
+  const status = await getCurationStatus(getForumTypeForRequest(request));
   
   const shouldPost = status.daysSinceCurated >= 3 || status.unpublishedDraftCount === 0;
   if (shouldPost) {

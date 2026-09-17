@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, QuoteLocator, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
 import AppsIcon from '@/lib/vendor/@material-ui/icons/src/Apps';

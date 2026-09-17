@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from './withUser';
@@ -34,11 +35,12 @@ interface FeedSelectorCheckboxProps {
 }
 
 const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE]);
   
-  if (!ultraFeedEnabledSetting.get() || !currentUser) {
+  if (!ultraFeedEnabledSetting.get(forumType) || !currentUser) {
     return null;
   }
   

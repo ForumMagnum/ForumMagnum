@@ -6,6 +6,7 @@
  *
  */
 
+import { useForumType } from "@/components/hooks/useForumType";
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {DRAG_DROP_PASTE} from '@lexical/rich-text';
 import {isMimeType} from '@lexical/utils';
@@ -33,6 +34,7 @@ export interface DragDropPasteProps {
 export default function DragDropPaste({
   onUploadError,
 }: DragDropPasteProps = {}): null {
+  const { forumType } = useForumType();
   const [editor] = useLexicalComposerContext();
   const activeUploadsRef = useRef<Map<string, AbortController>>(new Map());
 
@@ -61,7 +63,7 @@ export default function DragDropPaste({
             activeUploadsRef.current.set(uploadId, controller);
 
             try {
-              const result = await uploadToCloudinary(file, {
+              const result = await uploadToCloudinary(file, forumType, {
                 signal: controller.signal,
               });
 
@@ -95,7 +97,7 @@ export default function DragDropPaste({
       },
       COMMAND_PRIORITY_LOW,
     );
-  }, [editor, onUploadError]);
+  }, [editor, onUploadError, forumType]);
 
   return null;
 }

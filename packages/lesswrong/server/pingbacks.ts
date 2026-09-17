@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
@@ -18,7 +19,7 @@ type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
+export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null, forumType: ForumTypeString): Promise<PingbacksIndex> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
@@ -26,7 +27,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
   // collection, in order of first appearance.
   const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({forumType});
   
   for (let link of links)
   {
@@ -36,7 +37,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
       // domain, and the domain doesn't matter at all except in whether or not
       // it's in the domain whitelist (which it will only be if it's overridden
       // by an absolute link).
-      const linkTargetAbsolute = new URLClass(link, getSiteUrl());
+      const linkTargetAbsolute = new URLClass(link, getSiteUrl(context.forumType));
       
       const hostType = classifyHost(linkTargetAbsolute.host)
       if (hostType==="onsite" || hostType==="mirrorOfUs") {
@@ -83,10 +84,10 @@ const extractLinks = (html: string): Array<string> => {
 }
 
 // Exported to allow running from "yarn repl"
-export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
+export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N, forumType: ForumTypeString) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({forumType});
 
   await forEachDocumentBatchInCollection({
     collection,
@@ -104,7 +105,7 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
             collectionName, documentId: doc._id
-          }]);
+          }], forumType);
           
           if (JSON.stringify(doc.pingbacks) !== JSON.stringify(pingbacks)) {
             await collection.rawUpdateOne(
@@ -119,7 +120,7 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
 }
 
 // Exported to allow running from "yarn repl"
-export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
+export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string, forumType: ForumTypeString) => {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
   const doc = await collection.findOne({_id});
@@ -134,7 +135,7 @@ export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(c
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{
       collectionName, documentId: doc._id
-    }]);
+    }], forumType);
     // eslint-disable-next-line no-console
     console.log(pingbacks);
   }

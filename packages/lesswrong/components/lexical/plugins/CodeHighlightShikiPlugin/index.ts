@@ -6,7 +6,7 @@
  *
  */
 
-import React, { type JSX } from 'react';
+import { type JSX } from 'react';
 
 // @ts-ignore - haven't installed code-shiki as a dependency; might remove this entire plugin later, TBD.
 // eslint-disable-next-line import/no-unresolved

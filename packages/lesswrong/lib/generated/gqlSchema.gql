@@ -611,6 +611,10 @@ extend type Query {
   Lightcone2025FundraiserAirtableAmounts: Int!
 }
 
+extend type Query {
+  LlmModelOptions: [String!]!
+}
+
 type PetrovDay2024CheckNumberOfIncomingData {
   count: Int
 }
@@ -2102,7 +2106,7 @@ type Comment {
   tagId: String
   tag: Tag
   tagCommentType: TagCommentType!
-  userId: String
+  userId: String!
   user: User
   userIP: String
   userAgent: String
@@ -4413,7 +4417,6 @@ type Post {
   commentCount: Float!
   topLevelCommentCount: Float!
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment!]
-  languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
   totalDialogueResponseCount: Int!
@@ -7858,7 +7861,6 @@ type User {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
-  allowDatadogSessionReplay: Boolean!
   afPostCount: Float!
   afCommentCount: Float!
   afSequenceCount: Float!
@@ -9890,7 +9892,6 @@ input CreateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
@@ -10085,7 +10086,6 @@ input UpdateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afApplicationText: String
   afSubmittedApplication: Boolean

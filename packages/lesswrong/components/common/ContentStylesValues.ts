@@ -132,6 +132,11 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   },
   commentBody: {
     ...commentBodyStyles(theme),
+    '&& .llm-content-block': {
+      // LLM blocks use a slightly larger font in posts, but in comments the
+      // generated text should match the surrounding comment's size.
+      fontSize: 'inherit',
+    },
   },
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)

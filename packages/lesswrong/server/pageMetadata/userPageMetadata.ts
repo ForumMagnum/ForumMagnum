@@ -2,7 +2,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
+import { cloudinaryCloudName, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { runQuery } from "@/server/vulcan-lib/query";
 
@@ -42,14 +42,14 @@ export async function generateUserPageMetadata({ params, searchParams }: {
   
     if (!user) return defaultMetadata;
   
-    const displayName = userGetDisplayName(user);
-    const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`;
+    const displayName = userGetDisplayName(user, resolverContext.forumType);
+    const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get(resolverContext)} — ${taglineSetting.get(resolverContext)}`;
     const descriptionFields = getMetadataDescriptionFields(description);
   
-    const titleFields = getPageTitleFields(user.displayName ?? user.slug);
+    const titleFields = await getPageTitleFields(user.displayName ?? user.slug);
   
     const imageUrl = user.profileImageId
-      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`
+      ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`
       : '';
   
     const imageFields = getMetadataImagesFields(imageUrl);

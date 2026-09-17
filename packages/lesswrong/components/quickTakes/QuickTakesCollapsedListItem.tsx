@@ -5,7 +5,6 @@ import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import moment from "moment";
 import KarmaDisplay from "../common/KarmaDisplay";

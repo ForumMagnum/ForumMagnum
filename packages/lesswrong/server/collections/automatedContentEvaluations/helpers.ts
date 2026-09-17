@@ -329,7 +329,7 @@ async function rejectContentForLLM(
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
     const lwAccount = await getAdminTeamAccount(context);
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     await updateComment({
       selector: { _id: documentId },

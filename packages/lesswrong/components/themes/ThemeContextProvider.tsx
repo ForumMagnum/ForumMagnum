@@ -1,5 +1,6 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { abstractThemeToConcrete, getThemeOptions } from '../../themes/themeNames';
@@ -11,15 +12,16 @@ import stringify from 'json-stringify-deterministic';
 import { ThemeContext } from './useTheme';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, regeneratePageStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
+import { createStylesContext, regeneratePageStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHTML } from 'next/navigation';
-import { defineStyles, setClientMountedStyles } from '../hooks/defineStyles';
+import { setClientMountedStyles } from '../hooks/defineStyles';
 import { useCurrentUser } from '../common/withUser';
 import { serverEmbeddedStyles } from '../hooks/serverEmbeddedStyles';
 
 export const ThemeContextProvider = ({children}: {
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const [cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const themeCookie = cookies[THEME_COOKIE];
   const user = useCurrentUser();
@@ -29,6 +31,7 @@ export const ThemeContextProvider = ({children}: {
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
+    // TODO: Keep this paired with ThemePickerMenu when considering account-synced themes for LW/AF.
     if (isEAForum()) {
       removeCookie(THEME_COOKIE, {path: "/"});
     } else {
@@ -44,8 +47,8 @@ export const ThemeContextProvider = ({children}: {
   const concreteThemeOptions = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const theme: any = useMemo(() =>
-    getForumTheme(concreteThemeOptions),
-    [concreteThemeOptions]
+    getForumTheme(concreteThemeOptions, forumType),
+    [concreteThemeOptions, forumType]
   );
   const themeContext = useMemo(() => (
     {theme, abstractThemeOptions: themeOptions, concreteThemeOptions, setThemeOptions}),
@@ -101,12 +104,13 @@ function updateDocumentBodyThemeClassname(themeName: string) {
 }
 
 const StyleHTMLInjector = () => {
+  const { forumType } = useForumType();
   const stylesContext = useContext(StylesContext)!;
   const themeContext = useContext(ThemeContext)!;
   
   useServerInsertedHTML(() => {
     if (stylesContext.stylesAwaitingServerInjection.length > 0) {
-      const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection)
+      const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection, forumType)
       stylesContext.stylesAwaitingServerInjection = [];
       return <script dangerouslySetInnerHTML={{__html: injectedStyles}}/>;
     }

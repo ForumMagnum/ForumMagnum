@@ -2,7 +2,6 @@ import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { isLWorAF } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import PostsVote from "../votes/PostsVote";
 import PingbacksList from "../posts/PingbacksList";
@@ -65,7 +64,7 @@ const UltraFeedPostFooter = ({post}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {isLWorAF() && !post.shortform && !post.isEvent &&
+    {!post.shortform && !post.isEvent &&
       <AnalyticsContext pageSectionContext="tagFooter">
         <div className={classes.footerTagList}>
           <FooterTagList post={post}/>

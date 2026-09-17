@@ -1,5 +1,4 @@
 import { VotingProps } from "@/components/votes/votingProps";
-import { isLW } from "../instanceSettings";
 import type { NamesAttachedReactionsList, UserVoteOnSingleReaction } from "./namesAttachedReactions";
 import { addReactsVote, removeReactsVote, getDocumentHighlights } from './reactionDisplayHelpers';
 import { defineVotingSystem } from './defineVotingSystem';
@@ -26,7 +25,7 @@ type ReactionsAndLikesScore = {
 
 export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
   name: "reactionsAndLikes",
-  userCanActivate: isLW,
+  userCanActivate: (forumType) => forumType === 'LessWrong',
   description: "Likes (single-axis non-anonymous) plus reactions",
   hasInlineReacts: true,
 
@@ -86,7 +85,7 @@ export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLike
     
     // FIXME: userGetDisplayName differs between LW and AF; this will create a weird inconsistency in denormalized data based on whether the last vote was cast on LW or on AF
     const likesList = upvotesByDescendingUserKarma
-      .map(v => ({_id: v.userId, displayName: userGetDisplayName(usersById[v.userId])}));
+      .map(v => ({_id: v.userId, displayName: userGetDisplayName(usersById[v.userId], context.forumType)}));
     
     return {
       usersWhoLiked: likesList,

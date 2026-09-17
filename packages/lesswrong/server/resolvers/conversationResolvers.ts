@@ -1,8 +1,9 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting, isAF } from "@/lib/instanceSettings";
+import { adminAccountSetting } from "@/lib/instanceSettings";
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -12,13 +13,13 @@ import { backgroundTask } from "../utils/backgroundTask";
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
 
-const getFollowSubscriptionStartDate = () => forumSelect({
+const getFollowSubscriptionStartDate = (forumType: ForumTypeString) => forumSelect({
   LessWrong: new Date("2024-06-06"),
   default: undefined
-})
+}, forumType)
 
-const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
-  const adminEmail = adminAccountSetting.get()?.email ?? "";
+const getTriggeredDmContents = (eventType: DmTriggeringEvent, forumType: ForumTypeString) => {
+  const adminEmail = adminAccountSetting.get(forumType)?.email ?? "";
 
   switch (eventType) {
     case "newFollowSubscription":
@@ -77,7 +78,7 @@ export const conversationGqlMutations = {
       const numUsersFollows = await Subscriptions.find({
         userId: currentUser._id,
         type: "newActivityForFeed",
-        createdAt: {$gt: getFollowSubscriptionStartDate()}
+        createdAt: {$gt: getFollowSubscriptionStartDate(context.forumType)}
       }).count();
 
       if (numUsersFollows > 1) {
@@ -86,14 +87,14 @@ export const conversationGqlMutations = {
       }
     }
 
-    const { title, message } = getTriggeredDmContents(eventType); 
+    const { title, message } = getTriggeredDmContents(eventType, context.forumType);
 
     const conversationData = {
       participantIds: [currentUser._id, lwAccount._id],
       title
     }
 
-    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     const conversation = await createConversation({
       data: conversationData
@@ -123,7 +124,7 @@ export const conversationGqlMutations = {
       throw new Error("You must be logged in to do this");
     }
 
-    const afField = isAF() ? { af: true } : {};
+    const afField = context.forumType === 'AlignmentForum' ? { af: true } : {};
     const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
 
     // This is basically the `userGroupUntitledConversations` view plus the default view

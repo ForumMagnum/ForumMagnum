@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import qs from 'qs';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import classNames from 'classnames';
@@ -436,11 +437,12 @@ const CommentPermalinkSection = ({
   targetCommentId: string;
   onSeeInContext: (e: React.MouseEvent) => void;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   
   if (!targetComment) return null;
   
-  if (commentIsHiddenPendingReview(targetComment) && !targetComment.rejected) {
+  if (commentIsHiddenPendingReview(targetComment, forumType) && !targetComment.rejected) {
     return (
       <>
         <div className={classes.permalinkLabel}>
@@ -535,6 +537,7 @@ const UltraFeedPostDialog = ({
   topLevelCommentId,
   onClose,
 }: UltraFeedPostDialogProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const location = useSubscribedLocation();
@@ -611,7 +614,7 @@ const UltraFeedPostDialog = ({
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = displayPost.question ? answersTree.length : undefined;
 
-  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers });
+  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers, forumType });
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
   const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
   const aboveLinkpostThreshold = displayPost.contents?.wordCount && 
@@ -663,7 +666,7 @@ const UltraFeedPostDialog = ({
     setFootnoteDialogHTML(footnoteHTML);
   });
 
-  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
+  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost, forumType) ? (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const action = showEmbeddedPlayer ? "close" : "open";

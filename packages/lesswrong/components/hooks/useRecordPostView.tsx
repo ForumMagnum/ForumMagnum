@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext, useCallback, useState, useMemo } from 'react';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -7,7 +8,6 @@ import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from './useClientId';
-
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -40,6 +40,7 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
+  const { forumType } = useForumType();
   const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
@@ -94,17 +95,17 @@ export const useRecordPostView = (post: ViewablePost) => {
       const attributedUserId = currentUser?._id ?? clientId;
 
       if (attributedUserId
-        && recombeeEnabledSetting.get()
+        && recombeeEnabledSetting.get(forumType)
         && !recommendationOptions?.skip
-        && isRecombeeRecommendablePost(post)
+        && isRecombeeRecommendablePost(post, forumType)
         && (!currentUser || !excludeUserFromRecombee(currentUser))
       ) {
-        void recombeeApi.createDetailView(post._id, attributedUserId, recommendationOptions?.recombeeOptions?.recommId);
+        void recombeeApi.createDetailView(post._id, attributedUserId, forumType, recommendationOptions?.recombeeOptions?.recommId);
       }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent, forumType]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     const currentUser = getCurrentUser();
@@ -133,7 +134,6 @@ export const useRecordPostView = (post: ViewablePost) => {
 function excludeUserFromRecombee(user: UsersCurrent) {
   return user.spamRiskScore <= 0.1;
 }
-
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
   const {recordEvent} = useNewEvents()
@@ -202,5 +202,4 @@ export const ItemsReadContextWrapper = ({children}: {children: React.ReactNode})
     {children}
   </ItemsReadContext.Provider>
 }
-
 

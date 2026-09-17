@@ -1,8 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
+import { firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -39,6 +40,7 @@ const NewUserGuidelinesDialog = ({onClose, post}: {
   onClose: () => void,
   post: PostsMinimumInfo,
 }) => {
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
@@ -59,7 +61,7 @@ const NewUserGuidelinesDialog = ({onClose, post}: {
     onClose();
   }
   
-  const documentId = firstCommentAcknowledgeMessageCommentIdSetting.get()
+  const documentId = firstCommentAcknowledgeMessageCommentIdSetting.get(forumType)
   
   const { loading, data } = useQuery(CommentsListQuery, {
     variables: { documentId: documentId },
@@ -78,7 +80,7 @@ const NewUserGuidelinesDialog = ({onClose, post}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          {isLW() && <Button>
+          {isLW && <Button>
             This was your father's rock
           </Button>}
           <Button onClick={handleClick}>

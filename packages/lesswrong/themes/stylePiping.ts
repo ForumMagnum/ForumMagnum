@@ -1,9 +1,13 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 
-const hideSpoilers = (theme: ThemeType) => ({
+export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after, & li': {
+  // Headings, blockquotes, links, etc. set their own text color rather than
+  // inheriting it, so the color has to be forced on every descendant, not just
+  // the container. (In light mode those colors happened to be near-black on the
+  // black block; in dark mode they're white on dark grey.)
+  '& *, & a::after': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
@@ -806,7 +810,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
     ...pointerEvents,
-    '& > *:hover ~ .spoiler': {
+    '& > *:hover ~ .spoiler, & > *:hover ~ .spoiler *': {
       color: theme.palette.panelBackground.spoilerBlock,
     },
     '& > *:hover ~ .spoiler:before': {

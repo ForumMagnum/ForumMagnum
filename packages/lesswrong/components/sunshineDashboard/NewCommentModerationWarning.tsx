@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { commentModerationWarningCommentIdSetting } from '@/lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -27,8 +28,9 @@ const styles = defineStyles('NewCommentModerationWarning', (theme: ThemeType) =>
 }));
 
 export const NewCommentModerationWarning = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const documentId = commentModerationWarningCommentIdSetting.get() 
+  const documentId = commentModerationWarningCommentIdSetting.get(forumType)
   
   const { loading, data } = useQuery(CommentsListQuery, {
     variables: { documentId: documentId },

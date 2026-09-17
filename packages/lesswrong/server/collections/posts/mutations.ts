@@ -2,14 +2,13 @@ import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collect
 import { postStatuses } from "@/lib/collections/posts/constants";
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
-import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
+import { isEAForum, isElasticEnabled } from "@/lib/instanceSettings";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulcan-users/permissions";
-import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, clearCourseEndTime, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
@@ -131,12 +130,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: callbackProps,
   });
 
-  // former newSync callbacks
-  if (isEAForum()) {
-    data = checkTosAccepted(currentUser, data);
-    assertPostTitleHasNoEmojis(data);
-  }
-
   data = await checkRecentRepost(data, currentUser, context);
   data = await postsNewDefaultLocation(data, currentUser, context);
   data = await postsNewDefaultTypes(data, currentUser, context);
@@ -148,7 +141,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   let documentWithId = afterCreateProperties.document;
 
   // former createAfter callbacks
-  await swrInvalidatePostRoute(documentWithId._id, context);
   if (!documentWithId.authorIsUnreviewed && !documentWithId.draft) {
     backgroundTask(onPostPublished(documentWithId, context));
   }
@@ -188,9 +180,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   }
 
   // former newAsync callbacks
-  await sendUsersSharedOnPostNotifications(documentWithId);
+  await sendUsersSharedOnPostNotifications(documentWithId, context);
   if (hasEmbeddingsForRecommendations()) {
-    await updatePostEmbeddingsOnChange(documentWithId, undefined);
+    await updatePostEmbeddingsOnChange(documentWithId, context);
 
     if (!documentWithId.draft) {
       await maybeAutoFrontpagePost(documentWithId._id, context);
@@ -231,11 +223,6 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-  if (isEAForum()) {
-    data = checkTosAccepted(currentUser, data);
-    assertPostTitleHasNoEmojis(data);
-  }
-
   // former updateBefore callbacks
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
@@ -261,7 +248,6 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
 
   // former updateAfter callbacks
-  await swrInvalidatePostRoute(updatedDocument._id, context);
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
   // updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
@@ -277,7 +263,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // former updateAsync callbacks
   await eventUpdatedNotifications(updateCallbackProperties);
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
-  await updatePostEmbeddingsOnChange(updatedDocument, updateCallbackProperties.oldDocument);
+  await updatePostEmbeddingsOnChange(updatedDocument, context, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
   await maybeSendRejectionPM(updateCallbackProperties);
   await updateUserNotesOnPostDraft(updateCallbackProperties);
@@ -287,7 +273,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   // former editAsync callbacks
   await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
-  sendPostApprovalNotifications(updatedDocument, oldDocument);
+  sendPostApprovalNotifications(updatedDocument, oldDocument, context);
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
@@ -295,13 +281,11 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 
-  if (isLWorAF()) {
-    await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
-    await purgeCurationEmailQueueWhenUncurating(updatedDocument, oldDocument);
-  }
+  await sendLWAFPostCurationEmails(updatedDocument, oldDocument, context);
+  await purgeCurationEmailQueueWhenUncurating(updatedDocument, oldDocument);
 
-  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
-  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
+  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument, context);
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
   await updatePostShortform(updatedDocument, oldDocument, context);
   await updateCommentHideKarma(updatedDocument, oldDocument, context);
   await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);

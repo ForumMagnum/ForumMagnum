@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 
 /**
@@ -42,11 +43,13 @@ export const conversationGetFriendlyTitle = (conversation: ConversationsList, cu
   }
 }
 
-export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
-  return `${prefix}/inbox?conversation=${conversation._id}`;
+export const conversationGetPageUrl = (conversation: HasIdType): string => {
+  return `/inbox?conversation=${conversation._id}`;
 }
+
+export const conversationGetAbsolutePageUrl = (conversation: HasIdType, forumType: ForumTypeString): string => {
+  return getSiteUrl(forumType).slice(0, -1) + conversationGetPageUrl(conversation);
+};
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false

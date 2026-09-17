@@ -12,6 +12,7 @@ import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
+import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 
 // The research conversation mutations (`fireResearchConversation` /
 // `continueResearchConversation`) provision or resume a persistent sandbox
@@ -33,7 +34,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     }
 
     let startedRequestMetric: IncompletePerfMetric;
-    if (performanceMetricLoggingEnabled.get()) {
+    if (performanceMetricLoggingEnabled.get(context)) {
       startedRequestMetric = openPerfMetric({
         op_type: 'query',
         op_name: operationName,
@@ -45,7 +46,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     
     return {
       async willSendResponse() { // hook for transaction finished
-        if (performanceMetricLoggingEnabled.get()) {
+        if (performanceMetricLoggingEnabled.get(context)) {
           closePerfMetric(startedRequestMetric);
         }
       }
@@ -76,7 +77,6 @@ const server = new ApolloServer<ResolverContext>({
   },
 });
 
-
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
   context: async (req) => {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
@@ -96,7 +96,7 @@ function isSandboxedIframeRequest(request: NextRequest) {
 }
 
 function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
+  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get(getForumTypeForRequest(request));
   if (!fmCrosspostBaseUrl) {
     return false;
   }
@@ -118,13 +118,14 @@ function isCrossSiteRequest(request: NextRequest) {
 }
 
 async function sharedHandler(request: NextRequest) {
-  if (!performanceMetricLoggingEnabled.get()) {
-    const res = await handler(request);
+  const forumType = getForumTypeForRequest(request);
+  if (!performanceMetricLoggingEnabled.get(forumType)) {
+    const res = await asyncLocalStorage.run({ forumType }, () => handler(request));
 
     if (isSandboxedIframeRequest(request)) {
       setSandboxedIframeCorsHeaders(res);
     } else if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
     return res;
   }
@@ -137,7 +138,7 @@ async function sharedHandler(request: NextRequest) {
     user_agent: request.headers.get('user-agent') ?? undefined,
   });
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, forumType }, async () => {
     let res;
     try {
       res = await handler(request);
@@ -171,7 +172,7 @@ async function sharedHandler(request: NextRequest) {
     if (isSandboxedIframeRequest(request)) {
       setSandboxedIframeCorsHeaders(res);
     } else if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
+      setCorsHeaders(res, forumType);
     }
 
     return res;

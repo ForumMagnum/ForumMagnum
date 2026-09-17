@@ -2,7 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
-import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
+import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

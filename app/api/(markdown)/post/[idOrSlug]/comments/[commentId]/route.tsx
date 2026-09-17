@@ -50,6 +50,7 @@ export async function GET(req: NextRequest, {
         markdownRouteBase={`/api/post/${rawPost.slug}/comments`}
         htmlRouteBase={`/posts/${rawPost._id}/${rawPost.slug}/comment`}
       />
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }
