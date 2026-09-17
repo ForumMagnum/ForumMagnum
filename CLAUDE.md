@@ -129,7 +129,7 @@ input ChapterSelector {
 - `EmptyViewInput` is a shared input type that is defined in `@/server/vulcan-lib/apollo-server/initGraphQL.ts` and doesn't need to be defined in the view file.  It should be used if a view doesn't have any parameters.
 - Views need to have corresponding view functions defined in `@/lib/collections/{collectionName}/views.ts` and added to the `CollectionViewSet` in that file.
 - Views are only used when using the "default" resolvers for a given collection (those returned `getDefaultResolvers`).  These are a "single" and "multi" resolver for the collection, which compile a GraphQL query into a SQL query and automatically handle permissions checks.
-- Importantly, if you write queries which are well-modeled by "fetch one" or "fetch many" with basic selector/sorting/limiting, you *should* use `getDefaultResolvers` to define those queries.  See `pacakges/lesswrong/server/collections/chapters/queries.ts` for an example of how it should be structured. (Do not implement deprecated fields.)
+- Importantly, if you write queries which are well-modeled by "fetch one" or "fetch many" with basic selector/sorting/limiting, you *should* use `getDefaultResolvers` to define those queries.  See `packages/lesswrong/server/collections/chapters/queries.ts` for an example of how it should be structured. (Do not implement deprecated fields.)
   - Similarly, if you write mutations which are well-modeled as creating or updating a collection record, possibly with some additional associated business logic, you should follow the pattern in `packages/lesswrong/server/collections/chapters/mutations.ts`.  (But, similarly, do not use deprecated helper functions when implementing these for new collections.  Also avoid using `userCanDo` to check for permissions; in ~all cases it should be possible to check whether a user has permission by way of being an owner of the document, an admin, or a member of a group that's allowed to perform that action.)
 - If you need an access pattern that is not well-modeled by "fetch one" or "fetch many" with basic selector/sorting/limiting, you should write and use a custom query resolver.  By convention, we put these into `@/server/resolvers/{concept}Resolvers.ts`.  You will need to add them to the `initGraphQL.ts` file.  Don't forget about manually applying relevant permissions checks before returning results to users, if applicable.
 
@@ -476,12 +476,12 @@ Helper functions used on both the client and server:
 We use jss for styling.  Define styles like so:
 ```typescript
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-const styles = defineStyles('ComponentName', (theme: ThemeType) => {
+const styles = defineStyles('ComponentName', (theme: ThemeType) => ({
   root: {
     width: '100%',
     background: theme.palette.greyAlpha(0.1)
   },
-});
+}));
 ```
 
 Then, inside the component:
@@ -493,7 +493,6 @@ const TestComponent = () => {
 ```
 If an element has multiple classes or conditional classes, combine them them with the `classNames` function.
 If a component needs HoCs or memoization applied, use `export default registerComponent("TestComponent", TestComponent, {})`, but only wrap components this way if an HoC or memoization is used.
-The registerComponent wrapper can take a {styles} option, in which case it calls defineStyles and useStyles in an HoC and passes the result as a prop named `classes`. This method is deprecated; when writing new components you should use `defineStyles` and `useStyles` directly.
 Do not use inline the `style` attribute on JSX elements for styling purposes unless you need to do something dynamic that would be deeply impractical to implement with jss classes.
 
 Colors are defined as part of the theme, as `theme.palette.colorName`; see `@/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode.  Whenever possible, prefer to use existing colors defined in our palette.  For greyscale, use the methods defined in `defaultShadePalette`:
@@ -511,31 +510,30 @@ Those are available via `theme.palette`.
 
 If you for some reason need to use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`.
 
-`theme.spacing.unit` is deprecated and has the value 8.
-
 ---
 
 ## Paths and Navigation
 
-Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  This is the interface of the object it returns:
-```typescript
-export type RouterLocation = {
-  location: SegmentedUrl,
-  pathname: string,
-  url: string,
-  hash: string,
-  params: Record<string, string>,
-  query: Record<string, string>, // TODO: this should be Record<string,string|string[]>; any client-side code using this needs to be aware it might get an array.  That won't be the case 99% of the time, though.
-};
-```
+Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  It returns a `RouterLocation`; that type is declared in `@/lib/routeChecks/parseRoute.ts`, which is the source of truth for its fields (`location`, `pathname`, `url`, `hash`, `params`, `query`, `redirected`).  Note the TODO on `query`: it is typed `Record<string, string>`, but this should be `Record<string,string|string[]>`; any client-side code using this needs to be aware it might get an array.  That won't be the case 99% of the time, though.
 
-See `@/components/next/ClientAppGenerator.tsx` for more details about how the value returned by it is computed, if anything unusual comes up.
+See `@/components/layout/ClientAppGenerator.tsx` for more details about how the value returned by it is computed, if anything unusual comes up.
 
 Use `useNavigate` for performing client-side navigations.  You need to preserve all parts of the path that you don't want changed, i.e. just providing a hash will delete any query parameters if they aren't also provided.  See `@/lib/routeUtil.tsx` for more details if needed.
 
 ## Editor
 
 The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [CLAUDE.md](packages/lesswrong/components/editor/CLAUDE.md) with instructions for doing UI testing in the editor; read that if needed.
+
+## Agent-facing surfaces
+
+Several parts of the codebase exist for LLM agents — as things agents act on, read, or produce.  This is a directory index of them; read the code in each for what it actually does.
+- Lexical suggestion mode (tracked-change suggestions in the editor): `@/components/editor/lexicalPlugins/suggestedEdits/`
+- Public agent post-editing API: `app/api/agent/`
+- MCP server: `app/api/mcp/`
+- Agent-readable docs and markdown views of site content: `app/SKILL.md/route.tsx`, `app/api/(markdown)/`
+- Research sandbox (Claude Code running in a Vercel Sandbox against research documents): `@/server/research/` (see `@/server/research/sandbox/README.md`), `@/components/research/`, `app/research/`
+- Supermod moderation dashboard: `app/admin/supermod/`, `@/components/sunshineDashboard/supermod/`
+- Automated content evaluation (the `AutomatedContentEvaluations` collection): `@/lib/collections/automatedContentEvaluations/`, `@/server/collections/automatedContentEvaluations/`
 
 ## Subagent Guidance
 
