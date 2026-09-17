@@ -1287,6 +1287,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rejectPost(postId: String!, rejectedReason: String!, skipRejectionPM: Boolean): Post
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
@@ -4440,7 +4441,6 @@ type Post {
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
   rejected: Boolean!
-  skipRejectionPM: Boolean
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
@@ -9056,7 +9056,6 @@ input UpdatePostDataInput {
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
   rejected: Boolean
-  skipRejectionPM: Boolean
   rejectedReason: String
   rejectedByUserId: String
   subforumTagId: String

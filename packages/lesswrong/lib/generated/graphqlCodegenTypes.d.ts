@@ -3979,6 +3979,7 @@ type Mutation = {
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
+  rejectPost?: Maybe<Post>;
   rejectTypoSuggestion: TypoSuggestion;
   reorderResearchDocuments?: Maybe<ReorderResearchDocumentsOutput>;
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
@@ -4575,6 +4576,13 @@ type MutationrejectContentAndRemoveUserFromQueueArgs = {
   messageContent?: InputMaybe<Scalars['String']['input']>;
   rejectedReason: Scalars['String']['input'];
   userId: Scalars['String']['input'];
+};
+
+
+type MutationrejectPostArgs = {
+  postId: Scalars['String']['input'];
+  rejectedReason: Scalars['String']['input'];
+  skipRejectionPM?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -5441,7 +5449,6 @@ type Post = {
   sideCommentVisibility?: Maybe<Scalars['String']['output']>;
   sideComments?: Maybe<Scalars['JSON']['output']>;
   sideCommentsCache?: Maybe<SideCommentCache>;
-  skipRejectionPM?: Maybe<Scalars['Boolean']['output']>;
   slug: Scalars['String']['output'];
   socialPreview?: Maybe<SocialPreviewOutput>;
   socialPreviewData: SocialPreviewType;
@@ -11244,7 +11251,6 @@ type UpdatePostDataInput = {
   sharingSettings?: InputMaybe<Scalars['JSON']['input']>;
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sideCommentVisibility?: InputMaybe<Scalars['String']['input']>;
-  skipRejectionPM?: InputMaybe<Scalars['Boolean']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   socialPreview?: InputMaybe<SocialPreviewInput>;
   socialPreviewImageAutoUrl?: InputMaybe<Scalars['String']['input']>;
@@ -15602,23 +15608,40 @@ type multiModerationTemplateRejectContentDialogQueryQueryVariables = Exact<{
 
 type multiModerationTemplateRejectContentDialogQueryQuery = multiModerationTemplateRejectContentDialogQueryQuery_Query;
 
-type rejectPostMutationMutation_updatePost_PostOutput_data_Post = (
+type rejectPostMutationMutation_rejectPost_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type rejectPostMutationMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: rejectPostMutationMutation_updatePost_PostOutput_data_Post | null };
-
-type rejectPostMutationMutation_Mutation = { __typename?: 'Mutation', updatePost: rejectPostMutationMutation_updatePost_PostOutput | null };
+type rejectPostMutationMutation_Mutation = { __typename?: 'Mutation', rejectPost: rejectPostMutationMutation_rejectPost_Post | null };
 
 
 type rejectPostMutationMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  rejectedReason: Scalars['String']['input'];
+  skipRejectionPM: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type rejectPostMutationMutation = rejectPostMutationMutation_Mutation;
+
+type unrejectPostMutationMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type unrejectPostMutationMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: unrejectPostMutationMutation_updatePost_PostOutput_data_Post | null };
+
+type unrejectPostMutationMutation_Mutation = { __typename?: 'Mutation', updatePost: unrejectPostMutationMutation_updatePost_PostOutput | null };
+
+
+type unrejectPostMutationMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdatePostDataInput;
 }>;
 
 
-type rejectPostMutationMutation = rejectPostMutationMutation_Mutation;
+type unrejectPostMutationMutation = unrejectPostMutationMutation_Mutation;
 
 type rejectCommentMutationMutation_updateComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }

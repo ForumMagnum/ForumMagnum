@@ -15,7 +15,15 @@ const ModerationTemplateFragmentMultiQuery = gql(`
 `);
 
 const rejectPostMutation = gql(`
-  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+  mutation rejectPostMutation($postId: String!, $rejectedReason: String!, $skipRejectionPM: Boolean) {
+    rejectPost(postId: $postId, rejectedReason: $rejectedReason, skipRejectionPM: $skipRejectionPM) {
+      ...SunshinePostsList
+    }
+  }
+`);
+
+const unrejectPostMutation = gql(`
+  mutation unrejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {
     updatePost(selector: $selector, data: $data) {
       data {
         ...SunshinePostsList
@@ -46,6 +54,7 @@ export type RejectContentWithReason = {
   collectionName: "Posts",
   document: SunshinePostsList
   reason: string
+  // Reject without sending the author the usual rejection DM
   skipRejectionPM?: boolean
 } | {
   collectionName: "Comments",
@@ -54,7 +63,8 @@ export type RejectContentWithReason = {
 }
 
 export function useRejectContent() {
-  const [updatePost] = useMutation(rejectPostMutation);
+  const [rejectPost] = useMutation(rejectPostMutation);
+  const [updatePost] = useMutation(unrejectPostMutation);
   const [updateComment] = useMutation(rejectCommentMutation);
 
   const { data } = useQuery(ModerationTemplateFragmentMultiQuery, {
@@ -82,29 +92,24 @@ export function useRejectContent() {
   const rejectContent = useCallback((params: RejectContentWithReason) => {
     const { document, reason } = params;
     return queueMutation(async () => {
-      const variables = {
-        selector: { _id: document._id },
-        data: { rejected: true, rejectedReason: reason }
-      };
-
       if (params.collectionName === "Posts") {
-        await updatePost({
-          variables: {
-            ...variables,
-            data: { ...variables.data, skipRejectionPM: params.skipRejectionPM ?? false },
-          },
-          optimisticResponse: { updatePost: { data: { ...params.document, rejected: true, rejectedReason: reason } } },
+        await rejectPost({
+          variables: { postId: document._id, rejectedReason: reason, skipRejectionPM: params.skipRejectionPM ?? false },
+          optimisticResponse: { rejectPost: { ...params.document, rejected: true, rejectedReason: reason } },
           onError: () => {},
         });
       } else {
         await updateComment({
-          variables,
+          variables: {
+            selector: { _id: document._id },
+            data: { rejected: true, rejectedReason: reason },
+          },
           optimisticResponse: { updateComment: { data: { ...params.document, rejected: true, rejectedReason: reason } } },
           onError: () => {}
         });
       }
     });
-  }, [updatePost, updateComment, queueMutation]);
+  }, [rejectPost, updateComment, queueMutation]);
   
   const unrejectContent = useCallback(({ collectionName, document }: RejectContentParams) => {
     return queueMutation(async () => {

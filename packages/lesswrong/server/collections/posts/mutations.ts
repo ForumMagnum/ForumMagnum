@@ -199,13 +199,13 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   return documentWithId;
 }
 
-export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext) {
+export interface UpdatePostOptions {
+  // Reject without messaging the author; only the rejectPost mutation sets this.
+  skipRejectionPM?: boolean;
+}
+
+export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext, options?: UpdatePostOptions) {
   const { currentUser, Posts } = context;
-  const skipRejectionPM = 'skipRejectionPM' in data && data.skipRejectionPM === true;
-  if ('skipRejectionPM' in data) {
-    data = { ...data };
-    delete data.skipRejectionPM;
-  }
 
   // rejectedReason is rendered raw on the public /moderation page; sanitize on
   // every write so a compromised mod account can't produce stored XSS.
@@ -270,7 +270,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
   await updatePostEmbeddingsOnChange(updatedDocument, context, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
-  if (!skipRejectionPM) {
+  if (!options?.skipRejectionPM) {
     await maybeSendRejectionPM(updateCallbackProperties);
   }
   await updateUserNotesOnPostDraft(updateCallbackProperties);

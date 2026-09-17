@@ -277,6 +277,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  rejectPost: Post | null;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
@@ -4000,7 +4001,6 @@ interface Post {
   mostRecentPublishedDialogueResponseDate: Date | null;
   unreadDebateResponseCount: number;
   rejected: boolean;
-  skipRejectionPM: boolean | null;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
   rejectedByUser: User | null;
@@ -8293,7 +8293,6 @@ interface UpdatePostDataInput {
   hideCommentKarma?: boolean | null;
   collabEditorDialogue?: boolean | null;
   rejected?: boolean | null;
-  skipRejectionPM?: boolean | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   subforumTagId?: string | null;

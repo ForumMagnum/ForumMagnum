@@ -74,6 +74,7 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
+    rejectPost(postId: String!, rejectedReason: String!, skipRejectionPM: Boolean): Post
     rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
@@ -257,6 +258,21 @@ export const moderationGqlMutations = {
     }
 
     return true;
+  },
+  async rejectPost(_root: void, args: {postId: string, rejectedReason: string, skipRejectionPM?: boolean | null}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can reject posts");
+    }
+    const post = await Posts.findOne(args.postId);
+    if (!post) {
+      throw new Error("Invalid post ID");
+    }
+    const updatedPost = await updatePost({
+      data: { rejected: true, rejectedReason: args.rejectedReason },
+      selector: { _id: post._id },
+    }, context, { skipRejectionPM: !!args.skipRejectionPM });
+    return accessFilterSingle(currentUser, 'Posts', updatedPost, context);
   },
   async approveUserCurrentContentOnly(_root: void, args: {userId: string}, context: ResolverContext) {
     const { currentUser } = context;
