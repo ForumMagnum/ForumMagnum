@@ -18,7 +18,7 @@ export async function getModerationNewUsers(context: ResolverContext, options: M
   if (limit < 0 || offset < 0) throw new Error('Queue limit and offset must be nonnegative');
   const { selector } = await viewTermsToQuery(UsersViews, { view: 'sunshineNewUsers' }, {}, context);
   const [users, totalCount] = await Promise.all([
-    context.repos.users.getNewUsersByOldestUnreviewedPost(selector, limit, offset),
+    context.repos.users.getNewUsersByOldestUnreviewedContent(selector, limit, offset),
     options.enableTotal ? context.Users.find(selector).count() : undefined,
   ]);
   return {

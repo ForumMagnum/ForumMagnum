@@ -1,6 +1,7 @@
 import SelectQuery from "@/server/sql/SelectQuery";
+import Comments from "@/server/collections/comments/collection";
 import Posts from "@/server/collections/posts/collection";
-import { unreviewedUserPostSelector } from "@/lib/collections/users/oldestUnreviewedPost";
+import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "@/lib/collections/users/oldestUnreviewedContent";
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
@@ -54,20 +55,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
     super(Users);
   }
 
-  async getNewUsersByOldestUnreviewedPost(selector: MongoSelector<DbUser>, limit: number, offset: number): Promise<DbUser[]> {
+  async getNewUsersByOldestUnreviewedContent(selector: MongoSelector<DbUser>, limit: number, offset: number): Promise<DbUser[]> {
     const usersQuery = new SelectQuery(this.getCollection().getTable(), selector).compile();
     const postsQuery = new SelectQuery(Posts.getTable(), unreviewedUserPostSelector).compile(usersQuery.args.length);
-    const args = [...usersQuery.args, ...postsQuery.args, limit, offset];
+    const commentsQuery = new SelectQuery(Comments.getTable(), unreviewedUserCommentSelector).compile(usersQuery.args.length + postsQuery.args.length);
+    const args = [...usersQuery.args, ...postsQuery.args, ...commentsQuery.args, limit, offset];
     return this.any(`
-      -- UsersRepo.getNewUsersByOldestUnreviewedPost
+      -- UsersRepo.getNewUsersByOldestUnreviewedContent
       SELECT u.*
       FROM (${usersQuery.sql}) u
       LEFT JOIN LATERAL (
-        SELECT MIN("postedAt") AS "oldestUnreviewedPostAt"
-        FROM (${postsQuery.sql}) pending_posts
-        WHERE "userId" = u._id
+        SELECT MIN("postedAt") AS "oldestUnreviewedContentAt"
+        FROM (
+          SELECT "postedAt" FROM (${postsQuery.sql}) pending_posts WHERE "userId" = u._id
+          UNION ALL
+          SELECT "postedAt" FROM (${commentsQuery.sql}) pending_comments WHERE "userId" = u._id
+        ) pending_content
       ) pending ON TRUE
-      ORDER BY pending."oldestUnreviewedPostAt" ASC NULLS LAST,
+      ORDER BY pending."oldestUnreviewedContentAt" ASC NULLS LAST,
         u."sunshineFlagged" DESC NULLS LAST, u."postCount" DESC,
         u."commentCount" DESC, u."signUpReCaptchaRating" DESC NULLS LAST,
         u."createdAt" DESC, u._id ASC

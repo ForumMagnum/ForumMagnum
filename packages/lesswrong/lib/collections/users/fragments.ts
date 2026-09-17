@@ -316,7 +316,7 @@ export const UserKarmaChanges = gql(`
 
 export const SunshineUsersList = gql(`
   fragment SunshineUsersList on User {
-    oldestUnreviewedPostAt
+    oldestUnreviewedContentAt
     ...UsersMinimumInfo
     karma
     htmlBio
