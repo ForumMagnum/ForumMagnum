@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
@@ -277,13 +277,16 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     </div>}
     {editorOpen && <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={onArrowDownPastEnd} onEscape={onEscape}>
       <ContentStyles contentType='comment'>
-        <LexicalEditor
-          key={lexicalEditorVersion}
-          data={editorHtml}
-          placeholder={`Why is ${user.displayName}'s content being rejected?`}
-          onChange={handleEditorChange}
-          commentEditor
-        />
+        {/* Keep the lazy editor's loading state from replacing the whole page. */}
+        <Suspense fallback={<div role="status">Loading editor…</div>}>
+          <LexicalEditor
+            key={lexicalEditorVersion}
+            data={editorHtml}
+            placeholder={`Why is ${user.displayName}'s content being rejected?`}
+            onChange={handleEditorChange}
+            commentEditor
+          />
+        </Suspense>
       </ContentStyles>
     </ComposerKeydownWrapper>}
     <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason || focusedContent.rejected} onClick={handleReject} />
