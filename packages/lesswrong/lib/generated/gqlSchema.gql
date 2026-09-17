@@ -1237,6 +1237,16 @@ extend type Mutation {
   convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
 }
 
+type ModerationUserQueueCounts {
+  newContent: Int!
+  offboard: Int!
+  highContext: Int!
+  maybeSpam: Int!
+  automod: Int!
+  snoozeExpired: Int!
+  unknown: Int!
+}
+
 type ModeratorIPAddressInfo {
   ip: String!
   userIds: [String!]!
@@ -1262,6 +1272,7 @@ enum ContentCollectionName {
 }
 
 extend type Query {
+  moderationUserQueueCounts: ModerationUserQueueCounts!
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
 

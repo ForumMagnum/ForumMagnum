@@ -1,3 +1,4 @@
+import { getModerationUserQueueCounts } from "./moderationUserQueueCounts";
 import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
@@ -20,6 +21,16 @@ import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlm
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
 
 export const moderationGqlTypeDefs = gql`
+  type ModerationUserQueueCounts {
+    newContent: Int!
+    offboard: Int!
+    highContext: Int!
+    maybeSpam: Int!
+    automod: Int!
+    snoozeExpired: Int!
+    unknown: Int!
+  }
+
   type ModeratorIPAddressInfo {
     ip: String!
     userIds: [String!]!
@@ -45,6 +56,7 @@ export const moderationGqlTypeDefs = gql`
   }
 
   extend type Query {
+    moderationUserQueueCounts: ModerationUserQueueCounts!
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   }
 
@@ -397,6 +409,9 @@ export const moderationGqlMutations = {
 }
 
 export const moderationGqlQueries = {
+  async moderationUserQueueCounts(_root: void, _args: Record<string, never>, context: ResolverContext) {
+    return getModerationUserQueueCounts(context);
+  },
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;

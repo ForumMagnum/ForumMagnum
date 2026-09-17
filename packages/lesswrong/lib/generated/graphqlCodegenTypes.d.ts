@@ -2929,6 +2929,17 @@ type ModerationTemplatesModerationTemplatesListInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
 };
 
+type ModerationUserQueueCounts = {
+  __typename?: 'ModerationUserQueueCounts';
+  automod: Scalars['Int']['output'];
+  highContext: Scalars['Int']['output'];
+  maybeSpam: Scalars['Int']['output'];
+  newContent: Scalars['Int']['output'];
+  offboard: Scalars['Int']['output'];
+  snoozeExpired: Scalars['Int']['output'];
+  unknown: Scalars['Int']['output'];
+};
+
 type ModeratorAction = {
   __typename?: 'ModeratorAction';
   _id: Scalars['String']['output'];
@@ -7374,6 +7385,7 @@ type Query = {
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
+  moderationUserQueueCounts: ModerationUserQueueCounts;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
   moderatorActions?: Maybe<MultiModeratorActionOutput>;
   moderatorViewIPAddress?: Maybe<ModeratorIPAddressInfo>;
@@ -21097,6 +21109,8 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
+type ModerationInboxDataQueryQuery_moderationUserQueueCounts_ModerationUserQueueCounts = { __typename?: 'ModerationUserQueueCounts', newContent: number, offboard: number, highContext: number, maybeSpam: number, automod: number, snoozeExpired: number, unknown: number };
+
 type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21127,7 +21141,7 @@ type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePosts
 
 type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', moderationUserQueueCounts: ModerationInboxDataQueryQuery_moderationUserQueueCounts_ModerationUserQueueCounts, users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
