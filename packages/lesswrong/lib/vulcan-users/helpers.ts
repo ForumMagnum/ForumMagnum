@@ -8,9 +8,14 @@ export const userGetDisplayNameById = async function(userId: string, context: Re
   return userGetDisplayName(user, context.forumType);
 };
 
-// Get a user's account edit URL
-// @param {Object} user (note: we only actually need either the _id or slug properties)
-export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null): string {
+// Get a user's account edit URL. If the user being edited is the current
+// user, this is the slug-free /account route, so that changing displayName
+// (which changes the slug) doesn't invalidate the URL of the page you're on.
+// Other users' (admin-only) settings pages are keyed by slug.
+export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, currentUser: UsersCurrent|DbUser|null): string {
+  if (user && currentUser && user._id === currentUser._id) {
+    return '/account';
+  }
   return `${userGetProfileUrl(user)}/edit`;
 };
 

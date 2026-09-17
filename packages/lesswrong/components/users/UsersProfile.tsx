@@ -365,7 +365,7 @@ const UsersProfileFn = ({terms, slug}: {
                 popperPlacement="bottom-end"
                 className={classes.subscribeButton} 
               /> }
-              {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
+              {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user, currentUser)}>
                 Account Settings
               </Link>}
             </Typography>
