@@ -72,6 +72,7 @@ interface Query {
   GetAllReviewWinners: Array<Post>;
   convertDocument: any;
   latestGoogleDocMetadata: any;
+  moderationNewUsers: ModerationNewUsersResult;
   moderationUserQueueCounts: ModerationUserQueueCounts;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   currentSpotlight: Spotlight | null;
@@ -1232,6 +1233,11 @@ interface ModerationUserQueueCounts {
   automod: number;
   snoozeExpired: number;
   unknown: number;
+}
+
+interface ModerationNewUsersResult {
+  results: Array<User>;
+  totalCount: number | null;
 }
 
 interface ModeratorIPAddressInfo {
@@ -9384,6 +9390,7 @@ interface GraphQLTypeMap {
   ExternalPost: ExternalPost;
   ExternalPostImportData: ExternalPostImportData;
   ModerationUserQueueCounts: ModerationUserQueueCounts;
+  ModerationNewUsersResult: ModerationNewUsersResult;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   ToggleBookmarkInput: ToggleBookmarkInput;

@@ -1,5 +1,3 @@
-import { getModerationNewUsers, type ModerationNewUsersOptions } from "@/server/resolvers/moderationNewUsers";
-import type { GraphQLResolveInfo } from "graphql";
 import schema from "@/lib/collections/users/newSchema";
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -135,20 +133,5 @@ export const graphqlUserQueryTypeDefs = gql`
     ): MultiUserOutput
   }
 `;
-const defaultUserQueryHandlers = getDefaultResolvers('Users', UsersViews);
-
-interface UserListArgs extends ModerationNewUsersOptions {
-  input?: unknown;
-  selector?: UserSelector | null;
-}
-
-export const userGqlQueryHandlers = {
-  ...defaultUserQueryHandlers,
-  async users(root: void, args: UserListArgs, context: ResolverContext, info: GraphQLResolveInfo) {
-    if (args.selector?.sunshineNewUsers) {
-      return getModerationNewUsers(context, args);
-    }
-    return defaultUserQueryHandlers.users(root, { ...args, input: args.input }, context, info);
-  },
-};
+export const userGqlQueryHandlers = getDefaultResolvers('Users', UsersViews);
 export const userGqlFieldResolvers = getFieldGqlResolvers('Users', schema);

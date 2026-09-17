@@ -1247,6 +1247,11 @@ type ModerationUserQueueCounts {
   unknown: Int!
 }
 
+type ModerationNewUsersResult {
+  results: [User!]!
+  totalCount: Int
+}
+
 type ModeratorIPAddressInfo {
   ip: String!
   userIds: [String!]!
@@ -1272,6 +1277,7 @@ enum ContentCollectionName {
 }
 
 extend type Query {
+  moderationNewUsers(limit: Int, enableTotal: Boolean): ModerationNewUsersResult!
   moderationUserQueueCounts: ModerationUserQueueCounts!
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }

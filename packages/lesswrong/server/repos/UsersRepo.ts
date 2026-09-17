@@ -55,11 +55,16 @@ class UsersRepo extends AbstractRepo<"Users"> {
     super(Users);
   }
 
-  async getNewUsersByOldestUnreviewedContent(selector: MongoSelector<DbUser>, limit: number, offset: number): Promise<DbUser[]> {
+  /**
+   * Users matching `selector` (the sunshineNewUsers view), ordered so that the
+   * user whose post or comment has waited longest for review comes first. Users
+   * with nothing pending follow, in the view's usual order.
+   */
+  async getNewUsersByOldestUnreviewedContent(selector: MongoSelector<DbUser>, limit: number): Promise<DbUser[]> {
     const usersQuery = new SelectQuery(this.getCollection().getTable(), selector).compile();
     const postsQuery = new SelectQuery(Posts.getTable(), unreviewedUserPostSelector).compile(usersQuery.args.length);
     const commentsQuery = new SelectQuery(Comments.getTable(), unreviewedUserCommentSelector).compile(usersQuery.args.length + postsQuery.args.length);
-    const args = [...usersQuery.args, ...postsQuery.args, ...commentsQuery.args, limit, offset];
+    const args = [...usersQuery.args, ...postsQuery.args, ...commentsQuery.args, limit];
     return this.any(`
       -- UsersRepo.getNewUsersByOldestUnreviewedContent
       SELECT u.*
@@ -76,7 +81,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."sunshineFlagged" DESC NULLS LAST, u."postCount" DESC,
         u."commentCount" DESC, u."signUpReCaptchaRating" DESC NULLS LAST,
         u."createdAt" DESC, u._id ASC
-      LIMIT $${args.length - 1} OFFSET $${args.length}
+      LIMIT $${args.length}
     `, args);
   }
 

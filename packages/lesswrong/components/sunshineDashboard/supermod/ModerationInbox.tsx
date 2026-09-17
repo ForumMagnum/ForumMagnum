@@ -35,7 +35,7 @@ import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 // separate useQuery suspends. (directUser is kept separate below because it
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
-  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
+  query ModerationInboxDataQuery($postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
     moderationUserQueueCounts {
       newContent
       offboard
@@ -45,7 +45,7 @@ const ModerationInboxDataQuery = gql(`
       snoozeExpired
       unknown
     }
-    users(selector: $userSelector, limit: $userLimit) {
+    moderationNewUsers(limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
@@ -569,7 +569,6 @@ const ModerationInbox = () => {
 
   const { data, loading } = useQuery(ModerationInboxDataQuery, {
     variables: {
-      userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
       userLimit: 100,
@@ -581,7 +580,7 @@ const ModerationInbox = () => {
 
   const initialOpenedUserId = query.user || null;
 
-  const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
+  const users = useMemo(() => data?.moderationNewUsers?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {

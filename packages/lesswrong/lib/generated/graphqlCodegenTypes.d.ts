@@ -2889,6 +2889,12 @@ type MigrationsDashboardData = {
   migrations?: Maybe<Array<MigrationStatus>>;
 };
 
+type ModerationNewUsersResult = {
+  __typename?: 'ModerationNewUsersResult';
+  results: Array<User>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type ModerationTemplate = {
   __typename?: 'ModerationTemplate';
   _id: Scalars['String']['output'];
@@ -7384,6 +7390,7 @@ type Query = {
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
+  moderationNewUsers: ModerationNewUsersResult;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderationUserQueueCounts: ModerationUserQueueCounts;
@@ -8202,6 +8209,12 @@ type QuerymessagesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<MessageSelector>;
+};
+
+
+type QuerymoderationNewUsersArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -20878,6 +20891,24 @@ type multiUserSunshineNewUsersListQueryQueryVariables = Exact<{
 
 type multiUserSunshineNewUsersListQueryQuery = multiUserSunshineNewUsersListQueryQuery_Query;
 
+type SunshineNewUsersQueueQueryQuery_moderationNewUsers_ModerationNewUsersResult_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type SunshineNewUsersQueueQueryQuery_moderationNewUsers_ModerationNewUsersResult = { __typename?: 'ModerationNewUsersResult', totalCount: number | null, results: Array<SunshineNewUsersQueueQueryQuery_moderationNewUsers_ModerationNewUsersResult_results_User> };
+
+type SunshineNewUsersQueueQueryQuery_Query = { __typename?: 'Query', moderationNewUsers: SunshineNewUsersQueueQueryQuery_moderationNewUsers_ModerationNewUsersResult };
+
+
+type SunshineNewUsersQueueQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type SunshineNewUsersQueueQueryQuery = SunshineNewUsersQueueQueryQuery_Query;
+
 type SunshineNewUsersProfileInfoQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21114,12 +21145,12 @@ type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
 type ModerationInboxDataQueryQuery_moderationUserQueueCounts_ModerationUserQueueCounts = { __typename?: 'ModerationUserQueueCounts', newContent: number, offboard: number, highContext: number, maybeSpam: number, automod: number, snoozeExpired: number, unknown: number };
 
-type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
+type ModerationInboxDataQueryQuery_moderationNewUsers_ModerationNewUsersResult_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
 );
 
-type ModerationInboxDataQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User> };
+type ModerationInboxDataQueryQuery_moderationNewUsers_ModerationNewUsersResult = { __typename?: 'ModerationNewUsersResult', results: Array<ModerationInboxDataQueryQuery_moderationNewUsers_ModerationNewUsersResult_results_User> };
 
 type ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -21144,11 +21175,10 @@ type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePosts
 
 type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', moderationUserQueueCounts: ModerationInboxDataQueryQuery_moderationUserQueueCounts_ModerationUserQueueCounts, users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', moderationUserQueueCounts: ModerationInboxDataQueryQuery_moderationUserQueueCounts_ModerationUserQueueCounts, moderationNewUsers: ModerationInboxDataQueryQuery_moderationNewUsers_ModerationNewUsersResult, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
-  userSelector: InputMaybe<UserSelector>;
   postSelector: InputMaybe<PostSelector>;
   classifiedPostSelector: InputMaybe<PostSelector>;
   userLimit: InputMaybe<Scalars['Int']['input']>;

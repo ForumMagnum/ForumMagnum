@@ -22,6 +22,17 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
+const SunshineNewUsersQueueQuery = gql(`
+  query SunshineNewUsersQueueQuery($limit: Int, $enableTotal: Boolean) {
+    moderationNewUsers(limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
+
 const styles = defineStyles('SunshineNewUsersList', (theme: ThemeType) => ({
   loadMore: {
     fontSize: "1rem",
@@ -36,21 +47,27 @@ const SunshineNewUsersList = ({terms, currentUser}: {
   currentUser: UsersCurrent,
 }) => {
   const classes = useStyles(styles);
-  const { view, limit, ...selectorTerms } = terms;
-  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
-    variables: {
-      selector: { [view]: selectorTerms },
-      limit: limit ?? 10,
-      enableTotal: true,
-    },
+  const { view, limit } = terms;
+  const isReviewQueue = view === 'sunshineNewUsers';
+  // The review queue is ordered by how long users have waited, which needs the
+  // custom resolver; the "all users" underbelly list is a plain view.
+  const queue = useQueryWithLoadMore(SunshineNewUsersQueueQuery, {
+    variables: { limit: limit ?? 10, enableTotal: true },
     itemsPerPage: 60,
+    skip: !isReviewQueue,
   });
+  const allUsers = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
+    variables: { selector: { allUsers: {} }, limit: limit ?? 10, enableTotal: true },
+    itemsPerPage: 60,
+    skip: isReviewQueue,
+  });
+  const { refetch, loadMoreProps } = isReviewQueue ? queue : allUsers;
 
-  const results = view === 'sunshineNewUsers'
-    ? data?.users?.results.filter(user => user.needsReview)
-    : data?.users?.results;
-  
-  const totalCount = data?.users?.totalCount ?? 0;
+  const results = isReviewQueue
+    ? queue.data?.moderationNewUsers?.results.filter(user => user.needsReview)
+    : allUsers.data?.users?.results;
+
+  const totalCount = (isReviewQueue ? queue.data?.moderationNewUsers?.totalCount : allUsers.data?.users?.totalCount) ?? 0;
 
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
