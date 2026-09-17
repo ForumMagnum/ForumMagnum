@@ -7867,6 +7867,7 @@ type User {
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
   acknowledgedNewUserGuidelines: Boolean
+  oldestUnreviewedPostAt: Date
   moderatorActions: [ModeratorAction!]
   reviewGroup: ReviewGroup
   subforumPreferredLayout: SubforumPreferredLayout

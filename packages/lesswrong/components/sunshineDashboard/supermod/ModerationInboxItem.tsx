@@ -38,6 +38,14 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
       backgroundColor: theme.palette.panelBackground.sunshineFlaggedUser,
     },
   },
+  waitingAge: {
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    width: 40,
+    marginRight: 12,
+    flexShrink: 0,
+    fontVariantNumeric: 'tabular-nums',
+  },
   displayName: {
     fontSize: 15,
     fontWeight: 500,
@@ -228,6 +236,11 @@ const ModerationInboxItem = ({
       })}
       onClick={onOpen}
     >
+      <div className={classes.waitingAge}>
+        {user.oldestUnreviewedPostAt
+          ? <FormatDate date={user.oldestUnreviewedPostAt} tooltip="Oldest unreviewed post" />
+          : <span title="No unreviewed posts">—</span>}
+      </div>
       <div className={classes.displayName}>
         {user.displayName}
       </div>

@@ -1,3 +1,4 @@
+import { getOldestUnreviewedPostAt } from "./oldestUnreviewedPost";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
@@ -3927,6 +3928,13 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+  },
+  oldestUnreviewedPostAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: (doc, args, context) => getOldestUnreviewedPostAt(context, doc._id),
     },
   },
   moderatorActions: {

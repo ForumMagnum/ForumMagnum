@@ -7283,6 +7283,7 @@ interface User {
   associatedClientIds: Array<ClientId> | null;
   altAccountsDetected: boolean | null;
   acknowledgedNewUserGuidelines: boolean | null;
+  oldestUnreviewedPostAt: Date | null;
   moderatorActions: Array<ModeratorAction> | null;
   reviewGroup: ReviewGroup | null;
   subforumPreferredLayout: SubforumPreferredLayout | null;
