@@ -18,7 +18,7 @@ import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
-import ModerationTabs, { type TabInfo } from './ModerationTabs';
+import ModerationTabs, { type TabInfo, type UserQueueTabCount } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
@@ -26,9 +26,8 @@ import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardC
 import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
-import { getAdjustedReviewGroupCounts, getUserQueueTabCount } from './reviewGroupCounts';
 import ModerationUndoHistory from './ModerationUndoHistory';
-import { getModerationInboxSearch, parseModerationQueue } from './inboxUrl';
+import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -81,6 +80,55 @@ const SingleUserSupermodQuery = gql(`
     }
   }
 `);
+
+function parseModerationQueue(value: unknown): TabId | undefined {
+  if (value === 'all' || value === 'posts' || value === 'classifiedPosts' || value === 'curation') {
+    return value;
+  }
+  return Object.keys(REVIEW_GROUP_TO_PRIORITY).find((group): group is ReviewGroup => group === value);
+}
+
+function getModerationInboxSearch(search: string, queue: TabId, userId: string | null): string {
+  const params = new URLSearchParams(search);
+  params.set('queue', queue);
+  if (userId) {
+    params.set('user', userId);
+  } else {
+    params.delete('user');
+  }
+  return `?${params.toString()}`;
+}
+
+// Whether a loaded user is part of the sunshineNewUsers queue (a user opened
+// by direct link may not be). Mirrors the view's selector; its
+// reviewedByUserId: null term allows any value, so it's not checked here.
+function isQueuedUser(user: SunshineUsersList): boolean {
+  return !!user.needsReview && user.banned == null
+    && (user.signUpReCaptchaRating == null || user.signUpReCaptchaRating > spamRiskScoreThreshold * 1.25);
+}
+
+// The server's per-group counts cover the whole queue, not just the loaded
+// page. Apply the inbox's local removals, undos, and regroupings on top.
+function getAdjustedReviewGroupCounts(
+  initialCounts: Record<ReviewGroup, number>,
+  initialUsers: SunshineUsersList[],
+  currentUsers: SunshineUsersList[],
+): Record<ReviewGroup, number> {
+  const { newContent, offboard, highContext, maybeSpam, automod, snoozeExpired, unknown } = initialCounts;
+  const counts = { newContent, offboard, highContext, maybeSpam, automod, snoozeExpired, unknown };
+  for (const user of initialUsers) {
+    if (isQueuedUser(user)) counts[user.reviewGroup ?? 'unknown']--;
+  }
+  for (const user of currentUsers) {
+    if (isQueuedUser(user)) counts[user.reviewGroup ?? 'unknown']++;
+  }
+  return counts;
+}
+
+function getUserQueueTabCount(totalCount: number, users: SunshineUsersList[], group: ReviewGroup | 'all'): UserQueueTabCount {
+  const fetched = users.filter(user => isQueuedUser(user) && (group === 'all' || (user.reviewGroup ?? 'unknown') === group)).length;
+  return { fetched, remaining: totalCount - fetched };
+}
 
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {

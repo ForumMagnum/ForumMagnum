@@ -1,7 +1,7 @@
 import SelectQuery from "@/server/sql/SelectQuery";
 import Comments from "@/server/collections/comments/collection";
 import Posts from "@/server/collections/posts/collection";
-import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "@/lib/collections/users/oldestUnreviewedContent";
+import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "@/lib/collections/users/unreviewedContentSelectors";
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";

@@ -1,4 +1,3 @@
-import { getOldestUnreviewedContentAt } from "./oldestUnreviewedContent";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
@@ -39,6 +38,7 @@ import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { getModeratorActionsForUser, getLastRemovedFromReviewQueueAt, getUserReviewGroup } from "./reviewGroupResolvers";
+import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "./unreviewedContentSelectors";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -56,6 +56,27 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
+};
+
+const getOldestUnreviewedContentAt = (context: ResolverContext, userId: string): Promise<Date | null> => {
+  return getWithCustomLoader(context, "oldestUnreviewedContentAt", userId, async (userIds) => {
+    const [posts, comments] = await Promise.all([
+      context.Posts.find({
+        ...unreviewedUserPostSelector,
+        userId: { $in: userIds },
+      }, { sort: { postedAt: 1 } }, { userId: 1, postedAt: 1 }).fetch(),
+      context.Comments.find({
+        ...unreviewedUserCommentSelector,
+        userId: { $in: userIds },
+      }, { sort: { postedAt: 1 } }, { userId: 1, postedAt: 1 }).fetch(),
+    ]);
+    const oldestByUserId = new Map<string, Date>();
+    for (const content of [...posts, ...comments]) {
+      const oldest = oldestByUserId.get(content.userId);
+      if (!oldest || content.postedAt < oldest) oldestByUserId.set(content.userId, content.postedAt);
+    }
+    return userIds.map(id => oldestByUserId.get(id) ?? null);
+  });
 };
 
 ///////////////////////////////////////

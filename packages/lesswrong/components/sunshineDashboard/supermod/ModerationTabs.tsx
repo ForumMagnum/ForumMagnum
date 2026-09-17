@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import type { TabId } from './groupings';
 import { getReviewGroupDisplayName } from '@/lib/collections/users/reviewGroups';
 import FormatDate from '@/components/common/FormatDate';
-import type { UserQueueTabCount } from './reviewGroupCounts';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
@@ -80,6 +79,12 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
     flexShrink: 0,
   },
 }));
+
+// How much of a user queue is loaded in the inbox vs. still on the server
+export interface UserQueueTabCount {
+  fetched: number;
+  remaining: number;
+}
 
 export type TabInfo = {
   group: TabId;
