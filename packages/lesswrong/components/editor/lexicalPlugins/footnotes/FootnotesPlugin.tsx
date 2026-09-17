@@ -10,7 +10,6 @@ import {
   $isTextNode,
   $isElementNode,
   $createParagraphNode,
-  $addUpdateTag,
   $getAdjacentNode,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
@@ -24,8 +23,7 @@ import {
   KEY_DELETE_COMMAND,
   KEY_ARROW_LEFT_COMMAND,
   SELECTION_CHANGE_COMMAND,
-  EditorState,
-  HISTORY_MERGE_TAG,
+  RootNode,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 
@@ -36,43 +34,25 @@ import { FootnoteItemNode, $createFootnoteItemNode, $isFootnoteItemNode } from '
 import { $createFootnoteContentNode, $isFootnoteContentNode } from './FootnoteContentNode';
 import { $createFootnoteBackLinkNode } from './FootnoteBackLinkNode';
 
-import { $getFootnoteItems, $getNextFootnoteIndex, $getFootnoteSection, $reorderFootnotes, $getSelectedFootnoteItem, $removeFootnote, $isFootnoteEmpty, $getFootnoteReferences, $shouldCheckForFootnoteReorder } from './helpers';
+import { $getFootnoteItems, $getNextFootnoteIndex, $getFootnoteSection, $reorderFootnotes, $getSelectedFootnoteItem, $removeFootnote, $isFootnoteEmpty, $getFootnoteReferences } from './helpers';
 import { insertGoogleDocsFootnotesOnPaste } from './googleDocsFootnoteNormalizer';
 
 export const INSERT_FOOTNOTE_COMMAND: LexicalCommand<{ footnoteIndex?: number }> = createCommand(
   'INSERT_FOOTNOTE_COMMAND'
 );
 
-const HISTORY_MERGE = { tag: HISTORY_MERGE_TAG };
-
-function reorderFootnotesWhenReferenceOrderChanges(
-  editor: LexicalEditor,
+function $reorderFootnotesWhenReferenceOrderChanges(
   lastReferenceOrderRef: { current: string | null },
-  dirtyElements: Map<string, boolean>,
-  dirtyLeaves: Set<string>,
-  editorState: EditorState
 ): void {
-  editorState.read(() => {
-    if (!dirtyElements.size && !dirtyLeaves.size) {
-      return;
-    }
-    if (!$shouldCheckForFootnoteReorder(dirtyElements, dirtyLeaves)) {
-      return;
-    }
-    const references = $getFootnoteReferences();
-    const referenceOrder = references.map((ref) => ref.getFootnoteId()).join('|');
-    if (referenceOrder === lastReferenceOrderRef.current) {
-      return;
-    }
-    lastReferenceOrderRef.current = referenceOrder;
-    if (!referenceOrder) {
-      return;
-    }
-    editor.update(() => {
-      $addUpdateTag(HISTORY_MERGE_TAG);
-      $reorderFootnotes();
-    }, HISTORY_MERGE);
-  });
+  const references = $getFootnoteReferences();
+  const referenceOrder = references.map((ref) => ref.getFootnoteId()).join('|');
+  if (referenceOrder === lastReferenceOrderRef.current) {
+    return;
+  }
+  lastReferenceOrderRef.current = referenceOrder;
+  if (referenceOrder) {
+    $reorderFootnotes();
+  }
 }
 
 function insertFootnoteReferenceAtSelection(
@@ -450,17 +430,12 @@ export function FootnotesPlugin(): null {
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves, tags }) => {
-        if (tags.has('collaboration')) {
-          return;
-        }
-        reorderFootnotesWhenReferenceOrderChanges(
-          editor,
-          lastReferenceOrderRef,
-          dirtyElements,
-          dirtyLeaves,
-          editorState
-        );
+      // Reorder before the update is committed to Yjs. An update listener would
+      // send the reference change and the reorder separately, allowing another
+      // collaborator to reorder the same items in between and duplicate them.
+      // Remote Yjs updates skip transforms; their order is already synchronized.
+      editor.registerNodeTransform(RootNode, () => {
+        $reorderFootnotesWhenReferenceOrderChanges(lastReferenceOrderRef);
       }),
 
       editor.registerCommand(
@@ -516,4 +491,3 @@ export function FootnotesPlugin(): null {
 
   return null;
 }
-
