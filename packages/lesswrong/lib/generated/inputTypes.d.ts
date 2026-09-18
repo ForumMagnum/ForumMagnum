@@ -2195,6 +2195,7 @@ interface CommentsAnswersAndRepliesInput {
 }
 
 interface CommentsTopShortformInput {
+  sortBy?: CommentSortingMode | null;
   userId?: string | null;
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;

@@ -2454,6 +2454,7 @@ input CommentsAnswersAndRepliesInput {
 }
 
 input CommentsTopShortformInput {
+  sortBy: CommentSortingMode
   userId: String
   commentIds: [String!]
   minimumKarma: Int

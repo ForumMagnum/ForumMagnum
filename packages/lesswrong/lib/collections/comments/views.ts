@@ -508,6 +508,7 @@ function answersAndReplies(terms: CommentsViewTerms) {
 }
 
 function topShortform(terms: CommentsViewTerms) {
+  const sort = sortings[terms.sortBy ?? "top"];
   return {
     selector: {
       shortform: true,
@@ -515,7 +516,7 @@ function topShortform(terms: CommentsViewTerms) {
       deleted: false,
       ...getPostedAtTimeRange(terms),
     },
-    options: {sort: {baseScore: -1, postedAt: -1}}
+    options: {sort: {...sort, postedAt: sort.postedAt ?? -1}}
   };
 }
 
