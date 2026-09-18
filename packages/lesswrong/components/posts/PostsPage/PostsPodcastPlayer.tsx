@@ -37,7 +37,9 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   useEffect(() => {
     const newScript = document.createElement('script');
     newScript.async=true;
-    newScript.src=podcastEpisode.episodeLink;
+    // Imported embed URLs can contain HTML-escaped query separators, which
+    // assigning to the DOM property does not decode like parsing HTML would.
+    newScript.src=podcastEpisode.episodeLink.replace(/&amp;/g, '&');
     document.head.appendChild(newScript);
     
     return () => {
