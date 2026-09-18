@@ -1026,7 +1026,7 @@ export default function Editor({
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
               </>
             )}
-            {floatingAnchorElem && <FloatingTextFormatToolbarPlugin
+            {floatingAnchorElem && !isLinkEditMode && <FloatingTextFormatToolbarPlugin
               anchorElem={floatingAnchorElem}
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}

@@ -1,5 +1,14 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
+import { createNewPost, loginNewUser } from "./playwrightUtils";
+
+const selectEditorContents = (element: HTMLElement) => {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  document.dispatchEvent(new Event("selectionchange"));
+};
 
 test("create and edit comment", async ({page, context}) => {
   // Create and visit a new post
@@ -36,6 +45,29 @@ test("create and edit comment", async ({page, context}) => {
 
   // Check that the new comment is displayed
   await expect(commentItem.getByText(newContents)).toBeVisible();
+});
+
+test("link editor hides the text formatting toolbar", async ({page, context}) => {
+  await page.goto("/");
+  await loginNewUser(context);
+  const post = await createNewPost();
+  await page.goto(post.postPageUrl);
+
+  const commentEditor = page.getByRole("textbox");
+  await commentEditor.fill("Text to link");
+  await commentEditor.evaluate(selectEditorContents);
+
+  const insertLinkButton = page.getByRole("button", {name: "Insert link"});
+  await expect(insertLinkButton).toBeVisible();
+  await insertLinkButton.click();
+
+  await expect(page.getByRole("textbox", {name: "Link URL"})).toBeVisible();
+  await expect(insertLinkButton).not.toBeVisible();
+
+  const linkUrlInput = page.getByRole("textbox", {name: "Link URL"});
+  await linkUrlInput.fill("https://example.com");
+  await page.getByRole("button", {name: "Confirm"}).click();
+  await expect(linkUrlInput).not.toBeVisible();
 });
 
 // test("create draft comment", async ({ page, context }) => {
