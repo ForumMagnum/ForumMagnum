@@ -174,8 +174,6 @@ const CommentSubmit = ({
   formType,
 }: CommentSubmitProps) => {
   const classes = useStyles(customSubmitButtonStyles);
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
@@ -207,15 +205,6 @@ const CommentSubmit = ({
           className={classNames(formButtonClass, classes.submitButton, {
             [classes.submitSegmented]: showDropdownMenu,
           })}
-          onClick={(ev) => {
-            if (!currentUser) {
-              openDialog({
-                name: "LoginPopup",
-                contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
-              });
-              ev.preventDefault();
-            }
-          }}
           {...actualSubmitDisabled ? {disabled: true} : {}}
         >
           {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
@@ -277,6 +266,7 @@ export const CommentForm = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -309,12 +299,20 @@ export const CommentForm = ({
       draft: false,
     },
     onSubmit: async ({ formApi, meta }) => {
-      await onSubmitCallback.current?.();
-      onSubmit?.();
-
       const { draft } = meta;
 
       try {
+        // Flush the editor's local backup before login can navigate away.
+        await onSubmitCallback.current?.();
+        if (!currentUser) {
+          openDialog({
+            name: "LoginPopup",
+            contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
+          });
+          return;
+        }
+        onSubmit?.();
+
         let result: CommentsList;
 
         if (formType === 'new') {
