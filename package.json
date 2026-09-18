@@ -166,7 +166,6 @@
     "chokidar": "^3.5.0",
     "classnames": "^2.2.6",
     "cloudinary": "^1.23.0",
-    "cloudinary-react": "1.0.6",
     "crypto-js": "^4.2.0",
     "csso": "^5.0.5",
     "dataloader": "^2.2.2",
