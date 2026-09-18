@@ -519,6 +519,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorScrollerComment: {
     minHeight: 'var(--lexical-comment-min-height, 60px)',
     resize: 'none',
+    // Let floating editor controls receive clicks when they extend over the
+    // comment form's submit row or moderation guidelines.
+    zIndex: 1,
   },
   editor: {
     flex: 'auto',
