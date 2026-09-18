@@ -66,6 +66,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    // LW/AF metadata intentionally reads request headers and cookies. Only
+    // validate instant navigations for routes that explicitly opt in.
+    instantInsights: { validationLevel: 'manual-warning' },
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },
