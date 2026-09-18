@@ -1,4 +1,4 @@
-import { FeedItemSourceType, PreDisplayFeedComment, ThreadEngagementStats } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedItemSourceType, PreDisplayFeedComment, ThreadEngagementStats, ThreadPreselectionInfo } from '@/components/ultraFeed/ultraFeedTypes';
 
 export type RankableItemType = 'post' | 'commentThread' | 'spotlight' | 'bookmark' | 'subscriptionSuggestions';
 
@@ -41,6 +41,7 @@ export interface ThreadAggregateStats {
 }
 
 export interface ThreadRankableItem extends RankableItemBase {
+  preselection?: ThreadPreselectionInfo;
   itemType: 'commentThread';
   threadId: string;
   sources: FeedItemSourceType[];
@@ -99,6 +100,7 @@ export type RankedItemMetadata =
     }
   | {
       rankedItemType: 'commentThread';
+      preselection?: ThreadPreselectionInfo;
       scoreBreakdown: ThreadScoreBreakdown;
       selectionConstraints: string[];
       position: number;
@@ -109,7 +111,7 @@ export type RankedItemMetadata =
  * We only rely on comments and optionally primarySource.
  */
 export interface MappablePreparedThread {
+  preselection?: ThreadPreselectionInfo;
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
 }
-

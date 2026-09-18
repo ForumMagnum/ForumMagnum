@@ -347,6 +347,13 @@ export const UltraFeedDebugThreadItem = ({ item }: { item: FeedCommentThreadFrag
       <div className={classes.type}>{firstComment?.shortform ? 'quick take' : 'thread'}</div>
       <div className={classes.title}>
         <DebugContentLink url={url}>{title}</DebugContentLink>
+        {metadata?.rankedItemType === 'commentThread' && metadata.preselection && (
+          <div>
+            Preselection: #{metadata.preselection.rank}, score {metadata.preselection.score.toFixed(3)};
+            {' '}{metadata.preselection.selected ? 'eligible' : metadata.preselection.reasons.join(', ')}
+            {' '}(limit {metadata.preselection.candidateLimit})
+          </div>
+        )}
       </div>
       <div className={classes.sources}>{formatSources(firstCommentMeta?.sources ?? item.postSources)}</div>
     </div>

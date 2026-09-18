@@ -495,7 +495,7 @@ const UltraFeedSpotlightItem = ({
   spotlightMetaInfo?: FeedSpotlightMetaInfo | null,
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
-  const { observe } = useUltraFeedObserver();
+  const { observe, unobserve } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [isReplying, setIsReplying] = useState(false);
   const currentTime = useCurrentTime();
@@ -521,7 +521,8 @@ const UltraFeedSpotlightItem = ({
         servedEventId: spotlightMetaInfo?.servedEventId ?? '',
       });
     }
-  }, [observe, spotlight, index, spotlightMetaInfo?.servedEventId]);
+    return () => { if (currentElement) unobserve(currentElement); };
+  }, [observe, unobserve, spotlight, index, spotlightMetaInfo?.servedEventId]);
 
   if (!spotlight) {
     return null;

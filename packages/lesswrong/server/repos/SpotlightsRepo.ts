@@ -23,14 +23,13 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
       WITH "RecentViews" AS (
         SELECT
           "documentId",
-          COUNT(*) AS "viewCount"
+          COUNT(DISTINCT COALESCE("feedItemId", _id)) AS "viewCount"
         FROM "UltraFeedEvents"
         WHERE "collectionName" = 'Spotlights'
           AND "eventType" = 'viewed'
           AND "createdAt" > NOW() - INTERVAL '90 days'
           AND "userId" = $(userIdOrClientId)
         GROUP BY "documentId"
-        HAVING COUNT(*) <= 5
       )
       SELECT
         s._id,
@@ -41,6 +40,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
       WHERE s."draft" IS NOT TRUE
         AND s."deletedDraft" IS NOT TRUE
         AND "documentType" = 'Post'
+        AND COALESCE(rv."viewCount", 0) <= 5
       order by
         COALESCE(rv."viewCount", 0) ASC,
         RANDOM()

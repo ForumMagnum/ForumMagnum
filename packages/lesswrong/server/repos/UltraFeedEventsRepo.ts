@@ -1,6 +1,7 @@
 import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 import { recordPerfMetrics } from './perfMetricWrapper';
+import { ultraFeedReadIsCurrentSql } from '../ultraFeed/ultraFeedReadState';
 import { FeedItemSourceType, FeedItemRenderType, FeedItemDisplayStatus } from '@/components/ultraFeed/ultraFeedTypes';
 
 export interface UnviewedItem {
@@ -77,7 +78,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
           SUM(CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) as serve_count,
           MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) as last_served,
           MAX(CASE WHEN "eventType" = 'viewed' THEN 1 ELSE 0 END) as was_viewed
-        FROM "UltraFeedEvents"
+        FROM "UltraFeedEvents" ue
         WHERE "userId" = $(userId)
           AND "collectionName" = 'Posts'
           AND "eventType" IN ('served', 'viewed')
@@ -86,6 +87,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
             ("eventType" = 'served' AND event->'sources' ? $(scenarioId))
             OR "eventType" = 'viewed'
           )
+          AND ("eventType" = 'served' OR ${ultraFeedReadIsCurrentSql('$(userId)', 'ue."documentId"', 'ue."createdAt"')})
         GROUP BY "documentId"
       ) s
       WHERE s.serve_count < 3 AND s.was_viewed = 0
@@ -119,12 +121,13 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       FROM (
         -- Check UltraFeedEvents for viewed events
         SELECT "documentId" AS "postId"
-        FROM "UltraFeedEvents"
+        FROM "UltraFeedEvents" ue
         WHERE 
           "userId" = $(userId)
           AND "collectionName" = 'Posts'
           AND "eventType" = 'viewed'
           AND "documentId" = ANY($(postIds)::text[])
+          AND ${ultraFeedReadIsCurrentSql('$(userId)', 'ue."documentId"', 'ue."createdAt"')}
         
         UNION
         

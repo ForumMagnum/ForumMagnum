@@ -13,7 +13,7 @@ export interface RankingConfig {
     // Formula: karmaBonus = min(karma * scale^exponent / (ageHrs + bias)^exponent, maxBonus)
     timeDecayBias: number; // Bias added to age (prevents division by zero, softens early decay)
     timeDecayScale: number; // Scale factor (controls overall decay rate)
-    timeDecayExponent: number; // Fixed at 1 for simple hyperbolic decay
+    timeDecayExponent: number; // Defaults to 0.25
 
     // Timeless karma bonuses
     // Formula: karmaBonus = min(karma^exponent / divisor, maxBonus)
@@ -106,7 +106,8 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
 }): RankingConfig {
   const postSubscribedBonus = unifiedScoring.subscribedBonusSetting * 2;
   const commentSubscribedBonus = unifiedScoring.subscribedBonusSetting * 2;
-  const timeDecayHalfLifeHours = unifiedScoring.timeDecayHalfLifeHours;
+  // Keep the persisted settings key compatible; its value is a scale, not a half-life.
+  const timeDecayScaleHours = unifiedScoring.timeDecayHalfLifeHours;
   
   return {
     startingValue: 1,
@@ -114,7 +115,7 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
       typeMultiplier: unifiedScoring.postsMultiplier,
       subscribedBonus: postSubscribedBonus,
       timeDecayBias: 12,
-      timeDecayScale: timeDecayHalfLifeHours,
+      timeDecayScale: timeDecayScaleHours,
       timeDecayExponent: 0.25,
       karmaSuperlinearExponent: 1.2,
       karmaDivisor: 20,
@@ -124,7 +125,7 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
     threads: {
       typeMultiplier: unifiedScoring.threadsMultiplier,
       timeDecayBias: 12,
-      timeDecayScale: timeDecayHalfLifeHours,
+      timeDecayScale: timeDecayScaleHours,
       timeDecayExponent: 0.25,
       subscribedCommentBonus: commentSubscribedBonus,
       karmaMaxBonus: 20,
@@ -141,4 +142,3 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
     maxScore: 100,
   };
 }
-

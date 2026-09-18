@@ -1,3 +1,4 @@
+import type { UltraFeedDiversityContext } from "@/lib/ultraFeedDiversity";
 import { FeedFullPost, FeedItemSourceType, ThreadEngagementStats } from '@/components/ultraFeed/ultraFeedTypes';
 import { generateThreadHash } from './ultraFeedThreadHelpers';
 import moment from 'moment';
@@ -100,6 +101,7 @@ export function toThreadRankable(
   const userSubscribedToAuthor = perComment.some(c => c.userSubscribedToAuthor);
 
   const rankable: ThreadRankableItem = {
+    preselection: thread.preselection,
     id: threadId,
     itemType: 'commentThread',
     threadId,
@@ -329,32 +331,28 @@ function normalizeSourcesKey(sources?: FeedItemSourceType[]): string {
 function selectWithDiversityConstraints(
   scoredItems: ScoredItem[],
   totalItems: number,
-  constraints: DiversityConstraints
+  constraints: DiversityConstraints,
+  context?: UltraFeedDiversityContext,
 ): Array<{ id: string; appliedConstraints: string[]; position: number }> {
   const selectedWithMetadata: Array<{ id: string; appliedConstraints: string[]; position: number }> = [];
   const selectedSet = new Set<string>();
   const available = [...scoredItems];
   
-  const recentTypes: RankableItemType[] = [];
-  const recentSubscribed: boolean[] = [];
-  const recentSources: string[] = [];
+  const history = [...context?.history ?? []];
+  const recentTypes: RankableItemType[] = history.map(item => item.itemType);
+  const recentSubscribed: boolean[] = history.map(item => item.userSubscribedToAuthor);
+  const recentSources: string[] = history.map(item => normalizeSourcesKey(item.sources));
   
   while (selectedWithMetadata.length < totalItems && available.length > 0) {
-    const currentPosition = selectedWithMetadata.length;
+    const currentPosition = (context?.offset ?? 0) + selectedWithMetadata.length;
     const appliedConstraints: string[] = [];
     const windowStart = Math.floor(currentPosition / constraints.guaranteedSlotsPerWindow.windowSize) * constraints.guaranteedSlotsPerWindow.windowSize;
     const positionInWindow = currentPosition - windowStart;
     
-    const selectedInWindow = selectedWithMetadata.slice(windowStart, currentPosition).map(s => s.id);
-    const bookmarksInWindow = selectedInWindow.filter(id => {
-      const scoredItem = scoredItems.find(si => si.id === id);
-      return scoredItem?.item.sources?.includes('bookmarks' as FeedItemSourceType);
-    }).length;
-    const spotlightsInWindow = selectedInWindow.filter(id => {
-      const scoredItem = scoredItems.find(si => si.id === id);
-      return scoredItem?.item.sources?.includes('spotlights' as FeedItemSourceType);
-    }).length;
-    
+    const selectedInWindow = history.filter(item => item.position >= windowStart && item.position < currentPosition);
+    const bookmarksInWindow = selectedInWindow.filter(item => item.sources.includes('bookmarks')).length;
+    const spotlightsInWindow = selectedInWindow.filter(item => item.sources.includes('spotlights')).length;
+
     // Force bookmark/spotlight near end of window if not already present
     // With windowSize=20: Spotlight at position 17 (18th item), bookmark at position 19 (20th item)
     const needsSpotlight = positionInWindow === (constraints.guaranteedSlotsPerWindow.windowSize - 3) && 
@@ -457,6 +455,8 @@ function selectWithDiversityConstraints(
       : selectedItem.item.itemType === 'commentThread'
         ? selectedItem.item.userSubscribedToAuthor
         : false;
+    history.push({ position: currentPosition, itemType: selectedItem.item.itemType,
+      sources: selectedItem.item.sources, userSubscribedToAuthor: isSubscribed });
     recentSubscribed.push(isSubscribed);
     recentSources.push(normalizeSourcesKey(selectedItem.item.sources));
   }
@@ -503,6 +503,7 @@ function scoredItemToMetadata(
   if (scoredItem.itemType === 'commentThread') {
     return {
       rankedItemType: 'commentThread',
+      preselection: scoredItem.item.preselection,
       scoreBreakdown: scoredItem.breakdown,
       selectionConstraints,
       position,
@@ -534,14 +535,15 @@ export function rankUltraFeedItems(
   items: RankableItem[],
   totalItems: number,
   config: RankingConfig = DEFAULT_RANKING_CONFIG,
-  diversityConstraints: DiversityConstraints = DEFAULT_DIVERSITY_CONSTRAINTS
+  diversityConstraints: DiversityConstraints = DEFAULT_DIVERSITY_CONSTRAINTS,
+  context?: UltraFeedDiversityContext,
 ): Array<{ id: string; metadata?: RankedItemMetadata }> {
   const scoredItems = scoreItems(items, config);
 
 
   scoredItems.sort((a, b) => b.score - a.score);
 
-  const selectedWithConstraints = selectWithDiversityConstraints(scoredItems, totalItems, diversityConstraints);
+  const selectedWithConstraints = selectWithDiversityConstraints(scoredItems, totalItems, diversityConstraints, context);
   
   return selectedWithConstraints.map(({ id, appliedConstraints, position }) => {
     const scoredItem = scoredItems.find(si => si.id === id);
@@ -555,5 +557,4 @@ export function rankUltraFeedItems(
     };
   });
 }
-
 
