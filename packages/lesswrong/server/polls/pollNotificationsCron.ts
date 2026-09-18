@@ -12,7 +12,11 @@ const TWO_DAYS_MS = 2 * ONE_DAY_MS;
 
 function getVoterUserIds(publicData: Record<string, unknown> | null): string[] {
   if (!publicData) return [];
-  return Object.keys(publicData).filter(key => key !== "format");
+  // Both poll formats store each vote at the top level of publicData keyed by
+  // userId. Exclude the non-vote keys: a multiple-choice poll's answers/mode,
+  // and the sticker "format" tag.
+  const reservedKeys = new Set(["answers", "multiSelect", "format"]);
+  return Object.keys(publicData).filter(key => !reservedKeys.has(key));
 }
 
 async function getPollQuestion(context: ResolverContext, forumEventId: string): Promise<string> {
