@@ -80,6 +80,7 @@ export function buildEvaluationGroups(rows: EvaluationEvidence[], families: Inte
   }
   return [...targets].sort(([a], [b]) => a.localeCompare(b)).map(([query, queryTargets]) => {
     const family = components.get(`q:${query}`) ?? `q:${query}`;
+    // Preserve the historical seed so existing training/holdout assignments stay stable.
     const hash = createHash("sha256").update(`unified-ranking-v1:${family}`).digest().readUInt32BE(0);
     return {query, family, categories: [...(categories.get(query) ?? [])].sort(), split: hash % 5 === 0 ? "holdout" : "training", targets: [...queryTargets.values()].sort((a, b) => targetKey(a).localeCompare(targetKey(b)))};
   });

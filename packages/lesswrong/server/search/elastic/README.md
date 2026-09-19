@@ -23,13 +23,17 @@ duplicated anywhere else, so deleting indexes before rebuilding loses the synony
 list. Both `configureIndexes` and `recreateIndex` preserve synonyms while replacing
 an existing index.
 
-## Unified search ranking
+## Search ranking
 
-`ElasticMultiQuery.compileMultiQuery` accepts `ranking: "tiered" | "additive"`.
-The default is `additive`, including UI requests that omit a ranking option.
-The `tiered` compiler remains explicitly selectable for comparisons. This change
-is enabled in the working tree; it has not been deployed to production or
-rebuilt production indexes.
+`ElasticClient.search` uses additive ranking for ordinary searches across one or
+more indexes. `ElasticAdditiveRanking.compileSearchQuery` compiles these requests.
+There is no ranking selector.
+
+Specialized selectors use `ElasticClient.lookup` and `ElasticQuery` with
+`mode: "lookup"`. This explicit mode preserves their narrow matching and filter
+behavior. UI selectors use `getLookupSearchClient`; full search uses
+`getSearchClient`. The native lookup adapter marks its requests with
+`mode: "lookup"` for the service to dispatch.
 
 ### Additive scoring
 
@@ -123,13 +127,14 @@ Run these development-only helpers through the REPL:
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingFixtures.ts 'runControlledFixtures()'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json", 150)'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'inspectAliasCoverage()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateSearchRanking({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateJudgedSearches()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation", "additive")'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'benchmarkSearchLatency({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
 ```
 
-Calibration, comparison, and latency benchmarking require an explicit inventory
-path (the `inventoryPath` option for `compareRankings` and `benchmarkRankings`).
+Calibration, quality evaluation, and latency benchmarking require an explicit inventory
+path (the `inventoryPath` option for `evaluateSearchRanking` and `benchmarkSearchLatency`).
 Create this JSON array by grouping query variants from the analytics CSV into
 reviewed intent families. Each family has a stable `intent-` ID, a category,
 `observed_queries`, and typed `observed_targets`. For example:
@@ -145,19 +150,25 @@ no manual families have been reviewed; shared targets still connect queries,
 but it does not reproduce the historical family split. Keep both inputs with
 reports to reproduce a run. Output paths remain configurable through `out`.
 
-The historical evaluation compares
-427 normalized header queries from 481 searchBar evidence rows, separately from
-tabbed-page/editor clicks. Targets are collection-qualified IDs. Absent and
-ineligible targets are reported separately; paired metrics require both
-rankings to succeed. Connected components join shared targets and all 39 intent
-families before a deterministic training/holdout split. Both partitions were
-inspected during tuning, so results are exploratory, not an untouched holdout.
+Quality evaluation reports collection-qualified click candidates separately from
+explicit judgments. Absent and ineligible targets are reported separately, and
+failed requests are excluded from relevance metrics. Connected components join
+shared targets and reviewed intent families before a deterministic training/holdout
+split. The historical split seed is retained to keep prior assignments stable.
+Both partitions were inspected during earlier tuning, so results remain exploratory,
+not an untouched holdout.
 
-Full comparisons use one Elasticsearch point-in-time snapshot for eligibility,
-person lookup and both rankers, retaining DFS. Reports record source/input
-hashes, weights, physical indexes, mappings, counts, failures and individual
-ranked results. Calibration is separately reported and is not PIT-frozen.
-Incomplete or timed-out searches fail instead of becoming relevance misses.
+Quality evaluation uses one Elasticsearch point-in-time snapshot for eligibility,
+person lookup and ranking, retaining DFS. Reports record source/input hashes,
+weights, physical indexes, mappings, counts, failures and individual ranked results.
+Each query has one `result`; there are no ranking-comparison columns. Calibration
+is separately reported and is not PIT-frozen. Incomplete or timed-out searches
+fail instead of becoming relevance misses.
+
+Latency benchmarking warms every query in pass zero, then measures repeated
+sequential passes in deterministic query order against one PIT. Each sample records
+elapsed time, Elasticsearch time, request count and failures. Warmup samples remain
+in the report with `pass: 0` and should be excluded from measured latency summaries.
 
 Controlled fixtures clone actual development analyzers into temporary indexes,
 exercise real compiled queries at two body lengths, and clean up only their own
@@ -170,8 +181,7 @@ to establish broad discovery quality. Detailed JSON artifacts are written to
 
 The additive default was enabled at the user's request after the name-completion
 regressions passed. Broader independently judged relevance and representative-load
-latency remain useful follow-up validation. The tiered compiler remains the
-comparison baseline, including its rigid post/comment and relationship boundaries.
+latency remain useful follow-up validation.
 
 ### Rollout
 

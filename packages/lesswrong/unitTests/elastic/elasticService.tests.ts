@@ -47,7 +47,7 @@ describe("ElasticService", () => {
 });
 
 describe("ElasticService ranked requests", () => {
-  it("uses additive ranking for UI requests without an explicit ranking", async () => {
+  it("uses additive ranking for ordinary UI requests", async () => {
     const client = new ElasticClient();
     const search = jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
     await new ElasticService(client).runQuery({indexName: "posts,comments,users,tags,sequences", params: {query: "John W"}}, {emptyStringSearchResults: "default"});
@@ -82,7 +82,7 @@ describe("ElasticService ranked requests", () => {
     expect(search).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: []}));
   });
 
-  it("parses the sort and forwards it with the new filters to the multi search", async () => {
+  it("parses the sort and forwards it with the new filters to ordinary search", async () => {
     const client = new ElasticClient();
     jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
     const service = new ElasticService(client);
@@ -109,7 +109,6 @@ describe("ElasticService ranked requests", () => {
   });
 });
 
-
 it("uses ordinary additive search for a single index without an opt-in", async () => {
   const client = new ElasticClient();
   jest.spyOn(client, "lookup").mockResolvedValue({hits: {total: 0, hits: []}});
@@ -121,7 +120,6 @@ it("uses ordinary additive search for a single index without an opt-in", async (
     sort: [{key: "date", direction: "asc"}],
   }));
 });
-
 
 it("preserves specialist lookup pagination, aliases, filters and geographic coordinates", async () => {
   const client = new ElasticClient();

@@ -9,17 +9,16 @@ import { buildEvaluationGroups, judgedPoolNdcg, navigationMetrics, targetKey, Ev
 import { parseQuery } from "../search/elastic/parseQuery";
 import { judgedSearches } from "./searchRankingJudgments";
 import { compilePersonLookup, resolvePersonSearch, PersonCandidate } from "../search/elastic/ElasticPersonSearch";
-import ElasticClient, { executeMultiSearch, UnifiedSearchClient } from "../search/elastic/ElasticClient";
+import ElasticClient, { executeSearch, SearchExecutor } from "../search/elastic/ElasticClient";
 import ElasticQuery from "../search/elastic/ElasticQuery";
 import { compileTopicalRecall, rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
-import type { UnifiedRanking } from "../search/elastic/unifiedSearchTypes";
 
 /**
- * Offline evaluation of the unified (header) search ranking against the dev
+ * Offline evaluation of the header search ranking against the dev
  * Elasticsearch. Run from the REPL, for example:
  *
  *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json")'
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json", limit: 200})'
+ *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateSearchRanking({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json", limit: 200})'
  *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'runStressSuite()'
  *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
  *
@@ -30,7 +29,6 @@ import type { UnifiedRanking } from "../search/elastic/unifiedSearchTypes";
 
 const defaultEvidencePath = "/tmp/forum-search-report/query-target-evidence.csv";
 const allIndexes = ["posts", "comments", "users", "tags", "sequences"];
-const rankings: UnifiedRanking[] = ["tiered", "additive"];
 
 interface EvidenceRow {
   query: string;
@@ -115,8 +113,8 @@ export function summarizeHit(hit: {_index: string; _score?: number | null; _sour
   return {index, objectID: source?.objectID ?? "", title, karma, score: hit._score ?? 0};
 }
 
-async function rankedHits(client: Client, search: string, ranking: UnifiedRanking, limit: number): Promise<HitSummary[]> {
-  const response = await executeMultiSearch(client, {ranking, indexes: allIndexes, search, limit});
+async function rankedHits(client: Client, search: string, limit: number): Promise<HitSummary[]> {
+  const response = await executeSearch(client, {indexes: allIndexes, search, limit});
   return response.hits.hits.map(summarizeHit);
 }
 
@@ -163,9 +161,9 @@ async function corpusSnapshot(client: Client) {
 }
 
 interface FrozenIndex { alias: string; indexes: {name: string}[] }
-interface FrozenSearch { searchClient: UnifiedSearchClient; close: () => Promise<void> }
+interface FrozenSearch { searchClient: SearchExecutor; close: () => Promise<void> }
 
-/** PIT freezes candidate lookup, target eligibility, and both rankings on the same physical corpus. */
+/** PIT freezes candidate lookup, target eligibility, and ranking on the same physical corpus. */
 async function openFrozenSearch(client: Client, snapshot: FrozenIndex[]): Promise<FrozenSearch> {
   const names = new Map(snapshot.map(entry => [entry.alias, entry.indexes.map(index => index.name)]));
   const opened = await client.openPointInTime({index: snapshot.flatMap(entry => entry.indexes.map(index => index.name)), keep_alive: "20m"});
@@ -205,7 +203,7 @@ async function openFrozenSearch(client: Client, snapshot: FrozenIndex[]): Promis
 }
 
 function sourceFingerprint() {
-  const files = ["ElasticAdditiveRanking.ts", "ElasticClient.ts", "ElasticQuery.ts", "ElasticPersonSearch.ts", "ElasticMultiQuery.ts", "searchTokens.ts", "parseQuery.ts", "ElasticUnifiedSort.ts", "ElasticConfig.ts"];
+  const files = ["ElasticAdditiveRanking.ts", "ElasticClient.ts", "ElasticQuery.ts", "ElasticPersonSearch.ts", "searchQueryTypes.ts", "searchTokens.ts", "parseQuery.ts", "ElasticSearchSort.ts", "ElasticConfig.ts"];
   const paths = [
     ...files.map(file => `packages/lesswrong/server/search/elastic/${file}`),
     "packages/lesswrong/server/scripts/searchRankingEvaluationData.ts",
@@ -237,7 +235,7 @@ export async function calibrateMatchPivots(csvPath: string, inventoryPath: strin
       const person = resolvePersonSearch(group.query, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
       for (const topic of [...new Set([group.query, ...(person?.topic ? [person.topic] : [])])]) {
         for (const index of allIndexes) {
-          const eligibility = new ElasticQuery({index, search: group.query, filters: [], unifiedRanking: true}).compileAdditiveRecall().filters ?? [];
+          const eligibility = new ElasticQuery({index, search: group.query, filters: []}).compileAdditiveRecall().filters ?? [];
           const relationshipFilters: QueryDslQueryContainer[] = topic !== group.query && person ? residualEligibility(index, person.userIds) : [];
           const response = await client.search<SearchDocument>({index: allIndexes, size: 10, _source: false, timeout: "10s", search_type: "dfs_query_then_fetch", allow_partial_search_results: false,
             query: {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility, ...relationshipFilters], must: [compileTopicalRecall(index, topic)]}},
@@ -258,22 +256,22 @@ export async function calibrateMatchPivots(csvPath: string, inventoryPath: strin
   return report;
 }
 
-interface CompareOptions { inventoryPath: string; csvPath?: string; limit?: number; queries?: string[]; out?: string }
+interface EvaluationOptions { inventoryPath: string; csvPath?: string; limit?: number; queries?: string[]; out?: string }
 interface TargetStatus extends EvaluationTarget { status: "eligible" | "absent" | "ineligible" }
 interface RankingResult { hits: HitSummary[]; firstTargetRank: number | null; error?: "request-failed"; errorReason?: string }
 interface DetailedEvaluation extends EvaluationGroup {
   targetStatus: TargetStatus[];
-  results: Record<UnifiedRanking, RankingResult>;
+  result: RankingResult;
 }
 
-async function targetStatus(client: UnifiedSearchClient, group: EvaluationGroup): Promise<TargetStatus[]> {
+async function targetStatus(client: SearchExecutor, group: EvaluationGroup): Promise<TargetStatus[]> {
   const results: TargetStatus[] = [];
   for (const index of allIndexes) {
     const targets = group.targets.filter(target => target.index === index);
     if (!targets.length) continue;
     const ids = targets.map(target => target.objectID);
     const present = await client.search<SearchDocument>({index, size: ids.length, _source: ["objectID"], timeout: "10s", allow_partial_search_results: false, query: {terms: {objectID: ids}}});
-    const eligibility = new ElasticQuery({index, search: group.query, filters: [], unifiedRanking: true}).compileAdditiveRecall().filters ?? [];
+    const eligibility = new ElasticQuery({index, search: group.query, filters: []}).compileAdditiveRecall().filters ?? [];
     const eligible = await client.search<SearchDocument>({index, size: ids.length, _source: ["objectID"], timeout: "10s", allow_partial_search_results: false, query: {bool: {should: [], filter: [...eligibility, {terms: {objectID: ids}}]}}});
     if (present.timed_out || eligible.timed_out) throw new Error("timeout");
     const presentIds = new Set(present.hits.hits.map(hit => hit._source?.objectID));
@@ -289,10 +287,9 @@ function summarizeEvaluations(evaluations: DetailedEvaluation[]) {
     for (const cohort of ["all-click-candidates", "navigation"] as const) {
       const selected = evaluations.filter(evaluation => evaluation.split === split && (cohort !== "navigation" || evaluation.categories.some(category => ["Find a person", "Find a known post", "Find a concept page"].includes(category))));
       const eligible = selected.filter(evaluation => evaluation.targetStatus.some(target => target.status === "eligible"));
-      // Paired denominator: an error in either system excludes the query from both.
-      const paired = eligible.filter(evaluation => !evaluation.results.tiered.error && !evaluation.results.additive.error);
-      for (const ranking of rankings) summary.push({split, cohort, ranking, unavailableQueries: selected.length - eligible.length, failedQueries: eligible.length - paired.length,
-        ...navigationMetrics(paired.map(evaluation => evaluation.results[ranking].firstTargetRank)),
+      const successful = eligible.filter(evaluation => !evaluation.result.error);
+      summary.push({split, cohort, unavailableQueries: selected.length - eligible.length, failedQueries: eligible.length - successful.length,
+        ...navigationMetrics(successful.map(evaluation => evaluation.result.firstTargetRank)),
       });
     }
   }
@@ -300,7 +297,7 @@ function summarizeEvaluations(evaluations: DetailedEvaluation[]) {
 }
 
 /** Header-search click candidates only. Null rank is a miss only for an eligible target and a successful request. */
-export async function compareRankings({inventoryPath, csvPath = defaultEvidencePath, limit = 1000, queries, out = "/tmp/forum-search-report/ranking-evaluation.json"}: CompareOptions) {
+export async function evaluateSearchRanking({inventoryPath, csvPath = defaultEvidencePath, limit = 1000, queries, out = "/tmp/forum-search-report/ranking-evaluation.json"}: EvaluationOptions) {
   const client = evaluationClient();
   const groups = evaluationGroups(csvPath, inventoryPath);
   const selected = groups.filter(group => !queries || queries.includes(group.query)).slice(0, limit);
@@ -321,15 +318,14 @@ export async function compareRankings({inventoryPath, csvPath = defaultEvidenceP
           return known ? [known] : [];
         });
         const expected = new Set(status.filter(target => target.status === "eligible").map(targetKey));
-        const evaluation: DetailedEvaluation = {...group, targetStatus: status, results: {tiered: {hits: [], firstTargetRank: null}, additive: {hits: [], firstTargetRank: null}}};
-        for (const ranking of rankings) {
-          if (!expected.size) continue;
+        const evaluation: DetailedEvaluation = {...group, targetStatus: status, result: {hits: [], firstTargetRank: null}};
+        if (expected.size) {
           try {
-            const response = await executeMultiSearch(frozen.searchClient, {ranking, indexes: allIndexes, search: group.query, limit: 10});
+            const response = await executeSearch(frozen.searchClient, {indexes: allIndexes, search: group.query, limit: 10});
             const hits = response.hits.hits.map(summarizeHit);
             const first = hits.findIndex(hit => expected.has(`${hit.index}:${hit.objectID}`));
-            evaluation.results[ranking] = {hits, firstTargetRank: first < 0 ? null : first + 1};
-          } catch (error) { evaluation.results[ranking] = {hits: [], firstTargetRank: null, error: "request-failed", errorReason: error instanceof Error ? error.message.slice(0, 600) : "Unknown search failure"}; }
+            evaluation.result = {hits, firstTargetRank: first < 0 ? null : first + 1};
+          } catch (error) { evaluation.result = {hits: [], firstTargetRank: null, error: "request-failed", errorReason: error instanceof Error ? error.message.slice(0, 600) : "Unknown search failure"}; }
         }
         evaluations.push(evaluation);
       } catch { failures.push(group.query); }
@@ -344,9 +340,9 @@ export async function compareRankings({inventoryPath, csvPath = defaultEvidenceP
   } finally { await frozen.close(); }
 }
 
-/** Print the top hits for one query under one ranking, for manual judgment. */
-export async function showQuery(search: string, ranking: UnifiedRanking = "additive", limit = 10) {
-  const hits = await rankedHits(evaluationClient(), search, ranking, limit);
+/** Print the top hits for one query for manual judgment. */
+export async function showQuery(search: string, limit = 10) {
+  const hits = await rankedHits(evaluationClient(), search, limit);
   console.table(hits.map(hit => ({...hit, title: hit.title.slice(0, 70), score: Number(hit.score.toFixed(2))})));
   return hits;
 }
@@ -411,13 +407,13 @@ async function indexedIds(client: Client, ids: string[]): Promise<Set<string>> {
   return new Set(response.hits.hits.flatMap(hit => hit._source ? [hit._source.objectID] : []));
 }
 
-export async function runStressSuite(ranking: UnifiedRanking = "additive", limit = 10) {
+export async function runStressSuite(limit = 10) {
   const client = evaluationClient();
   const present = await indexedIds(client, [...new Set(stressSuite.flatMap(stressCase => stressCase.targets))]);
   const results = [];
   for (const stressCase of stressSuite) {
     const targets = stressCase.targets.filter(target => present.has(target));
-    const hits = targets.length ? await rankedHits(client, stressCase.query, ranking, limit) : [];
+    const hits = targets.length ? await rankedHits(client, stressCase.query, limit) : [];
     const position = hits.findIndex(hit => targets.includes(hit.objectID));
     const rank = position < 0 ? null : position + 1;
     results.push({
@@ -432,18 +428,14 @@ export async function runStressSuite(ranking: UnifiedRanking = "additive", limit
   console.table(results);
   const judged = results.filter(result => result.pass !== "n/a");
   const passed = judged.filter(result => result.pass === "yes").length;
-  console.log(`${ranking}: ${passed}/${judged.length} passed (${results.length - judged.length} targets absent from this index)`);
+  console.log(`Search: ${passed}/${judged.length} passed (${results.length - judged.length} targets absent from this index)`);
   return results;
 }
 
 /** Persist public indexed text for explicit human/agent judgments; clicks alone never set grades. */
 export async function collectJudgmentPool(search: string, out: string) {
   const client = evaluationClient();
-  const hits = [];
-  for (const ranking of rankings) {
-    const response = await executeMultiSearch(client, {ranking, indexes: allIndexes, search, limit: 5});
-    hits.push(...response.hits.hits.map(summarizeHit));
-  }
+  const hits = await rankedHits(client, search, 5);
   const documents = [];
   for (const index of allIndexes) {
     const ids = [...new Set(hits.filter(hit => hit.index === index).map(hit => hit.objectID))];
@@ -467,21 +459,19 @@ export async function evaluateJudgedSearches(out = "/tmp/forum-search-report/jud
     const statuses = await targetStatus(client, group);
     const eligible = new Set(statuses.filter(target => target.status === "eligible").map(targetKey));
     const grades = new Map(judged.judgments.filter(target => eligible.has(targetKey(target))).map(target => [targetKey(target), target.grade]));
-    for (const ranking of rankings) {
-      const response = await executeMultiSearch(client, {ranking, indexes: allIndexes, search: judged.query, limit: 100});
-      const hits = response.hits.hits.map(summarizeHit);
-      const keys = hits.map(hit => `${hit.index}:${hit.objectID}`);
-      const pairs = judged.preferences.map(pair => {
-        const preferredRank = keys.indexOf(targetKey(pair.preferred)) + 1;
-        const otherRank = keys.indexOf(targetKey(pair.over)) + 1;
-        return {...pair, preferredRank, otherRank, status: !eligible.has(targetKey(pair.preferred)) || !eligible.has(targetKey(pair.over)) ? "unavailable" : preferredRank && !otherRank ? "pass-over-unrecalled" : !preferredRank || !otherRank ? "not-comparable-within-100" : preferredRank < otherRank ? "pass" : "fail"};
-      });
-      results.push({query: judged.query, ranking, judgedPoolNdcgAt10: judgedPoolNdcg(keys, grades), judgedInTop10: keys.slice(0, 10).filter(key => grades.has(key)).length, pairs, hits});
-      fs.writeFileSync(out, JSON.stringify({status: "running", judgments: judgedSearches, results}, null, 2));
-    }
+    const response = await executeSearch(client, {indexes: allIndexes, search: judged.query, limit: 100});
+    const hits = response.hits.hits.map(summarizeHit);
+    const keys = hits.map(hit => `${hit.index}:${hit.objectID}`);
+    const pairs = judged.preferences.map(pair => {
+      const preferredRank = keys.indexOf(targetKey(pair.preferred)) + 1;
+      const otherRank = keys.indexOf(targetKey(pair.over)) + 1;
+      return {...pair, preferredRank, otherRank, status: !eligible.has(targetKey(pair.preferred)) || !eligible.has(targetKey(pair.over)) ? "unavailable" : preferredRank && !otherRank ? "pass-over-unrecalled" : !preferredRank || !otherRank ? "not-comparable-within-100" : preferredRank < otherRank ? "pass" : "fail"};
+    });
+    results.push({query: judged.query, judgedPoolNdcgAt10: judgedPoolNdcg(keys, grades), judgedInTop10: keys.slice(0, 10).filter(key => grades.has(key)).length, pairs, hits});
+    fs.writeFileSync(out, JSON.stringify({status: "running", judgments: judgedSearches, results}, null, 2));
   }
   fs.writeFileSync(out, JSON.stringify({status: "complete", time: new Date().toISOString(), source: sourceFingerprint(), judgments: judgedSearches, results}, null, 2));
-  return results.map(result => ({query: result.query, ranking: result.ranking, judgedPoolNdcgAt10: result.judgedPoolNdcgAt10, pairs: result.pairs}));
+  return results.map(result => ({query: result.query, judgedPoolNdcgAt10: result.judgedPoolNdcgAt10, pairs: result.pairs}));
 }
 
 export async function inspectAliasCoverage(out = "/tmp/forum-search-report/author-alias-coverage.json") {
@@ -506,7 +496,7 @@ export async function evaluateLiveExamples(out = "/tmp/forum-search-report/live-
   for (const search of ["infrabayesiansism", "chemicalenginering", "interpretability", "american coll", "computation in", "evan hubinger", "kwa", "paulf", "johnswentwroth", "roko"]) {
     for (const repetition of [1, 2]) {
       const started = Date.now();
-      const response = await executeMultiSearch(client, {ranking: "additive", indexes: allIndexes, search, limit: 10});
+      const response = await executeSearch(client, {indexes: allIndexes, search, limit: 10});
       results.push({search, repetition, elapsedMs: Date.now() - started, hits: response.hits.hits.map(summarizeHit)});
     }
   }
@@ -516,9 +506,7 @@ export async function evaluateLiveExamples(out = "/tmp/forum-search-report/live-
 
 interface LatencySample {
   query: string;
-  ranking: UnifiedRanking;
   pass: number;
-  position: number;
   elapsedMs: number;
   requests: number;
   elasticMs: number;
@@ -526,9 +514,9 @@ interface LatencySample {
   error?: string;
 }
 
-async function measureRanking(client: UnifiedSearchClient, query: string, ranking: UnifiedRanking, pass: number, position: number): Promise<LatencySample> {
-  const sample: LatencySample = {query, ranking, pass, position, elapsedMs: 0, requests: 0, elasticMs: 0};
-  const measuredClient: UnifiedSearchClient = {
+async function measureSearch(client: SearchExecutor, query: string, pass: number): Promise<LatencySample> {
+  const sample: LatencySample = {query, pass, elapsedMs: 0, requests: 0, elasticMs: 0};
+  const measuredClient: SearchExecutor = {
     async search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>> {
       sample.requests++;
       const response = await client.search<TDocument>(request);
@@ -538,7 +526,7 @@ async function measureRanking(client: UnifiedSearchClient, query: string, rankin
   };
   const started = performance.now();
   try {
-    const response = await executeMultiSearch(measuredClient, {ranking, indexes: allIndexes, search: query, limit: 10});
+    const response = await executeSearch(measuredClient, {indexes: allIndexes, search: query, limit: 10});
     sample.hits = response.hits.hits.length;
   } catch (error) {
     sample.error = error instanceof Error ? error.message : String(error);
@@ -547,8 +535,8 @@ async function measureRanking(client: UnifiedSearchClient, query: string, rankin
   return sample;
 }
 
-/** Read-only latency comparison: pass zero warms both rankers; measured passes reverse pair order. */
-export async function benchmarkRankings({inventoryPath, csvPath = defaultEvidencePath, out = "/tmp/forum-search-report/ranking-latency.json", limit = 1000, measuredPasses = 2}: CompareOptions & {measuredPasses?: number}) {
+/** Read-only latency benchmark: pass zero warms each query before measured passes. */
+export async function benchmarkSearchLatency({inventoryPath, csvPath = defaultEvidencePath, out = "/tmp/forum-search-report/ranking-latency.json", limit = 1000, measuredPasses = 2}: EvaluationOptions & {measuredPasses?: number}) {
   if (!Number.isInteger(measuredPasses) || measuredPasses < 1) throw new Error("measuredPasses must be a positive integer");
   const client = evaluationClient();
   const groups = evaluationGroups(csvPath, inventoryPath).sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, limit);
@@ -558,16 +546,13 @@ export async function benchmarkRankings({inventoryPath, csvPath = defaultEvidenc
     startedAt: new Date().toISOString(), environment: process.env.ENV_NAME,
     source: sourceFingerprint(), before, queryCount: groups.length, measuredPasses,
     evidenceSha256: createHash("sha256").update(fs.readFileSync(csvPath)).digest("hex"),
-    methodology: "Single sequential client, PIT shared by both rankers, top 10 with highlights and exact totals. Pass 0 warms all queries. Pair order alternates by query and pass. Includes compilation, person lookup, sequence lookup when applicable, transport and PIT rewriting; excludes REPL startup and report writes. Each unique query has equal weight.",
+    methodology: "Single sequential client, one PIT, top 10 with highlights and exact totals. Pass 0 warms all queries. Queries run in the same deterministic order each pass. Includes compilation, person lookup, transport and PIT rewriting; excludes REPL startup and report writes. Each unique query has equal weight.",
   };
   const samples: LatencySample[] = [];
   try {
     for (let pass = 0; pass <= measuredPasses; pass++) {
       for (let i = 0; i < groups.length; i++) {
-        const order = (i + pass) % 2 ? [...rankings].reverse() : rankings;
-        for (let position = 0; position < order.length; position++) {
-          samples.push(await measureRanking(frozen.searchClient, groups[i].query, order[position], pass, position));
-        }
+        samples.push(await measureSearch(frozen.searchClient, groups[i].query, pass));
         if ((i + 1) % 25 === 0 || i + 1 === groups.length) {
           fs.writeFileSync(out, JSON.stringify({status: "running", metadata, samples}));
           console.log(`Latency pass ${pass}/${measuredPasses}: ${i + 1}/${groups.length}; failures: ${samples.filter(sample => sample.error).length}`);
