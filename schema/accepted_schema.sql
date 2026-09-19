@@ -3645,6 +3645,9 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
+-- CustomIndex "idx_chapters_post_ids"
+CREATE INDEX IF NOT EXISTS idx_chapters_post_ids ON "Chapters" USING gin ("postIds");
+
 -- CustomIndex "idx_CommentEmbeddings_embedding_cosine_distance"
 CREATE INDEX IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance" ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
 
