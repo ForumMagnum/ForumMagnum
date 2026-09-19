@@ -1670,6 +1670,7 @@ interface DbUser extends DbObject {
   allPostsHideCommunity: boolean | null
   allPostsIncludeEvents: boolean | null
   allPostsOpenSettings: boolean | null
+  allPostsShortformSorting: "posts" | "top" | "new"
   allPostsShowLowKarma: boolean | null
   allPostsSorting: string | null
   allPostsTimeframe: string | null

@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
+import { allPostsShortformSortings, getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef } from '../common/FMTooltip';
@@ -88,10 +88,15 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
 
   const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily';
   const currentSorting = (query.sortedBy   || currentUser?.allPostsSorting   || 'magic') as PostSortingMode;
+  const shortformSorting = query.shortformSortedBy || currentUser?.allPostsShortformSorting || "posts";
+  const currentShortformSorting = allPostsShortformSortings.has(shortformSorting) ? shortformSorting : "posts";
   const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all';
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
+  const showShortformSorting = currentTimeframe === "exponential" ||
+    (currentTimeframe !== "allTime" && query.includeShortform !== "false" &&
+      (currentFilter === "all" || currentFilter === "frontpage"));
   return (
     <>
       <AnalyticsContext pageContext="allPostsPage">
@@ -120,6 +125,7 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
                 hidden={false}
                 currentTimeframe={currentTimeframe}
                 currentSorting={currentSorting}
+                currentShortformSorting={showShortformSorting ? currentShortformSorting : undefined}
                 currentFilter={currentFilter}
                 currentShowLowKarma={currentShowLowKarma}
                 currentIncludeEvents={currentIncludeEvents}
@@ -132,6 +138,7 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
             {...{
               currentTimeframe,
               currentSorting,
+              currentShortformSorting,
               currentFilter,
               currentShowLowKarma,
               currentIncludeEvents,

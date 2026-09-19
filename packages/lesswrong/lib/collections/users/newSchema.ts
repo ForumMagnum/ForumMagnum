@@ -1247,6 +1247,23 @@ const schema = {
       },
     },
   },
+  allPostsShortformSorting: {
+    database: {
+      type: "TEXT",
+      defaultValue: "posts",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: userOwns,
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: "guests",
+      validation: {
+        optional: true,
+        allowedValues: ["posts", "top", "new"],
+      },
+    },
+  },
   allPostsShowLowKarma: {
     database: {
       type: "BOOL",

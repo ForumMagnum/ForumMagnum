@@ -8,7 +8,7 @@ import { QueryLink } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { allPostsShortformSortOptions, AllPostsShortformSorting, getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
@@ -135,6 +135,7 @@ const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
 const USER_SETTING_NAMES = {
   timeframe: 'allPostsTimeframe',
   sortedBy: 'allPostsSorting',
+  shortformSortedBy: 'allPostsShortformSorting',
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
   showEvents: 'allPostsIncludeEvents',
@@ -142,11 +143,12 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentShortformSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
   currentSorting: PostSortingMode,
+  currentShortformSorting?: AllPostsShortformSorting,
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
@@ -180,12 +182,21 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
 
         <SettingsColumn
           type={'sortedBy'}
-          title={'Sorted by:'}
+          title={currentShortformSorting ? 'Posts sorted by:' : 'Sorted by:'}
           options={sortings}
           currentOption={currentSorting}
           setSetting={setSetting}
           nofollow
         />
+
+        {currentShortformSorting && <SettingsColumn
+          type={'shortformSortedBy'}
+          title={'Quick Takes sorted by:'}
+          options={allPostsShortformSortOptions}
+          currentOption={currentShortformSorting}
+          setSetting={setSetting}
+          nofollow
+        />}
 
         <SettingsColumn
           type={'filter'}

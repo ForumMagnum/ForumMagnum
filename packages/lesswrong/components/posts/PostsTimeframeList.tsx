@@ -1,3 +1,4 @@
+import type { AllPostsShortformSorting } from "@/lib/collections/posts/dropdownOptions";
 import React, { useRef, useState } from 'react';
 import isEqual from 'lodash/isEqual';
 import moment from '../../lib/moment-timezone';
@@ -32,7 +33,7 @@ function useDeepMemo<T>(value: T): T {
   return ref.current;
 }
 
-const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true}: {
+const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, shortformSorting, includeTags=true}: {
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
@@ -41,6 +42,7 @@ const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListPa
   dimWhenLoading?: boolean,
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
+  shortformSorting?: AllPostsShortformSorting,
   includeTags: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -119,6 +121,7 @@ const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListPa
           hideIfEmpty={index===0}
           isMostRecent={date === dates[0]}
           shortform={shortform}
+          shortformSorting={shortformSorting}
           includeTags={includeTags}
         />
       })}

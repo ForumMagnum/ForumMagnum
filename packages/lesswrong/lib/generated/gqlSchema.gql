@@ -7676,6 +7676,7 @@ type User {
   allPostsTimeframe: String
   allPostsFilter: String
   allPostsSorting: String
+  allPostsShortformSorting: String
   allPostsShowLowKarma: Boolean
   allPostsIncludeEvents: Boolean
   allPostsHideCommunity: Boolean
@@ -9786,6 +9787,7 @@ input CreateUserDataInput {
   allPostsTimeframe: String
   allPostsFilter: String
   allPostsSorting: String
+  allPostsShortformSorting: String
   allPostsShowLowKarma: Boolean
   allPostsIncludeEvents: Boolean
   allPostsHideCommunity: Boolean
@@ -9953,6 +9955,7 @@ input UpdateUserDataInput {
   allPostsTimeframe: String
   allPostsFilter: String
   allPostsSorting: String
+  allPostsShortformSorting: String
   allPostsShowLowKarma: Boolean
   allPostsIncludeEvents: Boolean
   allPostsHideCommunity: Boolean

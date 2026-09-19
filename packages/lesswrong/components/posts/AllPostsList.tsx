@@ -1,4 +1,5 @@
 import React from "react";
+import type { AllPostsShortformSorting } from "@/lib/collections/posts/dropdownOptions";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
 import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
@@ -23,6 +24,7 @@ import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
 const AllPostsList = ({
   currentTimeframe,
   currentSorting,
+  currentShortformSorting,
   currentFilter,
   currentShowLowKarma,
   currentIncludeEvents,
@@ -31,6 +33,7 @@ const AllPostsList = ({
   currentTimeframe: string,
   currentFilter: string,
   currentSorting: PostSortingMode,
+  currentShortformSorting: AllPostsShortformSorting,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   showSettings: boolean,
@@ -96,6 +99,7 @@ const AllPostsList = ({
       >
         <PostsTimeframeListExponential
           postListParameters={postListParameters}
+          shortformSorting={currentShortformSorting}
         />
       </AnalyticsContext>
     );
@@ -137,6 +141,7 @@ const AllPostsList = ({
             // come from an unsanitized query param...
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
+            shortformSorting={currentShortformSorting}
             numTimeBlocks={numTimeBlocks}
             dimWhenLoading={showSettings && !isFriendlyUI()}
             after={after}

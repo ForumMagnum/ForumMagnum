@@ -3126,6 +3126,7 @@ CREATE TABLE "Users" (
   "allPostsTimeframe" TEXT,
   "allPostsFilter" TEXT,
   "allPostsSorting" TEXT,
+  "allPostsShortformSorting" TEXT NOT NULL DEFAULT 'posts',
   "allPostsShowLowKarma" BOOL,
   "allPostsIncludeEvents" BOOL,
   "allPostsHideCommunity" BOOL,

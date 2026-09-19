@@ -147,6 +147,7 @@ export const UsersCurrent = gql(`
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
+    allPostsShortformSorting
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents

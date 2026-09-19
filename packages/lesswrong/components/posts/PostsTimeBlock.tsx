@@ -1,3 +1,4 @@
+import type { AllPostsShortformSorting } from "@/lib/collections/posts/dropdownOptions";
 import React, { useState, useCallback, useEffect } from 'react';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
@@ -89,7 +90,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, isMostRecent, timeframe, shortform = "all", includeTags=true}: {
+const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, isMostRecent, timeframe, shortform = "all", shortformSorting = "posts", includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: () => void,
   dateForTitle: moment.Moment,
@@ -100,6 +101,7 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
   isMostRecent: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
+  shortformSorting?: AllPostsShortformSorting,
   includeTags?: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -115,7 +117,9 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
   // Age discounting is only useful within the most recent time block.
   const sortedBy = selectedSorting === "magic" && !isMostRecent ? "top" : selectedSorting;
   // Quick Takes don't have inflation-adjusted karma or tag relevance scores.
-  const shortformSortBy = sortedBy === "topAdjusted" || sortedBy === "relevance" ? "top" : sortedBy;
+  const shortformSortBy = shortformSorting !== "posts"
+    ? shortformSorting
+    : sortedBy === "topAdjusted" || sortedBy === "relevance" ? "top" : sortedBy;
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {

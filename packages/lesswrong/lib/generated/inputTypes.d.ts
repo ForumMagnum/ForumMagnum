@@ -7092,6 +7092,7 @@ interface User {
   allPostsTimeframe: string | null;
   allPostsFilter: string | null;
   allPostsSorting: string | null;
+  allPostsShortformSorting: string | null;
   allPostsShowLowKarma: boolean | null;
   allPostsIncludeEvents: boolean | null;
   allPostsHideCommunity: boolean | null;
@@ -8920,6 +8921,7 @@ interface CreateUserDataInput {
   allPostsTimeframe?: string | null;
   allPostsFilter?: string | null;
   allPostsSorting?: string | null;
+  allPostsShortformSorting?: string | null;
   allPostsShowLowKarma?: boolean | null;
   allPostsIncludeEvents?: boolean | null;
   allPostsHideCommunity?: boolean | null;
@@ -9087,6 +9089,7 @@ interface UpdateUserDataInput {
   allPostsTimeframe?: string | null;
   allPostsFilter?: string | null;
   allPostsSorting?: string | null;
+  allPostsShortformSorting?: string | null;
   allPostsShowLowKarma?: boolean | null;
   allPostsIncludeEvents?: boolean | null;
   allPostsHideCommunity?: boolean | null;

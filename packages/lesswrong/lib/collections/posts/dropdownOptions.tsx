@@ -25,6 +25,15 @@ export const getSortOrderOptions = () => ({
   old: { label: 'Old' },
 } satisfies Record<PostSortingMode, SettingsOption>);
 
+export const allPostsShortformSortings = new TupleSet(["posts", "top", "new"] as const);
+export type AllPostsShortformSorting = UnionOf<typeof allPostsShortformSortings>;
+
+export const allPostsShortformSortOptions = {
+  posts: { label: "Same as posts" },
+  top: { label: "Top" },
+  new: { label: "New" },
+} satisfies Record<AllPostsShortformSorting, SettingsOption>;
+
 export const postsLayouts = new TupleSet(["card", "list"] as const)
 export type PostsLayout = UnionOf<typeof postsLayouts>
 export const isPostsLayout = (tab: string): tab is PostsLayout => postsLayouts.has(tab)

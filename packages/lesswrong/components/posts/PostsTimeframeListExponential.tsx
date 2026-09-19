@@ -1,3 +1,4 @@
+import type { AllPostsShortformSorting } from "@/lib/collections/posts/dropdownOptions";
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -16,8 +17,9 @@ interface TimeBlockRange {
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
-const PostsTimeframeListExponential = ({postListParameters}: {
+const PostsTimeframeListExponential = ({postListParameters, shortformSorting}: {
   postListParameters: PostsViewTerms,
+  shortformSorting?: AllPostsShortformSorting,
 }) => {
   const now = useCurrentTime();
   const [moreMonthsCount,setMoreMonthsCount] = useState(0);
@@ -94,6 +96,7 @@ const PostsTimeframeListExponential = ({postListParameters}: {
         hideIfEmpty={true}
         isMostRecent={i === 0}
         shortform="frontpage"
+        shortformSorting={shortformSorting}
         includeTags={true}
       />
     </div>)}
