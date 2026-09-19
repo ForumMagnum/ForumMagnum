@@ -37,7 +37,8 @@ import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSet
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getModeratorActionsForUser, getLastRemovedFromReviewQueueAt, getUserReviewGroup } from "./reviewGroupResolvers";
+import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "./unreviewedContentSelectors";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -57,41 +58,25 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   return Number(result.count);
 };
 
-const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
-  return getWithLoader(
-    context,
-    context.ModeratorActions,
-    "moderatorActionsByUserId",
-    {},
-    "userId",
-    userId,
-  );
-};
-
-// Karma is checked first, to skip the batched content query when it can.
-const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
-  if (user.karma < 0) {
-    return true;
-  }
-  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
-    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
-    return userIds.map((id) => candidateIds.has(id));
+const getOldestUnreviewedContentAt = (context: ResolverContext, userId: string): Promise<Date | null> => {
+  return getWithCustomLoader(context, "oldestUnreviewedContentAt", userId, async (userIds) => {
+    const [posts, comments] = await Promise.all([
+      context.Posts.find({
+        ...unreviewedUserPostSelector,
+        userId: { $in: userIds },
+      }, { sort: { postedAt: 1 } }, { userId: 1, postedAt: 1 }).fetch(),
+      context.Comments.find({
+        ...unreviewedUserCommentSelector,
+        userId: { $in: userIds },
+      }, { sort: { postedAt: 1 } }, { userId: 1, postedAt: 1 }).fetch(),
+    ]);
+    const oldestByUserId = new Map<string, Date>();
+    for (const content of [...posts, ...comments]) {
+      const oldest = oldestByUserId.get(content.userId);
+      if (!oldest || content.postedAt < oldest) oldestByUserId.set(content.userId, content.postedAt);
+    }
+    return userIds.map(id => oldestByUserId.get(id) ?? null);
   });
-};
-
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
-  const fieldChanges = await getWithLoader(
-    context,
-    context.FieldChanges,
-    "needsReviewFieldChanges",
-    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
-    "documentId",
-    userId,
-    { sort: { createdAt: -1 }, limit: 1 },
-  );
-
-  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -3966,6 +3951,13 @@ const schema = {
       },
     },
   },
+  oldestUnreviewedContentAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: (doc, args, context) => getOldestUnreviewedContentAt(context, doc._id),
+    },
+  },
   moderatorActions: {
     graphql: {
       outputType: "[ModeratorAction!]",
@@ -3981,23 +3973,7 @@ const schema = {
       outputType: "ReviewGroup",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
-          getModeratorActionsForUser(context, doc._id),
-          getLastRemovedFromReviewQueueAt(context, doc._id),
-        ]);
-
-        const actionsWithActiveStatus = moderatorActions.map(action => ({
-          type: action.type,
-          active: isActionActive(action),
-          createdAt: action.createdAt,
-        }));
-        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
-          return 'offboard';
-        }
-
-        return baseGroup;
+        return getUserReviewGroup(context, doc);
       },
     },
   },

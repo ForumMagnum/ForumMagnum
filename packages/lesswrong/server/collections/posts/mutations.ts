@@ -199,7 +199,12 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   return documentWithId;
 }
 
-export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext) {
+export interface UpdatePostOptions {
+  // Reject without messaging the author; only the rejectPost mutation sets this.
+  skipRejectionPM?: boolean;
+}
+
+export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext, options?: UpdatePostOptions) {
   const { currentUser, Posts } = context;
 
   // rejectedReason is rendered raw on the public /moderation page; sanitize on
@@ -265,7 +270,9 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
   await updatePostEmbeddingsOnChange(updatedDocument, context, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
-  await maybeSendRejectionPM(updateCallbackProperties);
+  if (!options?.skipRejectionPM) {
+    await maybeSendRejectionPM(updateCallbackProperties);
+  }
   await updateUserNotesOnPostDraft(updateCallbackProperties);
   await updateUserNotesOnPostRejection(updateCallbackProperties);
   await updateRecombeePost(updateCallbackProperties);

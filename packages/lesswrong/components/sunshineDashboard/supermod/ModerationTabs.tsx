@@ -59,6 +59,12 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
     fontWeight: 400,
     color: theme.palette.grey[600],
   },
+  queueCount: {
+    fontVariantNumeric: 'tabular-nums',
+  },
+  fetchedCount: {
+    color: theme.palette.icon.sprout,
+  },
   activeCount: {
     color: theme.palette.primary.main,
   },
@@ -74,9 +80,16 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   },
 }));
 
+// How much of a user queue is loaded in the inbox vs. still on the server
+export interface UserQueueTabCount {
+  fetched: number;
+  remaining: number;
+}
+
 export type TabInfo = {
   group: TabId;
   count: number;
+  userQueueCount?: UserQueueTabCount;
 };
 
 const ModerationTabs = ({
@@ -119,7 +132,14 @@ const ModerationTabs = ({
                   (<FormatDate date={lastCuratedDate} />)
                 </span>
               )
-              : tab.count > 0 && (
+              : tab.userQueueCount ? (
+                <span
+                  className={classNames(classes.count, classes.queueCount)}
+                  title={`${tab.userQueueCount.fetched} fetched, ${tab.userQueueCount.remaining} remaining`}
+                >
+                  (<span className={classes.fetchedCount}>{tab.userQueueCount.fetched}</span> + {tab.userQueueCount.remaining})
+                </span>
+              ) : tab.count > 0 && (
                 <span className={classNames(classes.count, {
                   [classes.activeCount]: activeTab === tab.group,
                 })}>

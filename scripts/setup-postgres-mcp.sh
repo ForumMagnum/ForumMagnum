@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # PostgreSQL MCP Setup Script for Cursor IDE
 # 
@@ -96,7 +96,7 @@ check_homebrew() {
         error "Homebrew is not installed."
         echo ""
         echo "Please install Homebrew first:"
-        echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+        echo "  /usr/bin/env bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
         echo ""
         echo "Then run this script again."
         exit 1
@@ -225,7 +225,7 @@ create_runner_script() {
     info "Creating runner script at $RUNNER_SCRIPT"
     
     cat > "$RUNNER_SCRIPT" << 'RUNNER_EOF'
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # PostgreSQL MCP Runner Script
 # This script is called by Cursor to start a PostgreSQL MCP server

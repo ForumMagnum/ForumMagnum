@@ -72,6 +72,8 @@ interface Query {
   GetAllReviewWinners: Array<Post>;
   convertDocument: any;
   latestGoogleDocMetadata: any;
+  moderationNewUsers: ModerationNewUsersResult;
+  moderationUserQueueCounts: ModerationUserQueueCounts;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
@@ -275,6 +277,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  rejectPost: Post | null;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
@@ -1221,6 +1224,21 @@ interface ExternalPost {
 interface ExternalPostImportData {
   alreadyExists: boolean | null;
   post: ExternalPost | null;
+}
+
+interface ModerationUserQueueCounts {
+  newContent: number;
+  offboard: number;
+  highContext: number;
+  maybeSpam: number;
+  automod: number;
+  snoozeExpired: number;
+  unknown: number;
+}
+
+interface ModerationNewUsersResult {
+  results: Array<User>;
+  totalCount: number | null;
 }
 
 interface ModeratorIPAddressInfo {
@@ -7273,6 +7291,7 @@ interface User {
   associatedClientIds: Array<ClientId> | null;
   altAccountsDetected: boolean | null;
   acknowledgedNewUserGuidelines: boolean | null;
+  oldestUnreviewedContentAt: Date | null;
   moderatorActions: Array<ModeratorAction> | null;
   reviewGroup: ReviewGroup | null;
   subforumPreferredLayout: SubforumPreferredLayout | null;
@@ -9370,6 +9389,8 @@ interface GraphQLTypeMap {
   MigrationRun: MigrationRun;
   ExternalPost: ExternalPost;
   ExternalPostImportData: ExternalPostImportData;
+  ModerationUserQueueCounts: ModerationUserQueueCounts;
+  ModerationNewUsersResult: ModerationNewUsersResult;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   ToggleBookmarkInput: ToggleBookmarkInput;

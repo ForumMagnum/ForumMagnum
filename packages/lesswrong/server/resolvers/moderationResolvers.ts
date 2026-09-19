@@ -18,8 +18,27 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { viewTermsToQuery } from '../../lib/utils/viewUtils';
+import { UsersViews } from '../../lib/collections/users/views';
+import { getUserReviewGroup } from '../../lib/collections/users/reviewGroupResolvers';
 
 export const moderationGqlTypeDefs = gql`
+  type ModerationUserQueueCounts {
+    newContent: Int!
+    offboard: Int!
+    highContext: Int!
+    maybeSpam: Int!
+    automod: Int!
+    snoozeExpired: Int!
+    unknown: Int!
+  }
+
+  type ModerationNewUsersResult {
+    results: [User!]!
+    totalCount: Int
+  }
+
   type ModeratorIPAddressInfo {
     ip: String!
     userIds: [String!]!
@@ -45,6 +64,8 @@ export const moderationGqlTypeDefs = gql`
   }
 
   extend type Query {
+    moderationNewUsers(limit: Int, enableTotal: Boolean): ModerationNewUsersResult!
+    moderationUserQueueCounts: ModerationUserQueueCounts!
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   }
 
@@ -53,6 +74,7 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
+    rejectPost(postId: String!, rejectedReason: String!, skipRejectionPM: Boolean): Post
     rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
@@ -237,6 +259,21 @@ export const moderationGqlMutations = {
 
     return true;
   },
+  async rejectPost(_root: void, args: {postId: string, rejectedReason: string, skipRejectionPM?: boolean | null}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can reject posts");
+    }
+    const post = await Posts.findOne(args.postId);
+    if (!post) {
+      throw new Error("Invalid post ID");
+    }
+    const updatedPost = await updatePost({
+      data: { rejected: true, rejectedReason: args.rejectedReason },
+      selector: { _id: post._id },
+    }, context, { skipRejectionPM: !!args.skipRejectionPM });
+    return accessFilterSingle(currentUser, 'Posts', updatedPost, context);
+  },
   async approveUserCurrentContentOnly(_root: void, args: {userId: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
@@ -396,7 +433,46 @@ export const moderationGqlMutations = {
   },
 }
 
+async function getNewUserQueueSelector(context: ResolverContext) {
+  const { selector } = await viewTermsToQuery(UsersViews, { view: 'sunshineNewUsers' }, {}, context);
+  return selector;
+}
+
 export const moderationGqlQueries = {
+  // The sunshineNewUsers view, ordered by how long each user's oldest post or
+  // comment has waited for review. That order needs a join, so it can't be
+  // expressed as a view sort.
+  async moderationNewUsers(_root: void, args: {limit?: number | null, enableTotal?: boolean | null}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error('Only admins and moderators can see the new user queue');
+    }
+    const limit = args.limit ?? 10;
+    if (limit < 0) throw new Error('Queue limit must be nonnegative');
+    const selector = await getNewUserQueueSelector(context);
+    const [users, totalCount] = await Promise.all([
+      context.repos.users.getNewUsersByOldestUnreviewedContent(selector, limit),
+      args.enableTotal ? context.Users.find(selector).count() : undefined,
+    ]);
+    return {
+      results: await accessFilterMultiple(currentUser, 'Users', users, context),
+      totalCount,
+    };
+  },
+  async moderationUserQueueCounts(_root: void, _args: Record<string, never>, context: ResolverContext): Promise<Record<ReviewGroup, number>> {
+    if (!userIsAdminOrMod(context.currentUser)) {
+      throw new Error('Only admins and moderators can see moderation queue counts');
+    }
+    const selector = await getNewUserQueueSelector(context);
+    // Only the fields needed for classification, and no pagination: the tabs show
+    // the whole queue's size, not just the loaded page. getUserReviewGroup batches
+    // the moderator action, review history, and offboard-candidate lookups.
+    const users = await context.Users.find(selector, {}, { _id: 1, karma: 1 }).fetch();
+    const groups = await Promise.all(users.map(user => getUserReviewGroup(context, user)));
+    const counts = { newContent: 0, offboard: 0, highContext: 0, maybeSpam: 0, automod: 0, snoozeExpired: 0, unknown: 0 };
+    for (const group of groups) counts[group]++;
+    return counts;
+  },
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;

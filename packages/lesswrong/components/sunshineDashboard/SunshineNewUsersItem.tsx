@@ -49,6 +49,11 @@ const SunshineNewUsersItem = ({user, refetch, currentUser}: {
         </SidebarHoverOver>
         <div>
           <MetaInfo className={classes.info}>
+            {user.oldestUnreviewedContentAt
+              ? <FormatDate date={user.oldestUnreviewedContentAt} tooltip="Oldest unreviewed post or comment" />
+              : <span title="No unreviewed posts or comments">—</span>}
+          </MetaInfo>
+          <MetaInfo className={classes.info}>
             { user.karma || 0 }
           </MetaInfo>
           <MetaInfo className={classes.info}>

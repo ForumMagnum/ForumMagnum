@@ -1,3 +1,7 @@
+import SelectQuery from "@/server/sql/SelectQuery";
+import Comments from "@/server/collections/comments/collection";
+import Posts from "@/server/collections/posts/collection";
+import { unreviewedUserPostSelector, unreviewedUserCommentSelector } from "@/lib/collections/users/unreviewedContentSelectors";
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
@@ -49,6 +53,36 @@ export type MongoNearLocation = { type: "Point", coordinates: number[] }
 class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
+  }
+
+  /**
+   * Users matching `selector` (the sunshineNewUsers view), ordered so that the
+   * user whose post or comment has waited longest for review comes first. Users
+   * with nothing pending follow, in the view's usual order.
+   */
+  async getNewUsersByOldestUnreviewedContent(selector: MongoSelector<DbUser>, limit: number): Promise<DbUser[]> {
+    const usersQuery = new SelectQuery(this.getCollection().getTable(), selector).compile();
+    const postsQuery = new SelectQuery(Posts.getTable(), unreviewedUserPostSelector).compile(usersQuery.args.length);
+    const commentsQuery = new SelectQuery(Comments.getTable(), unreviewedUserCommentSelector).compile(usersQuery.args.length + postsQuery.args.length);
+    const args = [...usersQuery.args, ...postsQuery.args, ...commentsQuery.args, limit];
+    return this.any(`
+      -- UsersRepo.getNewUsersByOldestUnreviewedContent
+      SELECT u.*
+      FROM (${usersQuery.sql}) u
+      LEFT JOIN LATERAL (
+        SELECT MIN("postedAt") AS "oldestUnreviewedContentAt"
+        FROM (
+          SELECT "postedAt" FROM (${postsQuery.sql}) pending_posts WHERE "userId" = u._id
+          UNION ALL
+          SELECT "postedAt" FROM (${commentsQuery.sql}) pending_comments WHERE "userId" = u._id
+        ) pending_content
+      ) pending ON TRUE
+      ORDER BY pending."oldestUnreviewedContentAt" ASC NULLS LAST,
+        u."sunshineFlagged" DESC NULLS LAST, u."postCount" DESC,
+        u."commentCount" DESC, u."signUpReCaptchaRating" DESC NULLS LAST,
+        u."createdAt" DESC, u._id ASC
+      LIMIT $${args.length}
+    `, args);
   }
 
   async getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {

@@ -148,7 +148,12 @@ const ModerationContentDetail = ({
             </ContentStyles>
           </div>
           : <div className={classes.commentsNode}>
-            <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>
+            <CommentsNode
+              treeOptions={{showPostTitle: true, post: item.post ?? undefined, tag: item.tag ?? undefined}}
+              comment={item}
+              forceUnTruncated
+              forceUnCollapsed
+            />
             </div>
           }
       </div>

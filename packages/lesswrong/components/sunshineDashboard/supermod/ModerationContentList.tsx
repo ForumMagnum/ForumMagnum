@@ -1,9 +1,12 @@
 import React from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
 import { isMapPin, type ModerationContentItem } from './helpers';
 import { ModerationMapPinListItem } from './ModerationMapPin';
+import type { TabId } from './groupings';
+import { getReviewGroupDisplayName } from '@/lib/collections/users/reviewGroups';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   root: {
@@ -13,6 +16,10 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     height: 'fit-content',
   },
   header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
     padding: '12px 20px',
     borderBottom: theme.palette.border.normal,
     position: 'sticky',
@@ -27,6 +34,30 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
     letterSpacing: '0.5px',
+  },
+  queues: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    color: theme.palette.grey[600],
+  },
+  queue: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    fontWeight: 500,
+    color: theme.palette.grey[800],
+    padding: '2px 6px',
+    borderRadius: 4,
+    backgroundColor: theme.palette.greyAlpha(0.1),
+  },
+  queueNewContent: {
+    backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
+  },
+  queueWarning: {
+    backgroundColor: theme.palette.panelBackground.sunshineWarningHighlight,
+  },
+  queueReview: {
+    backgroundColor: theme.palette.panelBackground.sunshineNewComments,
   },
   count: {
     fontSize: 13,
@@ -44,15 +75,35 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   },
 }));
 
+function getQueueClassName(classes: Record<'queueNewContent' | 'queueWarning' | 'queueReview', string>, queue: TabId): string | undefined {
+  switch (queue) {
+    case 'newContent':
+      return classes.queueNewContent;
+    case 'maybeSpam':
+    case 'offboard':
+      return classes.queueWarning;
+    case 'highContext':
+    case 'automod':
+    case 'snoozeExpired':
+      return classes.queueReview;
+    default:
+      return undefined;
+  }
+}
+
 const ModerationContentList = ({
   items,
   title,
+  activeTab,
+  reviewGroup,
   focusedItemId,
   runningLlmCheckId,
   dispatch,
 }: {
   items: ModerationContentItem[];
   title: string;
+  activeTab: TabId;
+  reviewGroup: ReviewGroup;
   focusedItemId: string | null;
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
@@ -65,6 +116,13 @@ const ModerationContentList = ({
         <span className={classes.title}>
           {title}
           <span className={classes.count}>({items.length})</span>
+        </span>
+        <span className={classes.queues}>
+          {activeTab === 'all' && <>
+            <span className={classNames(classes.queue, getQueueClassName(classes, reviewGroup))} title="User review group">{getReviewGroupDisplayName(reviewGroup)}</span>
+            ⊂
+          </>}
+          <span className={classNames(classes.queue, getQueueClassName(classes, activeTab))} title="Current queue">{getReviewGroupDisplayName(activeTab)}</span>
         </span>
       </div>
       {items.length === 0 ? (

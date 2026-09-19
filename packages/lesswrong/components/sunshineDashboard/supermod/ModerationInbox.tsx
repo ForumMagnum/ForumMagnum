@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -13,12 +13,13 @@ import { useModeratedUserContents } from '@/components/hooks/useModeratedUserCon
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
+import ErrorMessage from '@/components/common/ErrorMessage';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, type TabId } from './groupings';
+import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
-import ModerationTabs, { type TabInfo } from './ModerationTabs';
+import ModerationTabs, { type TabInfo, type UserQueueTabCount } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
@@ -27,6 +28,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -34,8 +36,17 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 // separate useQuery suspends. (directUser is kept separate below because it
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
-  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
-    users(selector: $userSelector, limit: $userLimit) {
+  query ModerationInboxDataQuery($postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
+    moderationUserQueueCounts {
+      newContent
+      offboard
+      highContext
+      maybeSpam
+      automod
+      snoozeExpired
+      unknown
+    }
+    moderationNewUsers(limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
@@ -70,6 +81,55 @@ const SingleUserSupermodQuery = gql(`
     }
   }
 `);
+
+function parseModerationQueue(value: unknown): TabId | undefined {
+  if (value === 'all' || value === 'posts' || value === 'classifiedPosts' || value === 'curation') {
+    return value;
+  }
+  return Object.keys(REVIEW_GROUP_TO_PRIORITY).find((group): group is ReviewGroup => group === value);
+}
+
+function getModerationInboxSearch(search: string, queue: TabId, userId: string | null): string {
+  const params = new URLSearchParams(search);
+  params.set('queue', queue);
+  if (userId) {
+    params.set('user', userId);
+  } else {
+    params.delete('user');
+  }
+  return `?${params.toString()}`;
+}
+
+// Whether a loaded user is part of the sunshineNewUsers queue (a user opened
+// by direct link may not be). Mirrors the view's selector; its
+// reviewedByUserId: null term allows any value, so it's not checked here.
+function isQueuedUser(user: SunshineUsersList): boolean {
+  return !!user.needsReview && user.banned == null
+    && (user.signUpReCaptchaRating == null || user.signUpReCaptchaRating > spamRiskScoreThreshold * 1.25);
+}
+
+// The server's per-group counts cover the whole queue, not just the loaded
+// page. Apply the inbox's local removals, undos, and regroupings on top.
+function getAdjustedReviewGroupCounts(
+  initialCounts: Record<ReviewGroup, number>,
+  initialUsers: SunshineUsersList[],
+  currentUsers: SunshineUsersList[],
+): Record<ReviewGroup, number> {
+  const { newContent, offboard, highContext, maybeSpam, automod, snoozeExpired, unknown } = initialCounts;
+  const counts = { newContent, offboard, highContext, maybeSpam, automod, snoozeExpired, unknown };
+  for (const user of initialUsers) {
+    if (isQueuedUser(user)) counts[user.reviewGroup ?? 'unknown']--;
+  }
+  for (const user of currentUsers) {
+    if (isQueuedUser(user)) counts[user.reviewGroup ?? 'unknown']++;
+  }
+  return counts;
+}
+
+function getUserQueueTabCount(totalCount: number, users: SunshineUsersList[], group: ReviewGroup | 'all'): UserQueueTabCount {
+  const fetched = users.filter(user => isQueuedUser(user) && (group === 'all' || (user.reviewGroup ?? 'unknown') === group)).length;
+  return { fetched, remaining: totalCount - fetched };
+}
 
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
@@ -119,8 +179,9 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, userQueueCounts, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
+  userQueueCounts: Record<ReviewGroup, number>;
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
@@ -131,20 +192,24 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { query, location } = useLocation();
+  const { query } = useLocation();
+
+  // Keep counts and users from the same snapshot; reducer edits apply local deltas.
+  const [queueSnapshot] = useState(() => ({ counts: userQueueCounts, users: directUser ? [directUser, ...users] : users }));
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
     { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
+      const initialQueue = parseModerationQueue(query.queue);
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
         return {
           users: [],
           posts: [],
           classifiedPosts: [],
           curationPosts: [],
-          activeTab: 'curation',
+          activeTab: initialQueue ?? 'curation',
           focusedUserId: null,
           openedUserId: null,
           focusedPostId: null,
@@ -162,7 +227,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           posts,
           classifiedPosts,
           curationPosts,
-          activeTab: 'all',
+          activeTab: initialQueue && initialQueue !== 'posts' && initialQueue !== 'classifiedPosts' && initialQueue !== 'curation' ? initialQueue : 'all',
           focusedUserId: initialOpenedUserId,
           openedUserId: initialOpenedUserId,
           focusedPostId: null,
@@ -183,7 +248,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       const firstNonEmptyTab = curationNoticeCount === 0
         ? undefined
         : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
+      const firstTab = initialQueue ?? firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
         return { 
@@ -260,23 +325,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   );
 
-  // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
+  // Persist the queue alongside the user so reloads and shared links retain context.
   useEffect(() => {
-    const currentUrlUser = query.user;
-    const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
-    }
-  }, [state.openedUserId, query.user, location, navigate]);
+    navigate(currentLocation => ({
+      ...currentLocation.location,
+      search: getModerationInboxSearch(currentLocation.location.search, state.activeTab, state.openedUserId),
+    }), { replace: true, skipRouter: true });
+  }, [state.openedUserId, state.activeTab, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -298,8 +353,15 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
+    const counts = getAdjustedReviewGroupCounts(queueSnapshot.counts, queueSnapshot.users, state.users);
+    const totalUsers = getTabsInPriorityOrder().reduce((sum, group) => sum + counts[group], 0);
+    return getVisibleTabsInOrder(groupedUsers, totalUsers, state.posts.length, state.classifiedPosts.length, curationNoticeCount)
+      .map(tab => {
+        if (tab.group === 'posts' || tab.group === 'classifiedPosts' || tab.group === 'curation') return tab;
+        const count = tab.group === 'all' ? totalUsers : counts[tab.group];
+        return { ...tab, count, userQueueCount: getUserQueueTabCount(count, state.users, tab.group) };
+      });
+  }, [queueSnapshot, state.users, groupedUsers, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -506,9 +568,8 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data, loading } = useQuery(ModerationInboxDataQuery, {
+  const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
     variables: {
-      userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
       userLimit: 100,
@@ -520,7 +581,7 @@ const ModerationInbox = () => {
 
   const initialOpenedUserId = query.user || null;
 
-  const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
+  const users = useMemo(() => data?.moderationNewUsers?.results.filter(user => user.needsReview) ?? [], [data]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
@@ -560,8 +621,16 @@ const ModerationInbox = () => {
     );
   }
 
+  if (error) {
+    return <ErrorMessage message={error.message} />;
+  }
+  if (!data?.moderationUserQueueCounts) {
+    return <ErrorMessage message="Unable to load moderation queue counts" />;
+  }
+
   return <ModerationInboxInner
     users={users}
+    userQueueCounts={data.moderationUserQueueCounts}
     posts={posts}
     classifiedPosts={classifiedPosts}
     curationPosts={curationPosts}

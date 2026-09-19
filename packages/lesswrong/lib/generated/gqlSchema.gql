@@ -1237,6 +1237,21 @@ extend type Mutation {
   convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
 }
 
+type ModerationUserQueueCounts {
+  newContent: Int!
+  offboard: Int!
+  highContext: Int!
+  maybeSpam: Int!
+  automod: Int!
+  snoozeExpired: Int!
+  unknown: Int!
+}
+
+type ModerationNewUsersResult {
+  results: [User!]!
+  totalCount: Int
+}
+
 type ModeratorIPAddressInfo {
   ip: String!
   userIds: [String!]!
@@ -1262,6 +1277,8 @@ enum ContentCollectionName {
 }
 
 extend type Query {
+  moderationNewUsers(limit: Int, enableTotal: Boolean): ModerationNewUsersResult!
+  moderationUserQueueCounts: ModerationUserQueueCounts!
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
 
@@ -1270,6 +1287,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rejectPost(postId: String!, rejectedReason: String!, skipRejectionPM: Boolean): Post
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
@@ -7857,6 +7875,7 @@ type User {
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
   acknowledgedNewUserGuidelines: Boolean
+  oldestUnreviewedContentAt: Date
   moderatorActions: [ModeratorAction!]
   reviewGroup: ReviewGroup
   subforumPreferredLayout: SubforumPreferredLayout
