@@ -9422,18 +9422,10 @@ clone@^2.1.2:
   resolved "https://registry.npmjs.org/clone/-/clone-2.1.2.tgz"
   integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
 
-cloudinary-core@^2.10.2, cloudinary-core@^2.3.0:
+cloudinary-core@^2.10.2:
   version "2.11.3"
   resolved "https://registry.npmjs.org/cloudinary-core/-/cloudinary-core-2.11.3.tgz"
   integrity sha512-ZRnpjSgvx+LbSf+aEz5NKzxDB4Z0436aY/0BSDa90kAHiwAyd84VyEi95I74SE80e15Ri9t5S2xtksTXpzk9Xw==
-
-cloudinary-react@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.npmjs.org/cloudinary-react/-/cloudinary-react-1.0.6.tgz"
-  integrity sha512-x0o28f0wyKJeskt5WKTwK0/eACLt2D1fg+cC/B3nVt5+606wsNr8ORirGbmkWVHP+SAcTR7Hyrf9BFqfagug/w==
-  dependencies:
-    cloudinary-core "^2.3.0"
-    prop-types "^15.6.0"
 
 cloudinary@^1.23.0:
   version "1.23.0"
