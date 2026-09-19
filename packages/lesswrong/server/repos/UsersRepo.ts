@@ -51,6 +51,17 @@ class UsersRepo extends AbstractRepo<"Users"> {
     super(Users);
   }
 
+  async recordSearch(userId: string, query: string): Promise<string[]> {
+    const result = await this.getRawDb().one<{searchHistory: string[]}>(`
+      -- UsersRepo.recordSearch
+      UPDATE "Users"
+      SET "searchHistory" = (ARRAY[$(query)::text] || array_remove("searchHistory", $(query)::text))[1:50]
+      WHERE "_id" = $(userId)
+      RETURNING "searchHistory"
+    `, {userId, query});
+    return result.searchHistory;
+  }
+
   async getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return await this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
@@ -208,6 +219,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."_id" AS "objectID",
         u."username",
         u."displayName",
+        u."fullName",
         u."createdAt",
         EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",

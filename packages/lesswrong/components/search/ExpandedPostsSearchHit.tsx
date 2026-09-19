@@ -1,10 +1,9 @@
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -13,25 +12,19 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
+    paddingRight: 44,
+    [theme.breakpoints.down('sm')]: {paddingRight: 0},
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18,
+    marginBottom: 0,
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
-  link: {
-    '&:hover': {
-      opacity: 1
-    }
   },
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.title.fontFamily,
     color: theme.palette.grey[800],
-    fontWeight: 600,
+    fontWeight: 400,
     marginBottom: 2
   },
   metaInfoRow: {
@@ -60,37 +53,35 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedPostsSearchHit = ({hit}: {
+const ExpandedPostsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
   const post: SearchPost = hit
   
-  const handleClick = () => {
-    navigate(postGetPageUrl(post))
-  }
 
-  return <div className={classes.root} onClick={handleClick}>
+  return <SearchResultRow href={postGetPageUrl(post)} label={post.title ?? "Post"} icon={icon} compact={compact} className={classes.root}>
     <div className={classes.title}>
-      <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
-        {post.title}
-      </Link>
+      <span>
+        <SearchHighlight hit={hit} attribute="title">{post.title}</SearchHighlight>
+      </span>
     </div>
     <div className={classes.metaInfoRow}>
-      {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {post.authorDisplayName}
-      </Link> : <UserNameDeleted />}
+      {post.authorSlug ? <span>
+        <SearchHighlight hit={hit} attribute="authorDisplayName">{post.authorDisplayName}</SearchHighlight>
+      </span> : <UserNameDeleted />}
       <span>{post.baseScore ?? 0} karma</span>
+      <span>{post.commentCount ?? 0} comment{post.commentCount === 1 ? "" : "s"}</span>
       <FormatDate date={post.postedAt} />
     </div>
     <div className={classes.snippet}>
       <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedPostsSearchHit;
-
 
 

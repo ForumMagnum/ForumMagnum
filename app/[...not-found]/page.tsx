@@ -3,6 +3,8 @@ import Error404 from '@/components/common/Error404';
 import RouteRoot from '@/components/layout/RouteRoot';
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
+export const instant = false;
+
 assertRouteAttributes("/[...not-found]", {
   whiteBackground: false,
   hasLinkPreview: false,

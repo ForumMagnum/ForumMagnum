@@ -43,7 +43,7 @@ jobs:
       uses: ./.github/actions/uploadLWCkEditorBundle
       with:
         mode: prod
-  deploy: 
+  deploy:
     runs-on: ubuntu-latest
     needs: [migrate, upload-ckeditor-bundle]
     steps:

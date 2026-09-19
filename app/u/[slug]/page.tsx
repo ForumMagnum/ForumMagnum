@@ -14,6 +14,8 @@ assertRouteAttributes("/u/[slug]", {
 
 export const generateMetadata = generateUserPageMetadata;
 
+export const instant = false;
+
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {

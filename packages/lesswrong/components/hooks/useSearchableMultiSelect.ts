@@ -5,7 +5,7 @@ import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@/lib/sentryWrapper";
-import { getSearchClient } from "@/lib/search/searchUtil";
+import { getLookupSearchClient } from "@/lib/search/searchUtil";
 import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
@@ -69,7 +69,7 @@ const fetchFromElasticIndex = async (
   query: string,
   forumType: ForumTypeString,
 ): Promise<string[]> => {
-  const response = await getSearchClient().search([
+  const response = await getLookupSearchClient().search([
     {
       indexName: algoliaIndexPrefix + index,
       query,

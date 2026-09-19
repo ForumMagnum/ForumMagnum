@@ -9,6 +9,16 @@ import {
 } from "./ElasticQuery";
 import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
+import { parseSearchSort } from "@/lib/search/searchSorting";
+import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
+import Sequences from "@/server/collections/sequences/collection";
+
+export interface SearchFilterParams {
+  tagIds?: string[],
+  tagMatch?: "any" | "all",
+  authorIds?: string[],
+  postTypes?: string[],
+}
 
 type SanitizedIndexName = {
   index: string | string[],
@@ -44,21 +54,35 @@ class ElasticService {
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
     const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
+    const indexes = Array.isArray(index) ? index : [index];
+    const lookup = options.mode === "lookup";
+    if (lookup && Array.isArray(index)) throw new Error("Lookup search requires a single index");
+    if (!lookup && (sorting || params.aroundLatLng)) {
+      throw new Error("Index sort aliases and geographic sorting require lookup search");
+    }
+    const curatedSequences = !skipSearch && !lookup && indexes.length === 1 && indexes[0] === "sequences"
+      ? await Sequences.find({curatedOrder: {$exists: true}}, {}, {_id: 1}).fetch()
+      : [];
     const result = skipSearch
       ? {hits: {
           total: 0,
           hits: [],
         }}
       : await (
-        Array.isArray(index)
-          ? this.client.multiSearch({
-            indexes: index,
+        !lookup
+          ? this.client.search({
+            indexes,
+            curatedSequenceIds: curatedSequences.map(sequence => sequence._id),
+            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
+            sort: params.sort ? parseSearchSort(params.sort) : undefined,
+            preTag: params.highlightPreTag,
+            postTag: params.highlightPostTag,
             search,
             offset: page * hitsPerPage,
             limit: hitsPerPage,
           })
-          : this.client.search({
-            index,
+          : this.client.lookup({
+            index: indexes[0],
             sorting,
             search,
             offset: page * hitsPerPage,
@@ -131,6 +155,7 @@ class ElasticService {
     facetFilters?: string[][],
     numericFilters?: string[],
     existsFilters?: string[],
+    search?: SearchFilterParams,
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -191,6 +216,23 @@ class ElasticService {
         type: "exists",
         field: filter,
       });
+    }
+
+    if (search?.tagIds?.length) {
+      result.push({type: "tag", field: "tags", value: search.tagIds, match: search.tagMatch});
+    }
+    if (search?.authorIds?.length) {
+      result.push({type: "author", field: "author", value: search.authorIds});
+    }
+    if (search?.postTypes?.length) {
+      const postTypes: SearchPostType[] = [];
+      for (const postType of search.postTypes) {
+        if (!searchPostTypes.has(postType)) {
+          throw new Error("Invalid post type: " + postType);
+        }
+        postTypes.push(postType);
+      }
+      result.push({type: "postType", field: "postType", value: postTypes});
     }
 
     return result;
@@ -260,28 +302,24 @@ class ElasticService {
     indexName: string | string[],
     hits: ElasticSearchHit[],
   ): SearchDocument[] {
-    if (Array.isArray(indexName)) {
-      return hits.map(({_id, _source, _index}) => ({
+    return hits.map(({_id, _source, _index, _score, highlight}) => {
+      const hitIndex = Array.isArray(indexName) ? _index.split("_")[0] : indexName;
+      const config = indexNameToConfig(hitIndex);
+      return {
         ..._source,
         _id,
-        _index: _index.split("_")[0],
-      }))
-    } else {
-      const config = indexNameToConfig(indexName);
-      return hits.map(({_id, _source, highlight}) => ({
-        ..._source,
-        _id,
-        _index: indexName,
+        _index: hitIndex,
+        _score,
         _snippetResult: {
           [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
         ...(config.highlight && {
-          _highlightResult: {
-            [config.highlight]: extractNamedHighlight(highlight, config.highlight),
-          },
+          _highlightResult: Object.fromEntries(config.highlight.map(name => [
+            name, extractNamedHighlight(highlight, name),
+          ])),
         }),
-      }));
-    }
+      };
+    });
   }
 }
 

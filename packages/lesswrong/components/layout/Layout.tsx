@@ -1,7 +1,7 @@
 'use client';
 
 import { useForumType } from '@/components/hooks/useForumType';
-import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
+import React, {useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
 import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents'
@@ -149,12 +149,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       height: '100dvh !important',
     },
   },
-  searchResultsArea: {
-    position: "absolute",
-    zIndex: theme.zIndexes.searchResults,
-    top: 0,
-    width: "100%",
-  },
   // enable during ACX Everywhere
   hideHomepageMapOnMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -173,7 +167,6 @@ const Layout = ({children}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
-  const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const prerenderablePathname = usePrerenderablePathname();
   const pathname = usePathname();
 
@@ -230,7 +223,6 @@ const Layout = ({children}: {
 
               {!isStandaloneRoute(prerenderablePathname) && <SuspenseWrapper name="Header">
                 <Header
-                  searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
                   backgroundColor={headerBackgroundColor}
                 />
@@ -247,7 +239,6 @@ const Layout = ({children}: {
               </ErrorBoundary>
 
               {isLW && <LWBackgroundImage />}
-              <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
             </CommentBoxManager>

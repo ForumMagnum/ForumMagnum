@@ -1,4 +1,5 @@
-import { Link } from '../../lib/reactRouterWrapper';
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -11,9 +12,10 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 0
   },
   link: {
     display: 'block',
@@ -40,9 +42,9 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   title: {
     fontSize: 18,
     lineHeight: '24px',
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.title.fontFamily,
     color: theme.palette.grey[800],
-    fontWeight: 600,
+    fontWeight: 400,
   },
   snippet: {
     overflowWrap: "break-word",
@@ -55,8 +57,10 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedTagsSearchHit = ({hit}: {
+const ExpandedTagsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const tag = hit as SearchTag
@@ -67,22 +71,20 @@ const ExpandedTagsSearchHit = ({hit}: {
     background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
   } : {}
 
-  return <div className={classes.root} style={style}>
-    <Link
-      to={tagGetUrl(tag)}
-      className={classes.link}
-    >
+  return <SearchResultRow href={tagGetUrl(tag)} label={tag.name} icon={icon} compact={compact} className={classes.root}>
+    <div className={classes.link} style={style}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
-          {tag.name}
+          <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
         </span>
+        <span>{tag.baseScore ?? 0} karma</span>
         <span>{tag.postCount ?? 0} post{tag.postCount === 1 ? '' : 's'}</span>
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="description" hit={tag} tagName="mark" />
       </div>
-    </Link>
-  </div>
+    </div>
+  </SearchResultRow>
 }
 
 export default ExpandedTagsSearchHit;
