@@ -179,6 +179,12 @@ explicit relevant-body versus misleading-title pairs. Its coverage is too small
 to establish broad discovery quality. Detailed JSON artifacts are written to
 `/tmp/forum-search-report`.
 
+[Live ranking examples](./live-ranking-examples.json) preserve the September 10,
+2026 development snapshot from `/tmp/forum-search-report/live-ranking-examples.json`.
+The file records ranking weights, ten example queries run twice, returned titles,
+scores, karma, and elapsed times. These are historical observations; ranking has
+changed since this run, so they do not validate the current implementation.
+
 The additive default was enabled at the user's request after the name-completion
 regressions passed. Broader independently judged relevance and representative-load
 latency remain useful follow-up validation.
