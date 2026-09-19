@@ -51,7 +51,6 @@ const SearchBar = ({onSetIsActive}: {
       || event.key.toLowerCase() !== 'k') {
       return;
     }
-    // Preserve rich-text editors' Cmd/Ctrl+K shortcut for inserting links.
     if (event.target instanceof HTMLElement && event.target.isContentEditable) {
       return;
     }

@@ -12,20 +12,6 @@ import { parseQuery } from "./parseQuery";
 import type { SearchQueryData } from "./searchQueryTypes";
 import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
 
-/**
- * Additive search ranking. Every signal is a bounded number of points on one
- * shared scale and the final score is their sum:
- *
- *   score = T (topical match, 0..5) + H (title coverage, 0..1)
- *         + N (navigation) + A (person relationship)
- *         + P_eff (popularity gated by T, 0..4 for content, 0..10 for users) + C (context)
- *
- * Content popularity can overcome modest text differences. User popularity has
- * more weight so established authors remain discoverable through partial handles.
- * Identifier queries retrieve only their target; ordinary navigation is a
- * bounded preference. Original and author-plus-topic interpretations compete by max.
- * See the search README for the full rationale and the calibration procedure.
- */
 interface RankingPivots {
   [index: string]: number;
 }
@@ -38,9 +24,6 @@ export const rankingWeights = {
     phrase: 1.0,
     max: 6.0,
     topicalMax: 5.0,
-    // Saturation pivots for raw BM25. Recalibrate with the ranking evaluation script.
-    // Median top-ten raw topical scores, 150 deterministically sampled development
-    // training queries, multi-index DFS, 2026-09-10. Recalibrate for another corpus.
     pivots: {posts: 8.1, comments: 7.6, users: 12.9, tags: 5.9, sequences: 3.8} satisfies RankingPivots,
   },
   navigation: {
@@ -51,9 +34,6 @@ export const rankingWeights = {
     profile: {exact: 6.0, strong: 5.0, weak: 4.0} satisfies Record<PersonConfidence, number>,
     authored: {exact: 3.0, strong: 3.0, weak: 2.0} satisfies Record<PersonConfidence, number>,
     authoredComment: {exact: 2.0, strong: 2.0, weak: 1.5} satisfies Record<PersonConfidence, number>,
-    // Accounts below the prominence threshold can only resolve by exact name. A
-    // zero-karma account named "Marx" or "Ryan" is a possible target, not the
-    // likely one, so its profile gets this share of the points.
     minorShare: 0.5,
     prominentKarma: 1000,
   },
@@ -63,8 +43,6 @@ export const rankingWeights = {
     userCap: 10.0,
     cap: 4.0,
     gateFloor: 0.1,
-    // User karma spans much larger totals than content scores; saturation starts
-    // at 93,000 rather than 3,100 so established authors remain distinguishable.
     pivots: {posts: 15, comments: 4, tags: 5, sequences: 15, users: 3000} satisfies RankingPivots,
   },
   context: {
@@ -78,14 +56,12 @@ export const rankingWeights = {
   },
 };
 
-/** Exact-title points by query distinctiveness, proxied by content-token count. */
 export function navigationPoints(tokenCount: number): number {
   const steps = rankingWeights.navigation.exactTitle;
   if (tokenCount < 1) return 0;
   return steps[Math.min(tokenCount, steps.length) - 1];
 }
 
-/** Sigmoid saturation of raw BM25: a median hit (s = k) earns half the points. */
 export function matchPoints(bm25: number, pivot: number): number {
   const squared = bm25 * bm25;
   return rankingWeights.match.bm25 * squared / (squared + (pivot * pivot));
@@ -115,11 +91,8 @@ const urlRoutes: [RegExp, string, "objectID" | "slug"][] = [
   [/^\/(?:w|tag|topics)\/([^/?#]+)/, "tags", "slug"],
 ];
 
-/** Document IDs and internal URLs are navigation, not text. */
 export function parseIdentifier(search: string): SearchIdentifier | undefined {
   const trimmed = search.trim();
-  // Lowercase alphabetic words can have 17 letters (e.g. malformed technical
-  // terms). Keep those on the text path; URLs still identify any valid ID.
   if (objectIdPattern.test(trimmed) && (/^[0-9a-f]{24}$/.test(trimmed) || /[A-Z0-9]/.test(trimmed))) return {objectID: trimmed};
   if (!/^https?:\/\//i.test(trimmed) && !/^\/(?!\/)/.test(trimmed)) return undefined;
   let pathname: string;
@@ -138,11 +111,8 @@ export function parseIdentifier(search: string): SearchIdentifier | undefined {
   return undefined;
 }
 
-// Inner script: sigmoid-saturated BM25 so that raw scores contribute a bounded
-// amount and a passing mention separates from a substantive match (matchPoints).
 const matchScript = "params.bm25 * _score * _score / (_score * _score + params.k * params.k)";
 
-// Outer script: `_score` here is topical evidence, before title and relationship bonuses.
 const popularityScript = `
   double karma = doc.containsKey(params.karmaField) && doc[params.karmaField].size() > 0
     ? Math.max(0, doc[params.karmaField].value) : 0;
@@ -170,23 +140,12 @@ const popularityScript = `
 const dayMs = 24 * 60 * 60 * 1000;
 
 interface IndexFields {
-  /** The stemmed title or name field, when the index has one that matters for ranking. */
   title?: string;
-  /** Main body-like field for the phrase feature. */
   body?: string;
-  /** Same-analyzer text fields used for the "all terms present" feature. */
   allTermsFields: string[];
-  /** Analyzed fields for residual topic matching. */
   topicFields: string[];
 }
 
-/**
- * Users are found by name (see userNameRecall) and ranked by person
- * resolution and karma. Bio text is for the people directory, not the header,
- * and literal name matches must not outrank a resolved prominent author.
- * Comments have no title feature: a comment under a matching post is not
- * itself about the query.
- */
 function indexFields(index: string): IndexFields {
   const collectionName = indexToCollectionName(index);
   const config = collectionNameToConfig(collectionName);
@@ -208,11 +167,6 @@ function indexFields(index: string): IndexFields {
   }
 }
 
-/**
- * Header recall for users: the name as typed (with typos or while typing) or a
- * resolved person. The n-gram name analyzer is for the people directory; in a
- * mixed list it matches unrelated queries through shared letter runs.
- */
 function userNameRecall(search: string, minimumShouldMatch: string): QueryDslQueryContainer {
   return {bool: {minimum_should_match: 1, should: [
     {term: {objectID: {value: search}}},
@@ -247,12 +201,6 @@ interface RelationshipBranch {
   weight: number;
 }
 
-/**
- * Profile and authorship branches for a resolved person, with their points.
- * Profiles split by prominence: a minor account only ever resolves by its exact
- * name and receives `minorShare` of the points. Authorship cannot see the
- * author's karma on the document, so it keeps the full weight.
- */
 function relationshipBranches(index: string, person: PersonSearch): RelationshipBranch[] {
   if (person.candidates) return person.candidates.flatMap(candidate => relationshipBranches(index, {
     userIds: [candidate.userId], topic: person.topic, confidence: candidate.confidence,
@@ -295,10 +243,6 @@ function phraseQuery(fields: IndexFields, search: string): QueryDslQueryContaine
   return {bool: {should: phrases, minimum_should_match: 1}};
 }
 
-/** Bounded recovery for a joined compound, including one typo per part.
- * Adjacent title tokens prevent unrelated words scattered through a body from
- * becoming compound evidence. Short/common tokens and advanced syntax bypass it.
- */
 export function compoundTitleQuery(index: string, search: string): QueryDslQueryContainer | undefined {
   const title = indexFields(index).title;
   const token = search.trim().toLowerCase();
@@ -330,15 +274,12 @@ function matchFunctions(index: string, search: string, tokenCount: number, score
     functions.push({weight: allTerms, filter: compound
       ? {dis_max: {queries: [coverage, compound], tie_breaker: 0}} : coverage});
   }
-  // Stopwords carry useful proximity information: "computation in" is more
-  // specific than "computation", even though both have one content token.
   if (scoreProximity && hasPhraseWords(search)) {
     functions.push({weight: phrase, filter: phraseQuery(fields, search)});
   }
   return functions;
 }
 
-/** Freshness only answers event discovery intent, never historical/date-filtered searches. */
 export function wantsUpcomingEvents(search: string, filters: QueryFilter[]): boolean {
   if (/\b(?:19|20)\d{2}\b/.test(search) || filters.some(filter => /date|time/i.test(filter.field))) return false;
   return /\b(?:meetups?|meetings?|events?|upcoming)\b/i.test(search)
@@ -358,7 +299,6 @@ interface BranchInput {
   eventIntent: boolean;
 }
 
-/** Content-only evidence: no author metadata, field boosts, or relationship scores. */
 export function compileTopicalRecall(index: string, search: string, allowCompound = true): QueryDslQueryContainer {
   if (!search) return {match_none: {}};
   if (index === "users") return userNameRecall(search, "2<75%");
@@ -392,20 +332,15 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
       term: {[`${fields.title}.sort`]: {value: matchSearch.trim(), case_insensitive: true}},
     }];
     if (titlePrefix) {
-      // Complete topic phrases such as "lab automation" must not acquire the
-      // unfinished-title bonus merely because a title has more words afterward.
       navigationMatches.push({bool: {should: [], filter: [titlePrefix], must_not: [
         {match_phrase: {[`${fields.title}.exact`]: {query: matchSearch, slop: 1}}},
       ]}});
-      // Prefix proximity is counted once, after popularity gating. A complete
-      // phrase already received the ordinary title/body proximity credit.
       outerFunctions.push({weight: rankingWeights.match.phrase, filter: {bool: {
         should: [], filter: [titlePrefix], must_not: [phraseQuery(fields, matchSearch)],
       }}});
     }
     outerFunctions.push({weight: navigationPoints(tokenCount), filter: {bool: {should: navigationMatches, minimum_should_match: 1}}});
   }
-  // Ambiguous coauthors and collections earn the strongest relationship once.
   const relationshipScore: QueryDslQueryContainer | undefined = relationships.length ? {function_score: {
     query: {match_all: {}}, functions: [{weight: 0}, ...relationships.map(branch => ({weight: branch.weight, filter: branch.query}))],
     score_mode: "max", boost_mode: "replace",
@@ -468,8 +403,6 @@ export function compileSearchQuery({indexes, search, offset = 0, limit = 10, fil
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
   const identifier = parseIdentifier(search);
-  // Keep advanced syntax in the established compiler. It must never be
-  // reinterpreted as a name, including when callers provide a person directly.
   const isAdvanced = !!search && parseQuery(search).isAdvanced;
   if (isAdvanced || identifier) person = undefined;
   const matchSearch = isAdvanced
@@ -485,8 +418,6 @@ export function compileSearchQuery({indexes, search, offset = 0, limit = 10, fil
       ? userNameRecall(search, contentTokens(search).length >= 5 ? "60%" : "2<75%")
       : recall.query;
     for (const [field, highlight] of Object.entries(request.body.highlight?.fields ?? {})) {
-      // Advanced syntax retains its positive-term-only exact highlighting.
-      // Plain additive searches recall through stemmed/synonym base fields.
       const name = isAdvanced ? field : field.replace(/\.exact$/, "");
       const highlightQuery = isAdvanced ? highlight.highlight_query : recallQuery;
       const previous = highlightFields[name]?.highlight_query;

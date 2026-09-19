@@ -41,7 +41,6 @@ function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
 interface SearchPageProps {
   presentation?: 'page' | 'modal',
   onClose?: () => void,
-  /** Where the modal shows the timeline on wide screens: above its dialog box instead of inside the search layout. */
   timeframeSlot?: HTMLElement | null,
   filterTabSlot?: HTMLElement | null,
 }
@@ -57,7 +56,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const filtersId = useId();
   const timeframeId = useId();
   const timeframeRef = useRef<HTMLElement>(null);
-  // Match down('sm'): mobile filters and results share a single scroll flow.
   const isDesktop = useIsAboveBreakpoint('md');
   const timeframeSlot = isDesktop ? providedTimeframeSlot : null;
   const filterTabSlot = isDesktop ? providedFilterTabSlot : null;
@@ -74,7 +72,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   }, [timeframeOpen, presentation]);
   const [inputFocused, setInputFocused] = useState(false);
   const [nowMs] = useState(() => Date.now());
-  // The indexed archive includes material from 2003, before the configured site origin.
   const scale = {originMs: Date.UTC(2003, 0, 1), nowMs};
   const {recallSearch, recordSearch, resetNavigation, clearHistory, retryHistory, hasHistory, error: historyError, readError: historyReadError} = useSearchHistory(currentUser?._id, true);
 
@@ -180,7 +177,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   );
 
   return <div key={pathname} ref={scrollRef} data-search-filters-open={filtersOpen} className={classNames(classes.root, {[classes.modal]: presentation === 'modal', [classes.filtersClosed]: !filtersOpen})}>
-    {/* Snippet widgets in the hit components need this context. Its static empty query does not search Elasticsearch. */}
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
       {filterTabSlot && createPortal(filterTab, filterTabSlot)}
       {isDesktop && timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}

@@ -17,7 +17,6 @@ export interface SearchKind {
   Icon: typeof PersonIcon;
 }
 
-/** Content kinds in display order, shared by the header search and the search page. */
 export const searchKinds: SearchKind[] = [
   { type: "Users", label: "User", Icon: PersonIcon },
   { type: "Posts", label: "Post", Icon: DescriptionIcon },
@@ -48,7 +47,6 @@ const styles = defineStyles("SearchKindBar", (theme: ThemeType) => ({
   },
 }));
 
-/** An empty selection means every kind. */
 const SearchKindBar = ({enabled, onToggle, onSelect, onAdd, onClear, className}: {
   enabled: SearchIndexCollectionName[],
   onClear?: () => void,

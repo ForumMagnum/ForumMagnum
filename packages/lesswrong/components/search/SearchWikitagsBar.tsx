@@ -40,7 +40,6 @@ const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
   match: {display: 'flex', gap: 2},
 }));
 
-/** Filters to content tagged with the chosen wikitags, including the wikitags themselves. */
 const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
   tagIds: string[],
   match: SearchTagMatch,

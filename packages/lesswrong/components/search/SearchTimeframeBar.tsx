@@ -204,8 +204,6 @@ function advanceZoom(animation: ZoomAnimation, now: number) {
   const eased = 1 - Math.pow(1 - progress, 3);
   const fromSpan = from.nowMs - from.originMs;
   const toSpan = to.nowMs - to.originMs;
-  // Geometric scale changes keep large archive-to-day zooms smooth.
-  // Use the same blend for both edges to keep the selection anchored.
   const span = fromSpan * Math.pow(toSpan / fromSpan, eased);
   const blend = fromSpan === toSpan ? eased : (span - fromSpan) / (toSpan - fromSpan);
   const next = {
@@ -217,11 +215,6 @@ function advanceZoom(animation: ZoomAnimation, now: number) {
   zoomFrame.current = progress === 1 ? null : requestAnimationFrame(advanceZoom.bind(null, animation));
 }
 
-/**
- * A track over all years since the search origin. Drag on it to select any
- * range of days, drag the selection to move it, or use the presets and the
- * date inputs.
- */
 const SearchTimeframeBar = ({value, onChange, scale, children}: {
   value: SearchDateRange,
   onChange: (range: SearchDateRange) => void,
@@ -232,8 +225,6 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
   const track = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const [draft, setDraft] = useState<SearchDateRange | null>(null);
-  // The scale depends on settings and the clock, which can differ between the
-  // server render and the client. The track contents are drawn after mount.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const [trackWidth, setTrackWidth] = useState(640);
@@ -277,7 +268,6 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
 
   const previousValue = useRef(value);
   useEffect(() => {
-    // An external clear also resets a manually panned or zoomed all-time view.
     if (previousValue.current !== value && isEmpty(value)) {
       animateZoom(null);
       setDateError("");
@@ -292,7 +282,6 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
     if (!element) return;
     const bounds = {originMs: overview.originMs, nowMs: overview.nowMs};
     const onWheel = (event: WheelEvent) => {
-      // Shift+wheel is reported as vertical input by some mice/browsers.
       const verticalZoom = !event.shiftKey && Math.abs(event.deltaY) > Math.abs(event.deltaX);
       const delta = verticalZoom ? -event.deltaY : event.deltaX || (event.shiftKey ? event.deltaY : 0);
       if (!delta) return;
@@ -307,7 +296,6 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
       viewRef.current = next;
       setZoom(next);
     };
-    // React wheel listeners are passive, which would leave browser scrolling/zoom enabled.
     element.addEventListener("wheel", onWheel, {passive: false});
     return () => element.removeEventListener("wheel", onWheel);
   }, [overview.originMs, overview.nowMs, trackWidth, stopZoom]);
@@ -476,7 +464,6 @@ const SearchTimeframeBar = ({value, onChange, scale, children}: {
             className={classes.tickLabel}
             style={{
               left: `calc(${fraction * 100}% + 8px)`,
-              // Clip the text color at the exact selection edges, including partial labels.
               backgroundImage: `linear-gradient(to right, var(--timeframe-label) ${selectionStart}px, var(--timeframe-selected-label) ${selectionStart}px, var(--timeframe-selected-label) ${selectionEnd}px, var(--timeframe-label) ${selectionEnd}px)`,
             }}
           >{label}</span>;

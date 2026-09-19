@@ -26,7 +26,6 @@ const DEBUG_LOG_ELASTIC_QUERIES = false;
 
 let globalClient: Client | null = null;
 
-/** Resolves people before Elasticsearch ranks and paginates results. */
 export interface SearchExecutor {
   search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>>;
 }
@@ -38,11 +37,6 @@ export async function executeSearch(client: SearchExecutor, queryData: SearchQue
   return completeSearch<ElasticDocument>(client, compileSearchQuery({...queryData, person}));
 }
 
-/**
- * A multi-index request keeps going when one index's shards fail (for example a
- * script error on one mapping), silently dropping that whole content type from
- * the ranking. Treat that as an error rather than serving a partial list.
- */
 async function completeSearch<TDocument>(client: SearchExecutor, request: SearchRequest): Promise<SearchResponse<TDocument>> {
   const response = await client.search<TDocument>({...request, allow_partial_search_results: false});
   if (response.timed_out) throw new Error("Search timed out before producing complete results");

@@ -14,8 +14,6 @@ assertRouteAttributes("/user/[slug]", {
 
 export const generateMetadata = generateUserPageMetadata;
 
-// Profile metadata uses uncached, permission-aware queries on each request.
-// Allow navigation to wait for it rather than requiring instant navigation.
 export const instant = false;
 
 export default async function Page({ params }: {

@@ -6,11 +6,9 @@ interface SearchQueryInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
   onChange: (query: string) => void;
 }
 
-/** Keep typing local so rendering the search page can yield to the next keystroke. */
 export default function SearchQueryInput({value, onChange, ...props}: SearchQueryInputProps) {
   const [draft, setDraft] = useState(value);
   const [previousValue, setPreviousValue] = useState(value);
-  // History recall and external URL navigation still control the input.
   if (value !== previousValue) {
     setPreviousValue(value);
     setDraft(value);

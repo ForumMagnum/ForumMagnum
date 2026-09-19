@@ -23,7 +23,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     overscrollBehavior: 'contain',
     margin: 0,
     padding: '0 12px 12px',
-    // Inset the scrollbar without moving the search controls or results.
     '&::-webkit-scrollbar, & $layout::-webkit-scrollbar': {
       width: 12,
     },
@@ -66,7 +65,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
       '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
       gridTemplateAreas: '"sidebar results"',
     },
-    // Wide screens have room to spare: let the kind buttons share the row.
     [theme.breakpoints.up('md')]: {
       '& $kinds': {gap: 4},
       '& $kinds > button': {flex: '1 1 0', justifyContent: 'center', maxWidth: 160},
@@ -107,10 +105,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     scrollMarginTop: 'calc(var(--header-height) + 8px)',
     [theme.breakpoints.down('sm')]: {padding: '4px 8px 8px', marginTop: 8},
   },
-  // Rendered into the modal's slot above the dialog box. It stays mounted while
-  // collapsed so its containing grid can animate the timeline's height.
-  // It sits flush on the dialog box and paints above it. The clip drops the
-  // shadow below its bottom edge so the two boxes read as one.
   timeframePanelModal: {
     flexShrink: 0,
     zIndex: 1,
@@ -204,7 +198,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
   },
   layout: {
     display: "grid",
-    // Keep the filter column wide enough for its controls; center results when space allows.
     gridTemplateColumns: "minmax(340px, 1fr) minmax(0, 760px) minmax(0, 1fr)",
     gridTemplateAreas: '"sidebar results ."',
     gap: 24,

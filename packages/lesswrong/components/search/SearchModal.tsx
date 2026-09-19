@@ -27,7 +27,6 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
       alignItems: 'stretch',
     },
   },
-  // Keep the results box anchored at the right; the timeline unfolds above it.
   frame: {
     position: 'relative',
     isolation: 'isolate',
@@ -113,7 +112,6 @@ function containSearchFocus(event: React.KeyboardEvent<HTMLDivElement>) {
   }
 }
 
-/** Fits above the mobile keyboard without resizing the backdrop during zoom. */
 const SearchModal = ({onClose}: {onClose: () => void}) => {
   const classes = useStyles(styles);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -126,8 +124,6 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
     const root = document.documentElement;
     const previousScrollbarGutter = root.style.scrollbarGutter;
     const previousOverflow = document.body.style.overflow;
-    // Reserve existing scrollbar space before locking scroll, without adding
-    // space on short pages or overriding a gutter that already reserves it.
     if (window.innerWidth > root.clientWidth && !getComputedStyle(root).scrollbarGutter?.includes('stable')) {
       root.style.scrollbarGutter = 'stable';
     }
@@ -136,8 +132,6 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
     const viewport = window.visualViewport;
     const updateViewport = () => {
       if (!viewport) return;
-      // Pinch zoom shrinks and pans the visual viewport without changing the
-      // layout viewport. Keep the dialog in that layout so zoom can magnify it.
       if (viewport.scale !== 1) {
         viewportRef.current?.style.removeProperty('--search-viewport-height');
         viewportRef.current?.style.removeProperty('--search-viewport-top');

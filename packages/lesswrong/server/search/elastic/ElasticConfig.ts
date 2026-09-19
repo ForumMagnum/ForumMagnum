@@ -38,9 +38,6 @@ export type IndexConfig = {
    * The name of the field to create a match snippet from.
    */
   snippet: string,
-  /**
-   * Fields to return as complete highlighted labels.
-   */
   highlight?: string[],
   /**
    * An array of ranking specifications to manually tune the relevancy of results.

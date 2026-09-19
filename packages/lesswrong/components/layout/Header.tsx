@@ -275,7 +275,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
   },
   headroomPinnedOpen: {
-    // Keep the search backdrop fixed to the viewport rather than the header.
     "& header": {
       backdropFilter: "none",
     },
@@ -420,7 +419,6 @@ const Header = ({
     void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
-  // Pin the header while search is open. Called by SearchBar.
   const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);

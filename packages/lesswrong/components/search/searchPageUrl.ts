@@ -14,12 +14,10 @@ import {
 
 export interface SearchPageState {
   query: string;
-  /** Empty means every kind. */
   kinds: SearchIndexCollectionName[];
   sort: SearchSortSpec[];
   filters: SearchFilterState;
   expandedFilters: string[];
-  /** Controls the whole filter drawer; the name preserves the existing URL format. */
   mobileFiltersOpen: boolean;
 }
 
@@ -35,7 +33,6 @@ export const defaultSearchPageState: SearchPageState = {
 const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types", "karma"]);
 const searchParameterNames = ["query", "kinds", "contentType", "sort", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
 
-/** Preserve unrelated parameters, including repeated values, while replacing search state. */
 export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
   const prefix = presentation === "modal" ? "search." : "";
   const params = new URLSearchParams(search);
@@ -113,7 +110,6 @@ function samePostTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
   return a.length === b.length && a.every(type => b.includes(type));
 }
 
-/** Reads user-editable URL state. Unknown values are dropped, never guessed. */
 export function searchPageStateFromQuery(query: Record<string, string | undefined>): SearchPageState {
   const kinds = splitList(query.kinds ?? query.contentType).filter(collectionIsSearchIndexed);
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
@@ -137,7 +133,6 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
   };
 }
 
-/** Writes only what differs from the default so links stay short. */
 export function searchPageStateToQuery(state: SearchPageState): Record<string, string> {
   const {filters} = state;
   const entries: [string, string | undefined][] = [
@@ -162,7 +157,6 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
   return result;
 }
 
-/** Shared by sidebar form submission and the advanced-search link. */
 export function searchPageLink(query: string, kinds: SearchIndexCollectionName[]): string {
   return `/search?${qs.stringify({query, ...(kinds.length ? {kinds: kinds.join(",")} : {})})}`;
 }

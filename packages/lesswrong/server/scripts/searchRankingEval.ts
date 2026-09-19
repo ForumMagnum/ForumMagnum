@@ -13,19 +13,6 @@ import ElasticClient, { executeSearch, SearchExecutor } from "../search/elastic/
 import ElasticQuery from "../search/elastic/ElasticQuery";
 import { compileTopicalRecall, rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
 
-/**
- * Offline evaluation of the header search ranking against the dev
- * Elasticsearch. Run from the REPL, for example:
- *
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json")'
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateSearchRanking({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json", limit: 200})'
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'runStressSuite()'
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
- *
- * Clicked targets from the analytics export are candidates, not ground truth:
- * an unclicked result is unknown, not irrelevant. Judge pairs by hand before
- * changing weights.
- */
 
 const defaultEvidencePath = "/tmp/forum-search-report/query-target-evidence.csv";
 const allIndexes = ["posts", "comments", "users", "tags", "sequences"];
@@ -47,7 +34,6 @@ interface HitSummary {
   score: number;
 }
 
-/** Minimal RFC 4180 reader: the evidence file has quoted titles with commas and doubled quotes. */
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -125,7 +111,6 @@ function median(values: number[]): number {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-/** Fail closed: this evaluator must never silently select production settings. */
 export function assertDevEvaluation() {
   if (process.env.ENV_NAME !== "localLwDevDb") throw new Error("Ranking evaluation requires ENV_NAME=localLwDevDb and yarn repl dev lw");
 }
@@ -163,7 +148,6 @@ async function corpusSnapshot(client: Client) {
 interface FrozenIndex { alias: string; indexes: {name: string}[] }
 interface FrozenSearch { searchClient: SearchExecutor; close: () => Promise<void> }
 
-/** PIT freezes candidate lookup, target eligibility, and ranking on the same physical corpus. */
 async function openFrozenSearch(client: Client, snapshot: FrozenIndex[]): Promise<FrozenSearch> {
   const names = new Map(snapshot.map(entry => [entry.alias, entry.indexes.map(index => index.name)]));
   const opened = await client.openPointInTime({index: snapshot.flatMap(entry => entry.indexes.map(index => index.name)), keep_alive: "20m"});
@@ -178,7 +162,6 @@ async function openFrozenSearch(client: Client, snapshot: FrozenIndex[]): Promis
           return physical;
         });
         const rewritten: SearchRequest = JSON.parse(JSON.stringify(request, (key, value: unknown) => {
-          // A PIT spans every content type, including shards without user karma.
           if (key === "karma" && (value === "asc" || value === "desc")) return {order: value, unmapped_type: "long"};
           if (key === "_index" && typeof value === "string" && value !== "asc" && value !== "desc") {
             const physical = names.get(value);
@@ -220,7 +203,6 @@ function residualEligibility(index: string, userIds: string[]): QueryDslQueryCon
   return [{match_none: {}}];
 }
 
-/** Calibrate exactly the raw topical query used inside the production scorer, including residual topics. */
 export async function calibrateMatchPivots(csvPath: string, inventoryPath: string, sampleSize = 200, out = "/tmp/forum-search-report/topical-calibration.json") {
   const client = evaluationClient();
   const groups = evaluationGroups(csvPath, inventoryPath).filter(group => group.split === "training").sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, sampleSize);
@@ -296,7 +278,6 @@ function summarizeEvaluations(evaluations: DetailedEvaluation[]) {
   return summary;
 }
 
-/** Header-search click candidates only. Null rank is a miss only for an eligible target and a successful request. */
 export async function evaluateSearchRanking({inventoryPath, csvPath = defaultEvidencePath, limit = 1000, queries, out = "/tmp/forum-search-report/ranking-evaluation.json"}: EvaluationOptions) {
   const client = evaluationClient();
   const groups = evaluationGroups(csvPath, inventoryPath);
@@ -340,7 +321,6 @@ export async function evaluateSearchRanking({inventoryPath, csvPath = defaultEvi
   } finally { await frozen.close(); }
 }
 
-/** Print the top hits for one query for manual judgment. */
 export async function showQuery(search: string, limit = 10) {
   const hits = await rankedHits(evaluationClient(), search, limit);
   console.table(hits.map(hit => ({...hit, title: hit.title.slice(0, 70), score: Number(hit.score.toFixed(2))})));
@@ -349,16 +329,11 @@ export async function showQuery(search: string, limit = 10) {
 
 interface StressCase {
   query: string;
-  /** Any of these IDs at or above `within` passes. */
   targets: string[];
   within: number;
   note: string;
 }
 
-/**
- * Assertions from the recommendations, using IDs observed in the evidence
- * export. Target positions are proposals for review, not measured truth.
- */
 export const stressSuite: StressCase[] = [
   {query: "Anna S", targets: ["pnFbJAtNHGDK8PHQx"], within: 1, note: "prominent author name completion"},
   {query: "Anna Sa", targets: ["pnFbJAtNHGDK8PHQx"], within: 1, note: "prominent author name completion"},
@@ -399,7 +374,6 @@ export const stressSuite: StressCase[] = [
   {query: "yekQKwmQJNk7thDtQ", targets: ["yekQKwmQJNk7thDtQ"], within: 1, note: "document ID"},
 ];
 
-/** IDs present in the selected index. Absent targets cannot be judged there. */
 async function indexedIds(client: Client, ids: string[]): Promise<Set<string>> {
   const response = await client.search<SearchDocument>({
     index: allIndexes, size: ids.length, _source: ["objectID"], query: {terms: {objectID: ids}},
@@ -432,7 +406,6 @@ export async function runStressSuite(limit = 10) {
   return results;
 }
 
-/** Persist public indexed text for explicit human/agent judgments; clicks alone never set grades. */
 export async function collectJudgmentPool(search: string, out: string) {
   const client = evaluationClient();
   const hits = await rankedHits(client, search, 5);
@@ -450,7 +423,6 @@ export async function collectJudgmentPool(search: string, out: string) {
   return {out, count: documents.length};
 }
 
-/** Small explicitly judged pool; report separately from broad click-candidate metrics. */
 export async function evaluateJudgedSearches(out = "/tmp/forum-search-report/judged-ranking-evaluation.json") {
   const client = evaluationClient();
   const results = [];
@@ -489,7 +461,6 @@ export async function inspectAliasCoverage(out = "/tmp/forum-search-report/autho
 }
 
 
-/** Small diagnostic sample, not a production latency benchmark. */
 export async function evaluateLiveExamples(out = "/tmp/forum-search-report/live-ranking-examples.json") {
   const client = evaluationClient();
   const results = [];
@@ -535,7 +506,6 @@ async function measureSearch(client: SearchExecutor, query: string, pass: number
   return sample;
 }
 
-/** Read-only latency benchmark: pass zero warms each query before measured passes. */
 export async function benchmarkSearchLatency({inventoryPath, csvPath = defaultEvidencePath, out = "/tmp/forum-search-report/ranking-latency.json", limit = 1000, measuredPasses = 2}: EvaluationOptions & {measuredPasses?: number}) {
   if (!Number.isInteger(measuredPasses) || measuredPasses < 1) throw new Error("measuredPasses must be a positive integer");
   const client = evaluationClient();

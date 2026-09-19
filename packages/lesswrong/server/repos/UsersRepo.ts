@@ -52,8 +52,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async recordSearch(userId: string, query: string): Promise<string[]> {
-    // Atomic update preserves concurrent searches and intentionally bypasses user
-    // mutation callbacks, which would log private search terms as profile edits.
     const result = await this.getRawDb().one<{searchHistory: string[]}>(`
       -- UsersRepo.recordSearch
       UPDATE "Users"

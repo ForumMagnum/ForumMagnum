@@ -31,7 +31,6 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
   const attachedArea = useRef<HTMLDivElement | null>(null);
   const detachListeners = useRef<(() => void) | null>(null);
 
-  // Appending results preserves selection; replacing results or changing filters resets it.
   useEffect(() => {
     const area = resultsRef.current;
     if (previousSearchKey.current !== searchKey || !selected.current || !area?.contains(selected.current)) {
@@ -49,7 +48,6 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
       const row = resultFromTarget(area, event.target);
       if (row) selectResult(selected, row);
     };
-    // Only movement reclaims selection: a stationary pointer must not override arrows.
     area?.addEventListener('mousemove', selectFromEvent);
     area?.addEventListener('focusin', selectFromEvent);
     detachListeners.current = () => {
@@ -89,7 +87,6 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
     const next = rows[nextIndex];
     selectResult(selected, next);
     next.scrollIntoView({block: 'nearest'});
-    // Native link focus exposes the result's accessible name and Enter activation.
     next.querySelector<HTMLAnchorElement>('a[href]')?.focus({preventScroll: true});
     if (nextIndex === rows.length - 1) void loadMore();
   };

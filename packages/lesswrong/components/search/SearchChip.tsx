@@ -51,7 +51,6 @@ const styles = defineStyles("SearchChip", (theme: ThemeType) => ({
   },
 }));
 
-/** A toggle used by every search bar: kinds, post types, timeframe presets. */
 const SearchChip = ({selected, onToggle, onHold, Icon, children, className}: {
   selected: boolean,
   onToggle: () => void,

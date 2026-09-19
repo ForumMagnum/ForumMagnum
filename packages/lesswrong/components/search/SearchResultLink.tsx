@@ -17,7 +17,6 @@ const styles = defineStyles('SearchResultLink', (theme: ThemeType) => ({
   button: {
     position: 'absolute',
     right: 4,
-    // Stay near the top, but center the hit area vertically in short results.
     top: 'min(4px, calc(50% - 20px))',
     zIndex: 2,
     width: 40,

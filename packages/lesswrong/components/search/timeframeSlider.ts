@@ -3,7 +3,6 @@ import type { SearchDateRange } from "@/lib/search/searchFilters";
 export const dayMs = 24 * 60 * 60 * 1000;
 const maxArchivePaddingMs = 365 * dayMs;
 
-/** The horizontal track spans the search origin (left) to now (right). */
 export interface TimeframeScale {
   originMs: number;
   nowMs: number;
@@ -47,14 +46,12 @@ function endOfDay(ms: number): number {
   return (startOfDay(ms) + dayMs) - 1;
 }
 
-/** A drag between two track positions selects whole UTC days, in either direction. */
 export function dragToRange(anchorFraction: number, currentFraction: number, scale: TimeframeScale, bounds: TimeframeScale = scale): SearchDateRange {
   const a = Math.max(bounds.originMs, Math.min(bounds.nowMs, positionToMs(anchorFraction, scale)));
   const b = Math.max(bounds.originMs, Math.min(bounds.nowMs, positionToMs(currentFraction, scale)));
   return {start: startOfDay(Math.min(a, b)), end: endOfDay(Math.max(a, b))};
 }
 
-/** Moves a closed range by a track distance, keeping its length, inside the scale. */
 export function shiftRange(range: Required<SearchDateRange>, deltaFraction: number, scale: TimeframeScale): Required<SearchDateRange> {
   const length = range.end - range.start;
   const deltaMs = deltaFraction * (scale.nowMs - scale.originMs);
@@ -91,7 +88,6 @@ export interface CalendarBand {
   showLabel: boolean;
 }
 
-/** Calendar-aligned UTC bands, with detail and label spacing based on track width. */
 export function calendarBands(scale: TimeframeScale, width: number): CalendarBand[] {
   const span = scale.nowMs - scale.originMs;
   if (span <= 0 || width <= 0) return [];
@@ -135,7 +131,6 @@ export function formatDateRange(range: SearchDateRange): string {
   return `Until ${formatDay(range.end!)}`;
 }
 
-/** Reject dates such as February 30 instead of allowing Date.parse to roll them over. */
 export function parseIsoDay(value: string | undefined): number | undefined {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
   const ms = Date.parse(`${value}T00:00:00.000Z`);
@@ -158,7 +153,6 @@ export function keyboardRange(range: SearchDateRange, endpoint: TimeframeEndpoin
   return ms === undefined ? undefined : resizeRange(range, endpoint, ms, scale);
 }
 
-/** Keep dates from older archives or pasted URLs accessible in the overview. */
 export function overviewScale(scale: TimeframeScale, range: SearchDateRange): TimeframeScale {
   return {
     originMs: startOfDay(Math.min(scale.originMs, range.start ?? scale.originMs, range.end ?? scale.originMs)),
@@ -173,13 +167,11 @@ export function zoomToRange(range: SearchDateRange, scale: TimeframeScale): Time
   return {originMs: Math.max(scale.originMs - maxArchivePaddingMs, start - padding), nowMs: Math.min(scale.nowMs, end + padding)};
 }
 
-/** Show the entire archive with enough room to grab either endpoint. */
 export function defaultTimeframeView(scale: TimeframeScale): TimeframeScale {
   const padding = Math.min(maxArchivePaddingMs, (scale.nowMs - scale.originMs) * 0.05);
   return {originMs: scale.originMs - padding, nowMs: scale.nowMs};
 }
 
-/** Expand toward the left handle, keeping the right edge stationary. */
 export function expandTimeframeView(view: TimeframeScale, bounds: TimeframeScale, fraction: number): TimeframeScale {
   const margin = 0.08;
   const direction = fraction < margin ? -1 : 0;
@@ -190,7 +182,6 @@ export function expandTimeframeView(view: TimeframeScale, bounds: TimeframeScale
   };
 }
 
-/** Shift pans by a tenth of the view; Ctrl zooms around its center. */
 export function keyboardTimeframeView(
   view: TimeframeScale,
   bounds: TimeframeScale,
@@ -204,7 +195,6 @@ export function keyboardTimeframeView(
   return moveTimeframeView(view, bounds, direction * 0.1, ctrlKey ? (direction > 0 ? 0.8 : 1.25) : 1);
 }
 
-/** Wheel distances are pixels; scale movement to the visible track width. */
 export function wheelTimeframeView(view: TimeframeScale, bounds: TimeframeScale, deltaPixels: number, width: number, ctrlKey: boolean): TimeframeScale {
   const distance = deltaPixels / Math.max(1, width);
   return moveTimeframeView(view, bounds, distance, ctrlKey ? Math.exp(-distance) : 1);

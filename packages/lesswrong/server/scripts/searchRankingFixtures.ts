@@ -95,7 +95,6 @@ export const controlledCases: FixtureCase[] = [
   {name: "quoted phrase preserved", search: '"freezing sperm"', preferred: "modestrelevant001", over: "hugedistractor001"},
 ];
 
-/** Only the fixture request is rewritten; neither real aliases nor production query generation change. */
 export function fixtureRequest(request: SearchRequest, names: Record<string, string>): SearchRequest {
   const serialized = JSON.stringify(request, (key, value: unknown) => {
     if (key === "_index" && typeof value === "string" && names[value]) return names[value];
@@ -122,7 +121,6 @@ async function fixtureSearch(client: Client, names: Record<string, string>, quer
   return response.hits.hits.map(summarizeHit);
 }
 
-/** Creates only uniquely named development fixture indexes and deletes exactly those it created. */
 export async function runControlledFixtures(out = "/tmp/forum-search-report/controlled-fixtures.json") {
   const client = evaluationClient();
   const prefix = `ranking-eval-${Date.now()}-`;

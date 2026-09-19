@@ -54,8 +54,6 @@ describe("independent interpretations and topical evidence", () => {
     expect(serialized).toContain('"must_not":[{"match_phrase":{"title.exact":{"query":"american coll"');
     const coverage = functions.find(fn => fn.weight === rankingWeights.match.titleAll && JSON.stringify(fn.filter).includes('"title":'));
     expect(JSON.stringify(coverage?.filter)).toContain('"minimum_should_match":1');
-    // The phrase-prefix candidate admits the result without increasing the raw
-    // lexical query used for BM25 calibration or the popularity gate.
     expect(JSON.stringify(lexicalScore(query).function_score?.query?.bool?.must)).not.toContain("match_phrase_prefix");
   });
 

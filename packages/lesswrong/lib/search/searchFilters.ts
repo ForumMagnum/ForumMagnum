@@ -14,10 +14,8 @@ export const searchPostTypeLabels: Record<SearchPostType, string> = {
 export type SearchEventFilter = "include" | "exclude" | "only";
 export type SearchTagMatch = "any" | "all";
 
-/** The selectable post types. Events have an independent control; shortform has no filter. */
 export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event" && type !== "shortform");
 
-/** Epoch milliseconds. An absent bound is open. */
 export interface SearchDateRange {
   start?: number;
   end?: number;
@@ -33,7 +31,6 @@ export interface SearchFilterState {
   tagMatch: SearchTagMatch;
   events: SearchEventFilter;
   authorIds: string[];
-  /** Empty means every post type. */
   postTypes: SearchPostType[];
   dateRange: SearchDateRange;
   karmaRange: SearchKarmaRange;
@@ -49,7 +46,6 @@ export const emptySearchFilters: SearchFilterState = {
   karmaRange: {},
 };
 
-/** The filter-related part of a search request, understood by the search API. */
 export interface SearchFilterParams {
   facetFilters?: string[][];
   numericFilters?: string[];
@@ -63,7 +59,6 @@ function sameTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
   return a.length === b.length && a.every(type => b.includes(type));
 }
 
-/** Post types affect posts only; events and tag matching are independent. */
 export function searchFiltersToParams(filters: SearchFilterState): SearchFilterParams {
   const params: SearchFilterParams = {};
   const {tagIds, tagMatch, events, authorIds, postTypes, dateRange, karmaRange} = filters;

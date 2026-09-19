@@ -29,7 +29,6 @@ export const searchHistoryGqlMutations = {
   async clearSearchHistory(_: void, args: Record<string, never>, context: SearchHistoryContext): Promise<boolean> {
     const {currentUser} = context;
     if (!currentUser) throw new Error("You must be logged in to clear search history");
-    // This private bookkeeping must not produce profile-change logs.
     await context.Users.rawUpdateOne({_id: currentUser._id}, {$set: {searchHistory: []}});
     context.loaders.Users.clear(currentUser._id);
     return true;

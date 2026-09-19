@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/** Detect on the client: cached server markup must not depend on the visitor's OS. */
 export function usePrimaryShortcutModifier(): 'Cmd' | 'Ctrl' {
   const [modifier, setModifier] = useState<'Cmd' | 'Ctrl'>('Ctrl');
   useEffect(() => {

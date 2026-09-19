@@ -9,11 +9,6 @@ export interface JudgedSearch {
   preferences: {preferred: EvaluationTarget; over: EvaluationTarget; rationale: string}[];
 }
 
-/**
- * Explicit exploratory content judgments, 2026-09-10, from indexed public text.
- * These are agent judgments for review, not labels inferred from click counts.
- * The biology essay has 28 karma in development; it is not a 300-karma example.
- */
 export const judgedSearches: JudgedSearch[] = [{
   query: "lab automation",
   assessor: "Codex, public indexed text inspection, 2026-09-10",

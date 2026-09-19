@@ -11,7 +11,6 @@ const styles = defineStyles('SearchResultRow', (theme: ThemeType) => ({
   body: {minWidth: 0},
 }));
 
-/** The row owns its overlay's containing block; hit markup cannot move its link. */
 export default function SearchResultRow({href, label, icon, compact, className, children}: {
   href: string;
   label: string;

@@ -76,7 +76,6 @@ const styles = defineStyles("SearchAuthorsBar", (theme: ThemeType) => ({
   },
 }));
 
-/** Restricts results to what the chosen people wrote, plus their profiles. */
 const SearchAuthorsBar = ({authorIds, onChange}: {
   authorIds: string[],
   onChange: (authorIds: string[]) => void,

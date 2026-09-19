@@ -113,7 +113,6 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
 
 const lastStop = karmaStops.length - 1;
 
-/** Separate vertical hit targets keep both thumbs reachable at equal bounds. */
 const SearchKarmaBar = ({value, onChange}: {
   value: SearchKarmaRange,
   onChange: (range: SearchKarmaRange) => void,

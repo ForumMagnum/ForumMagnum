@@ -29,7 +29,6 @@ interface KeyboardShortcutProps {
   className?: string,
 }
 
-/** A compact, theme-aware keycap for displaying a keyboard shortcut. */
 const KeyboardShortcut = ({children, className}: KeyboardShortcutProps) => {
   const classes = useStyles(styles);
   return <kbd className={classNames(classes.root, className)}>{children}</kbd>;

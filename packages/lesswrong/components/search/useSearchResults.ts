@@ -5,7 +5,6 @@ import { isAF } from "@/lib/instanceSettings";
 import type { SearchFilterParams } from "@/lib/search/searchFilters";
 
 const pageSize = 20;
-// Elasticsearch's default result window. Do not request pages beyond it.
 const maxResults = 10000;
 
 export interface SearchBarHit extends SearchDocument {
@@ -15,10 +14,8 @@ export interface SearchBarHit extends SearchDocument {
 }
 
 export interface SearchResultsRequest {
-  /** Comma-separated index names; every index in the list is searched together. */
   indexName: string;
   query: string;
-  /** Request form of the sort, see formatSearchSort. Absent means ranked by score. */
   sort?: string[];
   filters?: SearchFilterParams;
 }
@@ -29,11 +26,6 @@ function mergeFacetFilters(filters: SearchFilterParams | undefined): string[][] 
   return groups.length ? groups : undefined;
 }
 
-/**
- * Pages through search results for one request. A new request (by value)
- * clears the list and loads its first page; results of a superseded request
- * are dropped.
- */
 export function useSearchResults(request: SearchResultsRequest, open: boolean) {
   const [hits, setHits] = useState<SearchBarHit[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,7 +53,6 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
             query,
             page: current.page,
             hitsPerPage: pageSize,
-            // These are the markers parsed by the existing InstantSearch Snippet widgets.
             highlightPreTag: "<ais-highlight-0000000000>",
             highlightPostTag: "</ais-highlight-0000000000>",
             ...(sort && {sort}),
@@ -78,7 +69,6 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
       if (!("hits" in result)) throw new Error("Search returned no results");
       current.page += 1;
       current.hasMore = result.hits.length > 0 && current.page < result.nbPages && current.page * pageSize < maxResults;
-      // Rendering incoming pages should yield to typing, just like query changes.
       startTransition(() => {
         setHits(previous => [...previous, ...result.hits]);
         setTotal(result.nbHits);
@@ -92,12 +82,10 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
         startTransition(() => setLoading(false));
       }
     }
-  // The request is read through latestRequest; requestKey captures its value.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey, open]);
 
   useEffect(() => {
-    // An interrupted render must not change the request used by the current pager.
     latestRequest.current = request;
     pager.current = {page: 0, loading: false, hasMore: true};
     setHits([]);
@@ -109,7 +97,6 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
     return () => {
       pager.current = {...pager.current};
     };
-  // requestKey tracks request by value rather than object identity.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey, loadMore]);
 

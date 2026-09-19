@@ -1,6 +1,5 @@
 import type { SearchKarmaRange } from "@/lib/search/searchFilters";
 
-/** Slider stops. The first and last stop mean "no bound" on that side. */
 export const karmaStops = [-100, 0, 1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
 
 export function karmaRangeFromStops(minStop: number, maxStop: number): SearchKarmaRange {
@@ -31,7 +30,6 @@ export function formatKarmaRange(range: SearchKarmaRange): string {
   return `Karma ≤ ${range.max}`;
 }
 
-/** Keep an exact edited bound and move the opposite bound if necessary. Empty input opens that side. */
 export function karmaRangeWithBound(range: SearchKarmaRange, bound: "min" | "max", raw: string): SearchKarmaRange {
   const number = raw === "" ? undefined : Number(raw);
   if (number !== undefined && !Number.isSafeInteger(number)) return range;

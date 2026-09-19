@@ -15,11 +15,9 @@ const styles = defineStyles("SearchPostTypeBar", (theme: ThemeType) => ({
 
 export function togglePostType(selected: SearchPostType[], type: SearchPostType): SearchPostType[] {
   const next = selected.includes(type) ? selected.filter(item => item !== type) : [...selected, type];
-  // Deselecting the last type means every type, shown as every chip selected.
   return next.length ? next : defaultSearchPostTypes;
 }
 
-/** Which non-event posts to include. Other content kinds stay selected. */
 const SearchPostTypeBar = ({selected, onChange, className}: {
   selected: SearchPostType[],
   onChange: (types: SearchPostType[]) => void,

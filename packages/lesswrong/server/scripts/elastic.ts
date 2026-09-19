@@ -34,21 +34,12 @@ export function deleteOrphanedIndexes() {
   return new ElasticExporter().deleteOrphanedIndexes();
 }
 
-/**
- * Backfill relationship ranking fields from PostgreSQL and install their mappings.
- * Unlike configureIndexes (which copies old ES documents), recreating these two
- * indexes populates coauthors, collected authors, and sequence karma while keeping
- * synonyms and switching each alias atomically. No PostgreSQL migration is needed.
- * This is an explicit operational step, not run automatically. Run against
- * the intended database/search environment via yarn repl before relying on them.
- */
 export async function rebuildRelationshipSearchIndexes() {
   const exporter = new ElasticExporter();
   await exporter.recreateIndex("Posts");
   await exporter.recreateIndex("Sequences");
 }
 
-/** Inspect public author aliases in the database before rebuilding their search index. */
 export async function previewUserSearchAliases(userIds: string[]) {
   const repo = new UsersRepo();
   const count = Number(await repo.countSearchDocuments());
@@ -60,7 +51,6 @@ export async function previewUserSearchAliases(userIds: string[]) {
   return {count, users};
 }
 
-/** Populate public full-name aliases, preserving synonyms and switching the verified index atomically. */
 export async function rebuildUserSearchIndex() {
   await new ElasticExporter().recreateIndex("Users");
 }
@@ -88,14 +78,12 @@ function countPostSearchFlagError(errors: PostSearchFlagErrors, dropped: OnDropD
   else errors.failed++;
 }
 
-/** Update only the two post-type flags on existing indexed posts; never create documents or indexes. */
 export async function backfillPostSearchFlags() {
   const client = new ElasticClient().getClient();
   const errors: PostSearchFlagErrors = {missing: 0, failed: 0};
   let cursor: string | undefined;
   let processed = 0;
   while (true) {
-    // The development database contains an empty-ID fixture, which Elasticsearch cannot index.
     const posts = await Posts.find(
       {_id: {$gt: cursor ?? ""}},
       {sort: {_id: 1}, limit: 5000},

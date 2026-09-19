@@ -3400,17 +3400,8 @@ export function gql(source: "\n  query multiRSSFeedNewFeedButtonQuery($selector:
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {\n    createRSSFeed(data: $data) {\n      data {\n        ...newRSSFeedFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {\n    createRSSFeed(data: $data) {\n      data {\n        ...newRSSFeedFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query SearchHistory($userId: String!) {\n    user(selector: {_id: $userId}) {\n      result {\n        _id\n        searchHistory\n      }\n    }\n  }\n"): (typeof documents)["\n  query SearchHistory($userId: String!) {\n    user(selector: {_id: $userId}) {\n      result {\n        _id\n        searchHistory\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  mutation RecordSearch($query: String!) {\n    recordSearch(query: $query)\n  }\n"): (typeof documents)["\n  mutation RecordSearch($query: String!) {\n    recordSearch(query: $query)\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  mutation ClearSearchHistory {\n    clearSearchHistory\n  }\n"): (typeof documents)["\n  mutation ClearSearchHistory {\n    clearSearchHistory\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.

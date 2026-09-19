@@ -37,7 +37,6 @@ function connect(links: Map<string, Set<string>>, left: string, right: string) {
   links.get(right)?.add(left);
 }
 
-/** Connected components prevent both query variants and shared destinations leaking across splits. */
 export function buildEvaluationGroups(rows: EvaluationEvidence[], families: IntentFamily[]): EvaluationGroup[] {
   const links = new Map<string, Set<string>>();
   const categories = new Map<string, Set<string>>();
@@ -80,7 +79,6 @@ export function buildEvaluationGroups(rows: EvaluationEvidence[], families: Inte
   }
   return [...targets].sort(([a], [b]) => a.localeCompare(b)).map(([query, queryTargets]) => {
     const family = components.get(`q:${query}`) ?? `q:${query}`;
-    // Preserve the historical seed so existing training/holdout assignments stay stable.
     const hash = createHash("sha256").update(`unified-ranking-v1:${family}`).digest().readUInt32BE(0);
     return {query, family, categories: [...(categories.get(query) ?? [])].sort(), split: hash % 5 === 0 ? "holdout" : "training", targets: [...queryTargets.values()].sort((a, b) => targetKey(a).localeCompare(targetKey(b)))};
   });
@@ -97,7 +95,6 @@ export function navigationMetrics(ranks: (number | null)[]) {
   };
 }
 
-/** Pooled nDCG excludes unjudged documents instead of silently treating them as irrelevant. */
 export function judgedPoolNdcg(rankedKeys: string[], grades: Map<string, number>, limit = 10): number | null {
   const observed = rankedKeys.filter(key => grades.has(key)).slice(0, limit).map(key => grades.get(key) ?? 0);
   const ideal = [...grades.values()].sort((a, b) => b - a).slice(0, limit);

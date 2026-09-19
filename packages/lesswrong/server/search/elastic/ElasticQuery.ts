@@ -40,16 +40,13 @@ export type QueryFilter = {
 } | {
   type: "exists"
 } | {
-  /** Matches tagged content and the selected wikitags themselves. */
   type: "tag",
   value: string[],
   match?: "any" | "all",
 } | {
-  /** Content by any of the given users, or the users themselves. */
   type: "author",
   value: string[],
 } | {
-  /** Restricts non-event posts only, preserving every other content kind. */
   type: "postType",
   value: SearchPostType[],
 });
@@ -65,7 +62,6 @@ export type QueryData = {
   filters: QueryFilter[],
   // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
   coordinates?: number[],
-  /** Lookup keeps per-index boosts for autocomplete and directory widgets. */
   mode?: "lookup",
 }
 
@@ -109,9 +105,6 @@ class ElasticQuery {
     this.collectionName = indexToCollectionName(queryData.index);
     this.config = collectionNameToConfig(this.collectionName);
     if (queryData.mode !== "lookup") {
-      // Use the same field weights and analyzer across object types. The individual
-      // indexes' karma multipliers and name boosts are intended for separate lists.
-      // Ordinary search applies its bounded additive signals separately.
       this.config = {
         ...this.config,
         fields: this.config.fields.map((field, index) => {
@@ -202,14 +195,12 @@ class ElasticQuery {
       : term;
   }
 
-  /** The shared "karma" filter field maps to the karma field of each index. */
   private resolveNumericField(field: string): string {
     return field === "karma" ? this.config.karmaField ?? "baseScore" : field;
   }
 
   private compileTagFilter(ids: string[], match: "any" | "all" = "any"): QueryDslQueryContainer {
     if (!["Posts", "Users", "Comments", "Tags"].includes(this.collectionName)) return {match_none: {}};
-    // Wikitags count as tagged with themselves only for search filtering.
     const field = this.collectionName === "Tags" ? "objectID"
       : this.collectionName === "Comments" ? "tags" : "tags._id";
     return match === "all"
@@ -232,8 +223,6 @@ class ElasticQuery {
     }
   }
 
-  // Posts indexed before the next rebuild have no `question` or `shortform`
-  // field, so they do not match those positive selections until reindexed.
   private compilePostTypeFilter(types: SearchPostType[]): QueryDslQueryContainer {
     if (this.collectionName !== "Posts") return {match_all: {}};
     const typed: Record<Exclude<SearchPostType, "article">, QueryDslQueryContainer> = {
@@ -402,7 +391,6 @@ class ElasticQuery {
           ],
         },
       },
-      // Use the same analyzer as the query: base fields stem words that .exact retains.
       snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
       highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, undefined])),
     };
@@ -502,19 +490,12 @@ class ElasticQuery {
     return {
       tokens,
       searchQuery,
-      // Use the same analyzer as the query: base fields stem words that .exact retains.
       snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
       snippetQuery: highlightQuery,
       highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, highlightQuery])),
     };
   }
 
-  /**
-   * Recall query for the ordinary search ranking: analyzed (stemmed, synonym)
-   * fields for recall, with exact phrase and title-prefix clauses so that BM25
-   * rewards precision. Field weights are flat apart from the title/name field.
-   * Ranking signals are added on top by ElasticAdditiveRanking.
-   */
   compileAdditiveRecall(): AdditiveRecall {
     const {search} = this.queryData;
     const {tokens, isAdvanced} = search ? parseQuery(search) : {tokens: [], isAdvanced: false};

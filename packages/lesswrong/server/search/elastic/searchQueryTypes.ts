@@ -11,8 +11,6 @@ export interface SearchQueryData {
   preTag?: string;
   postTag?: string;
   person?: PersonSearch;
-  /** Curated Library sequences precede other matches in sequence-only searches, before pagination. */
   curatedSequenceIds?: string[];
-  /** Exact sort keys in priority order; later keys break ties. Absent means ranked by score. */
   sort?: SearchSortSpec[];
 }

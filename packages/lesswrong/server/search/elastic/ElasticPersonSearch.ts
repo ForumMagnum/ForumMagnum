@@ -1,18 +1,12 @@
 import type { SearchRequest, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
 import { parseQuery } from "./parseQuery";
 
-/**
- * How certain the person resolution is. "exact" is a complete display name or
- * slug; "strong" is a prominent author's complete first name; "weak" is a
- * prominent author's surname, a handle prefix, or a fuzzy name.
- */
 export type PersonConfidence = "exact" | "strong" | "weak";
 
 export interface PersonSearch {
   userIds: string[];
   topic: string;
   confidence: PersonConfidence;
-  /** All plausible candidates for the selected span; legacy userIds retain the strongest confidence. */
   candidates?: ResolvedPersonCandidate[];
 }
 
@@ -26,7 +20,6 @@ export interface PersonCandidate {
   displayName: string;
   slug?: string;
   karma?: number;
-  /** The real name a user chose to show alongside a handle; an exact alias. */
   fullName?: string | null;
 }
 
@@ -36,7 +29,6 @@ interface SpanMatch {
   confidence: PersonConfidence;
 }
 
-/** Authors below this karma are never inferred from partial or fuzzy names. */
 const prominentKarma = 1000;
 const confidenceRank: Record<PersonConfidence, number> = {exact: 3, strong: 2, weak: 1};
 
@@ -65,7 +57,6 @@ function fuzzyWordMatch(token: string, word: string, exactNeighbours: boolean): 
   return editDistance(token, word) <= allowed;
 }
 
-/** Spans where every query token equals the corresponding name word. */
 function exactSpans(tokens: string[], alternative: string[], confidence: PersonConfidence): SpanMatch[] {
   const spans: SpanMatch[] = [];
   if (!alternative.length) return spans;
@@ -77,7 +68,6 @@ function exactSpans(tokens: string[], alternative: string[], confidence: PersonC
   return spans;
 }
 
-/** Spans matching the complete name in order, with typos or a trailing prefix. */
 function fuzzySpans(tokens: string[], name: string[]): SpanMatch[] {
   const spans: SpanMatch[] = [];
   if (!name.length) return spans;
@@ -87,8 +77,6 @@ function fuzzySpans(tokens: string[], name: string[]): SpanMatch[] {
     if (exactCount === name.length) continue;
     const matched = span.every((token, index) => {
       const word = name[index];
-      // A short trailing prefix is only accepted after other name words matched,
-      // as when someone types "elizer yud". Single-word prefixes use prefixSpans.
       const trailingPrefix = name.length > 1 && index === name.length - 1 && token.length >= 3 && word.startsWith(token);
       return trailingPrefix || fuzzyWordMatch(token, word, exactCount > 0);
     });
@@ -97,7 +85,6 @@ function fuzzySpans(tokens: string[], name: string[]): SpanMatch[] {
   return spans;
 }
 
-/** Single tokens of at least four characters that begin the squashed name or slug. */
 function prefixSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
   const targets = [words(candidate.displayName).join(""), ...(candidate.slug ? [words(candidate.slug).join("")] : [])];
   const spans: SpanMatch[] = [];
@@ -109,7 +96,6 @@ function prefixSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] 
   return spans;
 }
 
-/** Ignore spaces and one inserted handle character after a literal four-character anchor. */
 function compactPrefixMatch(query: string, name: string): boolean {
   if (query.length < 4 || query.slice(0, 4) !== name.slice(0, 4)) return false;
   if (name.startsWith(query)) return true;
@@ -150,19 +136,11 @@ function sameSpan(a: SpanMatch, b: SpanMatch): boolean {
   return a.start === b.start && a.length === b.length && a.confidence === b.confidence;
 }
 
-/**
- * Candidates for person resolution. Exact names, slugs and full names match at
- * any karma. Partial, prefix and fuzzy matches are limited to prominent
- * authors so that hundreds of same-first-name accounts cannot crowd out the
- * one author a partial query refers to.
- */
 export function compilePersonLookup(search: string): SearchRequest | undefined {
   if (parseQuery(search).isAdvanced) return undefined;
   const tokens = words(search);
   if (!tokens.length || tokens.length > 8) return undefined;
   const joined = tokens.join(" ");
-  // Candidate lookup must include the same complete-name spans that resolution
-  // accepts, even when a low-karma author is surrounded by topic words.
   const exactValues = new Set([search.trim()]);
   const sourceWords = [...search.matchAll(/[\p{L}\p{N}]+/gu)];
   for (let start = 0; start < tokens.length; start++) {
@@ -180,8 +158,6 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
   ]);
   const anchor = tokens.join("").slice(0, 4);
   const partial: QueryDslQueryContainer[] = [
-    // Compact queries can omit an internal handle character. Retrieve the literal
-    // anchor, then let person resolution enforce the full bounded prefix match.
     ...(anchor.length === 4 ? ["displayName.sort", "slug.sort", "fullName.sort"].map(field => ({
       prefix: {[field]: {value: anchor, case_insensitive: true}},
     })) : []),
@@ -211,10 +187,6 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
   };
 }
 
-/**
- * The longest matched span wins; within a span, the most confident reading wins;
- * within that, every candidate is kept so ambiguous names stay ambiguous.
- */
 export function resolvePersonSearch(search: string, candidates: PersonCandidate[]): PersonSearch | undefined {
   if (parseQuery(search).isAdvanced) return undefined;
   const tokens = words(search);
