@@ -14,3 +14,10 @@ The chapter membership GIN index migration is written but has not been applied.
 Its transactional build permits reads and blocks chapter writes during creation.
 Sequence refreshes remain immediate; durable batching would require separate
 queue work to avoid losing updates when a serverless process stops.
+
+Observed while fixing search typing responsiveness on 2026-09-18:
+
+- Running `yarn tsc --project tsconfig-client.json` directly includes server
+  routes under `app/` while redirecting their server imports to client stubs,
+  producing missing-module and missing-export errors. The standard `yarn tsc`
+  check passes. Review the standalone client configuration separately.

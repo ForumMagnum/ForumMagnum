@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import React from 'react';
+import React, { Suspense } from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import SearchPage from '../components/search/SearchPage';
 
@@ -23,9 +23,15 @@ jest.mock('../components/common/LWTooltip', () => ({__esModule: true, default: (
 jest.mock('../components/common/ErrorBoundary', () => ({__esModule: true, default: ({children}: {children: React.ReactNode}) => <>{children}</>}));
 jest.mock('../components/search/useSearchAnalytics', () => ({useSearchAnalytics: () => jest.fn(), useCaptureSearchResultSelected: () => jest.fn()}));
 const retryHistory = jest.fn();
+const recordSearch = jest.fn();
 let historyReadError = false;
-jest.mock('../components/search/useSearchHistory', () => ({useSearchHistory: () => ({resetNavigation: jest.fn(), recordSearch: jest.fn(), readError: historyReadError, retryHistory})}));
-jest.mock('../components/search/useSearchResults', () => ({useSearchResults: () => ({hits: [], total: 0, hasMore: false, loading: false})}));
+jest.mock('../components/search/useSearchHistory', () => ({useSearchHistory: () => ({resetNavigation: jest.fn(), recordSearch, readError: historyReadError, retryHistory})}));
+let blockedQuery: string | null = null;
+const pendingSearch = new Promise<void>(() => {});
+jest.mock('../components/search/useSearchResults', () => ({useSearchResults: ({query}: {query: string}) => {
+  if (query === blockedQuery) throw pendingSearch;
+  return {hits: [], total: 0, hasMore: false, loading: false};
+}}));
 jest.mock('../components/search/SearchWikitagsBar', () => ({__esModule: true, default: () => null}));
 jest.mock('../components/search/UsersSearchAutoComplete', () => ({__esModule: true, default: ({clickAction}: {clickAction: (id: string) => void}) => <>
   <button type="button" onClick={() => clickAction('alice')}>Select Alice</button>
@@ -47,7 +53,9 @@ beforeEach(() => {
   mockNavigate.mockReset();
   wideScreen = true;
   historyReadError = false;
+  blockedQuery = null;
   retryHistory.mockReset();
+  recordSearch.mockReset();
 });
 
 it('writes modal searches while preserving the underlying page URL and open state', () => {
@@ -462,4 +470,23 @@ it.each([true, false])('shows failed history reads and retry with filters closed
   historyReadError = false;
   rerender(<SearchPage presentation="modal" />);
   expect(screen.queryByRole('button', {name: 'Retry history'})).toBeNull();
+});
+
+it.each<'modal' | 'page'>(['modal', 'page'])('keeps typing responsive while %s search rendering is blocked', presentation => {
+  const {rerender} = render(<Suspense fallback={<div>Waiting for search</div>}><SearchPage presentation={presentation} /></Suspense>);
+  const input = screen.getByRole<HTMLInputElement>('searchbox');
+  blockedQuery = 'a';
+  fireEvent.change(input, {target: {value: 'a'}});
+  expect(input.value).toBe('a');
+  expect(screen.queryByText('Waiting for search')).toBeNull();
+  blockedQuery = 'alignment';
+  fireEvent.change(input, {target: {value: 'alignment'}});
+  expect(input.value).toBe('alignment');
+  expect(screen.queryByText('Waiting for search')).toBeNull();
+  fireEvent.submit(screen.getByRole('search'));
+  expect(recordSearch).toHaveBeenLastCalledWith('alignment');
+  blockedQuery = null;
+  rerender(<Suspense fallback={<div>Waiting for search</div>}><SearchPage presentation={presentation} /></Suspense>);
+  expect(input.value).toBe('alignment');
+  expect(mockNavigate.mock.calls.at(-1)?.[0].search).toContain('query=alignment');
 });

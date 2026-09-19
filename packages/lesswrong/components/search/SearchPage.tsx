@@ -19,6 +19,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { useCurrentUser } from '../common/withUser';
 import SearchPageResults from './SearchPageResults';
+import SearchQueryInput from './SearchQueryInput';
 import ForumIcon from '../common/ForumIcon';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchAnalytics';
 import { useSearchHistory } from './useSearchHistory';
@@ -119,7 +120,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
     if (currentUser && event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
       && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
       event.preventDefault();
-      const query = recallSearch(state.query, event.key);
+      const query = recallSearch(event.currentTarget.value, event.key);
       setState(previous => ({...previous, query}));
     }
   };
@@ -192,13 +193,13 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
           <div className={classes.topBar}>
             <form className={classes.searchBoxRow} role="search" onSubmit={(event) => {
               event.preventDefault();
-              recordSearch(state.query);
+              recordSearch(inputRef.current?.value ?? state.query);
               inputRef.current?.blur();
             }}>
               {isDesktop && !filterTabSlot && filterTab}
               <div className={classes.searchInputArea}>
                 <ForumIcon icon="Search" className={classes.searchIcon} />
-                <input
+                <SearchQueryInput
                   ref={inputRef}
                   type="search"
                   data-search-input
@@ -212,9 +213,8 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
                   onKeyDown={handleKeyDown}
-                  onChange={(event) => {
+                  onChange={(query) => {
                     resetNavigation();
-                    const query = event.target.value;
                     setState(previous => ({...previous, query}));
                   }}
                 />

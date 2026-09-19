@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
-import { act, renderHook, waitFor } from "@testing-library/react";
+import React, { Suspense } from "react";
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { useSearchResults } from "../components/search/useSearchResults";
 
 const mockSearch = jest.fn();
@@ -67,4 +68,39 @@ it("sends sort and filter parameters and restarts when they change", async () =>
   await waitFor(() => expect(result.current.hits.map(hit => hit._id)).toEqual(["second"]));
   expect(mockSearch.mock.calls[1][0][0].params.sort).toEqual(["date:asc"]);
   expect(mockSearch.mock.calls[1][0][0].params.tagIds).toBeUndefined();
+});
+
+const pendingResultsRender = new Promise<void>(() => {});
+
+function SearchResultsRender({blocked}: {blocked: boolean}) {
+  const {hits} = useSearchResults({indexName: "posts", query: "test"}, true);
+  if (blocked && hits.length) throw pendingResultsRender;
+  return <div>{hits.length ? hits[0]._id : "Previous results"}</div>;
+}
+
+it("keeps the current UI available while new results render", async () => {
+  let resolvePage: (value: unknown) => void = () => {};
+  mockSearch.mockReturnValueOnce(new Promise(resolve => { resolvePage = resolve; }));
+  const {rerender} = render(<Suspense fallback={<div>Blocked results</div>}><SearchResultsRender blocked /></Suspense>);
+  await act(async () => { resolvePage(page("new")); });
+  expect(screen.queryByText("Blocked results")).toBeNull();
+  expect(screen.getByText("Previous results")).toBeTruthy();
+  rerender(<Suspense fallback={<div>Blocked results</div>}><SearchResultsRender blocked={false} /></Suspense>);
+  expect(screen.getByText("new")).toBeTruthy();
+});
+
+it("paginates the committed query when a newer query render is interrupted", async () => {
+  mockSearch.mockResolvedValue(page("old"));
+  const {result, rerender} = renderHook(({query}) => {
+    const results = useSearchResults({indexName: "posts", query}, true);
+    if (query === "new") throw pendingResultsRender;
+    return results;
+  }, {
+    initialProps: {query: "old"},
+    wrapper: ({children}) => <Suspense fallback={null}>{children}</Suspense>,
+  });
+  await waitFor(() => expect(result.current.hits).toHaveLength(1));
+  rerender({query: "new"});
+  await act(async () => { await result.current.loadMore(); });
+  expect(mockSearch.mock.calls[1][0][0]).toMatchObject({query: "old", params: {page: 1}});
 });
