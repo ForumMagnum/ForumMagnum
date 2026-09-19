@@ -1,4 +1,4 @@
-import { compileMultiQuery } from "../server/search/elastic/ElasticMultiQuery";
+import { compileSearchQuery } from "../server/search/elastic/ElasticAdditiveRanking";
 import ElasticQuery from "../server/search/elastic/ElasticQuery";
 import ElasticService from "../server/search/elastic/ElasticService";
 import ElasticClient from "../server/search/elastic/ElasticClient";
@@ -6,7 +6,7 @@ import ElasticClient from "../server/search/elastic/ElasticClient";
 jest.mock("../server/search/elastic/ElasticClient");
 
 it("paginates one globally ranked request with default and caller filters", () => {
-  const request = compileMultiQuery({
+  const request = compileSearchQuery({
     indexes: ["posts", "users", "tags"], search: "alignment", offset: 20, limit: 20,
     filters: [{type: "facet", field: "af", value: true, negated: false}],
   });
@@ -32,14 +32,14 @@ it("paginates one globally ranked request with default and caller filters", () =
 
 it("uses common boosts while preserving advanced query syntax", () => {
   for (const index of ["posts", "users", "tags", "comments", "sequences"]) {
-    const request = new ElasticQuery({index, search: "alignment", filters: [], unifiedRanking: true}).compile();
+    const request = new ElasticQuery({index, search: "alignment", filters: []}).compile();
     const encoded = JSON.stringify(request.body.query);
     expect(encoded).toContain('"boost":10');
     expect(encoded).toContain('"boost":20');
     expect(encoded).not.toContain('"boost":1000');
     expect(request.body.query.script_score.script.source).toBe("_score");
   }
-  const advanced = JSON.stringify(compileMultiQuery({indexes: ["posts", "comments"], search: '"AI safety" -robots user:alice'}));
+  const advanced = JSON.stringify(compileSearchQuery({indexes: ["posts", "comments"], search: '"AI safety" -robots user:alice'}));
   expect(advanced).toContain('"AI safety"');
   expect(advanced).toContain('"must_not"');
   expect(advanced).toContain('"authorSlug.sort"');
@@ -47,14 +47,14 @@ it("uses common boosts while preserving advanced query syntax", () => {
 
 it("forwards pagination and filters and returns global totals and highlights", async () => {
   const client = new ElasticClient();
-  jest.spyOn(client, "multiSearch").mockResolvedValue({hits: {
+  jest.spyOn(client, "search").mockResolvedValue({hits: {
     total: {value: 83, relation: "eq"},
     hits: [{_index: "posts_123", _id: "post1", _source: {_id: "post1", objectID: "post1", title: "AI"}, highlight: {title: ["<em>AI</em>"]}}],
   }});
   const result = await new ElasticService(client).runQuery({indexName: "posts,users", params: {
     query: "AI", page: 2, hitsPerPage: 20, facetFilters: [["af:true"]],
   }}, {emptyStringSearchResults: "default"});
-  expect(client.multiSearch).toHaveBeenCalledWith(expect.objectContaining({
+  expect(client.search).toHaveBeenCalledWith(expect.objectContaining({
     indexes: ["posts", "users"], offset: 40, limit: 20,
     filters: [{type: "facet", field: "af", value: true, negated: false}],
   }));
@@ -62,7 +62,7 @@ it("forwards pagination and filters and returns global totals and highlights", a
     _id: "post1", _index: "posts", _highlightResult: {title: {value: "<em>AI</em>", matchLevel: "full"}},
   }]});
   await new ElasticService(client).runQuery({indexName: "posts", params: {query: "AI"}}, {
-    emptyStringSearchResults: "default", unifiedSearch: true,
+    emptyStringSearchResults: "default",
   });
-  expect(client.multiSearch).toHaveBeenLastCalledWith(expect.objectContaining({indexes: ["posts"]}));
+  expect(client.search).toHaveBeenLastCalledWith(expect.objectContaining({indexes: ["posts"]}));
 });

@@ -65,7 +65,8 @@ export type QueryData = {
   filters: QueryFilter[],
   // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
   coordinates?: number[],
-  unifiedRanking?: boolean,
+  /** Lookup keeps per-index boosts for autocomplete and directory widgets. */
+  mode?: "lookup",
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -107,10 +108,10 @@ class ElasticQuery {
   ) {
     this.collectionName = indexToCollectionName(queryData.index);
     this.config = collectionNameToConfig(this.collectionName);
-    if (queryData.unifiedRanking) {
+    if (queryData.mode !== "lookup") {
       // Use the same field weights and analyzer across object types. The individual
       // indexes' karma multipliers and name boosts are intended for separate lists.
-      // ElasticMultiQuery applies bounded karma within explicit relationship tiers.
+      // Ordinary search applies its bounded additive signals separately.
       this.config = {
         ...this.config,
         fields: this.config.fields.map((field, index) => {
@@ -201,7 +202,7 @@ class ElasticQuery {
       : term;
   }
 
-  /** The unified "karma" filter field maps to the karma field of each index. */
+  /** The shared "karma" filter field maps to the karma field of each index. */
   private resolveNumericField(field: string): string {
     return field === "karma" ? this.config.karmaField ?? "baseScore" : field;
   }
@@ -352,7 +353,7 @@ class ElasticQuery {
     return {
       multi_match: {
         query: search,
-        fields: this.queryData.unifiedRanking ? fields.map(field => this.textFieldToExactField(field)) : fields,
+        fields: this.queryData.mode !== "lookup" ? fields.map(field => this.textFieldToExactField(field)) : fields,
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
@@ -384,17 +385,17 @@ class ElasticQuery {
             {
               multi_match: {
                 query: search,
-                fields: this.queryData.unifiedRanking || this.collectionName === 'Users' ? exactFields : fields,
+                fields: this.queryData.mode !== "lookup" || this.collectionName === 'Users' ? exactFields : fields,
                 type: "phrase",
                 slop: 2,
-                boost: this.queryData.unifiedRanking ? 10 : this.collectionName === 'Users' ? 10 : 100,
+                boost: this.queryData.mode !== "lookup" ? 10 : this.collectionName === 'Users' ? 10 : 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: this.queryData.unifiedRanking ? 20 : 1000,
+                  boost: this.queryData.mode !== "lookup" ? 20 : 1000,
                 },
               },
             },
@@ -402,8 +403,8 @@ class ElasticQuery {
         },
       },
       // Use the same analyzer as the query: base fields stem words that .exact retains.
-      snippetName: this.queryData.unifiedRanking ? `${snippet}.exact` : snippet,
-      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.unifiedRanking ? `${name}.exact` : name, undefined])),
+      snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
+      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, undefined])),
     };
   }
 
@@ -502,14 +503,14 @@ class ElasticQuery {
       tokens,
       searchQuery,
       // Use the same analyzer as the query: base fields stem words that .exact retains.
-      snippetName: this.queryData.unifiedRanking ? `${snippet}.exact` : snippet,
+      snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
       snippetQuery: highlightQuery,
-      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.unifiedRanking ? `${name}.exact` : name, highlightQuery])),
+      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, highlightQuery])),
     };
   }
 
   /**
-   * Recall query for the additive unified ranking: analyzed (stemmed, synonym)
+   * Recall query for the ordinary search ranking: analyzed (stemmed, synonym)
    * fields for recall, with exact phrase and title-prefix clauses so that BM25
    * rewards precision. Field weights are flat apart from the title/name field.
    * Ranking signals are added on top by ElasticAdditiveRanking.

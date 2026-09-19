@@ -107,8 +107,7 @@ threshold. The short trailing letters must still match literally: “Samuel P”
 can match `samuelrpatel`, but “Samuel T” cannot. This rule also applies to compact
 queries such as “SamuelP”. Candidate lookup retrieves the literal anchor; person
 resolution then enforces the bounded prefix match. There are no account-specific
-aliases or scores. The [name-completion report](ranking-name-completion-2026-09-11.md)
-records the five regression queries, validation, and remaining search issues.
+aliases or scores.
 
 Event freshness requires an event-related query or positive event filter. Only
 future `startTime` values receive a bonus, flat for seven days and decaying with
@@ -122,14 +121,31 @@ Run these development-only helpers through the REPL:
 
 ```sh
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingFixtures.ts 'runControlledFixtures()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots(undefined, 150)'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json", 150)'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'inspectAliasCoverage()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings()'
+yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateJudgedSearches()'
 yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation", "additive")'
 ```
 
-The evaluator expects the reports under `/tmp/forum-search-report`. It compares
+Calibration, comparison, and latency benchmarking require an explicit inventory
+path (the `inventoryPath` option for `compareRankings` and `benchmarkRankings`).
+Create this JSON array by grouping query variants from the analytics CSV into
+reviewed intent families. Each family has a stable `intent-` ID, a category,
+`observed_queries`, and typed `observed_targets`. For example:
+
+```json
+[{"id":"intent-01","category":"Find a person","observed_queries":["Alice Example","alice-example"],"observed_targets":[{"result_type":"Users","result_id":"alice-user-id"}]}]
+```
+
+The CSV requires `query`, `context`, `result_type`, `result_id`, `result_title`,
+and `recorded_clicks` columns; header-search rows use `context=searchBar`.
+Use IDs from the development corpus. An empty inventory (`[]`) is valid when
+no manual families have been reviewed; shared targets still connect queries,
+but it does not reproduce the historical family split. Keep both inputs with
+reports to reproduce a run. Output paths remain configurable through `out`.
+
+The historical evaluation compares
 427 normalized header queries from 481 searchBar evidence rows, separately from
 tabbed-page/editor clicks. Targets are collection-qualified IDs. Absent and
 ineligible targets are reported separately; paired metrics require both
@@ -149,8 +165,7 @@ indexes. Clicks remain weak positive candidates: they contain neither result
 impressions nor original karma and cannot label unclicked results irrelevant.
 The reviewed lab-automation pool includes actual indexed text and karma, with
 explicit relevant-body versus misleading-title pairs. Its coverage is too small
-to establish broad discovery quality. The [final measured report](ranking-evaluation-2026-09-10.md) records the frozen
-comparison, limitations and release decision; detailed JSON artifacts remain in
+to establish broad discovery quality. Detailed JSON artifacts are written to
 `/tmp/forum-search-report`.
 
 The additive default was enabled at the user's request after the name-completion
@@ -221,3 +236,16 @@ count mismatch, and the count check cannot detect updates or a delete/insert pai
 that preserves the count.
 Deleted records still present in PostgreSQL are exported with their deletion flag;
 normal search filters exclude them.
+
+### Sequence refresh cost
+
+Post updates find affected chapters with an array-containment query backed by
+`idx_chapters_post_ids`, a GIN index. The migration builds it transactionally,
+blocking chapter writes during the build while allowing reads. Index creation
+errors fail the migration. Check chapter-table size when scheduling deployment.
+
+Sequence refreshes remain immediate and sequential. An in-memory debounce can
+lose updates when a serverless process stops, and skipping refreshes after votes
+would leave sequence scores stale. Durable coalescing requires a separate queued
+refresh mechanism; the indexed lookup avoids a chapter scan even for posts that
+belong to no sequences.

@@ -7,7 +7,7 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { SearchBox, Configure } from 'react-instantsearch-dom';
-import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
+import { getSearchIndexName, getLookupSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -155,7 +155,7 @@ const AddPostsToTag = ({tag}: {
     {searchOpen && <div className={classes.search}>
       <InstantSearch
         indexName={indexName}
-        searchClient={getSearchClient()}
+        searchClient={getLookupSearchClient()}
         onSearchStateChange={captureSearchState}
       >
         <div className={classes.searchHeader}>

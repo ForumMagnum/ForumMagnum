@@ -2,14 +2,14 @@
 import fs from "fs";
 import type { Client } from "@elastic/elasticsearch";
 import type { SearchRequest } from "@elastic/elasticsearch/lib/api/types";
-import { compileMultiQuery } from "../search/elastic/ElasticMultiQuery";
+import { compileSearchQuery } from "../search/elastic/ElasticAdditiveRanking";
 import { compilePersonLookup, resolvePersonSearch, PersonCandidate } from "../search/elastic/ElasticPersonSearch";
 import { rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
-import type { MultiQueryData } from "../search/elastic/unifiedSearchTypes";
+import type { SearchQueryData } from "../search/elastic/searchQueryTypes";
 import { evaluationClient, summarizeHit } from "./searchRankingEval";
 
 interface FixtureDocument { index: string; fields: Record<string, string | number | boolean | string[]> }
-interface FixtureCase { name: string; search: string; preferred: string; over?: string; within?: number; filters?: MultiQueryData["filters"] }
+interface FixtureCase { name: string; search: string; preferred: string; over?: string; within?: number; filters?: SearchQueryData["filters"] }
 const indexes = ["posts", "comments", "users", "tags", "sequences"];
 const filler = "An unrelated account of gardening travel music recipes weather and architecture. ";
 function doc(index: string, objectID: string, title: string, body: string, baseScore: number, extra: FixtureDocument["fields"] = {}): FixtureDocument {
@@ -112,12 +112,12 @@ export function fixtureRequest(request: SearchRequest, names: Record<string, str
   return rewritten;
 }
 
-async function fixtureSearch(client: Client, names: Record<string, string>, query: MultiQueryData) {
+async function fixtureSearch(client: Client, names: Record<string, string>, query: SearchQueryData) {
   const lookup = compilePersonLookup(query.search);
   const candidates = lookup ? await client.search<PersonCandidate>(fixtureRequest(lookup, names)) : undefined;
   if (candidates?.timed_out || candidates?._shards.failed) throw new Error("Incomplete fixture person lookup");
   const person = resolvePersonSearch(query.search, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
-  const response = await client.search<SearchDocument>(fixtureRequest(compileMultiQuery({...query, person}), names));
+  const response = await client.search<SearchDocument>(fixtureRequest(compileSearchQuery({...query, person}), names));
   if (response.timed_out || response._shards.failed) throw new Error("Incomplete fixture search");
   return response.hits.hits.map(summarizeHit);
 }
@@ -143,20 +143,20 @@ export async function runControlledFixtures(out = "/tmp/forum-search-report/cont
       const bulk = await client.bulk({refresh: "wait_for", operations: documents.flatMap(document => [{index: {_index: names[document.index], _id: document.fields.objectID}}, document.fields])});
       if (bulk.errors) throw new Error("Fixture document indexing failed");
       for (const test of controlledCases) {
-        const hits = await fixtureSearch(client, names, {ranking: "additive", indexes, search: test.search, filters: test.filters, limit: 20});
+        const hits = await fixtureSearch(client, names, {indexes, search: test.search, filters: test.filters, limit: 20});
         const preferredRank = hits.findIndex(hit => hit.objectID === test.preferred) + 1;
         const otherRank = test.over ? hits.findIndex(hit => hit.objectID === test.over) + 1 : undefined;
         const pass = preferredRank > 0 && (test.within ? preferredRank <= test.within : !!otherRank && preferredRank < otherRank);
         results.push({padding, ...test, preferredRank, otherRank, pass, hits});
         fs.writeFileSync(out, JSON.stringify({status: "running", prefix, weights: rankingWeights, results}, null, 2));
       }
-      const page1 = await fixtureSearch(client, names, {ranking: "additive", indexes, search: "Paul Example", limit: 2});
-      const page2 = await fixtureSearch(client, names, {ranking: "additive", indexes, search: "Paul Example", offset: 2, limit: 2});
-      const full = await fixtureSearch(client, names, {ranking: "additive", indexes, search: "Paul Example", limit: 4});
+      const page1 = await fixtureSearch(client, names, {indexes, search: "Paul Example", limit: 2});
+      const page2 = await fixtureSearch(client, names, {indexes, search: "Paul Example", offset: 2, limit: 2});
+      const full = await fixtureSearch(client, names, {indexes, search: "Paul Example", limit: 4});
       results.push({padding, name: "pagination is stable and has no repeated reserved positions", pass: JSON.stringify([...page1, ...page2].map(hit => hit.objectID)) === JSON.stringify(full.map(hit => hit.objectID))});
-      const noEventIntent = await fixtureSearch(client, names, {ranking: "additive", indexes, search: "rationality", limit: 10});
+      const noEventIntent = await fixtureSearch(client, names, {indexes, search: "rationality", limit: 10});
       results.push({padding, name: "no freshness bonus without event intent", pass: noEventIntent.find(hit => hit.objectID === "upcomingevent001")?.score === noEventIntent.find(hit => hit.objectID === "pastevent0000001")?.score});
-      const hidden = await fixtureSearch(client, names, {ranking: "additive", indexes, search: "Hidden draft navigation", limit: 10});
+      const hidden = await fixtureSearch(client, names, {indexes, search: "Hidden draft navigation", limit: 10});
       results.push({padding, name: "draft eligibility survives strong navigation", pass: !hidden.some(hit => hit.objectID === "filtereddraft001")});
     }
   } catch (error) {

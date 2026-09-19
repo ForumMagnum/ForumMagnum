@@ -27,7 +27,7 @@ function compileSortKey({key, direction}: SearchSortSpec): SortCombinations {
 }
 
 /** Curated sequences first when supplied, then exact sort values and stable tie-breakers. */
-export function compileUnifiedSort(sort: SearchSortSpec[] | undefined, curatedSequenceIds: string[] = []): Sort {
+export function compileSearchSort(sort: SearchSortSpec[] | undefined, curatedSequenceIds: string[] = []): Sort {
   const specs: SearchSortSpec[] = sort ?? [{key: "relevance", direction: "desc"}];
   const curatedFirst: SortCombinations[] = curatedSequenceIds.length ? [{_script: {
     type: "number", order: "desc", script: {

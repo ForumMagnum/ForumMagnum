@@ -1,17 +1,17 @@
 import {
-  compileUnifiedSort,
+  compileSearchSort,
   karmaSortScript,
   commentsSortScript,
-} from "../../server/search/elastic/ElasticUnifiedSort";
+} from "../../server/search/elastic/ElasticSearchSort";
 
 const tiebreakers = [{objectID: "asc"}, {_index: "asc"}];
 
 it("keeps the ranked default when no sort is given", () => {
-  expect(compileUnifiedSort(undefined)).toEqual([{_score: {order: "desc"}}, ...tiebreakers]);
+  expect(compileSearchSort(undefined)).toEqual([{_score: {order: "desc"}}, ...tiebreakers]);
 });
 
 it("sorts by exact values in the requested order and preserves relevance direction", () => {
-  expect(compileUnifiedSort([
+  expect(compileSearchSort([
     {key: "karma", direction: "desc"},
     {key: "date", direction: "asc"},
     {key: "relevance", direction: "asc"},
@@ -26,7 +26,7 @@ it("sorts by exact values in the requested order and preserves relevance directi
 });
 
 it("keeps date primary and missing dates last in either direction", () => {
-  expect(compileUnifiedSort([{key: "date", direction: "desc"}])).toEqual([
+  expect(compileSearchSort([{key: "date", direction: "desc"}])).toEqual([
     {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
     ...tiebreakers,
   ]);

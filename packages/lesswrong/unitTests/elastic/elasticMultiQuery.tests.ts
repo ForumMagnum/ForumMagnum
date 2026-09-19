@@ -1,13 +1,13 @@
-import { compileMultiQuery } from "../../server/search/elastic/ElasticMultiQuery";
+import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
 import { compilePersonLookup, resolvePersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
 
 const eliezer = {objectID: "ey", displayName: "Eliezer Yudkowsky", slug: "eliezer-yudkowsky", karma: 10000};
 
-it.each(["tiered", "additive"] as const)("puts curated sequences first before pagination in %s ranking", ranking => {
+it("puts curated sequences first before pagination", () => {
   const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
-  const data = {ranking, indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
-  const regular = compileMultiQuery({...data, curatedSequenceIds: []});
-  const request = compileMultiQuery({...data, offset: 10, limit: 5, sort: [{key: "date", direction: "asc"}]});
+  const data = {indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
+  const regular = compileSearchQuery({...data, curatedSequenceIds: []});
+  const request = compileSearchQuery({...data, offset: 10, limit: 5, sort: [{key: "date", direction: "asc"}]});
   now.mockRestore();
   expect(request.query).toEqual(regular.query);
   expect(request).toMatchObject({from: 10, size: 5});
@@ -21,27 +21,9 @@ it.each(["tiered", "additive"] as const)("puts curated sequences first before pa
   ]);
 });
 
-it.each(["tiered", "additive"] as const)("does not promote curated sequences in mixed %s results", ranking => {
-  const request = compileMultiQuery({ranking, indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
+it("does not promote curated sequences in mixed results", () => {
+  const request = compileSearchQuery({indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
   expect(request.sort).toEqual([{_score: {order: "desc"}}, {objectID: "asc"}, {_index: "asc"}]);
-});
-
-it.each(["tags", "posts", "sequences"])("uses the same karma scale for %s, including empty searches", (index) => {
-  const request = compileMultiQuery({ranking: "tiered", indexes: [index], search: ""});
-  const branches = request.query?.dis_max?.queries[0]?.bool?.must;
-  if (!Array.isArray(branches)) throw new Error("Expected ranked query branches");
-  expect(branches[0].dis_max?.queries).toMatchObject([{script_score: {script: {params: {
-    tier: 2, karmaField: "baseScore", pivot: 50,
-  }}}}]);
-});
-
-it("keeps exact and complete wiki name matches above body matches after changing the karma scale", () => {
-  const request = compileMultiQuery({ranking: "tiered", indexes: ["tags"], search: "Decision theory"});
-  const branches = request.query?.dis_max?.queries[0]?.bool?.must;
-  if (!Array.isArray(branches)) throw new Error("Expected ranked query branches");
-  expect(branches[0].dis_max?.queries).toMatchObject([2, 4, 5].map(tier => ({script_score: {script: {params: {
-    tier, karmaField: "baseScore", pivot: 50,
-  }}}})));
 });
 
 it("recognizes exact and prominent first names, retains ambiguity, and extracts topics", () => {
@@ -56,9 +38,9 @@ it("recognizes exact and prominent first names, retains ambiguity, and extracts 
 });
 
 it("keeps the same ranked query and deterministic tie-breakers across pages", () => {
-  const data = {ranking: "tiered" as const, indexes: ["users", "posts", "sequences", "comments"], search: "Eliezer", person: {userIds: ["ey"], topic: "", confidence: "strong" as const}, featuredSequenceIds: ["sequence"]};
-  const request = compileMultiQuery(data);
-  const secondPage = compileMultiQuery({...data, offset: 3, limit: 3});
+  const data = {indexes: ["users", "posts", "sequences", "comments"], search: "Eliezer", person: {userIds: ["ey"], topic: "", confidence: "strong" as const}};
+  const request = compileSearchQuery(data);
+  const secondPage = compileSearchQuery({...data, offset: 3, limit: 3});
   expect(secondPage.query).toEqual(request.query);
   expect(secondPage.from).toBe(3);
   expect(secondPage.size).toBe(3);
@@ -67,7 +49,7 @@ it("keeps the same ranked query and deterministic tie-breakers across pages", ()
 });
 
 it("preserves advanced filters and disables inferred authorship", () => {
-  const request = compileMultiQuery({ranking: "tiered", indexes: ["posts"], search: 'user:ey "corrigibility" -bananas', person: {userIds: ["other"], topic: "", confidence: "exact"}});
+  const request = compileSearchQuery({indexes: ["posts"], search: 'user:ey "corrigibility" -bananas', person: {userIds: ["other"], topic: "", confidence: "exact"}});
   const serialized = JSON.stringify(request.query);
   expect(serialized).toContain('authorSlug.sort');
   expect(serialized).toContain('corrigibility');
@@ -117,7 +99,7 @@ describe("person resolution confidence", () => {
 });
 
 it("sorts by the requested exact keys before the stable tiebreakers", () => {
-  const request = compileMultiQuery({ranking: "tiered", indexes: ["posts", "users"], search: "alignment", sort: [{key: "date", direction: "desc"}]});
+  const request = compileSearchQuery({indexes: ["posts", "users"], search: "alignment", sort: [{key: "date", direction: "desc"}]});
   expect(request.sort).toEqual([
     {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
     {objectID: "asc"}, {_index: "asc"},
@@ -125,7 +107,7 @@ it("sorts by the requested exact keys before the stable tiebreakers", () => {
 });
 
 
-it("retains weaker same-span person interpretations without changing tiered userIds", () => {
+it("retains weaker same-span person interpretations alongside the strongest userIds", () => {
   const result = resolvePersonSearch("Paul alignment", [
     {objectID: "minor", displayName: "Paul", karma: 1},
     {objectID: "pc", displayName: "Paul Christiano", karma: 5000},
@@ -181,4 +163,19 @@ it("allows one inserted handle character without changing short initials", () =>
   expect(resolvePersonSearch("Samuel P", [{...user, displayName: "samuelrrpatel"}])?.topic).toBe("p");
   expect(resolvePersonSearch("Samuel P on AI", [user])?.topic).toBe("p on ai");
   expect(resolvePersonSearch("Sam P", [user])).toBeUndefined();
+});
+
+it("retrieves complete low-karma names inside author-plus-topic queries", () => {
+  const lookup = compilePersonLookup("quantum Alice Example mechanics");
+  const must = lookup?.query?.bool?.must;
+  if (!Array.isArray(must)) throw new Error("Missing candidate clauses");
+  expect(must[0].bool?.should).toContainEqual({term: {"displayName.sort": {value: "alice example", case_insensitive: true, boost: 100}}});
+  expect(resolvePersonSearch("quantum Alice Example mechanics", [{objectID: "alice", displayName: "Alice Example", karma: 10}]))
+    .toEqual(expect.objectContaining({userIds: ["alice"], topic: "quantum mechanics", confidence: "exact"}));
+});
+
+it("retains punctuation in complete name spans", () => {
+  const must = compilePersonLookup("Alice O'Connor quantum")?.query?.bool?.must;
+  if (!Array.isArray(must)) throw new Error("Missing candidate clauses");
+  expect(must[0].bool?.should).toContainEqual({term: {"displayName.sort": {value: "Alice O'Connor", case_insensitive: true, boost: 100}}});
 });

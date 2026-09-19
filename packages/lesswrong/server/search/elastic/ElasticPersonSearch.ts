@@ -161,8 +161,19 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
   const tokens = words(search);
   if (!tokens.length || tokens.length > 8) return undefined;
   const joined = tokens.join(" ");
-  const exactValues = [search.trim(), joined, tokens.join("_"), tokens.join("-")];
-  const exact: QueryDslQueryContainer[] = exactValues.flatMap(value => [
+  // Candidate lookup must include the same complete-name spans that resolution
+  // accepts, even when a low-karma author is surrounded by topic words.
+  const exactValues = new Set([search.trim()]);
+  const sourceWords = [...search.matchAll(/[\p{L}\p{N}]+/gu)];
+  for (let start = 0; start < tokens.length; start++) {
+    for (let end = start + 1; end <= tokens.length; end++) {
+      const span = tokens.slice(start, end);
+      const lastWord = sourceWords[end - 1];
+      exactValues.add(search.slice(sourceWords[start].index, lastWord.index + lastWord[0].length));
+      for (const separator of [" ", "_", "-"]) exactValues.add(span.join(separator));
+    }
+  }
+  const exact: QueryDslQueryContainer[] = [...exactValues].flatMap(value => [
     {term: {"displayName.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"slug.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"fullName.sort": {value, case_insensitive: true, boost: 100}}},

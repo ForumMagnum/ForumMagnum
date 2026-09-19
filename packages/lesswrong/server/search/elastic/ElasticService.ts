@@ -13,7 +13,7 @@ import { parseSearchSort } from "@/lib/search/searchSorting";
 import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
 import Sequences from "@/server/collections/sequences/collection";
 
-export interface UnifiedFilterParams {
+export interface SearchFilterParams {
   tagIds?: string[],
   tagMatch?: "any" | "all",
   authorIds?: string[],
@@ -55,8 +55,12 @@ class ElasticService {
     const page = params.page ?? 0;
     const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
     const indexes = Array.isArray(index) ? index : [index];
-    const unifiedSearch = Array.isArray(index) || options.unifiedSearch;
-    const curatedSequences = !skipSearch && unifiedSearch && indexes.length === 1 && indexes[0] === "sequences"
+    const lookup = options.mode === "lookup";
+    if (lookup && Array.isArray(index)) throw new Error("Lookup search requires a single index");
+    if (!lookup && (sorting || params.aroundLatLng)) {
+      throw new Error("Index sort aliases and geographic sorting require lookup search");
+    }
+    const curatedSequences = !skipSearch && !lookup && indexes.length === 1 && indexes[0] === "sequences"
       ? await Sequences.find({curatedOrder: {$exists: true}}, {}, {_id: 1}).fetch()
       : [];
     const result = skipSearch
@@ -65,8 +69,8 @@ class ElasticService {
           hits: [],
         }}
       : await (
-        unifiedSearch
-          ? this.client.multiSearch({
+        !lookup
+          ? this.client.search({
             indexes,
             curatedSequenceIds: curatedSequences.map(sequence => sequence._id),
             filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
@@ -77,8 +81,8 @@ class ElasticService {
             offset: page * hitsPerPage,
             limit: hitsPerPage,
           })
-          : this.client.search({
-            index,
+          : this.client.lookup({
+            index: indexes[0],
             sorting,
             search,
             offset: page * hitsPerPage,
@@ -151,7 +155,7 @@ class ElasticService {
     facetFilters?: string[][],
     numericFilters?: string[],
     existsFilters?: string[],
-    unified?: UnifiedFilterParams,
+    search?: SearchFilterParams,
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -214,15 +218,15 @@ class ElasticService {
       });
     }
 
-    if (unified?.tagIds?.length) {
-      result.push({type: "tag", field: "tags", value: unified.tagIds, match: unified.tagMatch});
+    if (search?.tagIds?.length) {
+      result.push({type: "tag", field: "tags", value: search.tagIds, match: search.tagMatch});
     }
-    if (unified?.authorIds?.length) {
-      result.push({type: "author", field: "author", value: unified.authorIds});
+    if (search?.authorIds?.length) {
+      result.push({type: "author", field: "author", value: search.authorIds});
     }
-    if (unified?.postTypes?.length) {
+    if (search?.postTypes?.length) {
       const postTypes: SearchPostType[] = [];
-      for (const postType of unified.postTypes) {
+      for (const postType of search.postTypes) {
         if (!searchPostTypes.has(postType)) {
           throw new Error("Invalid post type: " + postType);
         }

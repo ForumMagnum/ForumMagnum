@@ -20,7 +20,7 @@ export const querySchema = z.object({
     numericFilters: z.optional(z.array(z.string())),
     existsFilters: z.optional(z.array(z.string())),
     aroundLatLng: z.optional(z.string()),
-    // Unified (multi-index) search only. Validated further by the server.
+    // Ordinary ranked search. Validated further by the server.
     sort: z.optional(z.array(z.string())),
     tagMatch: z.optional(z.enum(["any", "all"])),
     tagIds: z.optional(z.array(z.string())),
@@ -30,7 +30,8 @@ export const querySchema = z.object({
 });
 
 const searchOptionsSchema = z.object({
-  unifiedSearch: z.optional(z.boolean()),
+  /** Specialized single-index autocomplete and directory behavior. */
+  mode: z.optional(z.literal("lookup")),
   emptyStringSearchResults: z.union([z.literal("default"), z.literal("empty")]),
 });
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;

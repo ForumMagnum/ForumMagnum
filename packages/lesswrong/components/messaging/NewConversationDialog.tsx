@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from "../search/useSearchAnalytics";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
-import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
+import { getElasticIndexNameWithSorting, getLookupSearchClient } from "../../lib/search/searchUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/routeUtil";
@@ -213,7 +213,7 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
           </div>
           <InstantSearch
             indexName={indexName}
-            searchClient={getSearchClient()}
+            searchClient={getLookupSearchClient()}
             searchState={{ query }}
             onSearchStateChange={(x) => {
               setQuery(x.query);

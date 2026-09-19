@@ -1,7 +1,7 @@
 import React from 'react';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { getSearchClient, isSearchEnabled, SearchIndexCollectionName } from '../../lib/search/searchUtil';
+import { getLookupSearchClient, isSearchEnabled, SearchIndexCollectionName } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -76,7 +76,7 @@ const SearchAutoComplete = ({clickAction, placeholder, noSearchPlaceholder, rend
   }
   return <InstantSearch
     indexName={indexName}
-    searchClient={getSearchClient()}
+    searchClient={getLookupSearchClient()}
     onSearchStateChange={onSearchStateChange}
   >
     <div className={classes.autoComplete}>

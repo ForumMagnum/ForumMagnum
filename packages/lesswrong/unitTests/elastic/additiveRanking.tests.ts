@@ -1,10 +1,10 @@
 import type { PersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
 import type { QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
-import { compileMultiQuery } from "../../server/search/elastic/ElasticMultiQuery";
+import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
 import { compoundTitleQuery, matchPoints, navigationPoints, parseIdentifier, popularityGate, popularityPoints, rankingWeights, wantsUpcomingEvents } from "../../server/search/elastic/ElasticAdditiveRanking";
 
 function interpretations(index: string, search: string, person?: PersonSearch): QueryDslQueryContainer[] {
-  const request = compileMultiQuery({ranking: "additive", indexes: [index], search, person});
+  const request = compileSearchQuery({indexes: [index], search, person});
   const must = request.query?.dis_max?.queries[0]?.bool?.must;
   if (!Array.isArray(must) || !must[0].dis_max) throw new Error("Missing interpretations");
   return must[0].dis_max.queries;
@@ -118,7 +118,7 @@ describe("independent interpretations and topical evidence", () => {
   });
 
   it("preserves advanced syntax eligibility without inferred authors", () => {
-    const query = compileMultiQuery({ranking: "additive", indexes: ["posts"], search: 'user:ey "corrigibility" -bananas', person: {userIds: ["other"], topic: "", confidence: "exact"}, filters: [{type: "facet", field: "af", value: true, negated: false}]});
+    const query = compileSearchQuery({indexes: ["posts"], search: 'user:ey "corrigibility" -bananas', person: {userIds: ["other"], topic: "", confidence: "exact"}, filters: [{type: "facet", field: "af", value: true, negated: false}]});
     const serialized = JSON.stringify(query.query);
     expect(serialized).toContain("authorSlug.sort");
     expect(serialized).toContain('"must_not"');

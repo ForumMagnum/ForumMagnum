@@ -2,6 +2,7 @@ import ElasticQuery, { QueryData, getSearchOriginDate } from "../../server/searc
 
 describe("ElasticQuery", () => {
   const testQuery: QueryData = {
+    mode: "lookup",
     index: "posts",
     search: "test query",
     filters: [],
@@ -87,6 +88,7 @@ describe("ElasticQuery", () => {
 
   it("Keeps user filters when using quoted terms", () => {
     const compiledQuery = new ElasticQuery({
+      mode: "lookup",
       index: "posts",
       search: 'user:eliezer_yudkowsky "qualia"',
       filters: [],
@@ -107,9 +109,9 @@ describe("ElasticQuery", () => {
   });
 });
 
-describe("ElasticQuery unified filters", () => {
+describe("ElasticQuery search filters", () => {
   const filterClauses = (index: string, filters: QueryData["filters"], search = "alignment") => {
-    const body = new ElasticQuery({index, search, filters}).compile().body;
+    const body = new ElasticQuery({index, search, filters, mode: "lookup"}).compile().body;
     return JSON.stringify(body.query?.script_score?.query?.bool?.filter ?? []);
   };
 
@@ -128,7 +130,7 @@ describe("ElasticQuery unified filters", () => {
       ? {bool: {should: [], filter: [{term: {objectID: "t1"}}]}}
       : {terms: {objectID: ["t1"]}};
     for (const search of ["", "alignment"]) {
-      const query = new ElasticQuery({index: "tags", search, filters});
+      const query = new ElasticQuery({index: "tags", search, filters, mode: "lookup"});
       expect(query.compile().body.query.script_score.query.bool.filter).toContainEqual(expected);
       expect(query.compileAdditiveRecall().filters).toContainEqual(expected);
     }
@@ -177,7 +179,7 @@ describe("ElasticQuery unified filters", () => {
   });
 
   it("highlights text without passing article exclusions to the plain highlighter", () => {
-    const body = new ElasticQuery({index: "posts", search: "alignment", filters: [
+    const body = new ElasticQuery({index: "posts", search: "alignment", mode: "lookup", filters: [
       {type: "postType", field: "postType", value: ["article"]},
     ]}).compile().body;
     const fields = Object.values(body.highlight?.fields ?? {});

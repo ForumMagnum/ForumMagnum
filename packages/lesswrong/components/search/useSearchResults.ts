@@ -30,7 +30,7 @@ function mergeFacetFilters(filters: SearchFilterParams | undefined): string[][] 
 }
 
 /**
- * Pages through the unified search for one request. A new request (by value)
+ * Pages through search results for one request. A new request (by value)
  * clears the list and loads its first page; results of a superseded request
  * are dropped.
  */
@@ -54,7 +54,7 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
     setError(false);
     try {
       const facetFilters = mergeFacetFilters(filters);
-      const {results} = await getSearchClient({emptyStringSearchResults: "default", unifiedSearch: true})
+      const {results} = await getSearchClient({emptyStringSearchResults: "default"})
         .search<SearchBarHit>([{
           indexName,
           query,

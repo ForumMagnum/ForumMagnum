@@ -1,7 +1,7 @@
 import React from 'react';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
-import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
+import { getSearchIndexName, getLookupSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import type { SearchState } from 'react-instantsearch-core';
 import { isLeftClick } from '../search/UsersSearchHit';
 import { SearchHitComponentProps } from '../search/types';
@@ -165,7 +165,7 @@ const FollowUserSearch = ({onUserSelected, currentUser}: {
   return <AnalyticsContext pageElementContext="followUserSearch"><div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={indexName}
-      searchClient={getSearchClient()}
+      searchClient={getLookupSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
       {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when

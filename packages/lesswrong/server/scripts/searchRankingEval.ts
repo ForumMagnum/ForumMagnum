@@ -18,8 +18,8 @@ import type { UnifiedRanking } from "../search/elastic/unifiedSearchTypes";
  * Offline evaluation of the unified (header) search ranking against the dev
  * Elasticsearch. Run from the REPL, for example:
  *
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots()'
- *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings({limit: 200})'
+ *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json")'
+ *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'compareRankings({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json", limit: 200})'
  *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'runStressSuite()'
  *   yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
  *
@@ -142,8 +142,7 @@ function currentMatchPivot(index: string): number | undefined {
   return pivots[index];
 }
 
-const inventoryPath = "/tmp/forum-search-report/intent-inventory.json";
-function evaluationGroups(csvPath: string): EvaluationGroup[] {
+function evaluationGroups(csvPath: string, inventoryPath: string): EvaluationGroup[] {
   const inventory: IntentFamily[] = JSON.parse(fs.readFileSync(inventoryPath, "utf8"));
   return buildEvaluationGroups(readEvidence(csvPath), inventory);
 }
@@ -224,9 +223,9 @@ function residualEligibility(index: string, userIds: string[]): QueryDslQueryCon
 }
 
 /** Calibrate exactly the raw topical query used inside the production scorer, including residual topics. */
-export async function calibrateMatchPivots(csvPath = defaultEvidencePath, sampleSize = 200, out = "/tmp/forum-search-report/topical-calibration.json") {
+export async function calibrateMatchPivots(csvPath: string, inventoryPath: string, sampleSize = 200, out = "/tmp/forum-search-report/topical-calibration.json") {
   const client = evaluationClient();
-  const groups = evaluationGroups(csvPath).filter(group => group.split === "training").sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, sampleSize);
+  const groups = evaluationGroups(csvPath, inventoryPath).filter(group => group.split === "training").sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, sampleSize);
   const before = await corpusSnapshot(client);
   const samples: {query: string; topic: string; index: string; scores: number[]}[] = [];
   const failures: string[] = [];
@@ -259,7 +258,7 @@ export async function calibrateMatchPivots(csvPath = defaultEvidencePath, sample
   return report;
 }
 
-interface CompareOptions { csvPath?: string; limit?: number; queries?: string[]; out?: string }
+interface CompareOptions { inventoryPath: string; csvPath?: string; limit?: number; queries?: string[]; out?: string }
 interface TargetStatus extends EvaluationTarget { status: "eligible" | "absent" | "ineligible" }
 interface RankingResult { hits: HitSummary[]; firstTargetRank: number | null; error?: "request-failed"; errorReason?: string }
 interface DetailedEvaluation extends EvaluationGroup {
@@ -301,9 +300,9 @@ function summarizeEvaluations(evaluations: DetailedEvaluation[]) {
 }
 
 /** Header-search click candidates only. Null rank is a miss only for an eligible target and a successful request. */
-export async function compareRankings({csvPath = defaultEvidencePath, limit = 1000, queries, out = "/tmp/forum-search-report/ranking-evaluation.json"}: CompareOptions = {}) {
+export async function compareRankings({inventoryPath, csvPath = defaultEvidencePath, limit = 1000, queries, out = "/tmp/forum-search-report/ranking-evaluation.json"}: CompareOptions) {
   const client = evaluationClient();
-  const groups = evaluationGroups(csvPath);
+  const groups = evaluationGroups(csvPath, inventoryPath);
   const selected = groups.filter(group => !queries || queries.includes(group.query)).slice(0, limit);
   const startedAt = new Date().toISOString();
   const before = await corpusSnapshot(client);
@@ -549,10 +548,10 @@ async function measureRanking(client: UnifiedSearchClient, query: string, rankin
 }
 
 /** Read-only latency comparison: pass zero warms both rankers; measured passes reverse pair order. */
-export async function benchmarkRankings({csvPath = defaultEvidencePath, out = "/tmp/forum-search-report/ranking-latency.json", limit = 1000, measuredPasses = 2} = {}) {
+export async function benchmarkRankings({inventoryPath, csvPath = defaultEvidencePath, out = "/tmp/forum-search-report/ranking-latency.json", limit = 1000, measuredPasses = 2}: CompareOptions & {measuredPasses?: number}) {
   if (!Number.isInteger(measuredPasses) || measuredPasses < 1) throw new Error("measuredPasses must be a positive integer");
   const client = evaluationClient();
-  const groups = evaluationGroups(csvPath).sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, limit);
+  const groups = evaluationGroups(csvPath, inventoryPath).sort((a, b) => stableSampleKey(a.query).localeCompare(stableSampleKey(b.query))).slice(0, limit);
   const before = await corpusSnapshot(client);
   const frozen = await openFrozenSearch(client, before);
   const metadata = {

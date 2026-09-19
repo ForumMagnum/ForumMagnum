@@ -92,3 +92,7 @@ export const getSearchClient = (options?: SearchOptions): Client => {
   }
   return client;
 }
+
+/** Single-index autocomplete and directory search, including geo and index sort aliases. */
+export const getLookupSearchClient = (options?: SearchOptions): Client =>
+  getSearchClient({...options, emptyStringSearchResults: options?.emptyStringSearchResults ?? "default", mode: "lookup"});

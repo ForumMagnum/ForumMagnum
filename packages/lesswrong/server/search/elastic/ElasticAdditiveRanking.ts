@@ -7,13 +7,13 @@ import type {
 import ElasticQuery, { QueryFilter } from "./ElasticQuery";
 import { collectionNameToConfig, indexToCollectionName } from "./ElasticConfig";
 import { contentTokens } from "./searchTokens";
-import { compileUnifiedSort } from "./ElasticUnifiedSort";
+import { compileSearchSort } from "./ElasticSearchSort";
 import { parseQuery } from "./parseQuery";
-import type { MultiQueryData } from "./unifiedSearchTypes";
+import type { SearchQueryData } from "./searchQueryTypes";
 import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
 
 /**
- * Additive unified ranking. Every signal is a bounded number of points on one
+ * Additive search ranking. Every signal is a bounded number of points on one
  * shared scale and the final score is their sum:
  *
  *   score = T (topical match, 0..5) + H (title coverage, 0..1)
@@ -463,7 +463,7 @@ function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
   return {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility], must: [{dis_max: {queries: interpretations, tie_breaker: 0}}]}};
 }
 
-export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds, sort}: MultiQueryData): SearchRequest {
+export function compileSearchQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds, sort}: SearchQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
@@ -477,14 +477,26 @@ export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 
     : search;
   const tokenCount = identifier ? 0 : contentTokens(matchSearch).length;
   for (const index of indexes) {
-    const elasticQuery = new ElasticQuery({index, search, filters, preTag, postTag, unifiedRanking: true});
+    const elasticQuery = new ElasticQuery({index, search, filters, preTag, postTag});
     const request = elasticQuery.compile();
-    Object.assign(highlightFields, request.body.highlight?.fields);
     for (const field of request.body._source.excludes) excludes.add(field);
     const recall = elasticQuery.compileAdditiveRecall();
     const recallQuery = index === "users" && search && !isAdvanced
       ? userNameRecall(search, contentTokens(search).length >= 5 ? "60%" : "2<75%")
       : recall.query;
+    for (const [field, highlight] of Object.entries(request.body.highlight?.fields ?? {})) {
+      // Advanced syntax retains its positive-term-only exact highlighting.
+      // Plain additive searches recall through stemmed/synonym base fields.
+      const name = isAdvanced ? field : field.replace(/\.exact$/, "");
+      const highlightQuery = isAdvanced ? highlight.highlight_query : recallQuery;
+      const previous = highlightFields[name]?.highlight_query;
+      highlightFields[name] = {
+        ...highlight,
+        highlight_query: previous && highlightQuery
+          ? {bool: {should: [previous, highlightQuery], minimum_should_match: 1}}
+          : highlightQuery,
+      };
+    }
     queries.push(compileIndexBranch({
       index, matchSearch, tokenCount, isAdvanced, identifier, person,
       recall: recallQuery, eligibility: recall.filters ?? [], eventIntent: wantsUpcomingEvents(search, filters),
@@ -497,7 +509,7 @@ export function compileAdditiveMultiQuery({indexes, search, offset = 0, limit = 
     size: limit,
     track_total_hits: true,
     query: {dis_max: {queries}},
-    sort: compileUnifiedSort(sort, indexes.length === 1 && indexes[0] === "sequences" ? curatedSequenceIds : undefined),
+    sort: compileSearchSort(sort, indexes.length === 1 && indexes[0] === "sequences" ? curatedSequenceIds : undefined),
     highlight: {fields: highlightFields, number_of_fragments: 1, fragment_size: 140, no_match_size: 140},
     _source: {excludes: [...excludes]},
   };
