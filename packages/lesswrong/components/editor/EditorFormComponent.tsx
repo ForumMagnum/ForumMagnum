@@ -187,12 +187,9 @@ function InnerEditorFormComponent<S, R>({
   const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
 
   const saveBackup = useCallback((newContents: EditorContents) => {
-    const savedOriginalContents = document?.[fieldName]?.originalContents;
-    const sameAsSaved = !!savedOriginalContents
-      && savedOriginalContents.type === newContents.type
-      && savedOriginalContents.data === newContents.value;
-
-    if (isBlank(newContents) || sameAsSaved) {
+    // `document` contains live form values, not necessarily saved contents.
+    // Only clear nonblank backups after a successful submission.
+    if (isBlank(newContents)) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
@@ -202,7 +199,7 @@ function InnerEditorFormComponent<S, R>({
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
+  }, [getLocalStorageHandlers, currentEditorType]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -350,6 +347,12 @@ function InnerEditorFormComponent<S, R>({
       const cleanupSubmitForm = addOnSubmitCallback(async () => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           const updatedEditorData = await editorRef.current.submitData({ includeYjsState: true });
+          if (!isCollabEditor) {
+            saveBackup({
+              type: updatedEditorData.originalContents.type,
+              value: updatedEditorData.originalContents.data ?? '',
+            });
+          }
           field.setValue(updatedEditorData);
         }
       });
