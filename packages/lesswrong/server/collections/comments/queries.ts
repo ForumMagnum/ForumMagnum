@@ -275,6 +275,7 @@ export const graphqlCommentQueryTypeDefs = gql`
   }
   
   input CommentsTopShortformInput {
+    sortBy: CommentSortingMode
     userId: String
     commentIds: [String!]
     minimumKarma: Int
