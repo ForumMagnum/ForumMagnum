@@ -36,16 +36,38 @@ const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"
 const searchParameterNames = ["query", "kinds", "contentType", "sort", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
 
 /** Preserve unrelated parameters, including repeated values, while replacing search state. */
-export function mergeSearchPageParams(search: string, state: SearchPageState): string {
+export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
+  const prefix = presentation === "modal" ? "search." : "";
   const params = new URLSearchParams(search);
-  for (const key of searchParameterNames) params.delete(key);
+  for (const key of [...params.keys()]) {
+    if (!key.startsWith(prefix)) continue;
+    const name = key.slice(prefix.length).replace(/\[\d*\]$/, "");
+    if (searchParameterNames.includes(name)) params.delete(key);
+  }
   const query = searchPageStateToQuery(state);
-  for (const [key, value] of Object.entries(query)) params.set(key, value);
+  for (const [key, value] of Object.entries(query)) params.set(`${prefix}${key}`, value);
   return params.toString();
 }
 
 const dayMs = 24 * 60 * 60 * 1000;
 const karmaPattern = /^(-?\d+)?-(-?\d+)?$/;
+
+export function searchPageStateFromSearch(search: string, presentation: "page" | "modal"): SearchPageState {
+  const prefix = presentation === "modal" ? "search." : "";
+  const query: Record<string, string> = {};
+  for (const [key, value] of new URLSearchParams(search)) {
+    if (key.startsWith(prefix)) query[key.slice(prefix.length)] = value;
+  }
+  return searchPageStateFromQuery(query);
+}
+
+function readList(query: Record<string, string | undefined>, key: string): string[] {
+  if (query[key] !== undefined) return splitList(query[key]);
+  return Object.entries(query)
+    .filter(([name]) => name.startsWith(`${key}[`) && /^\[\d*\]$/.test(name.slice(key.length)))
+    .sort(([a], [b]) => Number(a.slice(key.length + 1, -1)) - Number(b.slice(key.length + 1, -1)))
+    .flatMap(([, value]) => splitList(value));
+}
 
 function splitList(value: string | undefined): string[] {
   return value ? value.split(",").filter(item => item.length > 0) : [];
@@ -102,12 +124,12 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
     kinds,
     sort: searchSortFromUrlParam(query.sort),
     filters: {
-      tagIds: splitList(query.tags),
+      tagIds: readList(query, "tags"),
       tagMatch: query.tagMatch === "all" ? "all" : "any",
       events: query.events === "include" || query.events === "only" || query.events === "exclude"
         ? query.events
         : postTypes.includes("event") ? postTypes.length === 1 ? "only" : "include" : "exclude",
-      authorIds: splitList(query.authors),
+      authorIds: readList(query, "authors"),
       postTypes: postTypes.some(type => type !== "event") ? postTypes.filter(type => type !== "event") : defaultSearchPostTypes,
       dateRange: parseDateRange(query.from, query.to),
       karmaRange: parseKarmaRange(query.karma),

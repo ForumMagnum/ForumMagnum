@@ -10,7 +10,7 @@ jest.mock('../components/search/SearchPage', () => {
   const FakeSearchPage = ({presentation, onClose, timeframeSlot}: {presentation: string, onClose: () => void, timeframeSlot?: HTMLElement | null}) => {
     const [timeframeOpen, setTimeframeOpen] = React.useState(false);
     return <>
-      <input aria-label="Search" data-presentation={presentation} />
+      <input data-search-input aria-label="Search" data-presentation={presentation} />
       <button onClick={() => setTimeframeOpen(true)}>Timeframe</button>
       <button onClick={onClose}>Close search</button>
       {timeframeOpen && timeframeSlot && createPortal(<section aria-label="Timeframe"><button>Done with timeframe</button></section>, timeframeSlot)}

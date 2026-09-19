@@ -22,7 +22,9 @@ jest.mock('../components/common/ForumIcon', () => ({__esModule: true, default: (
 jest.mock('../components/common/LWTooltip', () => ({__esModule: true, default: ({children}: {children: React.ReactNode}) => <>{children}</>}));
 jest.mock('../components/common/ErrorBoundary', () => ({__esModule: true, default: ({children}: {children: React.ReactNode}) => <>{children}</>}));
 jest.mock('../components/search/useSearchAnalytics', () => ({useSearchAnalytics: () => jest.fn(), useCaptureSearchResultSelected: () => jest.fn()}));
-jest.mock('../components/search/useSearchHistory', () => ({useSearchHistory: () => ({resetNavigation: jest.fn(), recordSearch: jest.fn()})}));
+const retryHistory = jest.fn();
+let historyReadError = false;
+jest.mock('../components/search/useSearchHistory', () => ({useSearchHistory: () => ({resetNavigation: jest.fn(), recordSearch: jest.fn(), readError: historyReadError, retryHistory})}));
 jest.mock('../components/search/useSearchResults', () => ({useSearchResults: () => ({hits: [], total: 0, hasMore: false, loading: false})}));
 jest.mock('../components/search/SearchWikitagsBar', () => ({__esModule: true, default: () => null}));
 jest.mock('../components/search/UsersSearchAutoComplete', () => ({__esModule: true, default: ({clickAction}: {clickAction: (id: string) => void}) => <>
@@ -44,6 +46,8 @@ beforeEach(() => {
   mockLocation.search = '?context=keep-me';
   mockNavigate.mockReset();
   wideScreen = true;
+  historyReadError = false;
+  retryHistory.mockReset();
 });
 
 it('writes modal searches while preserving the underlying page URL and open state', () => {
@@ -333,7 +337,7 @@ it('keeps author pills at the end of the search field synchronized with the auth
 
 it('restores URL panels and starts fresh at a destination without search state', () => {
   localStorage.setItem('search.lastModalState', 'query=stale&authors=alice');
-  mockLocation.search = '?context=one&context=two&query=shared&expanded=time,tags&mobileFilters=1';
+  mockLocation.search = '?context=one&context=two&search.query=shared&search.expanded=time,tags&search.mobileFilters=1';
   const {unmount} = render(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('shared');
   expect(screen.getByRole('button', {name: 'Filter results'}).getAttribute('aria-expanded')).toBe('true');
@@ -354,7 +358,7 @@ it('reloads external query changes without overwriting them with the previous st
   const {rerender} = render(<SearchPage presentation="modal" />);
   fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'first'}});
   mockNavigate.mockClear();
-  mockLocation.search = '?query=second&expanded=&kinds=Comments';
+  mockLocation.search = '?search.query=second&search.expanded=&search.kinds=Comments';
   rerender(<SearchPage presentation="modal" />);
   expect(screen.getByRole('searchbox').getAttribute('value')).toBe('second');
   expect(screen.getByRole('checkbox', {name: 'Comment'}).getAttribute('aria-checked')).toBe('true');
@@ -430,4 +434,32 @@ it.each<'modal' | 'page'>(['modal', 'page'])('places the mobile filter toggle af
   fireEvent.click(tab);
   expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
   slot.remove();
+});
+
+it('isolates modal state from host page filters and reads only namespaced search state', () => {
+  mockLocation.search = '?sort=needsReview&from=host&to=host&query=host&tags[0]=host&searchOpen=1&search.query=modal';
+  render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('searchbox').getAttribute('value')).toBe('modal');
+  fireEvent.change(screen.getByRole('searchbox'), {target: {value: 'changed'}});
+  const params = new URLSearchParams(mockNavigate.mock.calls.at(-1)?.[0].search);
+  expect(params.get('sort')).toBe('needsReview');
+  expect(params.get('from')).toBe('host');
+  expect(params.get('to')).toBe('host');
+  expect(params.get('query')).toBe('host');
+  expect(params.get('tags[0]')).toBe('host');
+  expect(params.get('search.query')).toBe('changed');
+});
+
+it.each([true, false])('shows failed history reads and retry with filters closed (desktop: %s)', desktop => {
+  wideScreen = desktop;
+  historyReadError = true;
+  const {rerender} = render(<SearchPage presentation="modal" />);
+  expect(screen.getByRole('button', {name: 'Filter results'}).getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByRole('complementary', {name: 'Search options'})).toBeNull();
+  expect(screen.getByRole('status').textContent).toContain('Could not load search history.');
+  fireEvent.click(screen.getByRole('button', {name: 'Retry history'}));
+  expect(retryHistory).toHaveBeenCalledTimes(1);
+  historyReadError = false;
+  rerender(<SearchPage presentation="modal" />);
+  expect(screen.queryByRole('button', {name: 'Retry history'})).toBeNull();
 });

@@ -1,4 +1,4 @@
-import SearchResultLink from "./SearchResultLink";
+import SearchResultRow from "./SearchResultRow";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -13,12 +13,11 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
-    position: "relative",
     maxWidth: 600,
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18,
+    marginBottom: 0,
     cursor: 'pointer',
   },
   authorRow: {
@@ -62,9 +61,10 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
   }
 }))
 
-const ExpandedCommentsSearchHit = ({hit, icon}: {
+const ExpandedCommentsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
   icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const comment: SearchComment = hit
@@ -82,9 +82,7 @@ const ExpandedCommentsSearchHit = ({hit, icon}: {
   }
   
 
-  return <div className={classes.root}>
-    <SearchResultLink href={url} label={comment.postTitle ?? comment.tagName ?? "Comment"} />
-    {icon}
+  return <SearchResultRow href={url} label={comment.postTitle ?? comment.tagName ?? "Comment"} icon={icon} compact={compact} className={classes.root}>
     <div>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
@@ -104,7 +102,7 @@ const ExpandedCommentsSearchHit = ({hit, icon}: {
       <span>{comment.baseScore ?? 0} karma</span>
       <FormatDate date={comment.createdAt} />
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedCommentsSearchHit;

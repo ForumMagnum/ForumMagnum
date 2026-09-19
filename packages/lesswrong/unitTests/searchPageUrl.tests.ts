@@ -114,3 +114,16 @@ it("clears default search state without adding a persistence marker or losing mo
     .toBe("searchOpen=1&context=one&context=two");
   expect(mergeSearchPageParams("?query=old", defaultSearchPageState)).toBe("");
 });
+
+it("preserves legacy bracket-array filters while canonicalizing them", () => {
+  const state = searchPageStateFromQuery({'tags[0]': 'a', 'tags[1]': 'b', 'authors[0]': 'u'});
+  expect(state.filters.tagIds).toEqual(['a', 'b']);
+  expect(state.filters.authorIds).toEqual(['u']);
+  const canonical = new URLSearchParams(mergeSearchPageParams('?tags[0]=a&tags[1]=b&authors[0]=u', state));
+  expect(canonical.get('tags')).toBe('a,b');
+  expect(canonical.has('tags[0]')).toBe(false);
+});
+
+it.each([['newest_first', 'date', 'desc'], ['oldest_first', 'date', 'asc'], ['karma', 'karma', 'desc']])('upgrades legacy sort %s', (sort, key, direction) => {
+  expect(searchPageStateFromQuery({sort}).sort[0]).toEqual({key, direction});
+});

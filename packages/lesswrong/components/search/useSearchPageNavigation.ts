@@ -13,52 +13,63 @@ function getResultRows(area: HTMLDivElement | null) {
     .filter(row => row.querySelector('a[href]'));
 }
 
-function highlightResult(rows: HTMLElement[], selected: HTMLElement | undefined) {
-  for (const row of rows) {
-    if (row === selected) row.setAttribute('data-search-selected', 'true');
-    else row.removeAttribute('data-search-selected');
-  }
+function selectResult(selectedRef: RefObject<HTMLElement | null>, next: HTMLElement | null) {
+  if (selectedRef.current === next) return;
+  selectedRef.current?.removeAttribute('data-search-selected');
+  next?.setAttribute('data-search-selected', 'true');
+  selectedRef.current = next;
 }
 
-function selectResultFromEvent(event: Event) {
-  const area = event.currentTarget;
-  const target = event.target;
-  if (!(area instanceof HTMLDivElement) || !(target instanceof Node)) return;
-  const rows = getResultRows(area);
-  const selected = rows.find(row => row.contains(target));
-  if (selected) highlightResult(rows, selected);
+function resultFromTarget(area: HTMLDivElement | null, target: EventTarget | null): HTMLElement | null {
+  const row = target instanceof Element ? target.closest<HTMLElement>('[data-search-result]') : null;
+  return row && area?.contains(row) && row.querySelector('a[href]') ? row : null;
 }
 
 export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore}: SearchPageNavigationOptions) {
   const previousSearchKey = useRef(searchKey);
+  const selected = useRef<HTMLElement | null>(null);
+  const attachedArea = useRef<HTMLDivElement | null>(null);
+  const detachListeners = useRef<(() => void) | null>(null);
 
-  // Check after every render so asynchronously loaded results get a selection.
-  // Appending a page keeps the selection; changing the search resets it.
+  // Appending results preserves selection; replacing results or changing filters resets it.
   useEffect(() => {
-    const rows = getResultRows(resultsRef.current);
-    if (previousSearchKey.current !== searchKey || !rows.some(row => row.hasAttribute('data-search-selected'))) {
-      highlightResult(rows, rows[0]);
+    const area = resultsRef.current;
+    if (previousSearchKey.current !== searchKey || !selected.current || !area?.contains(selected.current)) {
+      selectResult(selected, getResultRows(area)[0] ?? null);
     }
     previousSearchKey.current = searchKey;
+  });
+
+  useEffect(() => {
     const area = resultsRef.current;
-    // Movement lets the mouse reclaim selection even within the same row.
-    // A stationary pointer must not override arrow navigation or its scrolling.
-    area?.addEventListener('mousemove', selectResultFromEvent);
-    area?.addEventListener('focusin', selectResultFromEvent);
-    return () => {
-      area?.removeEventListener('mousemove', selectResultFromEvent);
-      area?.removeEventListener('focusin', selectResultFromEvent);
+    if (area === attachedArea.current) return;
+    detachListeners.current?.();
+    attachedArea.current = area;
+    const selectFromEvent = (event: Event) => {
+      const row = resultFromTarget(area, event.target);
+      if (row) selectResult(selected, row);
+    };
+    // Only movement reclaims selection: a stationary pointer must not override arrows.
+    area?.addEventListener('mousemove', selectFromEvent);
+    area?.addEventListener('focusin', selectFromEvent);
+    detachListeners.current = () => {
+      area?.removeEventListener('mousemove', selectFromEvent);
+      area?.removeEventListener('focusin', selectFromEvent);
     };
   });
+
+  useEffect(() => () => {
+    detachListeners.current?.();
+    attachedArea.current = null;
+    detachListeners.current = null;
+  }, []);
 
   return (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.defaultPrevented || event.nativeEvent.isComposing
       || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const input = inputRef.current;
-    const rows = getResultRows(resultsRef.current);
     if (event.key === 'Enter' && event.target === input) {
-      const selected = rows.find(row => row.hasAttribute('data-search-selected'));
-      const link = selected?.querySelector<HTMLAnchorElement>('a[href]');
+      const link = selected.current?.querySelector<HTMLAnchorElement>('a[href]');
       if (link) {
         event.preventDefault();
         event.stopPropagation();
@@ -67,19 +78,19 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
       return;
     }
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-    const target = event.target;
-    const focusedIndex = target instanceof Node ? rows.findIndex(row => row.contains(target)) : -1;
-    if (target !== input && focusedIndex === -1) return;
+    const focusedRow = resultFromTarget(resultsRef.current, event.target);
+    if (event.target !== input && !focusedRow) return;
     event.preventDefault();
     event.stopPropagation();
+    const rows = getResultRows(resultsRef.current);
     if (!rows.length) return;
-    const currentIndex = target === input
-      ? rows.findIndex(row => row.hasAttribute('data-search-selected'))
-      : focusedIndex;
+    const currentIndex = rows.findIndex(row => row === (focusedRow ?? selected.current));
     const nextIndex = getNextSearchResultIndex(currentIndex, rows.length, event.key);
-    highlightResult(rows, rows[nextIndex]);
-    rows[nextIndex].scrollIntoView({block: 'nearest'});
-    input?.focus({preventScroll: true});
+    const next = rows[nextIndex];
+    selectResult(selected, next);
+    next.scrollIntoView({block: 'nearest'});
+    // Native link focus exposes the result's accessible name and Enter activation.
+    next.querySelector<HTMLAnchorElement>('a[href]')?.focus({preventScroll: true});
     if (nextIndex === rows.length - 1) void loadMore();
   };
 }

@@ -168,3 +168,10 @@ it("limits empty dates before the archive to one year in overview and fitted sel
     expect(view.originMs).toBeLessThan(archive.originMs);
   }
 });
+
+it("clamps calendar presets to the destination month and preserves time", () => {
+  expect(presetDateRange("month", Date.UTC(2026, 2, 31, 12, 34, 56, 789)))
+    .toEqual({start: Date.UTC(2026, 1, 28, 12, 34, 56, 789)});
+  expect(presetDateRange("year", Date.UTC(2024, 1, 29, 12, 34, 56, 789)))
+    .toEqual({start: Date.UTC(2023, 1, 28, 12, 34, 56, 789)});
+});

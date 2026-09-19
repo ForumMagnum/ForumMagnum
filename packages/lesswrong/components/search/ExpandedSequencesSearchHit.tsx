@@ -1,4 +1,4 @@
-import SearchResultLink from "./SearchResultLink";
+import SearchResultRow from "./SearchResultRow";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -11,12 +11,11 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => ({
   root: {
-    position: "relative",
     maxWidth: 700,
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 0
   },
   body: {
     position: 'relative',
@@ -73,22 +72,21 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
   }
 }))
 
-const ExpandedSequencesSearchHit = ({hit, icon}: {
+const ExpandedSequencesSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
   icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const sequence: SearchSequence = hit
 
   
-  return <div className={classes.root}>
+  return <SearchResultRow href={`/sequences/${sequence._id}`} label={sequence.title ?? "Sequence"} icon={icon} compact={compact} className={classes.root}>
     {sequence.bannerImageId && <img
       className={classes.banner}
       src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${sequence.bannerImageId}`}
       alt=""
     />}
-    <SearchResultLink href={`/sequences/${sequence._id}`} label={sequence.title ?? "Sequence"} />
-    {icon}
     <div className={classes.body}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
@@ -105,7 +103,7 @@ const ExpandedSequencesSearchHit = ({hit, icon}: {
         <Snippet className={classes.snippet} attribute="plaintextDescription" hit={sequence} tagName="mark" />
       </div>
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedSequencesSearchHit;

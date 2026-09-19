@@ -52,6 +52,8 @@ export function searchSortToUrlParam(specs: SearchSortSpec[]): string | undefine
 /** Lenient parse of user-editable URL state: anything malformed yields the default sort. */
 export function searchSortFromUrlParam(param: string | undefined): SearchSortSpec[] {
   if (!param) return defaultSearchSort;
+  const legacy: Record<string, string> = {newest_first: "date:desc", oldest_first: "date:asc", karma: "karma:desc"};
+  param = legacy[param] ?? param;
   let specs: SearchSortSpec[];
   try {
     specs = parseSearchSort(param.split(","));

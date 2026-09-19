@@ -1,4 +1,4 @@
-import SearchResultLink from "./SearchResultLink";
+import SearchResultRow from "./SearchResultRow";
 import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import React from 'react';
@@ -12,12 +12,11 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
-    position: "relative",
     maxWidth: 600,
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 0
   },
   link: {
     display: "flex",
@@ -68,16 +67,15 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedUsersSearchHit = ({hit, icon}: {
+const ExpandedUsersSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
   icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const user = hit as SearchUser;
 
-  return <div className={classes.root}>
-    <SearchResultLink href={`${userGetProfileUrl(user)}?from=search_page`} label={user.displayName} />
-    {icon}
+  return <SearchResultRow href={`${userGetProfileUrl(user)}?from=search_page`} label={user.displayName} icon={icon} compact={compact} className={classes.root}>
     <div className={classes.link}>
       <div>
         <div className={classes.displayNameRow}>
@@ -100,7 +98,7 @@ const ExpandedUsersSearchHit = ({hit, icon}: {
         </div>
       </div>
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedUsersSearchHit

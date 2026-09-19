@@ -1,4 +1,4 @@
-import SearchResultLink from "./SearchResultLink";
+import SearchResultRow from "./SearchResultRow";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -11,12 +11,11 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
-    position: "relative",
     maxWidth: 700,
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 0
   },
   link: {
     display: 'block',
@@ -58,9 +57,10 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedTagsSearchHit = ({hit, icon}: {
+const ExpandedTagsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
   icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const tag = hit as SearchTag
@@ -71,10 +71,8 @@ const ExpandedTagsSearchHit = ({hit, icon}: {
     background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`
   } : {}
 
-  return <div className={classes.root} style={style}>
-    <SearchResultLink href={tagGetUrl(tag)} label={tag.name} />
-    {icon}
-    <div className={classes.link}>
+  return <SearchResultRow href={tagGetUrl(tag)} label={tag.name} icon={icon} compact={compact} className={classes.root}>
+    <div className={classes.link} style={style}>
       <div className={classes.titleRow}>
         <span className={classes.title}>
           <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
@@ -86,7 +84,7 @@ const ExpandedTagsSearchHit = ({hit, icon}: {
         <Snippet className={classes.snippet} attribute="description" hit={tag} tagName="mark" />
       </div>
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedTagsSearchHit;

@@ -25,24 +25,36 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
   },
   slider: {
     gridColumn: "1 / -1",
-    position: "relative",
-    flex: 1,
+    display: "grid",
+    gap: 2,
     minWidth: 160,
     maxWidth: 420,
+  },
+  sliderRow: {
+    display: "grid",
+    gridTemplateColumns: "28px minmax(0, 1fr)",
+    alignItems: "center",
+    gap: 4,
+    fontSize: 12,
+    color: theme.palette.grey[700],
+  },
+  track: {
+    position: "relative",
     height: 32,
+    "@media (pointer: coarse)": {height: 40},
   },
   rail: {
     position: "absolute",
     left: 8,
     right: 8,
-    top: 14,
+    top: "calc(50% - 2px)",
     height: 4,
     borderRadius: 2,
     backgroundColor: theme.palette.greyAlpha(0.15),
   },
   selectedRail: {
     position: "absolute",
-    top: 14,
+    top: 0,
     height: 4,
     borderRadius: 2,
     backgroundColor: theme.palette.primary.main,
@@ -50,10 +62,10 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
   input: {
     position: "absolute",
     inset: 0,
+    height: "100%",
     width: "100%",
     margin: 0,
     background: "transparent",
-    pointerEvents: "none",
     "-webkit-appearance": "none",
     appearance: "none",
     "&::-webkit-slider-thumb": {
@@ -101,7 +113,7 @@ const styles = defineStyles("SearchKarmaBar", (theme: ThemeType) => ({
 
 const lastStop = karmaStops.length - 1;
 
-/** Two thumbs over the karma stops. The outer stops mean no bound. */
+/** Separate vertical hit targets keep both thumbs reachable at equal bounds. */
 const SearchKarmaBar = ({value, onChange}: {
   value: SearchKarmaRange,
   onChange: (range: SearchKarmaRange) => void,
@@ -125,12 +137,22 @@ const SearchKarmaBar = ({value, onChange}: {
   const width = `${((maxStop - minStop) / lastStop) * 100}%`;
   return <div className={classes.root} role="group" aria-label="Karma">
     <div className={classes.slider}>
-      <div className={classes.rail} />
-      <div className={classes.selectedRail} style={{left, width}} />
-      <input type="range" className={classes.input} min={0} max={lastStop} step={1} value={minStop}
-        aria-label="Minimum karma" aria-valuetext={value.min === undefined ? "No minimum" : String(value.min)} onChange={setMin} />
-      <input type="range" className={classes.input} min={0} max={lastStop} step={1} value={maxStop}
-        aria-label="Maximum karma" aria-valuetext={value.max === undefined ? "No maximum" : String(value.max)} onChange={setMax} />
+      <label className={classes.sliderRow}>
+        <span>Min</span>
+        <span className={classes.track}>
+          <span className={classes.rail}><span className={classes.selectedRail} style={{left, width}} /></span>
+          <input type="range" className={classes.input} min={0} max={lastStop} step={1} value={minStop}
+            aria-label="Minimum karma" aria-valuetext={value.min === undefined ? "No minimum" : String(value.min)} onChange={setMin} />
+        </span>
+      </label>
+      <label className={classes.sliderRow}>
+        <span>Max</span>
+        <span className={classes.track}>
+          <span className={classes.rail}><span className={classes.selectedRail} style={{left, width}} /></span>
+          <input type="range" className={classes.input} min={0} max={lastStop} step={1} value={maxStop}
+            aria-label="Maximum karma" aria-valuetext={value.max === undefined ? "No maximum" : String(value.max)} onChange={setMax} />
+        </span>
+      </label>
     </div>
     <input type="number" step={1} className={classes.numberInput} value={value.min ?? ""} placeholder="No min"
       aria-label="Exact minimum karma" onChange={(event) => setNumericBound("min", event)} />

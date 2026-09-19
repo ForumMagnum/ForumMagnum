@@ -28,7 +28,7 @@ const ClearSearchHistoryMutation = gql(`
 `);
 
 export function useSearchHistory(userId: string | undefined, open: boolean) {
-  const {data, refetch} = useQuery(SearchHistoryQuery, {
+  const {data, refetch, error: queryError} = useQuery(SearchHistoryQuery, {
     variables: {userId: userId ?? ''},
     skip: !userId || !open,
     fetchPolicy: 'network-only',
@@ -36,12 +36,14 @@ export function useSearchHistory(userId: string | undefined, open: boolean) {
   const [recordSearchMutation] = useMutation(RecordSearchMutation);
   const [clearSearchHistoryMutation] = useMutation(ClearSearchHistoryMutation);
   const [error, setError] = useState(false);
+  const [retryError, setRetryError] = useState(false);
   const navigation = useRef<SearchHistoryNavigation | null>(null);
   const history = data?.user?.result?._id === userId ? data?.user?.result?.searchHistory ?? [] : [];
 
   useEffect(() => {
     navigation.current = null;
     setError(false);
+    setRetryError(false);
   }, [userId, open]);
 
   const resetNavigation = () => { navigation.current = null; };
@@ -66,16 +68,25 @@ export function useSearchHistory(userId: string | undefined, open: boolean) {
       },
     }).catch(() => setError(true));
   };
+  const retryHistory = async () => {
+    try {
+      const result = await refetch();
+      setRetryError(!!result.error);
+    } catch {
+      setRetryError(true);
+    }
+  };
   const clearHistory = async () => {
     try {
       await clearSearchHistoryMutation();
       resetNavigation();
-      await refetch();
+      const result = await refetch();
+      setRetryError(!!result.error);
       setError(false);
     } catch {
       setError(true);
     }
   };
 
-  return {recallSearch, recordSearch, resetNavigation, clearHistory, hasHistory: history.length > 0, error};
+  return {recallSearch, recordSearch, resetNavigation, clearHistory, retryHistory, hasHistory: history.length > 0, error, readError: !!userId && open && (!!queryError || retryError)};
 }

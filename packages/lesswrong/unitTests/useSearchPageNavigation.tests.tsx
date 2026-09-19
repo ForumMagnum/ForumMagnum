@@ -6,14 +6,14 @@ import { useSearchPageNavigation } from '../components/search/useSearchPageNavig
 const loadMore = jest.fn();
 const openResult = jest.fn();
 
-function SearchHarness({ids = ['a', 'b', 'c'], searchKey = 'query'}: {ids?: string[], searchKey?: string}) {
+function SearchHarness({ids = ['a', 'b', 'c'], searchKey = 'query', areaKey = 'initial'}: {ids?: string[], searchKey?: string, areaKey?: string}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const onKeyDown = useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore});
   return <div onKeyDown={onKeyDown}>
     <input ref={inputRef} aria-label="Search" />
     <button>Filter</button>
-    <div ref={resultsRef}>
+    <div key={areaKey} ref={resultsRef}>
       {ids.map(id => <div key={id} data-search-result data-testid={id}>
         <a href={`#${id}`} onClick={event => {event.preventDefault(); openResult(id);}}>{id}</a>
         <a href={`#author-${id}`}>Author {id}</a>
@@ -41,7 +41,7 @@ it('transfers selection between mouse movement and arrow keys, then opens the se
   const author = screen.getByRole('link', {name: 'Author c'});
   fireEvent.mouseMove(author);
   expectSelected('c');
-  expect(document.activeElement).toBe(input);
+  expect(document.activeElement).toBe(screen.getByRole('link', {name: 'b'}));
   fireEvent.keyDown(input, {key: 'ArrowUp'});
   expectSelected('b');
   fireEvent.keyDown(input, {key: 'ArrowDown'});
@@ -71,7 +71,7 @@ it('selects the first result, skips metadata links, stops at both ends, and open
   expectSelected('a');
   fireEvent.keyDown(input, {key: 'ArrowDown'});
   expectSelected('b');
-  expect(document.activeElement).toBe(input);
+  expect(document.activeElement).toBe(screen.getByRole('link', {name: 'b'}));
   fireEvent.keyDown(input, {key: 'ArrowDown'});
   expectSelected('c');
   expect(loadMore).toHaveBeenCalledTimes(1);
@@ -107,13 +107,13 @@ it('ignores modifiers, IME composition, and filter controls', () => {
   expect(openResult).not.toHaveBeenCalled();
 });
 
-it('navigates from a tab-focused metadata link and returns focus to the input', () => {
+it('navigates from a tab-focused metadata link and focuses the selected result link', () => {
   render(<SearchHarness />);
   const author = screen.getByRole('link', {name: 'Author b'});
   author.focus();
   fireEvent.keyDown(author, {key: 'ArrowDown'});
   expectSelected('c');
-  expect(document.activeElement).toBe(screen.getByRole('textbox'));
+  expect(document.activeElement).toBe(screen.getByRole('link', {name: 'c'}));
 });
 
 it('handles empty results and highlights the first asynchronously loaded result', () => {
@@ -125,4 +125,40 @@ it('handles empty results and highlights the first asynchronously loaded result'
   expect(loadMore).not.toHaveBeenCalled();
   rerender(<SearchHarness />);
   expectSelected('a');
+});
+
+it('keeps listeners across renders and touches only the changed selection on mouse movement', () => {
+  const {rerender} = render(<SearchHarness />);
+  const rowA = screen.getByTestId('a');
+  const rowB = screen.getByTestId('b');
+  const rowC = screen.getByTestId('c');
+  const area = rowA.parentElement!;
+  const scan = jest.spyOn(area, 'querySelectorAll');
+  const listen = jest.spyOn(area, 'addEventListener');
+  const writeB = jest.spyOn(rowB, 'setAttribute');
+  const removeC = jest.spyOn(rowC, 'removeAttribute');
+  fireEvent.mouseMove(screen.getByRole('link', {name: 'Author b'}));
+  fireEvent.mouseMove(screen.getByRole('link', {name: 'Author b'}));
+  expectSelected('b');
+  expect(scan).not.toHaveBeenCalled();
+  expect(writeB).toHaveBeenCalledTimes(1);
+  expect(removeC).not.toHaveBeenCalled();
+  rerender(<SearchHarness />);
+  expect(listen).not.toHaveBeenCalled();
+  jest.restoreAllMocks();
+});
+
+it('reattaches mouse and focus selection when the result container is replaced', () => {
+  const {rerender} = render(<SearchHarness />);
+  const oldArea = screen.getByTestId('a').parentElement!;
+  const detach = jest.spyOn(oldArea, 'removeEventListener');
+  rerender(<SearchHarness areaKey="replacement" />);
+  expect(screen.getByTestId('a').parentElement).not.toBe(oldArea);
+  fireEvent.mouseMove(screen.getByRole('link', {name: 'Author c'}));
+  expectSelected('c');
+  screen.getByRole('link', {name: 'Author b'}).focus();
+  expectSelected('b');
+  expect(detach).toHaveBeenCalledWith('mousemove', expect.any(Function));
+  expect(detach).toHaveBeenCalledWith('focusin', expect.any(Function));
+  jest.restoreAllMocks();
 });

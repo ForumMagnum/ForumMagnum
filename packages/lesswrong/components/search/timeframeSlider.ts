@@ -69,9 +69,14 @@ export function presetDateRange(preset: TimeframePreset, nowMs: number): SearchD
   switch (preset) {
     case "day": return {start: nowMs - dayMs};
     case "week": return {start: nowMs - (7 * dayMs)};
-    case "month": return {start: Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes())};
-    case "year": return {start: Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes())};
+    case "month": return {start: calendarPresetStart(now, now.getUTCFullYear(), now.getUTCMonth() - 1)};
+    case "year": return {start: calendarPresetStart(now, now.getUTCFullYear() - 1, now.getUTCMonth())};
   }
+}
+
+function calendarPresetStart(now: Date, year: number, month: number): number {
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return Date.UTC(year, month, Math.min(now.getUTCDate(), lastDay), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
 }
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

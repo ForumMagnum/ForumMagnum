@@ -28,11 +28,8 @@ function renderedProbeId(child: React.ReactNode): string {
 }
 
 describe('useQuery on the server', () => {
-  it('runs in the server bundle for this test', () => {
-    expect(bundleIsServer).toBe(true);
-  });
-
   it('materializes a tree id the way the client-side Apollo transport does', () => {
+    expect(bundleIsServer).toBe(true);
     // On the client, Apollo's streaming transport calls useId inside every
     // wrapped query hook. React folds "this component used an id" into the
     // tree ids of all descendants, so the server branch has to do the same

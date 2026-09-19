@@ -34,7 +34,7 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     width: '100%',
     maxWidth: 600,
     transition: 'max-width 320ms cubic-bezier(0.2, 0, 0, 1)',
-    '&:has(button[aria-label="Filter results"][aria-expanded="true"])': {maxWidth: 1200},
+    '&:has([data-search-filters-open="true"])': {maxWidth: 1200},
     '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
     marginTop: 128,
     height: 'calc(100% - 128px)',
@@ -42,7 +42,7 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    '& $timeframe:has([aria-label="Timeframe"]:not([inert])) + $dialogFrame $dialog': {
+    '& $timeframe:has([data-search-timeframe-open="true"]) + $dialogFrame $dialog': {
       borderTopLeftRadius: 0,
       borderTopRightRadius: 0,
     },
@@ -56,7 +56,7 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     flexShrink: 0,
     opacity: 0,
     transition: 'grid-template-rows 320ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out',
-    '&:has([aria-label="Timeframe"]:not([inert]))': {gridTemplateRows: '1fr', opacity: 1},
+    '&:has([data-search-timeframe-open="true"])': {gridTemplateRows: '1fr', opacity: 1},
 
     '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
   },
@@ -132,7 +132,7 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
       root.style.scrollbarGutter = 'stable';
     }
     document.body.style.overflow = 'hidden';
-    frameRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search"]')?.focus({preventScroll: true});
+    frameRef.current?.querySelector<HTMLInputElement>('input[data-search-input]')?.focus({preventScroll: true});
     const viewport = window.visualViewport;
     const updateViewport = () => {
       if (!viewport) return;

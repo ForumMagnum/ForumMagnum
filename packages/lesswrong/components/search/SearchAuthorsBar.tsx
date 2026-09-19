@@ -72,18 +72,7 @@ const styles = defineStyles("SearchAuthorsBar", (theme: ThemeType) => ({
     gap: 6,
     minWidth: 0,
     width: '100%',
-    '& .users-item': {minWidth: 0, maxWidth: '100%'},
-    '& .SingleUsersItem-chip': {
-      margin: 0,
-      minHeight: 32,
-      borderRadius: 4,
-      backgroundColor: theme.palette.greyAlpha(0.06),
-      '@media (pointer: coarse)': {minHeight: 40},
-      '&:focus-visible': {
-        outline: `2px solid ${theme.palette.primary.main}`,
-        outlineOffset: 2,
-      },
-    },
+
   },
 }));
 
@@ -99,7 +88,7 @@ const SearchAuthorsBar = ({authorIds, onChange}: {
   const remove = (userId: string) => onChange(authorIds.filter(id => id !== userId));
   return <div className={classes.root} role="group" aria-label="Author">
     {!!authorIds.length && <div className={classes.selectedAuthors}>
-      {authorIds.map(userId => <SingleUsersItem key={userId} userId={userId} removeItem={remove} />)}
+      {authorIds.map(userId => <SingleUsersItem variant="search" key={userId} userId={userId} removeItem={remove} />)}
     </div>}
     <ErrorBoundary>
       <div className={classes.input}>

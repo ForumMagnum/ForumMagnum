@@ -1,4 +1,4 @@
-import SearchResultLink from "./SearchResultLink";
+import SearchResultRow from "./SearchResultRow";
 import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -11,13 +11,12 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
-    position: "relative",
     maxWidth: 600,
     paddingRight: 44,
     [theme.breakpoints.down('sm')]: {paddingRight: 0},
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18,
+    marginBottom: 0,
     cursor: 'pointer',
   },
   title: {
@@ -54,17 +53,16 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedPostsSearchHit = ({hit, icon}: {
+const ExpandedPostsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
   icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const post: SearchPost = hit
   
 
-  return <div className={classes.root}>
-    <SearchResultLink href={postGetPageUrl(post)} label={post.title ?? "Post"} />
-    {icon}
+  return <SearchResultRow href={postGetPageUrl(post)} label={post.title ?? "Post"} icon={icon} compact={compact} className={classes.root}>
     <div className={classes.title}>
       <span>
         <SearchHighlight hit={hit} attribute="title">{post.title}</SearchHighlight>
@@ -81,7 +79,7 @@ const ExpandedPostsSearchHit = ({hit, icon}: {
     <div className={classes.snippet}>
       <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedPostsSearchHit;
