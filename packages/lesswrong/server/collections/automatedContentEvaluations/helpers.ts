@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
@@ -321,6 +322,7 @@ async function rejectContentForLLM(
         } 
       }
     );
+    await invalidatePostPageCache(documentId, { hardDelete: true });
     // We're deliberate not sending auto-llm-rejections from a human account, 
     // because we wanna blankface in this context.
     await sendRejectionPM({ post: { ...post, rejectedReason }, currentUser: null, context });
