@@ -6,16 +6,21 @@ import type {
   AiDigestEmailComment,
   AiDigestEmailPost,
 } from "@/lib/generated/gql-codegen/graphql";
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   buildAiDigestPreview as buildPreview,
-  buildAiDigestThreadTree as buildThreadTree,
-  countAiDigestWords as countWords,
   formatAiDigestDate as formatDate,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText as truncateText,
   type AiDigestThreadNode,
+  type DigestContentLookup,
+  itemKey,
+  postReadMoreLabel,
+  getCommentUrl,
+  threadTitle,
+  discussionCommentMaxLength,
+  aiDigestContentIds,
+  aiDigestDiscussionThread,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
@@ -807,28 +812,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
 }), { allowNonThemeColors: true });
 
-interface DigestContentLookup {
-  postsById: Map<string, AiDigestEmailPost>;
-  commentsById: Map<string, AiDigestEmailComment>;
-}
-
-function itemKey(item: AiDigestItem): string {
-  return `${item.documentRef.documentType}:${item.documentRef.documentId}`;
-}
-
-function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): string {
-  const wordCount = post.contents?.wordCount;
-  if (!wordCount) {
-    return "Read more";
-  }
-  const remainingWordCount = Math.max(0, wordCount - countWords(displayedExcerpt));
-  if (!remainingWordCount) {
-    return "Read more";
-  }
-  const wordLabel = remainingWordCount === 1 ? "word" : "words";
-  return `Read more (${remainingWordCount.toLocaleString("en-US")} ${wordLabel})`;
-}
-
 const tuneDigestUrl = "/contentForYou";
 // Placeholder until the dedicated explainer exists.
 const digestExplanationUrl = "/posts/zd4pwyeKGuhuSKX6g";
@@ -1137,16 +1120,6 @@ function QuietPost({ post, isRead, slot, classes }: {
   );
 }
 
-function getCommentUrl(comment: AiDigestEmailComment): string {
-  return commentGetPageUrlFromIds({
-    postId: comment.post?._id,
-    postSlug: comment.post?.slug,
-    tagSlug: comment.tag?.slug,
-    tagCommentType: comment.tagCommentType,
-    commentId: comment._id,
-  });
-}
-
 function QuickTakeItem({ comment, item, slot, classes }: {
   comment: AiDigestEmailComment;
   item: AiDigestItem;
@@ -1218,39 +1191,6 @@ function QuickTakeItem({ comment, item, slot, classes }: {
 }
 
 /** Thread heading: the comment boxes carry author bylines, so drop the author here. */
-interface ThreadTitle {
-  // Rendered lighter than the subject it introduces, when there is one.
-  prefix: string | null;
-  subject: string;
-}
-
-function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
-  if (comment.shortform) {
-    const author = comment.user?.displayName ?? "A LessWrong reader";
-    return { prefix: null, subject: `${author}’s quick take` };
-  }
-  if (comment.post) {
-    return { prefix: "Comments on", subject: `“${comment.post.title}”` };
-  }
-  if (comment.tag) {
-    return { prefix: "Comments on", subject: comment.tag.name };
-  }
-  return { prefix: null, subject: "Comments" };
-}
-
-function discussionCommentMaxLength(
-  commentId: string,
-  anchorCommentId: string,
-  contextCommentIds: string[],
-): number {
-  if (commentId === anchorCommentId) {
-    return aiDigestPresentation.excerptCharacters.discussionRoot;
-  }
-  return contextCommentIds.includes(commentId)
-    ? aiDigestPresentation.excerptCharacters.discussionContext
-    : aiDigestPresentation.excerptCharacters.discussionReply;
-}
-
 function CommentBox({
   comment,
 
@@ -1422,29 +1362,7 @@ function DigestItem({ item, content, slot, classes }: {
       />
     );
   }
-  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId }) => {
-    const threadComment = content.commentsById.get(commentId);
-    return threadComment ? [{ comment: threadComment }] : [];
-  });
-  const contextCommentSpecs = item.contextComments ?? [];
-  const contextComments = contextCommentSpecs.flatMap(({ commentId }) => {
-    const contextComment = content.commentsById.get(commentId);
-    return contextComment ? [{ comment: contextComment }] : [];
-  });
-  const hasCompleteContext = contextCommentSpecs.length > 0
-    && contextComments.length === contextCommentSpecs.length;
-  const rootComment = hasCompleteContext ? contextComments[0].comment : comment;
-  const descendantComments = hasCompleteContext
-    ? [
-      ...contextComments.slice(1),
-      { comment },
-      ...candidateThreadComments,
-    ]
-    : candidateThreadComments;
-  const threadReplies = buildThreadTree(rootComment._id, descendantComments);
-  const contextCommentIds = hasCompleteContext
-    ? contextCommentSpecs.map(({ commentId }) => commentId)
-    : [];
+  const { rootComment, threadReplies, contextCommentIds } = aiDigestDiscussionThread(item, comment, content);
   return (
     <DiscussionItem
       anchorComment={comment}
@@ -1527,15 +1445,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
   emailContext: EmailContextType;
 }) {
   const classes = emailUseStyles(styles, emailContext);
-  const items = spec.sections.flatMap((section) => section.items);
-  const postIds = items.flatMap((item) =>
-    item.documentRef.documentType === "post" ? [item.documentRef.documentId] : [],
-  );
-  const commentIds = items.flatMap((item) => [
-    ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
-    ...(item.contextComments ?? []).map(({ commentId }) => commentId),
-    ...(item.threadComments ?? []).map(({ commentId }) => commentId),
-  ]);
+  const { postIds, commentIds } = aiDigestContentIds(spec);
 
   const [postsResult, commentsResult] = await Promise.all([
     emailUseQuery(AiDigestEmailPostsQuery, {

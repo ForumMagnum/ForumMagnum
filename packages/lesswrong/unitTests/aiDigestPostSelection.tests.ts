@@ -1,3 +1,4 @@
+import { findCachedAiDigestPostText } from "@/server/aiDigest/aiDigestPostTextCache";
 import type {
   AiDigestPostCandidate,
   AiDigestReaderData,
@@ -18,7 +19,6 @@ import {
   createAiDigestDiscoveredCandidateRegistry,
   registerDiscoveredCandidates,
 } from "@/server/aiDigest/aiDigestSelectionTools";
-import { findCachedAiDigestPostSummaries } from "@/server/aiDigest/aiDigestPostSummaries";
 import type { AiDigestPostSummaryRecord } from "@/server/aiDigest/aiDigestPostSummaries";
 import { buildAiDigestHistory } from "@/server/aiDigest/aiDigestHistory";
 import type {
@@ -41,7 +41,6 @@ import type { AiDigestPostSelectionModelOutput } from "@/server/aiDigest/aiDiges
 import {
   AI_DIGEST_SELECTION_LENGTH_LIMITS,
   buildAiDigestSpecFromPostSelection,
-  finalizeAiDigestPostSelection,
   resolveAiDigestSelectionPools,
   sanitizeAiDigestPostSelectionOutput,
   validateAiDigestPostSelectionOutput,
@@ -185,16 +184,6 @@ function makeValidOutput(): AiDigestPostSelectionModelOutput {
     ],
   };
 }
-
-const TEST_TOKEN_USAGE = {
-  inputTokenCount: 2_000,
-  outputTokenCount: 800,
-  uncachedInputTokenCount: 500,
-  cacheReadInputTokenCount: 1_500,
-  cacheWriteInputTokenCount: 0,
-};
-const TEST_SELECTION_COST_USD = 0.00849;
-const TEST_GENERATION_DURATION_MS = 75_000;
 
 describe("AI digest reader dossier", () => {
   it("handles zero and sparse read histories without dividing by zero", () => {
@@ -561,25 +550,25 @@ describe("AI digest summary cache", () => {
   };
 
   it("reuses only the exact revision/model/prompt cache key", () => {
-    expect(findCachedAiDigestPostSummaries(
+    expect(findCachedAiDigestPostText(
       [candidate],
       [cachedSummary],
       "summary-model",
       "summary-v1",
     ).missingTargets).toEqual([]);
-    expect(findCachedAiDigestPostSummaries(
+    expect(findCachedAiDigestPostText(
       [candidate],
       [{ ...cachedSummary, revisionId: "old-revision" }],
       "summary-model",
       "summary-v1",
     ).missingTargets).toEqual([candidate]);
-    expect(findCachedAiDigestPostSummaries(
+    expect(findCachedAiDigestPostText(
       [candidate],
       [cachedSummary],
       "other-model",
       "summary-v1",
     ).missingTargets).toEqual([candidate]);
-    expect(findCachedAiDigestPostSummaries(
+    expect(findCachedAiDigestPostText(
       [candidate],
       [cachedSummary],
       "summary-model",
@@ -900,115 +889,15 @@ describe("AI digest model-output validation and spec mapping", () => {
     )).toBe(unconstrainedOutput);
   });
 
-  it("persists an ordered issue only after deterministic validation", async () => {
-    const generatedAt = new Date("2026-07-17T13:00:00.000Z");
-    const persistIssue = jest.fn(async () => "issue-new");
-    const finalized = await finalizeAiDigestPostSelection({
-      recipientId: "reader-1",
+  it("includes the reader's personal instructions in the assembled issue", () => {
+    const spec = buildAiDigestSpecFromPostSelection({
       recipientName: "Developer",
       modelLabel: "Test Model",
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
-      selectionSystemPrompt: "System prompt",
-      selectionUserPrompt: "User prompt",
-      tokenUsage: TEST_TOKEN_USAGE,
-      selectionCostUsd: TEST_SELECTION_COST_USD,
-      generatedAt,
-      generationDurationMs: TEST_GENERATION_DURATION_MS,
-      trigger: "userPreview",
-      countsTowardHistory: false,
       personalInstructions: "More decision theory, please.",
       output: makeValidOutput(),
       postCandidates: candidates,
-      dependencies: { persistIssue },
     });
-    expect(finalized.issueId).toBe("issue-new");
-    expect(finalized.spec.personalInstructions).toBe("More decision theory, please.");
-    expect(persistIssue).toHaveBeenCalledWith({
-      recipientId: "reader-1",
-      postIds: ["post-1", "post-2", "post-3", "post-4", "post-5"],
-      quickTakeIds: [],
-      discussionCommentIds: [],
-      generatedAt,
-      generationDurationMs: TEST_GENERATION_DURATION_MS,
-      trigger: "userPreview",
-      countsTowardHistory: false,
-      personalInstructions: "More decision theory, please.",
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
-      selectionSystemPrompt: "System prompt",
-      selectionUserPrompt: "User prompt",
-      ...TEST_TOKEN_USAGE,
-      selectionCostUsd: TEST_SELECTION_COST_USD,
-      toolCallCount: null,
-      searchCount: null,
-      readPostCount: null,
-      threadPromptVersion: null,
-      threadSelectionUserPrompt: null,
-      threadInputTokenCount: null,
-      threadOutputTokenCount: null,
-      threadCacheReadInputTokenCount: null,
-      threadSelectionCostUsd: null,
-      spec: finalized.spec,
-    });
-
-    persistIssue.mockClear();
-    const invalidOutput = makeValidOutput();
-    invalidOutput.selectedItems[4] = invalidOutput.selectedItems[0];
-    await expect(finalizeAiDigestPostSelection({
-      recipientId: "reader-1",
-      recipientName: "Developer",
-      modelLabel: "Test Model",
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
-      selectionSystemPrompt: "System prompt",
-      selectionUserPrompt: "User prompt",
-      tokenUsage: TEST_TOKEN_USAGE,
-      selectionCostUsd: TEST_SELECTION_COST_USD,
-      generatedAt,
-      generationDurationMs: TEST_GENERATION_DURATION_MS,
-      trigger: "userPreview",
-      countsTowardHistory: false,
-      personalInstructions: "More decision theory, please.",
-      output: invalidOutput,
-      postCandidates: candidates,
-      dependencies: { persistIssue },
-    })).rejects.toThrow("distinct");
-    expect(persistIssue).not.toHaveBeenCalled();
-  });
-
-  it("skips persistence in preview mode and returns a null issueId", async () => {
-    const generatedAt = new Date("2026-07-17T13:00:00.000Z");
-    const finalized = await finalizeAiDigestPostSelection({
-      recipientId: "reader-1",
-      recipientName: "Developer",
-      modelLabel: "Test Model",
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
-      selectionSystemPrompt: "System prompt",
-      selectionUserPrompt: "User prompt",
-      tokenUsage: TEST_TOKEN_USAGE,
-      selectionCostUsd: TEST_SELECTION_COST_USD,
-      generatedAt,
-      generationDurationMs: TEST_GENERATION_DURATION_MS,
-      trigger: "adminSample",
-      countsTowardHistory: true,
-      personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
-      dependencies: {},
-    });
-    expect(finalized.issueId).toBeNull();
-    expect(finalized.selectedCandidates.map((item) =>
-      item.documentType === "post" ? item.candidate.postId : item.candidate.commentId
-    )).toEqual([
-      "post-1",
-      "post-2",
-      "post-3",
-      "post-4",
-      "post-5",
-    ]);
-    expect(finalized.spec.subject).toBe("Candidate 1 — plus four more");
+    expect(spec.personalInstructions).toBe("More decision theory, please.");
   });
 
   it("maps positions to placements without appending fixture sections", () => {

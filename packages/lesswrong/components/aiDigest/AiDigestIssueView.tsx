@@ -2,15 +2,20 @@
 
 import React, { useState } from "react";
 import classNames from "classnames";
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   buildAiDigestPreview,
-  buildAiDigestThreadTree,
-  countAiDigestWords,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText,
   type AiDigestThreadNode,
+  type DigestContentLookup,
+  itemKey,
+  postReadMoreLabel,
+  getCommentUrl,
+  threadTitle,
+  discussionCommentMaxLength,
+  aiDigestContentIds,
+  aiDigestDiscussionThread,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -477,67 +482,6 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   },
 }));
 
-interface DigestContentLookup {
-  postsById: Map<string, AiDigestEmailPost>;
-  commentsById: Map<string, AiDigestEmailComment>;
-}
-
-function itemKey(item: AiDigestItem): string {
-  return `${item.documentRef.documentType}:${item.documentRef.documentId}`;
-}
-
-function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): string {
-  const wordCount = post.contents?.wordCount;
-  if (!wordCount) {
-    return "Read more";
-  }
-  const remainingWordCount = Math.max(0, wordCount - countAiDigestWords(displayedExcerpt));
-  return remainingWordCount
-    ? `Read more (${remainingWordCount.toLocaleString("en-US")} words)`
-    : "Read more";
-}
-
-function getCommentUrl(comment: AiDigestEmailComment): string {
-  return commentGetPageUrlFromIds({
-    postId: comment.post?._id,
-    postSlug: comment.post?.slug,
-    tagSlug: comment.tag?.slug,
-    tagCommentType: comment.tagCommentType,
-    commentId: comment._id,
-  });
-}
-
-function getCommentPermalinkUrl(comment: AiDigestEmailComment): string {
-  return commentGetPageUrlFromIds({
-    postId: comment.post?._id,
-    postSlug: comment.post?.slug,
-    tagSlug: comment.tag?.slug,
-    tagCommentType: comment.tagCommentType,
-    commentId: comment._id,
-    permalink: true,
-  });
-}
-
-interface ThreadTitle {
-  // Rendered lighter than the subject it introduces, when there is one.
-  prefix: string | null;
-  subject: string;
-}
-
-function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
-  if (comment.shortform) {
-    const author = comment.user?.displayName ?? "A LessWrong reader";
-    return { prefix: null, subject: `${author}’s quick take` };
-  }
-  if (comment.post) {
-    return { prefix: "Comments on", subject: `“${comment.post.title}”` };
-  }
-  if (comment.tag) {
-    return { prefix: "Comments on", subject: comment.tag.name };
-  }
-  return { prefix: null, subject: "Comments" };
-}
-
 function ItemMetadata({
   author,
   postedAt,
@@ -730,7 +674,7 @@ function QuickTakeItem({
 }) {
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
-  const commentPermalinkUrl = getCommentPermalinkUrl(comment);
+  const commentPermalinkUrl = getCommentUrl(comment);
   const text = truncateAiDigestText(
     comment.contents?.plaintextMainText ?? "",
     aiDigestPresentation.excerptCharacters.fullQuickTake,
@@ -758,19 +702,6 @@ function QuickTakeItem({
       </div>
     </article>
   );
-}
-
-function discussionCommentMaxLength(
-  commentId: string,
-  anchorCommentId: string,
-  contextCommentIds: string[],
-): number {
-  if (commentId === anchorCommentId) {
-    return aiDigestPresentation.excerptCharacters.discussionRoot;
-  }
-  return contextCommentIds.includes(commentId)
-    ? aiDigestPresentation.excerptCharacters.discussionContext
-    : aiDigestPresentation.excerptCharacters.discussionReply;
 }
 
 function CommentBox({
@@ -816,7 +747,7 @@ function CommentBox({
         <ItemMetadata
           author={comment.user?.displayName ?? "A LessWrong reader"}
           postedAt={comment.postedAt}
-          permalinkUrl={getCommentPermalinkUrl(comment)}
+          permalinkUrl={getCommentUrl(comment)}
           permalinkLabel="Permalink to this comment"
           className={classes.commentByline}
           authorClassName={classes.emphasizedMetadataAuthor}
@@ -851,29 +782,7 @@ function DiscussionItem({
 }) {
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
-  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId }) => {
-    const threadComment = content.commentsById.get(commentId);
-    return threadComment ? [{ comment: threadComment }] : [];
-  });
-  const contextCommentSpecs = item.contextComments ?? [];
-  const contextComments = contextCommentSpecs.flatMap(({ commentId }) => {
-    const contextComment = content.commentsById.get(commentId);
-    return contextComment ? [{ comment: contextComment }] : [];
-  });
-  const hasCompleteContext = contextCommentSpecs.length > 0
-    && contextComments.length === contextCommentSpecs.length;
-  const rootComment = hasCompleteContext ? contextComments[0].comment : comment;
-  const descendantComments = hasCompleteContext
-    ? [
-      ...contextComments.slice(1),
-      { comment },
-      ...candidateThreadComments,
-    ]
-    : candidateThreadComments;
-  const threadReplies = buildAiDigestThreadTree(rootComment._id, descendantComments);
-  const contextCommentIds = hasCompleteContext
-    ? contextCommentSpecs.map(({ commentId }) => commentId)
-    : [];
+  const { rootComment, threadReplies, contextCommentIds } = aiDigestDiscussionThread(item, comment, content);
   const { prefix, subject } = threadTitle(comment);
   return (
     <article className={classes.card}>
@@ -992,15 +901,7 @@ export function AiDigestIssueView({
   personalInstructions?: string | null;
 }) {
   const classes = useStyles(styles);
-  const items = spec.sections.flatMap((section) => section.items);
-  const postIds = items.flatMap((item) =>
-    item.documentRef.documentType === "post" ? [item.documentRef.documentId] : [],
-  );
-  const commentIds = items.flatMap((item) => [
-    ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
-    ...(item.contextComments ?? []).map(({ commentId }) => commentId),
-    ...(item.threadComments ?? []).map(({ commentId }) => commentId),
-  ]);
+  const { postIds, commentIds } = aiDigestContentIds(spec);
   const { data, loading, error } = useQuery(AiDigestIssueContentQuery, {
     variables: { postIds, commentIds },
     ssr: false,

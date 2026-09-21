@@ -1,9 +1,9 @@
+import { ensureAiDigestPostTextCache, type AiDigestPostTextCacheTarget } from "./aiDigestPostTextCache";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { truncate } from "@/lib/editor/ellipsize";
 import { sanitize } from "@/lib/utils/sanitize";
-import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import PostPreviews from "@/server/collections/postPreviews/collection";
 import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
 import { cheerioParse } from "@/server/utils/htmlUtil";
@@ -53,18 +53,13 @@ export interface AiDigestPostPreviewBlock {
   text: string;
 }
 
-interface AiDigestPreviewCacheTarget {
-  postId: string;
-  revisionId: string;
-}
-
-export interface AiDigestPostPreviewTarget extends AiDigestPreviewCacheTarget {
+export interface AiDigestPostPreviewTarget extends AiDigestPostTextCacheTarget {
   title: string;
   author: string;
 }
 
 /** One `PostPreviews` cache row. */
-export interface AiDigestPostPreviewRecord extends AiDigestPreviewCacheTarget {
+export interface AiDigestPostPreviewRecord extends AiDigestPostTextCacheTarget {
   previewHtml: string;
   startBlockIndex: number;
   modelId: string;
@@ -171,49 +166,6 @@ export function buildAiDigestPostPreviewHtml(
   return previewHtml || null;
 }
 
-function previewCacheKey({
-  postId,
-  revisionId,
-  modelId,
-  promptVersion,
-}: {
-  postId: string;
-  revisionId: string;
-  modelId: string;
-  promptVersion: string;
-}): string {
-  return [postId, revisionId, modelId, promptVersion].join(":");
-}
-
-export function findCachedAiDigestPostPreviews<T extends AiDigestPreviewCacheTarget>(
-  targets: T[],
-  cachedPreviews: AiDigestPostPreviewRecord[],
-  modelId: string,
-  promptVersion: string,
-): {
-  cachedByPostId: Map<string, AiDigestPostPreviewRecord>;
-  missingTargets: T[];
-} {
-  const cachedByKey = new Map(
-    cachedPreviews.map((preview) => [previewCacheKey(preview), preview]),
-  );
-  const cachedByPostId = new Map<string, AiDigestPostPreviewRecord>();
-  const missingTargets = targets.filter((target) => {
-    const preview = cachedByKey.get(previewCacheKey({
-      postId: target.postId,
-      revisionId: target.revisionId,
-      modelId,
-      promptVersion,
-    }));
-    if (!preview) {
-      return true;
-    }
-    cachedByPostId.set(target.postId, preview);
-    return false;
-  });
-  return { cachedByPostId, missingTargets };
-}
-
 /**
  * Previews are a presentational nicety, so any failure (an unusable model
  * answer, a post with no prose to show, a provider error, a losing race to
@@ -222,10 +174,12 @@ export function findCachedAiDigestPostPreviews<T extends AiDigestPreviewCacheTar
  */
 async function generateAndSavePreview(
   target: AiDigestPostPreviewTarget,
-  blocks: AiDigestPostPreviewBlock[],
+  revisionHtml: string,
   modelId: string,
   promptVersion: string,
 ): Promise<AiDigestPostPreviewRecord | null> {
+  const blocks = splitPostHtmlIntoBlocks(revisionHtml);
+  if (!blocks.length) return null;
   try {
     const startBlockIndex = validateAiDigestPreviewStartBlockIndex(
       await selectPostPreviewStartBlockIndex(target, blocks, modelId, promptVersion),
@@ -248,58 +202,6 @@ async function generateAndSavePreview(
   } catch {
     return null;
   }
-}
-
-function isGeneratedPreview(
-  preview: AiDigestPostPreviewRecord | null,
-): preview is AiDigestPostPreviewRecord {
-  return preview !== null;
-}
-
-async function populateMissingAiDigestPostPreviews({
-  targets,
-  cachedPreviews,
-  blocksByRevisionId,
-  modelId,
-  promptVersion,
-  concurrency,
-}: {
-  targets: AiDigestPostPreviewTarget[];
-  cachedPreviews: AiDigestPostPreviewRecord[];
-  blocksByRevisionId: Map<string, AiDigestPostPreviewBlock[]>;
-  modelId: string;
-  promptVersion: string;
-  concurrency: number;
-}): Promise<AiDigestPreviewPopulationResult> {
-  const { cachedByPostId, missingTargets } = findCachedAiDigestPostPreviews(
-    targets,
-    cachedPreviews,
-    modelId,
-    promptVersion,
-  );
-  const generatedPreviews = (await executePromiseQueue(
-    missingTargets.map((target) => async () => {
-      const blocks = blocksByRevisionId.get(target.revisionId);
-      return blocks?.length
-        ? await generateAndSavePreview(target, blocks, modelId, promptVersion)
-        : null;
-    }),
-    Math.max(1, Math.floor(concurrency)),
-  )).filter(isGeneratedPreview);
-  const previewsByPostId = new Map<string, AiDigestPostPreviewRecord>(cachedByPostId);
-  generatedPreviews.forEach((preview) => {
-    previewsByPostId.set(preview.postId, preview);
-  });
-  const previews = targets.flatMap((target) => {
-    const preview = previewsByPostId.get(target.postId);
-    return preview ? [preview] : [];
-  });
-  return {
-    previews,
-    reusedPreviewCount: cachedByPostId.size,
-    generatedPreviewCount: generatedPreviews.length,
-    skippedPostCount: targets.length - previews.length,
-  };
 }
 
 function buildPostPreviewPrompt(
@@ -345,26 +247,6 @@ async function selectPostPreviewStartBlockIndex(
   return result.output.startBlockIndex;
 }
 
-async function fetchCachedAiDigestPostPreviews({
-  targets,
-  modelId,
-  promptVersion,
-}: {
-  targets: AiDigestPreviewCacheTarget[];
-  modelId: string;
-  promptVersion: string;
-}): Promise<AiDigestPostPreviewRecord[]> {
-  if (targets.length === 0) {
-    return [];
-  }
-  return await PostPreviews.find({
-    postId: { $in: targets.map((target) => target.postId) },
-    revisionId: { $in: targets.map((target) => target.revisionId) },
-    modelId,
-    promptVersion,
-  }).fetch();
-}
-
 /**
  * Cleaned preview HTML for the handful of posts that made it into an issue,
  * generating and caching any that are missing.
@@ -382,37 +264,22 @@ export async function ensureAiDigestPostPreviews({
   promptVersion?: string;
   concurrency?: number;
 }): Promise<AiDigestEnsuredPreviewResult> {
-  const cachedPreviews = await fetchCachedAiDigestPostPreviews({
+  const { records, reusedCount, generatedCount, skippedPostCount } = await ensureAiDigestPostTextCache<AiDigestPostPreviewTarget, AiDigestPostPreviewRecord>({
     targets,
-    modelId,
-    promptVersion,
-  });
-  const { missingTargets } = findCachedAiDigestPostPreviews(
-    targets,
-    cachedPreviews,
-    modelId,
-    promptVersion,
-  );
-  const bodyRows = await context.repos.posts.getAiDigestPostBodyRowsByIds({
-    postIds: missingTargets.map((target) => target.postId),
-  });
-  const bodyRowsByPostId = new Map(bodyRows.map((row) => [row.postId, row]));
-  const blocksByRevisionId = new Map(missingTargets.flatMap((target) => {
-    const row = bodyRowsByPostId.get(target.postId);
-    return row ? [[target.revisionId, splitPostHtmlIntoBlocks(row.revisionHtml)] as const] : [];
-  }));
-  const populationResult = await populateMissingAiDigestPostPreviews({
-    targets,
-    cachedPreviews,
-    blocksByRevisionId,
+    collection: PostPreviews,
+    context,
     modelId,
     promptVersion,
     concurrency,
+    generateAndSave: generateAndSavePreview,
   });
   return {
-    ...populationResult,
+    previews: records,
+    reusedPreviewCount: reusedCount,
+    generatedPreviewCount: generatedCount,
+    skippedPostCount,
     previewHtmlByPostId: new Map(
-      populationResult.previews.map((preview) => [preview.postId, preview.previewHtml]),
+      records.map((preview) => [preview.postId, preview.previewHtml]),
     ),
   };
 }

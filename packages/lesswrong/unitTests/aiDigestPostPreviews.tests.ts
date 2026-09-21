@@ -1,7 +1,7 @@
+import { findCachedAiDigestPostText } from "@/server/aiDigest/aiDigestPostTextCache";
 import {
   AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE,
   buildAiDigestPostPreviewHtml,
-  findCachedAiDigestPostPreviews,
   splitPostHtmlIntoBlocks,
   validateAiDigestPreviewStartBlockIndex,
   type AiDigestPostPreviewBlock,
@@ -127,25 +127,25 @@ describe("AI digest post preview cache", () => {
   };
 
   it("reuses only the exact revision/model/prompt cache key", () => {
-    expect(findCachedAiDigestPostPreviews(
+    expect(findCachedAiDigestPostText(
       [target],
       [cachedPreview],
       "preview-model",
       "preview-v1",
     ).missingTargets).toEqual([]);
-    expect(findCachedAiDigestPostPreviews(
+    expect(findCachedAiDigestPostText(
       [target],
       [{ ...cachedPreview, revisionId: "old-revision" }],
       "preview-model",
       "preview-v1",
     ).missingTargets).toEqual([target]);
-    expect(findCachedAiDigestPostPreviews(
+    expect(findCachedAiDigestPostText(
       [target],
       [cachedPreview],
       "other-model",
       "preview-v1",
     ).missingTargets).toEqual([target]);
-    expect(findCachedAiDigestPostPreviews(
+    expect(findCachedAiDigestPostText(
       [target],
       [cachedPreview],
       "preview-model",

@@ -22,13 +22,11 @@ import {
 import {
   AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID,
   ensureAiDigestPostPreviews,
-  type AiDigestPostPreviewTarget,
 } from "./aiDigestPostPreviews";
 import {
   loadAiDigestHistory,
   persistAiDigestIssue,
   type AiDigestIssueTrigger,
-  type AiDigestIssueInsert,
   type AiDigestSelectionTokenUsage,
 } from "./aiDigestHistory";
 import {
@@ -45,7 +43,6 @@ import {
   AI_DIGEST_SELECTION_STEP_LIMIT,
   createAiDigestDiscoveredCandidateRegistry,
   createAiDigestSelectionTools,
-  type AiDigestSelectionToolUsageCounts,
 } from "./aiDigestSelectionTools";
 import {
   loadAiDigestThreadCandidates,
@@ -152,24 +149,6 @@ interface AiDigestPostSelectionResult {
     threadSelectionCostUsd: number | null;
     generationDurationMs: number;
   };
-}
-
-interface AiDigestPostSelectionFinalizationDependencies {
-  persistIssue?: (issue: AiDigestIssueInsert) => Promise<string>;
-  /**
-   * Cleaned preview HTML for the selected posts, keyed by post ID. Omitted
-   * posts keep their plaintext excerpt.
-   */
-  loadPreviewHtml?: (
-    posts: AiDigestPostPreviewTarget[],
-  ) => Promise<Map<string, string>>;
-}
-
-interface AiDigestPostSelectionFinalizationResult {
-  output: AiDigestPostSelectionModelOutput;
-  spec: AiDigestSpec;
-  selectedCandidates: AiDigestSelectedItemCandidate[];
-  issueId: string | null;
 }
 
 function assertLength(name: string, text: string, maximum: number): void {
@@ -468,156 +447,11 @@ function resolveSelectedCandidates(
   });
 }
 
-/** The persisted slice of a completed thread-selection call. */
-interface AiDigestThreadSelectionFinalizationInput {
-  selectedThreads: AiDigestSelectedThread[];
-  threadPromptVersion: string;
-  threadSelectionUserPrompt: string;
-  threadInputTokenCount: number | null;
-  threadOutputTokenCount: number | null;
-  threadCacheReadInputTokenCount: number | null;
-  threadSelectionCostUsd: number | null;
-}
-
 function aiDigestDiscussionCommentIdsFromSpec(spec: AiDigestSpec): string[] {
   return spec.sections
     .filter((section) => section.kind === "discussion")
     .flatMap((section) =>
       section.items.map((item) => item.documentRef.documentId));
-}
-
-export async function finalizeAiDigestPostSelection({
-  recipientId,
-  recipientName,
-  modelLabel,
-  selectionModelId,
-  promptVersion,
-  selectionSystemPrompt,
-  selectionUserPrompt,
-  tokenUsage,
-  selectionCostUsd,
-  generatedAt,
-  generationDurationMs,
-  trigger,
-  countsTowardHistory,
-  personalInstructions,
-  output,
-  postCandidates,
-  quickTakeCandidates = [],
-  curatedPosts = [],
-  threadSelection = null,
-  toolUsage = null,
-  dependencies,
-}: {
-  recipientId: string;
-  recipientName: string;
-  modelLabel: string;
-  selectionModelId: string;
-  promptVersion: string;
-  selectionSystemPrompt: string;
-  selectionUserPrompt: string;
-  tokenUsage: AiDigestSelectionTokenUsage;
-  selectionCostUsd: number | null;
-  generatedAt: Date;
-  generationDurationMs: number;
-  trigger: AiDigestIssueTrigger;
-  countsTowardHistory: boolean;
-  personalInstructions: string | null;
-  output: AiDigestPostSelectionModelOutput;
-  postCandidates: AiDigestSelectedPostCandidate[];
-  quickTakeCandidates?: AiDigestQuickTakeCandidate[];
-  curatedPosts?: AiDigestCuratedPostRow[];
-  threadSelection?: AiDigestThreadSelectionFinalizationInput | null;
-  toolUsage?: Pick<
-    AiDigestSelectionToolUsageCounts,
-    "toolCallCount" | "searchCount" | "readPostCount"
-  > | null;
-  dependencies: AiDigestPostSelectionFinalizationDependencies;
-}): Promise<AiDigestPostSelectionFinalizationResult> {
-  const validatedOutput = validateAiDigestPostSelectionOutput(
-    sanitizeAiDigestPostSelectionOutput(output),
-    postCandidates,
-    quickTakeCandidates,
-  );
-  const selectedCandidates = resolveSelectedCandidates(
-    validatedOutput,
-    postCandidates,
-    quickTakeCandidates,
-  );
-  const selectedPosts = selectedCandidates.flatMap((item) =>
-    item.documentType === "post" ? [item.candidate] : [],
-  );
-  const previewHtmlByPostId = dependencies.loadPreviewHtml
-    ? await dependencies.loadPreviewHtml(selectedPosts)
-    : new Map<string, string>();
-  const spec = buildAiDigestSpecFromPostSelection({
-    recipientName,
-    modelLabel,
-    personalInstructions,
-    output: validatedOutput,
-    postCandidates,
-    quickTakeCandidates,
-    curatedPosts,
-    selectedThreads: threadSelection?.selectedThreads ?? [],
-    previewHtmlByPostId,
-  });
-  const postIds = selectedPosts.map((candidate) => candidate.postId);
-  const quickTakeIds = selectedCandidates.flatMap((item) =>
-    item.documentType === "quickTake" ? [item.candidate.commentId] : [],
-  );
-  const discussionCommentIds = aiDigestDiscussionCommentIdsFromSpec(spec);
-  const issueId = dependencies.persistIssue
-    ? await dependencies.persistIssue({
-      recipientId,
-      postIds,
-      quickTakeIds,
-      discussionCommentIds,
-      generatedAt,
-      generationDurationMs,
-      trigger,
-      countsTowardHistory,
-      personalInstructions,
-      selectionModelId,
-      promptVersion,
-      selectionSystemPrompt,
-      selectionUserPrompt,
-      ...tokenUsage,
-      selectionCostUsd,
-      toolCallCount: toolUsage?.toolCallCount ?? null,
-      searchCount: toolUsage?.searchCount ?? null,
-      readPostCount: toolUsage?.readPostCount ?? null,
-      threadPromptVersion: threadSelection?.threadPromptVersion ?? null,
-      threadSelectionUserPrompt: threadSelection?.threadSelectionUserPrompt ?? null,
-      threadInputTokenCount: threadSelection?.threadInputTokenCount ?? null,
-      threadOutputTokenCount: threadSelection?.threadOutputTokenCount ?? null,
-      threadCacheReadInputTokenCount:
-        threadSelection?.threadCacheReadInputTokenCount ?? null,
-      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
-      spec,
-    })
-    : null;
-  return {
-    output: validatedOutput,
-    spec,
-    selectedCandidates,
-    issueId,
-  };
-}
-
-/**
- * Previews are only worth generating for the handful of posts that made the
- * slate, so they are loaded during finalization rather than alongside the
- * corpus-wide summaries.
- */
-function aiDigestPreviewLoader(context: ResolverContext, modelId: string) {
-  return async (targets: AiDigestPostPreviewTarget[]) => {
-    const { previewHtmlByPostId } = await ensureAiDigestPostPreviews({
-      targets,
-      context,
-      modelId,
-    });
-    return previewHtmlByPostId;
-  };
 }
 
 function humanizeAiDigestModelId(modelId: string): string {
@@ -847,47 +681,74 @@ export async function generateAiDigestPostSelection({
     ...selectableCandidateCards,
     ...Array.from(discoveredRegistry.byPostId.values()),
   ];
-  const threadSelectionInput: AiDigestThreadSelectionFinalizationInput | null =
-    threadSelection
-      ? {
-        selectedThreads: threadSelection.output.selectedThreads,
-        threadPromptVersion: threadSelection.promptVersion,
-        threadSelectionUserPrompt: threadSelection.prompt.prompt,
-        ...threadSelection.tokenUsage,
-        threadSelectionCostUsd: threadSelection.threadSelectionCostUsd,
-      }
-      : null;
-  const finalized = await finalizeAiDigestPostSelection({
-    recipientId: user._id,
+  const validatedOutput = validateAiDigestPostSelectionOutput(
+    sanitizeAiDigestPostSelectionOutput(result.output),
+    validationPostCandidates,
+    selectableQuickTakes,
+  );
+  const selectedCandidates = resolveSelectedCandidates(
+    validatedOutput,
+    validationPostCandidates,
+    selectableQuickTakes,
+  );
+  const selectedPosts = selectedCandidates.flatMap((item) =>
+    item.documentType === "post" ? [item.candidate] : [],
+  );
+  // Only generate previews for the handful of posts that made the slate.
+  const { previewHtmlByPostId } = await ensureAiDigestPostPreviews({
+    targets: selectedPosts,
+    context,
+    modelId: previewModelId,
+  });
+  const spec = buildAiDigestSpecFromPostSelection({
     recipientName: user.displayName,
     modelLabel: selectionModelLabel,
-    selectionModelId,
-    promptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
-    selectionSystemPrompt: prompt.system,
-    selectionUserPrompt: prompt.prompt,
-    tokenUsage,
-    selectionCostUsd,
-    generatedAt,
-    generationDurationMs,
-    trigger: options.trigger ?? "adminSample",
-    countsTowardHistory: options.countsTowardHistory ?? true,
     personalInstructions,
-    output: result.output,
+    output: validatedOutput,
     postCandidates: validationPostCandidates,
     quickTakeCandidates: selectableQuickTakes,
     curatedPosts,
-    threadSelection: threadSelectionInput,
-    toolUsage,
-    dependencies: {
-      ...(shouldPersistIssue ? { persistIssue: persistAiDigestIssue } : {}),
-      loadPreviewHtml: aiDigestPreviewLoader(context, previewModelId),
-    },
+    selectedThreads: threadSelection?.output.selectedThreads ?? [],
+    previewHtmlByPostId,
   });
+  const discussionCommentIds = aiDigestDiscussionCommentIdsFromSpec(spec);
+  const issueId = shouldPersistIssue
+    ? await persistAiDigestIssue({
+      recipientId: user._id,
+      postIds: selectedPosts.map((candidate) => candidate.postId),
+      quickTakeIds: selectedCandidates.flatMap((item) =>
+        item.documentType === "quickTake" ? [item.candidate.commentId] : [],
+      ),
+      discussionCommentIds,
+      generatedAt,
+      generationDurationMs,
+      trigger: options.trigger ?? "adminSample",
+      countsTowardHistory: options.countsTowardHistory ?? true,
+      personalInstructions,
+      selectionModelId,
+      promptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
+      selectionSystemPrompt: prompt.system,
+      selectionUserPrompt: prompt.prompt,
+      ...tokenUsage,
+      selectionCostUsd,
+      toolCallCount: toolUsage.toolCallCount,
+      searchCount: toolUsage.searchCount,
+      readPostCount: toolUsage.readPostCount,
+      threadPromptVersion: threadSelection?.promptVersion ?? null,
+      threadSelectionUserPrompt: threadSelection?.prompt.prompt ?? null,
+      threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
+      threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
+      threadCacheReadInputTokenCount:
+        threadSelection?.tokenUsage.threadCacheReadInputTokenCount ?? null,
+      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
+      spec,
+    })
+    : null;
 
   return {
-    spec: finalized.spec,
-    selectedCandidates: finalized.selectedCandidates,
-    issueId: finalized.issueId,
+    spec,
+    selectedCandidates,
+    issueId,
     generatedAt,
     metadata: {
       selectionModelId,
@@ -907,7 +768,7 @@ export async function generateAiDigestPostSelection({
       ...tokenUsage,
       selectionCostUsd,
       threadCandidateCount: countAiDigestThreadCandidates(threadCandidates),
-      selectedThreadCount: aiDigestDiscussionCommentIdsFromSpec(finalized.spec).length,
+      selectedThreadCount: discussionCommentIds.length,
       threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
       threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
       threadCacheReadInputTokenCount:

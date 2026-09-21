@@ -24,7 +24,6 @@ import {
 import {
   buildAiDigestDiscussionItems,
   buildAiDigestSpecFromPostSelection,
-  finalizeAiDigestPostSelection,
   type AiDigestPostSelectionModelOutput,
 } from "@/server/aiDigest/aiDigestPostSelection";
 import type {
@@ -868,82 +867,6 @@ describe("AI digest thread merge into the spec", () => {
       selectedThreads: [],
     });
     expect(withoutThreads.sections.some((section) => section.kind === "discussion")).toBe(false);
-  });
-
-  it("persists thread anchors and accounting, and survives a failed thread call", async () => {
-    const generatedAt = new Date("2026-07-17T13:00:00.000Z");
-    const persistIssue = jest.fn(async () => "issue-new");
-    const sharedArguments = {
-      recipientId: "reader-1",
-      recipientName: "Developer",
-      modelLabel: "Test Model",
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
-      selectionSystemPrompt: "System prompt",
-      selectionUserPrompt: "User prompt",
-      tokenUsage: {
-        inputTokenCount: 2_000,
-        outputTokenCount: 800,
-        uncachedInputTokenCount: 500,
-        cacheReadInputTokenCount: 1_500,
-        cacheWriteInputTokenCount: 0,
-      },
-      selectionCostUsd: 0.07,
-      generatedAt,
-      generationDurationMs: 75_000,
-      trigger: "adminSample" as const,
-      countsTowardHistory: true,
-      personalInstructions: null,
-      output: makeOutput(),
-      postCandidates,
-      dependencies: { persistIssue },
-    };
-
-    const finalized = await finalizeAiDigestPostSelection({
-      ...sharedArguments,
-      threadSelection: {
-        selectedThreads,
-        threadPromptVersion: "thread-selection-v2",
-        threadSelectionUserPrompt: "Thread user prompt",
-        threadInputTokenCount: 9_000,
-        threadOutputTokenCount: 300,
-        threadCacheReadInputTokenCount: 6_000,
-        threadSelectionCostUsd: 0.04,
-      },
-      toolUsage: { toolCallCount: 3, searchCount: 2, readPostCount: 1 },
-    });
-    expect(persistIssue).toHaveBeenCalledWith(expect.objectContaining({
-      discussionCommentIds: ["anchor-1", "quick-take-1", "anchor-2", "anchor-3"],
-      threadPromptVersion: "thread-selection-v2",
-      threadSelectionUserPrompt: "Thread user prompt",
-      threadInputTokenCount: 9_000,
-      threadOutputTokenCount: 300,
-      threadCacheReadInputTokenCount: 6_000,
-      threadSelectionCostUsd: 0.04,
-      toolCallCount: 3,
-      searchCount: 2,
-      readPostCount: 1,
-    }));
-    expect(
-      finalized.spec.sections.some((section) => section.kind === "discussion"),
-    ).toBe(true);
-
-    persistIssue.mockClear();
-    const withoutThreadCall = await finalizeAiDigestPostSelection({
-      ...sharedArguments,
-      threadSelection: null,
-      toolUsage: { toolCallCount: 3, searchCount: 2, readPostCount: 1 },
-    });
-    expect(
-      withoutThreadCall.spec.sections.some((section) => section.kind === "discussion"),
-    ).toBe(false);
-    expect(persistIssue).toHaveBeenCalledWith(expect.objectContaining({
-      discussionCommentIds: [],
-      threadPromptVersion: null,
-      threadSelectionUserPrompt: null,
-      threadInputTokenCount: null,
-      threadSelectionCostUsd: null,
-    }));
   });
 
   it("counts discussion anchors toward repeat-avoidance history", () => {
