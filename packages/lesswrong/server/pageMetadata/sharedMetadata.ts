@@ -17,6 +17,7 @@ export const CommentPermalinkMetadataQuery = gql(`
     comment(selector: { _id: $commentId }) {
       result {
         _id
+        postId
         user {
           displayName
         }

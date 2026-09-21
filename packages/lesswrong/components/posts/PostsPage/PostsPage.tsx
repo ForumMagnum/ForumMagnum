@@ -25,10 +25,9 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
-import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import PostsBottomBar from '../PostsBottomBar';
-import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import LWPostsPageHeader from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
@@ -40,7 +39,6 @@ import MultiToCLayout from "../TableOfContents/MultiToCLayout";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
-import WelcomeBox from "./WelcomeBox";
 import TableOfContents from "../TableOfContents/TableOfContents";
 import RSVPs from "./RSVPs";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
@@ -172,13 +170,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   hideEmbeddedPlayer: {
     display: "none"
-  },
-  welcomeBox: {
-    marginTop: LW_POST_PAGE_PADDING,
-    maxWidth: 220,
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    }
   },
   bottomOfPostSubscribe: {
     marginBottom: 40,
@@ -571,11 +562,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   </>;
 
   const rightColumnChildren = <>
-    <DeferRender ssr={false}>
-      <div className={classes.welcomeBox}>
-        <WelcomeBox />
-      </div>
-    </DeferRender>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
   </>;

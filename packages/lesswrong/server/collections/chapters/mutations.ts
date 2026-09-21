@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/chapters/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -69,6 +70,8 @@ export async function createChapter({ data }: CreateChapterInput, context: Resol
     props: asyncProperties,
   });
 
+  await invalidatePostPageCache(documentWithId.postIds ?? []);
+
   return documentWithId;
 }
 
@@ -113,6 +116,8 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
   });
 
   backgroundTask(logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData }));
+
+  await invalidatePostPageCache([...(oldDocument.postIds ?? []), ...(updatedDocument.postIds ?? [])]);
 
   return updatedDocument;
 }

@@ -1,6 +1,8 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
+import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
+import { isCachedPostRoutePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -8,8 +10,6 @@ import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdo
 // somewhere).
 export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
-
-const ForwardingHeaderName = "X-Forwarded-For-Status-Codes";
 
 function urlIsAbsolute(url: string): boolean {
   // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
   const addedClientId = clientIdCookie ? null : randomId();
   const requestPathHasMarkdownVersion = !!getMarkdownPathname(request.nextUrl.pathname);
   
-  const isForwarded = request.headers.get(ForwardingHeaderName);
+  const isForwarded = request.headers.get(STATUS_CODE_LOOPBACK_HEADER);
   if (isForwarded) {
     return NextResponse.next();
   }
@@ -54,12 +54,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (isCachedPostRoutePath(request.nextUrl.pathname)) {
+    return getCachedPostPassthroughResponse(request, addedClientId);
+  }
+
   if (shouldProxyForStatusCode(request)) {
     const forwardedHeaders = new Headers(request.headers);
-    forwardedHeaders.set(ForwardingHeaderName, "true");
+    forwardedHeaders.set(STATUS_CODE_LOOPBACK_HEADER, "true");
     
     const forwardUrl = request.nextUrl.href;
-    const fixedForwardedUrl = fixForwardUrl(forwardUrl);
+    const fixedForwardedUrl = fixLoopbackUrl(forwardUrl);
     const forwardedFetchResponse = await fetch(
       fixedForwardedUrl,
       {
@@ -265,6 +269,21 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
+// Passes requests for the cached post route handler (app/cache/posts) straight
+// through. It sets its own status code, so the status code proxying below is
+// not needed, and its responses are CDN-cached per post, so the request must
+// not carry anything that would vary them beyond the normalized encoding.
+function getCachedPostPassthroughResponse(request: NextRequest, addedClientId: string | null): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  if (addedClientId) {
+    addClientIdToResponseHeaders(response, addedClientId);
+  }
+  return response;
+}
+
 function shouldProxyForStatusCode(req: NextRequest) {
   if (req.nextUrl.pathname === '/') {
     return false;
@@ -301,74 +320,6 @@ function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: stri
   nextResponse.cookies.set({ name: CLIENT_ID_NEW_COOKIE, value: "true", path: "/", maxAge });
 
   return nextResponse;
-}
-
-type StatusCodeMetadata = { status: number, redirectTarget?: string };
-
-const searchString: Uint8Array = new TextEncoder().encode('<div data-response-metadata="');
-const doubleQuoteAscii = '\"'.charCodeAt(0);
-
-/**
- * Look for a substring that looks like
- *   <div data-response-metadata="eyJzdGF0dXMiOjQwNH0=">
- * in a ReadableStream, parse the attribute, and return it as a StatusCodeMetadata.
- * The stream is UTF-8 encoded, and the thing we're looking for is a base64-encoded
- * string representing a serialized object, which may span chunk boundaries.
- */
-async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): Promise<StatusCodeMetadata|null> {
-  let matchIndex = 0;
-  let isReadingResult = false;
-  let result: number[] = [];
-
-  const reader = stream.getReader();
-  loop: {
-    for (;;) {
-      const readResult = await reader.read();
-      if (!readResult.value || readResult.done) {
-        break;
-      }
-      const chunk = readResult.value;
-      for (let i=0; i<chunk.length; i++) {
-        if (isReadingResult) {
-          const nextCh = chunk.at(i)!;
-          if (nextCh === doubleQuoteAscii) {
-            break loop;
-          } else {
-            result.push(nextCh);
-          }
-        } else if (chunk.at(i) === searchString.at(matchIndex)) {
-          matchIndex++;
-          if (matchIndex >= searchString.length) {
-            isReadingResult = true;
-          }
-        } else {
-          matchIndex = 0;
-        }
-      }
-    }
-  }
-  
-  if (isReadingResult) {
-    const base64EncodedStr = new TextDecoder().decode(new Uint8Array(result));
-    const binaryString = atob(base64EncodedStr);
-    const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
-    const decodedStr = new TextDecoder().decode(bytes);
-    const parsed: { status: number, redirectTarget?: string } = JSON.parse(decodedStr);
-    return parsed;
-  } else {
-    return null;
-  }
-}
-
-// HACK: When requests are forwarded through ngrok (or cloudflare's tunnel), they
-// get an X-Forwarded-Proto header of "https". This causes req.nextUrl to be
-// "https://localhost:3000", which doesn't work (because it shouldn't be https).
-// Work around this by dropping the "s".
-function fixForwardUrl(forwardUrl: string): string {
-  if (forwardUrl.startsWith("https://localhost")) {
-    return forwardUrl.replace("https://localhost", "http://localhost");
-  }
-  return forwardUrl;
 }
 
 export const config: MiddlewareConfig = {

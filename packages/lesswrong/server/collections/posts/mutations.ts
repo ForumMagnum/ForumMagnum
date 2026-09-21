@@ -1,3 +1,4 @@
+import { getPingbackTargetPostIds, invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import schema from "@/lib/collections/posts/newSchema";
@@ -196,6 +197,14 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
+  // A cached 404 may exist for this ID from requests that preceded creation.
+  // Drafts don't appear in pingback lists; a published post now does on the
+  // pages of the posts it links to.
+  await invalidatePostPageCache([
+    documentWithId._id,
+    ...(documentWithId.draft ? [] : getPingbackTargetPostIds(documentWithId.pingbacks)),
+  ]);
+
   return documentWithId;
 }
 
@@ -303,7 +312,28 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
 
+  // Drafts don't appear in pingback lists, so a post that was and remains a
+  // draft affects no other page.
+  const pingbackTargetPostIds = (oldDocument.draft && updatedDocument.draft)
+    ? []
+    : [...getPingbackTargetPostIds(oldDocument.pingbacks), ...getPingbackTargetPostIds(updatedDocument.pingbacks)];
+  await invalidatePostPageCache(
+    [updatedDocument._id, ...pingbackTargetPostIds],
+    { hardDelete: postVisibilityChanged(oldDocument, updatedDocument) },
+  );
+
   return updatedDocument;
+}
+
+function postVisibilityChanged(oldPost: DbPost, newPost: DbPost): boolean {
+  return oldPost.draft !== newPost.draft
+    || oldPost.deletedDraft !== newPost.deletedDraft
+    || oldPost.status !== newPost.status
+    || oldPost.rejected !== newPost.rejected
+    || oldPost.onlyVisibleToLoggedIn !== newPost.onlyVisibleToLoggedIn
+    || oldPost.onlyVisibleToEstablishedAccounts !== newPost.onlyVisibleToEstablishedAccounts
+    || oldPost.authorIsUnreviewed !== newPost.authorIsUnreviewed
+    || oldPost.isFuture !== newPost.isFuture;
 }
 
 export const createPostGqlMutation = makeGqlCreateMutation('Posts', createPost, {

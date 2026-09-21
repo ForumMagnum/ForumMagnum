@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import ClientAppGenerator from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
-import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE } from "@/lib/cookies/cookies";
+import { CLIENT_ID_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
@@ -66,7 +66,6 @@ const ClientIDAssignerServer = async () => {
   const ClientIdsRepo = (await import("@/server/repos/ClientIdsRepo")).default;
   const cookieStore = await cookies();
   const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
-  const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;
   const clientIdInvalidated = clientId && await new ClientIdsRepo().isClientIdInvalidated(clientId); // TODO Move off the critical path
-  return <ClientIDAssigner clientIdNewCookieExists={clientIdNewCookieExists} clientIdInvalidated={!!clientIdInvalidated}/>
+  return <ClientIDAssigner clientIdInvalidated={!!clientIdInvalidated}/>
 }

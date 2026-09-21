@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/users/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -148,6 +149,15 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   await handleSetShortformPost(updatedDocument, oldDocument, context);
   await updatingPostAudio(updatedDocument, oldDocument, context.forumType);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
+  if (
+    updatedDocument.displayName !== oldDocument.displayName
+    || updatedDocument.profileImageId !== oldDocument.profileImageId
+    || updatedDocument.slug !== oldDocument.slug
+  ) {
+    // Every post page shows the name and avatar of the post's authors,
+    // coauthors and commenters.
+    await invalidatePostPageCache(await context.repos.posts.getPostIdsWhereUserAppears(updatedDocument._id));
+  }
   userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);

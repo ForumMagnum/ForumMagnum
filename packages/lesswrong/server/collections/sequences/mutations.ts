@@ -1,3 +1,5 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -28,6 +30,12 @@ function editCheck(user: DbUser | null, document: DbSequence | null) {
   return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
     : userCanDo(user, `sequences.edit.all`)
+}
+
+// Post pages show their sequence's title and navigation.
+async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
+  const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
+  await invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
 }
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
@@ -77,6 +85,8 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     props: asyncProperties,
   });
 
+  await invalidateSequencePostPages(documentWithId._id, context);
+
   return documentWithId;
 }
 
@@ -120,6 +130,8 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData }));
+
+  await invalidateSequencePostPages(updatedDocument._id, context);
 
   return updatedDocument;
 }
