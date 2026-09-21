@@ -6,9 +6,9 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   buildAiDigestPreview,
+  collapseAiDigestWhitespace,
   countAiDigestWords,
   formatAiDigestPostAuthors as formatPostAuthors,
-  selectAiDigestExcerpt,
   truncateAiDigestText,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
@@ -21,7 +21,7 @@ import type {
   AiDigestItem,
   AiDigestSection,
   AiDigestSpec,
-} from "@/server/emailComponents/AiDigestSpec";
+} from "@/lib/aiDigest/aiDigestSpec";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ContentStyles from "@/components/common/ContentStyles";
@@ -402,18 +402,29 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   discussionThreadTitleSubject: {
     fontWeight: aiDigestPresentation.discussion.threadTitleSubjectFontWeight,
   },
-  commentBox: {
+  // Thread comments nest as cards within cards, the way CommentFrame renders
+  // comment trees elsewhere on the site.
+  commentNode: {
+    border: theme.palette.border.commentBorder,
+  },
+  commentNodeRoot: {
     margin: aiDigestPresentation.discussion.commentMargin,
+    borderRadius: theme.borderRadius.small,
+  },
+  commentNodeChild: {
+    marginLeft: 8,
+    marginBottom: 6,
+    borderRight: "none",
+    borderRadius: "2px 0 0 2px",
+  },
+  commentNodeEven: {
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
+  },
+  commentNodeOdd: {
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
+  },
+  commentNodeBody: {
     padding: aiDigestPresentation.discussion.commentPadding,
-    border: "1px solid light-dark(#e6dfd2, #4a4844)",
-    borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
-    background: "light-dark(#ffffff, #252525)",
-  },
-  reply: {
-    marginLeft: aiDigestPresentation.discussion.replyMarginLeft,
-  },
-  nestedReply: {
-    marginLeft: aiDigestPresentation.discussion.nestedReplyMarginLeft,
   },
   commentByline: {
     marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
@@ -463,15 +474,12 @@ interface DigestContentLookup {
   commentsById: Map<string, AiDigestEmailComment>;
 }
 
-interface DigestThreadComment {
-  comment: AiDigestEmailComment;
-  excerpt?: string;
-  nestingLevel: number;
-}
-
 interface DigestThreadCommentCandidate {
   comment: AiDigestEmailComment;
-  excerpt?: string;
+}
+
+interface DigestThreadNode extends DigestThreadCommentCandidate {
+  replies: DigestThreadNode[];
 }
 
 function itemKey(item: AiDigestItem): string {
@@ -540,21 +548,21 @@ function compareCommentsByDate(
     - new Date(secondComment.comment.postedAt).getTime();
 }
 
-function flattenThreadComments(
+/** The replies under `parentCommentId`, oldest first, each with its own replies. */
+function buildThreadReplies(
   parentCommentId: string,
   comments: DigestThreadCommentCandidate[],
-  nestingLevel = 1,
-): DigestThreadComment[] {
+): DigestThreadNode[] {
   const directReplies = comments
     .filter(({ comment }) => comment.parentCommentId === parentCommentId)
     .sort(compareCommentsByDate);
   const remainingComments = comments.filter(
     ({ comment }) => comment.parentCommentId !== parentCommentId,
   );
-  return directReplies.flatMap(({ comment, excerpt }) => [
-    { comment, excerpt, nestingLevel },
-    ...flattenThreadComments(comment._id, remainingComments, nestingLevel + 1),
-  ]);
+  return directReplies.map(({ comment }) => ({
+    comment,
+    replies: buildThreadReplies(comment._id, remainingComments),
+  }));
 }
 
 function ItemMetadata({
@@ -636,8 +644,7 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
       : null;
     const excerpt = preview
       ? preview.text
-      : selectAiDigestExcerpt(
-        item.excerpt,
+      : truncateAiDigestText(
         post.contents?.plaintextDescription ?? "",
         aiDigestPresentation.excerptCharacters.compactPost,
       );
@@ -697,8 +704,7 @@ function PostItem({ post, item }: { post: AiDigestEmailPost; item: AiDigestItem 
     : null;
   const excerpt = preview
     ? preview.text
-    : selectAiDigestExcerpt(
-      item.excerpt,
+    : truncateAiDigestText(
       post.contents?.plaintextDescription ?? "",
       aiDigestPresentation.excerptCharacters.headlinePost,
     );
@@ -752,8 +758,7 @@ function QuickTakeItem({
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
   const commentPermalinkUrl = getCommentPermalinkUrl(comment);
-  const text = selectAiDigestExcerpt(
-    item.excerpt,
+  const text = truncateAiDigestText(
     comment.contents?.plaintextMainText ?? "",
     aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
@@ -782,43 +787,46 @@ function QuickTakeItem({
   );
 }
 
-function CommentBox({
-  comment,
-  excerpt,
-  maxLength,
-  nestingLevel = 0,
+function ThreadCommentNode({
+  node,
+  nestingLevel,
 }: {
-  comment: AiDigestEmailComment;
-  excerpt?: string;
-  maxLength: number;
-  nestingLevel?: number;
+  node: DigestThreadNode;
+  nestingLevel: number;
 }) {
   const classes = useStyles(styles);
+  const { comment, replies } = node;
   const commentUrl = getCommentUrl(comment);
-  const text = selectAiDigestExcerpt(
-    excerpt,
+  const text = truncateAiDigestText(
     comment.contents?.plaintextMainText ?? "",
-    maxLength,
+    nestingLevel === 1
+      ? aiDigestPresentation.excerptCharacters.discussionRoot
+      : aiDigestPresentation.excerptCharacters.discussionReply,
   );
   return (
     <div
       className={classNames(
-        classes.commentBox,
-        nestingLevel === 1 && classes.reply,
-        nestingLevel >= 2 && classes.nestedReply,
+        classes.commentNode,
+        nestingLevel === 1 ? classes.commentNodeRoot : classes.commentNodeChild,
+        nestingLevel % 2 === 0 ? classes.commentNodeEven : classes.commentNodeOdd,
       )}
     >
-      <ItemMetadata
-        author={comment.user?.displayName ?? "A LessWrong reader"}
-        postedAt={comment.postedAt}
-        permalinkUrl={getCommentPermalinkUrl(comment)}
-        permalinkLabel="Permalink to this comment"
-        className={classes.commentByline}
-        authorClassName={classes.emphasizedMetadataAuthor}
-      />
-      <a href={commentUrl} className={classes.textLink}>
-        <div className={classes.commentText}>{text}</div>
-      </a>
+      <div className={classes.commentNodeBody}>
+        <ItemMetadata
+          author={comment.user?.displayName ?? "A LessWrong reader"}
+          postedAt={comment.postedAt}
+          permalinkUrl={getCommentPermalinkUrl(comment)}
+          permalinkLabel="Permalink to this comment"
+          className={classes.commentByline}
+          authorClassName={classes.emphasizedMetadataAuthor}
+        />
+        <a href={commentUrl} className={classes.textLink}>
+          <div className={classes.commentText}>{text}</div>
+        </a>
+      </div>
+      {replies.map((reply) => (
+        <ThreadCommentNode key={reply.comment._id} node={reply} nestingLevel={nestingLevel + 1} />
+      ))}
     </div>
   );
 }
@@ -834,11 +842,14 @@ function DiscussionItem({
 }) {
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
-  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId, excerpt }) => {
+  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId }) => {
     const threadComment = content.commentsById.get(commentId);
-    return threadComment ? [{ comment: threadComment, excerpt }] : [];
+    return threadComment ? [{ comment: threadComment }] : [];
   });
-  const threadComments = flattenThreadComments(comment._id, candidateThreadComments);
+  const thread: DigestThreadNode = {
+    comment,
+    replies: buildThreadReplies(comment._id, candidateThreadComments),
+  };
   const { prefix, subject } = threadTitle(comment);
   return (
     <article className={classes.card}>
@@ -849,20 +860,7 @@ function DiscussionItem({
             <span className={classes.discussionThreadTitleSubject}>{subject}</span>
           </a>
         </h3>
-        <CommentBox
-          comment={comment}
-          excerpt={item.excerpt}
-          maxLength={aiDigestPresentation.excerptCharacters.discussionRoot}
-        />
-        {threadComments.map(({ comment: replyComment, excerpt, nestingLevel }) => (
-          <CommentBox
-            key={replyComment._id}
-            comment={replyComment}
-            excerpt={excerpt}
-            maxLength={aiDigestPresentation.excerptCharacters.discussionReply}
-            nestingLevel={nestingLevel}
-          />
-        ))}
+        <ThreadCommentNode node={thread} nestingLevel={1} />
         <ItemFooter url={commentUrl} label="View thread" reason={item.reason} />
       </div>
     </article>
@@ -933,7 +931,7 @@ function CustomPromptCard({ personalInstructions }: { personalInstructions: stri
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
   const preview = truncateAiDigestText(personalInstructions, CUSTOM_PROMPT_PREVIEW_LENGTH);
-  const isTruncated = preview.length < personalInstructions.replace(/\s+/g, " ").trim().length;
+  const isTruncated = preview.length < collapseAiDigestWhitespace(personalInstructions).length;
   return (
     <div className={classes.customPrompt}>
       <div className={classes.customPromptLabel}>Your custom prompt</div>

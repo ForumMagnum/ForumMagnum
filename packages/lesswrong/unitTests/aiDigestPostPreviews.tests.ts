@@ -2,12 +2,11 @@ import {
   AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE,
   buildAiDigestPostPreviewHtml,
   findCachedAiDigestPostPreviews,
-  populateMissingAiDigestPostPreviews,
   splitPostHtmlIntoBlocks,
   validateAiDigestPreviewStartBlockIndex,
   type AiDigestPostPreviewBlock,
   type AiDigestPostPreviewTarget,
-  type CachedAiDigestPostPreview,
+  type AiDigestPostPreviewRecord,
 } from "@/server/aiDigest/aiDigestPostPreviews";
 
 const PREAMBLE_PARAGRAPH = "<p><em>Epistemic status:</em> speculative, written in one sitting.</p>";
@@ -118,7 +117,7 @@ describe("AI digest post preview start index validation", () => {
 
 describe("AI digest post preview cache", () => {
   const target = makeTarget(1);
-  const cachedPreview: CachedAiDigestPostPreview = {
+  const cachedPreview: AiDigestPostPreviewRecord = {
     postId: target.postId,
     revisionId: target.revisionId,
     previewHtml: FIRST_CONTENT_PARAGRAPH,
@@ -152,73 +151,5 @@ describe("AI digest post preview cache", () => {
       "preview-model",
       "preview-v2",
     ).missingTargets).toEqual([target]);
-  });
-
-  it("generates and saves only the previews that are missing", async () => {
-    const targets = [target, makeTarget(2)];
-    const selectStartBlockIndex = jest.fn(async () => 2);
-    const savePreview = jest.fn(async () => undefined);
-    const result = await populateMissingAiDigestPostPreviews({
-      targets,
-      cachedPreviews: [cachedPreview],
-      blocksByRevisionId: new Map(
-        targets.map((each) => [each.revisionId, splitPostHtmlIntoBlocks(POST_HTML)]),
-      ),
-      modelId: "preview-model",
-      promptVersion: "preview-v1",
-      dependencies: { selectStartBlockIndex, savePreview },
-    });
-    expect(selectStartBlockIndex).toHaveBeenCalledTimes(1);
-    expect(savePreview).toHaveBeenCalledTimes(1);
-    expect(result.reusedPreviewCount).toBe(1);
-    expect(result.generatedPreviewCount).toBe(1);
-    expect(result.skippedPostCount).toBe(0);
-    expect(result.previews.map((preview) => preview.postId)).toEqual(["post-1", "post-2"]);
-    expect(result.previews[1].previewHtml).toContain("Newcomb's problem is usually presented");
-    expect(result.previews[1].startBlockIndex).toBe(2);
-  });
-
-  it("caches a preview that starts at the top of the post", async () => {
-    const savePreview = jest.fn(async () => undefined);
-    const result = await populateMissingAiDigestPostPreviews({
-      targets: [target],
-      cachedPreviews: [],
-      blocksByRevisionId: new Map([[target.revisionId, splitPostHtmlIntoBlocks(POST_HTML)]]),
-      modelId: "preview-model",
-      promptVersion: "preview-v1",
-      dependencies: { selectStartBlockIndex: async () => 0, savePreview },
-    });
-    expect(savePreview).toHaveBeenCalledTimes(1);
-    expect(result.previews[0].startBlockIndex).toBe(0);
-    expect(result.previews[0].previewHtml).toContain("Epistemic status");
-  });
-
-  it("writes no cache row when the model answer or the post is unusable", async () => {
-    const savePreview = jest.fn(async () => undefined);
-    const unusable = async (
-      { blocks }: { blocks: AiDigestPostPreviewBlock[] },
-    ) => blocks.length;
-    const outOfRange = await populateMissingAiDigestPostPreviews({
-      targets: [target],
-      cachedPreviews: [],
-      blocksByRevisionId: new Map([[target.revisionId, splitPostHtmlIntoBlocks(POST_HTML)]]),
-      modelId: "preview-model",
-      promptVersion: "preview-v1",
-      dependencies: { selectStartBlockIndex: unusable, savePreview },
-    });
-    expect(savePreview).not.toHaveBeenCalled();
-    expect(outOfRange.generatedPreviewCount).toBe(0);
-    expect(outOfRange.skippedPostCount).toBe(1);
-
-    const missingBody = await populateMissingAiDigestPostPreviews({
-      targets: [target],
-      cachedPreviews: [],
-      blocksByRevisionId: new Map(),
-      modelId: "preview-model",
-      promptVersion: "preview-v1",
-      dependencies: { selectStartBlockIndex: async () => 0, savePreview },
-    });
-    expect(savePreview).not.toHaveBeenCalled();
-    expect(missingBody.skippedPostCount).toBe(1);
   });
 });

@@ -3,6 +3,7 @@
 
 // Helper imports
 import { CollectionViewSet } from './collectionViewSet';
+import { AiDigestIssuesViews } from '../collections/aiDigestIssues/views';
 
 // Collection imports
 import { BookmarksViews } from '../collections/bookmarks/views';
@@ -64,7 +65,7 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
-  AiDigestIssues: new CollectionViewSet('AiDigestIssues', {}),
+  AiDigestIssues: AiDigestIssuesViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),

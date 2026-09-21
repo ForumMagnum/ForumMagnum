@@ -5,7 +5,6 @@ import { uniquePostUpvotersView } from "@/server/postgresView";
 import { clearLoggedOutServedSessionsWithNoViews, clearOldUltraFeedServedEvents } from '@/server/ultraFeed/cron';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { sendScheduledAiDigestEmails } from '@/server/aiDigest/aiDigestScheduledEmails';
-import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -36,8 +35,10 @@ export async function GET(request: NextRequest) {
   // Clear logged-out ultrafeed served sessions with no views
   await clearLoggedOutServedSessionsWithNoViews();
 
-  // Send scheduled "Content for You" digests to subscribers who are due one
-  await getLockOrAbort('sendScheduledAiDigestEmails', () => sendScheduledAiDigestEmails());
+  // Send scheduled "Content for You" digests to subscribers who are due one.
+  // Runs are an hour apart and each drains only a couple of readers, so they
+  // don't overlap; a per-reader claim will replace this when the cohort widens.
+  await sendScheduledAiDigestEmails();
 
   return new Response('OK', { status: 200 });
 }

@@ -1,19 +1,15 @@
 import {
   DEFAULT_CREATED_AT_FIELD,
   DEFAULT_ID_FIELD,
-  DEFAULT_LEGACY_DATA_FIELD,
-  DEFAULT_SCHEMA_VERSION_FIELD,
 } from "@/lib/collections/helpers/sharedFieldConstants";
-import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
+import { generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
 const userIsIssueRecipient = (user: DbUser | null, issue: DbAiDigestIssue): boolean =>
   !!user && user._id === issue.recipientId;
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
-  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
-  legacyData: DEFAULT_LEGACY_DATA_FIELD,
   recipientId: {
     database: {
       type: "VARCHAR(27)",
@@ -49,7 +45,6 @@ const schema = {
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
-      onCreate: arrayOfForeignKeysOnCreate,
     },
   },
   posts: {
@@ -74,7 +69,6 @@ const schema = {
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
-      onCreate: arrayOfForeignKeysOnCreate,
     },
   },
   quickTakes: {
@@ -100,7 +94,6 @@ const schema = {
       inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
-      onCreate: arrayOfForeignKeysOnCreate,
     },
   },
   discussionComments: {
@@ -144,8 +137,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String",
+      outputType: "AiDigestIssueTrigger",
+      inputType: "AiDigestIssueTrigger",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
       validation: {
@@ -395,13 +388,21 @@ const schema = {
   spec: {
     database: {
       type: "JSONB",
-      nullable: true,
-      typescriptType: "import(\"@/server/emailComponents/AiDigestSpec\").AiDigestSpec",
+      nullable: false,
+      typescriptType: "import(\"@/lib/aiDigest/aiDigestSpec\").AiDigestSpec",
     },
     graphql: {
       outputType: "JSON",
       canRead: [userIsIssueRecipient, "admins"],
       canCreate: ["admins"],
+    },
+  },
+  /** The issue's subject line, lifted out of the spec so lists needn't load it. */
+  subject: {
+    graphql: {
+      outputType: "String",
+      canRead: [userIsIssueRecipient, "admins"],
+      resolver: (issue) => issue.spec.subject,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"AiDigestIssues">>;

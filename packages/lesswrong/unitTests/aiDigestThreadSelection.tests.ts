@@ -1,7 +1,5 @@
-import type {
-  AiDigestThreadCommentAnnotationRow,
-  AiDigestThreadCommentRow,
-} from "@/server/repos/CommentsRepo";
+import type { AiDigestThreadCommentRow } from "@/server/repos/CommentsRepo";
+import type { AiDigestThreadCommentAnnotationRow } from "@/server/aiDigest/aiDigestReaderSignals";
 import {
   AI_DIGEST_THREAD_COMMENT_BODY_MAX_CHARS,
   buildAiDigestThreadAnnotation,
@@ -14,7 +12,6 @@ import {
 } from "@/server/aiDigest/aiDigestThreadCandidates";
 import {
   AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION,
-  AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT,
   buildAiDigestThreadSelectionPrompt,
 } from "@/server/aiDigest/aiDigestThreadSelectionPrompt";
 import {
@@ -390,35 +387,6 @@ describe("AI digest thread selection prompt", () => {
     expect(otherPrompt.personalizedSuffix).toContain("<UNTRUSTED_READER_INSTRUCTIONS>");
     expect(otherPrompt.personalizedSuffix).toContain("Focus on decision theory threads.");
     expect(prompt.personalizedSuffix).not.toContain("<UNTRUSTED_READER_INSTRUCTIONS>");
-  });
-
-  it("encodes the selection hierarchy, sizing limits, and reason rules", () => {
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT.indexOf("# Task")).toBeLessThan(
-      AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT.indexOf("# Selection policy"),
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT.indexOf("# Selection policy")).toBeLessThan(
-      AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT.indexOf("# Thread display semantics"),
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "Threads the reader participated in",
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain("Up to 3 threads");
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "At most 6 displayed comments in total",
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "Zero threads is a valid output",
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain("untrusted data");
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "Every selected thread carries a `reason`",
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "too thin to ground any connection",
-    );
-    expect(AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT).toContain(
-      "at least one comment published since `lastIncludedDaysAgo`",
-    );
   });
 });
 

@@ -2,6 +2,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import type { AiDigestUserDossier } from "./aiDigestPostCandidates";
 import {
+  aiDigestGatewayProviderOptions,
   buildAiDigestSelectionMessages,
   decodeStrayUnicodeEscapes,
   sumAiDigestSelectionCostUsd,
@@ -17,9 +18,9 @@ import {
   type AiDigestThreadSelectionPrompt,
 } from "./aiDigestThreadSelectionPrompt";
 
-export const AI_DIGEST_MAX_THREADS_PER_ISSUE = 3;
+const AI_DIGEST_MAX_THREADS_PER_ISSUE = 3;
 /** Displayed comments per thread, anchor included. */
-export const AI_DIGEST_MAX_COMMENTS_PER_THREAD = 3;
+const AI_DIGEST_MAX_COMMENTS_PER_THREAD = 3;
 /** Displayed comments across all threads, anchors included. */
 export const AI_DIGEST_MAX_THREAD_COMMENTS_TOTAL = 6;
 export const AI_DIGEST_THREAD_REASON_MAX_LENGTH = 180;
@@ -51,7 +52,7 @@ export interface AiDigestSelectedThread {
   reason: string | null;
 }
 
-export interface AiDigestClampedThreadSelection {
+interface AiDigestClampedThreadSelection {
   selectedThreads: AiDigestSelectedThread[];
 }
 
@@ -83,7 +84,7 @@ function buildCommentLookup(
  * repeated thread earns a second showing only when the discussion actually
  * moved: at least one card comment published after the last time it ran.
  */
-export function threadRepeatHasNewActivity(
+function threadRepeatHasNewActivity(
   card: AiDigestThreadCard | undefined,
   annotation: AiDigestThreadAnnotation | undefined,
 ): boolean {
@@ -203,7 +204,7 @@ export function clampAiDigestThreadSelectionOutput(
   return { selectedThreads };
 }
 
-export interface AiDigestThreadSelectionTokenUsage {
+interface AiDigestThreadSelectionTokenUsage {
   threadInputTokenCount: number | null;
   threadOutputTokenCount: number | null;
   threadCacheReadInputTokenCount: number | null;
@@ -249,6 +250,7 @@ export async function runAiDigestThreadSelection({
       personalizedSuffix: prompt.personalizedSuffix,
       enableAnthropicCaching: modelId.startsWith("anthropic/"),
     }),
+    providerOptions: aiDigestGatewayProviderOptions("thread-selection"),
     output: Output.object({
       schema: threadSelectionOutputSchema,
       name: "aiDigestThreadSelection",

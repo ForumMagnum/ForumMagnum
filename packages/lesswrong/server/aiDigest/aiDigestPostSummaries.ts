@@ -1,26 +1,24 @@
+import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { htmlToTextDefault } from "@/lib/htmlToText";
-import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import PostSummaries from "@/server/collections/postSummaries/collection";
-import type { AiDigestPostSummaryTargetRow } from "@/server/repos/PostsRepo";
+import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
 import {
-  AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS,
-  AI_DIGEST_DEFAULT_MIN_KARMA,
   type AiDigestPostCandidate,
+  type AiDigestPostCandidateCard,
   type AiDigestPostSummaryProvenance,
 } from "./aiDigestPostCandidates";
 
-export const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
+const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
 export const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5";
-export const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 900;
-export const AI_DIGEST_POST_SUMMARY_MIN_LENGTH = 40;
+const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 900;
+const AI_DIGEST_POST_SUMMARY_MIN_LENGTH = 40;
 
 const AI_DIGEST_POST_SUMMARY_MAX_INPUT_LENGTH = 24_000;
 const AI_DIGEST_POST_SUMMARY_MIN_INPUT_LENGTH = 200;
 export const AI_DIGEST_SELECTION_READ_POST_MAX_CHARS = 15_000;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const summaryOutputSchema = z.object({
   summary: z.string()
@@ -39,66 +37,30 @@ interface AiDigestSummaryCacheTarget {
   revisionId: string;
 }
 
-export interface AiDigestPostSummaryTarget extends AiDigestSummaryCacheTarget {
+interface AiDigestPostSummaryTarget extends AiDigestSummaryCacheTarget {
   title: string;
   author: string;
 }
 
-export interface CachedAiDigestPostSummary extends AiDigestSummaryCacheTarget {
+/** One `PostSummaries` cache row. */
+export interface AiDigestPostSummaryRecord extends AiDigestSummaryCacheTarget {
   summary: string;
   modelId: string;
   promptVersion: string;
 }
 
-export interface GeneratedAiDigestPostSummary extends AiDigestSummaryCacheTarget {
-  summary: string;
-  modelId: string;
-  promptVersion: string;
-}
-
-export interface AiDigestCandidateWithSummary extends AiDigestPostCandidate {
-  summary: string;
-  summaryProvenance: AiDigestPostSummaryProvenance;
-}
-
-export interface AiDigestSummaryPopulationResult {
-  summaries: Array<CachedAiDigestPostSummary | GeneratedAiDigestPostSummary>;
-  availableTargetCount: number;
-  targetCount: number;
+interface AiDigestSummaryPopulationResult {
+  summaries: AiDigestPostSummaryRecord[];
   reusedSummaryCount: number;
   generatedSummaryCount: number;
   skippedPostCount: number;
 }
 
-export interface AiDigestCachedSummaryLoadResult {
-  candidates: AiDigestCandidateWithSummary[];
+interface AiDigestEnsuredSummaryLoadResult {
+  candidates: AiDigestPostCandidateCard[];
   reusedSummaryCount: number;
-  skippedPostCount: number;
-}
-
-export interface AiDigestEnsuredSummaryLoadResult extends AiDigestCachedSummaryLoadResult {
   generatedSummaryCount: number;
-}
-
-export interface AiDigestSummaryGenerationInput {
-  target: AiDigestPostSummaryTarget;
-  body: string;
-  modelId: string;
-  promptVersion: string;
-}
-
-export interface AiDigestSummaryPopulationDependencies {
-  generateSummary: (
-    input: AiDigestSummaryGenerationInput,
-  ) => Promise<GeneratedAiDigestPostSummary>;
-  saveSummary: (summary: GeneratedAiDigestPostSummary) => Promise<void>;
-}
-
-export interface AiDigestSummaryPopulationProgress {
-  completedMissingTargetCount: number;
-  missingTargetCount: number;
-  postId: string;
-  status: "generated" | "skipped";
+  skippedPostCount: number;
 }
 
 function summaryCacheKey({
@@ -117,17 +79,17 @@ function summaryCacheKey({
 
 export function findCachedAiDigestPostSummaries<T extends AiDigestSummaryCacheTarget>(
   targets: T[],
-  cachedSummaries: CachedAiDigestPostSummary[],
+  cachedSummaries: AiDigestPostSummaryRecord[],
   modelId: string,
   promptVersion: string,
 ): {
-  cachedByPostId: Map<string, CachedAiDigestPostSummary>;
+  cachedByPostId: Map<string, AiDigestPostSummaryRecord>;
   missingTargets: T[];
 } {
   const cachedByKey = new Map(
     cachedSummaries.map((summary) => [summaryCacheKey(summary), summary]),
   );
-  const cachedByPostId = new Map<string, CachedAiDigestPostSummary>();
+  const cachedByPostId = new Map<string, AiDigestPostSummaryRecord>();
   const missingTargets = targets.filter((target) => {
     const summary = cachedByKey.get(summaryCacheKey({
       postId: target.postId,
@@ -144,39 +106,21 @@ export function findCachedAiDigestPostSummaries<T extends AiDigestSummaryCacheTa
   return { cachedByPostId, missingTargets };
 }
 
-export function validateGeneratedPostSummary(
-  generated: GeneratedAiDigestPostSummary,
-  expected: {
-    postId: string;
-    revisionId: string;
-    modelId: string;
-    promptVersion: string;
-  },
-): GeneratedAiDigestPostSummary {
-  if (generated.postId !== expected.postId) {
-    throw new Error(`Summary model returned unknown post ID: ${generated.postId}`);
-  }
-  if (
-    generated.revisionId !== expected.revisionId
-    || generated.modelId !== expected.modelId
-    || generated.promptVersion !== expected.promptVersion
-  ) {
-    throw new Error(`Summary provenance did not match post ${expected.postId}`);
-  }
-  const normalizedSummary = generated.summary.replace(/\s+/g, " ").trim();
+function normalizePostSummary(summary: string, postId: string): string {
+  const normalizedSummary = collapseAiDigestWhitespace(summary);
   if (
     normalizedSummary.length < AI_DIGEST_POST_SUMMARY_MIN_LENGTH
     || normalizedSummary.length > AI_DIGEST_POST_SUMMARY_MAX_LENGTH
   ) {
-    throw new Error(`Summary length was invalid for post ${expected.postId}`);
+    throw new Error(`Summary length was invalid for post ${postId}`);
   }
-  return { ...generated, summary: normalizedSummary };
+  return normalizedSummary;
 }
 
 function withSummary(
   candidate: AiDigestPostCandidate,
-  summary: CachedAiDigestPostSummary,
-): AiDigestCandidateWithSummary {
+  summary: AiDigestPostSummaryRecord,
+): AiDigestPostCandidateCard {
   return {
     ...candidate,
     summary: summary.summary,
@@ -188,126 +132,53 @@ function withSummary(
   };
 }
 
-export function attachCachedAiDigestPostSummaries({
-  candidates,
-  cachedSummaries,
-  modelId,
-  promptVersion,
-}: {
-  candidates: AiDigestPostCandidate[];
-  cachedSummaries: CachedAiDigestPostSummary[];
-  modelId: string;
-  promptVersion: string;
-}): AiDigestCachedSummaryLoadResult {
-  const { cachedByPostId } = findCachedAiDigestPostSummaries(
-    candidates,
-    cachedSummaries,
-    modelId,
-    promptVersion,
-  );
-  const summarizedCandidates = candidates.flatMap((candidate) => {
-    const summary = cachedByPostId.get(candidate.postId);
-    return summary ? [withSummary(candidate, summary)] : [];
-  });
-  return {
-    candidates: summarizedCandidates,
-    reusedSummaryCount: summarizedCandidates.length,
-    skippedPostCount: candidates.length - summarizedCandidates.length,
-  };
-}
-
+/**
+ * A failed or unusable model answer leaves no cache row; a failed insert (eg a
+ * losing race against a concurrent generation) propagates.
+ */
 async function generateAndSaveSummary(
   target: AiDigestPostSummaryTarget,
   body: string,
   modelId: string,
   promptVersion: string,
-  dependencies: AiDigestSummaryPopulationDependencies,
-): Promise<GeneratedAiDigestPostSummary | null> {
-  let generated: GeneratedAiDigestPostSummary;
+): Promise<AiDigestPostSummaryRecord | null> {
+  let summary: string;
   try {
-    generated = validateGeneratedPostSummary(
-      await dependencies.generateSummary({
-        target,
-        body,
-        modelId,
-        promptVersion,
-      }),
-      {
-        postId: target.postId,
-        revisionId: target.revisionId,
-        modelId,
-        promptVersion,
-      },
-    );
+    summary = await generatePostSummary(target, body, modelId, promptVersion);
   } catch {
     return null;
   }
-  await dependencies.saveSummary(generated);
-  return generated;
+  const record: AiDigestPostSummaryRecord = {
+    postId: target.postId,
+    revisionId: target.revisionId,
+    summary,
+    modelId,
+    promptVersion,
+  };
+  await PostSummaries.rawInsert(record);
+  return record;
 }
 
 function isGeneratedSummary(
-  summary: GeneratedAiDigestPostSummary | null,
-): summary is GeneratedAiDigestPostSummary {
+  summary: AiDigestPostSummaryRecord | null,
+): summary is AiDigestPostSummaryRecord {
   return summary !== null;
 }
 
-async function generateMissingSummariesWithConcurrency(
-  targets: AiDigestPostSummaryTarget[],
-  bodiesByRevisionId: Map<string, string>,
-  modelId: string,
-  promptVersion: string,
-  dependencies: AiDigestSummaryPopulationDependencies,
-  concurrency: number,
-  onProgress?: (progress: AiDigestSummaryPopulationProgress) => void,
-): Promise<GeneratedAiDigestPostSummary[]> {
-  let completedMissingTargetCount = 0;
-  const generated = await executePromiseQueue(
-    targets.map((target) => async () => {
-      const body = bodiesByRevisionId.get(target.revisionId);
-      const summary = body
-        ? await generateAndSaveSummary(
-          target,
-          body,
-          modelId,
-          promptVersion,
-          dependencies,
-        )
-        : null;
-      completedMissingTargetCount += 1;
-      onProgress?.({
-        completedMissingTargetCount,
-        missingTargetCount: targets.length,
-        postId: target.postId,
-        status: summary ? "generated" : "skipped",
-      });
-      return summary;
-    }),
-    Math.max(1, Math.floor(concurrency)),
-  );
-  return generated.filter(isGeneratedSummary);
-}
-
-export async function populateMissingAiDigestPostSummaries({
+async function populateMissingAiDigestPostSummaries({
   targets,
   cachedSummaries,
   bodiesByRevisionId,
   modelId,
   promptVersion,
-  dependencies,
-  availableTargetCount = targets.length,
-  concurrency = 4,
-  onProgress,
+  concurrency,
 }: {
   targets: AiDigestPostSummaryTarget[];
-  cachedSummaries: CachedAiDigestPostSummary[];
+  cachedSummaries: AiDigestPostSummaryRecord[];
   bodiesByRevisionId: Map<string, string>;
   modelId: string;
   promptVersion: string;
-  dependencies: AiDigestSummaryPopulationDependencies;
-  availableTargetCount?: number;
-  concurrency?: number;
-  onProgress?: (progress: AiDigestSummaryPopulationProgress) => void;
+  concurrency: number;
 }): Promise<AiDigestSummaryPopulationResult> {
   const { cachedByPostId, missingTargets } = findCachedAiDigestPostSummaries(
     targets,
@@ -315,19 +186,16 @@ export async function populateMissingAiDigestPostSummaries({
     modelId,
     promptVersion,
   );
-  const generatedSummaries = await generateMissingSummariesWithConcurrency(
-    missingTargets,
-    bodiesByRevisionId,
-    modelId,
-    promptVersion,
-    dependencies,
-    concurrency,
-    onProgress,
-  );
-  const summariesByPostId = new Map<
-    string,
-    CachedAiDigestPostSummary | GeneratedAiDigestPostSummary
-  >(cachedByPostId);
+  const generatedSummaries = (await executePromiseQueue(
+    missingTargets.map((target) => async () => {
+      const body = bodiesByRevisionId.get(target.revisionId);
+      return body
+        ? await generateAndSaveSummary(target, body, modelId, promptVersion)
+        : null;
+    }),
+    Math.max(1, Math.floor(concurrency)),
+  )).filter(isGeneratedSummary);
+  const summariesByPostId = new Map<string, AiDigestPostSummaryRecord>(cachedByPostId);
   generatedSummaries.forEach((summary) => {
     summariesByPostId.set(summary.postId, summary);
   });
@@ -337,8 +205,6 @@ export async function populateMissingAiDigestPostSummaries({
   });
   return {
     summaries,
-    availableTargetCount,
-    targetCount: targets.length,
     reusedSummaryCount: cachedByPostId.size,
     generatedSummaryCount: generatedSummaries.length,
     skippedPostCount: targets.length - summaries.length,
@@ -360,16 +226,17 @@ function buildPostSummaryPrompt(
   ].join("\n");
 }
 
-async function generatePostSummary({
-  target,
-  body,
-  modelId,
-  promptVersion,
-}: AiDigestSummaryGenerationInput): Promise<GeneratedAiDigestPostSummary> {
+async function generatePostSummary(
+  target: AiDigestPostSummaryTarget,
+  body: string,
+  modelId: string,
+  promptVersion: string,
+): Promise<string> {
   const result = await generateText({
     model: modelId,
     system: `${POST_SUMMARY_SYSTEM_PROMPT}\n\nPrompt version: ${promptVersion}`,
     prompt: buildPostSummaryPrompt(target, body),
+    providerOptions: aiDigestGatewayProviderOptions("post-summary"),
     output: Output.object({
       schema: summaryOutputSchema,
       name: "postSummary",
@@ -377,29 +244,11 @@ async function generatePostSummary({
     }),
     maxOutputTokens: 500,
   });
-  return {
-    postId: target.postId,
-    revisionId: target.revisionId,
-    summary: result.output.summary,
-    modelId,
-    promptVersion,
-  };
-}
-
-async function savePostSummary(summary: GeneratedAiDigestPostSummary): Promise<void> {
-  await PostSummaries.rawInsert({
-    postId: summary.postId,
-    revisionId: summary.revisionId,
-    summary: summary.summary,
-    modelId: summary.modelId,
-    promptVersion: summary.promptVersion,
-  });
+  return normalizePostSummary(result.output.summary, target.postId);
 }
 
 function usableBodyFromRevisionHtml(revisionHtml: string): string | null {
-  const body = htmlToTextDefault(revisionHtml)
-    .replace(/\s+/g, " ")
-    .trim()
+  const body = collapseAiDigestWhitespace(htmlToTextDefault(revisionHtml))
     .slice(0, AI_DIGEST_POST_SUMMARY_MAX_INPUT_LENGTH);
   return body.length >= AI_DIGEST_POST_SUMMARY_MIN_INPUT_LENGTH ? body : null;
 }
@@ -408,53 +257,7 @@ export function boundedPlainTextFromRevisionHtml(
   revisionHtml: string,
   maxLength = AI_DIGEST_SELECTION_READ_POST_MAX_CHARS,
 ): string {
-  return htmlToTextDefault(revisionHtml)
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, maxLength);
-}
-
-function summaryTargetFromRow(
-  row: AiDigestPostSummaryTargetRow,
-): AiDigestPostSummaryTarget {
-  return {
-    postId: row.postId,
-    revisionId: row.revisionId,
-    title: row.title,
-    author: row.author,
-  };
-}
-
-function revisionBodyEntry(
-  row: AiDigestPostSummaryTargetRow,
-): Array<[string, string]> {
-  const body = usableBodyFromRevisionHtml(row.revisionHtml);
-  return body ? [[row.revisionId, body]] : [];
-}
-
-export async function loadAiDigestPostSummaryTargets({
-  context,
-  now = new Date(),
-  maxAgeDays = AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS,
-  minKarma = AI_DIGEST_DEFAULT_MIN_KARMA,
-}: {
-  context: ResolverContext;
-  now?: Date;
-  maxAgeDays?: number;
-  minKarma?: number;
-}): Promise<{
-  targets: AiDigestPostSummaryTarget[];
-  bodiesByRevisionId: Map<string, string>;
-}> {
-  const rows = await context.repos.posts.getAiDigestPostSummaryTargetRows({
-    aboutPostId: aboutPostIdSetting.get(),
-    minPostedAt: new Date(now.getTime() - (maxAgeDays * DAY_MS)),
-    minKarma,
-  });
-  return {
-    targets: rows.map(summaryTargetFromRow),
-    bodiesByRevisionId: new Map(rows.flatMap(revisionBodyEntry)),
-  };
+  return collapseAiDigestWhitespace(htmlToTextDefault(revisionHtml)).slice(0, maxLength);
 }
 
 async function fetchCachedAiDigestPostSummaries({
@@ -465,7 +268,7 @@ async function fetchCachedAiDigestPostSummaries({
   targets: AiDigestSummaryCacheTarget[];
   modelId: string;
   promptVersion: string;
-}): Promise<CachedAiDigestPostSummary[]> {
+}): Promise<AiDigestPostSummaryRecord[]> {
   if (targets.length === 0) {
     return [];
   }
@@ -475,28 +278,6 @@ async function fetchCachedAiDigestPostSummaries({
     modelId,
     promptVersion,
   }).fetch();
-}
-
-export async function loadCachedAiDigestPostSummaries({
-  candidates,
-  modelId = AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
-  promptVersion = AI_DIGEST_POST_SUMMARY_PROMPT_VERSION,
-}: {
-  candidates: AiDigestPostCandidate[];
-  modelId?: string;
-  promptVersion?: string;
-}): Promise<AiDigestCachedSummaryLoadResult> {
-  const cachedSummaries = await fetchCachedAiDigestPostSummaries({
-    targets: candidates,
-    modelId,
-    promptVersion,
-  });
-  return attachCachedAiDigestPostSummaries({
-    candidates,
-    cachedSummaries,
-    modelId,
-    promptVersion,
-  });
 }
 
 /**
@@ -544,10 +325,6 @@ export async function ensureAiDigestPostSummaries({
     modelId,
     promptVersion,
     concurrency,
-    dependencies: {
-      generateSummary: generatePostSummary,
-      saveSummary: savePostSummary,
-    },
   });
   const summariesByPostId = new Map(
     populationResult.summaries.map((summary) => [summary.postId, summary]),
@@ -564,53 +341,3 @@ export async function ensureAiDigestPostSummaries({
   };
 }
 
-export async function populateAiDigestPostSummaries({
-  context,
-  now,
-  maxAgeDays,
-  minKarma,
-  modelId = AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
-  promptVersion = AI_DIGEST_POST_SUMMARY_PROMPT_VERSION,
-  limit,
-  concurrency = 4,
-  onProgress,
-}: {
-  context: ResolverContext;
-  now?: Date;
-  maxAgeDays?: number;
-  minKarma?: number;
-  modelId?: string;
-  promptVersion?: string;
-  limit?: number;
-  concurrency?: number;
-  onProgress?: (progress: AiDigestSummaryPopulationProgress) => void;
-}): Promise<AiDigestSummaryPopulationResult> {
-  const { targets, bodiesByRevisionId } = await loadAiDigestPostSummaryTargets({
-    context,
-    now,
-    maxAgeDays,
-    minKarma,
-  });
-  const selectedTargets = limit === undefined
-    ? targets
-    : targets.slice(0, Math.max(0, Math.floor(limit)));
-  const cachedSummaries = await fetchCachedAiDigestPostSummaries({
-    targets: selectedTargets,
-    modelId,
-    promptVersion,
-  });
-  return populateMissingAiDigestPostSummaries({
-    targets: selectedTargets,
-    cachedSummaries,
-    bodiesByRevisionId,
-    modelId,
-    promptVersion,
-    availableTargetCount: targets.length,
-    concurrency,
-    onProgress,
-    dependencies: {
-      generateSummary: generatePostSummary,
-      saveSummary: savePostSummary,
-    },
-  });
-}

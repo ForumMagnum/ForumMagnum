@@ -20,9 +20,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 -- Table "AiDigestIssues"
 CREATE TABLE "AiDigestIssues" (
   _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "recipientId" VARCHAR(27) NOT NULL,
   "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "quickTakeIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
@@ -52,7 +50,7 @@ CREATE TABLE "AiDigestIssues" (
   "threadCacheReadInputTokenCount" INTEGER,
   "threadSelectionCostUsd" DOUBLE PRECISION,
   "generationDurationMs" INTEGER NOT NULL DEFAULT 0,
-  "spec" JSONB
+  "spec" JSONB NOT NULL
 );
 
 -- Index "idx_AiDigestIssues_recipientId_generatedAt"
@@ -1412,9 +1410,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbe
 -- Table "PostPreviews"
 CREATE TABLE "PostPreviews" (
   _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "postId" VARCHAR(27) NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "previewHtml" TEXT NOT NULL,
@@ -1472,9 +1468,7 @@ CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "
 -- Table "PostSummaries"
 CREATE TABLE "PostSummaries" (
   _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "postId" VARCHAR(27) NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "summary" TEXT NOT NULL,

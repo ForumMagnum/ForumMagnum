@@ -2,7 +2,7 @@ export const aiDigestPresentation = {
   excerptCharacters: {
     headlinePost: 470,
     compactPost: 175,
-    fullQuickTake: 260,
+    fullQuickTake: 600,
     discussionRoot: 680,
     discussionReply: 320,
   },

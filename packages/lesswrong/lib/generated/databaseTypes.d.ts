@@ -20,7 +20,6 @@ interface DbAiDigestIssue extends DbObject {
   generatedAt: Date
   generationDurationMs: number
   inputTokenCount: number | null
-  legacyData: any | null
   outputTokenCount: number | null
   personalInstructions: string | null
   postIds: Array<string>
@@ -33,7 +32,7 @@ interface DbAiDigestIssue extends DbObject {
   selectionModelId: string
   selectionSystemPrompt: string | null
   selectionUserPrompt: string | null
-  spec: import("@/server/emailComponents/AiDigestSpec").AiDigestSpec | null
+  spec: import("@/lib/aiDigest/aiDigestSpec").AiDigestSpec
   threadCacheReadInputTokenCount: number | null
   threadInputTokenCount: number | null
   threadOutputTokenCount: number | null
@@ -912,7 +911,6 @@ type PostPreviewsCollection = PgCollection<"PostPreviews">;
 interface DbPostPreview extends DbObject {
   __collectionName?: "PostPreviews"
   createdAt: Date
-  legacyData: any | null
   modelId: string
   postId: string
   previewHtml: string
@@ -954,7 +952,6 @@ type PostSummariesCollection = PgCollection<"PostSummaries">;
 interface DbPostSummary extends DbObject {
   __collectionName?: "PostSummaries"
   createdAt: Date
-  legacyData: any | null
   modelId: string
   postId: string
   promptVersion: string

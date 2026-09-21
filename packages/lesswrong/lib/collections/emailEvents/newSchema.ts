@@ -22,10 +22,6 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
   },
 
   /**
@@ -37,10 +33,6 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
   },
 
   /** From the `v:emailType` send-time variable, e.g. "aiDigest". */
@@ -49,10 +41,6 @@ const schema = {
       type: "TEXT",
       nullable: true,
     },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
   },
 
   /** From `v:campaignId`. For the digest, the AiDigestIssues._id. */
@@ -60,10 +48,6 @@ const schema = {
     database: {
       type: "VARCHAR(27)",
       nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
     },
   },
 
@@ -74,10 +58,6 @@ const schema = {
       foreignKey: "Users",
       nullable: true,
     },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
   },
 
   /** The raw clicked URL, kept as ground truth in case the parsing below drifts. */
@@ -85,10 +65,6 @@ const schema = {
     database: {
       type: "TEXT",
       nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
     },
   },
 
@@ -98,20 +74,12 @@ const schema = {
       type: "TEXT",
       nullable: true,
     },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
   },
 
   documentId: {
     database: {
       type: "VARCHAR(27)",
       nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
     },
   },
 
@@ -124,10 +92,6 @@ const schema = {
       type: "BOOL",
       nullable: true,
     },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["admins"],
-    },
   },
 
   /** When Mailgun recorded the event, as opposed to when we ingested it. */
@@ -135,10 +99,6 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"EmailEvents">>;

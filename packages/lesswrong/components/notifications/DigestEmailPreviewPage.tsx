@@ -1,11 +1,11 @@
 "use client";
 
+import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS } from "@/lib/aiDigest/constants";
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
-import { isDevelopment } from "@/lib/executionEnvironment";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -17,20 +17,8 @@ import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete
 import Loading from "@/components/vulcan-core/Loading";
 import EmailPreview, {
   MOBILE_EMAIL_PREVIEW_WIDTH,
-  type EmailPreviewBodyView,
   type EmailPreviewViewport,
 } from "./EmailPreview";
-
-const DigestEmailPreviewQuery = gql(`
-  query DigestEmailPreviewQuery {
-    DigestEmailPreview {
-      to
-      subject
-      html
-      text
-    }
-  }
-`);
 
 const GenerateAiDigestEmailSamplesMutation = gql(`
   mutation GenerateAiDigestEmailSamplesMutation(
@@ -42,24 +30,30 @@ const GenerateAiDigestEmailSamplesMutation = gql(`
       userSlug: $userSlug
       count: $count
       countsTowardHistory: $countsTowardHistory
-    ) {
-      issueId
-      subject
-      generatedAt
-      selectionModelId
-      countsTowardHistory
+    )
+  }
+`);
+
+const DigestPreviewReaderQuery = gql(`
+  query DigestPreviewReaderQuery($userSlug: String!) {
+    users(selector: { usersProfile: { slug: $userSlug } }, limit: 1, enableTotal: false) {
+      results {
+        _id
+      }
     }
   }
 `);
 
 const AiDigestEmailSamplesQuery = gql(`
-  query AiDigestEmailSamplesQuery($userSlug: String!, $limit: Int) {
-    AiDigestEmailSamples(userSlug: $userSlug, limit: $limit) {
-      issueId
-      subject
-      generatedAt
-      selectionModelId
-      countsTowardHistory
+  query AiDigestEmailSamplesQuery($recipientId: String!, $limit: Int) {
+    aiDigestIssues(
+      selector: { recipientIssues: { recipientId: $recipientId } }
+      limit: $limit
+      enableTotal: false
+    ) {
+      results {
+        ...AiDigestIssuesAdminList
+      }
     }
   }
 `);
@@ -95,7 +89,6 @@ const AiDigestEmailSamplePreviewQuery = gql(`
 const DEFAULT_SAMPLE_SLUG = "ruby";
 const DEFAULT_SAMPLE_COUNT = 3;
 const DEFAULT_HISTORY_CLEAR_DAYS = 30;
-const MAX_HISTORY_CLEAR_DAYS = 3_650;
 const STORED_SAMPLE_LIMIT = 50;
 const SAMPLE_LIST_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -104,7 +97,6 @@ const SAMPLE_LIST_DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   minute: "2-digit",
 });
 
-type PageView = "samples" | "fixture";
 type SamplePreviewView = "html" | "text" | "metadata";
 const SAMPLE_PREVIEW_VIEWS: SamplePreviewView[] = ["html", "text", "metadata"];
 const VIEWPORT_OPTIONS: { viewport: EmailPreviewViewport; label: string }[] = [
@@ -113,22 +105,15 @@ const VIEWPORT_OPTIONS: { viewport: EmailPreviewViewport; label: string }[] = [
 ];
 
 interface DigestPreviewLocation {
-  pageView: PageView;
   userSlug: string;
   issueId: string | null;
 }
 
-function pageViewFromQuery(view: string | undefined): PageView {
-  return view === "fixture" ? "fixture" : "samples";
-}
-
 function buildDigestPreviewSearch({
-  pageView,
   userSlug,
   issueId,
 }: DigestPreviewLocation): string {
   const search = new URLSearchParams();
-  search.set("view", pageView);
   search.set("user", userSlug);
   if (issueId) {
     search.set("issue", issueId);
@@ -165,24 +150,6 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     margin: "0 0 20px",
     color: theme.palette.grey[600],
     fontSize: 14,
-  },
-  primaryTabs: {
-    display: "flex",
-    gap: 24,
-  },
-  primaryTab: {
-    padding: "10px 0 9px",
-    border: "none",
-    borderBottom: "2px solid transparent",
-    background: "transparent",
-    color: theme.palette.grey[600],
-    cursor: "pointer",
-    fontSize: 14,
-    fontWeight: 600,
-  },
-  primaryTabSelected: {
-    borderBottomColor: theme.palette.primary.main,
-    color: theme.palette.primary.main,
   },
   toolbar: {
     display: "grid",
@@ -514,42 +481,19 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
     fontSize: 13,
     textAlign: "center",
   },
-  fixtureSurface: {
-    maxWidth: 900,
-    margin: "0 auto 40px",
-    padding: 16,
-    border: theme.palette.border.normal,
-    background: theme.palette.panelBackground.default,
-  },
-  fixtureHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 20,
-    alignItems: "center",
-    marginBottom: 14,
-    paddingBottom: 12,
-    borderBottom: theme.palette.border.normal,
-  },
-  fixtureDescription: {
-    margin: 0,
-    color: theme.palette.grey[600],
-    fontSize: 13,
-  },
   error: {
     color: theme.palette.error.main,
   },
-  productionNote: {
-    color: theme.palette.grey[600],
-    fontStyle: "italic",
-  },
 }));
 
-function formatGeneratedAt(generatedAt: string): string {
-  return new Date(generatedAt).toLocaleString();
+// Nullable only because permission-gated fields are typed that way; every
+// stored issue has a generation time.
+function formatGeneratedAt(generatedAt: string | null): string {
+  return generatedAt ? new Date(generatedAt).toLocaleString() : "";
 }
 
-function formatSampleListDate(generatedAt: string): string {
-  return SAMPLE_LIST_DATE_FORMATTER.format(new Date(generatedAt));
+function formatSampleListDate(generatedAt: string | null): string {
+  return generatedAt ? SAMPLE_LIST_DATE_FORMATTER.format(new Date(generatedAt)) : "";
 }
 
 function formatGenerationDuration(durationMs: number | undefined): string {
@@ -602,10 +546,8 @@ export default function DigestEmailPreviewPage() {
   const { pathname, query } = useLocation();
   const navigate = useNavigate();
   const initialUserSlug = query.user?.trim() || DEFAULT_SAMPLE_SLUG;
-  const [pageView, setPageView] = useState<PageView>(pageViewFromQuery(query.view));
   const [samplePreviewView, setSamplePreviewView] = useState<SamplePreviewView>("html");
   const [promptsExpanded, setPromptsExpanded] = useState(false);
-  const [fixturePreviewView, setFixturePreviewView] = useState<EmailPreviewBodyView>("html");
   const [previewViewport, setPreviewViewport] = useState<EmailPreviewViewport>("desktop");
   const [activeSlug, setActiveSlug] = useState(initialUserSlug);
   const [includeNonAdmins, setIncludeNonAdmins] = useState(false);
@@ -616,15 +558,6 @@ export default function DigestEmailPreviewPage() {
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(
     query.issue || null,
   );
-  // The email is rendered server-side inside the resolver, so client HMR can't
-  // pick up edits to the email component; refetch on demand instead. (Polling
-  // doesn't work here: each render mints a fresh unsubscribe token, so the
-  // HTML is never identical and the iframe would reload on every poll.)
-  const { data, loading, error, refetch } = useQuery(DigestEmailPreviewQuery, {
-    skip: pageView !== "fixture",
-    ssr: false,
-    fetchPolicy: "network-only",
-  });
   const [generateSamples, {
     loading: samplesLoading,
     error: samplesError,
@@ -633,6 +566,11 @@ export default function DigestEmailPreviewPage() {
     loading: historyClearLoading,
     error: historyClearError,
   }] = useMutation(ClearAiDigestEmailSampleHistoryMutation);
+  const { data: readerData } = useQuery(DigestPreviewReaderQuery, {
+    variables: { userSlug: activeSlug },
+    ssr: false,
+  });
+  const recipientId = readerData?.users?.results?.[0]?._id ?? null;
   const {
     data: storedSamplesData,
     loading: storedSamplesLoading,
@@ -640,19 +578,19 @@ export default function DigestEmailPreviewPage() {
     refetch: refetchStoredSamples,
   } = useQuery(AiDigestEmailSamplesQuery, {
     variables: {
-      userSlug: activeSlug,
+      recipientId: recipientId ?? "",
       limit: STORED_SAMPLE_LIMIT,
     },
-    skip: pageView !== "samples",
+    skip: !recipientId,
     ssr: false,
     fetchPolicy: "network-only",
   });
 
-  const storedSamples = storedSamplesData?.AiDigestEmailSamples ?? [];
+  const storedSamples = storedSamplesData?.aiDigestIssues?.results ?? [];
   const effectiveSelectedIssueId = selectedIssueId
-    && storedSamples.some((sample) => sample.issueId === selectedIssueId)
+    && storedSamples.some((sample) => sample._id === selectedIssueId)
     ? selectedIssueId
-    : storedSamples[0]?.issueId ?? null;
+    : storedSamples[0]?._id ?? null;
   const {
     data: selectedSampleData,
     loading: selectedSampleLoading,
@@ -661,30 +599,14 @@ export default function DigestEmailPreviewPage() {
     variables: {
       issueId: effectiveSelectedIssueId ?? "",
     },
-    skip: pageView !== "samples" || !effectiveSelectedIssueId,
+    skip: !effectiveSelectedIssueId,
     ssr: false,
     fetchPolicy: "network-only",
   });
 
   const selectedSampleSummary = storedSamples.find(
-    (sample) => sample.issueId === effectiveSelectedIssueId,
+    (sample) => sample._id === effectiveSelectedIssueId,
   ) ?? null;
-
-  const handleRerenderClick = () => {
-    void refetch();
-  };
-
-  const handlePageViewChange = (nextPageView: PageView) => {
-    setPageView(nextPageView);
-    navigate({
-      pathname,
-      search: buildDigestPreviewSearch({
-        pageView: nextPageView,
-        userSlug: activeSlug,
-        issueId: effectiveSelectedIssueId,
-      }),
-    }, { replace: true, scroll: false });
-  };
 
   const handleGenerateSamples = () => {
     setHistoryMessage(null);
@@ -695,29 +617,22 @@ export default function DigestEmailPreviewPage() {
         countsTowardHistory,
       },
     }).then(({ data: generatedData }) => {
-      const newestIssueId = generatedData?.GenerateAiDigestEmailSamples[0]?.issueId ?? null;
+      const newestIssueId = generatedData?.GenerateAiDigestEmailSamples[0] ?? null;
       setSelectedIssueId(newestIssueId);
       setPromptsExpanded(false);
       navigate({
         pathname,
         search: buildDigestPreviewSearch({
-          pageView: "samples",
           userSlug: activeSlug,
           issueId: newestIssueId,
         }),
       }, { replace: true, scroll: false });
-      void refetchStoredSamples({
-        userSlug: activeSlug,
-        limit: STORED_SAMPLE_LIMIT,
-      });
+      void refetchStoredSamples();
     }, () => undefined);
   };
 
   const handleClearSampleHistory = () => {
-    if (!window.confirm(
-      `Delete counted recommendation-history samples for ${activeSlug} from the last `
-      + `${historyClearDays} days? Scratch samples will be kept.`,
-    )) {
+    if (!window.confirm(`Delete ${activeSlug}'s digest history from the last ${historyClearDays} days?`)) {
       return;
     }
     setHistoryMessage(null);
@@ -730,40 +645,24 @@ export default function DigestEmailPreviewPage() {
       const deletedCount = clearData?.ClearAiDigestEmailSampleHistory ?? 0;
       setSelectedIssueId(null);
       setPromptsExpanded(false);
-      setHistoryMessage(
-        `Cleared ${deletedCount} counted ${deletedCount === 1 ? "sample" : "samples"} `
-        + `for ${activeSlug}.`,
-      );
-      void refetchStoredSamples({
-        userSlug: activeSlug,
-        limit: STORED_SAMPLE_LIMIT,
-      });
+      setHistoryMessage(`Cleared ${deletedCount} sample(s) for ${activeSlug}.`);
+      void refetchStoredSamples();
     }, () => undefined);
   };
 
-  // When search infrastructure is disabled (bare local installs), the
-  // autocomplete falls back to a plain input that passes the typed text
-  // through with a null result; treat that text as a slug.
-  const handleSelectReader = (userId: string, result: SearchUser | null) => {
-    const slug = result?.slug ?? userId.trim();
-    if (!slug) {
-      return;
-    }
+  const handleSelectReader = (_userId: string, result: SearchUser) => {
+    const { slug } = result;
     setHistoryMessage(null);
     setSelectedIssueId(null);
     setPromptsExpanded(false);
     if (slug === activeSlug) {
-      void refetchStoredSamples({
-        userSlug: slug,
-        limit: STORED_SAMPLE_LIMIT,
-      });
+      void refetchStoredSamples();
     } else {
       setActiveSlug(slug);
     }
     navigate({
       pathname,
       search: buildDigestPreviewSearch({
-        pageView: "samples",
         userSlug: slug,
         issueId: null,
       }),
@@ -776,7 +675,6 @@ export default function DigestEmailPreviewPage() {
     navigate({
       pathname,
       search: buildDigestPreviewSearch({
-        pageView: "samples",
         userSlug: activeSlug,
         issueId,
       }),
@@ -789,7 +687,6 @@ export default function DigestEmailPreviewPage() {
     );
   }
 
-  const email = data?.DigestEmailPreview;
   const selectedSampleDetails = selectedSampleData?.AiDigestEmailSamplePreview;
   const selectedSample = selectedSampleDetails?.email;
 
@@ -802,36 +699,9 @@ export default function DigestEmailPreviewPage() {
           Generate, compare, and inspect personalized LessWrong digests.
           Samples are stored as reusable issues.
         </p>
-        <div className={classes.primaryTabs} role="tablist" aria-label="Workbench view">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={pageView === "samples"}
-            className={classNames(
-              classes.primaryTab,
-              pageView === "samples" && classes.primaryTabSelected,
-            )}
-            onClick={() => handlePageViewChange("samples")}
-          >
-            Stored samples
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={pageView === "fixture"}
-            className={classNames(
-              classes.primaryTab,
-              pageView === "fixture" && classes.primaryTabSelected,
-            )}
-            onClick={() => handlePageViewChange("fixture")}
-          >
-            Design fixture
-          </button>
-        </div>
       </header>
 
-      {pageView === "samples" && isDevelopment && (
-        <>
+      <>
           <div className={classes.toolbar}>
             <div className={classes.field}>
               <span className={classes.label}>Reader</span>
@@ -891,13 +761,13 @@ export default function DigestEmailPreviewPage() {
               className={classes.historyDaysInput}
               type="number"
               min={1}
-              max={MAX_HISTORY_CLEAR_DAYS}
+              max={AI_DIGEST_CLEAR_HISTORY_MAX_DAYS}
               value={historyClearDays}
               disabled={historyClearLoading}
               aria-label="Days of recommendation history to clear"
               onChange={(event) => {
                 const days = Number(event.target.value);
-                setHistoryClearDays(Math.max(1, Math.min(MAX_HISTORY_CLEAR_DAYS, days)));
+                setHistoryClearDays(Math.max(1, Math.min(AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, days)));
               }}
             />
             <span>days</span>
@@ -952,14 +822,14 @@ export default function DigestEmailPreviewPage() {
                 <div className={classes.sampleList}>
                   {storedSamples.map((sample) => (
                     <button
-                      key={sample.issueId}
+                      key={sample._id}
                       type="button"
                       className={classNames(
                         classes.sampleRow,
-                        sample.issueId === effectiveSelectedIssueId
+                        sample._id === effectiveSelectedIssueId
                           && classes.sampleRowSelected,
                       )}
-                      onClick={() => handleSelectSample(sample.issueId)}
+                      onClick={() => handleSelectSample(sample._id)}
                     >
                       <span className={classes.sampleSubject}>
                         {sample.subject}
@@ -1115,80 +985,14 @@ export default function DigestEmailPreviewPage() {
                     </dd>
                     <dt className={classes.metadataLabel}>Issue ID</dt>
                     <dd className={classes.metadataValue}>
-                      {selectedSampleSummary.issueId}
+                      {selectedSampleSummary._id}
                     </dd>
                   </dl>
                 )}
               </div>
             </main>
           </div>
-        </>
-      )}
-
-      {pageView === "samples" && !isDevelopment && (
-        <p className={classes.productionNote}>
-          Sample generation and browsing are only available in development.
-        </p>
-      )}
-
-      {pageView === "fixture" && (
-        <div className={classes.fixtureSurface}>
-          <div className={classes.fixtureHeader}>
-            <p className={classes.fixtureDescription}>
-              Fixed mixed-content baseline for iterating on email design.
-            </p>
-            <div className={classes.previewControls}>
-              <div className={classes.previewTabs} role="tablist" aria-label="Fixture format">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={fixturePreviewView === "html"}
-                  className={classNames(
-                    classes.previewTab,
-                    fixturePreviewView === "html" && classes.previewTabSelected,
-                  )}
-                  onClick={() => setFixturePreviewView("html")}
-                >
-                  Email
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={fixturePreviewView === "text"}
-                  className={classNames(
-                    classes.previewTab,
-                    fixturePreviewView === "text" && classes.previewTabSelected,
-                  )}
-                  onClick={() => setFixturePreviewView("text")}
-                >
-                  Plain text
-                </button>
-                <button className={classes.button} type="button" onClick={handleRerenderClick}>
-                  Re-render
-                </button>
-              </div>
-              {fixturePreviewView === "html" && (
-                <ViewportToggle
-                  viewport={previewViewport}
-                  setViewport={setPreviewViewport}
-                />
-              )}
-            </div>
-          </div>
-          {loading && <Loading />}
-          {error && (
-            <p className={classes.error}>Could not render fixture: {error.message}</p>
-          )}
-          {!loading && email && (
-            <EmailPreview
-              email={email}
-              bodyView={fixturePreviewView}
-              viewport={previewViewport}
-              fullHeight
-            />
-          )}
-        </div>
-      )}
+      </>
     </SingleColumnSection>
   );
 }

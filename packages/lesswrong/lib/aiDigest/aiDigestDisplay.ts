@@ -1,8 +1,13 @@
 import { truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 
+/** Collapses runs of whitespace (including newlines) to single spaces and trims the ends. */
+export function collapseAiDigestWhitespace(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
 export function truncateAiDigestText(text: string, maxLength: number): string {
-  const normalizedText = text.replace(/\s+/g, " ").trim();
+  const normalizedText = collapseAiDigestWhitespace(text);
   if (normalizedText.length <= maxLength) {
     return normalizedText;
   }
@@ -12,15 +17,7 @@ export function truncateAiDigestText(text: string, maxLength: number): string {
   return `${lastCompleteWord || initialSlice}…`;
 }
 
-export function selectAiDigestExcerpt(
-  selectedExcerpt: string | undefined,
-  fallbackText: string,
-  maxLength: number,
-): string {
-  return truncateAiDigestText(selectedExcerpt?.trim() || fallbackText, maxLength);
-}
-
-export interface AiDigestPreview {
+interface AiDigestPreview {
   html: string;
   /** The plaintext of `html`, so callers can count the words already shown. */
   text: string;
@@ -39,11 +36,11 @@ export function buildAiDigestPreview(
 }
 
 export function countAiDigestWords(text: string): number {
-  const normalizedText = text.replace(/\s+/g, " ").trim();
+  const normalizedText = collapseAiDigestWhitespace(text);
   return normalizedText ? normalizedText.split(" ").length : 0;
 }
 
-export const AI_DIGEST_MAX_BYLINE_AUTHORS = 3;
+const AI_DIGEST_MAX_BYLINE_AUTHORS = 3;
 
 interface AiDigestBylineAuthor {
   displayName: string;

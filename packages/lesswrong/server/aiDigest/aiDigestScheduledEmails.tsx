@@ -1,3 +1,4 @@
+import { DAY_MS } from "@/lib/aiDigest/constants";
 import React from "react";
 import { captureException } from "@/lib/sentryWrapper";
 import { AI_DIGEST_EMAIL_TYPE } from "@/lib/emails/emailTracking";
@@ -7,7 +8,7 @@ import {
   aiDigestScheduledEmailsEnabledSetting,
 } from "@/server/databaseSettings";
 import { AiDigestEmail } from "@/server/emailComponents/AiDigestEmail";
-import type { AiDigestSpec } from "@/server/emailComponents/AiDigestSpec";
+import type { AiDigestSpec } from "@/lib/aiDigest/aiDigestSpec";
 import type { EmailContextType } from "@/server/emailComponents/emailContext";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import { findUsersToEmail } from "@/server/curationEmails/cron";
@@ -15,7 +16,6 @@ import { createNotification } from "@/server/notificationCallbacksHelpers";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { generateAiDigestPostSelection } from "./aiDigestPostSelection";
 
-const DAY_MS = 24 * 60 * 60 * 1_000;
 
 /**
  * Slack subtracted from the cadence when deciding whether a reader is due.
@@ -23,13 +23,13 @@ const DAY_MS = 24 * 60 * 60 * 1_000;
  * the last one and the cadence would slowly stretch.
  */
 export const AI_DIGEST_SEND_DUE_SLACK_MS = 2 * 60 * 60 * 1_000;
-export const AI_DIGEST_MIN_CADENCE_DAYS = 1;
+const AI_DIGEST_MIN_CADENCE_DAYS = 1;
 /**
  * Generation is a multi-minute LLM call and cron invocations are time-bounded,
  * so each run drains only a couple of readers and the next hourly run picks up
  * the rest. Comfortable for an admin-sized cohort.
  */
-export const AI_DIGEST_SCHEDULED_SENDS_PER_RUN = 2;
+const AI_DIGEST_SCHEDULED_SENDS_PER_RUN = 2;
 
 function boundedCadenceDays(cadenceDays: number): number {
   return Math.max(AI_DIGEST_MIN_CADENCE_DAYS, cadenceDays);
@@ -141,7 +141,7 @@ async function sendAiDigestToUser(user: DbUser): Promise<void> {
     notificationType: "aiDigestReady",
     documentType: null,
     documentId: null,
-    extraData: { issueId, subject: spec.subject },
+    extraData: { issueId, subject: spec.subject, aiNote: spec.aiNote.paragraphs },
     context,
   });
 }

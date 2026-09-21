@@ -28,10 +28,6 @@ const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
   mobileBodyFrame: {
     maxWidth: MOBILE_EMAIL_PREVIEW_WIDTH,
   },
-  tallBodyFrame: {
-    height: "calc(100vh - 200px)",
-    minHeight: 800,
-  },
   emailTextVersion: {
     width: "100%",
     maxWidth: 800,
@@ -66,14 +62,12 @@ function fitFrameToContent(frame: HTMLIFrameElement | null) {
 export const EmailPreview = ({
   email,
   sentDate,
-  tall,
   fullHeight,
   bodyView = "both",
   viewport = "desktop",
 }: {
   email: EmailPreview,
   sentDate?: Date,
-  tall?: boolean,
   fullHeight?: boolean,
   bodyView?: EmailPreviewBodyView,
   viewport?: EmailPreviewViewport,
@@ -111,7 +105,6 @@ export const EmailPreview = ({
         ref={frameRef}
         className={classNames(
           classes.emailBodyFrame,
-          tall && classes.tallBodyFrame,
           viewport === "mobile" && classes.mobileBodyFrame,
         )}
         srcDoc={email.html}

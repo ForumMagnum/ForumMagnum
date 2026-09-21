@@ -1,9 +1,24 @@
 import type { ModelMessage, ProviderMetadata, TextPart } from "ai";
 
 /**
- * Helpers shared by the AI digest post-selection and thread-selection model
- * calls: Anthropic cache-friendly message assembly and gateway cost accounting.
+ * Helpers shared by the AI digest model calls: Vercel AI Gateway attribution,
+ * Anthropic cache-friendly message assembly, and gateway cost accounting.
  */
+
+export type AiDigestGatewayPurpose = "post-selection" | "thread-selection" | "post-summary" | "post-preview";
+
+/**
+ * Tags every digest request so its usage and spend can be filtered in the
+ * AI Gateway dashboard and spend reports, both for the feature as a whole and
+ * per call type.
+ */
+export function aiDigestGatewayProviderOptions(purpose: AiDigestGatewayPurpose) {
+  return {
+    gateway: {
+      tags: ["ai-digest", `ai-digest-${purpose}`],
+    },
+  };
+}
 
 function selectionPromptTextPart(text: string, cacheAfter: boolean): TextPart {
   return cacheAfter
@@ -37,16 +52,26 @@ export function buildAiDigestSelectionMessages({
   }];
 }
 
+function parseGatewayCost(cost: unknown): number | null {
+  if (typeof cost !== "string") {
+    return null;
+  }
+  const parsedCost = Number(cost);
+  return Number.isFinite(parsedCost) && parsedCost >= 0 ? parsedCost : null;
+}
+
+/**
+ * The gateway's `cost` is what the gateway bills, which is zero when the
+ * request ran on our own provider key (BYOK); `marketCost` is the provider's
+ * list price for the same tokens, so it is preferred when present.
+ */
 export function sumAiDigestSelectionCostUsd(
   providerMetadataByStep: ReadonlyArray<ProviderMetadata | undefined>,
 ): number | null {
   const costs = providerMetadataByStep.flatMap((providerMetadata) => {
-    const cost = providerMetadata?.gateway?.cost;
-    if (typeof cost !== "string") {
-      return [];
-    }
-    const parsedCost = Number(cost);
-    return Number.isFinite(parsedCost) && parsedCost >= 0 ? [parsedCost] : [];
+    const gateway = providerMetadata?.gateway;
+    const cost = parseGatewayCost(gateway?.marketCost) ?? parseGatewayCost(gateway?.cost);
+    return cost === null ? [] : [cost];
   });
   return costs.length > 0
     ? costs.reduce((total, cost) => total + cost, 0)

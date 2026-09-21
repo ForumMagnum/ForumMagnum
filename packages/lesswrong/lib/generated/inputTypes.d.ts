@@ -85,12 +85,10 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
-  DigestEmailPreview: EmailPreview;
-  AiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
-  ContentForYouIssues: Array<ContentForYouIssueSummary>;
-  ContentForYouIssue: ContentForYouIssue;
   ContentForYouGenerationStatus: ContentForYouGenerationStatus;
+  aiDigestIssue: SingleAiDigestIssueOutput | null;
+  aiDigestIssues: MultiAiDigestIssueOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -310,7 +308,7 @@ interface Mutation {
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
-  GenerateAiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
+  GenerateAiDigestEmailSamples: Array<string>;
   ClearAiDigestEmailSampleHistory: number;
   GenerateContentForYouIssue: GenerateContentForYouIssueResult;
   ClearContentForYouRecommendationHistory: number;
@@ -1400,14 +1398,6 @@ interface AdminSendBulkEmailResult {
   lastAfterUserId: string | null;
 }
 
-interface AiDigestEmailSampleSummary {
-  issueId: string;
-  subject: string;
-  generatedAt: Date;
-  selectionModelId: string;
-  countsTowardHistory: boolean;
-}
-
 interface AiDigestEmailSamplePreview {
   email: EmailPreview;
   selectionSystemPrompt: string | null;
@@ -1421,36 +1411,74 @@ interface AiDigestEmailSamplePreview {
   generationDurationMs: number;
 }
 
-interface ContentForYouIssueSummary {
-  issueId: string;
-  subject: string;
-  generatedAt: Date;
-  trigger: string;
-  countsTowardHistory: boolean;
-  personalInstructions: string | null;
-}
-
-interface ContentForYouIssue {
-  issueId: string;
-  subject: string;
-  generatedAt: Date;
-  trigger: string;
-  countsTowardHistory: boolean;
-  personalInstructions: string | null;
-  spec: any;
-}
-
 interface ContentForYouGenerationStatus {
   nextAllowedAt: Date | null;
   remainingThisHour: number;
-  hourlyLimit: number;
   typicalDurationMsLow: number | null;
   typicalDurationMsHigh: number | null;
 }
 
 interface GenerateContentForYouIssueResult {
-  issue: ContentForYouIssueSummary;
+  issueId: string;
   nextAllowedAt: Date | null;
+}
+
+interface AiDigestIssue {
+  _id: string;
+  createdAt: Date;
+  recipientId: string | null;
+  recipient: User | null;
+  postIds: Array<string> | null;
+  posts: Array<Post> | null;
+  quickTakeIds: Array<string> | null;
+  quickTakes: Array<Comment> | null;
+  discussionCommentIds: Array<string> | null;
+  discussionComments: Array<Comment> | null;
+  generatedAt: Date | null;
+  emailedAt: Date | null;
+  trigger: AiDigestIssueTrigger | null;
+  countsTowardHistory: boolean | null;
+  personalInstructions: string | null;
+  selectionModelId: string | null;
+  promptVersion: string | null;
+  selectionSystemPrompt: string | null;
+  selectionUserPrompt: string | null;
+  inputTokenCount: number | null;
+  outputTokenCount: number | null;
+  uncachedInputTokenCount: number | null;
+  cacheReadInputTokenCount: number | null;
+  cacheWriteInputTokenCount: number | null;
+  selectionCostUsd: number | null;
+  toolCallCount: number | null;
+  searchCount: number | null;
+  readPostCount: number | null;
+  threadPromptVersion: string | null;
+  threadSelectionUserPrompt: string | null;
+  threadInputTokenCount: number | null;
+  threadOutputTokenCount: number | null;
+  threadCacheReadInputTokenCount: number | null;
+  threadSelectionCostUsd: number | null;
+  generationDurationMs: number | null;
+  spec: any;
+  subject: string | null;
+}
+
+interface SingleAiDigestIssueOutput {
+  result: AiDigestIssue | null;
+}
+
+interface AiDigestIssuesRecipientIssuesInput {
+  recipientId?: string | null;
+}
+
+interface AiDigestIssueSelector {
+  default: EmptyViewInput | null;
+  recipientIssues: AiDigestIssuesRecipientIssuesInput | null;
+}
+
+interface MultiAiDigestIssueOutput {
+  results: Array<AiDigestIssue>;
+  totalCount: number | null;
 }
 
 interface ArbitalCaches {
@@ -9448,12 +9476,14 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
-  AiDigestEmailSampleSummary: AiDigestEmailSampleSummary;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
-  ContentForYouIssueSummary: ContentForYouIssueSummary;
-  ContentForYouIssue: ContentForYouIssue;
   ContentForYouGenerationStatus: ContentForYouGenerationStatus;
   GenerateContentForYouIssueResult: GenerateContentForYouIssueResult;
+  AiDigestIssue: AiDigestIssue;
+  SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
+  AiDigestIssuesRecipientIssuesInput: AiDigestIssuesRecipientIssuesInput;
+  AiDigestIssueSelector: AiDigestIssueSelector;
+  MultiAiDigestIssueOutput: MultiAiDigestIssueOutput;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;

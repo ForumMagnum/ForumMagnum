@@ -1,5 +1,6 @@
 "use client";
 
+import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -25,12 +26,14 @@ const ContentForYouOverviewQuery = gql(`
         aiDigestPersonalInstructions
       }
     }
-    ContentForYouIssues(limit: $limit) {
-      issueId
-      subject
-      generatedAt
-      countsTowardHistory
-      personalInstructions
+    aiDigestIssues(
+      selector: { recipientIssues: { recipientId: $userId } }
+      limit: $limit
+      enableTotal: false
+    ) {
+      results {
+        ...AiDigestIssuesList
+      }
     }
     ContentForYouGenerationStatus {
       nextAllowedAt
@@ -43,13 +46,10 @@ const ContentForYouOverviewQuery = gql(`
 
 const ContentForYouIssueQuery = gql(`
   query ContentForYouIssueQuery($issueId: String!) {
-    ContentForYouIssue(issueId: $issueId) {
-      issueId
-      subject
-      generatedAt
-      countsTowardHistory
-      personalInstructions
-      spec
+    aiDigestIssue(selector: { _id: $issueId }) {
+      result {
+        ...AiDigestIssuesContent
+      }
     }
   }
 `);
@@ -71,13 +71,7 @@ const UpdateContentForYouInstructionsMutation = gql(`
 const GenerateContentForYouIssueMutation = gql(`
   mutation GenerateContentForYouIssueMutation($countsTowardHistory: Boolean) {
     GenerateContentForYouIssue(countsTowardHistory: $countsTowardHistory) {
-      issue {
-        issueId
-        subject
-        generatedAt
-        countsTowardHistory
-        personalInstructions
-      }
+      issueId
       nextAllowedAt
     }
   }
@@ -90,10 +84,8 @@ const ClearContentForYouRecommendationHistoryMutation = gql(`
 `);
 
 const ISSUE_LIMIT = 24;
-const INSTRUCTION_MAX_LENGTH = 2_000;
-const CHARACTER_COUNT_VISIBLE_FROM = INSTRUCTION_MAX_LENGTH * 0.8;
+const CHARACTER_COUNT_VISIBLE_FROM = AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH * 0.8;
 const DEFAULT_HISTORY_CLEAR_DAYS = 30;
-const MAX_HISTORY_CLEAR_DAYS = 3_650;
 const GENERATION_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   month: "short",
   day: "numeric",
@@ -336,8 +328,10 @@ interface InstructionsEditorProps {
   onSaveAndGenerate: (instructions: string, countsTowardHistory: boolean) => void;
 }
 
-function formatGenerationTime(timestamp: string): string {
-  return GENERATION_TIME_FORMATTER.format(new Date(timestamp));
+// Nullable only because permission-gated fields are typed that way; every
+// issue the reader can see has a generation time.
+function formatGenerationTime(timestamp: string | null): string {
+  return timestamp ? GENERATION_TIME_FORMATTER.format(new Date(timestamp)) : "";
 }
 
 function formatRateLimitTime(timestamp: string): string {
@@ -400,7 +394,7 @@ function InstructionsEditor({
       <textarea
         className={classes.textarea}
         value={instructions}
-        maxLength={INSTRUCTION_MAX_LENGTH}
+        maxLength={AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH}
         disabled={disabled}
         onChange={(event) => setEditedInstructions(event.target.value)}
         placeholder="For example: More technical alignment work and decision theory. Include good comments I may have missed. Fewer introductory AI governance posts."
@@ -415,7 +409,7 @@ function InstructionsEditor({
               : null}
           {instructions.length > CHARACTER_COUNT_VISIBLE_FROM && (
             <span className={classes.characterCount}>
-              {instructions.length.toLocaleString()} / {INSTRUCTION_MAX_LENGTH.toLocaleString()}
+              {instructions.length.toLocaleString()} / {AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH.toLocaleString()}
             </span>
           )}
         </span>
@@ -496,13 +490,13 @@ export function ContentForYouPage() {
     error: historyClearError,
   }] = useMutation(ClearContentForYouRecommendationHistoryMutation);
 
-  const issues = overviewData?.ContentForYouIssues ?? [];
+  const issues = overviewData?.aiDigestIssues?.results ?? [];
   const effectiveIssueId = selectedIssueId
-    && issues.some((issue) => issue.issueId === selectedIssueId)
+    && issues.some((issue) => issue._id === selectedIssueId)
     ? selectedIssueId
-    : issues[0]?.issueId ?? null;
+    : issues[0]?._id ?? null;
   const generationOptions: Record<string, SettingsOption> = Object.fromEntries(
-    issues.map((issue) => [issue.issueId, {
+    issues.map((issue) => [issue._id, {
       label: `${isAdmin && !issue.countsTowardHistory ? "Not counted · " : ""}${formatGenerationTime(issue.generatedAt)} · ${issue.subject}`,
       shortLabel: formatGenerationTime(issue.generatedAt),
     }]),
@@ -539,7 +533,7 @@ export function ContentForYouPage() {
         countsTowardHistory,
       },
     })).then(({ data }) => {
-      const newIssueId = data?.GenerateContentForYouIssue.issue.issueId ?? null;
+      const newIssueId = data?.GenerateContentForYouIssue.issueId ?? null;
       setSelectedIssueId(newIssueId);
       setMessage("Your new recommendations are ready.");
       void refetchOverview();
@@ -565,10 +559,7 @@ export function ContentForYouPage() {
   };
 
   const handleClearRecommendationHistory = () => {
-    if (!window.confirm(
-      `Delete counted history from the last ${historyClearDays} days? `
-      + "Generations that don't count toward history will be kept.",
-    )) {
+    if (!window.confirm(`Delete recommendation history from the last ${historyClearDays} days?`)) {
       return;
     }
     setMessage(null);
@@ -579,10 +570,7 @@ export function ContentForYouPage() {
     }).then(({ data }) => {
       const deletedCount = data?.ClearContentForYouRecommendationHistory ?? 0;
       setSelectedIssueId(null);
-      setMessage(
-        `Cleared ${deletedCount} counted ${deletedCount === 1 ? "generation" : "generations"} `
-        + `from the last ${historyClearDays} days.`,
-      );
+      setMessage(`Cleared ${deletedCount} generation(s) from the last ${historyClearDays} days.`);
       void refetchOverview();
     }, () => undefined);
   };
@@ -596,7 +584,7 @@ export function ContentForYouPage() {
   const savedInstructions =
     overviewData?.user?.result?.aiDigestPersonalInstructions ?? "";
   const generationStatus = overviewData?.ContentForYouGenerationStatus;
-  const selectedIssue = issueData?.ContentForYouIssue;
+  const selectedIssue = issueData?.aiDigestIssue?.result;
   const mutationError = saveError ?? generationError ?? historyClearError;
 
   return (
@@ -691,13 +679,13 @@ export function ContentForYouPage() {
               className={classes.historyDaysInput}
               type="number"
               min={1}
-              max={MAX_HISTORY_CLEAR_DAYS}
+              max={AI_DIGEST_CLEAR_HISTORY_MAX_DAYS}
               value={historyClearDays}
               disabled={historyClearLoading}
               aria-label="Days of recommendation history to clear"
               onChange={(event) => {
                 const days = Number(event.target.value);
-                setHistoryClearDays(Math.max(1, Math.min(MAX_HISTORY_CLEAR_DAYS, days)));
+                setHistoryClearDays(Math.max(1, Math.min(AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, days)));
               }}
             />
             <span>days</span>

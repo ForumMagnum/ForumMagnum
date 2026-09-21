@@ -44,15 +44,15 @@ export const MailgunWebhookPayloadSchema = z.object({
   "event-data": MailgunEventDataSchema,
 });
 
-export type MailgunSignature = z.infer<typeof MailgunSignatureSchema>;
-export type MailgunEventData = z.infer<typeof MailgunEventDataSchema>;
+type MailgunSignature = z.infer<typeof MailgunSignatureSchema>;
+type MailgunEventData = z.infer<typeof MailgunEventDataSchema>;
 
-export type MailgunSignatureRejection =
+type MailgunSignatureRejection =
   | "malformedTimestamp"
   | "staleTimestamp"
   | "badSignature";
 
-export type MailgunSignatureVerification =
+type MailgunSignatureVerification =
   | { ok: true }
   | { ok: false; reason: MailgunSignatureRejection };
 
@@ -86,9 +86,9 @@ export function verifyMailgunWebhookSignature({
   return { ok: true };
 }
 
-export type EmailLinkDocumentType = "post" | "comment";
+type EmailLinkDocumentType = "post" | "comment";
 
-export interface EmailLinkTarget {
+interface EmailLinkTarget {
   documentType: EmailLinkDocumentType | null;
   documentId: string | null;
   /** The `<section>.<index>.<role>` slot the link occupied, when present. */

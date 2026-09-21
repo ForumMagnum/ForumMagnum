@@ -229,7 +229,11 @@ export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<n
 
 export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
 
-/** Kill switch for the scheduled "Content for You" digest send. */
+/**
+ * Kill switch for the scheduled "Content for You" digest send. Off by default so
+ * enabling it is a deliberate settings change; the recipient cohort is limited
+ * in code to admins who subscribed.
+ */
 export const aiDigestScheduledEmailsEnabledSetting = new ParsedServerSetting<boolean>('aiDigestScheduledEmailsEnabled', false)
 export const aiDigestEmailCadenceDaysSetting = new ParsedServerSetting<number>('aiDigestEmailCadenceDays', 2)
 

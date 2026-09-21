@@ -13,7 +13,7 @@ import {
   countAiDigestWords as countWords,
   formatAiDigestDate as formatDate,
   formatAiDigestPostAuthors as formatPostAuthors,
-  selectAiDigestExcerpt as selectExcerpt,
+  truncateAiDigestText as truncateText,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
@@ -23,7 +23,7 @@ import type {
   AiDigestItem,
   AiDigestSection,
   AiDigestSpec,
-} from "./AiDigestSpec";
+} from "@/lib/aiDigest/aiDigestSpec";
 import { untrackedLinkProps } from "@/lib/emails/emailTracking";
 import { absoluteEmailUrl, aiDigestLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
 import { EmailContentItemBody } from "./EmailContentItemBody";
@@ -37,7 +37,7 @@ const emailSerifFont =
   'warnock-pro, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif';
 const emailAiBlockFont =
   '"cronos-pro", "Trebuchet MS", Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Arial, sans-serif';
-const mastheadHomeUrl = "https://www.lesswrong.com";
+const mastheadHomeUrl = "/";
 const mastheadUnsubscribeUrl = "/account?tab=settings-notifications";
 
 // Tighter spacing for narrow screens, in email clients that support media
@@ -814,9 +814,8 @@ function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): s
   return `Read more (${remainingWordCount.toLocaleString("en-US")} ${wordLabel})`;
 }
 
-const tuneDigestUrl = "https://www.lesswrong.com/contentForYou";
-// Placeholder until the dedicated explainer exists.
-const digestExplanationUrl = "https://www.lesswrong.com/content-for-you";
+const tuneDigestUrl = "/contentForYou";
+const digestExplanationUrl = "/posts/zd4pwyeKGuhuSKX6g";
 
 function AiNote({ note, classes }: {
   note: AiDigestAiNote;
@@ -952,8 +951,7 @@ function HeadlinePost({ post, item, slot, classes }: {
     : null;
   const excerpt = preview
     ? preview.text
-    : selectExcerpt(
-      item.excerpt,
+    : truncateText(
       post.contents?.plaintextDescription ?? "",
       aiDigestPresentation.excerptCharacters.headlinePost,
     );
@@ -1036,8 +1034,7 @@ function CompactPost({ post, item, slot, classes }: {
     : null;
   const excerpt = preview
     ? preview.text
-    : selectExcerpt(
-      item.excerpt,
+    : truncateText(
       post.contents?.plaintextDescription ?? "",
       aiDigestPresentation.excerptCharacters.compactPost,
     );
@@ -1142,8 +1139,7 @@ function QuickTakeItem({ comment, item, slot, classes }: {
   classes: JssStyles;
 }) {
   const commentUrl = getCommentUrl(comment);
-  const text = selectExcerpt(
-    item.excerpt,
+  const text = truncateText(
     comment.contents?.plaintextMainText ?? "",
     aiDigestPresentation.excerptCharacters.fullQuickTake,
   );
@@ -1229,13 +1225,11 @@ function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
 
 interface DigestThreadComment {
   comment: AiDigestEmailComment;
-  excerpt?: string;
   nestingLevel: number;
 }
 
 interface DigestThreadCommentCandidate {
   comment: AiDigestEmailComment;
-  excerpt?: string;
 }
 
 function compareCommentsByDate(
@@ -1258,21 +1252,20 @@ function flattenThreadComments(
     ({ comment }) => comment.parentCommentId !== parentCommentId,
   );
 
-  return directReplies.flatMap(({ comment, excerpt }) => [
-    { comment, excerpt, nestingLevel },
+  return directReplies.flatMap(({ comment }) => [
+    { comment, nestingLevel },
     ...flattenThreadComments(comment._id, remainingComments, nestingLevel + 1),
   ]);
 }
 
-function CommentBox({ comment, excerpt, maxLength, nestingLevel = 0, slot, classes }: {
+function CommentBox({ comment, maxLength, nestingLevel = 0, slot, classes }: {
   comment: AiDigestEmailComment;
-  excerpt?: string;
   maxLength: number;
   nestingLevel?: number;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
-  const text = selectExcerpt(excerpt, comment.contents?.plaintextMainText ?? "", maxLength);
+  const text = truncateText(comment.contents?.plaintextMainText ?? "", maxLength);
   const commentUrl = getCommentUrl(comment);
   return (
     <div
@@ -1328,16 +1321,14 @@ function DiscussionItem({ comment, item, threadComments, slot, classes }: {
             </h3>
             <CommentBox
               comment={comment}
-              excerpt={item.excerpt}
               maxLength={aiDigestPresentation.excerptCharacters.discussionRoot}
               slot={slot}
               classes={classes}
             />
-            {threadComments.map(({ comment: reply, excerpt, nestingLevel }) => (
+            {threadComments.map(({ comment: reply, nestingLevel }) => (
               <CommentBox
                 key={reply._id}
                 comment={reply}
-                excerpt={excerpt}
                 maxLength={aiDigestPresentation.excerptCharacters.discussionReply}
                 nestingLevel={nestingLevel}
                 slot={slot}
@@ -1398,9 +1389,9 @@ function DigestItem({ item, content, slot, classes }: {
       />
     );
   }
-  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId, excerpt }) => {
+  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId }) => {
     const threadComment = content.commentsById.get(commentId);
-    return threadComment ? [{ comment: threadComment, excerpt }] : [];
+    return threadComment ? [{ comment: threadComment }] : [];
   });
   const threadComments = flattenThreadComments(comment._id, candidateThreadComments);
   return (

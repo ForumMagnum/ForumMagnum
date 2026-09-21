@@ -1,15 +1,20 @@
+import { DAY_MS } from "@/lib/aiDigest/constants";
+import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import type {
   AiDigestReaderThreadRow,
-  AiDigestThreadCommentAnnotationRow,
   AiDigestThreadCommentRow,
 } from "@/server/repos/CommentsRepo";
+import {
+  annotateAiDigestThreadComments,
+  type AiDigestThreadCommentAnnotationRow,
+} from "./aiDigestReaderSignals";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import type { AiDigestPostHistory } from "./aiDigestHistory";
 import { AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS } from "./aiDigestPostCandidates";
 
-export const AI_DIGEST_SITE_WIDE_THREAD_LIMIT = 12;
-export const AI_DIGEST_READER_THREAD_LIMIT = 8;
-export const AI_DIGEST_THREAD_CARD_COMMENT_LIMIT = 12;
+const AI_DIGEST_SITE_WIDE_THREAD_LIMIT = 12;
+const AI_DIGEST_READER_THREAD_LIMIT = 8;
+const AI_DIGEST_THREAD_CARD_COMMENT_LIMIT = 12;
 export const AI_DIGEST_THREAD_COMMENT_BODY_MAX_CHARS = 350;
 /**
  * SQL-level guard on comments loaded per thread. Card shaping needs whole
@@ -17,15 +22,15 @@ export const AI_DIGEST_THREAD_COMMENT_BODY_MAX_CHARS = 350;
  * card budget; it only defends against pathological several-hundred-comment
  * threads.
  */
-export const AI_DIGEST_THREAD_COMMENT_LOAD_LIMIT = 100;
+const AI_DIGEST_THREAD_COMMENT_LOAD_LIMIT = 100;
 
-export type AiDigestThreadSource = "siteWide" | "readerRelevant";
+type AiDigestThreadSource = "siteWide" | "readerRelevant";
 
 /**
  * Comments the reader would already be notified about cannot anchor a
  * digest thread, but stay available as displayed context.
  */
-export type AiDigestThreadAnchorIneligibilityReason =
+type AiDigestThreadAnchorIneligibilityReason =
   | "readerAuthored"
   | "onReaderPost"
   | "replyToReader";
@@ -73,7 +78,7 @@ export interface AiDigestThreadCandidates {
   threadAnnotationsById: Map<string, AiDigestThreadAnnotation>;
 }
 
-export interface LoadAiDigestThreadCandidatesOptions {
+interface LoadAiDigestThreadCandidatesOptions {
   maxAgeDays?: number;
   siteWideThreadLimit?: number;
   readerThreadLimit?: number;
@@ -81,13 +86,12 @@ export interface LoadAiDigestThreadCandidatesOptions {
   postHistoryById?: Map<string, AiDigestPostHistory>;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 function boundedThreadCommentBody(revisionHtml: string): {
   body: string;
   truncated: boolean;
 } {
-  const plainText = htmlToTextDefault(revisionHtml).replace(/\s+/g, " ").trim();
+  const plainText = collapseAiDigestWhitespace(htmlToTextDefault(revisionHtml));
   return {
     body: plainText.slice(0, AI_DIGEST_THREAD_COMMENT_BODY_MAX_CHARS),
     truncated: plainText.length > AI_DIGEST_THREAD_COMMENT_BODY_MAX_CHARS,
@@ -360,9 +364,9 @@ export async function loadAiDigestThreadCandidates(
     threadIds: allThreadIds,
     perThreadLimit: AI_DIGEST_THREAD_COMMENT_LOAD_LIMIT,
   });
-  const annotations = await context.repos.comments.getAiDigestThreadCommentAnnotationRows({
+  const annotations = await annotateAiDigestThreadComments({
     userId: user._id,
-    commentIds: commentRows.map((row) => row.commentId),
+    comments: commentRows,
   });
   const annotationsByCommentId = new Map(
     annotations.map((annotation) => [annotation.commentId, annotation]),

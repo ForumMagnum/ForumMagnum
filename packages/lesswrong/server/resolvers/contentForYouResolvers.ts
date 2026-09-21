@@ -5,26 +5,36 @@ import { generateAiDigestPostSelection } from "@/server/aiDigest/aiDigestPostSel
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
 
-const DEFAULT_ISSUE_LIMIT = 24;
-const MAX_ISSUE_LIMIT = 50;
 const GENERATION_WINDOW_MS = 60 * 60 * 1_000;
 const GENERATION_LIMIT_PER_HOUR = 10;
 const ADMIN_GENERATION_LIMIT_PER_HOUR = 999;
 const TYPICAL_DURATION_SAMPLE_SIZE = 50;
 
-interface ContentForYouIssueSummary {
-  issueId: string;
-  subject: string;
-  generatedAt: Date;
-  trigger: string;
-  countsTowardHistory: boolean;
-  personalInstructions: string | null;
-}
-
-interface ContentForYouRateLimit {
+export interface ContentForYouRateLimit {
   nextAllowedAt: Date | null;
   remainingThisHour: number;
-  hourlyLimit: number;
+}
+
+/**
+ * The reader's remaining generations this hour, and when the next one is
+ * allowed once they are used up: the window reopens when the oldest of the
+ * counted generations ages out of it. Times outside the window are ignored.
+ */
+export function contentForYouRateLimitFromGenerations(
+  generationTimes: Date[],
+  now: Date,
+): ContentForYouRateLimit {
+  const windowStart = now.getTime() - GENERATION_WINDOW_MS;
+  const countedTimes = generationTimes
+    .filter((time) => time.getTime() > windowStart)
+    .sort((first, second) => second.getTime() - first.getTime())
+    .slice(0, GENERATION_LIMIT_PER_HOUR);
+  const remainingThisHour = Math.max(0, GENERATION_LIMIT_PER_HOUR - countedTimes.length);
+  const oldestCountedTime = countedTimes.at(-1);
+  const nextAllowedAt = remainingThisHour === 0 && oldestCountedTime
+    ? new Date(oldestCountedTime.getTime() + GENERATION_WINDOW_MS)
+    : null;
+  return { nextAllowedAt, remainingThisHour };
 }
 
 interface ContentForYouGenerationStatus extends ContentForYouRateLimit {
@@ -40,34 +50,6 @@ function assertContentForYouAccess(
   }
 }
 
-function boundedIssueLimit(limit: number | null | undefined): number {
-  return Math.max(1, Math.min(limit ?? DEFAULT_ISSUE_LIMIT, MAX_ISSUE_LIMIT));
-}
-
-function issueSummary(
-  issue: Pick<
-    DbAiDigestIssue,
-    | "_id"
-    | "spec"
-    | "generatedAt"
-    | "trigger"
-    | "countsTowardHistory"
-    | "personalInstructions"
-  >,
-): ContentForYouIssueSummary {
-  if (!issue.spec) {
-    throw new Error(`AI digest issue ${issue._id} has no stored spec`);
-  }
-  return {
-    issueId: issue._id,
-    subject: issue.spec.subject,
-    generatedAt: issue.generatedAt,
-    trigger: issue.trigger,
-    countsTowardHistory: issue.countsTowardHistory,
-    personalInstructions: issue.personalInstructions,
-  };
-}
-
 async function getContentForYouRateLimit(
   user: DbUser,
   now = new Date(),
@@ -76,7 +58,6 @@ async function getContentForYouRateLimit(
     return {
       nextAllowedAt: null,
       remainingThisHour: ADMIN_GENERATION_LIMIT_PER_HOUR,
-      hourlyLimit: ADMIN_GENERATION_LIMIT_PER_HOUR,
     };
   }
 
@@ -95,18 +76,10 @@ async function getContentForYouRateLimit(
       generatedAt: 1,
     },
   ).fetch();
-
-  const remainingThisHour = Math.max(0, GENERATION_LIMIT_PER_HOUR - recentIssues.length);
-  const oldestIssue = recentIssues.at(-1);
-  const nextAllowedAt = remainingThisHour === 0 && oldestIssue
-    ? new Date(oldestIssue.generatedAt.getTime() + GENERATION_WINDOW_MS)
-    : null;
-
-  return {
-    nextAllowedAt,
-    remainingThisHour,
-    hourlyLimit: GENERATION_LIMIT_PER_HOUR,
-  };
+  return contentForYouRateLimitFromGenerations(
+    recentIssues.map((issue) => issue.generatedAt),
+    now,
+  );
 }
 
 /** percentile_cont-style linear interpolation over an ascending-sorted array */
@@ -143,54 +116,6 @@ async function getTypicalGenerationDurationRange(): Promise<
 }
 
 export const contentForYouGraphQLQueries = {
-  async ContentForYouIssues(
-    _root: void,
-    { limit }: { limit?: number | null },
-    context: ResolverContext,
-  ) {
-    const { currentUser } = context;
-    assertContentForYouAccess(currentUser);
-    const issues = await AiDigestIssues.find(
-      {
-        recipientId: currentUser._id,
-        spec: { $ne: null },
-      },
-      {
-        sort: { generatedAt: -1, _id: -1 },
-        limit: boundedIssueLimit(limit),
-      },
-      {
-        _id: 1,
-        spec: 1,
-        generatedAt: 1,
-        trigger: 1,
-        countsTowardHistory: 1,
-        personalInstructions: 1,
-      },
-    ).fetch();
-    return issues.map(issueSummary);
-  },
-
-  async ContentForYouIssue(
-    _root: void,
-    { issueId }: { issueId: string },
-    context: ResolverContext,
-  ) {
-    const { currentUser } = context;
-    assertContentForYouAccess(currentUser);
-    const issue = await AiDigestIssues.findOne({
-      _id: issueId,
-      recipientId: currentUser._id,
-    });
-    if (!issue?.spec) {
-      throw new Error(`No Content for You issue found with ID ${issueId}`);
-    }
-    return {
-      ...issueSummary(issue),
-      spec: issue.spec,
-    };
-  },
-
   async ContentForYouGenerationStatus(
     _root: void,
     _args: void,
@@ -248,20 +173,17 @@ export const contentForYouGraphQLMutations = {
       notificationType: "aiDigestReady",
       documentType: null,
       documentId: null,
-      extraData: { issueId: result.issueId, subject: result.spec.subject },
+      extraData: {
+        issueId: result.issueId,
+        subject: result.spec.subject,
+        aiNote: result.spec.aiNote.paragraphs,
+      },
       context,
     });
 
     const afterGeneration = await getContentForYouRateLimit(currentUser);
     return {
-      issue: {
-        issueId: result.issueId,
-        subject: result.spec.subject,
-        generatedAt: result.generatedAt,
-        trigger: "userPreview",
-        countsTowardHistory: effectiveCountsTowardHistory,
-        personalInstructions: currentUser.aiDigestPersonalInstructions?.trim() || null,
-      },
+      issueId: result.issueId,
       nextAllowedAt: afterGeneration.nextAllowedAt,
     };
   },
@@ -281,41 +203,19 @@ export const contentForYouGraphQLMutations = {
 };
 
 export const contentForYouGraphQLTypeDefs = gql`
-  type ContentForYouIssueSummary {
-    issueId: String!
-    subject: String!
-    generatedAt: Date!
-    trigger: String!
-    countsTowardHistory: Boolean!
-    personalInstructions: String
-  }
-
-  type ContentForYouIssue {
-    issueId: String!
-    subject: String!
-    generatedAt: Date!
-    trigger: String!
-    countsTowardHistory: Boolean!
-    personalInstructions: String
-    spec: JSON!
-  }
-
   type ContentForYouGenerationStatus {
     nextAllowedAt: Date
     remainingThisHour: Int!
-    hourlyLimit: Int!
     typicalDurationMsLow: Int
     typicalDurationMsHigh: Int
   }
 
   type GenerateContentForYouIssueResult {
-    issue: ContentForYouIssueSummary!
+    issueId: String!
     nextAllowedAt: Date
   }
 
   extend type Query {
-    ContentForYouIssues(limit: Int): [ContentForYouIssueSummary!]!
-    ContentForYouIssue(issueId: String!): ContentForYouIssue!
     ContentForYouGenerationStatus: ContentForYouGenerationStatus!
   }
 

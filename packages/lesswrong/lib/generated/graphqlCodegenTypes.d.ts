@@ -118,13 +118,59 @@ type AiDigestEmailSamplePreview = {
   uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type AiDigestEmailSampleSummary = {
-  __typename?: 'AiDigestEmailSampleSummary';
-  countsTowardHistory: Scalars['Boolean']['output'];
-  generatedAt: Scalars['Date']['output'];
-  issueId: Scalars['String']['output'];
-  selectionModelId: Scalars['String']['output'];
-  subject: Scalars['String']['output'];
+type AiDigestIssue = {
+  __typename?: 'AiDigestIssue';
+  _id: Scalars['String']['output'];
+  cacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  cacheWriteInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  countsTowardHistory?: Maybe<Scalars['Boolean']['output']>;
+  createdAt: Scalars['Date']['output'];
+  discussionCommentIds?: Maybe<Array<Scalars['String']['output']>>;
+  discussionComments?: Maybe<Array<Comment>>;
+  emailedAt?: Maybe<Scalars['Date']['output']>;
+  generatedAt?: Maybe<Scalars['Date']['output']>;
+  generationDurationMs?: Maybe<Scalars['Int']['output']>;
+  inputTokenCount?: Maybe<Scalars['Int']['output']>;
+  outputTokenCount?: Maybe<Scalars['Int']['output']>;
+  personalInstructions?: Maybe<Scalars['String']['output']>;
+  postIds?: Maybe<Array<Scalars['String']['output']>>;
+  posts?: Maybe<Array<Post>>;
+  promptVersion?: Maybe<Scalars['String']['output']>;
+  quickTakeIds?: Maybe<Array<Scalars['String']['output']>>;
+  quickTakes?: Maybe<Array<Comment>>;
+  readPostCount?: Maybe<Scalars['Int']['output']>;
+  recipient?: Maybe<User>;
+  recipientId?: Maybe<Scalars['String']['output']>;
+  searchCount?: Maybe<Scalars['Int']['output']>;
+  selectionCostUsd?: Maybe<Scalars['Float']['output']>;
+  selectionModelId?: Maybe<Scalars['String']['output']>;
+  selectionSystemPrompt?: Maybe<Scalars['String']['output']>;
+  selectionUserPrompt?: Maybe<Scalars['String']['output']>;
+  spec?: Maybe<Scalars['JSON']['output']>;
+  subject?: Maybe<Scalars['String']['output']>;
+  threadCacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  threadInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  threadOutputTokenCount?: Maybe<Scalars['Int']['output']>;
+  threadPromptVersion?: Maybe<Scalars['String']['output']>;
+  threadSelectionCostUsd?: Maybe<Scalars['Float']['output']>;
+  threadSelectionUserPrompt?: Maybe<Scalars['String']['output']>;
+  toolCallCount?: Maybe<Scalars['Int']['output']>;
+  trigger?: Maybe<AiDigestIssueTrigger>;
+  uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type AiDigestIssueSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  recipientIssues?: InputMaybe<AiDigestIssuesRecipientIssuesInput>;
+};
+
+type AiDigestIssueTrigger =
+  | 'adminSample'
+  | 'scheduled'
+  | 'userPreview';
+
+type AiDigestIssuesRecipientIssuesInput = {
+  recipientId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type AirtableLeaderboardResult = {
@@ -1101,32 +1147,10 @@ type ContentCollectionName =
 
 type ContentForYouGenerationStatus = {
   __typename?: 'ContentForYouGenerationStatus';
-  hourlyLimit: Scalars['Int']['output'];
   nextAllowedAt?: Maybe<Scalars['Date']['output']>;
   remainingThisHour: Scalars['Int']['output'];
   typicalDurationMsHigh?: Maybe<Scalars['Int']['output']>;
   typicalDurationMsLow?: Maybe<Scalars['Int']['output']>;
-};
-
-type ContentForYouIssue = {
-  __typename?: 'ContentForYouIssue';
-  countsTowardHistory: Scalars['Boolean']['output'];
-  generatedAt: Scalars['Date']['output'];
-  issueId: Scalars['String']['output'];
-  personalInstructions?: Maybe<Scalars['String']['output']>;
-  spec: Scalars['JSON']['output'];
-  subject: Scalars['String']['output'];
-  trigger: Scalars['String']['output'];
-};
-
-type ContentForYouIssueSummary = {
-  __typename?: 'ContentForYouIssueSummary';
-  countsTowardHistory: Scalars['Boolean']['output'];
-  generatedAt: Scalars['Date']['output'];
-  issueId: Scalars['String']['output'];
-  personalInstructions?: Maybe<Scalars['String']['output']>;
-  subject: Scalars['String']['output'];
-  trigger: Scalars['String']['output'];
 };
 
 type ContentType = {
@@ -2427,7 +2451,7 @@ type FrontpageClassification = {
 
 type GenerateContentForYouIssueResult = {
   __typename?: 'GenerateContentForYouIssueResult';
-  issue: ContentForYouIssueSummary;
+  issueId: Scalars['String']['output'];
   nextAllowedAt?: Maybe<Scalars['Date']['output']>;
 };
 
@@ -3043,6 +3067,12 @@ type ModeratorIPAddressInfo = {
   __typename?: 'ModeratorIPAddressInfo';
   ip: Scalars['String']['output'];
   userIds: Array<Scalars['String']['output']>;
+};
+
+type MultiAiDigestIssueOutput = {
+  __typename?: 'MultiAiDigestIssueOutput';
+  results: Array<AiDigestIssue>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type MultiArbitalTagContentRelInput = {
@@ -3916,7 +3946,7 @@ type Mutation = {
   CancelRSVPToEvent?: Maybe<Post>;
   ClearAiDigestEmailSampleHistory: Scalars['Int']['output'];
   ClearContentForYouRecommendationHistory: Scalars['Int']['output'];
-  GenerateAiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
+  GenerateAiDigestEmailSamples: Array<Scalars['String']['output']>;
   GenerateContentForYouIssue: GenerateContentForYouIssueResult;
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
@@ -7305,7 +7335,6 @@ type Query = {
   ActiveTagCount: Scalars['Int']['output'];
   AdminMetadata?: Maybe<Scalars['String']['output']>;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
-  AiDigestEmailSamples: Array<AiDigestEmailSampleSummary>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
@@ -7314,13 +7343,10 @@ type Query = {
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
   ContentForYouGenerationStatus: ContentForYouGenerationStatus;
-  ContentForYouIssue: ContentForYouIssue;
-  ContentForYouIssues: Array<ContentForYouIssueSummary>;
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
   CurationCandidatePosts?: Maybe<CurationCandidatePostsResult>;
-  DigestEmailPreview: EmailPreview;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
   GetAllReviewWinners: Array<Post>;
@@ -7375,6 +7401,8 @@ type Query = {
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
+  aiDigestIssue?: Maybe<SingleAiDigestIssueOutput>;
+  aiDigestIssues?: Maybe<MultiAiDigestIssueOutput>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
   arbitalTagContentRels?: Maybe<MultiArbitalTagContentRelOutput>;
   ban?: Maybe<SingleBanOutput>;
@@ -7525,12 +7553,6 @@ type QueryAiDigestEmailSamplePreviewArgs = {
 };
 
 
-type QueryAiDigestEmailSamplesArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  userSlug: Scalars['String']['input'];
-};
-
-
 type QueryAllTagsActivityFeedArgs = {
   cutoff?: InputMaybe<Scalars['Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7564,16 +7586,6 @@ type QueryCommentEmbeddingSimilaritySearchArgs = {
 
 
 type QueryCommentsWithReactsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-type QueryContentForYouIssueArgs = {
-  issueId: Scalars['String']['input'];
-};
-
-
-type QueryContentForYouIssuesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -7857,6 +7869,19 @@ type QueryUsersReadPostsOfTargetUserArgs = {
 
 type QueryadminEmailPreviewAudienceArgs = {
   input: AdminEmailPreviewAudienceInput;
+};
+
+
+type QueryaiDigestIssueArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryaiDigestIssuesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<AiDigestIssueSelector>;
 };
 
 
@@ -9584,6 +9609,11 @@ type SideCommentCache = {
   postId?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
   version?: Maybe<Scalars['Float']['output']>;
+};
+
+type SingleAiDigestIssueOutput = {
+  __typename?: 'SingleAiDigestIssueOutput';
+  result?: Maybe<AiDigestIssue>;
 };
 
 type SingleArbitalTagContentRelInput = {
@@ -13302,11 +13332,16 @@ type ContentForYouOverviewQuery_user_SingleUserOutput_result_User = { __typename
 
 type ContentForYouOverviewQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: ContentForYouOverviewQuery_user_SingleUserOutput_result_User | null };
 
-type ContentForYouOverviewQuery_ContentForYouIssues_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null };
+type ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue = (
+  { __typename?: 'AiDigestIssue' }
+  & AiDigestIssuesList
+);
+
+type ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput = { __typename?: 'MultiAiDigestIssueOutput', results: Array<ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue> };
 
 type ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus = { __typename?: 'ContentForYouGenerationStatus', nextAllowedAt: string | null, remainingThisHour: number, typicalDurationMsLow: number | null, typicalDurationMsHigh: number | null };
 
-type ContentForYouOverviewQuery_Query = { __typename?: 'Query', user: ContentForYouOverviewQuery_user_SingleUserOutput | null, ContentForYouIssues: Array<ContentForYouOverviewQuery_ContentForYouIssues_ContentForYouIssueSummary>, ContentForYouGenerationStatus: ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus };
+type ContentForYouOverviewQuery_Query = { __typename?: 'Query', user: ContentForYouOverviewQuery_user_SingleUserOutput | null, aiDigestIssues: ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput | null, ContentForYouGenerationStatus: ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus };
 
 
 type ContentForYouOverviewQueryVariables = Exact<{
@@ -13317,9 +13352,14 @@ type ContentForYouOverviewQueryVariables = Exact<{
 
 type ContentForYouOverviewQuery = ContentForYouOverviewQuery_Query;
 
-type ContentForYouIssueQueryQuery_ContentForYouIssue_ContentForYouIssue = { __typename?: 'ContentForYouIssue', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null, spec: any };
+type ContentForYouIssueQueryQuery_aiDigestIssue_SingleAiDigestIssueOutput_result_AiDigestIssue = (
+  { __typename?: 'AiDigestIssue' }
+  & AiDigestIssuesContent
+);
 
-type ContentForYouIssueQueryQuery_Query = { __typename?: 'Query', ContentForYouIssue: ContentForYouIssueQueryQuery_ContentForYouIssue_ContentForYouIssue };
+type ContentForYouIssueQueryQuery_aiDigestIssue_SingleAiDigestIssueOutput = { __typename?: 'SingleAiDigestIssueOutput', result: ContentForYouIssueQueryQuery_aiDigestIssue_SingleAiDigestIssueOutput_result_AiDigestIssue | null };
+
+type ContentForYouIssueQueryQuery_Query = { __typename?: 'Query', aiDigestIssue: ContentForYouIssueQueryQuery_aiDigestIssue_SingleAiDigestIssueOutput | null };
 
 
 type ContentForYouIssueQueryQueryVariables = Exact<{
@@ -13344,9 +13384,7 @@ type UpdateContentForYouInstructionsMutationVariables = Exact<{
 
 type UpdateContentForYouInstructionsMutation = UpdateContentForYouInstructionsMutation_Mutation;
 
-type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult_issue_ContentForYouIssueSummary = { __typename?: 'ContentForYouIssueSummary', issueId: string, subject: string, generatedAt: string, countsTowardHistory: boolean, personalInstructions: string | null };
-
-type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult = { __typename?: 'GenerateContentForYouIssueResult', nextAllowedAt: string | null, issue: GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult_issue_ContentForYouIssueSummary };
+type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult = { __typename?: 'GenerateContentForYouIssueResult', issueId: string, nextAllowedAt: string | null };
 
 type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateContentForYouIssue: GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult };
 
@@ -16818,19 +16856,7 @@ type CommentOnYourDraftNotificationHoverQueryVariables = Exact<{
 
 type CommentOnYourDraftNotificationHoverQuery = CommentOnYourDraftNotificationHoverQuery_Query;
 
-type DigestEmailPreviewQueryQuery_DigestEmailPreview_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
-
-type DigestEmailPreviewQueryQuery_Query = { __typename?: 'Query', DigestEmailPreview: DigestEmailPreviewQueryQuery_DigestEmailPreview_EmailPreview };
-
-
-type DigestEmailPreviewQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type DigestEmailPreviewQueryQuery = DigestEmailPreviewQueryQuery_Query;
-
-type GenerateAiDigestEmailSamplesMutationMutation_GenerateAiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string, countsTowardHistory: boolean };
-
-type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestEmailSamples: Array<GenerateAiDigestEmailSamplesMutationMutation_GenerateAiDigestEmailSamples_AiDigestEmailSampleSummary> };
+type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestEmailSamples: Array<string> };
 
 
 type GenerateAiDigestEmailSamplesMutationMutationVariables = Exact<{
@@ -16842,13 +16868,32 @@ type GenerateAiDigestEmailSamplesMutationMutationVariables = Exact<{
 
 type GenerateAiDigestEmailSamplesMutationMutation = GenerateAiDigestEmailSamplesMutationMutation_Mutation;
 
-type AiDigestEmailSamplesQueryQuery_AiDigestEmailSamples_AiDigestEmailSampleSummary = { __typename?: 'AiDigestEmailSampleSummary', issueId: string, subject: string, generatedAt: string, selectionModelId: string, countsTowardHistory: boolean };
+type DigestPreviewReaderQueryQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string };
 
-type AiDigestEmailSamplesQueryQuery_Query = { __typename?: 'Query', AiDigestEmailSamples: Array<AiDigestEmailSamplesQueryQuery_AiDigestEmailSamples_AiDigestEmailSampleSummary> };
+type DigestPreviewReaderQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<DigestPreviewReaderQueryQuery_users_MultiUserOutput_results_User> };
+
+type DigestPreviewReaderQueryQuery_Query = { __typename?: 'Query', users: DigestPreviewReaderQueryQuery_users_MultiUserOutput | null };
+
+
+type DigestPreviewReaderQueryQueryVariables = Exact<{
+  userSlug: Scalars['String']['input'];
+}>;
+
+
+type DigestPreviewReaderQueryQuery = DigestPreviewReaderQueryQuery_Query;
+
+type AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue = (
+  { __typename?: 'AiDigestIssue' }
+  & AiDigestIssuesAdminList
+);
+
+type AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput = { __typename?: 'MultiAiDigestIssueOutput', results: Array<AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue> };
+
+type AiDigestEmailSamplesQueryQuery_Query = { __typename?: 'Query', aiDigestIssues: AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput | null };
 
 
 type AiDigestEmailSamplesQueryQueryVariables = Exact<{
-  userSlug: Scalars['String']['input'];
+  recipientId: Scalars['String']['input'];
   limit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
@@ -23817,6 +23862,18 @@ type updatePostPostsEditFormMutationVariables = Exact<{
 
 
 type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
+
+type AiDigestIssuesList = { __typename?: 'AiDigestIssue', _id: string, subject: string | null, generatedAt: string | null, trigger: AiDigestIssueTrigger | null, countsTowardHistory: boolean | null, personalInstructions: string | null };
+
+type AiDigestIssuesAdminList = (
+  { __typename?: 'AiDigestIssue', selectionModelId: string | null }
+  & AiDigestIssuesList
+);
+
+type AiDigestIssuesContent = (
+  { __typename?: 'AiDigestIssue', spec: any | null }
+  & AiDigestIssuesList
+);
 
 type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 

@@ -10,6 +10,9 @@
 interface FragmentTypes {
   AiDigestEmailComment: AiDigestEmailComment
   AiDigestEmailPost: AiDigestEmailPost
+  AiDigestIssuesAdminList: AiDigestIssuesAdminList
+  AiDigestIssuesContent: AiDigestIssuesContent
+  AiDigestIssuesList: AiDigestIssuesList
   AllTagsPageFragment: AllTagsPageFragment
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
@@ -221,6 +224,7 @@ interface FragmentTypes {
 }
 
 interface FragmentTypesByCollection {
+  AiDigestIssues: "AiDigestIssuesAdminList"|"AiDigestIssuesContent"|"AiDigestIssuesList"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
@@ -277,6 +281,9 @@ interface FragmentTypesByCollection {
 interface CollectionNamesByFragmentName {
   AiDigestEmailComment: "Comments"
   AiDigestEmailPost: "Posts"
+  AiDigestIssuesAdminList: "AiDigestIssues"
+  AiDigestIssuesContent: "AiDigestIssues"
+  AiDigestIssuesList: "AiDigestIssues"
   AllTagsPageFragment: "Tags"
   ArbitalLinkedPagesFragment: never
   AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"

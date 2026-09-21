@@ -1,18 +1,20 @@
+import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { truncate } from "@/lib/editor/ellipsize";
 import { sanitize } from "@/lib/utils/sanitize";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import PostPreviews from "@/server/collections/postPreviews/collection";
+import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 
-export const AI_DIGEST_POST_PREVIEW_PROMPT_VERSION = "ai-digest-post-preview-v1";
+const AI_DIGEST_POST_PREVIEW_PROMPT_VERSION = "ai-digest-post-preview-v1";
 export const AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID = "anthropic/claude-opus-5";
 /**
  * Storage cap for a cached preview. Both surfaces truncate again to their own
  * placement budget, so this only needs to be comfortably larger than those.
  */
-export const AI_DIGEST_POST_PREVIEW_MAX_HTML_LENGTH = 4000;
+const AI_DIGEST_POST_PREVIEW_MAX_HTML_LENGTH = 4000;
 /**
  * A preamble that swallowed more than this share of the post's text would mean
  * the model mistook the body for boilerplate, so such answers are rejected.
@@ -61,40 +63,22 @@ export interface AiDigestPostPreviewTarget extends AiDigestPreviewCacheTarget {
   author: string;
 }
 
-export interface CachedAiDigestPostPreview extends AiDigestPreviewCacheTarget {
+/** One `PostPreviews` cache row. */
+export interface AiDigestPostPreviewRecord extends AiDigestPreviewCacheTarget {
   previewHtml: string;
   startBlockIndex: number;
   modelId: string;
   promptVersion: string;
 }
 
-export interface GeneratedAiDigestPostPreview extends AiDigestPreviewCacheTarget {
-  previewHtml: string;
-  startBlockIndex: number;
-  modelId: string;
-  promptVersion: string;
-}
-
-export interface AiDigestPreviewGenerationInput {
-  target: AiDigestPostPreviewTarget;
-  blocks: AiDigestPostPreviewBlock[];
-  modelId: string;
-  promptVersion: string;
-}
-
-export interface AiDigestPreviewPopulationDependencies {
-  selectStartBlockIndex: (input: AiDigestPreviewGenerationInput) => Promise<number>;
-  savePreview: (preview: GeneratedAiDigestPostPreview) => Promise<void>;
-}
-
-export interface AiDigestPreviewPopulationResult {
-  previews: Array<CachedAiDigestPostPreview | GeneratedAiDigestPostPreview>;
+interface AiDigestPreviewPopulationResult {
+  previews: AiDigestPostPreviewRecord[];
   reusedPreviewCount: number;
   generatedPreviewCount: number;
   skippedPostCount: number;
 }
 
-export interface AiDigestEnsuredPreviewResult extends AiDigestPreviewPopulationResult {
+interface AiDigestEnsuredPreviewResult extends AiDigestPreviewPopulationResult {
   previewHtmlByPostId: Map<string, string>;
 }
 
@@ -113,7 +97,7 @@ export function splitPostHtmlIntoBlocks(html: string): AiDigestPostPreviewBlock[
     return [{
       tagName,
       html: blockHtml,
-      text: parsedHtml(element).text().replace(/\s+/g, " ").trim(),
+      text: collapseAiDigestWhitespace(parsedHtml(element).text()),
     }];
   });
 }
@@ -203,17 +187,17 @@ function previewCacheKey({
 
 export function findCachedAiDigestPostPreviews<T extends AiDigestPreviewCacheTarget>(
   targets: T[],
-  cachedPreviews: CachedAiDigestPostPreview[],
+  cachedPreviews: AiDigestPostPreviewRecord[],
   modelId: string,
   promptVersion: string,
 ): {
-  cachedByPostId: Map<string, CachedAiDigestPostPreview>;
+  cachedByPostId: Map<string, AiDigestPostPreviewRecord>;
   missingTargets: T[];
 } {
   const cachedByKey = new Map(
     cachedPreviews.map((preview) => [previewCacheKey(preview), preview]),
   );
-  const cachedByPostId = new Map<string, CachedAiDigestPostPreview>();
+  const cachedByPostId = new Map<string, AiDigestPostPreviewRecord>();
   const missingTargets = targets.filter((target) => {
     const preview = cachedByKey.get(previewCacheKey({
       postId: target.postId,
@@ -241,23 +225,17 @@ async function generateAndSavePreview(
   blocks: AiDigestPostPreviewBlock[],
   modelId: string,
   promptVersion: string,
-  dependencies: AiDigestPreviewPopulationDependencies,
-): Promise<GeneratedAiDigestPostPreview | null> {
+): Promise<AiDigestPostPreviewRecord | null> {
   try {
     const startBlockIndex = validateAiDigestPreviewStartBlockIndex(
-      await dependencies.selectStartBlockIndex({
-        target,
-        blocks,
-        modelId,
-        promptVersion,
-      }),
+      await selectPostPreviewStartBlockIndex(target, blocks, modelId, promptVersion),
       blocks,
     );
     const previewHtml = buildAiDigestPostPreviewHtml(blocks, startBlockIndex);
     if (!previewHtml) {
       return null;
     }
-    const preview = {
+    const preview: AiDigestPostPreviewRecord = {
       postId: target.postId,
       revisionId: target.revisionId,
       previewHtml,
@@ -265,7 +243,7 @@ async function generateAndSavePreview(
       modelId,
       promptVersion,
     };
-    await dependencies.savePreview(preview);
+    await PostPreviews.rawInsert(preview);
     return preview;
   } catch {
     return null;
@@ -273,47 +251,25 @@ async function generateAndSavePreview(
 }
 
 function isGeneratedPreview(
-  preview: GeneratedAiDigestPostPreview | null,
-): preview is GeneratedAiDigestPostPreview {
+  preview: AiDigestPostPreviewRecord | null,
+): preview is AiDigestPostPreviewRecord {
   return preview !== null;
 }
 
-async function generateMissingPreviewsWithConcurrency(
-  targets: AiDigestPostPreviewTarget[],
-  blocksByRevisionId: Map<string, AiDigestPostPreviewBlock[]>,
-  modelId: string,
-  promptVersion: string,
-  dependencies: AiDigestPreviewPopulationDependencies,
-  concurrency: number,
-): Promise<GeneratedAiDigestPostPreview[]> {
-  const generated = await executePromiseQueue(
-    targets.map((target) => async () => {
-      const blocks = blocksByRevisionId.get(target.revisionId);
-      return blocks?.length
-        ? await generateAndSavePreview(target, blocks, modelId, promptVersion, dependencies)
-        : null;
-    }),
-    Math.max(1, Math.floor(concurrency)),
-  );
-  return generated.filter(isGeneratedPreview);
-}
-
-export async function populateMissingAiDigestPostPreviews({
+async function populateMissingAiDigestPostPreviews({
   targets,
   cachedPreviews,
   blocksByRevisionId,
   modelId,
   promptVersion,
-  dependencies,
-  concurrency = 8,
+  concurrency,
 }: {
   targets: AiDigestPostPreviewTarget[];
-  cachedPreviews: CachedAiDigestPostPreview[];
+  cachedPreviews: AiDigestPostPreviewRecord[];
   blocksByRevisionId: Map<string, AiDigestPostPreviewBlock[]>;
   modelId: string;
   promptVersion: string;
-  dependencies: AiDigestPreviewPopulationDependencies;
-  concurrency?: number;
+  concurrency: number;
 }): Promise<AiDigestPreviewPopulationResult> {
   const { cachedByPostId, missingTargets } = findCachedAiDigestPostPreviews(
     targets,
@@ -321,18 +277,16 @@ export async function populateMissingAiDigestPostPreviews({
     modelId,
     promptVersion,
   );
-  const generatedPreviews = await generateMissingPreviewsWithConcurrency(
-    missingTargets,
-    blocksByRevisionId,
-    modelId,
-    promptVersion,
-    dependencies,
-    concurrency,
-  );
-  const previewsByPostId = new Map<
-    string,
-    CachedAiDigestPostPreview | GeneratedAiDigestPostPreview
-  >(cachedByPostId);
+  const generatedPreviews = (await executePromiseQueue(
+    missingTargets.map((target) => async () => {
+      const blocks = blocksByRevisionId.get(target.revisionId);
+      return blocks?.length
+        ? await generateAndSavePreview(target, blocks, modelId, promptVersion)
+        : null;
+    }),
+    Math.max(1, Math.floor(concurrency)),
+  )).filter(isGeneratedPreview);
+  const previewsByPostId = new Map<string, AiDigestPostPreviewRecord>(cachedByPostId);
   generatedPreviews.forEach((preview) => {
     previewsByPostId.set(preview.postId, preview);
   });
@@ -370,16 +324,17 @@ function buildPostPreviewPrompt(
   ].join("\n");
 }
 
-async function selectPostPreviewStartBlockIndex({
-  target,
-  blocks,
-  modelId,
-  promptVersion,
-}: AiDigestPreviewGenerationInput): Promise<number> {
+async function selectPostPreviewStartBlockIndex(
+  target: AiDigestPostPreviewTarget,
+  blocks: AiDigestPostPreviewBlock[],
+  modelId: string,
+  promptVersion: string,
+): Promise<number> {
   const result = await generateText({
     model: modelId,
     system: `${POST_PREVIEW_SYSTEM_PROMPT}\n\nPrompt version: ${promptVersion}`,
     prompt: buildPostPreviewPrompt(target, blocks),
+    providerOptions: aiDigestGatewayProviderOptions("post-preview"),
     output: Output.object({
       schema: previewOutputSchema,
       name: "postPreviewStart",
@@ -390,17 +345,6 @@ async function selectPostPreviewStartBlockIndex({
   return result.output.startBlockIndex;
 }
 
-async function savePostPreview(preview: GeneratedAiDigestPostPreview): Promise<void> {
-  await PostPreviews.rawInsert({
-    postId: preview.postId,
-    revisionId: preview.revisionId,
-    previewHtml: preview.previewHtml,
-    startBlockIndex: preview.startBlockIndex,
-    modelId: preview.modelId,
-    promptVersion: preview.promptVersion,
-  });
-}
-
 async function fetchCachedAiDigestPostPreviews({
   targets,
   modelId,
@@ -409,7 +353,7 @@ async function fetchCachedAiDigestPostPreviews({
   targets: AiDigestPreviewCacheTarget[];
   modelId: string;
   promptVersion: string;
-}): Promise<CachedAiDigestPostPreview[]> {
+}): Promise<AiDigestPostPreviewRecord[]> {
   if (targets.length === 0) {
     return [];
   }
@@ -464,10 +408,6 @@ export async function ensureAiDigestPostPreviews({
     modelId,
     promptVersion,
     concurrency,
-    dependencies: {
-      selectStartBlockIndex: selectPostPreviewStartBlockIndex,
-      savePreview: savePostPreview,
-    },
   });
   return {
     ...populationResult,

@@ -1,19 +1,22 @@
+import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, DAY_MS } from "@/lib/aiDigest/constants";
 import { AI_DIGEST_EMAIL_TYPE } from "@/lib/emails/emailTracking";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import EmailEvents from "@/server/collections/emailEvents/collection";
-import type { AiDigestSpec } from "@/server/emailComponents/AiDigestSpec";
-import type { AiDigestPostInteractionRow } from "@/server/repos/PostsRepo";
-import type { AiDigestQuickTakeInteractionRow } from "@/server/repos/CommentsRepo";
+import type { AiDigestSpec } from "@/lib/aiDigest/aiDigestSpec";
+import {
+  loadAiDigestPostInteractions,
+  loadAiDigestQuickTakeInteractions,
+  type AiDigestPostInteractionRow,
+  type AiDigestQuickTakeInteractionRow,
+} from "./aiDigestReaderSignals";
 import { boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
 
 /**
  * Enough issues to cover the full candidate window at the scheduled cadence,
  * with room to spare for admin previews, which also count toward history.
  */
-export const AI_DIGEST_HISTORY_ISSUE_LIMIT = 14;
-export const AI_DIGEST_CLEAR_HISTORY_MAX_DAYS = 3_650;
+const AI_DIGEST_HISTORY_ISSUE_LIMIT = 14;
 const AI_DIGEST_PAST_QUICK_TAKE_SNIPPET_MAX_CHARS = 160;
-const DAY_MS = 24 * 60 * 60 * 1_000;
 
 export type AiDigestIssueTrigger = "adminSample" | "userPreview" | "scheduled";
 
@@ -34,7 +37,7 @@ export interface AiDigestPostHistory {
   lastIncludedAt: string | null;
 }
 
-export interface AiDigestPastPostRecommendation {
+interface AiDigestPastPostRecommendation {
   documentType: "post";
   documentId: string;
   title: string;
@@ -48,7 +51,7 @@ export interface AiDigestPastPostRecommendation {
   clickedAt: string | null;
 }
 
-export interface AiDigestPastQuickTakeRecommendation {
+interface AiDigestPastQuickTakeRecommendation {
   documentType: "quickTake";
   documentId: string;
   bodySnippet: string;
@@ -73,7 +76,7 @@ export interface AiDigestClickRecord {
   occurredAt: Date;
 }
 
-export interface AiDigestHistory {
+interface AiDigestHistory {
   issues: AiDigestIssueRecord[];
   postHistoryById: Map<string, AiDigestPostHistory>;
   pastRecommendations: AiDigestPastRecommendation[];
@@ -119,19 +122,6 @@ function boundedIssueLimit(limit: number): number {
   return Math.max(0, Math.min(limit, AI_DIGEST_HISTORY_ISSUE_LIMIT));
 }
 
-export function selectRecentAiDigestIssues(
-  issues: AiDigestIssueRecord[],
-  limit = AI_DIGEST_HISTORY_ISSUE_LIMIT,
-): AiDigestIssueRecord[] {
-  return issues
-    .filter((issue) => issue.countsTowardHistory)
-    .sort((first, second) =>
-      second.generatedAt.getTime() - first.generatedAt.getTime()
-      || second._id.localeCompare(first._id),
-    )
-    .slice(0, boundedIssueLimit(limit));
-}
-
 function recordInclusion(
   historyByDocumentId: Map<string, AiDigestPostHistory>,
   documentId: string,
@@ -146,7 +136,7 @@ function recordInclusion(
   });
 }
 
-export function buildAiDigestPostHistoryById(
+function buildAiDigestPostHistoryById(
   issues: AiDigestIssueRecord[],
 ): Map<string, AiDigestPostHistory> {
   const historyByDocumentId = new Map<string, AiDigestPostHistory>();
@@ -270,7 +260,7 @@ function pastQuickTakeRecommendations(
   );
 }
 
-export function buildAiDigestPastRecommendations(
+function buildAiDigestPastRecommendations(
   issues: AiDigestIssueRecord[],
   interactions: AiDigestPostInteractionRow[],
   clicks: AiDigestClickRecord[] = [],
@@ -375,18 +365,12 @@ export async function loadAiDigestHistory({
     new Set(issues.flatMap((issue) => issue.quickTakeIds)),
   );
   const [interactions, clicks, quickTakeInteractions] = await Promise.all([
-    context.repos.posts.getAiDigestPostInteractionRows({
-      userId,
-      postIds,
-    }),
+    loadAiDigestPostInteractions({ userId, postIds }),
     loadAiDigestClicks({
       userId,
       issueIds: issues.map((issue) => issue._id),
     }),
-    context.repos.comments.getAiDigestQuickTakeInteractionRows({
-      userId,
-      commentIds: quickTakeIds,
-    }),
+    loadAiDigestQuickTakeInteractions({ userId, commentIds: quickTakeIds }),
   ]);
   return buildAiDigestHistory(
     issues,

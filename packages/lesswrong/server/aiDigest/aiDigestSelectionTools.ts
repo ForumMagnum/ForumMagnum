@@ -1,3 +1,5 @@
+import { DAY_MS } from "@/lib/aiDigest/constants";
+import { daysAgo } from "@/lib/aiDigest/helpers";
 import { tool } from "ai";
 import type { ToolSet } from "ai";
 import { z } from "zod";
@@ -7,10 +9,9 @@ import {
   isEmbeddingsAPIEnabled,
 } from "@/server/embeddings";
 import type { AiDigestPostHistory } from "./aiDigestHistory";
+import { annotateAiDigestPostCandidates } from "./aiDigestReaderSignals";
 import {
   AI_DIGEST_DEFAULT_MIN_KARMA,
-  aiDigestEligibilityInputFromByIdRow,
-  getAiDigestPostIneligibilityReason,
   isSelectableAiDigestCandidate,
   relaxPreviousInclusionExclusions,
   toAiDigestToolSearchCandidate,
@@ -21,17 +22,16 @@ import {
   boundedPlainTextFromRevisionHtml,
 } from "./aiDigestPostSummaries";
 
-export const AI_DIGEST_SELECTION_SEARCH_RECENT_DAYS = 90;
-export const AI_DIGEST_SELECTION_SEARCH_DEFAULT_LIMIT = 10;
-export const AI_DIGEST_SELECTION_SEARCH_MAX_LIMIT = 20;
-export const AI_DIGEST_SELECTION_READ_POST_MAX_PER_GENERATION = 10;
+const AI_DIGEST_SELECTION_SEARCH_RECENT_DAYS = 90;
+const AI_DIGEST_SELECTION_SEARCH_DEFAULT_LIMIT = 10;
+const AI_DIGEST_SELECTION_SEARCH_MAX_LIMIT = 20;
+const AI_DIGEST_SELECTION_READ_POST_MAX_PER_GENERATION = 10;
 export const AI_DIGEST_SELECTION_STEP_LIMIT = 8;
 const AI_DIGEST_SELECTION_SEARCH_OVERFETCH_MULTIPLIER = 3;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
-export type AiDigestSearchResultGroup = "allTime" | "recent";
+type AiDigestSearchResultGroup = "allTime" | "recent";
 
-export interface AiDigestSearchResultRow {
+interface AiDigestSearchResultRow {
   postId: string;
   title: string;
   author: string;
@@ -40,13 +40,13 @@ export interface AiDigestSearchResultRow {
   tags: string[];
   group: AiDigestSearchResultGroup;
   inCorpus: boolean;
-  alreadyRead?: true;
+  hasReadStatus?: true;
   liked?: "regular" | "strong";
   previousDigest?: true;
   followsAuthor?: true;
 }
 
-export interface AiDigestDiscoveredCandidateRegistry {
+interface AiDigestDiscoveredCandidateRegistry {
   byPostId: Map<string, AiDigestPostCandidate>;
 }
 
@@ -57,7 +57,7 @@ export interface AiDigestSelectionToolUsageCounts {
   discoveredCandidateCount: number;
 }
 
-export interface AiDigestSelectionToolsContext {
+interface AiDigestSelectionToolsContext {
   user: DbUser;
   context: ResolverContext;
   corpusPostIds: Set<string>;
@@ -71,15 +71,6 @@ export interface AiDigestSelectionToolsContext {
 function clampSearchLimit(limit: number | undefined): number {
   const requested = limit ?? AI_DIGEST_SELECTION_SEARCH_DEFAULT_LIMIT;
   return Math.max(1, Math.min(AI_DIGEST_SELECTION_SEARCH_MAX_LIMIT, requested));
-}
-
-function utcDay(timestamp: string | Date): number {
-  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
-function daysAgo(asOf: Date, timestamp: string | Date): number {
-  return Math.max(0, Math.floor((utcDay(asOf) - utcDay(timestamp)) / DAY_MS));
 }
 
 function wrapUntrustedToolPayload(label: string, payload: unknown): string {
@@ -118,10 +109,10 @@ function searchResultAnnotations(
   includeRead: boolean,
 ): Pick<
   AiDigestSearchResultRow,
-  "alreadyRead" | "liked" | "previousDigest" | "followsAuthor"
+  "hasReadStatus" | "liked" | "previousDigest" | "followsAuthor"
 > {
   return {
-    ...(includeRead && candidate.isRead ? { alreadyRead: true as const } : {}),
+    ...(includeRead && candidate.isRead ? { hasReadStatus: true as const } : {}),
     ...(candidate.upvoteStrength ? { liked: candidate.upvoteStrength } : {}),
     ...(candidate.previousDigestInclusionCount > 0 ? { previousDigest: true as const } : {}),
     ...(candidate.isSubscribedToAuthor ? { followsAuthor: true as const } : {}),
@@ -165,46 +156,33 @@ async function loadEligibleSearchCandidates({
   const hiddenPostIds = new Set(
     toolsContext.user.hiddenPostsMetadata.map((metadata) => metadata.postId),
   );
-  const rows = await toolsContext.context.repos.posts.getAiDigestPostCandidateRowsByIds({
+  const rows = await toolsContext.context.repos.posts.getAiDigestEligiblePostCandidateRowsByIds({
     postIds,
+    aboutPostId,
+    minKarma,
   });
   const rowsByPostId = new Map(rows.map((row) => [row.postId, row]));
   const orderedRows = postIds.flatMap((postId) => {
     const row = rowsByPostId.get(postId);
     return row ? [row] : [];
   });
-  const annotations = await toolsContext.context.repos.posts.getAiDigestCandidateAnnotationRows({
+  const annotations = await annotateAiDigestPostCandidates({
     userId: toolsContext.user._id,
-    postIds: orderedRows.map((row) => row.postId),
+    posts: orderedRows,
   });
   const annotationsByPostId = new Map(
     annotations.map((annotation) => [annotation.postId, annotation]),
   );
-  const eligibilityOptions = {
-    recipientId: toolsContext.user._id,
-    aboutPostId,
-    minPostedAt: new Date(0),
-    minKarma,
-    now: toolsContext.now,
-  };
-  const candidates = orderedRows.flatMap((row) => {
-    const annotation = annotationsByPostId.get(row.postId);
-    const hiddenByRecipient = hiddenPostIds.has(row.postId);
-    const ineligibilityReason = getAiDigestPostIneligibilityReason(
-      aiDigestEligibilityInputFromByIdRow(row, annotation, hiddenByRecipient),
-      eligibilityOptions,
-    );
-    if (ineligibilityReason || !row.revisionId || !row.publicationDate) {
-      return [];
-    }
-    return [toAiDigestToolSearchCandidate(
+  // Per-reader exclusions (authored, hidden, see-less, repeats) become the
+  // candidate's exclusionReason and are filtered below.
+  const candidates = orderedRows.map((row) =>
+    toAiDigestToolSearchCandidate(
       row,
-      annotation,
-      hiddenByRecipient,
+      annotationsByPostId.get(row.postId),
+      hiddenPostIds.has(row.postId),
       minKarma,
       toolsContext.postHistoryById.get(row.postId),
-    )];
-  });
+    ));
   return (toolsContext.allowPreviousInclusions
     ? relaxPreviousInclusionExclusions(candidates)
     : candidates
@@ -337,14 +315,10 @@ export function createAiDigestSelectionTools({
             toolsContext,
             limit,
             resolvePostIds: ({ publishedAfter, limit: fetchLimit }) =>
-              toolsContext.context.repos.postEmbeddings.getAiDigestNearestPostIdsWeightedByQuality(
+              toolsContext.context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(
                 embeddings,
-                {
-                  minKarma,
-                  publishedAfter,
-                  publishedBefore: null,
-                  limit: fetchLimit,
-                },
+                fetchLimit,
+                { minKarma, publishedAfter },
               ),
           });
           const results = await buildGroupedSearchResults({

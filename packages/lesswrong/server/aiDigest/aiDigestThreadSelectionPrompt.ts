@@ -1,6 +1,7 @@
+import { DAY_MS } from "@/lib/aiDigest/constants";
+import { daysAgo, validatedAiDigestPersonalInstructions } from "@/lib/aiDigest/helpers";
 import type { AiDigestUserDossier } from "./aiDigestPostCandidates";
 import {
-  AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH,
   promptReaderProfile,
 } from "./aiDigestPostSelectionPrompt";
 import type {
@@ -11,9 +12,9 @@ import type {
   AiDigestThreadCommentReaderFlags,
 } from "./aiDigestThreadCandidates";
 
-export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v3";
+export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v4";
 
-export const AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT = `# Task
+const AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT = `# Task
 
 Select up to three LessWrong comment threads for one reader's "From the discussion" digest section, from the supplied thread candidate pools. For each selected thread, choose an anchor comment and up to two additional displayed comments. Zero threads is a valid output when nothing clears the bar; never pad the section with weak threads.
 
@@ -33,7 +34,7 @@ Comment karma (\`baseScore\`) is a quality signal throughout: prefer threads who
 
 The value of this section is surfacing genuinely new discussion:
 - Treat comments marked \`seenInFeed\` as already seen by this reader.
-- On posts the reader has read, treat comments without \`newSinceLastVisit\` as already seen.
+- On posts the reader has opened, comments without \`newSinceLastVisit\` were already on the page at that visit. Opening a post is often only a glance, so weigh them as probably seen rather than certainly seen.
 - Do not select a thread whose interesting comments the reader has plainly already seen.
 
 A thread carrying a \`previousDigest\` signal already ran in an earlier issue for this reader. It is selectable again only if the card contains at least one comment published since \`lastIncludedDaysAgo\`; otherwise the reader would see the same exchange twice and the selection will be discarded. Even when it does qualify, prefer a thread they have not seen.
@@ -83,16 +84,6 @@ export interface AiDigestThreadSelectionPrompt {
   promptVersion: string;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1_000;
-
-function utcDay(timestamp: string | Date): number {
-  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
-function daysAgo(asOf: Date, timestamp: string): number {
-  return Math.max(0, Math.floor((utcDay(asOf) - utcDay(timestamp)) / DAY_MS));
-}
 
 type PromptThreadCommentRow = [
   commentId: string,
@@ -216,15 +207,7 @@ export function buildAiDigestThreadSelectionPrompt(
   personalInstructions: string | null = null,
   asOf = new Date(),
 ): AiDigestThreadSelectionPrompt {
-  const trimmedInstructions = personalInstructions?.trim() || null;
-  if (
-    trimmedInstructions
-    && trimmedInstructions.length > AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH
-  ) {
-    throw new Error(
-      `Personal instructions must contain at most ${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH} characters`,
-    );
-  }
+  const trimmedInstructions = validatedAiDigestPersonalInstructions(personalInstructions);
   const sharedPrefix = [
     "# Shared thread corpus",
     "Threads visible to all readers, ranked by top comment karma. Columns define every fixed-position row; day offsets are relative to `asOf`. A `truncated` comment body was cut at the length limit.",

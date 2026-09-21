@@ -4,7 +4,6 @@ import { captureException } from "@/lib/sentryWrapper";
 import {
   type AiDigestQuickTakeCandidate,
   type AiDigestSelectedPostCandidate,
-  buildAiDigestPostCandidateCards,
   isSelectableAiDigestCandidate,
   loadAiDigestPostCandidates,
   loadAiDigestQuickTakeCandidates,
@@ -37,6 +36,7 @@ import {
   buildAiDigestPostSelectionPrompt,
 } from "./aiDigestPostSelectionPrompt";
 import {
+  aiDigestGatewayProviderOptions,
   buildAiDigestSelectionMessages,
   decodeStrayUnicodeEscapes,
   sumAiDigestSelectionCostUsd,
@@ -56,18 +56,18 @@ import {
   type AiDigestSelectedThread,
   type AiDigestThreadSelectionResult,
 } from "./aiDigestThreadSelection";
-import {
-  type AiDigestItem,
-  type AiDigestSection,
-  type AiDigestSpec,
-} from "@/server/emailComponents/AiDigestSpec";
+import type {
+  AiDigestItem,
+  AiDigestSection,
+  AiDigestSpec,
+} from "@/lib/aiDigest/aiDigestSpec";
 
-export const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-opus-5";
-export const AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE = 2;
-export const AI_DIGEST_CURATED_ITEM_LIMIT = 3;
+const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-fable-5.1";
+const AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE = 2;
+const AI_DIGEST_CURATED_ITEM_LIMIT = 3;
 /** Headline slots 1 and 2 are always posts, so a slate needs at least this many. */
-export const AI_DIGEST_MIN_SELECTABLE_POST_CANDIDATES = 2;
-export const AI_DIGEST_MIN_SELECTABLE_CANDIDATES = 5;
+const AI_DIGEST_MIN_SELECTABLE_POST_CANDIDATES = 2;
+const AI_DIGEST_MIN_SELECTABLE_CANDIDATES = 5;
 
 export const AI_DIGEST_SELECTION_LENGTH_LIMITS = {
   subject: 120,
@@ -94,11 +94,11 @@ const selectionOutputSchema = z.object({
 
 export type AiDigestPostSelectionModelOutput = z.infer<typeof selectionOutputSchema>;
 
-export type AiDigestSelectedItemCandidate =
+type AiDigestSelectedItemCandidate =
   | { documentType: "post"; candidate: AiDigestSelectedPostCandidate }
   | { documentType: "quickTake"; candidate: AiDigestQuickTakeCandidate };
 
-export interface AiDigestPostSelectionOptions {
+interface AiDigestPostSelectionOptions {
   selectionModelId?: string;
   selectionModelLabel?: string;
   summaryModelId?: string;
@@ -114,7 +114,7 @@ export interface AiDigestPostSelectionOptions {
   persistIssue?: boolean;
 }
 
-export interface AiDigestPostSelectionResult {
+interface AiDigestPostSelectionResult {
   spec: AiDigestSpec;
   selectedCandidates: AiDigestSelectedItemCandidate[];
   issueId: string | null;
@@ -154,7 +154,7 @@ export interface AiDigestPostSelectionResult {
   };
 }
 
-export interface AiDigestPostSelectionFinalizationDependencies {
+interface AiDigestPostSelectionFinalizationDependencies {
   persistIssue?: (issue: AiDigestIssueInsert) => Promise<string>;
   /**
    * Cleaned preview HTML for the selected posts, keyed by post ID. Omitted
@@ -165,7 +165,7 @@ export interface AiDigestPostSelectionFinalizationDependencies {
   ) => Promise<Map<string, string>>;
 }
 
-export interface AiDigestPostSelectionFinalizationResult {
+interface AiDigestPostSelectionFinalizationResult {
   output: AiDigestPostSelectionModelOutput;
   spec: AiDigestSpec;
   selectedCandidates: AiDigestSelectedItemCandidate[];
@@ -309,7 +309,7 @@ function selectedItem(
  * each group newest curation first. Read posts fill the remaining slots and
  * are greyed out in rendering.
  */
-export function buildAiDigestCuratedItems(
+function buildAiDigestCuratedItems(
   curatedPosts: AiDigestCuratedPostRow[],
   selectedItems: AiDigestItem[],
 ): AiDigestItem[] {
@@ -460,7 +460,7 @@ function resolveSelectedCandidates(
 }
 
 /** The persisted slice of a completed thread-selection call. */
-export interface AiDigestThreadSelectionFinalizationInput {
+interface AiDigestThreadSelectionFinalizationInput {
   selectedThreads: AiDigestSelectedThread[];
   threadPromptVersion: string;
   threadSelectionUserPrompt: string;
@@ -611,7 +611,7 @@ function aiDigestPreviewLoader(context: ResolverContext, modelId: string) {
   };
 }
 
-export function humanizeAiDigestModelId(modelId: string): string {
+function humanizeAiDigestModelId(modelId: string): string {
   const modelName = modelId.split("/").at(-1) ?? modelId;
   return modelName
     .split("-")
@@ -645,7 +645,7 @@ function countAiDigestThreadCandidates(threadCandidates: AiDigestThreadCandidate
   return threadCandidates.siteWideThreads.length + threadCandidates.readerThreads.length;
 }
 
-export interface AiDigestSelectionPools {
+interface AiDigestSelectionPools {
   candidateCards: AiDigestPostCandidateCard[];
   quickTakeCandidates: AiDigestQuickTakeCandidate[];
   selectableCandidateCards: AiDigestPostCandidateCard[];
@@ -761,7 +761,7 @@ export async function generateAiDigestPostSelection({
     modelId: summaryModelId,
   });
   const pools = resolveAiDigestSelectionPools(
-    buildAiDigestPostCandidateCards(summaryResult.candidates),
+    summaryResult.candidates,
     quickTakeCandidates,
   );
   assertAiDigestPoolIsSelectable(pools);
@@ -798,6 +798,7 @@ export async function generateAiDigestPostSelection({
       }),
       tools,
       stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
+      providerOptions: aiDigestGatewayProviderOptions("post-selection"),
       output: Output.object({
         schema: selectionOutputSchema,
         name: "aiDigestPostSelection",

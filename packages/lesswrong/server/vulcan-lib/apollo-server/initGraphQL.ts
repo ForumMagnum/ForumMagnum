@@ -75,6 +75,7 @@ import { digestEmailPreviewGraphQLMutations, digestEmailPreviewGraphQLQueries, d
 import { contentForYouGraphQLMutations, contentForYouGraphQLQueries, contentForYouGraphQLTypeDefs } from "@/server/resolvers/contentForYouResolvers";
 
 // Collection imports
+import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -322,6 +323,7 @@ export const getTypeDefs = () => gql`
   ${digestEmailPreviewGraphQLTypeDefs}
   ${contentForYouGraphQLTypeDefs}
   ## CRUD Query typedefs
+  ${graphqlAiDigestIssueQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -502,6 +504,7 @@ const getResolvers = () => ({
     ...contentForYouGraphQLQueries,
 
     // CRUD Query Handlers
+    ...aiDigestIssueGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -682,6 +685,7 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
+  ...aiDigestIssueGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,

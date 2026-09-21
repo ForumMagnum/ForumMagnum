@@ -1,4 +1,4 @@
-type AiDigestIssuesViewName = never
+type AiDigestIssuesViewName = "recipientIssues";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type AutomatedContentEvaluationsViewName = never
@@ -97,7 +97,7 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
-  AiDigestIssues: ViewTermsBase
+  AiDigestIssues: AiDigestIssuesViewTerms
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
   AutomatedContentEvaluations: ViewTermsBase
@@ -197,4 +197,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

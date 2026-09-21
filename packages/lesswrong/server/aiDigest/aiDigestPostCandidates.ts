@@ -1,50 +1,66 @@
-import { postStatuses } from "@/lib/collections/posts/constants";
+import { DAY_MS } from "@/lib/aiDigest/constants";
+import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import type {
-  AiDigestCandidateAnnotationRow,
+  AiDigestAuthorCountRow,
   AiDigestCanonicalPostCandidateRow,
   AiDigestCuratedPostRow,
-  AiDigestPostCandidateByIdRow,
   AiDigestPostReferenceRow,
   AiDigestPositiveVoteRow,
-  AiDigestReaderDataRow,
+  AiDigestReadAgeBucketsRow,
+  AiDigestReadCountsRow,
   AiDigestSeeLessRow,
-  AiDigestSubscribedAuthorRow,
+  AiDigestTopicCountRow,
 } from "@/server/repos/PostsRepo";
-import type {
-  AiDigestQuickTakeAnnotationRow,
-  AiDigestQuickTakeCandidateRow,
-} from "@/server/repos/CommentsRepo";
+import type { AiDigestQuickTakeCandidateRow } from "@/server/repos/CommentsRepo";
+import {
+  annotateAiDigestPostCandidates,
+  annotateAiDigestQuickTakes,
+  loadReaderSubscribedAuthors,
+  type AiDigestCandidateAnnotationRow,
+  type AiDigestQuickTakeAnnotationRow,
+  type AiDigestSubscribedAuthorRow,
+} from "@/server/aiDigest/aiDigestReaderSignals";
+
+/** Everything the reader dossier is built from, gathered per section. */
+export interface AiDigestReaderData extends AiDigestReadCountsRow {
+  topAuthors: AiDigestAuthorCountRow[];
+  topTopics: AiDigestTopicCountRow[];
+  recentReads: AiDigestPostReferenceRow[];
+  recentPositiveVotes: AiDigestPositiveVoteRow[];
+  recentAuthoredPosts: AiDigestPostReferenceRow[];
+  recentCommentedPosts: AiDigestPostReferenceRow[];
+  readAgeBuckets: AiDigestReadAgeBucketsRow;
+  seeLessFeedback: AiDigestSeeLessRow[];
+  subscribedAuthors: AiDigestSubscribedAuthorRow[];
+}
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import type { AiDigestPostHistory } from "./aiDigestHistory";
 
-export type AiDigestCandidateRetrievalSource =
+type AiDigestCandidateRetrievalSource =
   | "newsletterRecentPostsSql"
   | "selectionToolSearch";
 
-export const AI_DIGEST_PROTOTYPE_MAX_AGE_DAYS = 14;
-// Production should expand this to four weeks once the prototype is operationally validated.
-export const AI_DIGEST_PRODUCTION_MAX_AGE_DAYS = 28;
-export const AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS = AI_DIGEST_PROTOTYPE_MAX_AGE_DAYS;
+// TODO: widen to 28 days once the digest is operationally validated beyond the admin beta.
+export const AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS = 14;
 export const AI_DIGEST_DEFAULT_MIN_KARMA = 20;
-export const AI_DIGEST_DEFAULT_CANDIDATE_LIMIT = 60;
-export const AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA = 20;
-export const AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT = 30;
-export const AI_DIGEST_QUICK_TAKE_BODY_MAX_CHARS = 800;
-export const AI_DIGEST_CURATED_LOOKBACK_COUNT = 10;
-export const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
-export const AI_DIGEST_READER_LIST_LIMIT = 20;
-export const AI_DIGEST_AFFINITY_LIMIT = 15;
+const AI_DIGEST_DEFAULT_CANDIDATE_LIMIT = 60;
+const AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA = 20;
+const AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT = 30;
+const AI_DIGEST_QUICK_TAKE_BODY_MAX_CHARS = 800;
+const AI_DIGEST_CURATED_LOOKBACK_COUNT = 10;
+const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
+const AI_DIGEST_READER_LIST_LIMIT = 20;
+const AI_DIGEST_AFFINITY_LIMIT = 15;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const READ_SHARE_SIGNIFICANT_DIGITS = 3;
 
-export interface AiDigestReadShareCalibration {
+interface AiDigestReadShareCalibration {
   oneReadPercent: number | null;
   tenReadsPercent: number | null;
 }
 
-export interface AiDigestReaderPostInteraction {
+interface AiDigestReaderPostInteraction {
   postId: string;
   title: string;
   author: string;
@@ -57,13 +73,13 @@ export interface AiDigestReaderPostInteraction {
   commentedAt?: string;
 }
 
-export type AiDigestNegativePreferenceReason =
+type AiDigestNegativePreferenceReason =
   | "author"
   | "topic"
   | "contentType"
   | "other";
 
-export interface AiDigestNegativePreference {
+interface AiDigestNegativePreference {
   collectionName: AiDigestSeeLessRow["collectionName"];
   documentId: string;
   feedbackAt: string;
@@ -98,7 +114,7 @@ export interface AiDigestUserDossier {
     windowDays: number;
     posts: AiDigestReaderPostInteraction[];
   };
-  readAgeBuckets: AiDigestReaderDataRow["readAgeBuckets"] & {
+  readAgeBuckets: AiDigestReadAgeBucketsRow & {
     windowDays: number;
   };
   followedAuthors: string[];
@@ -108,74 +124,11 @@ export interface AiDigestUserDossier {
   };
 }
 
-export interface AiDigestReaderContext {
+interface AiDigestReaderContext {
   dossier: AiDigestUserDossier;
   evidenceCount: number;
 }
 
-export interface AiDigestPostEligibilityInput {
-  postId: string;
-  status: number;
-  draft: boolean;
-  deletedDraft: boolean;
-  rejected: boolean;
-  isFuture: boolean;
-  unlisted: boolean;
-  authorIsUnreviewed: boolean;
-  onlyVisibleToLoggedIn: boolean;
-  onlyVisibleToEstablishedAccounts: boolean;
-  disableRecommendation: boolean;
-  shortform: boolean;
-  isEvent: boolean;
-  hiddenRelatedQuestion: boolean;
-  groupId: string | null;
-  postCategory: DbPost["postCategory"];
-  question: boolean;
-  debate: boolean;
-  meta: boolean;
-  podcastEpisodeId: string | null;
-  hideAuthor: boolean;
-  frontpageDate: Date | null;
-  noIndex: boolean;
-  sticky: boolean;
-  defaultRecommendation: boolean;
-  postedAt: Date | null;
-  baseScore: number;
-  contentsLatest: string | null;
-  userId: string | null;
-  coauthorUserIds: string[];
-  isRead: boolean;
-  isHidden: boolean;
-  hasActiveSeeLess: boolean;
-}
-
-export type AiDigestPostIneligibilityReason =
-  | "notApproved"
-  | "draft"
-  | "future"
-  | "unlisted"
-  | "unreviewedAuthor"
-  | "establishedAccountsOnly"
-  | "recommendationsDisabled"
-  | "aboutPost"
-  | "shortformContainer"
-  | "event"
-  | "hiddenRelatedQuestion"
-  | "invalidPublicationDate"
-  | "tooOld"
-  | "belowKarmaFloor"
-  | "missingContentsRevision"
-  | "recipientAuthored"
-  | "hiddenByRecipient"
-  | "activeSeeLess";
-
-export interface AiDigestPostEligibilityOptions {
-  recipientId: string;
-  aboutPostId: string;
-  minPostedAt: Date;
-  minKarma: number;
-  now: Date;
-}
 
 export interface AiDigestPostSummaryProvenance {
   revisionId: string;
@@ -183,7 +136,7 @@ export interface AiDigestPostSummaryProvenance {
   promptVersion: string;
 }
 
-export type AiDigestCandidateExclusionReason =
+type AiDigestCandidateExclusionReason =
   | "recipientAuthored"
   | "hiddenByRecipient"
   | "activeSeeLess"
@@ -272,8 +225,8 @@ export function deduplicateAuthorSubscriptions(
   );
 }
 
-function dateOnly(timestamp: string): string {
-  return timestamp.slice(0, 10);
+function dateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
 }
 
 function postInteractionBase(
@@ -350,7 +303,7 @@ function mergePostInteractions(
   );
 }
 
-function buildRecentInteractions(row: AiDigestReaderDataRow): AiDigestReaderPostInteraction[] {
+function buildRecentInteractions(row: AiDigestReaderData): AiDigestReaderPostInteraction[] {
   return mergePostInteractions([
     ...row.recentReads.map(recentReadInteraction),
     ...row.recentPositiveVotes.map(positiveVoteInteraction),
@@ -405,7 +358,7 @@ function countDossierEvidence(dossier: AiDigestUserDossier): number {
 
 export function buildAiDigestReaderContext(
   user: Pick<DbUser, "createdAt">,
-  row: AiDigestReaderDataRow,
+  row: AiDigestReaderData,
   now = new Date(),
 ): AiDigestReaderContext {
   const subscriptions = deduplicateAuthorSubscriptions(row.subscribedAuthors);
@@ -446,36 +399,6 @@ export function buildAiDigestReaderContext(
     dossier,
     evidenceCount: countDossierEvidence(dossier),
   };
-}
-
-export function getAiDigestPostIneligibilityReason(
-  post: AiDigestPostEligibilityInput,
-  options: AiDigestPostEligibilityOptions,
-): AiDigestPostIneligibilityReason | null {
-  if (post.status !== postStatuses.STATUS_APPROVED) return "notApproved";
-  if (post.draft) return "draft";
-  if (post.isFuture) return "future";
-  if (post.unlisted) return "unlisted";
-  if (post.authorIsUnreviewed) return "unreviewedAuthor";
-  if (post.onlyVisibleToEstablishedAccounts) return "establishedAccountsOnly";
-  if (post.disableRecommendation) return "recommendationsDisabled";
-  if (post.postId === options.aboutPostId) return "aboutPost";
-  if (post.shortform) return "shortformContainer";
-  if (post.isEvent) return "event";
-  if (post.hiddenRelatedQuestion) return "hiddenRelatedQuestion";
-  if (!post.postedAt || post.postedAt > options.now) return "invalidPublicationDate";
-  if (post.postedAt < options.minPostedAt) return "tooOld";
-  if (post.baseScore < options.minKarma) return "belowKarmaFloor";
-  if (!post.contentsLatest) return "missingContentsRevision";
-  if (
-    post.userId === options.recipientId
-    || post.coauthorUserIds.includes(options.recipientId)
-  ) {
-    return "recipientAuthored";
-  }
-  if (post.isHidden) return "hiddenByRecipient";
-  if (post.hasActiveSeeLess) return "activeSeeLess";
-  return null;
 }
 
 export function aiDigestCandidateExclusionReason(
@@ -532,64 +455,15 @@ function toAiDigestPostCandidate(
   };
 }
 
-export function aiDigestEligibilityInputFromByIdRow(
-  row: AiDigestPostCandidateByIdRow,
-  annotation: AiDigestCandidateAnnotationRow | undefined,
-  hiddenByRecipient: boolean,
-): AiDigestPostEligibilityInput {
-  return {
-    postId: row.postId,
-    status: row.status,
-    draft: row.draft,
-    deletedDraft: row.deletedDraft,
-    rejected: row.rejected,
-    isFuture: row.isFuture,
-    unlisted: row.unlisted,
-    authorIsUnreviewed: row.authorIsUnreviewed,
-    onlyVisibleToLoggedIn: row.onlyVisibleToLoggedIn,
-    onlyVisibleToEstablishedAccounts: row.onlyVisibleToEstablishedAccounts,
-    disableRecommendation: row.disableRecommendation,
-    shortform: row.shortform,
-    isEvent: row.isEvent,
-    hiddenRelatedQuestion: row.hiddenRelatedQuestion,
-    groupId: row.groupId,
-    postCategory: row.postCategory,
-    question: row.question,
-    debate: row.debate,
-    meta: row.meta,
-    podcastEpisodeId: row.podcastEpisodeId,
-    hideAuthor: row.hideAuthor,
-    frontpageDate: row.frontpageDate,
-    noIndex: row.noIndex,
-    sticky: row.sticky,
-    defaultRecommendation: row.defaultRecommendation,
-    postedAt: row.publicationDate,
-    baseScore: row.baseScore,
-    contentsLatest: row.revisionId,
-    userId: row.userId,
-    coauthorUserIds: row.coauthorUserIds,
-    isRead: annotation?.isRead ?? false,
-    isHidden: hiddenByRecipient,
-    hasActiveSeeLess: annotation?.hasActiveSeeLess ?? false,
-  };
-}
-
 export function toAiDigestToolSearchCandidate(
-  row: AiDigestPostCandidateByIdRow,
+  row: AiDigestCanonicalPostCandidateRow,
   annotation: AiDigestCandidateAnnotationRow | undefined,
   hiddenByRecipient: boolean,
   minKarma: number,
   postHistory: AiDigestPostHistory | undefined,
 ): AiDigestPostCandidate {
-  if (!row.revisionId || !row.publicationDate) {
-    throw new Error(`Cannot build tool-search candidate without revision and publication date for ${row.postId}`);
-  }
   return toAiDigestPostCandidate(
-    {
-      ...row,
-      revisionId: row.revisionId,
-      publicationDate: row.publicationDate,
-    },
+    row,
     annotation,
     hiddenByRecipient,
     null,
@@ -637,9 +511,7 @@ export function aiDigestQuickTakeExclusionReason(
 }
 
 function boundedQuickTakeBody(revisionHtml: string): string {
-  return htmlToTextDefault(revisionHtml)
-    .replace(/\s+/g, " ")
-    .trim()
+  return collapseAiDigestWhitespace(htmlToTextDefault(revisionHtml))
     .slice(0, AI_DIGEST_QUICK_TAKE_BODY_MAX_CHARS);
 }
 
@@ -668,17 +540,49 @@ export async function loadAiDigestReaderContext(
   context: ResolverContext,
   now = new Date(),
 ): Promise<AiDigestReaderContext> {
-  const row = await context.repos.posts.getAiDigestReaderData({
-    userId: user._id,
-    recentActivitySince: new Date(
-      now.getTime() - (AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS * DAY_MS),
-    ),
-    thirtyDaysAgo: new Date(now.getTime() - (30 * DAY_MS)),
-    oneHundredEightyDaysAgo: new Date(now.getTime() - (180 * DAY_MS)),
-    listLimit: AI_DIGEST_READER_LIST_LIMIT,
-    affinityLimit: AI_DIGEST_AFFINITY_LIMIT,
-  });
-  return buildAiDigestReaderContext(user, row, now);
+  const { posts } = context.repos;
+  const userId = user._id;
+  const since = new Date(now.getTime() - (AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS * DAY_MS));
+  const listLimit = AI_DIGEST_READER_LIST_LIMIT;
+  const [
+    readCounts,
+    topAuthors,
+    topTopics,
+    recentReads,
+    recentPositiveVotes,
+    recentAuthoredPosts,
+    recentCommentedPosts,
+    readAgeBuckets,
+    seeLessFeedback,
+    subscribedAuthors,
+  ] = await Promise.all([
+    posts.getAiDigestReadCounts({
+      userId,
+      thirtyDaysAgo: new Date(now.getTime() - (30 * DAY_MS)),
+      oneHundredEightyDaysAgo: new Date(now.getTime() - (180 * DAY_MS)),
+    }),
+    posts.getAiDigestTopReadAuthors({ userId, since, limit: AI_DIGEST_AFFINITY_LIMIT }),
+    posts.getAiDigestTopReadTopics({ userId, since, limit: AI_DIGEST_AFFINITY_LIMIT }),
+    posts.getAiDigestRecentReads({ userId, since, limit: listLimit }),
+    posts.getAiDigestRecentPositiveVotes({ userId, since, limit: listLimit }),
+    posts.getAiDigestRecentAuthoredPosts({ userId, since, limit: listLimit }),
+    posts.getAiDigestRecentCommentedPosts({ userId, since, limit: listLimit }),
+    posts.getAiDigestReadAgeBuckets({ userId, since }),
+    posts.getAiDigestSeeLessFeedback({ userId, since, limit: listLimit }),
+    loadReaderSubscribedAuthors(userId),
+  ]);
+  return buildAiDigestReaderContext(user, {
+    ...readCounts,
+    topAuthors,
+    topTopics,
+    recentReads,
+    recentPositiveVotes,
+    recentAuthoredPosts,
+    recentCommentedPosts,
+    readAgeBuckets,
+    seeLessFeedback,
+    subscribedAuthors,
+  }, now);
 }
 
 export async function loadAiDigestPostCandidates(
@@ -702,9 +606,9 @@ export async function loadAiDigestPostCandidates(
     minKarma,
     limit,
   });
-  const annotations = await context.repos.posts.getAiDigestCandidateAnnotationRows({
+  const annotations = await annotateAiDigestPostCandidates({
     userId: user._id,
-    postIds: rows.map((row) => row.postId),
+    posts: rows,
   });
   const annotationsByPostId = new Map(
     annotations.map((annotation) => [annotation.postId, annotation]),
@@ -754,9 +658,9 @@ export async function loadAiDigestQuickTakeCandidates(
     minKarma,
     limit,
   });
-  const annotations = await context.repos.comments.getAiDigestQuickTakeAnnotationRows({
+  const annotations = await annotateAiDigestQuickTakes({
     userId: user._id,
-    commentIds: rows.map((row) => row.commentId),
+    quickTakes: rows,
   });
   const annotationsByCommentId = new Map(
     annotations.map((annotation) => [annotation.commentId, annotation]),
@@ -770,13 +674,4 @@ export async function loadAiDigestQuickTakeCandidates(
       ),
     )
     .filter((candidate) => candidate.body.length > 0);
-}
-
-export function buildAiDigestPostCandidateCards(
-  candidates: Array<AiDigestPostCandidate & {
-    summary: string;
-    summaryProvenance: AiDigestPostSummaryProvenance;
-  }>,
-): AiDigestPostCandidateCard[] {
-  return candidates;
 }
