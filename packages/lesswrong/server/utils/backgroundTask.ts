@@ -15,10 +15,7 @@ export const backgroundTask = <T>(promise: Promise<T>) => {
       captureException(err);
     })
     .finally(() => {
-      const index = pendingBackgroundTasks.indexOf(tracked);
-      if (index >= 0) {
-        pendingBackgroundTasks.splice(index, 1);
-      }
+      pendingBackgroundTasks = pendingBackgroundTasks.filter((task) => task !== tracked);
     });
   pendingBackgroundTasks.push(tracked);
 }
