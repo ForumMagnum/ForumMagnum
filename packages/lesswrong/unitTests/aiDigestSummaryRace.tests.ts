@@ -1,5 +1,7 @@
-jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
-  computeContextFromUser: () => ({ repos: { posts: { getAiDigestPostBodyRowsByIds: jest.fn() } } }),
+jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => ({}) }));
+const mockLoadBodies = jest.fn();
+jest.mock("@/server/aiDigest/aiDigestPostLookups", () => ({
+  loadAiDigestPostBodies: (...args: unknown[]) => mockLoadBodies(...args),
 }));
 const mockGenerateText = jest.fn();
 const mockInsert = jest.fn();
@@ -37,15 +39,12 @@ describe("summary cache insert races", () => {
   });
   async function generate() {
     const context = computeContextFromUser({ user: null, isSSR: false });
-    const bodyLookup = jest.spyOn(context.repos.posts, "getAiDigestPostBodyRowsByIds").mockResolvedValue([
-      { postId: "post", title: "Post", author: "Author", revisionHtml: `<p>${"Some meaningful post content. ".repeat(20)}</p>` },
+    mockLoadBodies.mockResolvedValue([
+      { postId: "post", revisionHtml: `<p>${"Some meaningful post content. ".repeat(20)}</p>` },
     ]);
-    try {
-      return await ensureAiDigestPostSummaries({ candidates: [candidate], context, modelId: "model", promptVersion: "version" });
-    } finally {
-      bodyLookup.mockRestore();
-    }
+    return await ensureAiDigestPostSummaries({ candidates: [candidate], context, modelId: "model", promptVersion: "version" });
   }
+
   it("uses the winning summary after a concurrent insert", async () => {
     mockInsert.mockRejectedValue({ code: "23505" });
     mockFindOne.mockResolvedValue({ postId: "post", revisionId: "revision", modelId: "model", promptVersion: "version", summary: "The cached winner" });

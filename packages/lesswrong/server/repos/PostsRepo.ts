@@ -90,18 +90,6 @@ export interface AiDigestCanonicalPostCandidateRow {
   isCurated: boolean;
 }
 
-export interface AiDigestPostBodyRow {
-  postId: string;
-  title: string;
-  author: string;
-  revisionHtml: string;
-}
-
-export interface AiDigestCuratedPostRow {
-  postId: string;
-  isRead: boolean;
-}
-
 /**
  * Plain-text author byline for AI digest prompts: 'Anonymous' when the post
  * hides its author, otherwise the primary author's display name followed by
@@ -167,15 +155,6 @@ const aiDigestPostCandidateColumns = `
         ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS "tagNames",
         (p."curatedDate" IS NOT NULL) AS "isCurated"
 `;
-
-/** EXISTS subquery: the reader ($(userId)) has read the post. */
-const aiDigestPostIsReadExistsSubquery = (postIdExpression: string) => `EXISTS (
-  SELECT 1
-  FROM "ReadStatuses" rs
-  WHERE rs."postId" = ${postIdExpression}
-    AND rs."userId" = $(userId)
-    AND rs."isRead" IS TRUE
-)`;
 
 /** Posts the reader-dossier queries may reference: viewable and already published. */
 const aiDigestPublishedPostConditions = (postAlias: string) => `
@@ -1589,66 +1568,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       postIds,
       aboutPostId,
       minKarma,
-    });
-  }
-
-  async getAiDigestPostBodyRowsByIds({
-    postIds,
-  }: {
-    postIds: string[];
-  }): Promise<AiDigestPostBodyRow[]> {
-    if (postIds.length === 0) {
-      return [];
-    }
-    return this.getRawDb().manyOrNone<AiDigestPostBodyRow>(`
-      -- PostsRepo.getAiDigestPostBodyRowsByIds
-      SELECT
-        p."_id" AS "postId",
-        p.title,
-        ${aiDigestPostAuthorExpression("p", "u")} AS author,
-        r.html AS "revisionHtml"
-      FROM "Posts" p
-      INNER JOIN "Revisions" r ON r."_id" = p."contents_latest"
-      LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."_id" = ANY($(postIds)::text[])
-        AND p."contents_latest" IS NOT NULL
-        AND length(trim(r.html)) > 0
-    `, {
-      postIds,
-    });
-  }
-
-  /**
-   * The most recently curated posts for the AI digest's curated module (up to
-   * `limit`), newest curation first, each flagged with whether the recipient
-   * has read it.
-   */
-  async getAiDigestRecentlyCuratedPostRows({
-    userId,
-    limit,
-    now,
-  }: {
-    userId: string;
-    limit: number;
-    now: Date;
-  }): Promise<AiDigestCuratedPostRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestCuratedPostRow>(`
-      -- PostsRepo.getAiDigestRecentlyCuratedPostRows
-      SELECT
-        p."_id" AS "postId",
-        ${aiDigestPostIsReadExistsSubquery(`p."_id"`)} AS "isRead"
-      FROM "Posts" p
-      WHERE ${getViewablePostsSelector("p")}
-        AND p."deletedDraft" IS FALSE
-        AND p.rejected IS FALSE
-        AND p."curatedDate" IS NOT NULL
-        AND p."curatedDate" <= $(now)
-      ORDER BY p."curatedDate" DESC
-      LIMIT $(limit)
-    `, {
-      userId,
-      limit,
-      now,
     });
   }
 

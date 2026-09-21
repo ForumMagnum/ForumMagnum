@@ -14,7 +14,7 @@ import {
   type AiDigestUserDossier,
   type LoadAiDigestPostCandidatesOptions,
 } from "./aiDigestPostCandidates";
-import type { AiDigestCuratedPostRow } from "@/server/repos/PostsRepo";
+import type { AiDigestCuratedPostRow } from "./aiDigestPostLookups";
 import {
   AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
   ensureAiDigestPostSummaries,

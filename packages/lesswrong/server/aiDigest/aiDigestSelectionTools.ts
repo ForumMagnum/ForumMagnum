@@ -1,3 +1,4 @@
+import { loadAiDigestPostBodies } from "./aiDigestPostLookups";
 import { DAY_MS } from "@/lib/aiDigest/constants";
 import { daysAgo } from "@/lib/aiDigest/helpers";
 import { tool } from "ai";
@@ -359,9 +360,7 @@ export function createAiDigestSelectionTools({
             error: "postId is not in the corpus or discovered search results",
           });
         }
-        const rows = await toolsContext.context.repos.posts.getAiDigestPostBodyRowsByIds({
-          postIds: [postId],
-        });
+        const rows = await loadAiDigestPostBodies([postId], toolsContext.context);
         const row = rows[0];
         if (!row) {
           return wrapUntrustedToolPayload("POST_BODY", {
@@ -370,8 +369,6 @@ export function createAiDigestSelectionTools({
         }
         return wrapUntrustedToolPayload("POST_BODY", {
           postId: row.postId,
-          title: row.title,
-          author: row.author,
           body: boundedPlainTextFromRevisionHtml(
             row.revisionHtml,
             AI_DIGEST_SELECTION_READ_POST_MAX_CHARS,

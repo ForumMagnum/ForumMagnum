@@ -1,3 +1,4 @@
+import { loadAiDigestPostBodies } from "./aiDigestPostLookups";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 export interface AiDigestPostTextCacheTarget {
@@ -70,9 +71,7 @@ export async function ensureAiDigestPostTextCache<
   const { cachedByPostId, missingTargets } = findCachedAiDigestPostText(
     targets, cachedRecords, modelId, promptVersion,
   );
-  const bodyRows = await context.repos.posts.getAiDigestPostBodyRowsByIds({
-    postIds: missingTargets.map((target) => target.postId),
-  });
+  const bodyRows = await loadAiDigestPostBodies(missingTargets.map((target) => target.postId), context);
   const bodyRowsByPostId = new Map(bodyRows.map((row) => [row.postId, row]));
   const tasks = missingTargets.flatMap((target) => {
     const row = bodyRowsByPostId.get(target.postId);

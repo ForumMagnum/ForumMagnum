@@ -998,23 +998,36 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           AND v."isUnvote" IS FALSE
           AND v."documentId" IN (SELECT DISTINCT "postId" FROM window_comments)
       ),
+      -- Look up all historical comments only within candidate threads. Starting
+      -- from a reader's lifetime votes caused thousands of random comment fetches.
+      -- Separate root/reply index probes avoid a full Comments scan for an OR.
+      candidate_thread_comments AS MATERIALIZED (
+        SELECT c."_id", c."userId", c.deleted, c.draft,
+          COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
+        FROM (SELECT DISTINCT "threadId" FROM window_comments) t
+        CROSS JOIN LATERAL (
+          SELECT c."_id", c."userId", c.deleted, c.draft, c."topLevelCommentId"
+          FROM "Comments" c WHERE c."topLevelCommentId" = t."threadId"
+          UNION ALL
+          SELECT c."_id", c."userId", c.deleted, c.draft, c."topLevelCommentId"
+          FROM "Comments" c WHERE c."_id" = t."threadId" AND c."topLevelCommentId" IS NULL
+        ) c
+      ),
       participated_threads AS (
-        SELECT DISTINCT COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
-        FROM "Comments" c
+        SELECT DISTINCT c."threadId"
+        FROM candidate_thread_comments c
         WHERE c."userId" = $(userId)
           AND c.deleted IS FALSE
           AND c.draft IS NOT TRUE
-          AND COALESCE(c."topLevelCommentId", c."_id") IN (SELECT DISTINCT "threadId" FROM window_comments)
         UNION
-        SELECT DISTINCT COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
-        FROM "Votes" v
-        JOIN "Comments" c ON c."_id" = v."documentId"
+        SELECT DISTINCT c."threadId"
+        FROM candidate_thread_comments c
+        JOIN "Votes" v ON v."documentId" = c."_id"
         WHERE v."userId" = $(userId)
           AND v."collectionName" = 'Comments'
           AND v."voteType" IN ('smallUpvote', 'bigUpvote')
           AND v.cancelled IS FALSE
           AND v."isUnvote" IS FALSE
-          AND COALESCE(c."topLevelCommentId", c."_id") IN (SELECT DISTINCT "threadId" FROM window_comments)
       ),
       thread_stats AS (
         SELECT

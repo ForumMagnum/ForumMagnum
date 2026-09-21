@@ -1,10 +1,10 @@
+import { loadAiDigestCuratedPostRows, type AiDigestCuratedPostRow } from "./aiDigestPostLookups";
 import { DAY_MS } from "@/lib/aiDigest/constants";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import type {
   AiDigestAuthorCountRow,
   AiDigestCanonicalPostCandidateRow,
-  AiDigestCuratedPostRow,
   AiDigestPostReferenceRow,
   AiDigestPositiveVoteRow,
   AiDigestReadAgeBucketsRow,
@@ -635,11 +635,7 @@ export async function loadAiDigestRecentlyCuratedPosts(
   context: ResolverContext,
   now = new Date(),
 ): Promise<AiDigestCuratedPostRow[]> {
-  return context.repos.posts.getAiDigestRecentlyCuratedPostRows({
-    userId: user._id,
-    limit: AI_DIGEST_CURATED_LOOKBACK_COUNT,
-    now,
-  });
+  return loadAiDigestCuratedPostRows(user._id, AI_DIGEST_CURATED_LOOKBACK_COUNT, now, context);
 }
 
 export async function loadAiDigestQuickTakeCandidates(

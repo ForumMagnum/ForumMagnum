@@ -10,22 +10,30 @@ export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
   `;
 }
 
-/**
- * When changing this, also update the default view.
- */
+const viewablePostFieldValues = {
+  status: postStatuses.STATUS_APPROVED,
+  draft: false,
+  isFuture: false,
+  unlisted: false,
+  shortform: false,
+  authorIsUnreviewed: false,
+  hiddenRelatedQuestion: false,
+  isEvent: false,
+} as const;
+
+/** Shared public-post filter for SQL queries and collection finds. */
+export const viewablePostsSelector = {
+  ...viewablePostFieldValues,
+  postedAt: { $ne: null },
+};
+
+/** When changing this, also update the default view. */
 export const getViewablePostsSelector = (postsTableAlias?: string) => {
   const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
-  return `
-    ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
-    ${aliasPrefix}"draft" = FALSE AND
-    ${aliasPrefix}"isFuture" = FALSE AND
-    ${aliasPrefix}"unlisted" = FALSE AND
-    ${aliasPrefix}"shortform" = FALSE AND
-    ${aliasPrefix}"authorIsUnreviewed" = FALSE AND
-    ${aliasPrefix}"hiddenRelatedQuestion" = FALSE AND
-    ${aliasPrefix}"isEvent" = FALSE AND
-    ${aliasPrefix}"postedAt" IS NOT NULL
-  `;
+  return Object.entries(viewablePostFieldValues).map(([field, value]) => {
+    const column = `${aliasPrefix}"${field}"`;
+    return `${column} = ${typeof value === "boolean" ? String(value).toUpperCase() : value}`;
+  }).concat(`${aliasPrefix}"postedAt" IS NOT NULL`).join(" AND\n    ");
 };
 
 export const getViewableEventsSelector = (postsTableAlias?: string) => {
