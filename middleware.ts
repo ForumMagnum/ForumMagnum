@@ -1,6 +1,14 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
+import { findStatusCodeInStream } from './packages/lesswrong/lib/postPageCache/responseMetadataStream';
+import {
+  STATUS_CODE_LOOPBACK_HEADER,
+  buildCachedPostPath,
+  getHtmlCacheIneligibilityReason,
+  normalizeAcceptEncoding,
+  parsePostPagePath,
+} from './packages/lesswrong/lib/postPageCache/htmlCacheEligibility';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -9,7 +17,11 @@ import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdo
 export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
 
-const ForwardingHeaderName = "X-Forwarded-For-Status-Codes";
+const ForwardingHeaderName = STATUS_CODE_LOOPBACK_HEADER;
+
+// Server settings are read from environment variables; the middleware reads
+// the one it needs directly because the settings module isn't importable here.
+const postPageHtmlCacheEnabled = process.env.private_postPageCache_htmlCacheEnabled === 'true';
 
 function urlIsAbsolute(url: string): boolean {
   // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
@@ -51,6 +63,13 @@ export async function middleware(request: NextRequest) {
       if (markdownUnavailableRewrite) {
         return markdownUnavailableRewrite;
       }
+    }
+  }
+
+  if (postPageHtmlCacheEnabled) {
+    const cachedPostResponse = getCachedPostRewriteResponse(request, addedClientId);
+    if (cachedPostResponse) {
+      return cachedPostResponse;
     }
   }
 
@@ -265,6 +284,43 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
+/**
+ * Route eligible logged-out post page requests to the cached-post route
+ * handler, whose responses Vercel's CDN caches, one entry per post. The query
+ * string is not carried over. Returns null when the request must be rendered
+ * dynamically.
+ */
+function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
+  const ineligibilityReason = getHtmlCacheIneligibilityReason({
+    method: request.method,
+    pathname: request.nextUrl.pathname,
+    search: request.nextUrl.search,
+    cookieNames: request.cookies.getAll().map((cookie) => cookie.name),
+    getHeader: (name) => request.headers.get(name),
+    loopbackHeaderName: ForwardingHeaderName,
+  });
+  if (ineligibilityReason) {
+    return null;
+  }
+  const parsedPath = parsePostPagePath(request.nextUrl.pathname);
+  if (!parsedPath) {
+    return null;
+  }
+  const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
+
+  // Collapse Accept-Encoding to the two representations the handler emits so
+  // the CDN, which varies on it, holds at most two entries per page.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
+
+  const response = NextResponse.rewrite(targetUrl, { request: { headers: requestHeaders } });
+  response.headers.set('x-lw-post-cache-routing', 'cached');
+  if (addedClientId) {
+    addClientIdToResponseHeaders(response, addedClientId);
+  }
+  return response;
+}
+
 function shouldProxyForStatusCode(req: NextRequest) {
   if (req.nextUrl.pathname === '/') {
     return false;
@@ -303,63 +359,6 @@ function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: stri
   return nextResponse;
 }
 
-type StatusCodeMetadata = { status: number, redirectTarget?: string };
-
-const searchString: Uint8Array = new TextEncoder().encode('<div data-response-metadata="');
-const doubleQuoteAscii = '\"'.charCodeAt(0);
-
-/**
- * Look for a substring that looks like
- *   <div data-response-metadata="eyJzdGF0dXMiOjQwNH0=">
- * in a ReadableStream, parse the attribute, and return it as a StatusCodeMetadata.
- * The stream is UTF-8 encoded, and the thing we're looking for is a base64-encoded
- * string representing a serialized object, which may span chunk boundaries.
- */
-async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): Promise<StatusCodeMetadata|null> {
-  let matchIndex = 0;
-  let isReadingResult = false;
-  let result: number[] = [];
-
-  const reader = stream.getReader();
-  loop: {
-    for (;;) {
-      const readResult = await reader.read();
-      if (!readResult.value || readResult.done) {
-        break;
-      }
-      const chunk = readResult.value;
-      for (let i=0; i<chunk.length; i++) {
-        if (isReadingResult) {
-          const nextCh = chunk.at(i)!;
-          if (nextCh === doubleQuoteAscii) {
-            break loop;
-          } else {
-            result.push(nextCh);
-          }
-        } else if (chunk.at(i) === searchString.at(matchIndex)) {
-          matchIndex++;
-          if (matchIndex >= searchString.length) {
-            isReadingResult = true;
-          }
-        } else {
-          matchIndex = 0;
-        }
-      }
-    }
-  }
-  
-  if (isReadingResult) {
-    const base64EncodedStr = new TextDecoder().decode(new Uint8Array(result));
-    const binaryString = atob(base64EncodedStr);
-    const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
-    const decodedStr = new TextDecoder().decode(bytes);
-    const parsed: { status: number, redirectTarget?: string } = JSON.parse(decodedStr);
-    return parsed;
-  } else {
-    return null;
-  }
-}
-
 // HACK: When requests are forwarded through ngrok (or cloudflare's tunnel), they
 // get an X-Forwarded-Proto header of "https". This causes req.nextUrl to be
 // "https://localhost:3000", which doesn't work (because it shouldn't be https).
@@ -391,7 +390,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cached-post|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
       ],

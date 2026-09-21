@@ -1,3 +1,4 @@
+import { invalidatePostPageCacheForVoteable } from './postPageCache/invalidatePostPageCache';
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -98,6 +99,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
+  invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
@@ -218,6 +220,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
+  invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }

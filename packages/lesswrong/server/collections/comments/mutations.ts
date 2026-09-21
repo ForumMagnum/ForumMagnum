@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
@@ -174,6 +175,10 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
+  if (documentWithId.postId) {
+    invalidatePostPageCache(documentWithId.postId);
+  }
+
   return documentWithId;
 }
 
@@ -246,6 +251,8 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
+
+  invalidatePostPageCache([updatedDocument.postId, oldDocument.postId].filter((postId): postId is string => !!postId));
 
   return updatedDocument;
 }

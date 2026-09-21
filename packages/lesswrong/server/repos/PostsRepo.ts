@@ -117,6 +117,27 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
+
+  /**
+   * IDs of every published post the user authored, coauthored, or commented
+   * on, i.e. every post page that displays the user's name or avatar.
+   */
+  async getPostIdsWhereUserAppears(userId: string): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ _id: string }>(`
+      -- PostsRepo.getPostIdsWhereUserAppears
+      SELECT p._id
+      FROM "Posts" p
+      WHERE p."draft" IS NOT TRUE
+        AND (p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"))
+      UNION
+      SELECT DISTINCT c."postId" AS _id
+      FROM "Comments" c
+      WHERE c."userId" = $(userId)
+        AND c."postId" IS NOT NULL
+        AND c."deleted" IS NOT TRUE
+    `, { userId });
+    return rows.map((row) => row._id);
+  }
   
   moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
     return this.none(`

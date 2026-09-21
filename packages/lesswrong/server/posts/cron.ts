@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '../postPageCache/invalidatePostPageCache';
 import { Posts } from '../../server/collections/posts/collection';
 
 export async function checkScheduledPosts() {
@@ -11,6 +12,7 @@ export async function checkScheduledPosts() {
   if (postsToUpdate.length > 0) {
     const postsIds = postsToUpdate.map(post => post._id);
     await Posts.rawUpdateMany({_id: {$in: postsIds}}, {$set: {isFuture: false}}, {multi: true});
+    invalidatePostPageCache(postsIds);
 
     // log the action
     console.log('// Scheduled posts approved:', postsIds); // eslint-disable-line

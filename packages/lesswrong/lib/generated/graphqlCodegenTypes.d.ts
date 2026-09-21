@@ -25902,7 +25902,7 @@ type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_us
 
 type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
 
-type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, deleted: boolean, user: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User | null, contents: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, postId: string | null, deleted: boolean, user: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User | null, contents: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
 
 type CommentPermalinkMetadataQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment | null };
 

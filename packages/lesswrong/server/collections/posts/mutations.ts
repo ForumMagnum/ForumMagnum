@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import schema from "@/lib/collections/posts/newSchema";
@@ -196,6 +197,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
+  // A cached 404 may exist for this ID from requests that preceded creation.
+  invalidatePostPageCache(documentWithId._id);
+
   return documentWithId;
 }
 
@@ -302,6 +306,8 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
+
+  invalidatePostPageCache(updatedDocument._id);
 
   return updatedDocument;
 }
