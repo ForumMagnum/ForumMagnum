@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../hooks/useUserLocation';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
-import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
-import { useGoogleMaps } from '../form-components/LocationFormComponent';
 import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import LoginPopup from "../users/LoginPopup";
 import EventNotificationsDialog from "./EventNotificationsDialog";
@@ -25,28 +21,10 @@ import GroupFormLink from "./GroupFormLink";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
-const UsersProfileUpdateMutation = gql(`
-  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...UsersProfile
-      }
-    }
-  }
-`);
-
 const styles = defineStyles("CommunityHome", (theme: ThemeType) => ({
-  link: {
-    color: theme.palette.primary.main,
-    "& + &": {
-      marginTop: 8,
-    },
-  },
   welcomeText: {
     margin: 12,
   },
@@ -61,55 +39,8 @@ const CommunityHome = () => {
   const { openDialog } = useDialog();
   const { query } = useLocation();
   
-  const [updateUser] = useMutation(UsersProfileUpdateMutation);
-  
-  // this gets the location from the current user settings or from the user's browser
-  const currentUserLocation = useUserLocation(currentUser)
-  
-  // if the current user provides their browser location and they do not yet have a location in their user settings,
-  // assign their browser location to their user settings location
-  const [mapsLoaded, googleMaps] = useGoogleMaps()
-  const [geocodeError, setGeocodeError] = useState(false)
-  
-  const onEAForum = isEAForum();
-  const updateUserLocation = useCallback(async ({lat, lng, known}: {
-    lat: number, lng: number, known: boolean
-  }) => {
-    if (onEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
-      try {
-        // get a list of matching Google locations for the current lat/lng
-        const geocoder = new googleMaps.Geocoder();
-        const geocodingResponse = await geocoder.geocode({
-          location: {lat, lng}
-        });
-        const results = geocodingResponse?.results;
-        
-        if (results?.length) {
-          const location = pickBestReverseGeocodingResult(results)
-          void updateUser({
-            variables: {
-              selector: { _id: currentUser._id },
-              data: {
-                location: location?.formatted_address,
-                googleLocation: location
-              }
-            }
-          })
-        }
-      } catch (e) {
-        setGeocodeError(true)
-        // eslint-disable-next-line no-console
-        console.error(e?.message)
-      }
-    }
-  }, [onEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])
-
-  useEffect(() => {
-    // if we've gotten a location from the browser, save it
-    if (onEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
-      void updateUserLocation(currentUserLocation)
-    }
-  }, [onEAForum, currentUser, currentUserLocation, updateUserLocation])
+  // This gets the location from the current user settings or from the user's browser.
+  const currentUserLocation = useUserLocation(currentUser);
 
   const openSetPersonalLocationForm = () => {
     if (currentUser) {
@@ -139,9 +70,8 @@ const CommunityHome = () => {
     }
   }
 
-  const isAdmin = userIsAdmin(currentUser);
   const canCreateEvents = currentUser;
-  const canCreateGroups = currentUser && (!isEAForum() || isAdmin);
+  const canCreateGroups = currentUser;
 
   const render = () => {
     const filters: string[] = query.filters
@@ -173,22 +103,11 @@ const CommunityHome = () => {
       filters: filters,
     };
 
-    const title = isEAForum() ? 'Community' : 'Welcome to the Community Section';
-    const WelcomeText = () => (isEAForum() ?
-    <Typography variant="body2" className={classes.welcomeText}>
-      <p>
-        On the map above you can find upcoming events (blue pin icons) and local groups (green star icons),
-        and other users who have added themselves to the map (purple person icons).
-      </p>
-      <p>
-        Not all groups have been added to this page yet. For more, visit
-        the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.
-      </p>
-    </Typography> : 
-    <Typography variant="body2" className={classes.welcomeText}>
+    const title = 'Welcome to the Community Section';
+    const WelcomeText = () => <Typography variant="body2" className={classes.welcomeText}>
       On the map above you can find nearby events (blue arrows), local groups (green house icons),
       and other users who have added themselves to the map (purple person icons)
-    </Typography>);
+    </Typography>;
 
     return (
       <React.Fragment>
@@ -265,12 +184,12 @@ const CommunityHome = () => {
                   </LocalGroupsList>
               }
             </SingleColumnSection>
-            {!isEAForum() && <SingleColumnSection>
+            <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
                 <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
               </AnalyticsContext>
-            </SingleColumnSection>}
+            </SingleColumnSection>
         </AnalyticsContext>
       </React.Fragment>
     )

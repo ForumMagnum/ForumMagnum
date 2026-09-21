@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -12,7 +13,6 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -174,8 +174,6 @@ const CommentSubmit = ({
   formType,
 }: CommentSubmitProps) => {
   const classes = useStyles(customSubmitButtonStyles);
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
@@ -207,15 +205,6 @@ const CommentSubmit = ({
           className={classNames(formButtonClass, classes.submitButton, {
             [classes.submitSegmented]: showDropdownMenu,
           })}
-          onClick={(ev) => {
-            if (!currentUser) {
-              openDialog({
-                name: "LoginPopup",
-                contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
-              });
-              ev.preventDefault();
-            }
-          }}
           {...actualSubmitDisabled ? {disabled: true} : {}}
         >
           {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
@@ -273,14 +262,16 @@ export const CommentForm = ({
   onCancel: () => void;
   onError?: () => void;
 }) => {
+  const { isAF } = useForumType();
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const formType = initialData ? 'edit' : 'new';
 
   const canSetAfField = userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser);
-  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && canSetAfField;
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && canSetAfField;
 
   const DefaultFormGroupLayout = FormGroupNoStyling;
 
@@ -308,12 +299,20 @@ export const CommentForm = ({
       draft: false,
     },
     onSubmit: async ({ formApi, meta }) => {
-      await onSubmitCallback.current?.();
-      onSubmit?.();
-
       const { draft } = meta;
 
       try {
+        // Flush the editor's local backup before login can navigate away.
+        await onSubmitCallback.current?.();
+        if (!currentUser) {
+          openDialog({
+            name: "LoginPopup",
+            contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
+          });
+          return;
+        }
+        onSubmit?.();
+
         let result: CommentsList;
 
         if (formType === 'new') {
@@ -326,7 +325,7 @@ export const CommentForm = ({
           // 2026-04-12 and 2026-04-14); we drop `af` so the comment submits as
           // a regular LW comment and the existing non-member success-popup
           // flow (`useAfNonMemberSuccessHandling`) queues it for AF review.
-          const submitData = ((showAfCheckbox || isAF()) && canSetAfField) ? { ...rest, af } : rest;
+          const submitData = ((showAfCheckbox || isAF) && canSetAfField) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {
@@ -379,7 +378,7 @@ export const CommentForm = ({
     return <Error404 />;
   }
 
-  const showAlignmentOptionsGroup = isLWorAF() && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
+  const showAlignmentOptionsGroup = formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 
   const submitElement = (
     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

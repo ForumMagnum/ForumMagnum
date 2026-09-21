@@ -18,6 +18,12 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+// Preload all HTML entity tables. Without this, parsing content that contains
+// a less-common entity makes MathJax try to lazy-load the entity table via
+// mathjax.asyncLoad, which isn't configured here; the parse fails ("Can't find
+// handler for document", leaving math unrendered) and the load rejection is
+// unhandled.
+import 'mathjax-full/js/util/entities/all.js';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
 import {
@@ -495,6 +501,18 @@ export function renderMathInHtml(html: string): string {
     });
 
     doc.render();
+
+    // Attach the TeX source to each rendered equation. CHTML output has no
+    // text content (glyphs are drawn via CSS), so without this the equation is
+    // invisible to screen readers; MathNode.importDOM also relies on
+    // aria-label to recover the equation when converting rendered HTML back
+    // into the editor.
+    for (const item of doc.math) {
+      if (item.typesetRoot) {
+        adaptor.setAttribute(item.typesetRoot, 'aria-label', item.math);
+        adaptor.setAttribute(item.typesetRoot, 'role', 'math');
+      }
+    }
 
     const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
     const css: string = adaptor.textContent(chtml.styleSheet(doc));

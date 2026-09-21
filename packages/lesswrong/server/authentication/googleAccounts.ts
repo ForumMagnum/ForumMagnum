@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { GoogleUserProfile } from '@/lib/auth/googleOAuth';
 import { Users } from '../collections/users/collection';
 import { createUser, updateUser } from '../collections/users/mutations';
@@ -6,7 +7,7 @@ import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise<DbUser> {
+export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumType: ForumTypeString): Promise<DbUser> {
   // First, try to find user by Google ID
   const user = await Users.findOne({ 'services.google.id': profile.id });
 
@@ -22,7 +23,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
             verified: profile.verified_email
           }]
         }
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
       return updatedUser;
     }
@@ -46,7 +47,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
       const updatedUser = await updateUser({
         data: { [servicePath]: profile },
         selector: { _id: matchingUser._id },
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
       return updatedUser;
     }
@@ -73,7 +74,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
       // this preserves type-checking for the rest of the field assignments.
       ...{ services, emails },
     }
-  }, createAnonymousContext());
+  }, createAnonymousContext({ forumType }));
   
   return newUser;
 }

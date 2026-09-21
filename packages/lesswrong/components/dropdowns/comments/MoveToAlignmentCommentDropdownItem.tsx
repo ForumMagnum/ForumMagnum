@@ -3,7 +3,6 @@ import { useMessages } from '../../common/withMessages';
 import { useApolloClient, useMutation } from "@apollo/client/react";
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";

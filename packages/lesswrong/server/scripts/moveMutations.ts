@@ -1,13 +1,11 @@
-import { getAllCollections, getCollection } from "../collections/allCollections";
+import { getAllCollections } from "../collections/allCollections";
 import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
-import { getSchema } from "@/lib/schema/allSchemas";
 // import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
 import { allUserGroups } from "@/lib/permissions";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "../vulcan-lib/apollo-server/graphqlTemplates";
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { existsSync } from "fs";
 

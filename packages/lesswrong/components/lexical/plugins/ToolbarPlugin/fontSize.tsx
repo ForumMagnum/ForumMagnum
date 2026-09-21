@@ -9,7 +9,6 @@
 import {LexicalEditor} from 'lexical';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import classNames from 'classnames';
 
 import {
   MAX_ALLOWED_FONT_SIZE,

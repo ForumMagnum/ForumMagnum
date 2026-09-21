@@ -8,7 +8,7 @@
 
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { autoCommentRateLimits, autoPostRateLimits } from "@/lib/rateLimits/constants";
-import { getActiveRateLimits, getDownvoteRatio, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
+import { getActiveRateLimits, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
 export const up = async ({db}: MigrationContext) => {
@@ -44,8 +44,8 @@ export const up = async ({db}: MigrationContext) => {
   // eslint-disable-next-line no-console
   console.log(`Found ${activeUserIds.length} users with recent activity`);
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, context);
+  const postRateLimits = forumSelect(autoPostRateLimits, context);
 
   if (!commentRateLimits || !postRateLimits) {
     // eslint-disable-next-line no-console

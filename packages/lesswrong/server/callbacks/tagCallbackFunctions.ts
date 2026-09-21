@@ -160,6 +160,7 @@ export async function voteForTagWhenCreated(tagRel: DbTagRel, { context }: After
   var tagCreator = await Users.findOne(tagRel.userId);
   if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
   const {modifiedDocument: votedTagRel} = await performVoteServer({
+    context,
     document: tagRel,
     voteType: 'smallUpvote',
     collection: TagRels,
@@ -189,6 +190,6 @@ export async function taggedPostNewNotifications(tagRel: DbTagRel, { context }: 
 
     //eslint-disable-next-line no-console
     console.info("Post tagged, creating notifications");
-    await createNotifications({userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
+    await createNotifications({ context, userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
   }
 }

@@ -14,6 +14,7 @@ export async function upvoteOwnTagRevision({revision, context}: {revision: DbRev
   const user = await Users.findOne({_id:userId});
   if (!user) return;
   await performVoteServer({
+    context,
     document: revision,
     collection: Revisions,
     voteType: 'smallUpvote',

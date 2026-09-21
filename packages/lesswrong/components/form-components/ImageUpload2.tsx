@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
@@ -37,7 +36,6 @@ const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
     display: 'flex',
   },
 }));
-
 
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
   name: string,
@@ -113,5 +111,4 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 };
 
 export default ImageUpload2;
-
 

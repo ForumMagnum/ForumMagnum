@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
@@ -15,13 +16,13 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateRSSFeed } from '../collections/rssfeeds/mutations';
 import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
 
-export const runRSSImport = async () => {
+export const runRSSImport = async (forumType: ForumTypeString) => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
   // eslint-disable-next-line no-console
   console.log(`Refreshing ${feeds.length} RSS feeds`);
   await asyncForeachSequential(feeds, async feed => {
     try {
-      await resyncFeed(feed);
+      await resyncFeed(feed, forumType);
     } catch(error) {
       //eslint-disable-next-line no-console
       console.error(`RSS error when refreshing feed ${feed.url}: ${(""+error).substring(0,100)}`);
@@ -29,7 +30,7 @@ export const runRSSImport = async () => {
   })
 }
 
-async function resyncFeed(feed: DbRSSFeed): Promise<void> {
+async function resyncFeed(feed: DbRSSFeed, forumType: ForumTypeString): Promise<void> {
   // create array of all posts in current rawFeed object
   let previousPosts = feed.rawFeed || [];
 
@@ -47,7 +48,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   var set: any = {};
   set.rawFeed = currentPosts;
 
-  await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext())
+  await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext({ forumType }))
 
   await asyncForeachSequential(newPosts, async newPost => {
     const body = getRssPostContents(newPost);
@@ -70,7 +71,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
     let lwUser = await Users.findOne({_id: feed.userId});
     
     // Create context with the lwUser as the currentUser
-    const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+    const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false, forumType });
 
     await createPost({
       data: post
@@ -183,7 +184,7 @@ export const cronGraphQLMutations = {
       throw new Error("Only admins and moderators ca manually resync RSS feeds they don't own");
     }
     
-    await resyncFeed(feed);
+    await resyncFeed(feed, context.forumType);
     return true;
     
   }

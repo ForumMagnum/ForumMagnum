@@ -6,7 +6,7 @@ import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
-import { isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import fs from 'fs';
 
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
@@ -89,7 +89,7 @@ export default registerMigration({
        }})
     }
 
-    const finalPosts: DbPost[] = isLW() ?
+    const finalPosts: DbPost[] = forumTypeSetting.get() === 'LessWrong' ?
       await Posts.find({
         reviewCount: {$gt: 0},
         finalReviewVoteScoreHighKarma: {$exists: true},
@@ -122,7 +122,7 @@ export default registerMigration({
 
     const getAuthor = (post: DbPost) => authors.filter(author => author._id === post.userId)[0]
 
-    const theme = getForumTheme({name: "default", siteThemeOverride: {}});
+    const theme = getForumTheme({name: "default", siteThemeOverride: {}}, forumTypeSetting.get());
     const primaryColor = theme.palette.primary.main;
     const errorColor = "#bf360c"
 
@@ -149,7 +149,7 @@ export default registerMigration({
       }
     }
 
-    const donateButton = (post: DbPost) => isLW() ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
+    const donateButton = (post: DbPost) => forumTypeSetting.get() === 'LessWrong' ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post).displayName}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />

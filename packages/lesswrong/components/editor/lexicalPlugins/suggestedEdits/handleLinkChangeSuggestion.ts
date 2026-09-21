@@ -1,6 +1,6 @@
-import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND, type AutoLinkNode, type LinkNode } from '@lexical/link'
+import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
-import type { LexicalEditor, LexicalNode } from 'lexical'
+import type { LexicalEditor } from 'lexical'
 import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical'
 import { randomId } from '@/lib/random'
 import { normalizeUrl, sanitizeUrl } from '@/components/lexical/utils/url'

@@ -35,6 +35,8 @@ export type LWTooltipProps = {
   disabledOnMobile?: boolean,
   hideOnTouchScreens?: boolean,
   className?: string,
+  /** Distance in px between the anchor and the tooltip, along the placement axis */
+  distance?: number,
   analyticsProps?: AnalyticsProps,
   otherEventProps?: Record<string, Json | undefined>,
   titleClassName?: string
@@ -63,6 +65,7 @@ const LWTooltip = ({
   disabled=false,
   disabledOnMobile=false,
   hideOnTouchScreens=false,
+  distance,
   analyticsProps,
   otherEventProps,
   titleClassName,
@@ -140,6 +143,7 @@ const LWTooltip = ({
       anchorEl={anchorEl ?? defaultAnchorElRef.current}
       tooltip={tooltip}
       allowOverflow={!flip}
+      distance={distance}
       clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}

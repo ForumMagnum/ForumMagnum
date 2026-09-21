@@ -1,10 +1,12 @@
+import type { EmailContextType } from './emailContext';
 import React from 'react';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { userGetAbsoluteProfileUrl } from '../../lib/collections/users/helpers';
 
-export const EmailUsername = ({user}: {
-  user: UsersMinimumInfo|DbUser|null|undefined
+export const EmailUsername = ({user, emailContext}: {
+  user: UsersMinimumInfo|DbUser|null|undefined,
+  emailContext: EmailContextType,
 }) => {
   if (!user) return <span>[deleted]</span>
-  return <a href={userGetProfileUrl(user, true)}>{user.displayName}</a>
+  return <a href={userGetAbsoluteProfileUrl(user, emailContext.resolverContext.forumType)}>{user.displayName}</a>
 }
 

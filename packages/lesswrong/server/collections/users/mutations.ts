@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/users/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -12,7 +13,7 @@ import { validateAndStoreMailgunValidation } from "@/server/mailgun/mailgunValid
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -71,14 +72,14 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
     newDocument: documentWithId,
   };
 
-  createRecombeeUser(asyncProperties);
+  createRecombeeUser(asyncProperties, context.forumType);
 
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', documentWithId._id));
   }
 
-  await subscribeOnSignup(documentWithId);
-  await sendWelcomingPM(documentWithId);
+  await subscribeOnSignup(documentWithId, context.forumType);
+  await sendWelcomingPM(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,
@@ -126,9 +127,9 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   let modifier = dataToModifier(data);
 
-  maybeSendVerificationEmail(modifier, oldDocument);
+  maybeSendVerificationEmail(modifier, oldDocument, context.forumType);
   modifier = clearKarmaChangeBatchOnSettingsChange(modifier, oldDocument);
-  modifier = await usersEditCheckEmail(modifier, oldDocument);
+  modifier = await usersEditCheckEmail(modifier, oldDocument, context.forumType);
   modifier = syncProfileUpdatedAt(modifier, oldDocument);
 
   data = modifierToData(modifier);
@@ -146,8 +147,17 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   await approveUnreviewedSubmissionsOnApproval(updatedDocument, oldDocument, context);
   await handleSetShortformPost(updatedDocument, oldDocument, context);
-  await updatingPostAudio(updatedDocument, oldDocument);
+  await updatingPostAudio(updatedDocument, oldDocument, context.forumType);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
+  if (
+    updatedDocument.displayName !== oldDocument.displayName
+    || updatedDocument.profileImageId !== oldDocument.profileImageId
+    || updatedDocument.slug !== oldDocument.slug
+  ) {
+    // Every post page shows the name and avatar of the post's authors,
+    // coauthors and commenters.
+    await invalidatePostPageCache(await context.repos.posts.getPostIdsWhereUserAppears(updatedDocument._id));
+  }
   userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);

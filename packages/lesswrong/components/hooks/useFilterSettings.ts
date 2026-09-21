@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
 import { getDefaultFilterSettings, FilterSettings, FilterMode, filterModeIsSubscribed, FilterTag } from '@/lib/filterSettings';
@@ -58,11 +59,12 @@ export const useReadSuggestedTags = (
  * which we don't wait for.
  */
 export const useFilterSettings = () => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   
-  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
+  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(forumType)
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
   const [suggestedTagsQueryRef] = useBackgroundQuery(TagBasicInfoMultiQuery, {

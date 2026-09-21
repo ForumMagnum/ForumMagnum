@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from './postPageCache/invalidatePostPageCache';
 /*
  * Review vote tallying: aggregates individual review votes into per-post
  * score fields on the Posts collection.
@@ -60,6 +61,7 @@ async function writeVoteResultsToDb(
       [scoreFieldName]: totalScore,
     }});
   }
+  await invalidatePostPageCache(Object.keys(voteValuesByPost));
 }
 
 async function updateVoteTotals(

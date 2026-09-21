@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -67,10 +68,11 @@ const BottomNavigationItem = ({direction, post, sequence}: {
   post: NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>,
   sequence: HasIdType|null,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const commentCount = postGetCommentCount(post) || "No"
-  const url = postGetPageUrl(post, false, sequence?._id);
+  const commentCount = postGetCommentCount(post, forumType) || "No"
+  const url = postGetPageUrl(post, sequence?._id);
   
   return (
     <span>

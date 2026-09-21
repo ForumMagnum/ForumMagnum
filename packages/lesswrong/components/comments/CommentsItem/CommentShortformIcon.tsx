@@ -1,7 +1,6 @@
 import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
@@ -28,7 +27,7 @@ const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
 }) => {
   const classes = useStyles(styles);
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
-  if (!comment.shortform || comment.topLevelCommentId || isEAForum()) return null
+  if (!comment.shortform || comment.topLevelCommentId) return null
   
   if (simple) return <ForumIcon icon="Shortform" className={classNames(classes.smallIcon, iconClassName)} />
 

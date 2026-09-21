@@ -1,5 +1,4 @@
-import { DeferredForumSelect } from '../lib/forumTypeUtils';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import type { ForumTypeString } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
@@ -29,35 +28,20 @@ export type ThemeMetadata = {
   label: string
 }
 
-export const getThemeMetadata = (): Array<ThemeMetadata> => isEAForum()
-  ? [
-    {
-      name: "auto",
-      label: "Auto",
-    },
-    {
-      name: "default",
-      label: "Light",
-    },
-    {
-      name: "dark",
-      label: "Dark",
-    },
-  ]
-  : [
-    {
-      name: "default",
-      label: "Default",
-    },
-    {
-      name: "dark",
-      label: "Dark Mode",
-    },
-    {
-      name: "auto",
-      label: "Auto",
-    },
-  ];
+export const getThemeMetadata = (): Array<ThemeMetadata> => [
+  {
+    name: "default",
+    label: "Default",
+  },
+  {
+    name: "dark",
+    label: "Dark Mode",
+  },
+  {
+    name: "auto",
+    label: "Auto",
+  },
+];
 
 export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
   try {
@@ -94,18 +78,11 @@ export const abstractThemeToConcrete = (
   ? theme
   : {...theme, name: prefersDarkMode ? "dark" : "default"};
 
-export function getForumType(themeOptions: AbstractThemeOptions) {
-  const actualForumType = forumTypeSetting.get();
+export function getForumType(themeOptions: AbstractThemeOptions, actualForumType: ForumTypeString) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = new DeferredForumSelect({
-  EAForum: {name: "auto"},
-  default: {name: "default"},
-} as const);
-
-export const getDefaultThemeOptions = (): AbstractThemeOptions =>
-  defaultThemeOptions.get();
+export const defaultThemeOptions: AbstractThemeOptions = {name: "default"};
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {
@@ -132,7 +109,7 @@ const getSerializedThemeOptions = (
   }
 
   // If we still don't have anything, use the default
-  return getDefaultThemeOptions();
+  return defaultThemeOptions;
 }
 
 export const getThemeOptions = (

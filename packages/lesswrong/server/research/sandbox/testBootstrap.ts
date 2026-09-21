@@ -22,7 +22,7 @@ import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
  * conversation; default is the most-recently-active one in the DB.
  */
 export default async function testBootstrap() {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const { ResearchConversations } = context;
 
   // Pick the conversation: either from the env var or the most-recently-active

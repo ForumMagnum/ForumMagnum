@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -52,6 +53,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   // Do not truncate for users who have disabled it in their user settings
@@ -91,7 +93,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
       className={bodyClasses}
       dangerouslySetInnerHTML={{__html: innerHtml }}
       description={`comment ${comment._id}`}
-      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}
       replacedSubstrings={highlights}
       contentStyleType={contentType}
     />

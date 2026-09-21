@@ -5,6 +5,7 @@ interface Query {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   GetRandomUser: User | null;
   IsDisplayNameTaken: boolean;
+  UsersSearchForMerge: Array<User>;
   GetUserBySlug: User | null;
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
@@ -24,6 +25,7 @@ interface Query {
   NotificationDisplays: NotificationDisplaysResult | null;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
+  LlmModelOptions: Array<string>;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -221,6 +223,7 @@ interface Mutation {
   UserUpdateSubforumMembership: User | null;
   karmaChangesChecked: boolean;
   SoftDeleteUser: boolean;
+  MergeAccounts: MergeAccountsResult;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
@@ -613,6 +616,19 @@ interface NewUserCompletedProfile {
 interface UserCoreTagReads {
   tagId: string;
   userReadCount: number;
+}
+
+interface MergeAccountsFailure {
+  stage: string;
+  message: string;
+  collectionName: string | null;
+  documentId: string | null;
+}
+
+interface MergeAccountsResult {
+  completed: boolean;
+  success: boolean;
+  failures: Array<MergeAccountsFailure>;
 }
 
 interface NetKarmaChangesForAuthorsOverPeriod {
@@ -1221,6 +1237,8 @@ interface ModeratorIPAddressInfo {
 }
 
 interface PangramTextEvaluationResult {
+  analyzedText: string;
+  pangramApiVersion: string;
   pangramScore: number;
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
@@ -1937,7 +1955,7 @@ interface Comment {
   tagId: string | null;
   tag: Tag | null;
   tagCommentType: TagCommentType;
-  userId: string | null;
+  userId: string;
   user: User | null;
   userIP: string | null;
   userAgent: string | null;
@@ -2268,6 +2286,7 @@ interface CommentsAnswersAndRepliesInput {
 }
 
 interface CommentsTopShortformInput {
+  sortBy?: CommentSortingMode | null;
   userId?: string | null;
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
@@ -4050,7 +4069,6 @@ interface Post {
   commentCount: number;
   topLevelCommentCount: number;
   recentComments: Array<Comment> | null;
-  languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
   totalDialogueResponseCount: number;
@@ -7119,6 +7137,7 @@ interface User {
   isAdmin: boolean;
   profile: any;
   services: any;
+  associatedOAuthServices: Array<string> | null;
   hasAuth0Id: boolean | null;
   displayName: string;
   previousDisplayName: string | null;
@@ -7351,7 +7370,6 @@ interface User {
   subforumPreferredLayout: SubforumPreferredLayout | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
-  allowDatadogSessionReplay: boolean;
   afPostCount: number;
   afCommentCount: number;
   afSequenceCount: number;
@@ -9103,7 +9121,6 @@ interface CreateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
@@ -9299,7 +9316,6 @@ interface UpdateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afApplicationText?: string | null;
   afSubmittedApplication?: boolean | null;
@@ -9353,6 +9369,8 @@ interface GraphQLTypeMap {
   UserDialogueUsefulData: UserDialogueUsefulData;
   NewUserCompletedProfile: NewUserCompletedProfile;
   UserCoreTagReads: UserCoreTagReads;
+  MergeAccountsFailure: MergeAccountsFailure;
+  MergeAccountsResult: MergeAccountsResult;
   NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
   AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;

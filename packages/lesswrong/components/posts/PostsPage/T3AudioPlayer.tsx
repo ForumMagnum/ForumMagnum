@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
-import { isEAForum } from '@/lib/instanceSettings';
 import { useExternalScript } from '@/components/hooks/useExternalScript';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -56,7 +55,7 @@ export const T3AudioPlayer = ({showEmbeddedPlayer, documentId, collectionName}: 
     <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       {type3scriptLoaded && (
         /* @ts-ignore */
-        isEAForum() ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>
+        <type-3-player sticky="true" analytics="custom"></type-3-player>
       )}
     </div>
   </div>

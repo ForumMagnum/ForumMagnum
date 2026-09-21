@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { exchangeCodeForTokens, fetchGoogleUserProfile } from '@/lib/auth/googleOAuth';
@@ -42,14 +43,14 @@ export async function GET(request: NextRequest) {
     const profile = await fetchGoogleUserProfile(tokens.access_token);
     
     // Create or update user
-    const user = await getOrCreateGoogleUser(profile);
+    const user = await getOrCreateGoogleUser(profile, getForumTypeForRequest(request));
 
     if (user.banned && new Date(user.banned) > new Date()) {
       return NextResponse.redirect(new URL('/banNotice', siteUrl));
     }
     
     // Set login token
-    await createAndSetToken(request.headers, user);
+    await createAndSetToken(request.headers, user, getForumTypeForRequest(request));
     
     // Get return URL
     const returnTo = cookieStore.get('google_oauth_return')?.value ?? '/';

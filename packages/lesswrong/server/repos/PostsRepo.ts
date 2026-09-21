@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isAF } from "../../lib/instanceSettings";
+import type { ForumTypeString } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
@@ -241,7 +241,7 @@ function sqlValue(value: string): string {
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
  */
-function constructFilteredScoreSql(filterSettings: FilterSettings): string {
+function constructFilteredScoreSql(filterSettings: FilterSettings, forumType: ForumTypeString): string {
   const tagsSoftFiltered = filterSettings.tags.filter(
     t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
   );
@@ -270,8 +270,8 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
     + (CASE WHEN p."curatedDate" IS NOT NULL THEN ${curatedBonus} ELSE 0 END)
   `;
   
-  const timeDecayFactor = TIME_DECAY_FACTOR.get();
-  const ageOffset = isAF() ? 6 : SCORE_BIAS;
+  const timeDecayFactor = TIME_DECAY_FACTOR;
+  const ageOffset = forumType === 'AlignmentForum' ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `
     POWER(
@@ -295,6 +295,27 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
+  }
+
+  /**
+   * IDs of every published post the user authored, coauthored, or commented
+   * on, i.e. every post page that displays the user's name or avatar.
+   */
+  async getPostIdsWhereUserAppears(userId: string): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ _id: string }>(`
+      -- PostsRepo.getPostIdsWhereUserAppears
+      SELECT p._id
+      FROM "Posts" p
+      WHERE p."draft" IS NOT TRUE
+        AND (p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"))
+      UNION
+      SELECT c."postId" AS _id
+      FROM "Comments" c
+      WHERE c."userId" = $(userId)
+        AND c."postId" IS NOT NULL
+        AND c."deleted" IS NOT TRUE
+    `, { userId });
+    return rows.map((row) => row._id);
   }
   
   moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
@@ -625,16 +646,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY rs."lastUpdated" DESC
       LIMIT $3
     `, [userId, targetUserId, limit]);
-  }
-
-  async getPostWithContents(postId: string): Promise<DbPostWithContents> {
-    return await this.getRawDb().one(`
-      -- PostsRepo.getPostWithContents
-      SELECT p.*, ROW_TO_JSON(r.*) "contents"
-      FROM "Posts" p
-      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
-      WHERE p."_id" = $1
-    `, [postId]);
   }
 
   async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
@@ -1040,7 +1051,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ? 'AND p."frontpageDate" IS NOT NULL' 
       : '';
 
-    const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+    const filteredScoreSql = constructFilteredScoreSql(filterSettings, context.forumType);
     const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 

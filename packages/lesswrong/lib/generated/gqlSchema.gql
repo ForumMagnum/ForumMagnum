@@ -254,18 +254,33 @@ type UserCoreTagReads {
   userReadCount: Int!
 }
 
+type MergeAccountsFailure {
+  stage: String!
+  message: String!
+  collectionName: String
+  documentId: String
+}
+
+type MergeAccountsResult {
+  completed: Boolean!
+  success: Boolean!
+  failures: [MergeAccountsFailure!]!
+}
+
 extend type Mutation {
   NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
   UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
   karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
   SoftDeleteUser(userId: String!): Boolean!
+  MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): MergeAccountsResult!
 }
 
 extend type Query {
   UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
   GetRandomUser(userIsAuthor: String!): User
   IsDisplayNameTaken(displayName: String!): Boolean!
+  UsersSearchForMerge(query: String!): [User!]!
   GetUserBySlug(slug: String!): User
   NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
   AirtableLeaderboards: [AirtableLeaderboardResult!]!
@@ -594,6 +609,10 @@ extend type Query {
 extend type Query {
   Lightcone2024FundraiserStripeAmounts: [Int!]
   Lightcone2025FundraiserAirtableAmounts: Int!
+}
+
+extend type Query {
+  LlmModelOptions: [String!]!
 }
 
 type PetrovDay2024CheckNumberOfIncomingData {
@@ -1224,10 +1243,17 @@ type ModeratorIPAddressInfo {
 }
 
 type PangramTextEvaluationResult {
+  analyzedText: String!
+  pangramApiVersion: String!
   pangramScore: Float!
   pangramMaxScore: Float
   pangramPrediction: String
   pangramWindowScores: [PangramWindowScore!]
+}
+
+enum PangramModel {
+  pangram3
+  pangram4
 }
 
 enum ContentCollectionName {
@@ -1246,7 +1272,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
-  runPangramOnText(text: String!): PangramTextEvaluationResult!
+  runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
@@ -2192,7 +2218,7 @@ type Comment {
   tagId: String
   tag: Tag
   tagCommentType: TagCommentType!
-  userId: String
+  userId: String!
   user: User
   userIP: String
   userAgent: String
@@ -2540,6 +2566,7 @@ input CommentsAnswersAndRepliesInput {
 }
 
 input CommentsTopShortformInput {
+  sortBy: CommentSortingMode
   userId: String
   commentIds: [String!]
   minimumKarma: Int
@@ -4503,7 +4530,6 @@ type Post {
   commentCount: Float!
   topLevelCommentCount: Float!
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment!]
-  languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
   totalDialogueResponseCount: Int!
@@ -7716,6 +7742,7 @@ type User {
   isAdmin: Boolean!
   profile: JSON
   services: JSON
+  associatedOAuthServices: [String!]
   hasAuth0Id: Boolean
   displayName: String!
   previousDisplayName: String
@@ -7948,7 +7975,6 @@ type User {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
-  allowDatadogSessionReplay: Boolean!
   afPostCount: Float!
   afCommentCount: Float!
   afSequenceCount: Float!
@@ -9982,7 +10008,6 @@ input CreateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
@@ -10178,7 +10203,6 @@ input UpdateUserDataInput {
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afApplicationText: String
   afSubmittedApplication: Boolean

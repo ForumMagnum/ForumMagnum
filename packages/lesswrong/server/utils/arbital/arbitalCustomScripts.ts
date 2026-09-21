@@ -1,4 +1,3 @@
-import { isLWorAF } from "@/lib/instanceSettings";
 import { cheerioParse } from "../htmlUtil";
 
 const getArbitalScripts = async (): Promise<Record<string, string>> => {
@@ -75,9 +74,5 @@ async function applyArbitalPathReplacements(html: string) {
 }
 
 export function applyCustomArbitalScripts(html: string) {
-  if (!isLWorAF()) {
-    return html;
-  }
-
   return applyArbitalPathReplacements(html);
 }

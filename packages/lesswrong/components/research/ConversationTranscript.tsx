@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConversationEventRow } from './ConversationEventRow';
+import { TranscriptItemsList } from './ConversationTranscriptItems';
+import { buildTranscriptItems } from './transcriptItems';
 import { ResearchQuestionCard } from './ResearchQuestionCard';
 import { collectAskUserQuestionAnswers, extractAskUserQuestion, toolResultToolUseId } from './researchAskUserQuestion';
 import { researchMono, researchScrollbars } from './researchStyleUtils';
@@ -118,6 +120,17 @@ export const ConversationTranscript = ({
     return { prompts: promptMap, hiddenEventIds: hidden };
   }, [events, turnInFlight]);
 
+  const transcriptItems = useMemo(
+    () =>
+      buildTranscriptItems(events, {
+        isSpecialEvent: (event) => {
+          const key = event._id ?? `${event.conversationId}:${event.seq}`;
+          return prompts.has(key) || hiddenEventIds.has(key);
+        },
+      }),
+    [events, prompts, hiddenEventIds],
+  );
+
   return (
     <div className={classes.root} ref={scrollRef} onScroll={onScroll}>
       <div
@@ -130,23 +143,27 @@ export const ConversationTranscript = ({
             {status === 'loading' ? 'Loading transcript…' : 'No output yet.'}
           </div>
         ) : null}
-        {events.map((event) => {
-          const key = event._id ?? `${event.conversationId}:${event.seq}`;
-          const question = prompts.get(key);
-          if (question?.prompt) {
-            return (
-              <ResearchQuestionCard
-                key={key}
-                conversationId={conversationId}
-                prompt={question.prompt}
-                answers={question.answers}
-                actionable={question.actionable}
-              />
-            );
-          }
-          if (hiddenEventIds.has(key)) return null;
-          return <ConversationEventRow key={key} event={event} />;
-        })}
+        <TranscriptItemsList
+          items={transcriptItems}
+          turnInFlight={turnInFlight}
+          renderEvent={(event) => {
+            const key = event._id ?? `${event.conversationId}:${event.seq}`;
+            const question = prompts.get(key);
+            if (question?.prompt) {
+              return (
+                <ResearchQuestionCard
+                  key={key}
+                  conversationId={conversationId}
+                  prompt={question.prompt}
+                  answers={question.answers}
+                  actionable={question.actionable}
+                />
+              );
+            }
+            if (hiddenEventIds.has(key)) return null;
+            return <ConversationEventRow key={key} event={event} />;
+          }}
+        />
         {turnInFlight ? (
           <div className={classes.statusLine}>
             <span className={classes.workingGlyph}>✻</span>

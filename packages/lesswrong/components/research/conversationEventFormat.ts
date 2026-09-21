@@ -144,6 +144,10 @@ export type ConversationEventChunkKind =
 export interface ConversationEventChunk {
   kind: ConversationEventChunkKind;
   text: string;
+  toolUseId?: string;
+  toolName?: string;
+  toolInput?: unknown;
+  isError?: boolean;
 }
 
 export function renderChunkMarkdownToHtml(text: string): string {
@@ -182,10 +186,21 @@ function toContentChunk(part: unknown): ConversationEventChunk | null {
   }
   if (typeof part.text === 'string') return { kind: 'text', text: part.text };
   if (part.type === 'tool_use' && typeof part.name === 'string') {
-    return { kind: 'tool_use', text: `${part.name}(${formatJSON(part.input)})` };
+    return {
+      kind: 'tool_use',
+      text: `${part.name}(${formatJSON(part.input)})`,
+      toolUseId: typeof part.id === 'string' ? part.id : undefined,
+      toolName: part.name,
+      toolInput: part.input,
+    };
   }
   if (part.type === 'tool_result') {
-    return { kind: 'tool_result', text: formatToolResultContent(part.content) };
+    return {
+      kind: 'tool_result',
+      text: formatToolResultContent(part.content),
+      toolUseId: typeof part.tool_use_id === 'string' ? part.tool_use_id : undefined,
+      isError: part.is_error === true,
+    };
   }
   return null;
 }
@@ -215,17 +230,20 @@ export interface TranscriptTurn {
   seq: number;
   role: 'user' | 'assistant' | 'thinking' | 'tool_use' | 'tool_result' | 'error';
   text: string;
+  createdAt?: string;
 }
 
 export interface TranscriptOptions {
   withThinking?: boolean;
   withToolPayloads?: boolean;
+  withTimestamps?: boolean;
 }
 
 interface TranscriptInputEvent {
   seq: number;
   kind: string;
   payload: unknown;
+  createdAt: Date;
 }
 
 export function getAgentTranscriptTurns(
@@ -250,11 +268,15 @@ export function getAgentTranscriptTurns(
     }
     if (filtered.length === 0) continue;
 
-    turns.push({
+    const turn: TranscriptTurn = {
       seq: event.seq,
       role: normalizeTranscriptRole(event.kind),
       text: filtered.map((c) => c.text).join('\n'),
-    });
+    };
+    if (options.withTimestamps) {
+      turn.createdAt = event.createdAt.toISOString();
+    }
+    turns.push(turn);
   }
   return turns;
 }

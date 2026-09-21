@@ -1,6 +1,5 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useCurrentUser } from "../common/withUser";
-import Switch from '@/lib/vendor/@material-ui/core/src/Switch';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useDialog } from "../common/withDialog";
 import LoginPopup from "../users/LoginPopup";

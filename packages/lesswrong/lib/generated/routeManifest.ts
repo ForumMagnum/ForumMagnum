@@ -350,6 +350,9 @@ export const routeTrie = {
             "run-twitter-bot": {
               "hasRoute": true
             },
+            "supermod-status-to-slack": {
+              "hasRoute": true
+            },
             "update-analytics-collections": {
               "hasRoute": true
             },
@@ -374,6 +377,7 @@ export const routeTrie = {
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
             "run-twitter-bot": "run-twitter-bot",
+            "supermod-status-to-slack": "supermod-status-to-slack",
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
@@ -765,6 +769,26 @@ export const routeTrie = {
         "2019": "2019"
       },
       "hasPage": true
+    },
+    "cache": {
+      "staticChildren": {
+        "posts": {
+          "dynamicChild": {
+            "paramName": "postId",
+            "child": {
+              "optionalCatchAll": {
+                "paramName": "slug",
+                "child": {
+                  "hasRoute": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "lowerCase": {
+        "posts": "posts"
+      }
     },
     "ckeditor-token": {
       "hasRoute": true
@@ -1448,6 +1472,7 @@ export const routeTrie = {
     "bestoflesswrongadmin": "bestoflesswrongadmin",
     "bookmarks": "bookmarks",
     "books": "books",
+    "cache": "cache",
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",

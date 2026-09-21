@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import ClickAwayListener, { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 
 /**

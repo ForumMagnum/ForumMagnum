@@ -89,7 +89,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, timeframe, shortform = "all", includeTags=true}: {
+const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, isMostRecent, timeframe, shortform = "all", includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: () => void,
   dateForTitle: moment.Moment,
@@ -97,6 +97,7 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
   before: moment.Moment,
   after: moment.Moment,
   hideIfEmpty: boolean,
+  isMostRecent: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
   includeTags?: boolean,
@@ -110,11 +111,15 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
   const displayPostsTagsList = query.limit
   const timeBlock = timeframeToTimeBlock[timeframe];
 
-  const { view, limit, ...rest } = terms;
+  const { view, limit, sortedBy: selectedSorting, ...rest } = terms;
+  // Age discounting is only useful within the most recent time block.
+  const sortedBy = selectedSorting === "magic" && !isMostRecent ? "top" : selectedSorting;
+  // Quick Takes don't have inflation-adjusted karma or tag relevance scores.
+  const shortformSortBy = sortedBy === "topAdjusted" || sortedBy === "relevance" ? "top" : sortedBy;
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
-      selector: { [view]: { ...rest, before: before.toISOString(), after: after.toISOString() } },
+      selector: { [view]: { ...rest, sortedBy, before: before.toISOString(), after: after.toISOString() } },
       limit: limit ?? 10,
       enableTotal: true,
     },
@@ -231,6 +236,7 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
           after={after.toString()}
           terms={{
             view: "topShortform",
+            sortBy: shortformSortBy,
             shortformFrontpage: shortform === "frontpage" ? true : undefined,
           }}
         />}

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
 import UsersName from '../users/UsersName';
@@ -57,6 +58,7 @@ const UsersNameWithModal = ({
   color?: boolean;
   pageSectionContext?: string;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {eventHandlers, hover} = useHover({
     eventProps: {
@@ -79,7 +81,7 @@ const UsersNameWithModal = ({
     return <UserNameDeleted />;
   }
 
-  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user, forumType);
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {

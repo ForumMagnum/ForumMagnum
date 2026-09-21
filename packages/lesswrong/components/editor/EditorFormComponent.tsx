@@ -54,6 +54,12 @@ interface EditorFormComponentProps<S, R> {
   revisionsHaveCommitMessages?: boolean;
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
+  /**
+   * Called on every editor change with whether the contents are blank. Unlike
+   * the form field value (which is only updated on a throttle), this fires
+   * immediately, so it's suitable for enabling/disabling a submit button.
+   */
+  onBlankStateChange?: (isBlank: boolean) => void;
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
@@ -117,6 +123,7 @@ function InnerEditorFormComponent<S, R>({
   revisionsHaveCommitMessages,
   hasToc,
   setFieldEditorType,
+  onBlankStateChange,
   addOnSubmitCallback,
   addOnSuccessCallback,
   getLocalStorageId,
@@ -180,12 +187,9 @@ function InnerEditorFormComponent<S, R>({
   const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
 
   const saveBackup = useCallback((newContents: EditorContents) => {
-    const savedOriginalContents = document?.[fieldName]?.originalContents;
-    const sameAsSaved = !!savedOriginalContents
-      && savedOriginalContents.type === newContents.type
-      && savedOriginalContents.data === newContents.value;
-
-    if (isBlank(newContents) || sameAsSaved) {
+    // `document` contains live form values, not necessarily saved contents.
+    // Only clear nonblank backups after a successful submission.
+    if (isBlank(newContents)) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
@@ -195,7 +199,7 @@ function InnerEditorFormComponent<S, R>({
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
+  }, [getLocalStorageHandlers, currentEditorType]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -256,6 +260,7 @@ function InnerEditorFormComponent<S, R>({
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     setFieldEditorType?.(newContents?.type)
+    onBlankStateChange?.(isBlank(newContents))
     void throttledSetContentsValue(newContents)
     
     if (autosave) {
@@ -342,6 +347,12 @@ function InnerEditorFormComponent<S, R>({
       const cleanupSubmitForm = addOnSubmitCallback(async () => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           const updatedEditorData = await editorRef.current.submitData({ includeYjsState: true });
+          if (!isCollabEditor) {
+            saveBackup({
+              type: updatedEditorData.originalContents.type,
+              value: updatedEditorData.originalContents.data ?? '',
+            });
+          }
           field.setValue(updatedEditorData);
         }
       });

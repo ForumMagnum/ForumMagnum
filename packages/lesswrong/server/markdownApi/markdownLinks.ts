@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { classifyHost } from '@/lib/routeUtil';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getMarkdownPathname } from '@/lib/routeChecks/markdownVersionRoutes';
@@ -31,9 +32,9 @@ export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteU
 };
 
 
-export function linkToMarkdownApiLink(link: string): string {
+export function linkToMarkdownApiLink(link: string, forumType: ForumTypeString): string {
   const URLClass = getUrlClass();
-  const linkTargetAbsolute = new URLClass(link, getSiteUrl());
+  const linkTargetAbsolute = new URLClass(link, getSiteUrl(forumType));
   const hostType = classifyHost(linkTargetAbsolute.host)
   if (hostType!=="onsite") return link;
 
@@ -98,6 +99,6 @@ export const rewritePostLinksForAgentMarkdown = async (
   context: ResolverContext
 ): Promise<string> => {
   const urls = Array.from(collectMarkdownUrls(markdown));
-  const replacements = new Map<string, string>(urls.map(url => [url, linkToMarkdownApiLink(url)]));
+  const replacements = new Map<string, string>(urls.map(url => [url, linkToMarkdownApiLink(url, context.forumType)]));
   return replaceMarkdownUrls(markdown, replacements);
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { useFilteredCurrentUser } from '../../common/withUser';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";

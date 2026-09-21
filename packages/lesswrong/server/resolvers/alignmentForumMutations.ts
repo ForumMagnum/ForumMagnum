@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '../postPageCache/invalidatePostPageCache';
 import gql from "graphql-tag"
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
@@ -18,6 +19,9 @@ export const alignmentForumMutations = {
       await moveToAFUpdatesUserAFKarma(updatedComment, comment);
       await recalculateAFCommentMetadata(comment.postId, context);
       await commentsAlignmentEdit(updatedComment, comment, context);
+      if (comment.postId) {
+        await invalidatePostPageCache(comment.postId);
+      }
       return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
     } else {
       throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
@@ -33,6 +37,7 @@ export const alignmentForumMutations = {
       const updatedPost = (await context.Posts.findOne(postId))!
       await moveToAFUpdatesUserAFKarma(updatedPost, post);
       backgroundTask(postsMoveToAFAddsAlignmentVoting(updatedPost, post));
+      await invalidatePostPageCache(postId);
       return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
     } else {
       throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);

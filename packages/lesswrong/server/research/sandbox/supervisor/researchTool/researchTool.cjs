@@ -19,7 +19,7 @@
  *   research-tool create-doc [--title "..."] [--initial-markdown "..."]
  *   research-tool list-documents
  *   research-tool list-conversations
- *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+ *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]
  *   research-tool set-presentation (--markdown "..." | --clear)
  *
  * Required env (set by the supervisor when launching Claude Code):
@@ -321,6 +321,7 @@ async function cmdFetchConversation(args) {
   const query = {};
   if (args.flags["with-thinking"] !== undefined) query.withThinking = "1";
   if (args.flags["with-tool-payloads"] !== undefined) query.withToolPayloads = "1";
+  if (args.flags["with-timestamps"] !== undefined) query.withTimestamps = "1";
   const result = await callApi(
     "GET",
     `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/transcript`,
@@ -362,7 +363,7 @@ async function cmdHelp() {
     "  create-doc        [--title <text>] [--initial-markdown <md>]",
     "  list-documents",
     "  list-conversations",
-    "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
+    "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]",
     "  set-presentation  (--markdown <md> | --clear)   (this conversation's collapsed-block presentation)",
     "  dev       start | stop | restart    (control the supervised dev server)",
     "",

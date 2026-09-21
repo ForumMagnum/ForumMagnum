@@ -1,7 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isEAForum } from "../../lib/instanceSettings";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
@@ -95,6 +94,33 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<DbUser | null> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
+  }
+
+  /**
+   * Admin-only flexible user lookup, used by the account-merge UI. Matches the
+   * given query against email/username/slug/displayName (case-insensitive
+   * substring) as well as against an exact _id, so an admin can paste any
+   * identifier they happen to have for the source account.
+   */
+  searchUsersForMerge(query: string, limit: number): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.searchUsersForMerge
+      SELECT *
+      FROM "Users"
+      WHERE
+        _id = $(query)
+        OR LOWER(email) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER(username) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER(slug) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER("displayName") LIKE LOWER('%' || $(query) || '%')
+        OR EXISTS (
+          SELECT 1
+          FROM UNNEST(emails) AS unnested
+          WHERE LOWER(unnested->>'address') LIKE LOWER('%' || $(query) || '%')
+        )
+      ORDER BY "createdAt" DESC
+      LIMIT $(limit)
+    `, { query, limit });
   }
 
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
@@ -372,8 +398,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
-
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
       FROM "Users"
@@ -381,7 +405,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND "deleted" IS NOT TRUE
         AND "email" IS NOT NULL
         AND "unsubscribeFromAll" IS NOT TRUE
-        ${verifiedEmailFilter}
+        AND fm_has_verified_email(emails)
     `);
 
     return userIdRecords.map(({ _id }) => _id);
@@ -413,6 +437,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
    *   (1) have a rejected post/comment with a high Pangram score, or
    *   (2) have at least two rejected posts and/or comments, or
    *   (3) have all of their content rejected.
+   * Negative karma is a further criterion, in `getIsOffboardCandidate`.
    * Rejected content counts for all criteria even if the user has since
    * re-drafted/deleted the post or deleted the comment; never-rejected drafts
    * and deleted items are ignored. Criterion (1) considers evaluations of any

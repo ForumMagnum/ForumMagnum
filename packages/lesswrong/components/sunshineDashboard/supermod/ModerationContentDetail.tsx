@@ -1,13 +1,15 @@
 import React, { useCallback, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
-import { ContentItem, isPost } from './helpers';
+import { isMapPin, isPost, type ModerationContentItem } from './helpers';
 import ForumIcon from '@/components/common/ForumIcon';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
+import PostActionsButton from '@/components/dropdowns/posts/PostActionsButton';
+import { ModerationMapPinDetail } from './ModerationMapPin';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
@@ -63,11 +65,23 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     padding: 16,
     borderLeft: `1px solid ${theme.palette.grey[300]}`,
   },
+  postTitleRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 12,
+  },
   postTitle: {
     display: 'block',
     ...theme.typography.headerStyle,
     fontSize: 38,
-    marginBottom: 12
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  postActionsButton: {
+    flexShrink: 0,
+    marginTop: 8,
+    color: theme.palette.grey[600],
   },
   draftNotice: {
     fontSize: 20,
@@ -78,7 +92,7 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
 const ModerationContentDetail = ({
   item,
 }: {
-  item: ContentItem | null;
+  item: ModerationContentItem | null;
 }) => {
   const classes = useStyles(styles);
   const contentWrapperRef = useRef<HTMLDivElement>(null);
@@ -97,11 +111,19 @@ const ModerationContentDetail = ({
       <div className={classes.root}>
         <div className={classes.contentWrapper} ref={contentWrapperRef}>
           <div className={classes.empty}>
-            Select a post or comment to view details
+            Select content to view details
           </div>
         </div>
       </div>
     );
+  }
+
+  if (isMapPin(item)) {
+    return <div className={classes.root}>
+      <div className={classes.contentWrapper} ref={contentWrapperRef}>
+        <ModerationMapPinDetail item={item} />
+      </div>
+    </div>;
   }
 
   const post = isPost(item);
@@ -112,9 +134,12 @@ const ModerationContentDetail = ({
         {post
           ? <div className={classes.postContent}>
             {item.draft && <div className={classes.draftNotice}>[Draft]</div>}
-            <Link to={postGetPageUrl(item)} className={classes.postTitle}>
-              {item.title}
-            </Link>
+            <div className={classes.postTitleRow}>
+              <Link to={postGetPageUrl(item)} className={classes.postTitle}>
+                {item.title}
+              </Link>
+              <PostActionsButton post={item} vertical flip className={classes.postActionsButton} />
+            </div>
             <PostBodyPrefix post={item} />
             <ContentStyles contentType="postHighlight">
               <ContentItemBody

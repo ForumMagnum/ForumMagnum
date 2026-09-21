@@ -3,7 +3,7 @@
 /* eslint-disable no-control-regex */
 /* eslint-disable @stylistic/ts/type-annotation-spacing */
 
-import { DomainsRow, PageInfosRow, PagesRow } from './arbitalSchema';
+import { DomainsRow, PageInfosRow } from './arbitalSchema';
 // import app from './angular.ts';
 import {isLive, isIntIdValid} from './util';
 

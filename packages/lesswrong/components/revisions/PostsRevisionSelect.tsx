@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useNavigate } from "../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";

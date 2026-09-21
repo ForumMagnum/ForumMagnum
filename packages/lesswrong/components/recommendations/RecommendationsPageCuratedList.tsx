@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
@@ -22,13 +23,14 @@ const styles = defineStyles('RecommendationsPageCuratedList', (theme: ThemeType)
 }));
 
 const RecommendationsPageCuratedList = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   return (
     <div>
       <AnalyticsContext pageContext={"curatedPage"}>
-        {hasCuratedPostsSetting.get() && <SingleColumnSection>
+        {hasCuratedPostsSetting.get(forumType) && <SingleColumnSection>
           <AnalyticsContext pageSectionContext={"curatedPosts"} capturePostItemOnMount>
             <SectionTitle title="Curated Posts"/>
             <PostsList2
@@ -39,7 +41,7 @@ const RecommendationsPageCuratedList = () => {
             />
           </AnalyticsContext>
         </SingleColumnSection>}
-        {hasCuratedPostsSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
+        {hasCuratedPostsSetting.get(forumType) && currentUser?.isAdmin && <div className={classes.curated}>
           <SunshineCuratedSuggestionsList limit={50}/>
         </div>}
       </AnalyticsContext>

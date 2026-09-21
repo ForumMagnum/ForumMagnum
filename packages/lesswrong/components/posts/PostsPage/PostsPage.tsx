@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
@@ -6,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
@@ -17,17 +18,16 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { unflattenComments } from '../../../lib/utils/unflatten';
-import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
-import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import PostsBottomBar from '../PostsBottomBar';
-import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import LWPostsPageHeader from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
@@ -39,7 +39,6 @@ import MultiToCLayout from "../TableOfContents/MultiToCLayout";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
-import WelcomeBox from "./WelcomeBox";
 import TableOfContents from "../TableOfContents/TableOfContents";
 import RSVPs from "./RSVPs";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
@@ -172,13 +171,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
-  welcomeBox: {
-    marginTop: LW_POST_PAGE_PADDING,
-    maxWidth: 220,
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    }
-  },
   bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
@@ -239,10 +231,11 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
 }));
 
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
+  const { forumType } = useForumType();
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
   let limit;
-  if (isValidCommentView(query.view, commentOpts)) {
+  if (isValidCommentView(query.view, forumType, commentOpts)) {
     const { view: queryView, limit: queryLimit } = query;
     view = queryView;
     limit = returnIfValidNumber(queryLimit);
@@ -268,6 +261,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
@@ -294,7 +288,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = useCallback(() => {
-    if (!post || !postHasAudioPlayer(post)) {
+    if (!post || !postHasAudioPlayer(post, forumType)) {
       return;
     }
     const action = showEmbeddedPlayer ? "close" : "open";
@@ -307,7 +301,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
+  }, [post, showEmbeddedPlayer, captureEvent, setCookie, forumType]);
 
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
@@ -372,7 +366,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
 
-  const defaultView = commentGetDefaultView(post, currentUser);
+  const defaultView = commentGetDefaultView(post, currentUser, forumType);
   const defaultTerms = { view: defaultView, limit: 1000 };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
@@ -405,7 +399,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       });
     }
 
-    if (!recombeeEnabledSetting.get()) return;
+    if (!recombeeEnabledSetting.get(forumType)) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 
@@ -437,7 +431,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
 
-  const description = fullPost ? getPostDescription(fullPost) : null
+  const description = fullPost ? getPostDescription(fullPost, forumType) : null
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
@@ -476,6 +470,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
+  // TODO: Consider showing recently submitted comments first on LW/AF, preserving the selected sort otherwise.
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const comments = useMemo(() => {
     if (!isEAForum() || !rawComments || view !== "postCommentsMagic") return rawComments;
@@ -492,7 +487,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   }, [view, rawComments, currentUser?._id]);
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
-  const { commentCount: totalComments } = getResponseCounts({ post, answers })
+  const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
@@ -540,11 +535,11 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, forumType})}/>
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo, forumType)})}>
         <div className={classes.centralColumn}>
           {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={postPreload ?? fullPost} silentLoading={silentLoadingPermalink} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>
@@ -571,11 +566,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   </>;
 
   const rightColumnChildren = <>
-    <DeferRender ssr={false}>
-      <div className={classes.welcomeBox}>
-        <WelcomeBox />
-      </div>
-    </DeferRender>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
   </>;
@@ -584,7 +574,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  if (isAF() && !post.af) {
+  if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
@@ -705,7 +695,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
-            {isAF() && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>
         </div>

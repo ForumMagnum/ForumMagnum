@@ -216,13 +216,14 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 }
 
 export function getFillIfMissing(defaultValue: any) {
-  return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName }: {
+  return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName, context }: {
     newDocument: CreateInputsByCollectionName[N]['data'];
     fieldName: string;
+    context: ResolverContext;
   }) {
     if (newDocument[fieldName as keyof CreateInputsByCollectionName[N]['data']] === undefined) {
       const isForumSpecific = defaultValue instanceof DeferredForumSelect;
-      return isForumSpecific ? defaultValue.get() : defaultValue;
+      return isForumSpecific ? defaultValue.get(context) : defaultValue;
     } else {
       return undefined;
     }

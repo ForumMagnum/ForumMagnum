@@ -1,7 +1,7 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { type DowncastConversionApi, type ModelElement as Element, type ModelWriter as Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
+import { Widget } from '@ckeditor/ckeditor5-widget';
 import collapsibleSectionIcon from './ckeditor5-collapsible-section-icon.svg';
 import { blockAutoformatEditing } from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 

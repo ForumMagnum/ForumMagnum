@@ -5,10 +5,10 @@ import {
   getUserEmail,
   userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
+  userGetAbsoluteProfileUrl,
 } from "./helpers";
-import { userGetEditUrl } from "../../vulcan-users/helpers";
+import { userGetAbsoluteEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -33,7 +33,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSettings, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
@@ -68,10 +68,12 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
-// Batched per-request check of whether a `newContent` user should instead be
-// surfaced in the supermod "offboard" review group.
-const getIsOffboardCandidate = (context: ResolverContext, userId: string): Promise<boolean> => {
-  return getWithCustomLoader(context, "offboardCandidates", userId, async (userIds) => {
+// Karma is checked first, to skip the batched content query when it can.
+const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
+  if (user.karma < 0) {
+    return true;
+  }
+  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
     const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
     return userIds.map((id) => candidateIds.has(id));
   });
@@ -507,6 +509,17 @@ const schema = {
       },
     },
   },
+  /** Names of the OAuth providers (e.g. "google", "github", "facebook") this account is linked to. */
+  associatedOAuthServices: {
+    graphql: {
+      outputType: "[String!]",
+      canRead: ownsOrIsAdmin,
+      resolver: (user) => {
+        const oauthProviders = ["google", "github", "facebook", "linkedin"] as const;
+        return oauthProviders.filter((provider) => !!getNestedProperty(user, `services.${provider}`));
+      },
+    },
+  },
   /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
@@ -627,7 +640,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, true);
+        return userGetAbsoluteProfileUrl(user, context.forumType);
       },
     },
   },
@@ -636,7 +649,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, false);
+        return userGetProfileUrl(user);
       },
     },
   },
@@ -645,7 +658,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetEditUrl(user, true);
+        return userGetAbsoluteEditUrl(user, context.forumType);
       },
     },
   },
@@ -1787,7 +1800,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationShortformContent: {
@@ -1799,7 +1811,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1811,7 +1822,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1823,7 +1833,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1835,7 +1844,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1847,7 +1855,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1922,7 +1929,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRSVPs: {
@@ -1982,7 +1988,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationDialogueMessages: {
@@ -4002,9 +4007,7 @@ const schema = {
         }));
         const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 
-        // Users who would otherwise be in `newContent` get pulled into the
-        // `offboard` group if their content matches the offboarding criteria.
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc._id)) {
+        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
           return 'offboard';
         }
 
@@ -4049,24 +4052,6 @@ const schema = {
     },
   },
   hideFromPeopleDirectory: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      inputType: "Boolean",
-      canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  allowDatadogSessionReplay: {
     database: {
       type: "BOOL",
       defaultValue: false,
@@ -4377,7 +4362,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF(),
+          af: context.forumType === 'AlignmentForum',
           context,
         });
       },

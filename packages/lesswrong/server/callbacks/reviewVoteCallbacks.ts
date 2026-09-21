@@ -16,7 +16,7 @@ export async function positiveReviewVoteNotifications(reviewVote: DbReviewVote, 
   if (post && post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD) {
     const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
     if (!notifications.length) {
-      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
+      await createNotifications({ context, userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
     }
   }
 }

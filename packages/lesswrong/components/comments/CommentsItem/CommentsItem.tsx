@@ -23,6 +23,8 @@ import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
 import CommentsNewForm from "../CommentsNewForm";
 import ParentCommentSingle from "../ParentCommentSingle";
+import AnimatedExpansion from "../../common/AnimatedExpansion";
+import AnimatedCollapse from "../../common/AnimatedCollapse";
 import ForumIcon from "../../common/ForumIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import LWTooltip from "../../common/LWTooltip";
@@ -62,6 +64,11 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     borderStyle: "none",
     padding: 0,
     ...theme.typography.commentStyle,
+    '& > .CommentsItemMeta-root + .AnimatedCollapse-root .CommentBody-root.ContentStyles-commentBody': {
+      // The animation wrapper prevents these margins from collapsing. The metadata
+      // already supplies 8px, so retain only any excess from the body's .5em margin.
+      marginTop: 'max(0px, calc(0.5em - 8px))',
+    },
   },
   sideComment: {
     "& blockquote": {
@@ -277,7 +284,6 @@ export const CommentsItem = ({
       return <CommentBody
         commentBodyRef={commentBodyRef}
         truncated={truncated}
-        collapsed={collapsed}
         comment={comment}
         postPage={postPage}
         voteProps={voteProps}
@@ -340,18 +346,20 @@ export const CommentsItem = ({
         treeOptions.isSideComment && classes.sideComment,
         comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,
       )}>
-        { comment.parentCommentId && showParentState && (
+        { comment.parentCommentId && (
           <div className={classes.firstParentComment}>
-            <ParentCommentSingle
-              post={post} tag={tag}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={showParentDefault}
-              key={comment.parentCommentId}
-              treeOptions={{
-                hideParentCommentToggleForTopLevel,
-              }}
-            />
+            <AnimatedExpansion expanded={showParentState}>
+              {showParentState && <ParentCommentSingle
+                post={post} tag={tag}
+                documentId={comment.parentCommentId}
+                nestingLevel={nestingLevel - 1}
+                truncated={showParentDefault}
+                key={comment.parentCommentId}
+                treeOptions={{
+                  hideParentCommentToggleForTopLevel,
+                }}
+              />}
+            </AnimatedExpansion>
           </div> 
         )}
         
@@ -386,27 +394,31 @@ export const CommentsItem = ({
             Pinned by {comment.promotedByUser.displayName}
           </div>}
           {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
-          {renderBodyOrEditor(voteProps)}
-          {!comment.deleted && !collapsed && !showEditState && <CommentBottom
-            comment={comment}
-            post={post}
-            treeOptions={treeOptions}
-            votingSystem={votingSystem}
-            voteProps={voteProps}
-            commentBodyRef={commentBodyRef}
-            replyButton={replyButton}
-          />}
+          {comment.deleted ? renderBodyOrEditor(voteProps) : <AnimatedCollapse expanded={!collapsed}>
+            {renderBodyOrEditor(voteProps)}
+            {!showEditState && <CommentBottom
+              comment={comment}
+              post={post}
+              treeOptions={treeOptions}
+              votingSystem={votingSystem}
+              voteProps={voteProps}
+              commentBodyRef={commentBodyRef}
+              replyButton={replyButton}
+            />}
+          </AnimatedCollapse>}
         </div>
-        {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
-          <div className={classes.updateVoteMessage}>
-            <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
-              Update your {getReviewNameInSitu()} vote for this post. 
-              <LWHelpIcon/>
-            </LWTooltip>
-          </div>
-          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
-        </div>}
-        { replyFormIsOpen && !collapsed && renderReply() }
+        {(displayReviewVoting || replyFormIsOpen) && <AnimatedCollapse expanded={!collapsed}>
+          {displayReviewVoting && <div className={classes.reviewVotingButtons}>
+            <div className={classes.updateVoteMessage}>
+              <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
+                Update your {getReviewNameInSitu()} vote for this post.
+                <LWHelpIcon/>
+              </LWTooltip>
+            </div>
+            {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+          </div>}
+          {replyFormIsOpen && renderReply()}
+        </AnimatedCollapse>}
       </div>
     </HoveredReactionContextProvider>
     </AnalyticsContext>
@@ -464,5 +476,3 @@ function hasPostField(comment: CommentsList | CommentsListWithParentMetadata): c
 function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
   return !!(comment as CommentsListWithParentMetadata).tag
 }
-
-

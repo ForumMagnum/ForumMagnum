@@ -67,7 +67,6 @@ import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
-import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 // import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
@@ -128,6 +127,7 @@ import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNav
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
+import InlineCodeEscapePlugin from '../editor/lexicalPlugins/inlineCodeEscape';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
@@ -280,6 +280,15 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       position: 'absolute',
       top: 2,
       left: COLLAPSIBLE_MARKER_GUTTER,
+    },
+    // Sentinels' <br> line box blocks margin collapsing, doubling the
+    // gaps around collapsible sections vs the rendered page. Only zero
+    // margins next to neighbours that have their own margin.
+    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, blockquote, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
+      marginTop: 0,
+    },
+    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6, + .sentinel-paragraph + blockquote)': {
+      marginBottom: 0,
     },
     '& .footnote-content': {
       flex: 1,
@@ -510,6 +519,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorScrollerComment: {
     minHeight: 'var(--lexical-comment-min-height, 60px)',
     resize: 'none',
+    // Let floating editor controls receive clicks when they extend over the
+    // comment form's submit row or moderation guidelines.
+    zIndex: 1,
   },
   editor: {
     flex: 'auto',
@@ -976,12 +988,13 @@ export default function Editor({
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <HorizontalRuleEnterPlugin />
+            <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
-            <CollapsibleSectionsPlugin />
+            <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />
             <ContainerQuotePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />

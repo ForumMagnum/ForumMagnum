@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -145,6 +146,7 @@ const Answer = ({comment, post, childComments}: {
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
@@ -180,7 +182,7 @@ const Answer = ({comment, post, childComments}: {
   }), [post]);
 
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
-  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const highlightLinkIcon = commentPermalinkStyleSetting.get(forumType) === 'in-context' && scrollToCommentId === comment._id
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>

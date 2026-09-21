@@ -21,7 +21,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
     },
   },
   user: {
@@ -41,7 +41,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
     },
   },
   model: {
@@ -54,7 +54,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
     },
   },
   systemPrompt: {
@@ -66,7 +66,7 @@ const schema = {
       outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
       validation: {
         optional: true,
       },

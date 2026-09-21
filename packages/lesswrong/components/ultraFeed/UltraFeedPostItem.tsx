@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -401,6 +402,7 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
   isHighlightAnimating?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -609,7 +611,7 @@ const UltraFeedPostItem = ({
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
             continueReadingUrl={postGetPageUrl(post)}
-            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get(forumType)}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}

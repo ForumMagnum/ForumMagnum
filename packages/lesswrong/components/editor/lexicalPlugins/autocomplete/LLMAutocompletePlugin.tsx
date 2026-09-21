@@ -7,7 +7,6 @@ import {
   $isRangeSelection,
   $createTextNode,
   $createParagraphNode,
-  $getRoot,
   KEY_DOWN_COMMAND,
   COMMAND_PRIORITY_HIGH,
   LineBreakNode,

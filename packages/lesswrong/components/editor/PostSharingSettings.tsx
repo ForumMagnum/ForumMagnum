@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {FC, useCallback, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
@@ -9,7 +10,7 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
-import { EditablePost, postGetEditUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
+import { EditablePost, PostSubmitMeta, postGetAbsoluteEditUrl } from '../../lib/collections/posts/helpers';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from "../common/LWTooltip";
@@ -187,6 +188,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
@@ -202,7 +204,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
     setIsChanged(true);
   };
   
-  const collabEditorLink = postGetEditUrl(post._id, true, linkSharingKey)
+  const collabEditorLink = postGetAbsoluteEditUrl(post._id, forumType, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 
@@ -263,7 +265,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
       
       <p className={classes.warning}>
         Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
-        {moderationEmail.get()} if you experience issues
+        {moderationEmail.get(forumType)} if you experience issues
       </p>
 
       <div className={classes.buttonRow}>

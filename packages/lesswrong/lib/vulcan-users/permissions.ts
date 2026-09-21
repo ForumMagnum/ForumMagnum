@@ -1,6 +1,7 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import { isLW, hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {
@@ -96,10 +97,6 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
-export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
-  return isLW() && userOwns(user, document)
-}
-
 export const documentIsNotDeleted = (
   user: DbUser|PermissionableUser|null,
   document: OwnableDocument,
@@ -122,7 +119,7 @@ export const documentIsNotDeleted = (
 }
 
 
-export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
+export const userCanComment = (user: PermissionableUser|DbUser|null, forumType: ForumTypeString): boolean => {
   if (!user) {
     return false;
   }
@@ -132,7 +129,7 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
   if (user.allCommentingDisabled) {
     return false;
   }
-  if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
+  if (hideUnreviewedAuthorCommentsSettings.get(forumType) && !user.reviewedByUserId) {
     return false;
   }
   return true;
@@ -234,18 +231,19 @@ export const userHasFieldPermissions = <T extends DbObject>(
 export const userCanCreateField = (
   user: DbUser | null,
   canCreate: FieldCreatePermissions | undefined,
+  context: ResolverContext,
 ): boolean => {
   if (canCreate) {
     if (typeof canCreate === 'function') {
-      // if canCreate is a function, execute it with user and document passed. it must return a boolean
-      return canCreate(user);
+      // Pass the user and request context to field-create permission callbacks.
+      return canCreate(user, context);
     } else if (typeof canCreate === 'string') {
       // if canCreate is just a string, we assume it's the name of a group and pass it to isMemberOf
       // note: if canCreate is 'guests' then anybody can create it
       return canCreate === 'guests' || userIsMemberOf(user, canCreate);
     } else if (Array.isArray(canCreate) && canCreate.length > 0) {
       // if canCreate is an array, we do a recursion on every item and return true if one of the items return true
-      return canCreate.some(group => userCanCreateField(user, group));
+      return canCreate.some(group => userCanCreateField(user, group, context));
     }
   }
   return false;
@@ -254,20 +252,21 @@ export const userCanCreateField = (
 // Check if a user can edit a field
 export const userCanUpdateField = <N extends CollectionNameString>(
   user: DbUser | null,
-  canUpdate: FieldPermissions | undefined,
+  canUpdate: FieldUpdatePermissions | undefined,
   document: Partial<ObjectsByCollectionName[N]>,
+  context: ResolverContext,
 ): boolean => {
   if (canUpdate) {
     if (typeof canUpdate === 'function') {
-      // if canUpdate is a function, execute it with user and document passed. it must return a boolean
-      return canUpdate(user, document);
+      // if canUpdate is a function, pass the user, document, and request context. it must return a boolean
+      return canUpdate(user, document, context);
     } else if (typeof canUpdate === 'string') {
       // if canUpdate is just a string, we assume it's the name of a group and pass it to isMemberOf
       // note: if canUpdate is 'guests' then anybody can create it
       return canUpdate === 'guests' || userIsMemberOf(user, canUpdate);
     } else if (Array.isArray(canUpdate) && canUpdate.length > 0) {
       // if canUpdate is an array, we look at every item and return true if one of the items return true
-      return canUpdate.some(group => userCanUpdateField(user, group, document));
+      return canUpdate.some(group => userCanUpdateField(user, group, document, context));
 
     }
   }

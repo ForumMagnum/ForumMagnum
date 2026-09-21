@@ -4,7 +4,6 @@ import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
-import { strongVoteDelay } from './constants';
 
 const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   root: {

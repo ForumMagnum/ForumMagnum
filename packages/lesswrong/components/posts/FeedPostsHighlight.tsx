@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -72,6 +73,7 @@ const FeedPostHighlightBody = ({
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { htmlHighlight = "", wordCount = 0 } = post.contents ?? {};
 
@@ -109,7 +111,7 @@ const FeedPostHighlightBody = ({
     <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
-      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}
       className={classNames({[classes.expandedTextBody]: expanded, [classes.maxHeight]: !expanded})}
     />
     {expanded && wasTruncated && <TruncatedSuffix

@@ -61,7 +61,6 @@ import { SuggestionTypesThatCanBeEmpty } from '@/components/editor/lexicalPlugin
 import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
-import { Trash3Icon } from '../../icons/Trash3Icon';
 import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import LWClickAwayListener from '@/components/common/LWClickAwayListener';
 import { useHasSideComments } from '@/components/editor/lexicalPlugins/sideComments/SideCommentsPlugin';
@@ -709,6 +708,7 @@ function CommentInputBox({
         className={classes.commentInputBoxEditor}
         onEscape={onEscape}
         onChange={onChange}
+        onEnterSubmit={submitComment}
       />
       <div className={classes.commentInputBoxButtons}>
         <Button

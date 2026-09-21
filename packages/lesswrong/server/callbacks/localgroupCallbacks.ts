@@ -8,8 +8,8 @@ export function validateGroupIsOnlineOrHasLocation(group: CreateLocalgroupDataIn
     throw new Error("Location is required for local groups");
 }
 
-export async function createGroupNotifications({document}: AfterCreateCallbackProperties<'Localgroups'>) {
-  await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+export async function createGroupNotifications({document, context}: AfterCreateCallbackProperties<'Localgroups'>) {
+  await createNotifications({ context, userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
 }
 
 export async function handleOrganizerUpdates({ newDocument, oldDocument, context }: UpdateCallbackProperties<'Localgroups'>) {
@@ -17,7 +17,7 @@ export async function handleOrganizerUpdates({ newDocument, oldDocument, context
 
   // notify new organizers that they have been added to this group
   const newOrganizerIds = difference(newDocument.organizerIds, oldDocument.organizerIds)
-  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: newDocument._id})
+  await createNotifications({ context, userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: newDocument._id})
   
   // if this group is being marked as inactive or deleted, remove it from the profile of all associated organizers
   const groupIsBeingHidden = (!oldDocument.inactive && newDocument.inactive) || (!oldDocument.deleted && newDocument.deleted)

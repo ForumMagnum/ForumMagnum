@@ -1,6 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isAF } from "../../lib/instanceSettings";
 import LWTooltip from "./LWTooltip";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
@@ -8,10 +8,11 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   placement?: PopperPlacementType,
   linkItem?: React.ReactNode,
 }) => {
-  const baseScore = isAF()
+  const { isAF } = useForumType();
+  const baseScore = isAF
     ? document.afBaseScore
     : document.baseScore;
-  const afBaseScore = !isAF() && document.af
+  const afBaseScore = !isAF && document.af
     ? document.afBaseScore
     : null;
   return (

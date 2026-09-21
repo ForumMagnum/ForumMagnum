@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   if (queryParams.type === 'comments') {
     res = await serveCommentRSS(queryParams, req);
   } else {
-    res = await servePostRSS(queryParams);
+    res = await servePostRSS(queryParams, req);
   }
 
   return new Response(res, {

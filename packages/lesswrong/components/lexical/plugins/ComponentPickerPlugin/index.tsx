@@ -35,6 +35,7 @@ import * as ReactDOM from 'react-dom';
 import { useDialog, type OpenDialogContextType } from '@/components/common/withDialog';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
 
@@ -257,6 +258,12 @@ function useBaseOptions(
       keywords: ['collapse', 'collapsible', 'toggle', 'section'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Spoiler Block', {
+      icon: <ForumIcon icon="EyeSlash" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['spoiler', 'hidden', 'hide', 'reveal', 'blur'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_SPOILER_COMMAND, undefined),
     }),
     new ComponentPickerOption('Custom Widget', {
       icon: <CodeIcon style={iconStyle} />,

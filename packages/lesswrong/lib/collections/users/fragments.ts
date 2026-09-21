@@ -353,6 +353,8 @@ export const SunshineUsersList = gql(`
     reviewedAt
     signUpReCaptchaRating
     mapLocation
+    mapMarkerText
+    htmlMapMarkerText
     needsReview
     sunshineNotes
     sunshineFlagged
@@ -487,6 +489,9 @@ export const UsersEdit = gql(`
     deleteContent
     banned
 
+    # Linked OAuth providers (admin-only)
+    associatedOAuthServices
+
     # Name
     username
     displayName
@@ -502,7 +507,6 @@ export const UsersEdit = gql(`
     
     # Privacy settings
     hideFromPeopleDirectory
-    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -605,5 +609,19 @@ export const SuggestAlignmentUser = gql(`
     groups
     afApplicationText
     afSubmittedApplication
+  }
+`)
+
+/**
+ * Admin-only fragment used by the account-merge UI to display candidate source
+ * accounts. Includes email (admin-readable) so an admin can disambiguate
+ * between similarly-named accounts.
+ */
+export const UsersMergeSearchResult = gql(`
+  fragment UsersMergeSearchResult on User {
+    ...UsersMinimumInfo
+    email
+    emails
+    associatedOAuthServices
   }
 `)

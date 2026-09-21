@@ -10,8 +10,7 @@ import {
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   newContent: UNREVIEWED_FIRST_POST,
-  // `offboard` is derived from content (not a moderator action); this mapping is
-  // only used to attach a plausible action to mock users in these reducer tests.
+  // `offboard` has no moderator action; mocks just need a plausible one.
   offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
@@ -97,6 +96,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user2',
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -128,6 +128,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -155,6 +156,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -184,6 +186,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -225,6 +228,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -262,6 +266,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -292,6 +297,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -320,6 +326,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -352,6 +359,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user2',
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -382,6 +390,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user1',
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -411,6 +420,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user1',
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -443,6 +453,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user2',
         focusedPostId: null,
         focusedContentIndex: 3,
+        sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
@@ -475,6 +486,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user3',
         focusedPostId: null,
         focusedContentIndex: 1,
+        sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
@@ -500,6 +512,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -528,6 +541,7 @@ describe('Moderation Inbox Reducer', () => {
         openedUserId: 'user1',
         focusedPostId: null,
         focusedContentIndex: 0,
+        sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
@@ -538,6 +552,66 @@ describe('Moderation Inbox Reducer', () => {
 
       // State should be unchanged
       expect(newState).toEqual(state);
+    });
+  });
+
+  describe('sidebarTab', () => {
+    function stateWithSidebarTab(sidebarTab: InboxState['sidebarTab']): InboxState {
+      return {
+        users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: null,
+        openedUserId: 'user1',
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+      };
+    }
+
+    test('no composer is open by default', () => {
+      expect(stateWithSidebarTab(null).sidebarTab).toBe(null);
+    });
+
+    test('SET_SIDEBAR_TAB opens a composer', () => {
+      const state = inboxStateReducer(stateWithSidebarTab(null), { type: 'SET_SIDEBAR_TAB', tab: 'reject' });
+      expect(state.sidebarTab).toBe('reject');
+    });
+
+    test.each([
+      ['NEXT_CONTENT', { type: 'NEXT_CONTENT', contentLength: 3 }],
+      ['PREV_CONTENT', { type: 'PREV_CONTENT', contentLength: 3 }],
+      ['NEXT_USER', { type: 'NEXT_USER' }],
+      ['OPEN_USER', { type: 'OPEN_USER', userId: 'user2' }],
+      ['CLOSE_DETAIL', { type: 'CLOSE_DETAIL' }],
+    ] as const)('%s closes the open composer', (_label, action) => {
+      const state = inboxStateReducer(stateWithSidebarTab('reject'), action);
+      expect(state.sidebarTab).toBe(null);
+    });
+
+    test('selecting a content item closes the open composer', () => {
+      const state = inboxStateReducer(stateWithSidebarTab('dm'), { type: 'OPEN_CONTENT', contentIndex: 2 });
+      expect(state.sidebarTab).toBe(null);
+      expect(state.focusedContentIndex).toBe(2);
+    });
+
+    test("the row's reject button selects that row and opens the reject composer", () => {
+      const state = inboxStateReducer(stateWithSidebarTab(null), { type: 'OPEN_CONTENT', contentIndex: 2, sidebarTab: 'reject' });
+      expect(state.sidebarTab).toBe('reject');
+      expect(state.focusedContentIndex).toBe(2);
+    });
+
+    test('actions taken mid-draft leave the composer open', () => {
+      const state = inboxStateReducer(stateWithSidebarTab('reject'), {
+        type: 'SET_LLM_CHECK_RUNNING',
+        documentId: 'post1',
+      });
+      expect(state.sidebarTab).toBe('reject');
     });
   });
 });

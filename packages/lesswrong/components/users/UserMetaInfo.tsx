@@ -50,7 +50,7 @@ const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   }
 }));
 
-export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName, className}: {
   user: UsersMinimumInfo & { voteReceivedCount?: number | null },
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
@@ -59,6 +59,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
   omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
+  className?: string,
 }) => {
   const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
@@ -70,7 +71,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
     ? `${karma} karma (${Math.round(voteReceivedCount)} votes)`
     : `${karma} karma`;
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, className)}>
       {(karma !== 0) && <TooltipSpan title={karmaTooltip}>
         <div className={infoClasses}>
           <ForumIcon icon="Star" className={classes.icon} />

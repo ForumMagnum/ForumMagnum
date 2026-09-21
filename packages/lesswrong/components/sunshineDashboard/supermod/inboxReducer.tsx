@@ -6,6 +6,7 @@ import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupi
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -45,6 +46,8 @@ export type InboxState = {
   focusedPostId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
+  // Which composer is open in the moderation sidebar, or null for neither
+  sidebarTab: SelectedSidebarTab;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
   // History - expired actions that can't be undone - only for users
@@ -68,7 +71,8 @@ export type InboxAction =
   | { type: 'REMOVE_POST'; postId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
-  | { type: 'OPEN_CONTENT'; contentIndex: number; }
+  | { type: 'OPEN_CONTENT'; contentIndex: number; sidebarTab?: SelectedSidebarTab; }
+  | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
@@ -113,7 +117,27 @@ export function getVisibleTabsInOrder(
   return tabs;
 }
 
+/**
+ * Actions that close the open composer, so an editor never silently holds
+ * focus and swallows the moderation shortcuts. Mid-draft actions (permission
+ * toggles, LLM checks, undo bookkeeping) are deliberately absent, as is
+ * OPEN_CONTENT, which sets `sidebarTab` itself.
+ */
+const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
+  'OPEN_USER', 'CLOSE_DETAIL', 'NEXT_CONTENT', 'PREV_CONTENT',
+  'NEXT_USER', 'PREV_USER', 'CHANGE_TAB', 'NEXT_TAB', 'PREV_TAB',
+  'REMOVE_USER', 'UNDO_ACTION',
+]);
+
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
+  const newState = reduceInboxAction(state, action);
+  if (newState.sidebarTab === null || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
+    return newState;
+  }
+  return { ...newState, sidebarTab: null };
+}
+
+function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
   switch (action.type) {
     case 'ADD_TO_UNDO_QUEUE': {
       return {
@@ -196,6 +220,16 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         focusedContentIndex: action.contentIndex,
+        // Closes the composer, unless the caller is opening one — the row's
+        // Reject button selects the row and opens the reject tab in one action
+        sidebarTab: action.sidebarTab ?? null,
+      };
+    }
+
+    case 'SET_SIDEBAR_TAB': {
+      return {
+        ...state,
+        sidebarTab: action.tab,
       };
     }
 

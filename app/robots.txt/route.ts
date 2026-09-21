@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { isProduction } from "@/lib/executionEnvironment";
 import { robotsTxtSetting } from "@/server/databaseSettings";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
@@ -31,10 +32,11 @@ function isCrawlable(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const forumType = getForumTypeForRequest(req);
   if (isProduction && !isCrawlable(req)) {
     return new Response(`${documentationComment(req)}\n${nonCrawlableMirrorComment}\n\nUser-agent: *\nDisallow: /`, {status: 200});
-  } else if (robotsTxtSetting.get()) {
-    return new Response(robotsTxtSetting.get(), {status: 200});
+  } else if (robotsTxtSetting.get(forumType)) {
+    return new Response(robotsTxtSetting.get(forumType), {status: 200});
   }
 
   return new Response(

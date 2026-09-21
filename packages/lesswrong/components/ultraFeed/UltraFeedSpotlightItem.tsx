@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import React, { CSSProperties, useCallback, useRef, useEffect, useState, useMemo } from 'react';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
@@ -15,7 +14,6 @@ import UltraFeedItemFooter from './UltraFeedItemFooter';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
-import { isRegularClick } from '../posts/TableOfContents/TableOfContentsList';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { FeedPostMetaInfo, FeedSpotlightMetaInfo } from './ultraFeedTypes';
 import UsersNameWithModal from './UsersNameWithModal';
