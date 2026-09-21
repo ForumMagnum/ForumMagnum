@@ -57,12 +57,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
   // status, so its output must not be stored.
   const cacheable = !!statusMetadata && (status === 200 || status === 404);
   const encoding = normalizeAcceptEncoding(request.headers.get('accept-encoding'));
+  const outcome = cacheable ? 'render' : 'uncached-render';
+  const renderMs = Date.now() - startedAt;
+  // Structured line for the log drain: Vercel parses JSON console output, and
+  // the Better Stack source extracts these fields for the post page cache
+  // dashboard. Response headers don't reach the drain.
+  // eslint-disable-next-line no-console
+  console.log(JSON.stringify({ lwPostPageCache: outcome, status, renderMs }));
 
   const headers = new Headers({
     'content-type': loopbackResponse.headers.get('content-type') ?? 'text/html; charset=utf-8',
     'vary': 'Accept-Encoding',
-    'x-lw-post-cache': cacheable ? 'render' : 'uncached-render',
-    'x-lw-post-cache-render-ms': String(Date.now() - startedAt),
+    'x-lw-post-cache': outcome,
+    'x-lw-post-cache-render-ms': String(renderMs),
   });
   if (cacheable) {
     // Only Vercel's CDN stores the page; browsers and other shared caches get
