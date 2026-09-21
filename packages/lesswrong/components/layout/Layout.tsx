@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents'
 import { useCurrentUser } from '@/components/common/withUser';
-import { TimezoneWrapper } from '@/components/common/withTimezone';
 import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
@@ -203,7 +202,6 @@ const Layout = ({children}: {
       <SubtitlePortalProvider>
       <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
-      <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
@@ -263,7 +261,6 @@ const Layout = ({children}: {
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
       </ItemsReadContextWrapper>
-      </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
       </PopperPortalProvider>
       </SubtitlePortalProvider>
