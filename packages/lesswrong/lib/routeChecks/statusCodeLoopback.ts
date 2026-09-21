@@ -15,7 +15,7 @@ export function fixLoopbackUrl(url: string): string {
   return url;
 }
 
-export interface StatusCodeMetadata {
+interface StatusCodeMetadata {
   status: number
   redirectTarget?: string
 }

@@ -1,14 +1,20 @@
+import { dangerouslyDeleteByTag, getCache, invalidateByTag } from '@vercel/functions';
+import chunk from 'lodash/chunk';
 import uniq from 'lodash/uniq';
 import { postCacheTag } from '@/lib/postPageCache/config';
 import { captureException } from '@/lib/sentryWrapper';
 import { sleep } from '@/lib/utils/asyncUtils';
-import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { backgroundTask, isInRequestContext } from '../utils/backgroundTask';
-import { purgeCacheTags, type PurgeMode } from './purge';
 
 const TRAILING_PURGE_DELAY_MS = 30_000;
+const MAX_TAGS_PER_PURGE_REQUEST = 100;
 
-export interface InvalidatePostPageCacheOptions {
+// `invalidate` marks entries stale: the next request is served the old
+// content while a fresh one is generated. `delete` removes them: the next
+// request waits for a fresh render.
+type PurgeMode = 'invalidate' | 'delete';
+
+interface InvalidatePostPageCacheOptions {
   // Remove the entries instead of marking them stale, so that no visitor is
   // served the old content once more. For changes that make content stop
   // being publicly visible.
@@ -42,18 +48,6 @@ export async function invalidatePostPageCache(postIds: string | readonly string[
   backgroundTask(sleep(TRAILING_PURGE_DELAY_MS).then(() => purgeCacheTags(tags, mode)));
 }
 
-export async function invalidatePostPageCacheForVoteable(
-  collectionName: CollectionNameString,
-  document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
-): Promise<void> {
-  if (collectionName === 'Posts') {
-    // Pages that list the post as a pingback show its score.
-    await invalidatePostPageCache([document._id, ...getPingbackTargetPostIds(document.pingbacks)]);
-  } else if (collectionName === 'Comments' && document.postId) {
-    await invalidatePostPageCache(document.postId);
-  }
-}
-
 // `pingbacks.Posts` holds the posts this document links to. Their pages list
 // this post under "Mentioned in", with its title, score and status.
 export function getPingbackTargetPostIds(pingbacks: DbPost['pingbacks']): string[] {
@@ -62,15 +56,57 @@ export function getPingbackTargetPostIds(pingbacks: DbPost['pingbacks']): string
   return postIds.filter((postId): postId is string => typeof postId === 'string');
 }
 
-// Every post page shows the name and avatar of the post's authors, coauthors
-// and commenters.
-export async function invalidatePostPageCachesForUser(userId: string, context: ResolverContext): Promise<void> {
-  const postIds = await context.repos.posts.getPostIdsWhereUserAppears(userId);
-  await invalidatePostPageCache(postIds);
+let warnedNoPurgeTransport = false;
+
+// Purges every Vercel cache entry (CDN and Runtime Cache) carrying any of the
+// given tags. Throws on failure.
+async function purgeCacheTags(tags: readonly string[], mode: PurgeMode): Promise<void> {
+  for (const tagsBatch of chunk(tags, MAX_TAGS_PER_PURGE_REQUEST)) {
+    if (process.env.VERCEL) {
+      if (mode === 'delete') {
+        await dangerouslyDeleteByTag(tagsBatch);
+      } else {
+        await invalidateByTag(tagsBatch);
+      }
+    } else if (process.env.VERCEL_CACHE_PURGE_TOKEN) {
+      // Outside Vercel functions the SDK's purge functions silently do
+      // nothing, so scripts and CI migrations go through the REST API.
+      await purgeViaRestApi(tagsBatch, mode);
+    } else {
+      // Local development: the SDK's cache is an in-process fallback, which
+      // `expireTag` clears directly.
+      if (!warnedNoPurgeTransport) {
+        warnedNoPurgeTransport = true;
+        // eslint-disable-next-line no-console
+        console.warn('VERCEL_CACHE_PURGE_TOKEN is not set; post page cache purges only affect this process\'s in-memory cache');
+      }
+      await getCache().expireTag(tagsBatch);
+    }
+  }
 }
 
-// Post pages show their sequence's title and navigation.
-export async function invalidatePostPageCachesForSequence(sequenceId: string, context: ResolverContext): Promise<void> {
-  const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
-  await invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
+async function purgeViaRestApi(tags: string[], mode: PurgeMode): Promise<void> {
+  const token = process.env.VERCEL_CACHE_PURGE_TOKEN;
+  const projectId = process.env.VERCEL_CACHE_PURGE_PROJECT_ID;
+  const teamId = process.env.VERCEL_CACHE_PURGE_TEAM_ID;
+  if (!projectId) {
+    throw new Error('VERCEL_CACHE_PURGE_PROJECT_ID is not configured');
+  }
+  const endpoint = mode === 'delete' ? 'dangerously-delete-by-tags' : 'invalidate-by-tags';
+  const url = new URL(`https://api.vercel.com/v1/edge-cache/${endpoint}`);
+  url.searchParams.set('projectIdOrName', projectId);
+  if (teamId) {
+    url.searchParams.set('teamId', teamId);
+  }
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'authorization': `Bearer ${token}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ tags, target: 'production' }),
+  });
+  if (!response.ok) {
+    throw new Error(`Vercel cache purge failed with status ${response.status}: ${await response.text()}`);
+  }
 }

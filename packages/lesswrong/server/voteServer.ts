@@ -1,4 +1,4 @@
-import { invalidatePostPageCacheForVoteable } from './postPageCache/invalidatePostPageCache';
+import { getPingbackTargetPostIds, invalidatePostPageCache } from './postPageCache/invalidatePostPageCache';
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -47,6 +47,18 @@ const getExistingVote = async ({ document, user }: {
 }
 
 // Add a vote of a specific type on the server
+async function invalidatePostPageCacheForVoteable(
+  collectionName: CollectionNameString,
+  document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
+): Promise<void> {
+  if (collectionName === 'Posts') {
+    // Pages that list the post as a pingback show its score.
+    await invalidatePostPageCache([document._id, ...getPingbackTargetPostIds(document.pingbacks)]);
+  } else if (collectionName === 'Comments' && document.postId) {
+    await invalidatePostPageCache(document.postId);
+  }
+}
+
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,

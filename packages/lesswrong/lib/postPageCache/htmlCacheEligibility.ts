@@ -61,7 +61,7 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   return parsedPath;
 }
 
-export type NormalizedAcceptEncoding = 'gzip' | 'identity';
+type NormalizedAcceptEncoding = 'gzip' | 'identity';
 
 // The CDN varies on Accept-Encoding; collapsing it to the two encodings the
 // cached-post route handler emits keeps it to two entries per page.
