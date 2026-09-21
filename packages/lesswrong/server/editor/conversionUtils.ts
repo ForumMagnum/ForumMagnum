@@ -317,18 +317,12 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('footnote-item'),
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
-        const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        const id = ('getAttribute' in node && node.getAttribute('data-footnote-id')) || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
-        return `[^${id}]: ${text} \n\n`
+        // Keep the converted Markdown so tables retain their cell boundaries.
+        // Indent continuation lines to keep block content inside the definition.
+        const indentedContent = content.trim().replace(/\n/g, '\n    ')
+        return `[^${id}]: ${indentedContent}\n\n`
       }
     })
     // CommonMark link text cannot contain blank lines, but an anchor wrapping
@@ -350,6 +344,11 @@ function getTurndown(): TurndownService {
         if (!singleLineContent) return '';
         return `[${singleLineContent}](${href}${title})`;
       }
+    })
+    // Register after the link rule so Markdown-rendered backrefs are also omitted.
+    turndownService.addRule('footnote-back-link', {
+      filter: (node) => node.classList?.contains('footnote-back-link') || node.classList?.contains('footnote-backref'),
+      replacement: () => '',
     })
     turndownService.addRule('subscript', {
       filter: ['sub'],
