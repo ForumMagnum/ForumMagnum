@@ -130,7 +130,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WHERE p."draft" IS NOT TRUE
         AND (p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"))
       UNION
-      SELECT DISTINCT c."postId" AS _id
+      SELECT c."postId" AS _id
       FROM "Comments" c
       WHERE c."userId" = $(userId)
         AND c."postId" IS NOT NULL

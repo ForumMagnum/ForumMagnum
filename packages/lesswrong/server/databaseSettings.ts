@@ -204,11 +204,3 @@ export const fmCrosspostTimeoutMs: number = 15000;
 
 export const slowSSRWarnThresholdSetting = new ParsedServerSetting<number>("slowSSRWarnThreshold", 3000);
 
-
-// Logged-out post page caching. See packages/lesswrong/server/postPageCache/.
-export const anonymousQueryCacheEnabledSetting = new ParsedServerSetting<boolean>('postPageCache.anonymousQueryCacheEnabled', false);
-export const postPageHtmlCacheEnabledSetting = new ParsedServerSetting<boolean>('postPageCache.htmlCacheEnabled', false);
-// Used to purge the Vercel cache from outside Vercel functions (yarn repl scripts, migrations run from CI).
-export const vercelCachePurgeTokenSetting = new ServerSetting<string|null>('postPageCache.vercelPurgeToken', null);
-export const vercelCachePurgeProjectIdSetting = new ServerSetting<string|null>('postPageCache.vercelProjectId', null);
-export const vercelCachePurgeTeamIdSetting = new ServerSetting<string|null>('postPageCache.vercelTeamId', null);

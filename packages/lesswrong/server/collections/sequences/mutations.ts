@@ -1,3 +1,4 @@
+import { invalidatePostPageCachesForSequence } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -77,6 +78,8 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     props: asyncProperties,
   });
 
+  backgroundTask(invalidatePostPageCachesForSequence(documentWithId._id, context));
+
   return documentWithId;
 }
 
@@ -120,6 +123,8 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData }));
+
+  backgroundTask(invalidatePostPageCachesForSequence(updatedDocument._id, context));
 
   return updatedDocument;
 }

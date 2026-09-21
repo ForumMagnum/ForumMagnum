@@ -5,10 +5,10 @@ import { findStatusCodeInStream } from './packages/lesswrong/lib/postPageCache/r
 import {
   STATUS_CODE_LOOPBACK_HEADER,
   buildCachedPostPath,
-  getHtmlCacheIneligibilityReason,
+  getCacheablePostPagePath,
   normalizeAcceptEncoding,
-  parsePostPagePath,
 } from './packages/lesswrong/lib/postPageCache/htmlCacheEligibility';
+import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -18,10 +18,6 @@ export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
 
 const ForwardingHeaderName = STATUS_CODE_LOOPBACK_HEADER;
-
-// Server settings are read from environment variables; the middleware reads
-// the one it needs directly because the settings module isn't importable here.
-const postPageHtmlCacheEnabled = process.env.private_postPageCache_htmlCacheEnabled === 'true';
 
 function urlIsAbsolute(url: string): boolean {
   // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
@@ -66,7 +62,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (postPageHtmlCacheEnabled) {
+  if (postPageCacheConfig.htmlCacheEnabled) {
     const cachedPostResponse = getCachedPostRewriteResponse(request, addedClientId);
     if (cachedPostResponse) {
       return cachedPostResponse;
@@ -291,18 +287,13 @@ function addVaryHeader(response: NextResponse, headerName: string) {
  * dynamically.
  */
 function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
-  const ineligibilityReason = getHtmlCacheIneligibilityReason({
+  const parsedPath = getCacheablePostPagePath({
     method: request.method,
     pathname: request.nextUrl.pathname,
     search: request.nextUrl.search,
     cookieNames: request.cookies.getAll().map((cookie) => cookie.name),
-    getHeader: (name) => request.headers.get(name),
-    loopbackHeaderName: ForwardingHeaderName,
+    getHeader: (name: string) => request.headers.get(name),
   });
-  if (ineligibilityReason) {
-    return null;
-  }
-  const parsedPath = parsePostPagePath(request.nextUrl.pathname);
   if (!parsedPath) {
     return null;
   }

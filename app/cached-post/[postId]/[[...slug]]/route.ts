@@ -6,19 +6,13 @@ import {
   normalizeAcceptEncoding,
 } from '@/lib/postPageCache/htmlCacheEligibility';
 import { findStatusCodeInStream } from '@/lib/postPageCache/responseMetadataStream';
-import { postPageHtmlCacheEnabledSetting } from '@/server/databaseSettings';
+import { postPageCacheConfig } from '@/lib/postPageCache/config';
 
 /**
- * Cacheable rendering of a post page for logged-out visitors.
- *
- * middleware.ts rewrites eligible requests for /posts/:id/:slug here. This
- * handler renders the page through a loopback request to the real route, as
- * an anonymous visitor with a fixed set of request headers, reads the real
- * status code from the streamed HTML (the same marker the middleware scans
- * for), and returns the page with headers that make Vercel's CDN store it,
- * tagged by post so mutations can purge it. Nothing about the incoming
- * request except its path and its Accept-Encoding reaches the render, so the
- * stored page is the same for every visitor.
+ * CDN-cacheable rendering of a post page for logged-out visitors, reached via
+ * the rewrite in middleware.ts. The render is a loopback request with a fixed
+ * header set, so nothing the visitor sent except the path and Accept-Encoding
+ * can shape the shared page.
  */
 
 const CDN_MAX_AGE_SECONDS = 3 * 24 * 60 * 60;
@@ -36,7 +30,7 @@ interface CachedPostRouteParams {
 
 export async function GET(request: NextRequest, { params }: { params: Promise<CachedPostRouteParams> }) {
   const { postId, slug } = await params;
-  if (!postPageHtmlCacheEnabledSetting.get('LessWrong')) {
+  if (!postPageCacheConfig.htmlCacheEnabled) {
     return new NextResponse('Not found', { status: 404 });
   }
   if (!POST_ID_REGEX.test(postId) || (slug && (slug.length !== 1 || !SLUG_REGEX.test(slug[0])))) {

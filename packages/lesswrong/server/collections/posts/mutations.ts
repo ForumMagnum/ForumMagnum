@@ -1,4 +1,4 @@
-import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
+import { getPingbackTargetPostIds, invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import schema from "@/lib/collections/posts/newSchema";
@@ -197,8 +197,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
-  // A cached 404 may exist for this ID from requests that preceded creation.
-  invalidatePostPageCache(documentWithId._id);
+  // A cached 404 may exist for this ID from requests that preceded creation,
+  // and the posts this one links to now list it among their pingbacks.
+  invalidatePostPageCache([documentWithId._id, ...getPingbackTargetPostIds(documentWithId.pingbacks)]);
 
   return documentWithId;
 }
@@ -307,9 +308,24 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
 
-  invalidatePostPageCache(updatedDocument._id);
+  invalidatePostPageCache(
+    [updatedDocument._id, ...getPingbackTargetPostIds(oldDocument.pingbacks), ...getPingbackTargetPostIds(updatedDocument.pingbacks)],
+    { hardDelete: postVisibilityChanged(oldDocument, updatedDocument) },
+  );
 
   return updatedDocument;
+}
+
+/** Whether the update may have made the post stop being visible to logged-out visitors. */
+function postVisibilityChanged(oldPost: DbPost, newPost: DbPost): boolean {
+  return oldPost.draft !== newPost.draft
+    || oldPost.deletedDraft !== newPost.deletedDraft
+    || oldPost.status !== newPost.status
+    || oldPost.rejected !== newPost.rejected
+    || oldPost.onlyVisibleToLoggedIn !== newPost.onlyVisibleToLoggedIn
+    || oldPost.onlyVisibleToEstablishedAccounts !== newPost.onlyVisibleToEstablishedAccounts
+    || oldPost.authorIsUnreviewed !== newPost.authorIsUnreviewed
+    || oldPost.isFuture !== newPost.isFuture;
 }
 
 export const createPostGqlMutation = makeGqlCreateMutation('Posts', createPost, {

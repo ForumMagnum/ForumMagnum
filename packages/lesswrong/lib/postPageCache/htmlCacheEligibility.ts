@@ -1,6 +1,5 @@
 /**
  * Request classification for the CDN cache of logged-out post pages.
- *
  * Imported by middleware.ts, so this module must stay free of heavy or
  * node-only dependencies.
  */
@@ -28,19 +27,14 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   '_vercel_sso_nonce',
 ]);
 
+const NEXT_NAVIGATION_HEADERS = ['rsc', 'next-router-prefetch', 'next-router-state-tree', 'next-router-segment-prefetch'];
+
 export interface ParsedPostPagePath {
   postId: string
   slug: string | null
 }
 
 const POST_PAGE_PATH_REGEX = /^\/posts\/([A-Za-z0-9]{17})(?:\/([A-Za-z0-9_-]{1,300}))?\/?$/;
-
-/** Matches `/posts/:id` and `/posts/:id/:slug`, and nothing deeper. */
-export function parsePostPagePath(pathname: string): ParsedPostPagePath | null {
-  const match = POST_PAGE_PATH_REGEX.exec(pathname);
-  if (!match) return null;
-  return { postId: match[1], slug: match[2] ?? null };
-}
 
 export function buildPublicPostPath(postId: string, slug: string | null): string {
   return slug ? `/posts/${postId}/${slug}` : `/posts/${postId}`;
@@ -51,36 +45,29 @@ export function buildCachedPostPath(postId: string, slug: string | null): string
   return slug ? `${base}/${slug}` : base;
 }
 
-const NEXT_NAVIGATION_HEADERS = ['rsc', 'next-router-prefetch', 'next-router-state-tree', 'next-router-segment-prefetch'];
-
-export interface HtmlCacheEligibilityInput {
+export interface PostPageRequestInput {
   method: string
   pathname: string
   search: string
   cookieNames: readonly string[]
   getHeader: (name: string) => string | null
-  loopbackHeaderName: string
 }
 
 /**
- * Returns null when the request may be served the shared cached page, or a
- * short reason string otherwise. Only plain HTML document requests for a post
- * page, from visitors carrying no state-bearing cookies, are eligible.
+ * The post page a request may be served from the shared cache, or null when
+ * it must be rendered dynamically: anything but a plain GET/HEAD document
+ * request for `/posts/:id[/:slug]` with no query string, from a visitor
+ * carrying no state-bearing cookies.
  */
-export function getHtmlCacheIneligibilityReason(input: HtmlCacheEligibilityInput): string | null {
-  if (input.method !== 'GET' && input.method !== 'HEAD') return 'method';
-  if (!parsePostPagePath(input.pathname)) return 'path';
-  if (input.search && input.search !== '?') return 'query';
-  if (input.getHeader(input.loopbackHeaderName)) return 'loopback';
-  if (input.getHeader('authorization')) return 'authorization';
-  if (input.getHeader('range')) return 'range';
-  for (const header of NEXT_NAVIGATION_HEADERS) {
-    if (input.getHeader(header)) return 'rsc';
-  }
-  for (const cookieName of input.cookieNames) {
-    if (!HTML_CACHE_ALLOWED_COOKIES.has(cookieName)) return 'cookie';
-  }
-  return null;
+export function getCacheablePostPagePath(request: PostPageRequestInput): ParsedPostPagePath | null {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return null;
+  const match = POST_PAGE_PATH_REGEX.exec(request.pathname);
+  if (!match) return null;
+  if (request.search && request.search !== '?') return null;
+  if (request.getHeader(STATUS_CODE_LOOPBACK_HEADER) || request.getHeader('authorization') || request.getHeader('range')) return null;
+  if (NEXT_NAVIGATION_HEADERS.some((header) => request.getHeader(header))) return null;
+  if (request.cookieNames.some((cookieName) => !HTML_CACHE_ALLOWED_COOKIES.has(cookieName))) return null;
+  return { postId: match[1], slug: match[2] ?? null };
 }
 
 export type NormalizedAcceptEncoding = 'gzip' | 'identity';

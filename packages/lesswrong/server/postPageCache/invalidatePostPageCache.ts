@@ -1,21 +1,30 @@
-import { FORUM_WIDE_CACHE_TAG, postCacheTags } from '@/lib/postPageCache/cacheTags';
+import uniq from 'lodash/uniq';
+import { postCacheTag } from '@/lib/postPageCache/cacheTags';
+import { postPageCacheConfig } from '@/lib/postPageCache/config';
 import { sleep } from '@/lib/utils/asyncUtils';
-import { anonymousQueryCacheEnabledSetting, postPageHtmlCacheEnabledSetting } from '../databaseSettings';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { backgroundTask } from '../utils/backgroundTask';
-import { purgeCacheTags } from './purge';
+import { purgeCacheTags, type PurgeMode } from './purge';
 
 /**
- * Delay before the second purge. A render that was already in flight when a
- * change happened can finish after the first purge and re-fill the cache with
- * pre-change content; the second purge catches renders that finish within
- * this window.
+ * A render that was already in flight when a change happened can finish after
+ * the first purge and re-fill the cache with pre-change content. The second
+ * purge, this long after each change, catches renders that finish within the
+ * window.
  */
 const TRAILING_PURGE_DELAY_MS = 30_000;
 
-const trailingPurgesInFlight = new Set<string>();
+function isPostPageCachingEnabled(): boolean {
+  return postPageCacheConfig.anonymousQueryCacheEnabled || postPageCacheConfig.htmlCacheEnabled;
+}
 
-export function isPostPageCachingEnabled(): boolean {
-  return anonymousQueryCacheEnabledSetting.get('LessWrong') || postPageHtmlCacheEnabledSetting.get('LessWrong');
+export interface InvalidatePostPageCacheOptions {
+  /**
+   * Remove the entries instead of marking them stale, so no visitor is served
+   * the old content once more. For changes that make content stop being
+   * publicly visible.
+   */
+  hardDelete?: boolean
 }
 
 /**
@@ -24,51 +33,37 @@ export function isPostPageCachingEnabled(): boolean {
  * visitor sees on the post page have completed. Runs in the background and
  * never throws.
  */
-export function invalidatePostPageCache(postIds: string | readonly string[]): void {
+export function invalidatePostPageCache(postIds: string | readonly string[], options?: InvalidatePostPageCacheOptions): void {
   if (!isPostPageCachingEnabled()) return;
-  const tags = postCacheTags(typeof postIds === 'string' ? [postIds] : postIds);
+  const tags = uniq(typeof postIds === 'string' ? [postIds] : postIds).map(postCacheTag);
   if (tags.length === 0) return;
+  const mode: PurgeMode = options?.hardDelete ? 'delete' : 'invalidate';
 
-  backgroundTask(purgeCacheTags(tags));
-
-  const tagsNeedingTrailingPurge = tags.filter((tag) => !trailingPurgesInFlight.has(tag));
-  if (tagsNeedingTrailingPurge.length === 0) return;
-  for (const tag of tagsNeedingTrailingPurge) {
-    trailingPurgesInFlight.add(tag);
-  }
-  backgroundTask(runTrailingPurge(tagsNeedingTrailingPurge));
-}
-
-async function runTrailingPurge(tags: string[]): Promise<void> {
-  try {
-    await sleep(TRAILING_PURGE_DELAY_MS);
-    await purgeCacheTags(tags);
-  } finally {
-    for (const tag of tags) {
-      trailingPurgesInFlight.delete(tag);
-    }
-  }
+  backgroundTask(purgeCacheTags(tags, mode));
+  backgroundTask(sleep(TRAILING_PURGE_DELAY_MS).then(() => purgeCacheTags(tags, mode)));
 }
 
 /**
- * Invalidate the post page affected by a change to a voteable document
- * (a vote, or a moderation change to the document itself).
+ * Invalidate the post page affected by a change to a voteable document. For
+ * posts this includes the pages that list the post as a pingback, since they
+ * show its score.
  */
 export function invalidatePostPageCacheForVoteable(
   collectionName: CollectionNameString,
-  document: { _id: string, postId?: string | null },
+  document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
 ): void {
   if (collectionName === 'Posts') {
-    invalidatePostPageCache(document._id);
+    invalidatePostPageCache([document._id, ...getPingbackTargetPostIds(document.pingbacks)]);
   } else if (collectionName === 'Comments' && document.postId) {
     invalidatePostPageCache(document.postId);
   }
 }
 
-/** Purge every cached post page. For changes that affect many pages at once. */
-export function invalidateAllPostPageCaches(): void {
-  if (!isPostPageCachingEnabled()) return;
-  backgroundTask(purgeCacheTags([FORUM_WIDE_CACHE_TAG]));
+/** Posts whose pages list this post in their pingbacks, and so display its title, score and status. */
+export function getPingbackTargetPostIds(pingbacks: DbPost['pingbacks']): string[] {
+  const postIds: unknown = pingbacks?.Posts;
+  if (!Array.isArray(postIds)) return [];
+  return postIds.filter((postId): postId is string => typeof postId === 'string');
 }
 
 /**
@@ -79,4 +74,11 @@ export async function invalidatePostPageCachesForUser(userId: string, context: R
   if (!isPostPageCachingEnabled()) return;
   const postIds = await context.repos.posts.getPostIdsWhereUserAppears(userId);
   invalidatePostPageCache(postIds);
+}
+
+/** Invalidate every post in a sequence (their pages show the sequence's title and navigation). */
+export async function invalidatePostPageCachesForSequence(sequenceId: string, context: ResolverContext): Promise<void> {
+  if (!isPostPageCachingEnabled()) return;
+  const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
+  invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
 }

@@ -1,3 +1,4 @@
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
@@ -252,9 +253,21 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
 
-  invalidatePostPageCache([updatedDocument.postId, oldDocument.postId].filter((postId): postId is string => !!postId));
+  invalidatePostPageCache(
+    filterNonnull([updatedDocument.postId, oldDocument.postId]),
+    { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
+  );
 
   return updatedDocument;
+}
+
+/** Whether the update may have made the comment stop being visible to logged-out visitors. */
+function commentVisibilityChanged(oldComment: DbComment, newComment: DbComment): boolean {
+  return oldComment.deleted !== newComment.deleted
+    || oldComment.deletedPublic !== newComment.deletedPublic
+    || oldComment.rejected !== newComment.rejected
+    || oldComment.authorIsUnreviewed !== newComment.authorIsUnreviewed
+    || oldComment.draft !== newComment.draft;
 }
 
 export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createComment, {
