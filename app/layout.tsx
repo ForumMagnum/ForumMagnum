@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import ClientAppGenerator from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
-import { CLIENT_ID_COOKIE } from "@/lib/cookies/cookies";
+import { CLIENT_ID_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
@@ -55,9 +55,13 @@ const ClientAppGeneratorWithRequestId = async ({ children }: {
 }) => {
   const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
   const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
-  const forumType = await getForumTypeForPage();
+  const [forumType, cookieStore] = await Promise.all([getForumTypeForPage(), cookies()]);
+  // Passed down explicitly so that the client hydrates with the timezone this
+  // render used, even if the browser's own cookie differs from what the server
+  // received (as it does for pages served from the CDN cache).
+  const ssrTimezone = cookieStore.get(TIMEZONE_COOKIE)?.value ?? null;
 
-  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId} forumType={forumType}>
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId} forumType={forumType} ssrTimezone={ssrTimezone}>
     {children}
   </ClientAppGenerator>
 }
