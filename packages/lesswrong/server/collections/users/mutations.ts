@@ -153,9 +153,13 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
     updatedDocument.displayName !== oldDocument.displayName
     || updatedDocument.profileImageId !== oldDocument.profileImageId
     || updatedDocument.slug !== oldDocument.slug
+    || updatedDocument.deleted !== oldDocument.deleted
+    || updatedDocument.moderationStyle !== oldDocument.moderationStyle
+    || updatedDocument.moderationGuidelines?.html !== oldDocument.moderationGuidelines?.html
   ) {
     // Every post page shows the name and avatar of the post's authors,
-    // coauthors and commenters.
+    // coauthors and commenters (deleted users render as anonymous), and the
+    // author's moderation guidelines above the comment form.
     await invalidatePostPageCache(await context.repos.posts.getPostIdsWhereUserAppears(updatedDocument._id));
   }
   userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
