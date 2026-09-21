@@ -193,8 +193,6 @@ export const memoryUsageCheckInterval = new ParsedServerSetting<number>("memoryU
 export const logGraphqlQueriesSetting = new ParsedServerSetting<boolean>("logGraphqlQueries", false);
 export const logGraphqlMutationsSetting = new ParsedServerSetting<boolean>("logGraphqlMutations", false);
 
-
-
 /**
  * Kill switch for the scheduled "Content for You" digest send. Off by default so
  * enabling it is a deliberate settings change; the recipient cohort is limited

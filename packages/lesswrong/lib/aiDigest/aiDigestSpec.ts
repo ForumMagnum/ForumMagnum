@@ -33,6 +33,8 @@ export interface AiDigestItem {
   previewHtml?: string;
   /** For discussion items: the selected replies. */
   threadComments?: AiDigestThreadComment[];
+  /** Optional ancestor chain grounding the selection in reader engagement. */
+  contextComments?: AiDigestThreadComment[];
 }
 
 export interface AiDigestSection {

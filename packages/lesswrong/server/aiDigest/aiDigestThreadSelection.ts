@@ -28,6 +28,11 @@ export const AI_DIGEST_THREAD_REASON_MAX_LENGTH = 180;
 const threadSelectionOutputSchema = z.object({
   selectedThreads: z.array(z.object({
     anchorCommentId: z.string(),
+    contextCommentId: z.string().optional().describe(
+      "A comment the reader authored or upvoted that the anchor descends from "
+      + "within three levels, displayed with any intervening parents above the "
+      + "anchor for context. Omit when no such context genuinely grounds the selection.",
+    ),
     displayCommentIds: z.array(z.string()).describe(
       "Additional comment IDs to display beneath the anchor, at most two, "
       + "not repeating the anchor. Each one's parent chain must reach the "
@@ -47,6 +52,8 @@ export type AiDigestThreadSelectionModelOutput = z.infer<typeof threadSelectionO
 
 export interface AiDigestSelectedThread {
   anchorCommentId: string;
+  /** Top-down ancestor chain, from the reader-engaged comment to the anchor's parent. */
+  contextCommentIds: string[];
   displayCommentIds: string[];
   /** Null only when clamping dropped an empty or overlong model reason. */
   reason: string | null;
@@ -144,6 +151,50 @@ function connectedDisplayComments(
     .slice(0, AI_DIGEST_MAX_COMMENTS_PER_THREAD - 1);
 }
 
+function contextCommentChain(
+  contextCommentId: string | undefined,
+  anchorCommentId: string,
+  requestedDisplayCommentIds: string[],
+  commentsById: Map<string, ThreadCommentLookupEntry>,
+  candidates: AiDigestThreadCandidates,
+  threadId: string,
+): string[] {
+  if (!contextCommentId) {
+    return [];
+  }
+  const contextFlags = candidates.commentFlagsById.get(contextCommentId);
+  if (
+    !contextFlags
+    || (!contextFlags.authoredByReader && contextFlags.upvoteStrength === null)
+  ) {
+    return [];
+  }
+  const displayedIds = new Set([anchorCommentId, ...requestedDisplayCommentIds]);
+  if (displayedIds.has(contextCommentId)) {
+    return [];
+  }
+
+  const ancestorsFromAnchor: string[] = [];
+  let ancestorId = commentsById.get(anchorCommentId)?.parentCommentId ?? null;
+  while (ancestorId && ancestorsFromAnchor.length < 3) {
+    const ancestor = commentsById.get(ancestorId);
+    if (
+      !ancestor
+      || ancestor.threadId !== threadId
+      || displayedIds.has(ancestorId)
+      || ancestorsFromAnchor.includes(ancestorId)
+    ) {
+      return [];
+    }
+    ancestorsFromAnchor.push(ancestorId);
+    if (ancestorId === contextCommentId) {
+      return ancestorsFromAnchor.reverse();
+    }
+    ancestorId = ancestor.parentCommentId;
+  }
+  return [];
+}
+
 /**
  * Deterministic clamping of the thread-selection model output: unknown IDs,
  * ineligible anchors, excluded threads, stale repeats, disconnected display
@@ -193,10 +244,19 @@ export function clampAiDigestThreadSelectionOutput(
       commentsById,
       anchor.threadId,
     ).slice(0, remainingBudget - 1);
+    const contextCommentIds = contextCommentChain(
+      selection.contextCommentId,
+      selection.anchorCommentId,
+      selection.displayCommentIds,
+      commentsById,
+      candidates,
+      anchor.threadId,
+    );
     usedThreadIds.add(anchor.threadId);
     totalDisplayedComments += 1 + displayCommentIds.length;
     return [{
       anchorCommentId: selection.anchorCommentId,
+      contextCommentIds,
       displayCommentIds,
       reason: sanitizedReason(selection.reason),
     }];

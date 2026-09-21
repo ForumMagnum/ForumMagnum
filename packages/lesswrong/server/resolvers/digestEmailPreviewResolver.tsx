@@ -56,6 +56,7 @@ async function renderDigestSampleForUser({
     throw new Error(`User ${user.slug} has no email address`);
   }
   return wrapAndRenderEmail({
+    forumType: "LessWrong",
     user,
     to: userEmail,
     subject: spec.subject,

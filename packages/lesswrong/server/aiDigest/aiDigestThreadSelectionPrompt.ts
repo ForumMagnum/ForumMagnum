@@ -46,19 +46,22 @@ Threads and comments marked \`excluded\` or \`anchorIneligible\` follow these ru
 
 # Thread display semantics
 
-Each selection renders as a connected subtree: the anchor comment first, then the additional displayed comments beneath it.
+Each selection renders as a connected thread view: optional parent context above the anchor, then the anchor and additional displayed comments beneath it.
 - The anchor need not be the thread's top-level comment; for deep threads, anchor where the interesting exchange starts.
-- Prefer anchors comprehensible without parent context, since nothing above the anchor is shown.
+- Prefer anchors comprehensible without parent context unless the selection is grounded by a qualifying \`contextCommentId\`.
 - Every additional displayed comment's parent chain must reach the anchor within the displayed set. Siblings and branching are allowed; gaps are not — a displayed comment whose parent is neither the anchor nor another displayed comment will be dropped.
+- When a thread is selected because it continues from a comment the reader wrote or upvoted, set \`contextCommentId\` to that reader-engaged comment. It and the comments between it and the anchor (at most two intermediaries) will be displayed above the anchor as its real parent chain, so the reader can see what the exchange follows from without having to remember it.
+- Use context only when it genuinely grounds the selection. Omit \`contextCommentId\` for interest matches and site-wide picks, or when the qualifying comment is more than three parent links above the anchor.
 
 Sizing limits:
 - Up to 3 threads.
 - At most 3 displayed comments per thread (the anchor plus up to 2 more).
 - At most 6 displayed comments in total across all threads.
+- Context comments do not count against the per-thread or total displayed-comment limits.
 
 # Output
 
-Return the structured output requested by the supplied schema: \`selectedThreads\`, each with an \`anchorCommentId\`, \`displayCommentIds\` (the additional comments, not repeating the anchor), and a \`reason\`.
+Return the structured output requested by the supplied schema: \`selectedThreads\`, each with an \`anchorCommentId\`, optional \`contextCommentId\` (the reader-authored or upvoted ancestor that grounds the selection), \`displayCommentIds\` (the additional comments beneath the anchor, not repeating it), and a \`reason\`.
 
 Every selected thread carries a \`reason\`: the true reason you selected it for this reader, at most 180 characters. It states why this thread was picked, then stops — never a synopsis of the thread's contents or premise, since the reader sees the comments next to it. This covers the entire reason, including anything appended after a dash, colon, or comma.
 

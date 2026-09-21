@@ -6,10 +6,11 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   buildAiDigestPreview,
-  collapseAiDigestWhitespace,
+  buildAiDigestThreadTree,
   countAiDigestWords,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText,
+  type AiDigestThreadNode,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -402,29 +403,36 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   discussionThreadTitleSubject: {
     fontWeight: aiDigestPresentation.discussion.threadTitleSubjectFontWeight,
   },
-  // Thread comments nest as cards within cards, the way CommentFrame renders
-  // comment trees elsewhere on the site.
-  commentNode: {
-    border: theme.palette.border.commentBorder,
-  },
-  commentNodeRoot: {
+  commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
-    borderRadius: theme.borderRadius.small,
-  },
-  commentNodeChild: {
-    marginLeft: 8,
-    marginBottom: 6,
-    borderRight: "none",
-    borderRadius: "2px 0 0 2px",
-  },
-  commentNodeEven: {
-    backgroundColor: theme.palette.panelBackground.commentNodeEven,
-  },
-  commentNodeOdd: {
-    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
-  },
-  commentNodeBody: {
     padding: aiDigestPresentation.discussion.commentPadding,
+    border: "1px solid light-dark(#e6dfd2, #4a4844)",
+    borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
+  },
+  // Every level is an explicit step so deep context chains can cap their
+  // indentation instead of progressively squeezing the comment text.
+  reply: {
+    marginTop: aiDigestPresentation.discussion.replyMarginTop,
+  },
+  commentBoxIndent1: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep,
+  },
+  commentBoxIndent2: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 2,
+  },
+  commentBoxIndent3: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 3,
+  },
+  commentBoxIndent4: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep
+      * aiDigestPresentation.discussion.maxCommentIndentLevel,
+  },
+  // Alternating thread backgrounds, matching onsite comment nodes.
+  commentBoxOdd: {
+    background: theme.palette.panelBackground.commentNodeOdd,
+  },
+  commentBoxEven: {
+    background: theme.palette.panelBackground.commentNodeEven,
   },
   commentByline: {
     marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
@@ -474,14 +482,6 @@ interface DigestContentLookup {
   commentsById: Map<string, AiDigestEmailComment>;
 }
 
-interface DigestThreadCommentCandidate {
-  comment: AiDigestEmailComment;
-}
-
-interface DigestThreadNode extends DigestThreadCommentCandidate {
-  replies: DigestThreadNode[];
-}
-
 function itemKey(item: AiDigestItem): string {
   return `${item.documentRef.documentType}:${item.documentRef.documentId}`;
 }
@@ -504,7 +504,6 @@ function getCommentUrl(comment: AiDigestEmailComment): string {
     tagSlug: comment.tag?.slug,
     tagCommentType: comment.tagCommentType,
     commentId: comment._id,
-    isAbsolute: false,
   });
 }
 
@@ -516,7 +515,6 @@ function getCommentPermalinkUrl(comment: AiDigestEmailComment): string {
     tagCommentType: comment.tagCommentType,
     commentId: comment._id,
     permalink: true,
-    isAbsolute: false,
   });
 }
 
@@ -538,31 +536,6 @@ function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
     return { prefix: "Comments on", subject: comment.tag.name };
   }
   return { prefix: null, subject: "Comments" };
-}
-
-function compareCommentsByDate(
-  firstComment: DigestThreadCommentCandidate,
-  secondComment: DigestThreadCommentCandidate,
-): number {
-  return new Date(firstComment.comment.postedAt).getTime()
-    - new Date(secondComment.comment.postedAt).getTime();
-}
-
-/** The replies under `parentCommentId`, oldest first, each with its own replies. */
-function buildThreadReplies(
-  parentCommentId: string,
-  comments: DigestThreadCommentCandidate[],
-): DigestThreadNode[] {
-  const directReplies = comments
-    .filter(({ comment }) => comment.parentCommentId === parentCommentId)
-    .sort(compareCommentsByDate);
-  const remainingComments = comments.filter(
-    ({ comment }) => comment.parentCommentId !== parentCommentId,
-  );
-  return directReplies.map(({ comment }) => ({
-    comment,
-    replies: buildThreadReplies(comment._id, remainingComments),
-  }));
 }
 
 function ItemMetadata({
@@ -787,31 +760,59 @@ function QuickTakeItem({
   );
 }
 
-function ThreadCommentNode({
-  node,
-  nestingLevel,
+function discussionCommentMaxLength(
+  commentId: string,
+  anchorCommentId: string,
+  contextCommentIds: string[],
+): number {
+  if (commentId === anchorCommentId) {
+    return aiDigestPresentation.excerptCharacters.discussionRoot;
+  }
+  return contextCommentIds.includes(commentId)
+    ? aiDigestPresentation.excerptCharacters.discussionContext
+    : aiDigestPresentation.excerptCharacters.discussionReply;
+}
+
+function CommentBox({
+  comment,
+
+  replies,
+  anchorCommentId,
+  contextCommentIds,
+  nestingLevel = 0,
 }: {
-  node: DigestThreadNode;
-  nestingLevel: number;
+  comment: AiDigestEmailComment;
+
+  replies: AiDigestThreadNode<AiDigestEmailComment>[];
+  anchorCommentId: string;
+  contextCommentIds: string[];
+  nestingLevel?: number;
 }) {
   const classes = useStyles(styles);
-  const { comment, replies } = node;
   const commentUrl = getCommentUrl(comment);
+  const maxLength = discussionCommentMaxLength(
+    comment._id,
+    anchorCommentId,
+    contextCommentIds,
+  );
   const text = truncateAiDigestText(
     comment.contents?.plaintextMainText ?? "",
-    nestingLevel === 1
-      ? aiDigestPresentation.excerptCharacters.discussionRoot
-      : aiDigestPresentation.excerptCharacters.discussionReply,
+    maxLength,
   );
   return (
-    <div
-      className={classNames(
-        classes.commentNode,
-        nestingLevel === 1 ? classes.commentNodeRoot : classes.commentNodeChild,
-        nestingLevel % 2 === 0 ? classes.commentNodeEven : classes.commentNodeOdd,
-      )}
-    >
-      <div className={classes.commentNodeBody}>
+    <>
+      <div
+        className={classNames(
+          classes.commentBox,
+          nestingLevel > 0 && classes.reply,
+          nestingLevel === 1 && classes.commentBoxIndent1,
+          nestingLevel === 2 && classes.commentBoxIndent2,
+          nestingLevel === 3 && classes.commentBoxIndent3,
+          nestingLevel >= aiDigestPresentation.discussion.maxCommentIndentLevel
+            && classes.commentBoxIndent4,
+          nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+        )}
+      >
         <ItemMetadata
           author={comment.user?.displayName ?? "A LessWrong reader"}
           postedAt={comment.postedAt}
@@ -825,9 +826,17 @@ function ThreadCommentNode({
         </a>
       </div>
       {replies.map((reply) => (
-        <ThreadCommentNode key={reply.comment._id} node={reply} nestingLevel={nestingLevel + 1} />
+        <CommentBox
+          key={reply.comment._id}
+          comment={reply.comment}
+
+          replies={reply.replies}
+          anchorCommentId={anchorCommentId}
+          contextCommentIds={contextCommentIds}
+          nestingLevel={nestingLevel + 1}
+        />
       ))}
-    </div>
+    </>
   );
 }
 
@@ -846,10 +855,25 @@ function DiscussionItem({
     const threadComment = content.commentsById.get(commentId);
     return threadComment ? [{ comment: threadComment }] : [];
   });
-  const thread: DigestThreadNode = {
-    comment,
-    replies: buildThreadReplies(comment._id, candidateThreadComments),
-  };
+  const contextCommentSpecs = item.contextComments ?? [];
+  const contextComments = contextCommentSpecs.flatMap(({ commentId }) => {
+    const contextComment = content.commentsById.get(commentId);
+    return contextComment ? [{ comment: contextComment }] : [];
+  });
+  const hasCompleteContext = contextCommentSpecs.length > 0
+    && contextComments.length === contextCommentSpecs.length;
+  const rootComment = hasCompleteContext ? contextComments[0].comment : comment;
+  const descendantComments = hasCompleteContext
+    ? [
+      ...contextComments.slice(1),
+      { comment },
+      ...candidateThreadComments,
+    ]
+    : candidateThreadComments;
+  const threadReplies = buildAiDigestThreadTree(rootComment._id, descendantComments);
+  const contextCommentIds = hasCompleteContext
+    ? contextCommentSpecs.map(({ commentId }) => commentId)
+    : [];
   const { prefix, subject } = threadTitle(comment);
   return (
     <article className={classes.card}>
@@ -860,7 +884,13 @@ function DiscussionItem({
             <span className={classes.discussionThreadTitleSubject}>{subject}</span>
           </a>
         </h3>
-        <ThreadCommentNode node={thread} nestingLevel={1} />
+        <CommentBox
+          comment={rootComment}
+
+          replies={threadReplies}
+          anchorCommentId={comment._id}
+          contextCommentIds={contextCommentIds}
+        />
         <ItemFooter url={commentUrl} label="View thread" reason={item.reason} />
       </div>
     </article>
@@ -931,7 +961,7 @@ function CustomPromptCard({ personalInstructions }: { personalInstructions: stri
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
   const preview = truncateAiDigestText(personalInstructions, CUSTOM_PROMPT_PREVIEW_LENGTH);
-  const isTruncated = preview.length < collapseAiDigestWhitespace(personalInstructions).length;
+  const isTruncated = preview.length < personalInstructions.replace(/\s+/g, " ").trim().length;
   return (
     <div className={classes.customPrompt}>
       <div className={classes.customPromptLabel}>Your custom prompt</div>
@@ -968,6 +998,7 @@ export function AiDigestIssueView({
   );
   const commentIds = items.flatMap((item) => [
     ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
+    ...(item.contextComments ?? []).map(({ commentId }) => commentId),
     ...(item.threadComments ?? []).map(({ commentId }) => commentId),
   ]);
   const { data, loading, error } = useQuery(AiDigestIssueContentQuery, {

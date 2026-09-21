@@ -152,7 +152,7 @@ async function loadEligibleSearchCandidates({
     return [];
   }
   const minKarma = toolsContext.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
-  const aboutPostId = aboutPostIdSetting.get();
+  const aboutPostId = aboutPostIdSetting.get(toolsContext.context.forumType);
   const hiddenPostIds = new Set(
     toolsContext.user.hiddenPostsMetadata.map((metadata) => metadata.postId),
   );

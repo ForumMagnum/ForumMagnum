@@ -446,6 +446,7 @@ describe("AI digest thread selection clamping", () => {
     expect(clamped.selectedThreads).toEqual([
       {
         anchorCommentId: "thread-1",
+        contextCommentIds: [],
         displayCommentIds: [],
         reason: "New replies in a thread you commented in",
       },
@@ -472,6 +473,7 @@ describe("AI digest thread selection clamping", () => {
     }, candidates);
     expect(clamped.selectedThreads).toEqual([{
       anchorCommentId: "thread-1-reply-1",
+      contextCommentIds: [],
       displayCommentIds: ["thread-1-reply-3", "thread-1-reply-2"],
       reason: "New replies in a thread you commented in",
     }]);
@@ -488,6 +490,152 @@ describe("AI digest thread selection clamping", () => {
       ],
     }, candidates);
     expect(clamped.selectedThreads[0].displayCommentIds).toEqual([]);
+  });
+
+  it("derives an upvoted direct parent as a one-comment context chain", () => {
+    const candidates = makeClampCandidates();
+    candidates.commentFlagsById.set(
+      "thread-1-reply-1",
+      toThreadCommentReaderFlags(makeAnnotation({
+        commentId: "thread-1-reply-1",
+        positivePreferenceStrength: "regular",
+      })),
+    );
+    const [thread] = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-2",
+        contextCommentId: "thread-1-reply-1",
+      })],
+    }, candidates).selectedThreads;
+    expect(thread.contextCommentIds).toEqual(["thread-1-reply-1"]);
+  });
+
+  it("derives an authored ancestor and its intermediary in top-down order", () => {
+    const candidates = makeClampCandidates();
+    candidates.commentFlagsById.set(
+      "thread-1-reply-1",
+      toThreadCommentReaderFlags(makeAnnotation({
+        commentId: "thread-1-reply-1",
+        authoredByReader: true,
+      })),
+    );
+    const [thread] = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-3",
+        contextCommentId: "thread-1-reply-1",
+      })],
+    }, candidates).selectedThreads;
+    expect(thread.contextCommentIds).toEqual([
+      "thread-1-reply-1",
+      "thread-1-reply-2",
+    ]);
+  });
+
+  it("drops context that is not an ancestor or has no reader engagement", () => {
+    const candidates = makeClampCandidates();
+    candidates.commentFlagsById.set(
+      "thread-1-reply-4",
+      toThreadCommentReaderFlags(makeAnnotation({
+        commentId: "thread-1-reply-4",
+        positivePreferenceStrength: "strong",
+      })),
+    );
+    const notAncestor = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-2",
+        contextCommentId: "thread-1-reply-4",
+      })],
+    }, candidates).selectedThreads[0];
+    const notEngaged = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-2",
+        contextCommentId: "thread-1-reply-1",
+      })],
+    }, candidates).selectedThreads[0];
+    expect(notAncestor.contextCommentIds).toEqual([]);
+    expect(notEngaged.contextCommentIds).toEqual([]);
+  });
+
+  it("drops context more than three hops above the anchor", () => {
+    const candidates = makeClampCandidates();
+    candidates.commentFlagsById.set(
+      "thread-1",
+      toThreadCommentReaderFlags(makeAnnotation({
+        commentId: "thread-1",
+        authoredByReader: true,
+      })),
+    );
+    const [thread] = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-4",
+        contextCommentId: "thread-1",
+      })],
+    }, candidates).selectedThreads;
+    expect(thread.contextCommentIds).toEqual([]);
+  });
+
+  it("drops context IDs that collide with the anchor or requested display comments", () => {
+    const candidates = makeClampCandidates();
+    ["thread-1-reply-1", "thread-1-reply-2"].forEach((commentId) => {
+      candidates.commentFlagsById.set(
+        commentId,
+        toThreadCommentReaderFlags(makeAnnotation({
+          commentId,
+          positivePreferenceStrength: "regular",
+        })),
+      );
+    });
+    const anchorCollision = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-2",
+        contextCommentId: "thread-1-reply-2",
+      })],
+    }, candidates).selectedThreads[0];
+    const displayCollision = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        anchorCommentId: "thread-1-reply-2",
+        contextCommentId: "thread-1-reply-1",
+        displayCommentIds: ["thread-1-reply-1"],
+      })],
+    }, candidates).selectedThreads[0];
+    expect(anchorCollision.contextCommentIds).toEqual([]);
+    expect(displayCollision.contextCommentIds).toEqual([]);
+  });
+
+  it("does not count context comments against display budgets", () => {
+    const candidates = makeClampCandidates();
+    candidates.threadAnnotationsById.delete("thread-3");
+    candidates.commentFlagsById.set(
+      "thread-1",
+      toThreadCommentReaderFlags(makeAnnotation({
+        commentId: "thread-1",
+        authoredByReader: true,
+      })),
+    );
+    const clamped = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [
+        selection({
+          anchorCommentId: "thread-1-reply-3",
+          contextCommentId: "thread-1",
+          displayCommentIds: ["thread-1-reply-4"],
+        }),
+        selection({
+          anchorCommentId: "thread-2",
+          displayCommentIds: ["thread-2-reply-1", "thread-2-reply-2"],
+        }),
+        selection({ anchorCommentId: "thread-3" }),
+      ],
+    }, candidates);
+    expect(clamped.selectedThreads).toHaveLength(3);
+    expect(clamped.selectedThreads[0].contextCommentIds).toEqual([
+      "thread-1",
+      "thread-1-reply-1",
+      "thread-1-reply-2",
+    ]);
+    expect(clamped.selectedThreads.reduce(
+      (total, thread) => total + 1 + thread.displayCommentIds.length,
+      0,
+    )).toBe(AI_DIGEST_MAX_THREAD_COMMENTS_TOTAL);
   });
 
   it("enforces the total displayed-comment budget across threads", () => {
@@ -641,22 +789,31 @@ describe("AI digest thread merge into the spec", () => {
   const selectedThreads: AiDigestSelectedThread[] = [
     {
       anchorCommentId: "anchor-1",
+      contextCommentIds: ["reader-comment-1", "intermediate-comment-1"],
       displayCommentIds: ["reply-1", "reply-2"],
       reason: "New replies in a thread you commented in",
     },
     {
       anchorCommentId: "quick-take-1",
+      contextCommentIds: [],
       displayCommentIds: [],
       reason: null,
     },
     {
       anchorCommentId: "anchor-2",
+      contextCommentIds: ["context-quick-take"],
       displayCommentIds: ["quick-take-1"],
+      reason: null,
+    },
+    {
+      anchorCommentId: "anchor-3",
+      contextCommentIds: ["quick-take-1"],
+      displayCommentIds: [],
       reason: null,
     },
   ];
 
-  it("drops threads that duplicate a selected quick take, keeping the rest", () => {
+  it("drops duplicate threads but only strips an overlapping context chain", () => {
     const selectedItems = buildAiDigestSpecFromPostSelection({
       recipientName: "Developer",
       modelLabel: "Test Model",
@@ -665,12 +822,23 @@ describe("AI digest thread merge into the spec", () => {
       postCandidates,
       quickTakeCandidates: [quickTake],
     }).sections[0].items;
-    expect(buildAiDigestDiscussionItems(selectedThreads, selectedItems)).toEqual([{
-      documentRef: { documentType: "comment", documentId: "anchor-1" },
-      placement: "full",
-      reason: "New replies in a thread you commented in",
-      threadComments: [{ commentId: "reply-1" }, { commentId: "reply-2" }],
-    }]);
+    expect(buildAiDigestDiscussionItems(selectedThreads, selectedItems)).toEqual([
+      {
+        documentRef: { documentType: "comment", documentId: "anchor-1" },
+        placement: "full",
+        reason: "New replies in a thread you commented in",
+        contextComments: [
+          { commentId: "reader-comment-1" },
+          { commentId: "intermediate-comment-1" },
+        ],
+        threadComments: [{ commentId: "reply-1" }, { commentId: "reply-2" }],
+      },
+      {
+        documentRef: { documentType: "comment", documentId: "anchor-3" },
+        placement: "full",
+        threadComments: [],
+      },
+    ]);
   });
 
   it("builds a discussion section from thread output and omits it when empty", () => {
@@ -688,6 +856,7 @@ describe("AI digest thread merge into the spec", () => {
       "anchor-1",
       "quick-take-1",
       "anchor-2",
+      "anchor-3",
     ]);
 
     const withoutThreads = buildAiDigestSpecFromPostSelection({
@@ -744,7 +913,7 @@ describe("AI digest thread merge into the spec", () => {
       toolUsage: { toolCallCount: 3, searchCount: 2, readPostCount: 1 },
     });
     expect(persistIssue).toHaveBeenCalledWith(expect.objectContaining({
-      discussionCommentIds: ["anchor-1", "quick-take-1", "anchor-2"],
+      discussionCommentIds: ["anchor-1", "quick-take-1", "anchor-2", "anchor-3"],
       threadPromptVersion: "thread-selection-v2",
       threadSelectionUserPrompt: "Thread user prompt",
       threadInputTokenCount: 9_000,

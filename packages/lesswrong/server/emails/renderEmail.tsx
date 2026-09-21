@@ -234,9 +234,7 @@ export const wrapAndRenderEmail = async ({
   subject,
   body,
   utmParams,
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType });
-    const succeeded = await sendEmail(email, tracking);
-    backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
+  forumType,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -301,15 +299,9 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-<<<<<<< HEAD
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
-    const succeeded = await sendEmail(email, tracking);
-    backgroundTask(logSentEmail(email, user, {succeeded}));
-=======
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType });
-    const succeeded = await sendEmail(email);
+    const succeeded = await sendEmail(email, tracking);
     backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
->>>>>>> origin/master
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console

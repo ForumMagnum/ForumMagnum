@@ -28,7 +28,7 @@ export interface AiDigestLinkSlot {
 
 /** Mail clients have no base URL to resolve against, so every href must be absolute. */
 export function absoluteEmailUrl(url: string): string {
-  return new URL(url, getSiteUrl()).toString();
+  return new URL(url, getSiteUrl("LessWrong")).toString();
 }
 
 /**
@@ -43,7 +43,7 @@ export function aiDigestLinkUrl(
   const emailSrc = slot
     ? `${sectionCodes[slot.sectionKind]}.${slot.itemIndex}.${role}`
     : role;
-  const trackedUrl = new URL(url, getSiteUrl());
+  const trackedUrl = new URL(url, getSiteUrl("LessWrong"));
   trackedUrl.searchParams.set(EMAIL_SRC_QUERY_PARAM, emailSrc);
   return trackedUrl.toString();
 }

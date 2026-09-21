@@ -10,10 +10,12 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   buildAiDigestPreview as buildPreview,
+  buildAiDigestThreadTree as buildThreadTree,
   countAiDigestWords as countWords,
   formatAiDigestDate as formatDate,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText as truncateText,
+  type AiDigestThreadNode,
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
@@ -641,24 +643,37 @@ const styles = defineStyles("AiDigestEmail", () => ({
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
     padding: aiDigestPresentation.discussion.commentPadding,
-    backgroundColor: "#ffffff",
     border: "1px solid #e6dfd2",
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
     [emailMobileBreakpoint]: {
       padding: "9px 5px 10px !important",
     },
   },
+  // Every level is an explicit step so deep context chains can cap their
+  // indentation instead of progressively squeezing the comment text.
   commentBoxReply: {
-    marginLeft: aiDigestPresentation.discussion.replyMarginLeft,
-    [emailMobileBreakpoint]: {
-      marginLeft: "10px !important",
-    },
+    marginTop: aiDigestPresentation.discussion.replyMarginTop,
   },
-  commentBoxNestedReply: {
-    marginLeft: aiDigestPresentation.discussion.nestedReplyMarginLeft,
-    [emailMobileBreakpoint]: {
-      marginLeft: "18px !important",
-    },
+  commentBoxIndent1: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep,
+  },
+  commentBoxIndent2: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 2,
+  },
+  commentBoxIndent3: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 3,
+  },
+  commentBoxIndent4: {
+    marginLeft: aiDigestPresentation.discussion.commentIndentStep
+      * aiDigestPresentation.discussion.maxCommentIndentLevel,
+  },
+  // Alternating thread backgrounds, matching the onsite comments-node-odd /
+  // comments-node-even colors (grey 25 and grey 120 in light mode).
+  commentBoxOdd: {
+    backgroundColor: "#fcfcfc",
+  },
+  commentBoxEven: {
+    backgroundColor: "#f2f2f2",
   },
   commentByline: {
     marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
@@ -815,6 +830,7 @@ function postReadMoreLabel(post: AiDigestEmailPost, displayedExcerpt: string): s
 }
 
 const tuneDigestUrl = "/contentForYou";
+// Placeholder until the dedicated explainer exists.
 const digestExplanationUrl = "/posts/zd4pwyeKGuhuSKX6g";
 
 function AiNote({ note, classes }: {
@@ -941,7 +957,7 @@ function HeadlinePost({ post, item, slot, classes }: {
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetPageUrl(post);
   const imageUrl = post.socialPreviewData.imageUrl;
   const preview = item.previewHtml
     ? buildPreview(
@@ -1024,7 +1040,7 @@ function CompactPost({ post, item, slot, classes }: {
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetPageUrl(post);
   const imageUrl = post.socialPreviewData.imageUrl;
   const preview = item.previewHtml
     ? buildPreview(
@@ -1102,7 +1118,7 @@ function QuietPost({ post, isRead, slot, classes }: {
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetPageUrl(post);
   return (
     <div className={classes.quietItem}>
       <a
@@ -1128,7 +1144,6 @@ function getCommentUrl(comment: AiDigestEmailComment): string {
     tagSlug: comment.tag?.slug,
     tagCommentType: comment.tagCommentType,
     commentId: comment._id,
-    isAbsolute: true,
   });
 }
 
@@ -1223,81 +1238,106 @@ function threadTitle(comment: AiDigestEmailComment): ThreadTitle {
   return { prefix: null, subject: "Comments" };
 }
 
-interface DigestThreadComment {
-  comment: AiDigestEmailComment;
-  nestingLevel: number;
-}
-
-interface DigestThreadCommentCandidate {
-  comment: AiDigestEmailComment;
-}
-
-function compareCommentsByDate(
-  firstComment: DigestThreadCommentCandidate,
-  secondComment: DigestThreadCommentCandidate,
+function discussionCommentMaxLength(
+  commentId: string,
+  anchorCommentId: string,
+  contextCommentIds: string[],
 ): number {
-  return new Date(firstComment.comment.postedAt).getTime()
-    - new Date(secondComment.comment.postedAt).getTime();
+  if (commentId === anchorCommentId) {
+    return aiDigestPresentation.excerptCharacters.discussionRoot;
+  }
+  return contextCommentIds.includes(commentId)
+    ? aiDigestPresentation.excerptCharacters.discussionContext
+    : aiDigestPresentation.excerptCharacters.discussionReply;
 }
 
-function flattenThreadComments(
-  parentCommentId: string,
-  comments: DigestThreadCommentCandidate[],
-  nestingLevel = 1,
-): DigestThreadComment[] {
-  const directReplies = comments
-    .filter(({ comment }) => comment.parentCommentId === parentCommentId)
-    .sort(compareCommentsByDate);
-  const remainingComments = comments.filter(
-    ({ comment }) => comment.parentCommentId !== parentCommentId,
-  );
+function CommentBox({
+  comment,
 
-  return directReplies.flatMap(({ comment }) => [
-    { comment, nestingLevel },
-    ...flattenThreadComments(comment._id, remainingComments, nestingLevel + 1),
-  ]);
-}
-
-function CommentBox({ comment, maxLength, nestingLevel = 0, slot, classes }: {
+  replies,
+  anchorCommentId,
+  contextCommentIds,
+  nestingLevel = 0,
+  slot,
+  classes,
+}: {
   comment: AiDigestEmailComment;
-  maxLength: number;
+
+  replies: AiDigestThreadNode<AiDigestEmailComment>[];
+  anchorCommentId: string;
+  contextCommentIds: string[];
   nestingLevel?: number;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
+  const maxLength = discussionCommentMaxLength(
+    comment._id,
+    anchorCommentId,
+    contextCommentIds,
+  );
   const text = truncateText(comment.contents?.plaintextMainText ?? "", maxLength);
   const commentUrl = getCommentUrl(comment);
   return (
-    <div
-      className={classNames(
-        classes.commentBox,
-        nestingLevel === 1 && classes.commentBoxReply,
-        nestingLevel >= 2 && classes.commentBoxNestedReply,
-      )}
-    >
-      <a
-        href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
-        className={classes.commentLink}
+    <>
+      <div
+        className={classNames(
+          classes.commentBox,
+          nestingLevel > 0 && classes.commentBoxReply,
+          nestingLevel === 1 && classes.commentBoxIndent1,
+          nestingLevel === 2 && classes.commentBoxIndent2,
+          nestingLevel === 3 && classes.commentBoxIndent3,
+          nestingLevel >= aiDigestPresentation.discussion.maxCommentIndentLevel
+            && classes.commentBoxIndent4,
+          nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+        )}
       >
-        <div className={classes.commentByline}>
-          {comment.user?.displayName ?? "A LessWrong reader"}
-          <span className={classes.commentBylineDate}>{formatDate(comment.postedAt)}</span>
-        </div>
-        <div className={classes.commentText}>{text}</div>
-      </a>
-    </div>
+        <a
+          href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
+          className={classes.commentLink}
+        >
+          <div className={classes.commentByline}>
+            {comment.user?.displayName ?? "A LessWrong reader"}
+            <span className={classes.commentBylineDate}>{formatDate(comment.postedAt)}</span>
+          </div>
+          <div className={classes.commentText}>{text}</div>
+        </a>
+      </div>
+      {replies.map((reply) => (
+        <CommentBox
+          key={reply.comment._id}
+          comment={reply.comment}
+
+          replies={reply.replies}
+          anchorCommentId={anchorCommentId}
+          contextCommentIds={contextCommentIds}
+          nestingLevel={nestingLevel + 1}
+          slot={slot}
+          classes={classes}
+        />
+      ))}
+    </>
   );
 }
 
-function DiscussionItem({ comment, item, threadComments, slot, classes }: {
-  comment: AiDigestEmailComment;
+function DiscussionItem({
+  anchorComment,
+  rootComment,
+  item,
+  threadReplies,
+  contextCommentIds,
+  slot,
+  classes,
+}: {
+  anchorComment: AiDigestEmailComment;
+  rootComment: AiDigestEmailComment;
   item: AiDigestItem;
-  threadComments: DigestThreadComment[];
+  threadReplies: AiDigestThreadNode<AiDigestEmailComment>[];
+  contextCommentIds: string[];
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
-  const commentUrl = getCommentUrl(comment);
-  const { prefix, subject } = threadTitle(comment);
+  const commentUrl = getCommentUrl(anchorComment);
+  const { prefix, subject } = threadTitle(anchorComment);
 
   return (
     <table
@@ -1320,21 +1360,14 @@ function DiscussionItem({ comment, item, threadComments, slot, classes }: {
               </a>
             </h3>
             <CommentBox
-              comment={comment}
-              maxLength={aiDigestPresentation.excerptCharacters.discussionRoot}
+              comment={rootComment}
+
+              replies={threadReplies}
+              anchorCommentId={anchorComment._id}
+              contextCommentIds={contextCommentIds}
               slot={slot}
               classes={classes}
             />
-            {threadComments.map(({ comment: reply, nestingLevel }) => (
-              <CommentBox
-                key={reply._id}
-                comment={reply}
-                maxLength={aiDigestPresentation.excerptCharacters.discussionReply}
-                nestingLevel={nestingLevel}
-                slot={slot}
-                classes={classes}
-              />
-            ))}
             <ItemFooter
               readMoreUrl={aiDigestLinkUrl(commentUrl, "readMore", slot)}
               readMoreLabel="View thread"
@@ -1393,12 +1426,32 @@ function DigestItem({ item, content, slot, classes }: {
     const threadComment = content.commentsById.get(commentId);
     return threadComment ? [{ comment: threadComment }] : [];
   });
-  const threadComments = flattenThreadComments(comment._id, candidateThreadComments);
+  const contextCommentSpecs = item.contextComments ?? [];
+  const contextComments = contextCommentSpecs.flatMap(({ commentId }) => {
+    const contextComment = content.commentsById.get(commentId);
+    return contextComment ? [{ comment: contextComment }] : [];
+  });
+  const hasCompleteContext = contextCommentSpecs.length > 0
+    && contextComments.length === contextCommentSpecs.length;
+  const rootComment = hasCompleteContext ? contextComments[0].comment : comment;
+  const descendantComments = hasCompleteContext
+    ? [
+      ...contextComments.slice(1),
+      { comment },
+      ...candidateThreadComments,
+    ]
+    : candidateThreadComments;
+  const threadReplies = buildThreadTree(rootComment._id, descendantComments);
+  const contextCommentIds = hasCompleteContext
+    ? contextCommentSpecs.map(({ commentId }) => commentId)
+    : [];
   return (
     <DiscussionItem
-      comment={comment}
+      anchorComment={comment}
+      rootComment={rootComment}
       item={item}
-      threadComments={threadComments}
+      threadReplies={threadReplies}
+      contextCommentIds={contextCommentIds}
       slot={slot}
       classes={classes}
     />
@@ -1480,6 +1533,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
   );
   const commentIds = items.flatMap((item) => [
     ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
+    ...(item.contextComments ?? []).map(({ commentId }) => commentId),
     ...(item.threadComments ?? []).map(({ commentId }) => commentId),
   ]);
 

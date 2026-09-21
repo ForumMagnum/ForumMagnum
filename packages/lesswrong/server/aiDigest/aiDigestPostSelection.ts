@@ -353,15 +353,24 @@ export function buildAiDigestDiscussionItems(
       !selectedQuickTakeIds.has(thread.anchorCommentId)
       && !thread.displayCommentIds.some((commentId) =>
         selectedQuickTakeIds.has(commentId)))
-    .map((thread) => ({
-      documentRef: {
-        documentType: "comment",
-        documentId: thread.anchorCommentId,
-      },
-      placement: "full",
-      ...(thread.reason !== null ? { reason: thread.reason } : {}),
-      threadComments: thread.displayCommentIds.map((commentId) => ({ commentId })),
-    }));
+    .map((thread): AiDigestItem => {
+      const contextOverlapsQuickTake = thread.contextCommentIds.some(
+        (commentId) => selectedQuickTakeIds.has(commentId),
+      );
+      const contextComments = contextOverlapsQuickTake
+        ? []
+        : thread.contextCommentIds.map((commentId) => ({ commentId }));
+      return {
+        documentRef: {
+          documentType: "comment",
+          documentId: thread.anchorCommentId,
+        },
+        placement: "full",
+        ...(thread.reason !== null ? { reason: thread.reason } : {}),
+        ...(contextComments.length > 0 ? { contextComments } : {}),
+        threadComments: thread.displayCommentIds.map((commentId) => ({ commentId })),
+      };
+    });
 }
 
 export function buildAiDigestSpecFromPostSelection({

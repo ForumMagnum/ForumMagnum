@@ -118,6 +118,7 @@ async function sendAiDigestToUser(user: DbUser): Promise<void> {
     throw new Error(`Scheduled AI digest for ${user._id} was not persisted`);
   }
   const sent = await wrapAndSendEmail({
+    forumType: "LessWrong",
     user,
     subject: spec.subject,
     body: aiDigestEmailBody(spec),
@@ -147,10 +148,10 @@ async function sendAiDigestToUser(user: DbUser): Promise<void> {
 }
 
 export async function sendScheduledAiDigestEmails(now = new Date()): Promise<void> {
-  if (!aiDigestScheduledEmailsEnabledSetting.get()) {
+  if (!aiDigestScheduledEmailsEnabledSetting.get("LessWrong")) {
     return;
   }
-  const cadenceDays = aiDigestEmailCadenceDaysSetting.get();
+  const cadenceDays = aiDigestEmailCadenceDaysSetting.get("LessWrong");
   const subscribers = await loadAiDigestSubscribers();
   const lastScheduledIssueAt = await loadLastScheduledIssueAt(
     subscribers.map((user) => user._id),

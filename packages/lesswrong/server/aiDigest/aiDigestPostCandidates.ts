@@ -595,7 +595,7 @@ export async function loadAiDigestPostCandidates(
   const minKarma = options.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
   const limit = options.limit ?? AI_DIGEST_DEFAULT_CANDIDATE_LIMIT;
   const postHistoryById = options.postHistoryById ?? new Map<string, AiDigestPostHistory>();
-  const aboutPostId = aboutPostIdSetting.get();
+  const aboutPostId = aboutPostIdSetting.get(context.forumType);
   const hiddenPostIds = new Set(
     user.hiddenPostsMetadata.map((metadata) => metadata.postId),
   );

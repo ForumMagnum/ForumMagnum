@@ -69,3 +69,47 @@ export function formatAiDigestDate(date: string): string {
     day: "numeric",
   }).format(new Date(date));
 }
+
+interface AiDigestThreadCommentFields {
+  _id: string;
+  parentCommentId: string | null;
+  postedAt: string;
+}
+
+export interface AiDigestThreadCandidate<T extends AiDigestThreadCommentFields> {
+  comment: T;
+}
+
+export interface AiDigestThreadNode<T extends AiDigestThreadCommentFields> {
+  comment: T;
+  replies: AiDigestThreadNode<T>[];
+}
+
+function compareThreadCandidatesByDate<T extends AiDigestThreadCommentFields>(
+  firstCandidate: AiDigestThreadCandidate<T>,
+  secondCandidate: AiDigestThreadCandidate<T>,
+): number {
+  return new Date(firstCandidate.comment.postedAt).getTime()
+    - new Date(secondCandidate.comment.postedAt).getTime();
+}
+
+/**
+ * Arrange selected thread comments into a reply tree under the given root
+ * comment. Comments whose parent isn't part of the selection have nowhere to
+ * attach and are dropped.
+ */
+export function buildAiDigestThreadTree<T extends AiDigestThreadCommentFields>(
+  parentCommentId: string,
+  comments: AiDigestThreadCandidate<T>[],
+): AiDigestThreadNode<T>[] {
+  const directReplies = comments
+    .filter(({ comment }) => comment.parentCommentId === parentCommentId)
+    .sort(compareThreadCandidatesByDate);
+  const remainingComments = comments.filter(
+    ({ comment }) => comment.parentCommentId !== parentCommentId,
+  );
+  return directReplies.map(({ comment }) => ({
+    comment,
+    replies: buildAiDigestThreadTree(comment._id, remainingComments),
+  }));
+}
