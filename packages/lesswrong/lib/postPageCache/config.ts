@@ -1,5 +1,4 @@
-// Read with literal env var names so that the edge bundle used by
-// middleware.ts can inline them.
+// Read with literal env var names so that bundlers can inline them.
 export const postPageCacheConfig = {
   anonymousQueryCacheEnabled: process.env.POST_PAGE_CACHE_ANONYMOUS_QUERY_CACHE_ENABLED === 'true',
   htmlCacheEnabled: process.env.POST_PAGE_CACHE_HTML_ENABLED === 'true',

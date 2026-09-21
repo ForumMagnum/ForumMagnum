@@ -2,8 +2,7 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
-import { buildCachedPostPath, getCacheablePostPagePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/htmlCacheEligibility';
-import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
+import { isCachedPostRoutePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -55,11 +54,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (postPageCacheConfig.htmlCacheEnabled) {
-    const cachedPostResponse = getCachedPostRewriteResponse(request, addedClientId);
-    if (cachedPostResponse) {
-      return cachedPostResponse;
-    }
+  if (isCachedPostRoutePath(request.nextUrl.pathname)) {
+    return getCachedPostPassthroughResponse(request, addedClientId);
   }
 
   if (shouldProxyForStatusCode(request)) {
@@ -273,20 +269,15 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
-// Routes eligible logged-out post page requests to the cached-post route
-// handler, whose responses Vercel's CDN caches, one entry per post.
-function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
-  const parsedPath = getCacheablePostPagePath(request);
-  if (!parsedPath) {
-    return null;
-  }
-  const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
-
+// Passes requests for the cached post route handler (app/cache/posts) straight
+// through. It sets its own status code, so the status code proxying below is
+// not needed, and its responses are CDN-cached per post, so the request must
+// not carry anything that would vary them beyond the normalized encoding.
+function getCachedPostPassthroughResponse(request: NextRequest, addedClientId: string | null): NextResponse {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
 
-  const response = NextResponse.rewrite(targetUrl, { request: { headers: requestHeaders } });
-  response.headers.set('x-lw-post-cache-routing', 'cached');
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
   if (addedClientId) {
     addClientIdToResponseHeaders(response, addedClientId);
   }
@@ -351,7 +342,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cached-post|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
       ],

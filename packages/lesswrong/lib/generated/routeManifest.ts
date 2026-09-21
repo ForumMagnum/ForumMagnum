@@ -759,17 +759,24 @@ export const routeTrie = {
       },
       "hasPage": true
     },
-    "cached-post": {
-      "dynamicChild": {
-        "paramName": "postId",
-        "child": {
-          "optionalCatchAll": {
-            "paramName": "slug",
+    "cache": {
+      "staticChildren": {
+        "posts": {
+          "dynamicChild": {
+            "paramName": "postId",
             "child": {
-              "hasRoute": true
+              "optionalCatchAll": {
+                "paramName": "slug",
+                "child": {
+                  "hasRoute": true
+                }
+              }
             }
           }
         }
+      },
+      "lowerCase": {
+        "posts": "posts"
       }
     },
     "ckeditor-token": {
@@ -1447,7 +1454,7 @@ export const routeTrie = {
     "bestoflesswrongadmin": "bestoflesswrongadmin",
     "bookmarks": "bookmarks",
     "books": "books",
-    "cached-post": "cached-post",
+    "cache": "cache",
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",

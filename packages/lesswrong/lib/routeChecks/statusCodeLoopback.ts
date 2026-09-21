@@ -1,8 +1,8 @@
 // Imported by middleware.ts; keep free of heavy or node-only dependencies.
 
 // Marks a loopback render made by middleware.ts (for status code discovery)
-// or by the cached-post route handler. Requests carrying it bypass the
-// middleware's proxying and cache routing.
+// or by the cached post route handler (app/cache/posts). Requests carrying it
+// bypass the middleware's proxying.
 export const STATUS_CODE_LOOPBACK_HEADER = 'X-Forwarded-For-Status-Codes';
 
 // Requests forwarded through ngrok or Cloudflare's tunnel arrive with an

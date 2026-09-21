@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
-import { buildPublicPostPath, normalizeAcceptEncoding } from '@/lib/postPageCache/htmlCacheEligibility';
+import { CACHED_POST_RENDER_HEADER, buildPublicPostPath, normalizeAcceptEncoding } from '@/lib/postPageCache/cachedPostRoute';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from '@/lib/routeChecks/statusCodeLoopback';
 
-// Renders a post page for logged-out visitors in a form that Vercel's CDN
-// caches, one entry per post. Reached via the rewrite in middleware.ts.
+// Serves /cache/posts/:id[/:slug]: the post page as a logged-out visitor sees
+// it, in a form that Vercel's CDN caches, one entry per post. The page is
+// rendered through a loopback to the regular /posts route, which stays as it
+// is; any query string on the request is ignored. Visitors reach this route
+// only by requesting it directly, so it can be exercised without affecting
+// /posts.
 
 const CDN_MAX_AGE_SECONDS = 3 * 24 * 60 * 60;
 const CDN_STALE_WHILE_REVALIDATE_SECONDS = 3 * 24 * 60 * 60;
@@ -96,6 +100,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
 function getLoopbackHeaders(): Headers {
   const headers = new Headers({
     [STATUS_CODE_LOOPBACK_HEADER]: 'true',
+    [CACHED_POST_RENDER_HEADER]: 'true',
     'accept': 'text/html',
     'accept-encoding': 'identity',
     'accept-language': 'en-US,en',
