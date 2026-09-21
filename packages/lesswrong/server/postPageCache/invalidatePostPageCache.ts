@@ -7,7 +7,8 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import { backgroundTask, isInRequestContext } from '../utils/backgroundTask';
 
 const TRAILING_PURGE_DELAY_MS = 30_000;
-const MAX_TAGS_PER_PURGE_REQUEST = 100;
+// Vercel's purge API accepts at most 16 tags per call.
+const MAX_TAGS_PER_PURGE_REQUEST = 16;
 
 // `invalidate` marks entries stale: the next request is served the old
 // content while a fresh one is generated. `delete` removes them: the next
