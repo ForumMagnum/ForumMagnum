@@ -154,7 +154,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
     || updatedDocument.profileImageId !== oldDocument.profileImageId
     || updatedDocument.slug !== oldDocument.slug
   ) {
-    backgroundTask(invalidatePostPageCachesForUser(updatedDocument._id, context));
+    await invalidatePostPageCachesForUser(updatedDocument._id, context);
   }
   userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);

@@ -197,9 +197,13 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
-  // A cached 404 may exist for this ID from requests that preceded creation,
-  // and the posts this one links to now list it among their pingbacks.
-  invalidatePostPageCache([documentWithId._id, ...getPingbackTargetPostIds(documentWithId.pingbacks)]);
+  // A cached 404 may exist for this ID from requests that preceded creation.
+  // Drafts don't appear in pingback lists; a published post now does on the
+  // pages of the posts it links to.
+  await invalidatePostPageCache([
+    documentWithId._id,
+    ...(documentWithId.draft ? [] : getPingbackTargetPostIds(documentWithId.pingbacks)),
+  ]);
 
   return documentWithId;
 }
@@ -308,15 +312,19 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
 
-  invalidatePostPageCache(
-    [updatedDocument._id, ...getPingbackTargetPostIds(oldDocument.pingbacks), ...getPingbackTargetPostIds(updatedDocument.pingbacks)],
+  // Drafts don't appear in pingback lists, so a post that was and remains a
+  // draft affects no other page.
+  const pingbackTargetPostIds = (oldDocument.draft && updatedDocument.draft)
+    ? []
+    : [...getPingbackTargetPostIds(oldDocument.pingbacks), ...getPingbackTargetPostIds(updatedDocument.pingbacks)];
+  await invalidatePostPageCache(
+    [updatedDocument._id, ...pingbackTargetPostIds],
     { hardDelete: postVisibilityChanged(oldDocument, updatedDocument) },
   );
 
   return updatedDocument;
 }
 
-/** Whether the update may have made the post stop being visible to logged-out visitors. */
 function postVisibilityChanged(oldPost: DbPost, newPost: DbPost): boolean {
   return oldPost.draft !== newPost.draft
     || oldPost.deletedDraft !== newPost.deletedDraft

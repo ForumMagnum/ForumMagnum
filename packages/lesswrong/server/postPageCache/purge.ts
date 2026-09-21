@@ -1,43 +1,38 @@
 import { dangerouslyDeleteByTag, getCache, invalidateByTag } from '@vercel/functions';
 import chunk from 'lodash/chunk';
-import uniq from 'lodash/uniq';
-import { isDevelopment } from '@/lib/executionEnvironment';
-
-const isRunningOnVercel = !!process.env.VERCEL;
 
 const MAX_TAGS_PER_PURGE_REQUEST = 100;
 
-/**
- * `invalidate` marks entries stale: the next request is served the old
- * content while a fresh one is generated. `delete` removes them, so the next
- * request waits for a fresh render; used when content stops being visible.
- */
+// `invalidate` marks entries stale: the next request is served the old
+// content while a fresh one is generated. `delete` removes them: the next
+// request waits for a fresh render.
 export type PurgeMode = 'invalidate' | 'delete';
 
-/**
- * Purge every Vercel cache entry (CDN and Runtime Cache) carrying any of the
- * given tags. Throws on failure; callers run this inside `backgroundTask`.
- *
- * Inside a Vercel function the platform SDK is used. Elsewhere (yarn repl
- * scripts, migrations run from CI) the SDK silently does nothing, so the REST
- * API is used with VERCEL_CACHE_PURGE_TOKEN / VERCEL_CACHE_PURGE_PROJECT_ID /
- * VERCEL_CACHE_PURGE_TEAM_ID. In local development, where the SDK's cache is
- * an in-process fallback, that fallback is expired directly.
- */
+let warnedNoPurgeTransport = false;
+
+// Purges every Vercel cache entry (CDN and Runtime Cache) carrying any of the
+// given tags. Throws on failure.
 export async function purgeCacheTags(tags: readonly string[], mode: PurgeMode): Promise<void> {
-  for (const tagsBatch of chunk(uniq(tags), MAX_TAGS_PER_PURGE_REQUEST)) {
-    if (isRunningOnVercel) {
+  for (const tagsBatch of chunk(tags, MAX_TAGS_PER_PURGE_REQUEST)) {
+    if (process.env.VERCEL) {
       if (mode === 'delete') {
         await dangerouslyDeleteByTag(tagsBatch);
       } else {
         await invalidateByTag(tagsBatch);
       }
     } else if (process.env.VERCEL_CACHE_PURGE_TOKEN) {
+      // Outside Vercel functions the SDK's purge functions silently do
+      // nothing, so scripts and CI migrations go through the REST API.
       await purgeViaRestApi(tagsBatch, mode);
-    } else if (isDevelopment) {
-      await getCache().expireTag(tagsBatch);
     } else {
-      throw new Error('Post page cache purge requested outside Vercel, but VERCEL_CACHE_PURGE_TOKEN is not configured');
+      // Local development: the SDK's cache is an in-process fallback, which
+      // `expireTag` clears directly.
+      if (!warnedNoPurgeTransport) {
+        warnedNoPurgeTransport = true;
+        // eslint-disable-next-line no-console
+        console.warn('VERCEL_CACHE_PURGE_TOKEN is not set; post page cache purges only affect this process\'s in-memory cache');
+      }
+      await getCache().expireTag(tagsBatch);
     }
   }
 }

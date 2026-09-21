@@ -1,13 +1,8 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
-import { findStatusCodeInStream } from './packages/lesswrong/lib/postPageCache/responseMetadataStream';
-import {
-  STATUS_CODE_LOOPBACK_HEADER,
-  buildCachedPostPath,
-  getCacheablePostPagePath,
-  normalizeAcceptEncoding,
-} from './packages/lesswrong/lib/postPageCache/htmlCacheEligibility';
+import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
+import { buildCachedPostPath, getCacheablePostPagePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/htmlCacheEligibility';
 import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
@@ -16,8 +11,6 @@ import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/conf
 // somewhere).
 export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
-
-const ForwardingHeaderName = STATUS_CODE_LOOPBACK_HEADER;
 
 function urlIsAbsolute(url: string): boolean {
   // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
@@ -43,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const addedClientId = clientIdCookie ? null : randomId();
   const requestPathHasMarkdownVersion = !!getMarkdownPathname(request.nextUrl.pathname);
   
-  const isForwarded = request.headers.get(ForwardingHeaderName);
+  const isForwarded = request.headers.get(STATUS_CODE_LOOPBACK_HEADER);
   if (isForwarded) {
     return NextResponse.next();
   }
@@ -71,10 +64,10 @@ export async function middleware(request: NextRequest) {
 
   if (shouldProxyForStatusCode(request)) {
     const forwardedHeaders = new Headers(request.headers);
-    forwardedHeaders.set(ForwardingHeaderName, "true");
+    forwardedHeaders.set(STATUS_CODE_LOOPBACK_HEADER, "true");
     
     const forwardUrl = request.nextUrl.href;
-    const fixedForwardedUrl = fixForwardUrl(forwardUrl);
+    const fixedForwardedUrl = fixLoopbackUrl(forwardUrl);
     const forwardedFetchResponse = await fetch(
       fixedForwardedUrl,
       {
@@ -280,27 +273,15 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
-/**
- * Route eligible logged-out post page requests to the cached-post route
- * handler, whose responses Vercel's CDN caches, one entry per post. The query
- * string is not carried over. Returns null when the request must be rendered
- * dynamically.
- */
+// Routes eligible logged-out post page requests to the cached-post route
+// handler, whose responses Vercel's CDN caches, one entry per post.
 function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
-  const parsedPath = getCacheablePostPagePath({
-    method: request.method,
-    pathname: request.nextUrl.pathname,
-    search: request.nextUrl.search,
-    cookieNames: request.cookies.getAll().map((cookie) => cookie.name),
-    getHeader: (name: string) => request.headers.get(name),
-  });
+  const parsedPath = getCacheablePostPagePath(request);
   if (!parsedPath) {
     return null;
   }
   const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
 
-  // Collapse Accept-Encoding to the two representations the handler emits so
-  // the CDN, which varies on it, holds at most two entries per page.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
 
@@ -348,17 +329,6 @@ function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: stri
   nextResponse.cookies.set({ name: CLIENT_ID_NEW_COOKIE, value: "true", path: "/", maxAge });
 
   return nextResponse;
-}
-
-// HACK: When requests are forwarded through ngrok (or cloudflare's tunnel), they
-// get an X-Forwarded-Proto header of "https". This causes req.nextUrl to be
-// "https://localhost:3000", which doesn't work (because it shouldn't be https).
-// Work around this by dropping the "s".
-function fixForwardUrl(forwardUrl: string): string {
-  if (forwardUrl.startsWith("https://localhost")) {
-    return forwardUrl.replace("https://localhost", "http://localhost");
-  }
-  return forwardUrl;
 }
 
 export const config: MiddlewareConfig = {

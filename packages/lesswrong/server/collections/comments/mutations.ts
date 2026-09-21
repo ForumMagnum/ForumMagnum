@@ -177,7 +177,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
   if (documentWithId.postId) {
-    invalidatePostPageCache(documentWithId.postId);
+    await invalidatePostPageCache(documentWithId.postId);
   }
 
   return documentWithId;
@@ -253,7 +253,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
 
-  invalidatePostPageCache(
+  await invalidatePostPageCache(
     filterNonnull([updatedDocument.postId, oldDocument.postId]),
     { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
   );
@@ -261,7 +261,6 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   return updatedDocument;
 }
 
-/** Whether the update may have made the comment stop being visible to logged-out visitors. */
 function commentVisibilityChanged(oldComment: DbComment, newComment: DbComment): boolean {
   return oldComment.deleted !== newComment.deleted
     || oldComment.deletedPublic !== newComment.deletedPublic

@@ -89,7 +89,7 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
     props: asyncProperties,
   });
 
-  invalidatePostPageCache(documentWithId.postId);
+  await invalidatePostPageCache(documentWithId.postId);
 
   return documentWithId;
 }
@@ -133,7 +133,7 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
 
   backgroundTask(logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData }));
 
-  invalidatePostPageCache(filterNonnull([updatedDocument.postId, oldDocument.postId]));
+  await invalidatePostPageCache(filterNonnull([updatedDocument.postId, oldDocument.postId]));
 
   return updatedDocument;
 }

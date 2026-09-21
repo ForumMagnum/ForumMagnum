@@ -1,13 +1,19 @@
-/**
- * Locates the `<div data-response-metadata="...">` marker that
- * <StatusCodeSetter> renders into an SSR stream, so that a proxying layer
- * (middleware.ts, or the cached-post route handler) can send the real HTTP
- * status and redirect target instead of the 200 that Next.js streams by
- * default.
- *
- * Imported by middleware.ts, so this module must stay free of heavy or
- * node-only dependencies.
- */
+// Imported by middleware.ts; keep free of heavy or node-only dependencies.
+
+// Marks a loopback render made by middleware.ts (for status code discovery)
+// or by the cached-post route handler. Requests carrying it bypass the
+// middleware's proxying and cache routing.
+export const STATUS_CODE_LOOPBACK_HEADER = 'X-Forwarded-For-Status-Codes';
+
+// Requests forwarded through ngrok or Cloudflare's tunnel arrive with an
+// X-Forwarded-Proto of https, so the request URL is https://localhost, which
+// the local server doesn't serve.
+export function fixLoopbackUrl(url: string): string {
+  if (url.startsWith('https://localhost')) {
+    return url.replace('https://localhost', 'http://localhost');
+  }
+  return url;
+}
 
 export interface StatusCodeMetadata {
   status: number
@@ -15,18 +21,12 @@ export interface StatusCodeMetadata {
 }
 
 const searchString: Uint8Array = new TextEncoder().encode('<div data-response-metadata="');
-const doubleQuoteAscii = '\"'.charCodeAt(0);
+const doubleQuoteAscii = '"'.charCodeAt(0);
 
-/**
- * Look for a substring that looks like
- *   <div data-response-metadata="eyJzdGF0dXMiOjQwNH0=">
- * in a ReadableStream, parse the attribute, and return it as a StatusCodeMetadata.
- * The stream is UTF-8 encoded, and the thing we're looking for is a base64-encoded
- * string representing a serialized object, which may span chunk boundaries.
- *
- * Returns null if the stream ends, or `maxBytes` have been read, without
- * finding the marker.
- */
+// Finds the `<div data-response-metadata="...">` marker that <StatusCodeSetter>
+// renders into an SSR stream and parses its base64-encoded JSON attribute,
+// which may span chunk boundaries. Returns null if the stream ends, or
+// `maxBytes` have been read, without the marker appearing.
 export async function findStatusCodeInStream(
   stream: ReadableStream<Uint8Array<ArrayBufferLike>>,
   maxBytes: number = Number.POSITIVE_INFINITY,
@@ -68,8 +68,8 @@ export async function findStatusCodeInStream(
     }
   }
 
-  // Release the scanning branch without waiting: awaiting cancellation of one
-  // tee branch can block until the other branch has been fully consumed.
+  // Not awaited: cancelling one branch of a tee only settles once the other
+  // branch has been fully consumed.
   void reader.cancel().catch(() => {});
 
   if (isReadingResult) {

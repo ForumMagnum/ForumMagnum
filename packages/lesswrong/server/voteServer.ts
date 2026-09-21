@@ -99,7 +99,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
+  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
@@ -220,7 +220,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
+  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }

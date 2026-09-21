@@ -99,7 +99,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
-  invalidatePostPageCache(postId);
+  await invalidatePostPageCache(postId);
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument("Posts", postId));
   }

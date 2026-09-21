@@ -1,10 +1,14 @@
-/**
- * Flags for the two logged-out post-page cache layers. Read directly from
- * environment variables (with literal names, so the edge bundle used by
- * middleware.ts can see them) and shared by middleware and server code so
- * both interpret the flags the same way.
- */
+// Read with literal env var names so that the edge bundle used by
+// middleware.ts can inline them.
 export const postPageCacheConfig = {
   anonymousQueryCacheEnabled: process.env.POST_PAGE_CACHE_ANONYMOUS_QUERY_CACHE_ENABLED === 'true',
   htmlCacheEnabled: process.env.POST_PAGE_CACHE_HTML_ENABLED === 'true',
 };
+
+// Carried by every cached logged-out post page and result, so that everything
+// can be purged at once.
+export const FORUM_WIDE_CACHE_TAG = 'lwcache:all';
+
+export function postCacheTag(postId: string): string {
+  return `post:${postId}`;
+}

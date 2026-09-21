@@ -20,7 +20,7 @@ export const alignmentForumMutations = {
       await recalculateAFCommentMetadata(comment.postId, context);
       await commentsAlignmentEdit(updatedComment, comment, context);
       if (comment.postId) {
-        invalidatePostPageCache(comment.postId);
+        await invalidatePostPageCache(comment.postId);
       }
       return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
     } else {
@@ -37,7 +37,7 @@ export const alignmentForumMutations = {
       const updatedPost = (await context.Posts.findOne(postId))!
       await moveToAFUpdatesUserAFKarma(updatedPost, post);
       backgroundTask(postsMoveToAFAddsAlignmentVoting(updatedPost, post));
-      invalidatePostPageCache(postId);
+      await invalidatePostPageCache(postId);
       return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
     } else {
       throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);

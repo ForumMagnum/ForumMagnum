@@ -70,7 +70,7 @@ export async function createChapter({ data }: CreateChapterInput, context: Resol
     props: asyncProperties,
   });
 
-  invalidatePostPageCache(documentWithId.postIds ?? []);
+  await invalidatePostPageCache(documentWithId.postIds ?? []);
 
   return documentWithId;
 }
@@ -117,7 +117,7 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
 
   backgroundTask(logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData }));
 
-  invalidatePostPageCache([...(oldDocument.postIds ?? []), ...(updatedDocument.postIds ?? [])]);
+  await invalidatePostPageCache([...(oldDocument.postIds ?? []), ...(updatedDocument.postIds ?? [])]);
 
   return updatedDocument;
 }

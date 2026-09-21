@@ -1,25 +1,17 @@
-/**
- * Request classification for the CDN cache of logged-out post pages.
- * Imported by middleware.ts, so this module must stay free of heavy or
- * node-only dependencies.
- */
+import type { NextRequest } from 'next/server';
+import type { ParamMap } from '../../../../.next/types/routes';
+import { matchPath } from '../vendor/react-router/matchPath';
+import { routePatternToReactRouterPath } from '../routeChecks/routePatternFormat';
+import { STATUS_CODE_LOOPBACK_HEADER } from '../routeChecks/statusCodeLoopback';
 
-export const CACHED_POST_ROUTE_PREFIX = '/cached-post';
+// Imported by middleware.ts; keep free of heavy or node-only dependencies.
 
-/**
- * Request header marking a loopback render made by middleware.ts (for status
- * code discovery) or by the cached-post route handler. A request carrying it
- * bypasses the middleware's proxying and cache routing.
- */
-export const STATUS_CODE_LOOPBACK_HEADER = 'X-Forwarded-For-Status-Codes';
+const CACHED_POST_ROUTE_PREFIX = '/cached-post';
 
-/**
- * Cookies that may be present on a request that is still served the shared
- * cached page. `clientId`/`clientIdUnset` are minted by the middleware itself
- * on a visitor's first response; the `_vercel_*` cookies are set by Vercel's
- * deployment protection on preview deployments. Any other cookie means the
- * visitor has state (theme, timezone, login) that changes the rendered page.
- */
+// `clientId`/`clientIdUnset` are minted by the middleware itself on a visitor's
+// first response, and the `_vercel_*` cookies are set by deployment protection
+// on preview deployments. Any other cookie (theme, timezone, login) changes the
+// rendered page.
 const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   'clientId',
   'clientIdUnset',
@@ -27,14 +19,10 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   '_vercel_sso_nonce',
 ]);
 
-const NEXT_NAVIGATION_HEADERS = ['rsc', 'next-router-prefetch', 'next-router-state-tree', 'next-router-segment-prefetch'];
-
-export interface ParsedPostPagePath {
+interface ParsedPostPagePath {
   postId: string
   slug: string | null
 }
-
-const POST_PAGE_PATH_REGEX = /^\/posts\/([A-Za-z0-9]{17})(?:\/([A-Za-z0-9_-]{1,300}))?\/?$/;
 
 export function buildPublicPostPath(postId: string, slug: string | null): string {
   return slug ? `/posts/${postId}/${slug}` : `/posts/${postId}`;
@@ -45,38 +33,38 @@ export function buildCachedPostPath(postId: string, slug: string | null): string
   return slug ? `${base}/${slug}` : base;
 }
 
-export interface PostPageRequestInput {
-  method: string
-  pathname: string
-  search: string
-  cookieNames: readonly string[]
-  getHeader: (name: string) => string | null
+function routeMatchOptions(route: keyof ParamMap) {
+  return { path: routePatternToReactRouterPath(route), exact: true, strict: false, sensitive: true };
 }
 
-/**
- * The post page a request may be served from the shared cache, or null when
- * it must be rendered dynamically: anything but a plain GET/HEAD document
- * request for `/posts/:id[/:slug]` with no query string, from a visitor
- * carrying no state-bearing cookies.
- */
-export function getCacheablePostPagePath(request: PostPageRequestInput): ParsedPostPagePath | null {
+function matchPostPagePath(pathname: string): ParsedPostPagePath | null {
+  // A distinct route whose static segment would otherwise match as a post ID.
+  if (matchPath(pathname, routeMatchOptions('/posts/slug/[slug]'))) return null;
+  const withSlug = matchPath<ParamMap['/posts/[_id]/[slug]']>(pathname, routeMatchOptions('/posts/[_id]/[slug]'));
+  if (withSlug) return { postId: withSlug.params._id, slug: withSlug.params.slug };
+  const withoutSlug = matchPath<ParamMap['/posts/[_id]']>(pathname, routeMatchOptions('/posts/[_id]'));
+  if (withoutSlug) return { postId: withoutSlug.params._id, slug: null };
+  return null;
+}
+
+export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePath | null {
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
-  const match = POST_PAGE_PATH_REGEX.exec(request.pathname);
-  if (!match) return null;
-  if (request.search && request.search !== '?') return null;
-  if (request.getHeader(STATUS_CODE_LOOPBACK_HEADER) || request.getHeader('authorization') || request.getHeader('range')) return null;
-  if (NEXT_NAVIGATION_HEADERS.some((header) => request.getHeader(header))) return null;
-  if (request.cookieNames.some((cookieName) => !HTML_CACHE_ALLOWED_COOKIES.has(cookieName))) return null;
-  return { postId: match[1], slug: match[2] ?? null };
+  const parsedPath = matchPostPagePath(request.nextUrl.pathname);
+  if (!parsedPath) return null;
+  if (request.nextUrl.search) return null;
+  if (request.headers.get(STATUS_CODE_LOOPBACK_HEADER)) return null;
+  // Client-side navigations and prefetches need RSC payloads. Segment
+  // prefetches carry no Next-Router-State-Tree header, so the middleware
+  // matcher's `missing` rule doesn't exclude them.
+  if (request.headers.get('rsc')) return null;
+  if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;
+  return parsedPath;
 }
 
 export type NormalizedAcceptEncoding = 'gzip' | 'identity';
 
-/**
- * Collapses the client's Accept-Encoding header to the two representations
- * the cached-post route handler produces, so that the CDN (which varies on
- * Accept-Encoding) holds at most two entries per page.
- */
+// The CDN varies on Accept-Encoding; collapsing it to the two encodings the
+// cached-post route handler emits keeps it to two entries per page.
 export function normalizeAcceptEncoding(header: string | null): NormalizedAcceptEncoding {
   if (!header) return 'identity';
   let gzipQ: number | null = null;

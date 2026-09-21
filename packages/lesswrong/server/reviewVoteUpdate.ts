@@ -60,8 +60,8 @@ async function writeVoteResultsToDb(
       [votesFieldName]: sortedVotes,
       [scoreFieldName]: totalScore,
     }});
-    invalidatePostPageCache(postId);
   }
+  await invalidatePostPageCache(Object.keys(voteValuesByPost));
 }
 
 async function updateVoteTotals(

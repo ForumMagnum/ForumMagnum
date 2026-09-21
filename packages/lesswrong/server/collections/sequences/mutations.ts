@@ -78,7 +78,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     props: asyncProperties,
   });
 
-  backgroundTask(invalidatePostPageCachesForSequence(documentWithId._id, context));
+  await invalidatePostPageCachesForSequence(documentWithId._id, context);
 
   return documentWithId;
 }
@@ -124,7 +124,7 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
 
   backgroundTask(logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData }));
 
-  backgroundTask(invalidatePostPageCachesForSequence(updatedDocument._id, context));
+  await invalidatePostPageCachesForSequence(updatedDocument._id, context);
 
   return updatedDocument;
 }
