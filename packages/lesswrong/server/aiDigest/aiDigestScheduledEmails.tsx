@@ -36,7 +36,7 @@ function boundedCadenceDays(cadenceDays: number): number {
 }
 
 /**
- * The newest `generatedAt` that still leaves a reader due for another issue.
+ * The newest `emailedAt` that still leaves a reader due for another issue.
  */
 export function aiDigestSendDueBefore(now: Date, cadenceDays: number): Date {
   return new Date(
@@ -45,18 +45,18 @@ export function aiDigestSendDueBefore(now: Date, cadenceDays: number): Date {
 }
 
 export function isAiDigestSendDue({
-  lastScheduledIssueAt,
+  lastScheduledEmailAt,
   cadenceDays,
   now,
 }: {
-  lastScheduledIssueAt: Date | null;
+  lastScheduledEmailAt: Date | null;
   cadenceDays: number;
   now: Date;
 }): boolean {
-  if (!lastScheduledIssueAt) {
+  if (!lastScheduledEmailAt) {
     return true;
   }
-  return lastScheduledIssueAt <= aiDigestSendDueBefore(now, cadenceDays);
+  return lastScheduledEmailAt <= aiDigestSendDueBefore(now, cadenceDays);
 }
 
 function aiDigestEmailBody(spec: AiDigestSpec) {
@@ -79,7 +79,7 @@ async function loadAiDigestSubscribers(): Promise<DbUser[]> {
   });
 }
 
-async function loadLastScheduledIssueAt(
+async function loadLastScheduledEmailAt(
   recipientIds: string[],
   dueBefore: Date,
 ): Promise<Map<string, Date>> {
@@ -92,15 +92,16 @@ async function loadLastScheduledIssueAt(
     {
       recipientId: { $in: recipientIds },
       trigger: "scheduled",
-      generatedAt: { $gt: dueBefore },
+      emailedAt: { $gt: dueBefore },
     },
-    { sort: { generatedAt: -1, _id: -1 } },
-    { recipientId: 1, generatedAt: 1 },
+    { sort: { emailedAt: -1, _id: -1 } },
+    { recipientId: 1, emailedAt: 1 },
   ).fetch();
   return issues.reduce((latest, issue) => {
+    if (!issue.emailedAt) return latest;
     const previous = latest.get(issue.recipientId);
-    if (!previous || previous < issue.generatedAt) {
-      latest.set(issue.recipientId, issue.generatedAt);
+    if (!previous || previous < issue.emailedAt) {
+      latest.set(issue.recipientId, issue.emailedAt);
     }
     return latest;
   }, new Map<string, Date>());
@@ -108,11 +109,17 @@ async function loadLastScheduledIssueAt(
 
 async function sendAiDigestToUser(user: DbUser): Promise<void> {
   const context = computeContextFromUser({ user, isSSR: false });
-  const result = await generateAiDigestPostSelection({
-    user,
-    context,
-    options: { trigger: "scheduled" },
-  });
+  const latestIssue = await AiDigestIssues.findOne(
+    { recipientId: user._id, trigger: "scheduled" },
+    { sort: { generatedAt: -1, _id: -1 } },
+  );
+  const result = latestIssue && !latestIssue.emailedAt
+    ? { issueId: latestIssue._id, spec: latestIssue.spec }
+    : await generateAiDigestPostSelection({
+      user,
+      context,
+      options: { trigger: "scheduled" },
+    });
   const { issueId, spec } = result;
   if (!issueId) {
     throw new Error(`Scheduled AI digest for ${user._id} was not persisted`);
@@ -153,13 +160,13 @@ export async function sendScheduledAiDigestEmails(now = new Date()): Promise<voi
   }
   const cadenceDays = aiDigestEmailCadenceDaysSetting.get("LessWrong");
   const subscribers = await loadAiDigestSubscribers();
-  const lastScheduledIssueAt = await loadLastScheduledIssueAt(
+  const lastScheduledEmailAt = await loadLastScheduledEmailAt(
     subscribers.map((user) => user._id),
     aiDigestSendDueBefore(now, cadenceDays),
   );
   const dueUsers = subscribers
     .filter((user) => isAiDigestSendDue({
-      lastScheduledIssueAt: lastScheduledIssueAt.get(user._id) ?? null,
+      lastScheduledEmailAt: lastScheduledEmailAt.get(user._id) ?? null,
       cadenceDays,
       now,
     }))
@@ -167,7 +174,7 @@ export async function sendScheduledAiDigestEmails(now = new Date()): Promise<voi
 
   for (const user of dueUsers) {
     // One reader's failed generation or send must not block the others. A
-    // failure before the issue is persisted is simply retried next hour.
+    // failed generation or unsent issue is retried next hour.
     try {
       await sendAiDigestToUser(user);
     } catch (error) {

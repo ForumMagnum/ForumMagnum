@@ -587,10 +587,7 @@ export default function DigestEmailPreviewPage() {
   });
 
   const storedSamples = storedSamplesData?.aiDigestIssues?.results ?? [];
-  const effectiveSelectedIssueId = selectedIssueId
-    && storedSamples.some((sample) => sample._id === selectedIssueId)
-    ? selectedIssueId
-    : storedSamples[0]?._id ?? null;
+  const effectiveSelectedIssueId = selectedIssueId ?? storedSamples[0]?._id ?? null;
   const {
     data: selectedSampleData,
     loading: selectedSampleLoading,

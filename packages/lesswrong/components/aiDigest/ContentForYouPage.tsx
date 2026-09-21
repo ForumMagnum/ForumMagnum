@@ -491,16 +491,16 @@ export function ContentForYouPage() {
   }] = useMutation(ClearContentForYouRecommendationHistoryMutation);
 
   const issues = overviewData?.aiDigestIssues?.results ?? [];
-  const effectiveIssueId = selectedIssueId
-    && issues.some((issue) => issue._id === selectedIssueId)
-    ? selectedIssueId
-    : issues[0]?._id ?? null;
+  const effectiveIssueId = selectedIssueId ?? issues[0]?._id ?? null;
   const generationOptions: Record<string, SettingsOption> = Object.fromEntries(
     issues.map((issue) => [issue._id, {
       label: `${isAdmin && !issue.countsTowardHistory ? "Not counted · " : ""}${formatGenerationTime(issue.generatedAt)} · ${issue.subject}`,
       shortLabel: formatGenerationTime(issue.generatedAt),
     }]),
   );
+  if (selectedIssueId && !generationOptions[selectedIssueId]) {
+    generationOptions[selectedIssueId] = { label: "New recommendations" };
+  }
   const {
     data: issueData,
     loading: issueLoading,
@@ -639,13 +639,13 @@ export function ContentForYouPage() {
         <p className={classes.error}>Could not load Content for You: {overviewError.message}</p>
       )}
 
-      {!overviewLoading && !overviewError && issues.length === 0 && (
+      {!overviewLoading && !overviewError && !effectiveIssueId && (
         <div className={classes.emptyState}>
           Press Save &amp; generate to create your first personalized reading list.
         </div>
       )}
 
-      {issues.length > 0 && (
+      {effectiveIssueId && (
         <>
           <div className={classes.generatedRow}>
             <ForumDropdown

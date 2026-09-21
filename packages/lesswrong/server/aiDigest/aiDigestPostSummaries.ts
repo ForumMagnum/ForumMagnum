@@ -3,6 +3,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 import PostSummaries from "@/server/collections/postSummaries/collection";
 import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
 import {
@@ -132,8 +133,8 @@ function withSummary(
 }
 
 /**
- * A failed or unusable model answer leaves no cache row; a failed insert (eg a
- * losing race against a concurrent generation) propagates.
+ * A failed model answer leaves no cache row. Concurrent generators reuse the
+ * winning cache entry; unrelated database failures still propagate.
  */
 async function generateAndSaveSummary(
   target: AiDigestPostSummaryTarget,
@@ -154,7 +155,19 @@ async function generateAndSaveSummary(
     modelId,
     promptVersion,
   };
-  await PostSummaries.rawInsert(record);
+  try {
+    await PostSummaries.rawInsert(record);
+  } catch (error) {
+    if (!isPostgresUniqueViolation(error)) throw error;
+    const cached = await PostSummaries.findOne({
+      postId: target.postId,
+      revisionId: target.revisionId,
+      modelId,
+      promptVersion,
+    });
+    if (!cached) throw error;
+    return cached;
+  }
   return record;
 }
 

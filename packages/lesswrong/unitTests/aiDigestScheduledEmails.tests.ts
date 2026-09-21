@@ -11,8 +11,8 @@ function hoursAgo(hours: number): Date {
   return new Date(NOW.getTime() - (hours * HOUR_MS));
 }
 
-function isDue(lastScheduledIssueAt: Date | null, cadenceDays = 2): boolean {
-  return isAiDigestSendDue({ lastScheduledIssueAt, cadenceDays, now: NOW });
+function isDue(lastScheduledEmailAt: Date | null, cadenceDays = 2): boolean {
+  return isAiDigestSendDue({ lastScheduledEmailAt, cadenceDays, now: NOW });
 }
 
 describe("AI digest scheduled send due check", () => {
