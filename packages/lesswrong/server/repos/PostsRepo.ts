@@ -9,7 +9,6 @@ import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFe
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { getPgPromiseLib } from "@/server/sqlConnection";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
-import { postStatuses } from "../../lib/collections/posts/constants";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 

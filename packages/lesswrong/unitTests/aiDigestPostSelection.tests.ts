@@ -47,7 +47,6 @@ import {
   validateAiDigestPostSelectionOutput,
 } from "@/server/aiDigest/aiDigestPostSelection";
 import {
-  buildAiDigestSelectionMessages,
   sumAiDigestSelectionCostUsd,
 } from "@/server/aiDigest/aiDigestSelectionShared";
 import type {

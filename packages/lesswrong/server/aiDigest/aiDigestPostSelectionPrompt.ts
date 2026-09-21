@@ -1,4 +1,3 @@
-import { DAY_MS } from "@/lib/aiDigest/constants";
 import { daysAgo, validatedAiDigestPersonalInstructions } from "@/lib/aiDigest/helpers";
 import type {
   AiDigestPostCandidateCard,

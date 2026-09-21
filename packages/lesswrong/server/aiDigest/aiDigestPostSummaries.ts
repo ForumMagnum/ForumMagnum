@@ -8,7 +8,6 @@ import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
 import {
   type AiDigestPostCandidate,
   type AiDigestPostCandidateCard,
-  type AiDigestPostSummaryProvenance,
 } from "./aiDigestPostCandidates";
 
 const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
