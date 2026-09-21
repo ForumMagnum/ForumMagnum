@@ -6,9 +6,8 @@ import { STATUS_CODE_LOOPBACK_HEADER } from '../routeChecks/statusCodeLoopback';
 
 // Imported by middleware.ts; keep free of heavy or node-only dependencies.
 
-// Public path prefix of the route handler (app/cache/posts) that serves
-// CDN-cached logged-out post pages. Eligible /posts requests are rewritten to
-// it by the middleware; it can also be requested directly for testing.
+// Path prefix of the route handler (app/cache/posts) that eligible /posts
+// requests are rewritten to.
 const CACHED_POST_ROUTE_PREFIX = '/cache/posts';
 
 // `clientId`/`clientIdUnset` are minted by the middleware itself on a visitor's
@@ -25,10 +24,6 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
 interface ParsedPostPagePath {
   postId: string
   slug: string | null
-}
-
-export function isCachedPostRoutePath(pathname: string): boolean {
-  return pathname === CACHED_POST_ROUTE_PREFIX || pathname.startsWith(`${CACHED_POST_ROUTE_PREFIX}/`);
 }
 
 export function buildCachedPostPath(postId: string, slug: string | null): string {

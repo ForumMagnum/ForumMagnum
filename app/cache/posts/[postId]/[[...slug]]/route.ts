@@ -5,8 +5,7 @@ import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } f
 
 // Renders a post page for logged-out visitors in a form that Vercel's CDN
 // caches, one entry per post, through a loopback to the regular /posts route.
-// Eligible /posts requests reach it via the rewrite in middleware.ts; it can
-// also be requested directly at /cache/posts/:id[/:slug] for testing.
+// Reached via the rewrite in middleware.ts.
 
 const CDN_MAX_AGE_SECONDS = 2 * 60 * 60;
 const CDN_STALE_WHILE_REVALIDATE_SECONDS = 2 * 60 * 60;
@@ -28,12 +27,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
     return new NextResponse('Not found', { status: 404 });
   }
   const publicPath = buildPublicPostPath(encodeURIComponent(postId), slug ? encodeURIComponent(slug[0]) : null);
-  // Query parameters (comment permalinks, revisions, sharing keys, ...) change
-  // the render, so the middleware never rewrites such requests here; direct
-  // requests carrying them are sent to the regular route.
-  if (request.nextUrl.search) {
-    return NextResponse.redirect(new URL(`${publicPath}${request.nextUrl.search}`, request.url));
-  }
   const startedAt = Date.now();
 
   const loopbackResponse = await fetch(fixLoopbackUrl(new URL(publicPath, request.nextUrl.origin).href), {
