@@ -414,23 +414,8 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
     border: "1px solid light-dark(#e6dfd2, #4a4844)",
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
   },
-  // Every level is an explicit step so deep context chains can cap their
-  // indentation instead of progressively squeezing the comment text.
   reply: {
     marginTop: aiDigestPresentation.discussion.replyMarginTop,
-  },
-  commentBoxIndent1: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep,
-  },
-  commentBoxIndent2: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 2,
-  },
-  commentBoxIndent3: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 3,
-  },
-  commentBoxIndent4: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep
-      * aiDigestPresentation.discussion.maxCommentIndentLevel,
   },
   // Alternating thread backgrounds, matching onsite comment nodes.
   commentBoxOdd: {
@@ -706,14 +691,12 @@ function QuickTakeItem({
 
 function CommentBox({
   comment,
-
   replies,
   anchorCommentId,
   contextCommentIds,
   nestingLevel = 0,
 }: {
   comment: AiDigestEmailComment;
-
   replies: AiDigestThreadNode<AiDigestEmailComment>[];
   anchorCommentId: string;
   contextCommentIds: string[];
@@ -731,43 +714,35 @@ function CommentBox({
     maxLength,
   );
   return (
-    <>
-      <div
-        className={classNames(
-          classes.commentBox,
-          nestingLevel > 0 && classes.reply,
-          nestingLevel === 1 && classes.commentBoxIndent1,
-          nestingLevel === 2 && classes.commentBoxIndent2,
-          nestingLevel === 3 && classes.commentBoxIndent3,
-          nestingLevel >= aiDigestPresentation.discussion.maxCommentIndentLevel
-            && classes.commentBoxIndent4,
-          nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
-        )}
-      >
-        <ItemMetadata
-          author={comment.user?.displayName ?? "A LessWrong reader"}
-          postedAt={comment.postedAt}
-          permalinkUrl={getCommentUrl(comment)}
-          permalinkLabel="Permalink to this comment"
-          className={classes.commentByline}
-          authorClassName={classes.emphasizedMetadataAuthor}
-        />
-        <a href={commentUrl} className={classes.textLink}>
-          <div className={classes.commentText}>{text}</div>
-        </a>
-      </div>
+    <div
+      className={classNames(
+        classes.commentBox,
+        nestingLevel > 0 && classes.reply,
+        nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+      )}
+    >
+      <ItemMetadata
+        author={comment.user?.displayName ?? "A LessWrong reader"}
+        postedAt={comment.postedAt}
+        permalinkUrl={getCommentUrl(comment)}
+        permalinkLabel="Permalink to this comment"
+        className={classes.commentByline}
+        authorClassName={classes.emphasizedMetadataAuthor}
+      />
+      <a href={commentUrl} className={classes.textLink}>
+        <div className={classes.commentText}>{text}</div>
+      </a>
       {replies.map((reply) => (
         <CommentBox
           key={reply.comment._id}
           comment={reply.comment}
-
           replies={reply.replies}
           anchorCommentId={anchorCommentId}
           contextCommentIds={contextCommentIds}
           nestingLevel={nestingLevel + 1}
         />
       ))}
-    </>
+    </div>
   );
 }
 

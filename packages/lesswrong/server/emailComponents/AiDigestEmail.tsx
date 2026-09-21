@@ -654,23 +654,8 @@ const styles = defineStyles("AiDigestEmail", () => ({
       padding: "9px 5px 10px !important",
     },
   },
-  // Every level is an explicit step so deep context chains can cap their
-  // indentation instead of progressively squeezing the comment text.
   commentBoxReply: {
     marginTop: aiDigestPresentation.discussion.replyMarginTop,
-  },
-  commentBoxIndent1: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep,
-  },
-  commentBoxIndent2: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 2,
-  },
-  commentBoxIndent3: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep * 3,
-  },
-  commentBoxIndent4: {
-    marginLeft: aiDigestPresentation.discussion.commentIndentStep
-      * aiDigestPresentation.discussion.maxCommentIndentLevel,
   },
   // Alternating thread backgrounds, matching the onsite comments-node-odd /
   // comments-node-even colors (grey 25 and grey 120 in light mode).
@@ -1193,7 +1178,6 @@ function QuickTakeItem({ comment, item, slot, classes }: {
 /** Thread heading: the comment boxes carry author bylines, so drop the author here. */
 function CommentBox({
   comment,
-
   replies,
   anchorCommentId,
   contextCommentIds,
@@ -1202,7 +1186,6 @@ function CommentBox({
   classes,
 }: {
   comment: AiDigestEmailComment;
-
   replies: AiDigestThreadNode<AiDigestEmailComment>[];
   anchorCommentId: string;
   contextCommentIds: string[];
@@ -1218,35 +1201,27 @@ function CommentBox({
   const text = truncateText(comment.contents?.plaintextMainText ?? "", maxLength);
   const commentUrl = getCommentUrl(comment);
   return (
-    <>
-      <div
-        className={classNames(
-          classes.commentBox,
-          nestingLevel > 0 && classes.commentBoxReply,
-          nestingLevel === 1 && classes.commentBoxIndent1,
-          nestingLevel === 2 && classes.commentBoxIndent2,
-          nestingLevel === 3 && classes.commentBoxIndent3,
-          nestingLevel >= aiDigestPresentation.discussion.maxCommentIndentLevel
-            && classes.commentBoxIndent4,
-          nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
-        )}
+    <div
+      className={classNames(
+        classes.commentBox,
+        nestingLevel > 0 && classes.commentBoxReply,
+        nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+      )}
+    >
+      <a
+        href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
+        className={classes.commentLink}
       >
-        <a
-          href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
-          className={classes.commentLink}
-        >
-          <div className={classes.commentByline}>
-            {comment.user?.displayName ?? "A LessWrong reader"}
-            <span className={classes.commentBylineDate}>{formatDate(comment.postedAt)}</span>
-          </div>
-          <div className={classes.commentText}>{text}</div>
-        </a>
-      </div>
+        <div className={classes.commentByline}>
+          {comment.user?.displayName ?? "A LessWrong reader"}
+          <span className={classes.commentBylineDate}>{formatDate(comment.postedAt)}</span>
+        </div>
+        <div className={classes.commentText}>{text}</div>
+      </a>
       {replies.map((reply) => (
         <CommentBox
           key={reply.comment._id}
           comment={reply.comment}
-
           replies={reply.replies}
           anchorCommentId={anchorCommentId}
           contextCommentIds={contextCommentIds}
@@ -1255,7 +1230,7 @@ function CommentBox({
           classes={classes}
         />
       ))}
-    </>
+    </div>
   );
 }
 

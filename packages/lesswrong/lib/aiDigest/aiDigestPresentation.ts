@@ -99,8 +99,6 @@ export const aiDigestPresentation = {
     commentMargin: "0 0 10px",
     commentPadding: "10px 14px 12px",
     commentBorderRadius: 4,
-    commentIndentStep: 14,
-    maxCommentIndentLevel: 4,
     replyMarginTop: 10,
     bylineMarginBottom: 4,
     bylineFontSize: 13,
