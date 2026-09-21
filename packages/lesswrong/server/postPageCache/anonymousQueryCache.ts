@@ -17,7 +17,6 @@ import {
 } from '@/lib/generated/gql-codegen/graphql';
 import { captureException } from '@/lib/sentryWrapper';
 import { FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
-import { CACHED_POST_RENDER_HEADER } from '@/lib/postPageCache/cachedPostRoute';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { runQueryNonThrowing } from '../vulcan-lib/query';
@@ -81,9 +80,6 @@ const cachedOperations = new Map<string, CachedOperationSpec<any>>([
 ]);
 
 function isContextEligibleForSharedCache(context: Partial<ResolverContext>): boolean {
-  // Only the loopback render behind /cache/posts shares results; the regular
-  // /posts route runs every query as before.
-  if (context.headers?.get(CACHED_POST_RENDER_HEADER) !== 'true') return false;
   if (context.currentUser || context.userId) return false;
   // A logged-out visitor may hold a sharing key granting access to a private
   // draft.

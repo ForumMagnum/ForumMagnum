@@ -2,7 +2,8 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
-import { isCachedPostRoutePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { buildCachedPostPath, getCacheablePostPagePath, isCachedPostRoutePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -54,6 +55,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (postPageCacheConfig.htmlCacheEnabled) {
+    const cachedPostResponse = getCachedPostRewriteResponse(request, addedClientId);
+    if (cachedPostResponse) {
+      return cachedPostResponse;
+    }
+  }
   if (isCachedPostRoutePath(request.nextUrl.pathname)) {
     return getCachedPostPassthroughResponse(request, addedClientId);
   }
@@ -269,19 +276,40 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
-// Passes requests for the cached post route handler (app/cache/posts) straight
-// through. It sets its own status code, so the status code proxying below is
-// not needed, and its responses are CDN-cached per post, so the request must
-// not carry anything that would vary them beyond the normalized encoding.
-function getCachedPostPassthroughResponse(request: NextRequest, addedClientId: string | null): NextResponse {
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
-
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+// Routes eligible logged-out post page requests to the cached post route
+// handler (app/cache/posts), whose responses Vercel's CDN caches, one entry
+// per post.
+function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
+  const parsedPath = getCacheablePostPagePath(request);
+  if (!parsedPath) {
+    return null;
+  }
+  const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
+  const response = NextResponse.rewrite(targetUrl, { request: { headers: getCachedPostRequestHeaders(request) } });
+  response.headers.set('x-lw-post-cache-routing', 'cached');
   if (addedClientId) {
     addClientIdToResponseHeaders(response, addedClientId);
   }
   return response;
+}
+
+// Passes direct requests for the cached post route handler straight through.
+// It sets its own status code, so the status code proxying below is not
+// needed.
+function getCachedPostPassthroughResponse(request: NextRequest, addedClientId: string | null): NextResponse {
+  const response = NextResponse.next({ request: { headers: getCachedPostRequestHeaders(request) } });
+  if (addedClientId) {
+    addClientIdToResponseHeaders(response, addedClientId);
+  }
+  return response;
+}
+
+// The handler's responses are CDN-cached per post, so the request must not
+// carry anything that would vary them beyond the normalized encoding.
+function getCachedPostRequestHeaders(request: NextRequest): Headers {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
+  return requestHeaders;
 }
 
 function shouldProxyForStatusCode(req: NextRequest) {
