@@ -27,7 +27,7 @@ const gunzipAsync = promisify(gunzip);
 // Part of every cache key. Bump when the meaning of a cached result changes
 // without its query document changing.
 const CACHE_FORMAT_VERSION = 1;
-const CACHE_TTL_SECONDS = 3 * 24 * 60 * 60;
+const CACHE_TTL_SECONDS = 2 * 60 * 60;
 // Vercel Runtime Cache accepts `set` calls for serialized items above 2MB but
 // never returns them.
 const MAX_STORED_ITEM_BYTES = 1_900_000;

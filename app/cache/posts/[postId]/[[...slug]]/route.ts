@@ -8,8 +8,8 @@ import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } f
 // Eligible /posts requests reach it via the rewrite in middleware.ts; it can
 // also be requested directly at /cache/posts/:id[/:slug] for testing.
 
-const CDN_MAX_AGE_SECONDS = 3 * 24 * 60 * 60;
-const CDN_STALE_WHILE_REVALIDATE_SECONDS = 3 * 24 * 60 * 60;
+const CDN_MAX_AGE_SECONDS = 2 * 60 * 60;
+const CDN_STALE_WHILE_REVALIDATE_SECONDS = 2 * 60 * 60;
 // The status marker is rendered as soon as the post query resolves, well
 // before the comments.
 const STATUS_MARKER_SCAN_LIMIT_BYTES = 4 * 1024 * 1024;
