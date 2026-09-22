@@ -14,6 +14,7 @@ import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import { findUsersToEmail } from "@/server/curationEmails/cron";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import AiDigestScheduleLeaseRepo from "@/server/repos/AiDigestScheduleLeaseRepo";
 import { generateAiDigestPostSelection } from "./aiDigestPostSelection";
 
 
@@ -107,7 +108,7 @@ async function loadLastScheduledEmailAt(
   }, new Map<string, Date>());
 }
 
-async function sendAiDigestToUser(user: DbUser): Promise<void> {
+async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>): Promise<void> {
   const context = computeContextFromUser({ user, isSSR: false });
   const latestIssue = await AiDigestIssues.findOne(
     { recipientId: user._id, trigger: "scheduled" },
@@ -124,6 +125,9 @@ async function sendAiDigestToUser(user: DbUser): Promise<void> {
   if (!issueId) {
     throw new Error(`Scheduled AI digest for ${user._id} was not persisted`);
   }
+  // A generation that outlives its lease must not send after another worker
+  // takes over. Its persisted issue remains available to the next retry.
+  await assertLease();
   const sent = await wrapAndSendEmail({
     forumType: "LessWrong",
     user,
@@ -154,10 +158,28 @@ async function sendAiDigestToUser(user: DbUser): Promise<void> {
   });
 }
 
+async function assertScheduledDigestLease(leaseRepo: AiDigestScheduleLeaseRepo, token: string): Promise<void> {
+  if (!await leaseRepo.renew(token)) {
+    throw new Error("Scheduled AI digest lease expired or was lost");
+  }
+}
+
 export async function sendScheduledAiDigestEmails(now = new Date()): Promise<void> {
   if (!aiDigestScheduledEmailsEnabledSetting.get("LessWrong")) {
     return;
   }
+  const leaseRepo = new AiDigestScheduleLeaseRepo();
+  const token = await leaseRepo.tryAcquire();
+  if (!token) return;
+  const assertLease = assertScheduledDigestLease.bind(null, leaseRepo, token);
+  try {
+    await sendScheduledAiDigestBatch(now, assertLease);
+  } finally {
+    await leaseRepo.release(token);
+  }
+}
+
+async function sendScheduledAiDigestBatch(now: Date, assertLease: () => Promise<void>): Promise<void> {
   const cadenceDays = aiDigestEmailCadenceDaysSetting.get("LessWrong");
   const subscribers = await loadAiDigestSubscribers();
   const lastScheduledEmailAt = await loadLastScheduledEmailAt(
@@ -173,10 +195,12 @@ export async function sendScheduledAiDigestEmails(now = new Date()): Promise<voi
     .slice(0, AI_DIGEST_SCHEDULED_SENDS_PER_RUN);
 
   for (const user of dueUsers) {
+    // Stop the batch if ownership expired; do not start more expensive work.
+    await assertLease();
     // One reader's failed generation or send must not block the others. A
     // failed generation or unsent issue is retried next hour.
     try {
-      await sendAiDigestToUser(user);
+      await sendAiDigestToUser(user, assertLease);
     } catch (error) {
       captureException(error);
       // eslint-disable-next-line no-console

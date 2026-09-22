@@ -1078,6 +1078,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     if (threadIds.length === 0) {
       return [];
     }
+    // Keep the root/reply predicates separate so PostgreSQL can use the ID and
+    // topLevelCommentId indexes instead of scanning all comments per reader.
     return this.getRawDb().manyOrNone<AiDigestThreadCommentRow>(`
       -- CommentsRepo.getAiDigestThreadCommentRows
       SELECT
@@ -1117,7 +1119,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
         LEFT JOIN "Users" u ON u."_id" = c."userId"
         LEFT JOIN "Posts" p ON p."_id" = c."postId"
-        WHERE COALESCE(c."topLevelCommentId", c."_id") = ANY($(threadIds)::text[])
+        WHERE (
+            c."topLevelCommentId" = ANY($(threadIds)::text[])
+            OR (c."topLevelCommentId" IS NULL AND c."_id" = ANY($(threadIds)::text[]))
+          )
           AND ${aiDigestVisibleCommentConditions("c")}
           AND c."contents_latest" IS NOT NULL
           AND length(trim(r.html)) > 0

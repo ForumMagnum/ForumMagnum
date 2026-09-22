@@ -5,6 +5,18 @@ const mockUpdate = jest.fn();
 const mockGenerate = jest.fn();
 const mockSend = jest.fn();
 const mockNotify = jest.fn();
+const mockSubscribers = jest.fn();
+const mockAcquire = jest.fn();
+const mockRenew = jest.fn();
+const mockRelease = jest.fn();
+jest.mock("@/server/repos/AiDigestScheduleLeaseRepo", () => ({
+  __esModule: true,
+  default: class {
+    tryAcquire = (...args: unknown[]) => mockAcquire(...args);
+    renew = (...args: unknown[]) => mockRenew(...args);
+    release = (...args: unknown[]) => mockRelease(...args);
+  },
+}));
 jest.mock("@/server/collections/aiDigestIssues/collection", () => ({
   __esModule: true,
   default: {
@@ -16,7 +28,7 @@ jest.mock("@/server/collections/aiDigestIssues/collection", () => ({
 jest.mock("@/server/aiDigest/aiDigestPostSelection", () => ({ generateAiDigestPostSelection: (...args: unknown[]) => mockGenerate(...args) }));
 jest.mock("@/server/emails/renderEmail", () => ({ wrapAndSendEmail: (...args: unknown[]) => mockSend(...args) }));
 jest.mock("@/server/notificationCallbacksHelpers", () => ({ createNotification: (...args: unknown[]) => mockNotify(...args) }));
-jest.mock("@/server/curationEmails/cron", () => ({ findUsersToEmail: async () => [{ _id: "reader" }] }));
+jest.mock("@/server/curationEmails/cron", () => ({ findUsersToEmail: (...args: unknown[]) => mockSubscribers(...args) }));
 jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => ({}) }));
 jest.mock("@/server/databaseSettings", () => ({
   aiDigestScheduledEmailsEnabledSetting: { get: () => true },
@@ -29,10 +41,14 @@ const spec = { subject: "Digest", aiNote: { paragraphs: [] } };
 describe("scheduled digest delivery retry", () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    mockSubscribers.mockResolvedValue([{ _id: "reader" }]);
     mockFind.mockReturnValue({ fetch: async () => [] });
     mockFindOne.mockResolvedValue(null);
     mockGenerate.mockResolvedValue({ issueId: "issue", spec });
     mockSend.mockResolvedValue(true);
+    mockAcquire.mockResolvedValue("owner");
+    mockRenew.mockResolvedValue(true);
+    mockRelease.mockResolvedValue(undefined);
   });
 
   it("retries the saved issue after sending fails, then respects the successful send time", async () => {
@@ -66,4 +82,94 @@ describe("scheduled digest delivery retry", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(mockSend.mock.calls[0][0].tracking.campaignId).toBe("issue");
   });
+});
+
+
+describe("scheduled digest batch ownership", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    mockSubscribers.mockResolvedValue([{ _id: "reader" }]);
+    mockAcquire.mockResolvedValue("owner");
+    mockRenew.mockResolvedValue(true);
+    mockRelease.mockResolvedValue(undefined);
+    mockFind.mockReturnValue({ fetch: async () => [] });
+    mockFindOne.mockResolvedValue(null);
+    mockSend.mockResolvedValue(true);
+  });
+
+  it("skips overlapping jobs before even loading subscribers/history", async () => {
+    let finishGeneration!: (result: { issueId: string; spec: typeof spec }) => void;
+    const generation = new Promise<{ issueId: string; spec: typeof spec }>((resolve) => { finishGeneration = resolve; });
+    let generationStarted!: () => void;
+    const started = new Promise<void>((resolve) => { generationStarted = resolve; });
+    mockGenerate.mockImplementation(() => { generationStarted(); return generation; });
+    mockAcquire.mockResolvedValueOnce("owner").mockResolvedValue(null);
+    const firstRun = sendScheduledAiDigestEmails();
+    await started;
+    await sendScheduledAiDigestEmails();
+    expect(mockSubscribers).toHaveBeenCalledTimes(1);
+    expect(mockFind).toHaveBeenCalledTimes(1);
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockRelease).not.toHaveBeenCalled();
+    finishGeneration({ issueId: "issue", spec });
+    await firstRun;
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockRelease).toHaveBeenCalledWith("owner");
+  });
+
+  it("releases ownership when loading history fails", async () => {
+    mockFind.mockReturnValue({ fetch: async () => { throw new Error("database unavailable"); } });
+    await expect(sendScheduledAiDigestEmails()).rejects.toThrow("database unavailable");
+    expect(mockGenerate).not.toHaveBeenCalled();
+    expect(mockRelease).toHaveBeenCalledWith("owner");
+  });
+
+  it("does not generate when ownership expires before the first reader", async () => {
+    mockRenew.mockResolvedValue(false);
+    await expect(sendScheduledAiDigestEmails()).rejects.toThrow("lease expired or was lost");
+    expect(mockGenerate).not.toHaveBeenCalled();
+    expect(mockRelease).toHaveBeenCalledWith("owner");
+  });
+
+  it.each([false, new Error("database unavailable")])("does not send when the post-generation ownership check fails (%s)", async (failure) => {
+    const log = jest.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      mockGenerate.mockResolvedValue({ issueId: "issue", spec });
+      mockRenew.mockResolvedValueOnce(true);
+      if (failure instanceof Error) mockRenew.mockRejectedValueOnce(failure);
+      else mockRenew.mockResolvedValueOnce(failure);
+      await sendScheduledAiDigestEmails();
+      expect(mockGenerate).toHaveBeenCalledTimes(1);
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+      expect(mockRelease).toHaveBeenCalledWith("owner");
+    } finally {
+      log.mockRestore();
+    }
+  });
+});
+
+
+it("keeps the two-reader bound and releases the lease after a recipient fails", async () => {
+  jest.resetAllMocks();
+  mockSubscribers.mockResolvedValue([{ _id: "first" }, { _id: "second" }, { _id: "third" }]);
+  mockAcquire.mockResolvedValue("owner");
+  mockRenew.mockResolvedValue(true);
+  mockRelease.mockResolvedValue(undefined);
+  mockFind.mockReturnValue({ fetch: async () => [] });
+  mockFindOne.mockResolvedValue(null);
+  mockGenerate.mockRejectedValueOnce(new Error("generation failed"))
+    .mockResolvedValueOnce({ issueId: "second-issue", spec });
+  mockSend.mockResolvedValue(true);
+  const log = jest.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    await sendScheduledAiDigestEmails();
+    expect(mockGenerate.mock.calls.map(([args]) => args.user._id)).toEqual(["first", "second"]);
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockSend.mock.calls[0][0].tracking.recipientId).toBe("second");
+    expect(mockRelease).toHaveBeenCalledWith("owner");
+  } finally {
+    log.mockRestore();
+  }
 });

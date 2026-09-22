@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
   await clearLoggedOutServedSessionsWithNoViews();
 
   // Send scheduled "Content for You" digests to subscribers who are due one.
-  // Runs are an hour apart and each drains only a couple of readers, so they
-  // don't overlap; a per-reader claim will replace this when the cohort widens.
+  // A database lease prevents overlapping invocations from generating/sending
+  // the same batch. Each run still handles at most two readers sequentially.
   await sendScheduledAiDigestEmails();
 
   return new Response('OK', { status: 200 });
