@@ -36,6 +36,7 @@ import FormatDate from "@/components/common/FormatDate";
 import ForumIcon from "@/components/common/ForumIcon";
 import SectionTitle from "@/components/common/SectionTitle";
 import Loading from "@/components/vulcan-core/Loading";
+import { maxTiny } from "@/themes/globalStyles/globalStyles";
 
 const AiDigestIssueContentQuery = gql(`
   query AiDigestIssueContent($postIds: [String!], $commentIds: [String!]) {
@@ -410,12 +411,23 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   },
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
-    padding: aiDigestPresentation.discussion.commentPadding,
-    border: "1px solid light-dark(#e6dfd2, #4a4844)",
+    border: theme.palette.border.commentBorder,
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
   },
   reply: {
-    marginTop: aiDigestPresentation.discussion.replyMarginTop,
+    margin: aiDigestPresentation.discussion.replyMargin,
+    borderRight: "none",
+    borderRadius: aiDigestPresentation.discussion.replyBorderRadius,
+    [maxTiny]: {
+      marginLeft: 5,
+      marginBottom: 5,
+    },
+  },
+  commentContent: {
+    padding: aiDigestPresentation.discussion.commentPadding,
+  },
+  commentBoxRoot: {
+    background: theme.palette.panelBackground.commentNodeRoot,
   },
   // Alternating thread backgrounds, matching onsite comment nodes.
   commentBoxOdd: {
@@ -717,21 +729,23 @@ function CommentBox({
     <div
       className={classNames(
         classes.commentBox,
-        nestingLevel > 0 && classes.reply,
-        nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+        nestingLevel === 0 ? classes.commentBoxRoot : classes.reply,
+        nestingLevel > 0 && (nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven),
       )}
     >
-      <ItemMetadata
-        author={comment.user?.displayName ?? "A LessWrong reader"}
-        postedAt={comment.postedAt}
-        permalinkUrl={getCommentUrl(comment)}
-        permalinkLabel="Permalink to this comment"
-        className={classes.commentByline}
-        authorClassName={classes.emphasizedMetadataAuthor}
-      />
-      <a href={commentUrl} className={classes.textLink}>
-        <div className={classes.commentText}>{text}</div>
-      </a>
+      <div className={classes.commentContent}>
+        <ItemMetadata
+          author={comment.user?.displayName ?? "A LessWrong reader"}
+          postedAt={comment.postedAt}
+          permalinkUrl={getCommentUrl(comment)}
+          permalinkLabel="Permalink to this comment"
+          className={classes.commentByline}
+          authorClassName={classes.emphasizedMetadataAuthor}
+        />
+        <a href={commentUrl} className={classes.textLink}>
+          <div className={classes.commentText}>{text}</div>
+        </a>
+      </div>
       {replies.map((reply) => (
         <CommentBox
           key={reply.comment._id}

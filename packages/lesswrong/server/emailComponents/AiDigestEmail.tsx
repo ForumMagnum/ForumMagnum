@@ -647,15 +647,23 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
-    padding: aiDigestPresentation.discussion.commentPadding,
-    border: "1px solid #e6dfd2",
+    border: "1px solid rgba(72,94,144,0.16)",
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
-    [emailMobileBreakpoint]: {
-      padding: "9px 5px 10px !important",
-    },
+  },
+  commentContent: {
+    padding: aiDigestPresentation.discussion.commentPadding,
+  },
+  commentBoxRoot: {
+    backgroundColor: "#ffffff",
   },
   commentBoxReply: {
-    marginTop: aiDigestPresentation.discussion.replyMarginTop,
+    margin: aiDigestPresentation.discussion.replyMargin,
+    borderRight: "none",
+    borderRadius: aiDigestPresentation.discussion.replyBorderRadius,
+    [emailMobileBreakpoint]: {
+      marginLeft: "5px !important",
+      marginBottom: "5px !important",
+    },
   },
   // Alternating thread backgrounds, matching the onsite comments-node-odd /
   // comments-node-even colors (grey 25 and grey 120 in light mode).
@@ -1204,13 +1212,13 @@ function CommentBox({
     <div
       className={classNames(
         classes.commentBox,
-        nestingLevel > 0 && classes.commentBoxReply,
-        nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven,
+        nestingLevel === 0 ? classes.commentBoxRoot : classes.commentBoxReply,
+        nestingLevel > 0 && (nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven),
       )}
     >
       <a
         href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
-        className={classes.commentLink}
+        className={classNames(classes.commentLink, classes.commentContent)}
       >
         <div className={classes.commentByline}>
           {comment.user?.displayName ?? "A LessWrong reader"}
