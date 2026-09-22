@@ -41,6 +41,8 @@ export function $wrapSelectionInSuggestionNode(
   logger?: Logger,
   changedProperties?: SuggestionProperties['nodePropertiesChanged'],
 ): ProtonNode[] {
+  if (selection.isCollapsed()) return []
+
   const nodes = selection.getNodes()
 
   const anchor = selection.anchor
@@ -50,6 +52,8 @@ export function $wrapSelectionInSuggestionNode(
   const focusOffset = selection.focus.offset
 
   const nodesLength = nodes.length
+  const startPoint = isBackward ? focus : anchor
+  const endPoint = isBackward ? anchor : focus
   const startOffset = isBackward ? focusOffset : anchorOffset
   const endOffset = isBackward ? anchorOffset : focusOffset
 
@@ -83,8 +87,10 @@ export function $wrapSelectionInSuggestionNode(
 
     if ($isTextNode(node)) {
       const textContentSize = node.getTextContentSize()
-      const startTextOffset = isFirstNode ? startOffset : 0
-      const endTextOffset = isLastNode ? endOffset : textContentSize
+      // Element offsets index children, not characters. Only clip text when
+      // the selection endpoint is a text point on this exact node.
+      const startTextOffset = startPoint.type === 'text' && startPoint.key === node.getKey() ? startOffset : 0
+      const endTextOffset = endPoint.type === 'text' && endPoint.key === node.getKey() ? endOffset : textContentSize
       const loggerInfo = { textContentSize, startTextOffset, endTextOffset }
       logger?.info('Splitting text node', loggerInfo)
 

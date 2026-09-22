@@ -12,6 +12,9 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
+import { $acceptSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/acceptSuggestion";
+import { $rejectSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/rejectSuggestion";
+import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 
 async function replaceTextAsSuggestion(
   editor: LexicalEditor,
@@ -210,20 +213,103 @@ describe("replaceText within nested block structures", () => {
 });
 
 describe("deleteBlock suggest-mode wrapping", () => {
-  async function wrapBlockByPrefix(editor: LexicalEditor, prefix: string): Promise<boolean> {
+  async function wrapBlockByPrefix(editor: LexicalEditor, prefix: string, suggestionId = randomId()): Promise<boolean> {
     let wrapped = false;
     await runEditorUpdate(editor, () => {
       const block = $locateBlockByPrefix(prefix).node;
       if (!block) throw new Error(`No block matched prefix: ${prefix}`);
-      wrapped = $wrapBlockAsDeletionSuggestion(block, randomId());
+      wrapped = $wrapBlockAsDeletionSuggestion(block, suggestionId);
     });
     return wrapped;
   }
 
-  it("wraps a paragraph block and creates delete suggestions", async () => {
-    const editor = await setupEditorWithContent("First paragraph.\n\nSecond paragraph.");
-    expect(await wrapBlockByPrefix(editor, "Second paragraph")).toBe(true);
-    expect(getAllSuggestions(editor).filter((s) => s.type === "delete").length).toBeGreaterThan(0);
+  it.each([0, 1, 3, 8])("wraps all text in a paragraph at sibling index %i", async (index) => {
+    const preceding = Array.from({ length: index }, (_, i) => `Earlier paragraph ${i}.`);
+    const editor = await setupEditorWithContent([...preceding, "Delete me.", "Keep me."].join("\n\n"));
+    const suggestionId = randomId();
+    expect(await wrapBlockByPrefix(editor, "Delete me.", suggestionId)).toBe(true);
+    expect(getAllSuggestions(editor)).toEqual([{ type: "delete", textContent: "Delete me." }]);
+
+    await runEditorUpdate(editor, () => {
+      expect($acceptSuggestion(suggestionId)).toBe(true);
+    });
+    // Accepting a text deletion can leave an empty paragraph, but no text
+    // fragment from the deleted block should survive.
+    expect(getPlainTextContent(editor).split("\n\n").filter(Boolean)).toEqual([...preceding, "Keep me."]);
+  });
+
+  it("preserves a formatted block when its deletion is rejected", async () => {
+    const editor = await setupEditorWithContent("Before.\n\nDelete **bold** and [linked](https://example.com) text.\n\nAfter.");
+    const originalMarkdown = getMarkdownContent(editor);
+    const suggestionId = randomId();
+    expect(await wrapBlockByPrefix(editor, "Delete bold", suggestionId)).toBe(true);
+    expect(getAllSuggestions(editor).map((s) => s.textContent).join("")).toBe("Delete bold and linked text.");
+
+    await runEditorUpdate(editor, () => {
+      expect($rejectSuggestion(suggestionId)).toBe(true);
+    });
+    expect(getAllSuggestions(editor)).toEqual([]);
+    expect(getMarkdownContent(editor)).toBe(originalMarkdown);
+  });
+
+  it("deletes a complete nested list item without changing its siblings", async () => {
+    const editor = await setupEditorWithContent("- First item\n- Second item\n- Third item");
+    const suggestionId = randomId();
+    expect(await wrapBlockByPrefix(editor, "Second item", suggestionId)).toBe(true);
+    expect(getAllSuggestions(editor)).toEqual([{ type: "delete", textContent: "Second item" }]);
+
+    await runEditorUpdate(editor, () => {
+      expect($acceptSuggestion(suggestionId)).toBe(true);
+    });
+    expect(getMarkdownContent(editor)).toContain("First item");
+    expect(getMarkdownContent(editor)).toContain("Third item");
+    expect(getPlainTextContent(editor)).not.toContain("Second item");
+  });
+
+  it.each([false, true])("preserves partial text selection boundaries (backward=%s)", async (isBackward) => {
+    const editor = await setupEditorWithContent("Keep this, delete this, keep that.");
+    await runEditorUpdate(editor, () => {
+      const result = $locateQuoteWithTextIndex("delete this");
+      if (!result.anchor || !result.focus) throw new Error("Quote not found");
+      const start = isBackward ? result.focus : result.anchor;
+      const end = isBackward ? result.anchor : result.focus;
+      const selection = $createRangeSelection();
+      selection.anchor.set(start.key, start.offset, start.type);
+      selection.focus.set(end.key, end.offset, end.type);
+      $wrapSelectionInSuggestionNode(selection, isBackward, randomId(), "delete");
+    });
+    expect(getAllSuggestions(editor)).toEqual([{ type: "delete", textContent: "delete this" }]);
+  });
+
+  it.each([false, true])("selects whole text children using element offsets (backward=%s)", async (isBackward) => {
+    const editor = await setupEditorWithContent("Keep **delete this** and keep that.");
+    const suggestionId = randomId();
+    await runEditorUpdate(editor, () => {
+      const paragraph = $getRoot().getFirstChildOrThrow();
+      const selection = $createRangeSelection();
+      selection.anchor.set(paragraph.getKey(), isBackward ? 2 : 1, "element");
+      selection.focus.set(paragraph.getKey(), isBackward ? 1 : 2, "element");
+      $wrapSelectionInSuggestionNode(selection, isBackward, suggestionId, "delete");
+    });
+    expect(getAllSuggestions(editor)).toEqual([{ type: "delete", textContent: "delete this" }]);
+
+    await runEditorUpdate(editor, () => {
+      $acceptSuggestion(suggestionId);
+    });
+    expect(getPlainTextContent(editor)).toBe("Keep  and keep that.");
+  });
+
+  it("does not mark text for deletion at a collapsed element selection", async () => {
+    const editor = await setupEditorWithContent("Keep this text.");
+    await runEditorUpdate(editor, () => {
+      const paragraph = $getRoot().getFirstChildOrThrow();
+      const selection = $createRangeSelection();
+      selection.anchor.set(paragraph.getKey(), 0, "element");
+      selection.focus.set(paragraph.getKey(), 0, "element");
+      expect($wrapSelectionInSuggestionNode(selection, false, randomId(), "delete")).toEqual([]);
+    });
+    expect(getAllSuggestions(editor)).toEqual([]);
+    expect(getPlainTextContent(editor)).toBe("Keep this text.");
   });
 
   it("wraps a table block via per-cell suggestion nodes", async () => {
