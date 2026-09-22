@@ -1,5 +1,5 @@
 // Pangram scores above this get autorejected.
-export const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
+export const PANGRAM_AUTOREJECT_THRESHOLD = 0.3;
 
 /**
  * Cap on how much text we send to Pangram. Longer texts are truncated to keep
