@@ -162,10 +162,6 @@ export const contentForYouGraphQLMutations = {
         countsTowardHistory: effectiveCountsTowardHistory,
       },
     });
-    if (!result.issueId) {
-      throw new Error("Generated Content for You issue was not persisted");
-    }
-
     // Generation takes long enough that the user may well have navigated away,
     // so tell them onsite when their issue is ready.
     await createNotification({

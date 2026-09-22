@@ -256,12 +256,12 @@ const NotificationsSettingsTab = ({
             />
           </div>
 
-          <div className={fieldWrapperClass}>
+          {settings.isAdmin && <div className={fieldWrapperClass}>
             <EmailConfirmationRequiredCheckbox
               field={bind('emailSubscribedToAiDigest')}
               label="Email me Content for You, an AI-personalized digest"
             />
-          </div>
+          </div>}
         </>}
 
 

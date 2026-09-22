@@ -188,7 +188,7 @@ export interface AiDigestSubscribedAuthorRow {
   authorName: string;
 }
 
-async function loadReaderSubscribedAuthorIds(userId: string): Promise<Set<string>> {
+export async function loadReaderSubscribedAuthorIds(userId: string): Promise<Set<string>> {
   const subscriptions = await Subscriptions.find(
     { userId, collectionName: "Users", state: "subscribed", deleted: false },
     {},
@@ -201,8 +201,8 @@ async function loadReaderSubscribedAuthorIds(userId: string): Promise<Set<string
 const AI_DIGEST_SUBSCRIBED_AUTHOR_LIMIT = 100;
 
 /** Authors the reader follows, by display name. */
-export async function loadReaderSubscribedAuthors(userId: string): Promise<AiDigestSubscribedAuthorRow[]> {
-  const authorIds = Array.from(await loadReaderSubscribedAuthorIds(userId));
+export async function loadReaderSubscribedAuthors(subscribedAuthorIds: ReadonlySet<string>): Promise<AiDigestSubscribedAuthorRow[]> {
+  const authorIds = Array.from(subscribedAuthorIds);
   const displayNamesById = await loadDisplayNamesById(authorIds);
   return authorIds
     .flatMap((authorId) => {
@@ -292,13 +292,14 @@ function commentAuthorName(
 export async function annotateAiDigestPostCandidates({
   userId,
   posts,
+  subscribedAuthorIds,
 }: {
   userId: string;
+  subscribedAuthorIds: ReadonlySet<string>;
   posts: Array<{ postId: string; hideAuthor: boolean; ownerIds: string[] }>;
 }): Promise<AiDigestCandidateAnnotationRow[]> {
   const postIds = posts.map((post) => post.postId);
-  const [subscribedAuthorIds, readStatuses, upvotes, seeLess] = await Promise.all([
-    loadReaderSubscribedAuthorIds(userId),
+  const [readStatuses, upvotes, seeLess] = await Promise.all([
     loadReaderReadStatuses(userId, postIds),
     loadReaderUpvotes(userId, "Posts", postIds),
     loadReaderActiveSeeLess(userId, "Posts", postIds),
@@ -317,13 +318,14 @@ export async function annotateAiDigestPostCandidates({
 export async function annotateAiDigestQuickTakes({
   userId,
   quickTakes,
+  subscribedAuthorIds,
 }: {
   userId: string;
+  subscribedAuthorIds: ReadonlySet<string>;
   quickTakes: Array<{ commentId: string; authorId: string | null }>;
 }): Promise<AiDigestQuickTakeAnnotationRow[]> {
   const commentIds = quickTakes.map((quickTake) => quickTake.commentId);
-  const [subscribedAuthorIds, upvotes, seeLess] = await Promise.all([
-    loadReaderSubscribedAuthorIds(userId),
+  const [upvotes, seeLess] = await Promise.all([
     loadReaderUpvotes(userId, "Comments", commentIds),
     loadReaderActiveSeeLess(userId, "Comments", commentIds),
   ]);

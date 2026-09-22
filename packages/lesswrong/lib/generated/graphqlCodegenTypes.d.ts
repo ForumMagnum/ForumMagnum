@@ -24286,6 +24286,16 @@ type CommentsMarkdownFragment_Comment_contents_Revision = { __typename?: 'Revisi
 
 type CommentsMarkdownFragment = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: CommentsMarkdownFragment_Comment_user_User | null, contents: CommentsMarkdownFragment_Comment_contents_Revision | null };
 
+type AiDigestEmailComment_Comment_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
+
+type AiDigestEmailComment_Comment_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type AiDigestEmailComment_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type AiDigestEmailComment_Comment_tag_Tag = { __typename?: 'Tag', _id: string, slug: string, name: string };
+
+type AiDigestEmailComment = { __typename?: 'Comment', _id: string, postedAt: string, parentCommentId: string | null, shortform: boolean | null, tagCommentType: TagCommentType, contents: AiDigestEmailComment_Comment_contents_Revision | null, user: AiDigestEmailComment_Comment_user_User | null, post: AiDigestEmailComment_Comment_post_Post | null, tag: AiDigestEmailComment_Comment_tag_Tag | null };
+
 type ConversationsMinimumInfo = { __typename?: 'Conversation', _id: string, createdAt: string | null, latestActivity: string | null, title: string | null, participantIds: Array<string> | null, archivedByIds: Array<string>, messageCount: number, moderator: boolean | null };
 
 type ConversationsList_Conversation_participants_User = (
@@ -25019,6 +25029,16 @@ type SuggestAlignmentPost = (
 );
 
 type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
+
+type AiDigestEmailPost_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type AiDigestEmailPost_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string };
+
+type AiDigestEmailPost_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', imageUrl: string };
+
+type AiDigestEmailPost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string, wordCount: number };
+
+type AiDigestEmailPost = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, user: AiDigestEmailPost_Post_user_User | null, coauthors: Array<AiDigestEmailPost_Post_coauthors_User> | null, socialPreviewData: AiDigestEmailPost_Post_socialPreviewData_SocialPreviewType, contents: AiDigestEmailPost_Post_contents_Revision | null };
 
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }
@@ -26023,16 +26043,6 @@ type AiDigestEmailPostsQueryVariables = Exact<{
 
 type AiDigestEmailPostsQuery = AiDigestEmailPostsQuery_Query;
 
-type AiDigestEmailPost_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
-
-type AiDigestEmailPost_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string };
-
-type AiDigestEmailPost_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', imageUrl: string };
-
-type AiDigestEmailPost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string, wordCount: number };
-
-type AiDigestEmailPost = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, user: AiDigestEmailPost_Post_user_User | null, coauthors: Array<AiDigestEmailPost_Post_coauthors_User> | null, socialPreviewData: AiDigestEmailPost_Post_socialPreviewData_SocialPreviewType, contents: AiDigestEmailPost_Post_contents_Revision | null };
-
 type AiDigestEmailCommentsQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & AiDigestEmailComment
@@ -26049,16 +26059,6 @@ type AiDigestEmailCommentsQueryVariables = Exact<{
 
 
 type AiDigestEmailCommentsQuery = AiDigestEmailCommentsQuery_Query;
-
-type AiDigestEmailComment_Comment_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
-
-type AiDigestEmailComment_Comment_user_User = { __typename?: 'User', _id: string, displayName: string };
-
-type AiDigestEmailComment_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
-
-type AiDigestEmailComment_Comment_tag_Tag = { __typename?: 'Tag', _id: string, slug: string, name: string };
-
-type AiDigestEmailComment = { __typename?: 'Comment', _id: string, postedAt: string, parentCommentId: string | null, shortform: boolean | null, tagCommentType: TagCommentType, contents: AiDigestEmailComment_Comment_contents_Revision | null, user: AiDigestEmailComment_Comment_user_User | null, post: AiDigestEmailComment_Comment_post_Post | null, tag: AiDigestEmailComment_Comment_tag_Tag | null };
 
 type EmailComment2Query_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }

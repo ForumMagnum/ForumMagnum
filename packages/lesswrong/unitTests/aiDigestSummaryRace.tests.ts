@@ -1,7 +1,9 @@
+const mockCaptureException = jest.fn();
+jest.mock("@/lib/sentryWrapper", () => ({ captureException: (...args: unknown[]) => mockCaptureException(...args) }));
 jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => ({}) }));
 const mockLoadBodies = jest.fn();
 jest.mock("@/server/aiDigest/aiDigestPostLookups", () => ({
-  loadAiDigestPostBodies: (...args: unknown[]) => mockLoadBodies(...args),
+  loadAiDigestRevisionBodies: (...args: unknown[]) => mockLoadBodies(...args),
 }));
 const mockGenerateText = jest.fn();
 const mockInsert = jest.fn();
@@ -25,11 +27,10 @@ import type { AiDigestPostCandidate } from "@/server/aiDigest/aiDigestPostCandid
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 const candidate: AiDigestPostCandidate = {
-  postId: "post", revisionId: "revision", title: "Post", author: "Author", authorIds: [],
+  postId: "post", revisionId: "revision", title: "Post", author: "Author",
   publicationDate: "2026-09-01", baseScore: 10, score: 10, tags: [], isCurated: false,
   isSubscribedToAuthor: false, isRead: false, upvoteStrength: null,
   previousDigestInclusionCount: 0, lastIncludedAt: null, exclusionReason: null,
-  retrievalProvenance: { source: "newsletterRecentPostsSql", maxAgeDays: 28, minKarma: 0 },
 };
 
 describe("summary cache insert races", () => {
@@ -63,5 +64,19 @@ describe("summary cache insert races", () => {
     mockInsert.mockRejectedValue(error);
     mockFindOne.mockResolvedValue(null);
     await expect(generate()).rejects.toBe(error);
+  });
+});
+
+it("reports summary provider failures without logging request content", async () => {
+  jest.resetAllMocks();
+  mockLoadBodies.mockResolvedValue([{ postId: "post", revisionHtml: `<p>${"Content. ".repeat(50)}</p>` }]);
+  mockGenerateText.mockRejectedValue(new Error("private request body"));
+  const result = await ensureAiDigestPostSummaries({
+    candidates: [candidate], context: computeContextFromUser({ user: null, isSSR: false }),
+  });
+  expect(result.skippedPostCount).toBe(1);
+  expect(mockInsert).not.toHaveBeenCalled();
+  expect(mockCaptureException).toHaveBeenCalledWith(new Error("AI digest summary generation failed"), {
+    extra: expect.objectContaining({ postId: "post", revisionId: "revision" }),
   });
 });

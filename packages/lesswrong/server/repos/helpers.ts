@@ -28,12 +28,17 @@ export const viewablePostsSelector = {
 };
 
 /** When changing this, also update the default view. */
-export const getViewablePostsSelector = (postsTableAlias?: string) => {
+export const getViewablePostsSelector = (
+  postsTableAlias?: string,
+  { includeShortform = false }: { includeShortform?: boolean } = {},
+) => {
   const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
-  return Object.entries(viewablePostFieldValues).map(([field, value]) => {
-    const column = `${aliasPrefix}"${field}"`;
-    return `${column} = ${typeof value === "boolean" ? String(value).toUpperCase() : value}`;
-  }).concat(`${aliasPrefix}"postedAt" IS NOT NULL`).join(" AND\n    ");
+  return Object.entries(viewablePostFieldValues)
+    .filter(([field]) => !includeShortform || field !== "shortform")
+    .map(([field, value]) => {
+      const column = `${aliasPrefix}"${field}"`;
+      return `${column} = ${typeof value === "boolean" ? String(value).toUpperCase() : value}`;
+    }).concat(`${aliasPrefix}"postedAt" IS NOT NULL`).join(" AND\n    ");
 };
 
 export const getViewableEventsSelector = (postsTableAlias?: string) => {

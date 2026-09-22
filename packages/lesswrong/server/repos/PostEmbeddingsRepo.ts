@@ -61,8 +61,6 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     LEFT JOIN "Posts" p ON p._id = ed."postId"
     WHERE ${getViewablePostsSelector('p')}
     AND p."baseScore" > 0
-    AND p."baseScore" >= $(minKarma)
-    AND ($(publishedAfter)::timestamptz IS NULL OR p."postedAt" >= $(publishedAfter))
     ORDER BY (0.8 * (1 / (distance + 0.1)) + 0.2 * log(p."baseScore")) DESC
     LIMIT $(limit)
   `;
@@ -72,6 +70,15 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     limit = 5,
     { minKarma = 0, publishedAfter = null }: NearestPostFilters = {},
   ): Promise<string[]> {
+    // Filter the requested corpus before the nearest-neighbor limit, retaining
+    // the existing all-time query for callers that do not request a filter.
+    const eligibilityFilter = minKarma > 0 || publishedAfter ? `
+      JOIN "Posts" p ON p."_id" = pe."postId"
+      WHERE ${getViewablePostsSelector("p")}
+        AND p."baseScore" > 0
+        AND p."baseScore" >= $(minKarma)
+        AND ($(publishedAfter)::timestamptz IS NULL OR p."postedAt" >= $(publishedAfter))
+    ` : "";
     const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
       WITH embedding_distances AS (
@@ -79,6 +86,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
           pe."postId", 
           pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
         FROM public."PostEmbeddings" pe
+        ${eligibilityFilter}
         ORDER BY distance
         LIMIT 200 
       )

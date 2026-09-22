@@ -109,9 +109,6 @@ export interface AiDigestIssueInsert extends AiDigestSelectionTokenUsage {
   spec: AiDigestSpec;
 }
 
-function boundedIssueLimit(limit: number): number {
-  return Math.max(0, Math.min(limit, AI_DIGEST_HISTORY_ISSUE_LIMIT));
-}
 
 function recordInclusion(
   historyByDocumentId: Map<string, AiDigestPostHistory>,
@@ -323,22 +320,16 @@ async function loadAiDigestClicks({
 export async function loadAiDigestHistory({
   userId,
   context,
-  issueLimit = AI_DIGEST_HISTORY_ISSUE_LIMIT,
 }: {
   userId: string;
   context: ResolverContext;
-  issueLimit?: number;
 }): Promise<AiDigestHistory> {
-  const limit = boundedIssueLimit(issueLimit);
-  if (limit === 0) {
-    return buildAiDigestHistory([], []);
-  }
   const issues = await AiDigestIssues.find(
     {
       recipientId: userId,
       countsTowardHistory: true,
     },
-    { sort: { generatedAt: -1, _id: -1 }, limit },
+    { sort: { generatedAt: -1, _id: -1 }, limit: AI_DIGEST_HISTORY_ISSUE_LIMIT },
     {
       _id: 1,
       recipientId: 1,
@@ -398,10 +389,10 @@ export async function clearAiDigestRecommendationHistory({
     );
   }
   const generatedAfter = new Date(now.getTime() - (days * DAY_MS));
-  const result = await AiDigestIssues.rawRemove({
+  // Delivery timestamps and campaign IDs remain needed for cadence and click attribution.
+  return await AiDigestIssues.rawUpdateMany({
     recipientId,
     countsTowardHistory: true,
     generatedAt: { $gte: generatedAfter },
-  });
-  return result.deletedCount;
+  }, { $set: { countsTowardHistory: false } });
 }

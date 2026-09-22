@@ -91,27 +91,6 @@ const AiDigestEmailPostsQuery = gql(`
     }
   }
 
-  fragment AiDigestEmailPost on Post {
-    _id
-    slug
-    title
-    postedAt
-    user {
-      _id
-      displayName
-    }
-    coauthors {
-      _id
-      displayName
-    }
-    socialPreviewData {
-      imageUrl
-    }
-    contents {
-      plaintextDescription
-      wordCount
-    }
-  }
 `);
 
 const AiDigestEmailCommentsQuery = gql(`
@@ -127,30 +106,6 @@ const AiDigestEmailCommentsQuery = gql(`
     }
   }
 
-  fragment AiDigestEmailComment on Comment {
-    _id
-    postedAt
-    parentCommentId
-    shortform
-    tagCommentType
-    contents {
-      plaintextMainText
-    }
-    user {
-      _id
-      displayName
-    }
-    post {
-      _id
-      slug
-      title
-    }
-    tag {
-      _id
-      slug
-      name
-    }
-  }
 `);
 
 /**

@@ -936,7 +936,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Posts" p ON p."_id" = c."postId"
       WHERE ${aiDigestVisibleCommentConditions("c")}
         AND c."postedAt" >= $(minPostedAt)
-        AND ${getViewablePostsSelector("p")}
+        AND ${getViewablePostsSelector("p", { includeShortform: true })}
       GROUP BY COALESCE(c."topLevelCommentId", c."_id")
       ORDER BY MAX(c."baseScore") DESC, COALESCE(c."topLevelCommentId", c."_id")
       LIMIT $(limit)
@@ -978,7 +978,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         JOIN "Posts" p ON p."_id" = c."postId"
         WHERE ${aiDigestVisibleCommentConditions("c")}
           AND c."postedAt" >= $(minPostedAt)
-          AND ${getViewablePostsSelector("p")}
+          AND ${getViewablePostsSelector("p", { includeShortform: true })}
       ),
       reader_read_posts AS (
         SELECT rs."postId", MAX(rs."lastUpdated") AS "lastUpdated"

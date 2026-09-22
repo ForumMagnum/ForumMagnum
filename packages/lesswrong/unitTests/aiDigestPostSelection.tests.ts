@@ -53,6 +53,7 @@ import type {
 } from "@/server/repos/PostsRepo";
 
 const NOW = new Date("2026-07-17T12:00:00.000Z");
+const CORPUS = { retrievalWindowDays: 14, minimumKarma: 20 };
 
 function makeCandidate(index: number): AiDigestPostCandidate {
   return {
@@ -60,7 +61,6 @@ function makeCandidate(index: number): AiDigestPostCandidate {
     revisionId: `revision-${index}`,
     title: `Candidate ${index}`,
     author: `Author ${index}`,
-    authorIds: [`author-${index}`],
     publicationDate: `2026-07-${String(index).padStart(2, "0")}T12:00:00.000Z`,
     baseScore: 20 + index,
     score: 1.5 + index,
@@ -72,11 +72,7 @@ function makeCandidate(index: number): AiDigestPostCandidate {
     previousDigestInclusionCount: index === 4 ? 2 : 0,
     lastIncludedAt: index === 4 ? "2026-07-15T12:00:00.000Z" : null,
     exclusionReason: null,
-    retrievalProvenance: {
-      source: "newsletterRecentPostsSql",
-      maxAgeDays: 14,
-      minKarma: 20,
-    },
+
   };
 }
 
@@ -246,6 +242,34 @@ describe("AI digest reader dossier", () => {
       readAt: "2026-07-15",
       likeStrength: "strong",
       likedAt: "2026-07-16",
+    }]);
+  });
+
+  it("merges signals in source order while sorting by the latest engagement day", () => {
+    const reference = makePostReference(1);
+    const latestRead = new Date("2026-07-16T23:00:00Z");
+    const earlierComment = new Date("2026-07-12T08:00:00Z");
+    const context = buildAiDigestReaderContext(
+      { createdAt: new Date("2026-01-01") },
+      makeReaderData({
+        recentReads: [{ ...reference, occurredAt: latestRead }],
+        recentPositiveVotes: [{ ...reference, occurredAt: NOW, voteStrength: "strong" }],
+        recentAuthoredPosts: [{ ...reference, occurredAt: earlierComment }],
+        recentCommentedPosts: [{ ...reference, title: "Comment metadata wins", occurredAt: earlierComment }],
+      }),
+      NOW,
+    );
+    expect(context.dossier.recentInteractions.posts).toEqual([{
+      postId: reference.postId,
+      title: "Comment metadata wins",
+      author: reference.authorName,
+      publicationDate: "2026-07-02",
+      lastEngagedAt: "2026-07-17",
+      readAt: "2026-07-16",
+      likeStrength: "strong",
+      likedAt: "2026-07-17",
+      authoredAt: "2026-07-12",
+      commentedAt: "2026-07-12",
     }]);
   });
 
@@ -597,7 +621,7 @@ describe("AI digest selection prompt", () => {
     upvoteStrength: "regular",
     upvotedAt: "2026-07-11T12:00:00.000Z",
     clickedAt: "2026-07-10T12:00:00.000Z",
-  }], "Prioritize decision theory and avoid introductory AI safety posts.", NOW);
+  }], "Prioritize decision theory and avoid introductory AI safety posts.", NOW, [], CORPUS);
 
   it("serializes compact tuples inside explicit untrusted delimiters", () => {
     expect(prompt.sharedPrefix).toContain("<UNTRUSTED_CANDIDATE_CORPUS>");
@@ -648,6 +672,8 @@ describe("AI digest selection prompt", () => {
       [],
       null,
       NOW,
+      [],
+      CORPUS,
     );
 
     expect(otherPrompt.sharedPrefix).toBe(prompt.sharedPrefix);
@@ -676,6 +702,8 @@ describe("AI digest selection prompt", () => {
       [repeatedRecommendation, repeatedRecommendation],
       null,
       NOW,
+      [],
+      CORPUS,
     );
     const historyPayload = promptSection(
       repeatedPrompt.prompt,
@@ -686,6 +714,24 @@ describe("AI digest selection prompt", () => {
     expect(historyPayload).toContain('[[7,true,"regular",6,null,2]]');
     expect(historyPayload.split("Earlier recommendation")).toHaveLength(2);
   });
+  it("keeps first-seen history metadata and event order while counting duplicates", () => {
+    const first: AiDigestPastRecommendation = {
+      documentType: "post", documentId: "post-1", title: "Original title", author: "Author",
+      publicationDate: "2026-07-01", recommendedAt: "2026-07-10",
+      subsequentlyRead: false, upvoteStrength: null, upvotedAt: null, clickedAt: null,
+    };
+    const second = { ...first, title: "Later title", recommendedAt: "2026-07-12", subsequentlyRead: true };
+    const result = buildAiDigestPostSelectionPrompt(
+      readerContext.dossier, cards, [first, second, first], null, NOW, [], CORPUS,
+    );
+    const payload = promptSection(result.prompt, "<UNTRUSTED_PAST_RECOMMENDATIONS>", "</UNTRUSTED_PAST_RECOMMENDATIONS>");
+    expect(payload).toContain(JSON.stringify([
+      "post", "Original title", "Author", 16,
+      [[7, false, null, null, null, 2], [5, true, null, null, null, 1]],
+    ]));
+    expect(payload).not.toContain("Later title");
+  });
+
 });
 
 describe("AI digest selection cost tracking", () => {
@@ -756,11 +802,7 @@ describe("AI digest model-output validation and spec mapping", () => {
   it("accepts registry-discovered post IDs without summaries", () => {
     const discovered: AiDigestSelectedPostCandidate = {
       ...makeCandidate(99),
-      retrievalProvenance: {
-        source: "selectionToolSearch",
-        maxAgeDays: null,
-        minKarma: 20,
-      },
+
       isRead: false,
       upvoteStrength: null,
       previousDigestInclusionCount: 0,
@@ -775,17 +817,13 @@ describe("AI digest model-output validation and spec mapping", () => {
     expect(validateAiDigestPostSelectionOutput(
       output,
       [...candidates, discovered],
-    )).toBe(output);
+    ).selectedItems[4]).toEqual({ documentType: "post", candidate: discovered, reason: output.selectedItems[4].reason });
   });
 
   it("still rejects unknown IDs when a registry is present", () => {
     const discovered: AiDigestSelectedPostCandidate = {
       ...makeCandidate(99),
-      retrievalProvenance: {
-        source: "selectionToolSearch",
-        maxAgeDays: null,
-        minKarma: 20,
-      },
+
       exclusionReason: null,
     };
     const output = makeValidOutput();
@@ -804,20 +842,12 @@ describe("AI digest model-output validation and spec mapping", () => {
     const corpusPostIds = new Set(candidates.map((candidate) => candidate.postId));
     const corpusDuplicate = {
       ...makeCandidate(1),
-      retrievalProvenance: {
-        source: "selectionToolSearch" as const,
-        maxAgeDays: null,
-        minKarma: 20,
-      },
+
       exclusionReason: null,
     };
     const novel = {
       ...makeCandidate(99),
-      retrievalProvenance: {
-        source: "selectionToolSearch" as const,
-        maxAgeDays: null,
-        minKarma: 20,
-      },
+
       exclusionReason: null,
     };
     const registered = registerDiscoveredCandidates(
@@ -886,7 +916,7 @@ describe("AI digest model-output validation and spec mapping", () => {
     expect(validateAiDigestPostSelectionOutput(
       unconstrainedOutput,
       candidates,
-    )).toBe(unconstrainedOutput);
+    ).selectedItems[0].reason).toBe(unconstrainedOutput.selectedItems[0].reason);
   });
 
   it("includes the reader's personal instructions in the assembled issue", () => {
@@ -894,21 +924,19 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: "More decision theory, please.",
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
     });
     expect(spec.personalInstructions).toBe("More decision theory, please.");
   });
 
-  it("maps positions to placements without appending fixture sections", () => {
+  it("preserves ranked selections and reasons while mapping positions to placements", () => {
     const output = makeValidOutput();
-    validateAiDigestPostSelectionOutput(output, candidates);
+    output.selectedItems.reverse();
     const spec = buildAiDigestSpecFromPostSelection({
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output,
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(output, candidates),
     });
     expect(spec.aiNote).toEqual({
       modelName: "Test Model",
@@ -919,6 +947,10 @@ describe("AI digest model-output validation and spec mapping", () => {
       (section) => section.kind === "recommendations",
     );
     expect(recommendations?.items).toHaveLength(5);
+    expect(recommendations?.items.map((item) => item.documentRef.documentId))
+      .toEqual(output.selectedItems.map((item) => item.itemId));
+    expect(recommendations?.items.map((item) => item.reason))
+      .toEqual(output.selectedItems.map((item) => item.reason));
     expect(recommendations?.items.map((item) => item.placement)).toEqual([
       "headline",
       "headline",
@@ -934,8 +966,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
       previewHtmlByPostId: new Map([["post-1", "<p>The opening of the post.</p>"]]),
     });
     const recommendations = spec.sections.find(
@@ -956,8 +987,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output,
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(output, candidates),
       curatedPosts: [
         { postId: "curated-1", isRead: true },
         { postId: "post-1", isRead: false },
@@ -985,8 +1015,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
       curatedPosts: [
         { postId: "curated-1", isRead: true },
         { postId: "curated-2", isRead: true },
@@ -1019,8 +1048,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
       curatedPosts: [
         { postId: "curated-1", isRead: false },
         { postId: "curated-2", isRead: true },
@@ -1043,8 +1071,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
       curatedPosts: [
         { postId: "curated-1", isRead: true },
         { postId: "curated-2", isRead: true },
@@ -1077,8 +1104,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeValidOutput(),
-      postCandidates: candidates,
+      output: validateAiDigestPostSelectionOutput(makeValidOutput(), candidates),
       curatedPosts: [],
     });
     expect(spec.sections.some((section) => section.kind === "curated")).toBe(false);
@@ -1099,14 +1125,12 @@ describe("AI digest model-output validation and spec mapping", () => {
       mixedOutput,
       candidates,
       quickTakes,
-    )).toBe(mixedOutput);
+    ).selectedItems.map((item) => item.reason)).toEqual(mixedOutput.selectedItems.map((item) => item.reason));
     const spec = buildAiDigestSpecFromPostSelection({
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: mixedOutput,
-      postCandidates: candidates,
-      quickTakeCandidates: quickTakes,
+      output: validateAiDigestPostSelectionOutput(mixedOutput, candidates, quickTakes),
     });
     const recommendations = spec.sections.find(
       (section) => section.kind === "recommendations",
@@ -1229,6 +1253,7 @@ describe("AI digest model-output validation and spec mapping", () => {
       null,
       NOW,
       quickTakes,
+      CORPUS,
     );
     expect(prompt.promptVersion).toBe(AI_DIGEST_POST_SELECTION_PROMPT_VERSION);
     expect(prompt.sharedPrefix).toContain("<UNTRUSTED_QUICK_TAKE_CORPUS>");

@@ -559,7 +559,7 @@ export function ContentForYouPage() {
   };
 
   const handleClearRecommendationHistory = () => {
-    if (!window.confirm(`Delete recommendation history from the last ${historyClearDays} days?`)) {
+    if (!window.confirm(`Reset recommendation history from the last ${historyClearDays} days? Saved issues will remain.`)) {
       return;
     }
     setMessage(null);
@@ -568,9 +568,9 @@ export function ContentForYouPage() {
         days: historyClearDays,
       },
     }).then(({ data }) => {
-      const deletedCount = data?.ClearContentForYouRecommendationHistory ?? 0;
+      const clearedCount = data?.ClearContentForYouRecommendationHistory ?? 0;
       setSelectedIssueId(null);
-      setMessage(`Cleared ${deletedCount} generation(s) from the last ${historyClearDays} days.`);
+      setMessage(`Reset recommendation history for ${clearedCount} issue(s).`);
       void refetchOverview();
     }, () => undefined);
   };
@@ -592,31 +592,17 @@ export function ContentForYouPage() {
       <h1 className={classes.pageTitle}>Content for You</h1>
       <p className={classes.intro}>
         Personalized reading for you based on your read and upvote history.{" "}
-        {isSubscribed ? (
-          <>
-            <button
-              type="button"
-              className={classes.subscriptionToggle}
-              onClick={handleToggleSubscription}
-              disabled={subscriptionUpdating}
-            >
-              You are subscribed
-            </button>{" "}
-            and will receive an email every couple of days.
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={classes.subscriptionToggle}
-              onClick={handleToggleSubscription}
-              disabled={subscriptionUpdating}
-            >
-              Click here to subscribe
-            </button>{" "}
-            to an email every couple of days.
-          </>
-        )}
+        <button
+          type="button"
+          className={classes.subscriptionToggle}
+          onClick={handleToggleSubscription}
+          disabled={subscriptionUpdating}
+        >
+          {isSubscribed ? "You are subscribed" : "Click here to subscribe"}
+        </button>{" "}
+        {isSubscribed
+          ? "and will receive an email every couple of days."
+          : "to an email every couple of days."}
       </p>
 
       <InstructionsEditor
@@ -664,7 +650,7 @@ export function ContentForYouPage() {
           {!issueLoading && selectedIssue && (
             <AiDigestIssueView
               spec={selectedIssue.spec}
-              personalInstructions={selectedIssue.personalInstructions}
+              personalInstructions={selectedIssue.spec.personalInstructions ?? selectedIssue.personalInstructions}
             />
           )}
         </>

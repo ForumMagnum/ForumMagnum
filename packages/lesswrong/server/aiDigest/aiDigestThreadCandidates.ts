@@ -1,7 +1,6 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import type {
-  AiDigestReaderThreadRow,
   AiDigestThreadCommentRow,
 } from "@/server/repos/CommentsRepo";
 import {
@@ -79,11 +78,8 @@ export interface AiDigestThreadCandidates {
 }
 
 interface LoadAiDigestThreadCandidatesOptions {
-  maxAgeDays?: number;
-  siteWideThreadLimit?: number;
-  readerThreadLimit?: number;
-  now?: Date;
-  postHistoryById?: Map<string, AiDigestPostHistory>;
+  now: Date;
+  postHistoryById: Map<string, AiDigestPostHistory>;
 }
 
 
@@ -165,31 +161,6 @@ function compareByDate(
 }
 
 /**
- * The comment's ancestor chain up to the thread root, nearest parent first.
- * Null when the chain cannot be resolved within the loaded rows (e.g. a
- * deleted intermediate comment).
- */
-function ancestorChain(
-  comment: AiDigestThreadCommentRow,
-  rowsById: Map<string, AiDigestThreadCommentRow>,
-): AiDigestThreadCommentRow[] | null {
-  const chain: AiDigestThreadCommentRow[] = [];
-  let parentId = comment.parentCommentId;
-  while (parentId) {
-    const parent = rowsById.get(parentId);
-    if (!parent) {
-      return null;
-    }
-    chain.push(parent);
-    parentId = parent.parentCommentId;
-    if (chain.length > rowsById.size) {
-      return null;
-    }
-  }
-  return chain;
-}
-
-/**
  * Deterministic card comment pre-selection, in priority order: the thread root
  * for orientation, then reader-flagged comments (the personalization anchors),
  * then top-karma comments to fill the budget — always pulling in connecting
@@ -217,32 +188,29 @@ export function buildAiDigestThreadCard({
   if (!root) {
     return null;
   }
-  const readerFlagged = rows
-    .filter((row) =>
-      row.commentId !== threadId
-      && isReaderFlagged(commentFlagsById?.get(row.commentId)))
-    .sort(compareByKarmaThenDate);
-  const readerFlaggedIds = new Set(readerFlagged.map((row) => row.commentId));
-  const remaining = rows
-    .filter((row) => row.commentId !== threadId && !readerFlaggedIds.has(row.commentId))
-    .sort(compareByKarmaThenDate);
+  const prioritizedRows = rows
+    .filter((row) => row.commentId !== threadId)
+    .sort((first, second) =>
+      Number(isReaderFlagged(commentFlagsById?.get(second.commentId)))
+      - Number(isReaderFlagged(commentFlagsById?.get(first.commentId)))
+      || compareByKarmaThenDate(first, second));
 
   const selectedIds = new Set<string>([threadId]);
-  [...readerFlagged, ...remaining].forEach((row) => {
-    if (selectedIds.has(row.commentId)) {
-      return;
+  for (const row of prioritizedRows) {
+    if (selectedIds.has(row.commentId)) continue;
+    const missingIds = [row.commentId];
+    let parentId = row.parentCommentId;
+    let hops = 0;
+    while (parentId && hops++ <= rowsById.size) {
+      const parent = rowsById.get(parentId);
+      if (!parent) break;
+      if (!selectedIds.has(parentId)) missingIds.push(parentId);
+      parentId = parent.parentCommentId;
     }
-    const chain = ancestorChain(row, rowsById);
-    if (!chain) {
-      return;
-    }
-    const missingAncestors = chain.filter((ancestor) => !selectedIds.has(ancestor.commentId));
-    if (selectedIds.size + 1 + missingAncestors.length > maxComments) {
-      return;
-    }
-    selectedIds.add(row.commentId);
-    missingAncestors.forEach((ancestor) => selectedIds.add(ancestor.commentId));
-  });
+    // A missing parent or cycle prevents this branch from being represented.
+    if (parentId || selectedIds.size + missingIds.length > maxComments) continue;
+    for (const id of missingIds) selectedIds.add(id);
+  }
 
   const comments = rows
     .filter((row) => selectedIds.has(row.commentId))
@@ -258,30 +226,6 @@ export function buildAiDigestThreadCard({
   };
 }
 
-function aggregateThreadHistory(
-  commentIds: string[],
-  postHistoryById: Map<string, AiDigestPostHistory>,
-): Pick<AiDigestThreadAnnotation, "previousDigestInclusionCount" | "lastIncludedAt"> {
-  return commentIds.reduce(
-    (aggregate, commentId) => {
-      const history = postHistoryById.get(commentId);
-      if (!history) {
-        return aggregate;
-      }
-      return {
-        previousDigestInclusionCount:
-          aggregate.previousDigestInclusionCount + history.previousDigestInclusionCount,
-        lastIncludedAt:
-          !aggregate.lastIncludedAt
-          || (history.lastIncludedAt && history.lastIncludedAt > aggregate.lastIncludedAt)
-            ? history.lastIncludedAt
-            : aggregate.lastIncludedAt,
-      };
-    },
-    { previousDigestInclusionCount: 0, lastIncludedAt: null as string | null },
-  );
-}
-
 export function buildAiDigestThreadAnnotation({
   threadId,
   rows,
@@ -295,43 +239,38 @@ export function buildAiDigestThreadAnnotation({
   participatedPerRanking: boolean;
   postHistoryById: Map<string, AiDigestPostHistory>;
 }): AiDigestThreadAnnotation {
-  const annotations = rows.flatMap((row) => {
-    const annotation = annotationsByCommentId.get(row.commentId);
-    return annotation ? [annotation] : [];
-  });
-  return {
+  const result: AiDigestThreadAnnotation = {
     threadId,
-    participated: participatedPerRanking
-      || annotations.some((annotation) => annotation.authoredByReader),
-    hasActiveSeeLess: annotations.some((annotation) => annotation.hasActiveSeeLess),
-    ...aggregateThreadHistory(rows.map((row) => row.commentId), postHistoryById),
+    participated: participatedPerRanking,
+    hasActiveSeeLess: false,
+    previousDigestInclusionCount: 0,
+    lastIncludedAt: null,
   };
-}
-
-function groupRowsByThread(
-  rows: AiDigestThreadCommentRow[],
-): Map<string, AiDigestThreadCommentRow[]> {
-  return rows.reduce((groups, row) => {
-    const group = groups.get(row.threadId);
-    if (group) {
-      group.push(row);
-    } else {
-      groups.set(row.threadId, [row]);
+  for (const row of rows) {
+    const annotation = annotationsByCommentId.get(row.commentId);
+    result.participated ||= annotation?.authoredByReader ?? false;
+    result.hasActiveSeeLess ||= annotation?.hasActiveSeeLess ?? false;
+    const history = postHistoryById.get(row.commentId);
+    if (history) {
+      result.previousDigestInclusionCount += history.previousDigestInclusionCount;
+      if (!result.lastIncludedAt || (history.lastIncludedAt && history.lastIncludedAt > result.lastIncludedAt)) {
+        result.lastIncludedAt = history.lastIncludedAt;
+      }
     }
-    return groups;
-  }, new Map<string, AiDigestThreadCommentRow[]>());
+  }
+  return result;
 }
 
 export async function loadAiDigestThreadCandidates(
   user: DbUser,
   context: ResolverContext,
-  options: LoadAiDigestThreadCandidatesOptions = {},
+  options: LoadAiDigestThreadCandidatesOptions,
 ): Promise<AiDigestThreadCandidates> {
-  const now = options.now ?? new Date();
-  const maxAgeDays = options.maxAgeDays ?? AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
-  const siteWideThreadLimit = options.siteWideThreadLimit ?? AI_DIGEST_SITE_WIDE_THREAD_LIMIT;
-  const readerThreadLimit = options.readerThreadLimit ?? AI_DIGEST_READER_THREAD_LIMIT;
-  const postHistoryById = options.postHistoryById ?? new Map<string, AiDigestPostHistory>();
+  const now = options.now;
+  const maxAgeDays = AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
+  const siteWideThreadLimit = AI_DIGEST_SITE_WIDE_THREAD_LIMIT;
+  const readerThreadLimit = AI_DIGEST_READER_THREAD_LIMIT;
+  const postHistoryById = options.postHistoryById;
   const minPostedAt = new Date(now.getTime() - (maxAgeDays * DAY_MS));
 
   const [siteWideRows, readerRows] = await Promise.all([
@@ -352,9 +291,7 @@ export async function loadAiDigestThreadCandidates(
   const dedupedReaderRows = readerRows
     .filter((row) => !siteWideThreadIdSet.has(row.threadId))
     .slice(0, readerThreadLimit);
-  const readerRowsByThreadId = new Map<string, AiDigestReaderThreadRow>(
-    readerRows.map((row) => [row.threadId, row]),
-  );
+  const participatedByThreadId = new Map(readerRows.map((row) => [row.threadId, row.participated]));
   const allThreadIds = [
     ...siteWideThreadIds,
     ...dedupedReaderRows.map((row) => row.threadId),
@@ -371,7 +308,12 @@ export async function loadAiDigestThreadCandidates(
   const annotationsByCommentId = new Map(
     annotations.map((annotation) => [annotation.commentId, annotation]),
   );
-  const rowsByThreadId = groupRowsByThread(commentRows);
+  const rowsByThreadId = new Map<string, AiDigestThreadCommentRow[]>();
+  for (const row of commentRows) {
+    const rows = rowsByThreadId.get(row.threadId) ?? [];
+    rows.push(row);
+    rowsByThreadId.set(row.threadId, rows);
+  }
   const commentFlagsById = new Map(
     annotations.map((annotation) => [
       annotation.commentId,
@@ -379,56 +321,36 @@ export async function loadAiDigestThreadCandidates(
     ]),
   );
 
-  const buildCards = (
-    threadIds: string[],
-    source: AiDigestThreadSource,
-  ): AiDigestThreadCard[] =>
-    threadIds.flatMap((threadId) => {
-      const rows = rowsByThreadId.get(threadId) ?? [];
-      const card = buildAiDigestThreadCard({
-        threadId,
-        source,
-        rows,
-        // Site-wide cards form the cacheable shared prompt prefix, so their
-        // comment pre-selection must not depend on the reader.
-        ...(source === "readerRelevant" ? { commentFlagsById } : {}),
-      });
-      return card ? [card] : [];
+  const siteWideThreads: AiDigestThreadCard[] = [];
+  const readerThreads: AiDigestThreadCard[] = [];
+  const threadAnnotationsById = new Map<string, AiDigestThreadAnnotation>();
+  const cardCommentIds = new Set<string>();
+  for (const threadId of allThreadIds) {
+    const siteWide = siteWideThreadIdSet.has(threadId);
+    const rows = rowsByThreadId.get(threadId) ?? [];
+    const card = buildAiDigestThreadCard({
+      threadId,
+      source: siteWide ? "siteWide" : "readerRelevant",
+      rows,
+      // The shared corpus's comment choices cannot depend on the reader.
+      commentFlagsById: siteWide ? undefined : commentFlagsById,
     });
-
-  const siteWideThreads = buildCards(siteWideThreadIds, "siteWide");
-  const readerThreads = buildCards(
-    dedupedReaderRows.map((row) => row.threadId),
-    "readerRelevant",
-  );
-
-  const cardCommentIds = new Set(
-    [...siteWideThreads, ...readerThreads].flatMap((card) =>
-      card.comments.map((comment) => comment.commentId)),
-  );
-  const cardCommentFlagsById = new Map(
-    Array.from(commentFlagsById.entries()).filter(([commentId]) =>
-      cardCommentIds.has(commentId)),
-  );
-
-  const threadAnnotationsById = new Map(
-    [...siteWideThreads, ...readerThreads].map((card) => [
-      card.threadId,
-      buildAiDigestThreadAnnotation({
-        threadId: card.threadId,
-        rows: rowsByThreadId.get(card.threadId) ?? [],
-        annotationsByCommentId,
-        participatedPerRanking:
-          readerRowsByThreadId.get(card.threadId)?.participated ?? false,
-        postHistoryById,
-      }),
-    ]),
-  );
-
+    if (!card) continue;
+    (siteWide ? siteWideThreads : readerThreads).push(card);
+    for (const comment of card.comments) cardCommentIds.add(comment.commentId);
+    threadAnnotationsById.set(threadId, buildAiDigestThreadAnnotation({
+      threadId,
+      rows,
+      annotationsByCommentId,
+      participatedPerRanking: participatedByThreadId.get(threadId) ?? false,
+      postHistoryById,
+    }));
+  }
   return {
     siteWideThreads,
     readerThreads,
-    commentFlagsById: cardCommentFlagsById,
+    // Preserve annotation order, independent of card/comment ranking.
+    commentFlagsById: new Map([...commentFlagsById].filter(([id]) => cardCommentIds.has(id))),
     threadAnnotationsById,
   };
 }

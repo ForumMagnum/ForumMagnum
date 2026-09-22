@@ -82,6 +82,25 @@ describe("scheduled digest delivery retry", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(mockSend.mock.calls[0][0].tracking.campaignId).toBe("issue");
   });
+
+  it("preserves cadence for a sent issue excluded from recommendation history", async () => {
+    const now = new Date("2026-09-22T12:00:00Z");
+    mockFind.mockReturnValue({ fetch: async () => [{
+      recipientId: "reader", emailedAt: now, countsTowardHistory: false,
+    }] });
+
+    await sendScheduledAiDigestEmails(now);
+
+    // The delivery query must still retrieve this issue after history clearing;
+    // recommendation participation is deliberately absent from its selector.
+    expect(mockFind.mock.calls[0][0]).toEqual({
+      recipientId: { $in: ["reader"] },
+      trigger: "scheduled",
+      emailedAt: { $gt: new Date("2026-09-20T14:00:00Z") },
+    });
+    expect(mockGenerate).not.toHaveBeenCalled();
+    expect(mockSend).not.toHaveBeenCalled();
+  });
 });
 
 
@@ -144,6 +163,18 @@ describe("scheduled digest batch ownership", () => {
       expect(mockUpdate).not.toHaveBeenCalled();
       expect(mockNotify).not.toHaveBeenCalled();
       expect(mockRelease).toHaveBeenCalledWith("owner");
+
+      // Generation persisted the issue before ownership was lost. The next
+      // owner can send it without spending another generation or losing cadence.
+      mockFindOne.mockResolvedValue({ _id: "issue", spec, emailedAt: null });
+      await sendScheduledAiDigestEmails();
+      expect(mockGenerate).toHaveBeenCalledTimes(1);
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockSend.mock.calls[0][0].tracking.campaignId).toBe("issue");
+      expect(mockUpdate).toHaveBeenCalledWith({ _id: "issue" }, { $set: { emailedAt: expect.any(Date) } });
+      mockFind.mockReturnValue({ fetch: async () => [{ recipientId: "reader", emailedAt: new Date() }] });
+      await sendScheduledAiDigestEmails();
+      expect(mockSend).toHaveBeenCalledTimes(1);
     } finally {
       log.mockRestore();
     }

@@ -122,9 +122,6 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
       options: { trigger: "scheduled" },
     });
   const { issueId, spec } = result;
-  if (!issueId) {
-    throw new Error(`Scheduled AI digest for ${user._id} was not persisted`);
-  }
   // A generation that outlives its lease must not send after another worker
   // takes over. Its persisted issue remains available to the next retry.
   await assertLease();
