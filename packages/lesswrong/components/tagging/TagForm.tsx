@@ -1,4 +1,4 @@
-import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
+import { getTagPostsSortOrderOptions, userCanRenameTag } from "@/lib/collections/tags/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForumType } from "@/components/hooks/useForumType";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -167,6 +167,8 @@ export const TagForm = ({
     return <Error404 />;
   }
 
+  const showNameField = formType === 'new' || userIsAdminOrMod(currentUser) || userCanRenameTag(currentUser);
+
   return (
     <form className="vulcan-form" onSubmit={(e) => {
       e.preventDefault();
@@ -174,7 +176,7 @@ export const TagForm = ({
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
-      <div className={classes.fieldWrapper}>
+      {showNameField && <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
             <MuiTextField
@@ -183,7 +185,7 @@ export const TagForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="description" listeners={{ onChange }}>
