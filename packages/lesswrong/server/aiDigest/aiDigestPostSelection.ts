@@ -1,6 +1,7 @@
 import { generateText, Output, stepCountIs } from "ai";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
+import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import {
   type AiDigestQuickTakeCandidate,
   type AiDigestSelectedPostCandidate,
@@ -116,39 +117,6 @@ interface AiDigestPostSelectionResult {
   selectedCandidates: AiDigestSelectedItemCandidate[];
   issueId: string | null;
   generatedAt: Date;
-  metadata: {
-    selectionModelId: string;
-    selectionModelLabel: string;
-    selectionPromptVersion: string;
-    summaryModelId: string;
-    candidateCount: number;
-    quickTakeCandidateCount: number;
-    /** True when a thin candidate pool forced repeat exclusions to be dropped. */
-    relaxedPreviousInclusions: boolean;
-    evidenceCount: number;
-    reusedSummaryCount: number;
-    generatedSummaryCount: number;
-    skippedPostCount: number;
-    historyIssueCount: number;
-    pastRecommendationCount: number;
-    toolCallCount: number;
-    searchCount: number;
-    readPostCount: number;
-    discoveredCandidateCount: number;
-    inputTokenCount: number | null;
-    outputTokenCount: number | null;
-    uncachedInputTokenCount: number | null;
-    cacheReadInputTokenCount: number | null;
-    cacheWriteInputTokenCount: number | null;
-    selectionCostUsd: number | null;
-    threadCandidateCount: number;
-    selectedThreadCount: number;
-    threadInputTokenCount: number | null;
-    threadOutputTokenCount: number | null;
-    threadCacheReadInputTokenCount: number | null;
-    threadSelectionCostUsd: number | null;
-    generationDurationMs: number;
-  };
 }
 
 function assertLength(name: string, text: string, maximum: number): void {
@@ -731,50 +699,45 @@ export async function generateAiDigestPostSelection({
       selectionUserPrompt: prompt.prompt,
       ...tokenUsage,
       selectionCostUsd,
-      toolCallCount: toolUsage.toolCallCount,
-      searchCount: toolUsage.searchCount,
-      readPostCount: toolUsage.readPostCount,
-      threadPromptVersion: threadSelection?.promptVersion ?? null,
-      threadSelectionUserPrompt: threadSelection?.prompt.prompt ?? null,
-      threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
-      threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
-      threadCacheReadInputTokenCount:
-        threadSelection?.tokenUsage.threadCacheReadInputTokenCount ?? null,
-      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
       spec,
     })
     : null;
 
-  return {
-    spec,
-    selectedCandidates,
+  // Diagnostics belong in analytics; issue rows retain fields consumed by the
+  // reader experience and admin workbench. Capture scratch generations too.
+  serverCaptureEvent("aiDigestGenerated", {
+    userId: user._id,
     issueId,
-    generatedAt,
-    metadata: {
-      selectionModelId,
-      selectionModelLabel,
-      selectionPromptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
-      summaryModelId,
-      candidateCount: candidateCards.length,
-      quickTakeCandidateCount: pools.quickTakeCandidates.length,
-      relaxedPreviousInclusions: pools.relaxedPreviousInclusions,
-      evidenceCount: readerContext.evidenceCount,
-      reusedSummaryCount: summaryResult.reusedSummaryCount,
-      generatedSummaryCount: summaryResult.generatedSummaryCount,
-      skippedPostCount: summaryResult.skippedPostCount,
-      historyIssueCount: history.issues.length,
-      pastRecommendationCount: history.pastRecommendations.length,
-      ...toolUsage,
-      ...tokenUsage,
-      selectionCostUsd,
-      threadCandidateCount: countAiDigestThreadCandidates(threadCandidates),
-      selectedThreadCount: discussionCommentIds.length,
-      threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
-      threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
-      threadCacheReadInputTokenCount:
-        threadSelection?.tokenUsage.threadCacheReadInputTokenCount ?? null,
-      threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
-      generationDurationMs,
-    },
-  };
+    generatedAt: generatedAt.toISOString(),
+    trigger: options.trigger ?? "adminSample",
+    countsTowardHistory: options.countsTowardHistory ?? true,
+    selectionModelId,
+    selectionModelLabel,
+    selectionPromptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
+    summaryModelId,
+    candidateCount: candidateCards.length,
+    quickTakeCandidateCount: pools.quickTakeCandidates.length,
+    relaxedPreviousInclusions: pools.relaxedPreviousInclusions,
+    evidenceCount: readerContext.evidenceCount,
+    reusedSummaryCount: summaryResult.reusedSummaryCount,
+    generatedSummaryCount: summaryResult.generatedSummaryCount,
+    skippedPostCount: summaryResult.skippedPostCount,
+    historyIssueCount: history.issues.length,
+    pastRecommendationCount: history.pastRecommendations.length,
+    ...toolUsage,
+    ...tokenUsage,
+    selectionCostUsd,
+    threadPromptVersion: threadSelection?.promptVersion ?? null,
+    threadSelectionUserPrompt: threadSelection?.prompt.prompt ?? null,
+    threadCandidateCount: countAiDigestThreadCandidates(threadCandidates),
+    selectedThreadCount: discussionCommentIds.length,
+    threadInputTokenCount: threadSelection?.tokenUsage.threadInputTokenCount ?? null,
+    threadOutputTokenCount: threadSelection?.tokenUsage.threadOutputTokenCount ?? null,
+    threadCacheReadInputTokenCount:
+      threadSelection?.tokenUsage.threadCacheReadInputTokenCount ?? null,
+    threadSelectionCostUsd: threadSelection?.threadSelectionCostUsd ?? null,
+    generationDurationMs,
+  });
+
+  return { spec, selectedCandidates, issueId, generatedAt };
 }

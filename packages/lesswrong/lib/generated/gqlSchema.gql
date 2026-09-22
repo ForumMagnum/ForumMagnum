@@ -1674,15 +1674,6 @@ type AiDigestIssue {
   cacheReadInputTokenCount: Int
   cacheWriteInputTokenCount: Int
   selectionCostUsd: Float
-  toolCallCount: Int
-  searchCount: Int
-  readPostCount: Int
-  threadPromptVersion: String
-  threadSelectionUserPrompt: String
-  threadInputTokenCount: Int
-  threadOutputTokenCount: Int
-  threadCacheReadInputTokenCount: Int
-  threadSelectionCostUsd: Float
   generationDurationMs: Int
   spec: JSON
   subject: String

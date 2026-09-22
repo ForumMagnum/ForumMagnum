@@ -40,15 +40,6 @@ CREATE TABLE "AiDigestIssues" (
   "cacheReadInputTokenCount" INTEGER,
   "cacheWriteInputTokenCount" INTEGER,
   "selectionCostUsd" DOUBLE PRECISION,
-  "toolCallCount" INTEGER,
-  "searchCount" INTEGER,
-  "readPostCount" INTEGER,
-  "threadPromptVersion" TEXT,
-  "threadSelectionUserPrompt" TEXT,
-  "threadInputTokenCount" INTEGER,
-  "threadOutputTokenCount" INTEGER,
-  "threadCacheReadInputTokenCount" INTEGER,
-  "threadSelectionCostUsd" DOUBLE PRECISION,
   "generationDurationMs" INTEGER NOT NULL DEFAULT 0,
   "spec" JSONB NOT NULL
 );

@@ -1467,15 +1467,6 @@ interface AiDigestIssue {
   cacheReadInputTokenCount: number | null;
   cacheWriteInputTokenCount: number | null;
   selectionCostUsd: number | null;
-  toolCallCount: number | null;
-  searchCount: number | null;
-  readPostCount: number | null;
-  threadPromptVersion: string | null;
-  threadSelectionUserPrompt: string | null;
-  threadInputTokenCount: number | null;
-  threadOutputTokenCount: number | null;
-  threadCacheReadInputTokenCount: number | null;
-  threadSelectionCostUsd: number | null;
   generationDurationMs: number | null;
   spec: any;
   subject: string | null;

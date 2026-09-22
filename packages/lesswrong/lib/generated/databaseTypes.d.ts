@@ -25,21 +25,12 @@ interface DbAiDigestIssue extends DbObject {
   postIds: Array<string>
   promptVersion: string
   quickTakeIds: Array<string>
-  readPostCount: number | null
   recipientId: string
-  searchCount: number | null
   selectionCostUsd: number | null
   selectionModelId: string
   selectionSystemPrompt: string | null
   selectionUserPrompt: string | null
   spec: import("@/lib/aiDigest/aiDigestSpec").AiDigestSpec
-  threadCacheReadInputTokenCount: number | null
-  threadInputTokenCount: number | null
-  threadOutputTokenCount: number | null
-  threadPromptVersion: string | null
-  threadSelectionCostUsd: number | null
-  threadSelectionUserPrompt: string | null
-  toolCallCount: number | null
   trigger: "adminSample" | "userPreview" | "scheduled"
   uncachedInputTokenCount: number | null
 }
