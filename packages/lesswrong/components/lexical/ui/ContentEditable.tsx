@@ -42,13 +42,13 @@ const styles = defineStyles('LexicalContentEditable',(theme: ThemeType) => ({
     // Fade out whichever edges have more table beyond them. These classes are
     // maintained by TableScrollShadowPlugin.
     '& .table-scroll-right': {
-      maskImage: `linear-gradient(to right, black calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
+      maskImage: `linear-gradient(to right, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
     },
     '& .table-scroll-left': {
-      maskImage: `linear-gradient(to left, black calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
+      maskImage: `linear-gradient(to left, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
     },
     '& .table-scroll-middle': {
-      maskImage: `linear-gradient(to right, transparent, black ${TABLE_SCROLL_FADE_WIDTH}px, black calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
+      maskImage: `linear-gradient(to right, transparent, ${theme.palette.text.alwaysBlack} ${TABLE_SCROLL_FADE_WIDTH}px, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
     },
   },
   rootComment: {
