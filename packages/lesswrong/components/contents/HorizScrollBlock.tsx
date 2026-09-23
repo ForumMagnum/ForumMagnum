@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -91,8 +91,21 @@ export const HorizScrollBlock = ({children, className, contentsClassName}: {
     }
   }, []);
   
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const scrollableContents = scrollableContentsRef.current;
+    if (!scrollableContents) return;
     updateScrollBounds();
+
+    // The scroll bounds change if the block is resized, or if its contents
+    // change (eg an equation being edited in the editor)
+    const mutationObserver = new MutationObserver(updateScrollBounds);
+    mutationObserver.observe(scrollableContents, { childList: true, subtree: true, characterData: true });
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateScrollBounds) : null;
+    resizeObserver?.observe(scrollableContents);
+    return () => {
+      mutationObserver.disconnect();
+      resizeObserver?.disconnect();
+    };
   }, [updateScrollBounds]);
 
   return <div className={classNames(classes.scrollIndicatorWrapper, className)}>
@@ -116,7 +129,7 @@ export const HorizScrollBlock = ({children, className, contentsClassName}: {
     <div
       onClick={_ev => {
         const block = scrollableContentsRef.current!;
-        block.scrollLeft += Math.min(
+        block.scrollLeft = Math.min(
           block.scrollLeft + block.clientWidth,
           block.scrollWidth - block.clientWidth
         );

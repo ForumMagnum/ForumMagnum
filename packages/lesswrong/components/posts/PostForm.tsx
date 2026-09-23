@@ -725,14 +725,16 @@ const PostForm = ({
                     </span>
                   ))}
                   {canEditMetadata && userCanEditCoauthors(currentUser) && (
-                    <button
-                      type="button"
-                      className={classes.addCoauthorButton}
-                      title="Add co-author"
-                      onClick={() => setShowCoauthorSearch((v) => !v)}
-                    >
-                      {" +"}
-                    </button>
+                    <LWTooltip title="Add co-author">
+                      <button
+                        type="button"
+                        className={classes.addCoauthorButton}
+                        aria-label="Add co-author"
+                        onClick={() => setShowCoauthorSearch((v) => !v)}
+                      >
+                        {" +"}
+                      </button>
+                    </LWTooltip>
                   )}
                 </>}
               </form.Field>
