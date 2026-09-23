@@ -200,7 +200,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       ...theme.typography.commentStyle,
       fontSize: 13,
     },
-    // ClearInput (the × button next to selects / date pickers)
+    // ClearInput (the × button next to selects)
     "& .ClearInput-formComponentClear": {
       display: "inline-flex",
       alignItems: "center",
