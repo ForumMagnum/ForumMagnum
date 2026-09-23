@@ -1,36 +1,59 @@
 "use client";
 import { useEffect, useRef } from "react";
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { renderEquation } from "./loadMathJax";
+
+const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
+  preview: {
+    userSelect: 'none',
+    minWidth: '1em',
+    minHeight: '1em',
+    '& mjx-merror': {
+      color: theme.palette.error.light,
+      backgroundColor: 'transparent',
+    },
+  },
+  inline: {
+    display: 'inline-block',
+  },
+  display: {
+    display: 'block',
+    textAlign: 'center',
+    margin: '1em 0',
+  },
+}));
 
 export function MathComponent({ equation, inline }: {
   equation: string;
   inline: boolean;
   nodeKey: string;
 }): React.ReactElement {
+  const classes = useStyles(styles);
   const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    
-    // Show loading state
-    containerRef.current.textContent = '...';
-    
-    // Render the equation (this will load MathJax if needed)
-    void renderEquation(equation, containerRef.current, !inline);
-  }, [equation, inline]);
+    const container = containerRef.current;
+    if (!container) return;
+    if (!equation.trim()) {
+      container.replaceChildren();
+      return;
+    }
 
-  const style: React.CSSProperties = inline
-    ? { display: 'inline-block', userSelect: 'none' }
-    : { display: 'block', textAlign: 'center', margin: '1em 0', userSelect: 'none' };
+    // Keep the previous preview visible while typesetting. A slow render must
+    // not overwrite a newer equation, or an equation restored by Escape.
+    let active = true;
+    const rendered = document.createElement('span');
+    void renderEquation(equation, rendered, !inline).then(() => {
+      if (active) container.replaceChildren(...rendered.childNodes);
+    });
+    return () => { active = false; };
+  }, [equation, inline]);
 
   return (
     <span
       ref={containerRef}
-      className={`math-preview ${inline ? 'math-inline' : 'math-display'}`}
-      style={style}
-    >
-      {/* Initial content shows loading indicator while MathJax loads */}
-      ...
-    </span>
+      className={classNames('math-preview', inline ? 'math-inline' : 'math-display', classes.preview, inline ? classes.inline : classes.display)}
+    />
   );
 }
