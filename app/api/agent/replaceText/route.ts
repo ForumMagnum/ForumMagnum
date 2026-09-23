@@ -1,3 +1,5 @@
+import { $reorderFootnotes } from "@/components/editor/lexicalPlugins/footnotes/helpers";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
@@ -69,7 +71,9 @@ function $narrowedReplacementToNodes(
     return [$createTextNode(replacement)];
   }
 
-  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes(
+    $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement)),
+  );
   const nodesText = nodes.map(n => n.getTextContent()).join("");
 
   const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
@@ -84,7 +88,7 @@ function $narrowedReplacementToNodes(
     nodes.push($createTextNode(trailingWs.slice(nodesTrailingWs.length)));
   }
 
-  return nodes;
+  return [...nodes, ...footnoteSections];
 }
 
 /**
@@ -254,10 +258,13 @@ function $buildInsertSuggestion({
   markdownIt: MarkdownIt
 }): LexicalNode {
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement, markdownIt);
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes(
+    replacementNodes ?? $narrowedReplacementToNodes(editor, replacement, markdownIt),
+  );
   for (const node of nodes) {
     insertSuggestion.append(node);
   }
+  $appendImportedFootnotes(footnoteSections);
   return insertSuggestion;
 }
 
@@ -291,6 +298,7 @@ export function $applySuggestionWithNarrowing({
 
   if (!narrowing) {
     const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
+    if (replaced) $reorderFootnotes();
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
@@ -299,6 +307,7 @@ export function $applySuggestionWithNarrowing({
   const replaced = $applySuggestionForSelection(
     editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
   );
+  if (replaced) $reorderFootnotes();
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }
 

@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, $importAgentHtml, splitImportedFootnotes } from "./importFootnotes";
 import {
   $createRangeSelection,
   $isDecoratorNode,
@@ -67,18 +67,19 @@ export function $computeFinalSelection(
  * within an existing paragraph. When the HTML produces a single wrapping
  * paragraph (the typical markdown-to-HTML output for an inline fragment),
  * its inline children are extracted so they stay within the surrounding
- * paragraph rather than starting a new one.
+ * paragraph rather than starting a new one. Footnote sections are returned
+ * separately at the end of the array for callers to attach after a successful edit.
  *
  * Must be called inside a Lexical update context.
  */
 export function $htmlToInlineNodes(editor: LexicalEditor, html: string): LexicalNode[] {
   const dom = new JSDOM(html);
   try {
-    const nodes = $generateNodesFromDOM(editor, dom.window.document);
+    const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes($importAgentHtml(editor, dom.window.document));
     if (nodes.length === 1 && $isElementNode(nodes[0])) {
-      return nodes[0].getChildren();
+      return [...nodes[0].getChildren(), ...footnoteSections];
     }
-    return nodes;
+    return [...nodes, ...footnoteSections];
   } finally {
     dom.window.close();
   }
@@ -356,6 +357,8 @@ export function $computeNarrowing(
   replacement: string
 } | null {
   if (!range) return null;
+  // Footnote definitions are nonlocal: narrowing can split a reference from its definition.
+  if (quote.includes("[^") || replacement.includes("[^")) return null;
   // Narrowed replacements are rendered as inline nodes, which assumes a
   // single block's inline context; cross-block edits use the full range.
   if (!$pointsShareBlock(anchor, focus)) return null;
@@ -526,9 +529,10 @@ export function $applyEditModeReplacement({
   markdownIt: MarkdownIt
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
   const sel = $computeFinalSelection(anchor, focus, quote, replacement, range);
-  const inlineNodes = sel.narrowedReplacement.length > 0
+  const importedNodes = sel.narrowedReplacement.length > 0
     ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
     : [];
+  const { contentNodes: inlineNodes, footnoteSections } = splitImportedFootnotes(importedNodes);
   const replaced = $applyEditAtSelection({
     editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
   });
@@ -537,6 +541,7 @@ export function $applyEditModeReplacement({
     // `$applyEditAtSelection` splices inline into the surrounding paragraph;
     // hoist it back out so the document never holds a block-inside-paragraph.
     $hoistDisplayMathOutOfParagraphs();
+    $appendImportedFootnotes(footnoteSections);
   }
   return {
     replaced,

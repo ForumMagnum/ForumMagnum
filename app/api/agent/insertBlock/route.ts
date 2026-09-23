@@ -5,7 +5,8 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
-import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, $importAgentHtml, splitImportedFootnotes } from "../importFootnotes";
+import { $getFootnoteSection } from "@/components/editor/lexicalPlugins/footnotes/helpers";
 import {
   $getRoot,
   $createRangeSelection,
@@ -122,8 +123,11 @@ export function $markdownToNodes(
   const id = randomId();
   const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
   const dom = new JSDOM(html);
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-  return normalizeImportedTopLevelNodes(importedNodes);
+  try {
+    return normalizeImportedTopLevelNodes($importAgentHtml(editor, dom.window.document));
+  } finally {
+    dom.window.close();
+  }
 }
 
 export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
@@ -186,13 +190,15 @@ export function $insertMarkdownBlockInEditor({
   markdown: string
   markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
 }): InsertBlockResult {
-  const nodesToInsert = markdownToNodes(editor, markdown);
+  const { contentNodes: nodesToInsert, footnoteSections } = splitImportedFootnotes(markdownToNodes(editor, markdown));
   if (nodesToInsert.length === 0) {
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
   }
 
   const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
+  const { index, reason } = resolveInsertionIndex(location, root.getChildren());
+  const section = $getFootnoteSection();
+  const insertionIndex = index === null ? null : Math.min(index, section?.getIndexWithinParent() ?? index);
   if (insertionIndex === null) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
@@ -203,6 +209,7 @@ export function $insertMarkdownBlockInEditor({
     suggestionId = randomId();
     $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionIndex, suggestionId);
   }
+  $appendImportedFootnotes(footnoteSections);
   return {
     inserted: true,
     note: mode === "suggest"
