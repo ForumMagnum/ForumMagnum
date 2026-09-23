@@ -161,12 +161,15 @@ function MathEditorPanel({
   useLayoutEffect(() => {
     if (isOpen && inputRef.current) {
       const textarea = inputRef.current;
-      // Also adjust width based on content
+      // Use the actual monospace character width, plus padding and room for the caret.
       const lines = equation.split('\n');
-      const maxLength = Math.max(...lines.map(l => l.length), 20);
-      textarea.style.width = `${Math.max(200, Math.min((maxLength * 8) + 24, 500))}px`;
+      const maxLength = Math.max(...lines.map(l => l.length));
+      textarea.style.width = `clamp(200px, calc(${maxLength + 1}ch + 24px), 500px)`;
+      // A scrollbar during measurement can narrow the input and add a spurious line.
+      textarea.style.overflowY = 'hidden';
       textarea.style.height = 'auto';
       textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
+      textarea.style.overflowY = '';
     }
   }, [equation, isOpen]);
 
