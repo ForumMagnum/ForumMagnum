@@ -200,7 +200,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       ...theme.typography.commentStyle,
       fontSize: 13,
     },
-    // ClearInput (the × button next to selects / date pickers)
+    // ClearInput (the × button next to selects)
     "& .ClearInput-formComponentClear": {
       display: "inline-flex",
       alignItems: "center",
@@ -313,6 +313,19 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: 6,
     marginBottom: 6,
+  },
+  // Puts a select's ClearInput (×) on the same row as the select, rather than
+  // letting the full-width select push it onto its own line
+  selectFieldWrapper: {
+    display: "flex",
+    alignItems: "flex-end",
+    "& .MuiTextField-textField": {
+      flex: 1,
+      minWidth: 0,
+    },
+    "& .ClearInput-formComponentClear": {
+      marginBottom: 6,
+    },
   },
   // Toggle switch styles
   toggleRow: {
@@ -1605,7 +1618,7 @@ const EditorSettingsSidebar = ({
               </form.Field>
             </div>}
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="stickyPriority">
               {(field) => (
                 <FormComponentSelect
@@ -1670,7 +1683,7 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="status">
               {(field) => <FormComponentSelect field={field} options={postStatusLabels} label="Status" />}
             </form.Field>
@@ -1744,7 +1757,7 @@ const EditorSettingsSidebar = ({
             </form.Field>
           </div>
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="votingSystem">
               {(field) => (
                 <FormComponentSelect

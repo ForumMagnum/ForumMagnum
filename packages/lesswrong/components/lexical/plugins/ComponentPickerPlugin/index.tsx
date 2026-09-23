@@ -37,6 +37,7 @@ import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
+import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
 
 import { TableIcon } from '../../icons/TableIcon';
@@ -53,6 +54,7 @@ import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
+import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
@@ -86,7 +88,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
   text: typeaheadItemText(),
-  icon: typeaheadItemIcon(),
+  icon: {
+    ...typeaheadItemIcon(),
+    opacity: 0.6,
+  },
 }));
 
 const iconStyle = { display: 'flex', width: 18, height: 18, marginRight: 8, marginTop: 2, opacity: 0.6 };
@@ -191,6 +196,7 @@ function useBaseOptions(
   currentUser: UsersCurrent | null,
   inResearchContext: boolean,
 ) {
+  const classes = useStyles(styles);
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -229,6 +235,12 @@ function useBaseOptions(
       onSelect: () => {
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
       }
+    }),
+    new ComponentPickerOption('Footnote', {
+      icon: <CkFootnoteIcon className={classes.icon} />,
+      keywords: ['footnote', 'note', 'reference'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {}),
     }),
     new ComponentPickerOption('Inline Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,

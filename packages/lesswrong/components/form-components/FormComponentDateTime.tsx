@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { darken, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 import { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
-import { ClearInput } from './ClearInput';
 
 const styles = defineStyles("DatePicker", (theme: ThemeType) => {
   const datepicker__backgroundColor = theme.palette.grey[140];
@@ -52,10 +51,19 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
     input: {
       borderBottom: `solid 1px ${theme.palette.grey[550]}`,
       padding: '6px 0 7px 0',
-      background: 'transparent'
+      background: 'transparent',
+      // Needs the extra specificity to override a global `input:focus` border reset
+      "&:focus": {
+        borderBottom: `solid 1px ${theme.palette.primary.main}`,
+      },
+    },
+    clearableInput: {
+      paddingRight: 22,
     },
     error: {
-      borderBottom: `solid 1px ${theme.palette.error.main}`,
+      "&, &:focus": {
+        borderBottom: `solid 1px ${theme.palette.error.main}`,
+      },
     },
     label: {
       position:"relative",
@@ -63,7 +71,10 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       fontSize: 10,
     },
     timezone: {
-      marginLeft: 4
+      marginLeft: 6,
+      fontSize: 12,
+      color: theme.palette.text.dim,
+      whiteSpace: "nowrap",
     },
   
     wrapperAbove: {
@@ -79,6 +90,9 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
   
     // Styles from react-datepicker (https://github.com/Hacker0x01/react-datepicker/blob/main/docs/datepicker.md)
     wrapper: {
+      display: "flex",
+      alignItems: "baseline",
+
       "& .react-datepicker-wrapper": {
         display: "inline-block",
         padding: 0,
@@ -676,18 +690,19 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
         "&::after": {
           cursor: "pointer",
-          backgroundColor: datepicker__selectedColor,
-          color: theme.palette.text.maxIntensity,
-          borderRadius: "50%",
+          color: theme.palette.greyAlpha(0.35),
           height: "16px",
           width: "16px",
-          padding: "2px",
-          fontSize: "12px",
+          fontSize: "16px",
           lineHeight: 1,
           textAlign: "center",
           display: "table-cell",
           verticalAlign: "middle",
           content: '"\u00d7"',
+        },
+
+        "&:hover::after": {
+          color: theme.palette.greyAlpha(0.7),
         },
       
         "&--disabled": {
@@ -695,7 +710,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
           "&::after": {
             cursor: "default",
-            backgroundColor: datepicker__mutedColor,
+            color: datepicker__mutedColor,
           }
         }
       },
@@ -773,13 +788,16 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-export const DatePicker = ({label, name, value, below, onChange}: {
+export const DatePicker = ({label, name, value, below, placeholder="Select a date", onChange, onClear}: {
   label?: string,
   name?: string,
   value?: Date,
   below?: boolean,
+  placeholder?: string,
   onChange: (newValue: Date) => void,
   onClose?: (newValue: Date) => void,
+  /** If provided, the input shows a clear button while it has a value */
+  onClear?: () => void,
 }) => {
   const classes = useStyles(styles);
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
@@ -788,21 +806,24 @@ export const DatePicker = ({label, name, value, below, onChange}: {
   const [error, setError] = useState(false)
   const valueIsNullRef = useRef(!value)
 
-  const handleDateChange = useCallback((newDate: Date) => {
+  const handleDateChange = useCallback((newDate: Date | null) => {
     if (newDate) {
       onChange(newDate);
+      setError(false)
+    } else if (onClear) {
+      onClear();
       setError(false)
     } else {
       setError(true)
     }
-  }, [onChange]);
+  }, [onChange, onClear]);
 
   const valueJustCleared = !value && valueIsNullRef.current
   valueIsNullRef.current = !value
 
   return <FormControl>
     <InputLabel className={classes.label}>
-      { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
+      { label }
     </InputLabel>
     <div className={classNames(classes.wrapper, {
       [classes.wrapperAbove]: !below,
@@ -814,7 +835,14 @@ export const DatePicker = ({label, name, value, below, onChange}: {
         selected={value}
         onChange={handleDateChange}
         timeInputLabel="Time:"
+        placeholderText={placeholder}
+        isClearable={!!onClear}
+        className={classNames(classes.input, {
+          [classes.clearableInput]: !!onClear,
+          [classes.error]: error,
+        })}
       />
+      <span className={classes.timezone}>{tzDate.tz(moment.tz.guess()).zoneAbbr()}</span>
     </div>
   </FormControl>
 }
@@ -829,16 +857,16 @@ export const FormComponentDatePicker = ({ field, label, name, below }: {
   const value = field.state.value;
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
-  return (<>
+  return (
     <DatePicker
       label={label}
       name={name}
       value={date}
       onChange={field.handleChange}
+      onClear={() => field.handleChange(null)}
       below={below}
     />
-    <ClearInput clearField={() => field.handleChange(null)} />
-  </>);
+  );
 }
 
 

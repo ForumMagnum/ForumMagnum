@@ -3,6 +3,8 @@ import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
+  // Keep the insertion cursor visible while the spoiler text is hidden.
+  caretColor: theme.palette.text.spoilerBlockNotice,
   // Headings, blockquotes, links, etc. set their own text color rather than
   // inheriting it, so the color has to be forced on every descendant, not just
   // the container. (In light mode those colors happened to be near-black on the
