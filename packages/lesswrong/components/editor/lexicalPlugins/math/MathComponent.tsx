@@ -22,6 +22,9 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
     textAlign: 'center',
     margin: '1em 0',
   },
+  placeholder: {
+    color: theme.palette.text.dim,
+  },
 }));
 
 export function MathComponent({ equation, inline }: {
@@ -36,7 +39,7 @@ export function MathComponent({ equation, inline }: {
     const container = containerRef.current;
     if (!container) return;
     if (!equation.trim()) {
-      container.replaceChildren();
+      container.textContent = inline ? '' : 'Equation';
       return;
     }
 
@@ -53,7 +56,9 @@ export function MathComponent({ equation, inline }: {
   return (
     <span
       ref={containerRef}
-      className={classNames('math-preview', inline ? 'math-inline' : 'math-display', classes.preview, inline ? classes.inline : classes.display)}
+      className={classNames('math-preview', inline ? 'math-inline' : 'math-display', classes.preview, inline ? classes.inline : classes.display, {
+        [classes.placeholder]: !inline && !equation.trim(),
+      })}
     />
   );
 }

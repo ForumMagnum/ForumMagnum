@@ -65,6 +65,7 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     },
     '&::placeholder': {
       color: theme.palette.text.alwaysLightGrey,
+      opacity: 0.25,
     },
   },
 }));

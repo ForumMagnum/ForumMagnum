@@ -4,6 +4,7 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
+  $setSelection,
   $onUpdate,
   $parseSerializedNode,
   type SerializedLexicalNode,
@@ -195,6 +196,10 @@ export function MathPlugin(): React.ReactElement {
     };
     $addUpdateTag(HISTORY_PUSH_TAG);
     hasPreviewChanges.current = true;
+    // The floating input owns focus while editing. Leaving an element
+    // selection in the document lets later block/sentinel reconciliation
+    // restore DOM selection and take focus back from the textarea.
+    $setSelection(null);
 
     // Wait for reconciliation so the floating input can anchor to the equation
     // itself, including when opening it from a slash-menu command.
@@ -211,6 +216,11 @@ export function MathPlugin(): React.ReactElement {
   }, [editor]);
 
   const closeEditor = useCallback(() => {
+    editor.update(() => {
+      if ($getSelection() || !editorState.editingNodeKey) return;
+      const node = $getNodeByKey(editorState.editingNodeKey);
+      if ($isMathNode(node)) node.selectNext(0, 0);
+    });
     setEditorState(prev => ({
       ...prev,
       isOpen: false,
@@ -218,7 +228,7 @@ export function MathPlugin(): React.ReactElement {
       insertion: null,
     }));
     editor.focus();
-  }, [editor]);
+  }, [editor, editorState.editingNodeKey]);
 
   const handleChange = useCallback((equation: string) => {
     editor.update(() => {
@@ -396,11 +406,9 @@ export function MathPlugin(): React.ReactElement {
         editor.update(() => {
           const node = $getNearestNodeFromDOMNode(target);
           if ($isMathNode(node)) {
-            // Move the insertion point next to the clicked equation, so that
-            // when the panel closes and the editor regains focus, the user
-            // stays at the equation instead of being scrolled back to
-            // wherever their insertion point was before clicking.
-            node.selectNext(0, 0);
+            // Restore the insertion point next to this equation when closing;
+            // until then, let the floating textarea own the selection.
+            $setSelection(null);
             hasPreviewChanges.current = false;
             setEditorState({
               isOpen: true,

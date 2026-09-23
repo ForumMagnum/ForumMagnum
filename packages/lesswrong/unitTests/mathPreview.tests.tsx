@@ -7,7 +7,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { $createParagraphNode, $createTextNode, $getRoot, $isTextNode, UNDO_COMMAND, type LexicalEditor } from 'lexical';
+import { $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection, $isTextNode, UNDO_COMMAND, type LexicalEditor } from 'lexical';
 import { MathPlugin, OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { MathNode, $createMathNode } from '@/components/editor/lexicalPlugins/math/MathNode';
 import { MathComponent } from '@/components/editor/lexicalPlugins/math/MathComponent';
@@ -36,10 +36,12 @@ jest.mock('@/components/editor/lexicalPlugins/math/MathEditorPanel', () => ({
     onCancel: () => void;
   }) {
     const [equation, setEquation] = React.useState(initialEquation);
+    const inputRef = React.useRef<HTMLInputElement>(null);
     React.useEffect(() => setEquation(initialEquation), [isOpen, initialEquation]);
+    React.useEffect(() => { if (isOpen) inputRef.current?.focus(); }, [isOpen]);
     if (!isOpen) return null;
     return <div>
-      <input aria-label="Equation" value={equation} onChange={event => {
+      <input ref={inputRef} aria-label="Equation" value={equation} onChange={event => {
         setEquation(event.target.value);
         onChange(event.target.value);
       }} />
@@ -62,7 +64,7 @@ function setup(initialState: () => void) {
     namespace: 'math-preview-test', nodes: [MathNode], editorState: initialState,
     onError: error => { throw error; },
   }}>
-    <RichTextPlugin contentEditable={<ContentEditable aria-label="Document" />} ErrorBoundary={LexicalErrorBoundary} />
+    <RichTextPlugin contentEditable={<ContentEditable aria-label="Document" tabIndex={0} />} ErrorBoundary={LexicalErrorBoundary} />
     <HistoryPlugin />
     <MathPlugin />
     <CaptureEditor />
@@ -122,6 +124,7 @@ describe('in-place equation preview', () => {
       $getRoot().getFirstChildOrThrow().selectStart();
       editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline });
     });
+    expect(previewElement().textContent).toBe(inline ? '' : 'Equation');
     await changeEquation('a+b');
     expect(previewElement().classList.contains(inline ? 'math-inline' : 'math-display')).toBe(true);
     expect(documentElement().textContent).toBe('a+bFollowing');
@@ -170,6 +173,23 @@ describe('in-place equation preview', () => {
     await changeEquation('x');
     await act(async () => fireEvent.click(screen.getByText('Cancel')));
     expect(editor.getEditorState().toJSON()).toEqual(before);
+  });
+
+  it('keeps focus in the display equation input when later document updates reconcile', async () => {
+    setup(() => $getRoot().append($createParagraphNode()));
+    await updateEditor(() => {
+      $getRoot().getFirstChildOrThrow().selectStart();
+      editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false });
+    });
+    expect(document.activeElement).toBe(screen.getByLabelText('Equation'));
+    await updateEditor(() => { $getRoot().append($createParagraphNode()); });
+    expect(document.activeElement).toBe(screen.getByLabelText('Equation'));
+    await changeEquation('x^2');
+    await act(async () => fireEvent.click(screen.getByText('Submit')));
+    expect(editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      return $isRangeSelection(selection) && selection.isCollapsed();
+    })).toBe(true);
   });
 
   it.each([0, 7, 12])('restores paragraph structure when canceling display math at offset %s', async offset => {
