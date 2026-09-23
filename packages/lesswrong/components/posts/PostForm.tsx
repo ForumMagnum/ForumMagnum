@@ -847,27 +847,29 @@ const PostForm = ({
 
                 // Show toggle button (no URL set, not editing)
                 return (
-                  <button
-                    type="button"
-                    className={classNames(
-                      classes.linkpostToggle,
-                      isLinkpost && classes.linkpostToggleActive,
-                    )}
-                    title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
-                    onClick={() => {
-                      if (isLinkpost) {
-                        form.setFieldValue("postCategory", "post");
-                        form.setFieldValue("url", "");
-                        setEditingLinkpostUrl(false);
-                      } else {
-                        form.setFieldValue("postCategory", "linkpost");
-                        setLinkpostUrlDraft("");
-                        setEditingLinkpostUrl(true);
-                      }
-                    }}
-                  >
-                    {isLinkpost ? "Linkpost" : "+ Linkpost"}
-                  </button>
+                  <LWTooltip title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}>
+                    <button
+                      type="button"
+                      className={classNames(
+                        classes.linkpostToggle,
+                        isLinkpost && classes.linkpostToggleActive,
+                      )}
+                      aria-label={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
+                      onClick={() => {
+                        if (isLinkpost) {
+                          form.setFieldValue("postCategory", "post");
+                          form.setFieldValue("url", "");
+                          setEditingLinkpostUrl(false);
+                        } else {
+                          form.setFieldValue("postCategory", "linkpost");
+                          setLinkpostUrlDraft("");
+                          setEditingLinkpostUrl(true);
+                        }
+                      }}
+                    >
+                      {isLinkpost ? "Linkpost" : "+ Linkpost"}
+                    </button>
+                  </LWTooltip>
                 );
               }}
             </form.Subscribe>}
