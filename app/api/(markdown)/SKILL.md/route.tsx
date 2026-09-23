@@ -271,6 +271,13 @@ matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
 call will fail with a note telling you to use edit mode instead.
 
+To delete an entire footnote, use prefix \`[^id]:\` with the footnote ID
+from the draft's markdown and mode \`"edit"\`. This removes the definition
+and all its inline references, then renumbers the remaining footnotes. Empty
+definitions are supported. The ID selects the whole footnote; any text after
+the colon is ignored. Footnote deletion in suggest mode is unsupported and
+returns a failure note without changing the draft.
+
 To insert an LLM content block (a visually distinct block attributed to a
 specific AI model) into the draft, make a POST request to:
     POST /api/agent/insertLLMBlock

@@ -7,6 +7,7 @@ import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Pr
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { $deleteFootnoteByPrefix } from "../deleteFootnote";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -67,6 +68,11 @@ export async function deleteMarkdownBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
+          const footnoteResult = $deleteFootnoteByPrefix(prefix, mode);
+          if (footnoteResult) {
+            result = footnoteResult;
+            return;
+          }
           const root = $getRoot();
           const blockResult = $locateBlockByPrefix(prefix);
           const nodeToDelete = blockResult.node;

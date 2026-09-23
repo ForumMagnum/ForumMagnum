@@ -97,6 +97,6 @@ export const deleteBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
   agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
-  prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
+  prefix: z.string().describe("Delete the unique block whose markdown starts with this text. To delete a footnote and its references, use [^id]: with mode edit; the ID selects the entire footnote, including empty definitions, and text after the colon is ignored."),
   mode: modeSchema,
 });

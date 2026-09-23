@@ -36,7 +36,7 @@ export const insertBlockInResearchDocSchema = z.object({
 
 export const deleteBlockInResearchDocSchema = z.object({
   documentId: z.string().describe("The ID of the ResearchDocument"),
-  prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
+  prefix: z.string().describe("Delete the unique block whose markdown starts with this text. To delete a footnote and its references, use [^id]: with mode edit; the ID selects the entire footnote, including empty definitions, and text after the colon is ignored."),
   mode: researchModeSchema,
 });
 

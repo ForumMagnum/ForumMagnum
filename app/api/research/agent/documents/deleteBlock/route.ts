@@ -5,6 +5,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
+import { $deleteFootnoteByPrefix } from "../../../../agent/deleteFootnote";
 import { $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
@@ -48,6 +49,11 @@ async function deleteMarkdownBlockInResearchDoc({
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
+            const footnoteResult = $deleteFootnoteByPrefix(prefix, mode);
+            if (footnoteResult) {
+              result = footnoteResult;
+              return;
+            }
             const root = $getRoot();
             const blockResult = $locateBlockByPrefix(prefix);
             const nodeToDelete = blockResult.node;
