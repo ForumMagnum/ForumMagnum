@@ -4,6 +4,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
+  $onUpdate,
   $isRangeSelection,
   COMMAND_PRIORITY_EDITOR,
   createCommand,
@@ -21,7 +22,9 @@ import { $isCodeNode } from '@lexical/code';
 import { $isLinkNode } from '@lexical/link';
 import { mergeRegister } from '@lexical/utils';
 import { MathNode, $createMathNode, $isMathNode } from './MathNode';
-import MathEditorPanel, { MathEditorAnchor } from './MathEditorPanel';
+import MathEditorPanel from './MathEditorPanel';
+import type { VirtualElement } from '@floating-ui/react';
+import { $getMathEditorAnchor } from './mathEditorAnchor';
 import { loadMathJax } from './loadMathJax';
 
 // Commands for opening the math editor panel
@@ -69,48 +72,11 @@ function extractDelimiters(text: string): { equation: string; display: boolean }
   return null;
 }
 
-/**
- * Convert a viewport-relative rect (from getBoundingClientRect) into the
- * document-relative anchor position used by MathEditorPanel.
- */
-function viewportRectToDocumentAnchor(rect: DOMRect): MathEditorAnchor {
-  return {
-    left: rect.left + window.scrollX,
-    bottom: rect.bottom + window.scrollY,
-    width: rect.width,
-  };
-}
-
-/**
- * Get the DOM rect of the current selection
- */
-function getSelectionRect(): DOMRect | null {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) {
-    return null;
-  }
-  
-  const range = selection.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
-  
-  // If the rect has no dimensions (collapsed selection), use the anchor node
-  if (rect.width === 0 && rect.height === 0) {
-    const node = range.startContainer;
-    if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-      return node.parentElement.getBoundingClientRect();
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      return (node as Element).getBoundingClientRect();
-    }
-  }
-  
-  return rect;
-}
-
 interface MathEditorState {
   isOpen: boolean;
   isInline: boolean;
   initialEquation: string;
-  anchor: MathEditorAnchor | null;
+  anchor: VirtualElement | null;
   editingNodeKey: string | null;
 }
 
@@ -180,16 +146,18 @@ export function MathPlugin(): React.ReactElement {
   }, [editor]);
 
   const openEditor = useCallback((inline: boolean, existingEquation: string = '', nodeKey: string | null = null) => {
-    const rect =
-      getSelectionRect() ??
-      editor.getRootElement()?.getBoundingClientRect() ??
-      null;
-    setEditorState({
-      isOpen: true,
-      isInline: inline,
-      initialEquation: existingEquation,
-      anchor: rect ? viewportRectToDocumentAnchor(rect) : null,
-      editingNodeKey: nodeKey,
+    // Slash-menu commands run before their text is removed from the DOM. Read
+    // Lexical's selection after reconciliation, rather than the browser's
+    // selection, which may have moved into the menu when an option was clicked.
+    $onUpdate(() => {
+      const anchor = editor.getEditorState().read(() => $getMathEditorAnchor(editor));
+      setEditorState({
+        isOpen: true,
+        isInline: inline,
+        initialEquation: existingEquation,
+        anchor,
+        editingNodeKey: nodeKey,
+      });
     });
   }, [editor]);
 
@@ -366,12 +334,11 @@ export function MathPlugin(): React.ReactElement {
             // stays at the equation instead of being scrolled back to
             // wherever their insertion point was before clicking.
             node.selectNext(0, 0);
-            const rect = mathPreview.getBoundingClientRect();
             setEditorState({
               isOpen: true,
               isInline: !node.isDisplayMode(),
               initialEquation: node.getEquation(),
-              anchor: viewportRectToDocumentAnchor(rect),
+              anchor: mathPreview,
               editingNodeKey: node.getKey(),
             });
           }

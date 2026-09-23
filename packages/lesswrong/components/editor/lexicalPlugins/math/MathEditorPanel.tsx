@@ -2,26 +2,33 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { autoUpdate, flip, offset, shift, useFloating, type VirtualElement } from '@floating-ui/react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import { renderEquation } from './loadMathJax';
 
 const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
   panel: {
-    position: 'absolute',
     zIndex: 1001,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '8px',
+    maxWidth: 'calc(100% - 16px)',
+    maxHeight: 'calc(100vh - 16px)',
+    overflowY: 'auto',
   },
   inputContainer: {
+    maxWidth: '100%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   input: {
-    minWidth: '200px',
-    maxWidth: '500px',
+    minWidth: 0,
+    maxWidth: '100%',
+    maxHeight: '50vh',
+    boxSizing: 'border-box',
     padding: '8px 12px',
     fontFamily: 'monospace',
     fontSize: '14px',
@@ -34,7 +41,7 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     outline: 'none',
     boxShadow: `0 10px 20px ${theme.palette.greyAlpha(0.19)}, 0 6px 6px ${theme.palette.greyAlpha(0.23)}`,
     resize: 'none',
-    overflow: 'hidden',
+    overflow: 'auto',
     '&:focus': {
       outline: 'none',
     },
@@ -49,38 +56,35 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     boxShadow: `0 10px 20px ${theme.palette.greyAlpha(0.19)}, 0 6px 6px ${theme.palette.greyAlpha(0.23)}`,
     border: `1px solid ${theme.palette.grey[300]}`,
     minWidth: '50px',
+    maxWidth: '100%',
+    overflowX: 'auto',
+    flexShrink: 0,
     minHeight: '24px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     '& mjx-merror': {
       fontSize: '14px',
       color: theme.palette.error.light,
       backgroundColor: 'transparent',
     },
   },
+  hiddenPreview: {
+    display: 'none',
+  },
   hint: {
+    textAlign: 'center',
     fontSize: '11px',
     color: theme.palette.grey[600],
     marginTop: '4px',
   },
 }));
 
-/**
- * Position the panel is anchored to, in document (not viewport) coordinates,
- * so that the panel scrolls together with the document.
- */
-export interface MathEditorAnchor {
-  left: number;
-  bottom: number;
-  width: number;
-}
-
 interface MathEditorPanelProps {
   isOpen: boolean;
   initialEquation?: string;
   isInline: boolean;
-  anchor: MathEditorAnchor | null;
+  anchor: VirtualElement | null;
   onSubmit: (equation: string, inline: boolean) => void;
   onCancel: () => void;
 }
@@ -97,7 +101,19 @@ function MathEditorPanel({
   const [equation, setEquation] = useState(initialEquation);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const { refs, floatingStyles, isPositioned } = useFloating({
+    open: isOpen,
+    placement: 'bottom',
+    strategy: 'fixed',
+    middleware: [offset(8), flip({ padding: 8 }), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+  const panelRef = refs.floating;
+  const { setPositionReference } = refs;
+
+  useLayoutEffect(() => {
+    setPositionReference(anchor);
+  }, [anchor, setPositionReference]);
 
   // Reset equation when panel opens or initialEquation changes
   useEffect(() => {
@@ -115,14 +131,14 @@ function MathEditorPanel({
 
   // Focus input when panel opens
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && isPositioned && inputRef.current) {
       const timeoutId = window.setTimeout(() => {
-        inputRef.current?.focus();
+        inputRef.current?.focus({ preventScroll: true });
         inputRef.current?.select();
       }, 0);
       return () => window.clearTimeout(timeoutId);
     }
-  }, [isOpen]);
+  }, [isOpen, isPositioned]);
 
   // Render preview with MathJax
   // Note: we include `isOpen` to force re-render when panel opens with initial equation
@@ -145,13 +161,12 @@ function MathEditorPanel({
   useLayoutEffect(() => {
     if (isOpen && inputRef.current) {
       const textarea = inputRef.current;
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
-      
       // Also adjust width based on content
       const lines = equation.split('\n');
       const maxLength = Math.max(...lines.map(l => l.length), 20);
-      textarea.style.width = `${Math.min((maxLength * 8) + 24, 500)}px`;
+      textarea.style.width = `${Math.max(200, Math.min((maxLength * 8) + 24, 500))}px`;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
     }
   }, [equation, isOpen]);
 
@@ -195,28 +210,22 @@ function MathEditorPanel({
 
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [isOpen, equation, isInline, onSubmit, onCancel]);
+  }, [isOpen, equation, isInline, onSubmit, onCancel, panelRef]);
 
   if (!isOpen || !anchor) {
     return null;
   }
 
-  // Calculate position - center below the cursor
-  const panelStyle: React.CSSProperties = {
-    left: anchor.left + (anchor.width / 2),
-    top: anchor.bottom + 8,
-    transform: 'translateX(-50%)',
-  };
-
   return createPortal(
     <div
-      ref={panelRef}
+      ref={refs.setFloating}
       className={classes.panel}
-      style={panelStyle}
+      style={{ ...floatingStyles, visibility: isPositioned ? 'visible' : 'hidden' }}
     >
       <div className={classes.inputContainer}>
         <textarea
           ref={inputRef}
+          aria-label={isInline ? "Inline equation" : "Display equation"}
           className={classes.input}
           value={equation}
           onChange={(e) => setEquation(e.target.value)}
@@ -230,8 +239,7 @@ function MathEditorPanel({
       </div>
       <div
         ref={previewRef}
-        className={classes.preview}
-        style={{ display: equation.trim() ? 'flex' : 'none' }}
+        className={classNames(classes.preview, { [classes.hiddenPreview]: !equation.trim() })}
       />
     </div>,
     document.body
@@ -239,4 +247,3 @@ function MathEditorPanel({
 }
 
 export default MathEditorPanel;
-
