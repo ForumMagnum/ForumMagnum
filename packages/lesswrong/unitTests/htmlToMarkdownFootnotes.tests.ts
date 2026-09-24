@@ -56,4 +56,18 @@ describe("htmlToMarkdown footnotes", () => {
     expect(notes[1].textContent).toContain('Plain text.');
     expect(htmlToMarkdown(document.body.innerHTML)).not.toContain('fnref');
   });
+
+  it("shows suggested insertions and deletions inside a footnote", () => {
+    const html = `<p>Body <del>old</del><ins>new</ins> text${referenceHtml('suggested')}.</p>`
+      + '<ol class="footnote-section">'
+      + footnoteHtml('suggested', '<p>Because <del>recognition</del><ins>identification</ins> is hard.</p>'
+        + '<p><ins>An added sentence.</ins></p>')
+      + '</ol>';
+    const markdown = htmlToMarkdown(html);
+
+    expect(markdown).toContain('Body <del>old</del><ins>new</ins> text');
+    expect(markdown).toContain('[^suggested]: Because <del>recognition</del><ins>identification</ins> is hard.');
+    expect(markdown).toContain('<ins>An added sentence.</ins>');
+    expect(markdown).not.toContain('recognitionidentification');
+  });
 });
