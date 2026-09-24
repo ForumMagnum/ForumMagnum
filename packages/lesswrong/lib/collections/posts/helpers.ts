@@ -325,12 +325,26 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
+interface PostWithEditPermissionFields extends SharableDocument, HasUserIdType {
+  group?: { organizerIds: string[] } | null;
+}
+
 /**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
-export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: SharableDocument & HasUserIdType & {
-  group?: { organizerIds: string[] } | null;
-}): boolean => {
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostWithEditPermissionFields): boolean => {
+  if (!currentUser) return false;
+  if (userCanDo(currentUser, 'posts.edit.all')) return true
+  return canUserEditPostMetadataWithoutModeratorPowers(currentUser, post);
+}
+
+/**
+ * Like canUserEditPostMetadata, but ignoring permissions that come from being
+ * a moderator or admin; ie, whether the user would be able to edit the post if
+ * they were a regular user. Used to decide whether edit-related post actions
+ * should be grouped with moderator-only actions.
+ */
+export const canUserEditPostMetadataWithoutModeratorPowers = (currentUser: UsersCurrent|DbUser|null, post: PostWithEditPermissionFields): boolean => {
   if (!currentUser) return false;
 
   const organizerIds = post.group?.organizerIds;
@@ -338,7 +352,6 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (isPostGroupOrganizer) return true
 
   if (userOwns(currentUser, post)) return true
-  if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
   if ((post.coauthorUserIds ?? []).includes(currentUser._id)) {
     return true;
