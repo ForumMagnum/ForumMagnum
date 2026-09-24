@@ -6,7 +6,7 @@ import { useMutation } from "@apollo/client/react";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
-import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { useSubscribedLocation, useNavigate } from "@/lib/routeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
@@ -86,7 +86,6 @@ const AiDigestEmailSamplePreviewQuery = gql(`
   }
 `);
 
-const DEFAULT_SAMPLE_SLUG = "ruby";
 const DEFAULT_SAMPLE_COUNT = 3;
 const DEFAULT_HISTORY_CLEAR_DAYS = 30;
 const STORED_SAMPLE_LIMIT = 50;
@@ -103,23 +102,6 @@ const VIEWPORT_OPTIONS: { viewport: EmailPreviewViewport; label: string }[] = [
   { viewport: "desktop", label: "Desktop" },
   { viewport: "mobile", label: `Mobile ${MOBILE_EMAIL_PREVIEW_WIDTH}px` },
 ];
-
-interface DigestPreviewLocation {
-  userSlug: string;
-  issueId: string | null;
-}
-
-function buildDigestPreviewSearch({
-  userSlug,
-  issueId,
-}: DigestPreviewLocation): string {
-  const search = new URLSearchParams();
-  search.set("user", userSlug);
-  if (issueId) {
-    search.set("issue", issueId);
-  }
-  return `?${search.toString()}`;
-}
 
 const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
   page: {
@@ -543,21 +525,17 @@ function ViewportToggle({ viewport, setViewport }: {
 export default function DigestEmailPreviewPage() {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { pathname, query } = useLocation();
+  const { pathname, query } = useSubscribedLocation();
   const navigate = useNavigate();
-  const initialUserSlug = query.user?.trim() || DEFAULT_SAMPLE_SLUG;
   const [samplePreviewView, setSamplePreviewView] = useState<SamplePreviewView>("html");
   const [promptsExpanded, setPromptsExpanded] = useState(false);
   const [previewViewport, setPreviewViewport] = useState<EmailPreviewViewport>("desktop");
-  const [activeSlug, setActiveSlug] = useState(initialUserSlug);
+  const activeSlug = query.user?.trim() || currentUser?.slug || "";
   const [includeNonAdmins, setIncludeNonAdmins] = useState(false);
   const [sampleCount, setSampleCount] = useState(DEFAULT_SAMPLE_COUNT);
   const [countsTowardHistory, setCountsTowardHistory] = useState(true);
   const [historyClearDays, setHistoryClearDays] = useState(DEFAULT_HISTORY_CLEAR_DAYS);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(
-    query.issue || null,
-  );
   const [generateSamples, {
     loading: samplesLoading,
     error: samplesError,
@@ -568,6 +546,7 @@ export default function DigestEmailPreviewPage() {
   }] = useMutation(ClearAiDigestEmailSampleHistoryMutation);
   const { data: readerData } = useQuery(DigestPreviewReaderQuery, {
     variables: { userSlug: activeSlug },
+    skip: !activeSlug,
     ssr: false,
   });
   const recipientId = readerData?.users?.results?.[0]?._id ?? null;
@@ -587,7 +566,7 @@ export default function DigestEmailPreviewPage() {
   });
 
   const storedSamples = storedSamplesData?.aiDigestIssues?.results ?? [];
-  const effectiveSelectedIssueId = selectedIssueId ?? storedSamples[0]?._id ?? null;
+  const effectiveSelectedIssueId = query.issue || storedSamples[0]?._id || null;
   const {
     data: selectedSampleData,
     loading: selectedSampleLoading,
@@ -605,6 +584,15 @@ export default function DigestEmailPreviewPage() {
     (sample) => sample._id === effectiveSelectedIssueId,
   ) ?? null;
 
+  const selectIssue = (issueId: string | null, userSlug = activeSlug) => {
+    const search = new URLSearchParams({ user: userSlug });
+    if (issueId) {
+      search.set("issue", issueId);
+    }
+    setPromptsExpanded(false);
+    navigate({ pathname, search: `?${search}` }, { replace: true, scroll: false });
+  };
+
   const handleGenerateSamples = () => {
     setHistoryMessage(null);
     void generateSamples({
@@ -615,21 +603,13 @@ export default function DigestEmailPreviewPage() {
       },
     }).then(({ data: generatedData }) => {
       const newestIssueId = generatedData?.GenerateAiDigestEmailSamples[0] ?? null;
-      setSelectedIssueId(newestIssueId);
-      setPromptsExpanded(false);
-      navigate({
-        pathname,
-        search: buildDigestPreviewSearch({
-          userSlug: activeSlug,
-          issueId: newestIssueId,
-        }),
-      }, { replace: true, scroll: false });
+      selectIssue(newestIssueId);
       void refetchStoredSamples();
     }, () => undefined);
   };
 
   const handleClearSampleHistory = () => {
-    if (!window.confirm(`Delete ${activeSlug}'s digest history from the last ${historyClearDays} days?`)) {
+    if (!window.confirm(`Reset ${activeSlug}'s recommendation history from the last ${historyClearDays} days? Saved issues will remain.`)) {
       return;
     }
     setHistoryMessage(null);
@@ -639,43 +619,19 @@ export default function DigestEmailPreviewPage() {
         days: historyClearDays,
       },
     }).then(({ data: clearData }) => {
-      const deletedCount = clearData?.ClearAiDigestEmailSampleHistory ?? 0;
-      setSelectedIssueId(null);
-      setPromptsExpanded(false);
-      setHistoryMessage(`Cleared ${deletedCount} sample(s) for ${activeSlug}.`);
+      const clearedCount = clearData?.ClearAiDigestEmailSampleHistory ?? 0;
+      selectIssue(null);
+      setHistoryMessage(`Reset recommendation history for ${clearedCount} issue(s) for ${activeSlug}.`);
       void refetchStoredSamples();
     }, () => undefined);
   };
 
-  const handleSelectReader = (_userId: string, result: SearchUser) => {
-    const { slug } = result;
+  const handleSelectReader = (_userId: string, { slug }: SearchUser) => {
     setHistoryMessage(null);
-    setSelectedIssueId(null);
-    setPromptsExpanded(false);
+    selectIssue(null, slug);
     if (slug === activeSlug) {
       void refetchStoredSamples();
-    } else {
-      setActiveSlug(slug);
     }
-    navigate({
-      pathname,
-      search: buildDigestPreviewSearch({
-        userSlug: slug,
-        issueId: null,
-      }),
-    }, { replace: true, scroll: false });
-  };
-
-  const handleSelectSample = (issueId: string) => {
-    setSelectedIssueId(issueId);
-    setPromptsExpanded(false);
-    navigate({
-      pathname,
-      search: buildDigestPreviewSearch({
-        userSlug: activeSlug,
-        issueId,
-      }),
-    }, { replace: true, scroll: false });
   };
 
   if (!userIsAdmin(currentUser)) {
@@ -686,6 +642,26 @@ export default function DigestEmailPreviewPage() {
 
   const selectedSampleDetails = selectedSampleData?.AiDigestEmailSamplePreview;
   const selectedSample = selectedSampleDetails?.email;
+
+  const metadata: Array<[string, React.ReactNode]> = selectedSampleSummary && selectedSample ? [
+    ["Generated", formatGeneratedAt(selectedSampleSummary.generatedAt)],
+    ["Reader", activeSlug],
+    ["Recipient", selectedSample.to],
+    ["Model", selectedSampleSummary.selectionModelId],
+    ["Recommendation history", selectedSampleSummary.countsTowardHistory ? "Counted" : "Scratch sample (not counted)"],
+    ["Generation time", formatGenerationDuration(selectedSampleDetails?.generationDurationMs)],
+    ["Input tokens", selectedSampleDetails?.inputTokenCount ?? "Not reported"],
+    ["Output tokens", selectedSampleDetails?.outputTokenCount ?? "Not reported"],
+    ["Uncached input", selectedSampleDetails?.uncachedInputTokenCount ?? "Not reported"],
+    ["Cache read", selectedSampleDetails?.cacheReadInputTokenCount ?? "Not reported"],
+    ["Cache write", selectedSampleDetails?.cacheWriteInputTokenCount ?? "Not reported"],
+    ["Cost", formatSelectionCost(selectedSampleDetails?.selectionCostUsd)],
+    ["Issue ID", selectedSampleSummary._id],
+  ] : [];
+  const storedPrompts = [
+    { label: "System prompt", text: selectedSampleDetails?.selectionSystemPrompt },
+    { label: "User prompt", text: selectedSampleDetails?.selectionUserPrompt },
+  ];
 
   return (
     <SingleColumnSection className={classes.page}>
@@ -781,7 +757,7 @@ export default function DigestEmailPreviewPage() {
           {samplesLoading && (
             <div className={classes.generationStatus}>
               Generating {sampleCount} {sampleCount === 1 ? "sample" : "samples"} in
-              parallel with Fable. Validation retries can make this take several minutes.
+              parallel. This can take several minutes.
             </div>
           )}
           {samplesError && (
@@ -826,7 +802,7 @@ export default function DigestEmailPreviewPage() {
                         sample._id === effectiveSelectedIssueId
                           && classes.sampleRowSelected,
                       )}
-                      onClick={() => handleSelectSample(sample._id)}
+                      onClick={() => selectIssue(sample._id)}
                     >
                       <span className={classes.sampleSubject}>
                         {sample.subject}
@@ -894,22 +870,12 @@ export default function DigestEmailPreviewPage() {
                       Prompts were not stored for this older sample.
                     </div>
                   )}
-                  {selectedSampleDetails.selectionSystemPrompt && (
-                    <section className={classes.promptSection}>
-                      <h3 className={classes.promptTitle}>System prompt</h3>
-                      <pre className={classes.promptText}>
-                        {selectedSampleDetails.selectionSystemPrompt}
-                      </pre>
+                  {storedPrompts.map(({ label, text }) => text && (
+                    <section key={label} className={classes.promptSection}>
+                      <h3 className={classes.promptTitle}>{label}</h3>
+                      <pre className={classes.promptText}>{text}</pre>
                     </section>
-                  )}
-                  {selectedSampleDetails.selectionUserPrompt && (
-                    <section className={classes.promptSection}>
-                      <h3 className={classes.promptTitle}>User prompt</h3>
-                      <pre className={classes.promptText}>
-                        {selectedSampleDetails.selectionUserPrompt}
-                      </pre>
-                    </section>
-                  )}
+                  ))}
                 </div>
               )}
               <div className={classes.previewBody}>
@@ -934,56 +900,12 @@ export default function DigestEmailPreviewPage() {
                 )}
                 {selectedSampleSummary && selectedSample && samplePreviewView === "metadata" && (
                   <dl className={classes.metadataGrid}>
-                    <dt className={classes.metadataLabel}>Generated</dt>
-                    <dd className={classes.metadataValue}>
-                      {formatGeneratedAt(selectedSampleSummary.generatedAt)}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Reader</dt>
-                    <dd className={classes.metadataValue}>{activeSlug}</dd>
-                    <dt className={classes.metadataLabel}>Recipient</dt>
-                    <dd className={classes.metadataValue}>{selectedSample.to}</dd>
-                    <dt className={classes.metadataLabel}>Model</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleSummary.selectionModelId}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Recommendation history</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleSummary.countsTowardHistory
-                        ? "Counted"
-                        : "Scratch sample (not counted)"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Generation time</dt>
-                    <dd className={classes.metadataValue}>
-                      {formatGenerationDuration(selectedSampleDetails?.generationDurationMs)}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Input tokens</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleDetails?.inputTokenCount ?? "Not reported"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Output tokens</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleDetails?.outputTokenCount ?? "Not reported"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Uncached input</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleDetails?.uncachedInputTokenCount ?? "Not reported"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Cache read</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleDetails?.cacheReadInputTokenCount ?? "Not reported"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Cache write</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleDetails?.cacheWriteInputTokenCount ?? "Not reported"}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Cost</dt>
-                    <dd className={classes.metadataValue}>
-                      {formatSelectionCost(selectedSampleDetails?.selectionCostUsd)}
-                    </dd>
-                    <dt className={classes.metadataLabel}>Issue ID</dt>
-                    <dd className={classes.metadataValue}>
-                      {selectedSampleSummary._id}
-                    </dd>
+                    {metadata.map(([label, value]) => (
+                      <React.Fragment key={label}>
+                        <dt className={classes.metadataLabel}>{label}</dt>
+                        <dd className={classes.metadataValue}>{value}</dd>
+                      </React.Fragment>
+                    ))}
                   </dl>
                 )}
               </div>

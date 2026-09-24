@@ -15,7 +15,7 @@ import {
   AI_DIGEST_DEFAULT_MIN_KARMA,
   isSelectableAiDigestCandidate,
   relaxPreviousInclusionExclusions,
-  toAiDigestToolSearchCandidate,
+  toAiDigestPostCandidate,
   type AiDigestPostCandidate,
 } from "./aiDigestPostCandidates";
 import {
@@ -64,7 +64,7 @@ interface AiDigestSelectionToolsContext {
   corpusPostIds: Set<string>;
   postHistoryById: Map<string, AiDigestPostHistory>;
   now: Date;
-  minKarma?: number;
+  subscribedAuthorIds: ReadonlySet<string>;
   /** Set when the corpus pool was too thin and repeats were unlocked there too. */
   allowPreviousInclusions: boolean;
 }
@@ -152,7 +152,7 @@ async function loadEligibleSearchCandidates({
   if (postIds.length === 0) {
     return [];
   }
-  const minKarma = toolsContext.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
+  const minKarma = AI_DIGEST_DEFAULT_MIN_KARMA;
   const aboutPostId = aboutPostIdSetting.get(toolsContext.context.forumType);
   const hiddenPostIds = new Set(
     toolsContext.user.hiddenPostsMetadata.map((metadata) => metadata.postId),
@@ -170,6 +170,7 @@ async function loadEligibleSearchCandidates({
   const annotations = await annotateAiDigestPostCandidates({
     userId: toolsContext.user._id,
     posts: orderedRows,
+    subscribedAuthorIds: toolsContext.subscribedAuthorIds,
   });
   const annotationsByPostId = new Map(
     annotations.map((annotation) => [annotation.postId, annotation]),
@@ -177,11 +178,10 @@ async function loadEligibleSearchCandidates({
   // Per-reader exclusions (authored, hidden, see-less, repeats) become the
   // candidate's exclusionReason and are filtered below.
   const candidates = orderedRows.map((row) =>
-    toAiDigestToolSearchCandidate(
+    toAiDigestPostCandidate(
       row,
       annotationsByPostId.get(row.postId),
       hiddenPostIds.has(row.postId),
-      minKarma,
       toolsContext.postHistoryById.get(row.postId),
     ));
   return (toolsContext.allowPreviousInclusions
@@ -292,7 +292,7 @@ export function createAiDigestSelectionTools({
     ...toolsContext.corpusPostIds,
     ...registry.byPostId.keys(),
   ]);
-  const minKarma = toolsContext.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
+  const minKarma = AI_DIGEST_DEFAULT_MIN_KARMA;
   const embeddingsEnabled = isEmbeddingsAPIEnabled();
 
   const searchTools: ToolSet = embeddingsEnabled

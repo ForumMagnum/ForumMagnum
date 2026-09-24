@@ -1,3 +1,5 @@
+import { captureException } from "@/lib/sentryWrapper";
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 import { ensureAiDigestPostTextCache, type AiDigestPostTextCacheTarget } from "./aiDigestPostTextCache";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
@@ -169,8 +171,8 @@ export function buildAiDigestPostPreviewHtml(
 /**
  * Previews are a presentational nicety, so any failure (an unusable model
  * answer, a post with no prose to show, a provider error, a losing race to
- * write the cache row) leaves no cache row and the surfaces fall back to their
- * plaintext excerpts.
+ * write the cache row) falls back to plaintext excerpts.
+ * Unexpected failures are reported without including post content.
  */
 async function generateAndSavePreview(
   target: AiDigestPostPreviewTarget,
@@ -180,6 +182,7 @@ async function generateAndSavePreview(
 ): Promise<AiDigestPostPreviewRecord | null> {
   const blocks = splitPostHtmlIntoBlocks(revisionHtml);
   if (!blocks.length) return null;
+  let stage = "generation";
   try {
     const startBlockIndex = validateAiDigestPreviewStartBlockIndex(
       await selectPostPreviewStartBlockIndex(target, blocks, modelId, promptVersion),
@@ -197,9 +200,17 @@ async function generateAndSavePreview(
       modelId,
       promptVersion,
     };
+    stage = "persistence";
     await PostPreviews.rawInsert(preview);
     return preview;
-  } catch {
+  } catch (error) {
+    if (stage === "persistence" && isPostgresUniqueViolation(error)) {
+      return null;
+    }
+    // Provider exceptions can contain request bodies, so report only safe context.
+    captureException(new Error(`AI digest preview ${stage} failed`), {
+      extra: { postId: target.postId, revisionId: target.revisionId, modelId, promptVersion },
+    });
     return null;
   }
 }

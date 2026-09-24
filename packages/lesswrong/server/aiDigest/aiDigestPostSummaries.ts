@@ -1,3 +1,4 @@
+import { captureException } from "@/lib/sentryWrapper";
 import { ensureAiDigestPostTextCache, type AiDigestPostTextCacheTarget } from "./aiDigestPostTextCache";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
@@ -93,6 +94,10 @@ async function generateAndSaveSummary(
   try {
     summary = await generatePostSummary(target, body, modelId, promptVersion);
   } catch {
+    // Provider exceptions can contain request bodies, so report only safe context.
+    captureException(new Error("AI digest summary generation failed"), {
+      extra: { postId: target.postId, revisionId: target.revisionId, modelId, promptVersion },
+    });
     return null;
   }
   const record: AiDigestPostSummaryRecord = {
@@ -170,7 +175,7 @@ export function boundedPlainTextFromRevisionHtml(
 /**
  * Attach summaries to digest corpus candidates, generating and caching any that
  * are missing. Corpus candidates must always carry summaries into the selection
- * prompt; only posts whose bodies are unusable are dropped.
+ * prompt; unusable bodies and failed summary generation are dropped.
  */
 export async function ensureAiDigestPostSummaries({
   candidates,

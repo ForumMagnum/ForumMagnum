@@ -18,9 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: ["admins"],
-      canCreate: ["admins"],
     },
   },
   recipient: {
@@ -42,9 +40,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
     },
   },
   posts: {
@@ -66,9 +62,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
     },
   },
   quickTakes: {
@@ -91,9 +85,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
     },
   },
   discussionComments: {
@@ -113,9 +105,7 @@ const schema = {
     },
     graphql: {
       outputType: "Date",
-      inputType: "Date!",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
     },
   },
   /** When the issue was successfully emailed; null for issues never sent. */
@@ -138,9 +128,7 @@ const schema = {
     },
     graphql: {
       outputType: "AiDigestIssueTrigger",
-      inputType: "AiDigestIssueTrigger",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
       validation: {
         allowedValues: ["adminSample", "userPreview", "scheduled"],
         optional: true,
@@ -156,9 +144,7 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
       validation: {
         optional: true,
       },
@@ -171,9 +157,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
       validation: {
         optional: true,
       },
@@ -186,9 +170,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: ["admins"],
-      canCreate: ["admins"],
     },
   },
   promptVersion: {
@@ -198,9 +180,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: ["admins"],
-      canCreate: ["admins"],
     },
   },
   selectionSystemPrompt: {
@@ -304,7 +284,6 @@ const schema = {
     graphql: {
       outputType: "JSON",
       canRead: [userIsIssueRecipient, "admins"],
-      canCreate: ["admins"],
     },
   },
   /** The issue's subject line, lifted out of the spec so lists needn't load it. */

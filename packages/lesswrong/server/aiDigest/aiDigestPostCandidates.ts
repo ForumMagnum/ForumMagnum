@@ -37,10 +37,6 @@ export interface AiDigestReaderData extends AiDigestReadCountsRow {
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import type { AiDigestPostHistory } from "./aiDigestHistory";
 
-type AiDigestCandidateRetrievalSource =
-  | "newsletterRecentPostsSql"
-  | "selectionToolSearch";
-
 // TODO: widen to 28 days once the digest is operationally validated beyond the admin beta.
 export const AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS = 14;
 export const AI_DIGEST_DEFAULT_MIN_KARMA = 20;
@@ -147,7 +143,6 @@ export interface AiDigestPostCandidate {
   revisionId: string;
   title: string;
   author: string;
-  authorIds: string[];
   publicationDate: string;
   baseScore: number;
   score: number;
@@ -159,11 +154,6 @@ export interface AiDigestPostCandidate {
   previousDigestInclusionCount: number;
   lastIncludedAt: string | null;
   exclusionReason: AiDigestCandidateExclusionReason | null;
-  retrievalProvenance: {
-    source: AiDigestCandidateRetrievalSource;
-    maxAgeDays: number | null;
-    minKarma: number;
-  };
 }
 
 export interface AiDigestPostCandidateCard extends AiDigestPostCandidate {
@@ -191,13 +181,9 @@ export interface AiDigestQuickTakeCandidate {
 }
 
 export interface LoadAiDigestPostCandidatesOptions {
-  maxAgeDays?: number;
-  minKarma?: number;
-  limit?: number;
-  quickTakeMinKarma?: number;
-  quickTakeLimit?: number;
-  now?: Date;
-  postHistoryById?: Map<string, AiDigestPostHistory>;
+  now: Date;
+  postHistoryById: Map<string, AiDigestPostHistory>;
+  subscribedAuthorIds: ReadonlySet<string>;
 }
 
 function percentageOfReads(readCount: number, totalReadCount: number): number | null {
@@ -229,87 +215,47 @@ function dateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function postInteractionBase(
+function addPostInteraction(
+  byPostId: Map<string, AiDigestReaderPostInteraction>,
   reference: AiDigestPostReferenceRow,
-): Pick<
-  AiDigestReaderPostInteraction,
-  "postId" | "title" | "author" | "publicationDate" | "lastEngagedAt"
-> {
-  return {
+  signals: Partial<Pick<AiDigestReaderPostInteraction,
+    "readAt" | "likeStrength" | "likedAt" | "authoredAt" | "commentedAt">>,
+): void {
+  const previous = byPostId.get(reference.postId);
+  const occurredAt = dateOnly(reference.occurredAt);
+  byPostId.set(reference.postId, {
+    ...previous,
     postId: reference.postId,
     title: reference.title,
     author: reference.authorName,
     publicationDate: dateOnly(reference.postedAt),
-    lastEngagedAt: dateOnly(reference.occurredAt),
-  };
-}
-
-function recentReadInteraction(
-  reference: AiDigestPostReferenceRow,
-): AiDigestReaderPostInteraction {
-  return {
-    ...postInteractionBase(reference),
-    readAt: dateOnly(reference.occurredAt),
-  };
-}
-
-function positiveVoteInteraction(
-  reference: AiDigestPositiveVoteRow,
-): AiDigestReaderPostInteraction {
-  return {
-    ...postInteractionBase(reference),
-    likeStrength: reference.voteStrength,
-    likedAt: dateOnly(reference.occurredAt),
-  };
-}
-
-function authoredPostInteraction(
-  reference: AiDigestPostReferenceRow,
-): AiDigestReaderPostInteraction {
-  return {
-    ...postInteractionBase(reference),
-    authoredAt: dateOnly(reference.occurredAt),
-  };
-}
-
-function commentedPostInteraction(
-  reference: AiDigestPostReferenceRow,
-): AiDigestReaderPostInteraction {
-  return {
-    ...postInteractionBase(reference),
-    commentedAt: dateOnly(reference.occurredAt),
-  };
-}
-
-function mergePostInteractions(
-  interactions: AiDigestReaderPostInteraction[],
-): AiDigestReaderPostInteraction[] {
-  const interactionsByPostId = interactions.reduce((result, interaction) => {
-    const previous = result.get(interaction.postId);
-    result.set(interaction.postId, previous
-      ? {
-        ...previous,
-        ...interaction,
-        lastEngagedAt: previous.lastEngagedAt > interaction.lastEngagedAt
-          ? previous.lastEngagedAt
-          : interaction.lastEngagedAt,
-      }
-      : interaction);
-    return result;
-  }, new Map<string, AiDigestReaderPostInteraction>());
-  return Array.from(interactionsByPostId.values()).sort((first, second) =>
-    second.lastEngagedAt.localeCompare(first.lastEngagedAt)
-    || first.postId.localeCompare(second.postId),
-  );
+    lastEngagedAt: previous && previous.lastEngagedAt > occurredAt
+      ? previous.lastEngagedAt
+      : occurredAt,
+    ...signals,
+  });
 }
 
 function buildRecentInteractions(row: AiDigestReaderData): AiDigestReaderPostInteraction[] {
-  return mergePostInteractions([
-    ...row.recentReads.map(recentReadInteraction),
-    ...row.recentPositiveVotes.map(positiveVoteInteraction),
-    ...row.recentAuthoredPosts.map(authoredPostInteraction),
-    ...row.recentCommentedPosts.map(commentedPostInteraction),
-  ]);
+  const byPostId = new Map<string, AiDigestReaderPostInteraction>();
+  for (const reference of row.recentReads) {
+    addPostInteraction(byPostId, reference, { readAt: dateOnly(reference.occurredAt) });
+  }
+  for (const reference of row.recentPositiveVotes) {
+    addPostInteraction(byPostId, reference, {
+      likeStrength: reference.voteStrength,
+      likedAt: dateOnly(reference.occurredAt),
+    });
+  }
+  for (const reference of row.recentAuthoredPosts) {
+    addPostInteraction(byPostId, reference, { authoredAt: dateOnly(reference.occurredAt) });
+  }
+  for (const reference of row.recentCommentedPosts) {
+    addPostInteraction(byPostId, reference, { commentedAt: dateOnly(reference.occurredAt) });
+  }
+  return Array.from(byPostId.values()).sort((first, second) =>
+    second.lastEngagedAt.localeCompare(first.lastEngagedAt)
+    || first.postId.localeCompare(second.postId));
 }
 
 function includedNegativePreferenceReason(
@@ -421,21 +367,17 @@ export function aiDigestCandidateExclusionReason(
   return null;
 }
 
-function toAiDigestPostCandidate(
+export function toAiDigestPostCandidate(
   row: AiDigestCanonicalPostCandidateRow,
   annotation: AiDigestCandidateAnnotationRow | undefined,
   hiddenByRecipient: boolean,
-  maxAgeDays: number | null,
-  minKarma: number,
   postHistory: AiDigestPostHistory | undefined,
-  retrievalSource: AiDigestCandidateRetrievalSource = "newsletterRecentPostsSql",
 ): AiDigestPostCandidate {
   return {
     postId: row.postId,
     revisionId: row.revisionId,
     title: row.title,
     author: row.author,
-    authorIds: row.authorIds,
     publicationDate: row.publicationDate.toISOString(),
     baseScore: row.baseScore,
     score: row.score,
@@ -447,30 +389,7 @@ function toAiDigestPostCandidate(
     previousDigestInclusionCount: postHistory?.previousDigestInclusionCount ?? 0,
     lastIncludedAt: postHistory?.lastIncludedAt ?? null,
     exclusionReason: aiDigestCandidateExclusionReason(annotation, hiddenByRecipient, postHistory),
-    retrievalProvenance: {
-      source: retrievalSource,
-      maxAgeDays,
-      minKarma,
-    },
   };
-}
-
-export function toAiDigestToolSearchCandidate(
-  row: AiDigestCanonicalPostCandidateRow,
-  annotation: AiDigestCandidateAnnotationRow | undefined,
-  hiddenByRecipient: boolean,
-  minKarma: number,
-  postHistory: AiDigestPostHistory | undefined,
-): AiDigestPostCandidate {
-  return toAiDigestPostCandidate(
-    row,
-    annotation,
-    hiddenByRecipient,
-    null,
-    minKarma,
-    postHistory,
-    "selectionToolSearch",
-  );
 }
 
 export function isSelectableAiDigestCandidate(
@@ -538,6 +457,7 @@ function toAiDigestQuickTakeCandidate(
 export async function loadAiDigestReaderContext(
   user: DbUser,
   context: ResolverContext,
+  subscribedAuthorIds: ReadonlySet<string>,
   now = new Date(),
 ): Promise<AiDigestReaderContext> {
   const { posts } = context.repos;
@@ -569,7 +489,7 @@ export async function loadAiDigestReaderContext(
     posts.getAiDigestRecentCommentedPosts({ userId, since, limit: listLimit }),
     posts.getAiDigestReadAgeBuckets({ userId, since }),
     posts.getAiDigestSeeLessFeedback({ userId, since, limit: listLimit }),
-    loadReaderSubscribedAuthors(userId),
+    loadReaderSubscribedAuthors(subscribedAuthorIds),
   ]);
   return buildAiDigestReaderContext(user, {
     ...readCounts,
@@ -588,13 +508,11 @@ export async function loadAiDigestReaderContext(
 export async function loadAiDigestPostCandidates(
   user: DbUser,
   context: ResolverContext,
-  options: LoadAiDigestPostCandidatesOptions = {},
+  { now, postHistoryById, subscribedAuthorIds }: LoadAiDigestPostCandidatesOptions,
 ): Promise<AiDigestPostCandidate[]> {
-  const now = options.now ?? new Date();
-  const maxAgeDays = options.maxAgeDays ?? AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
-  const minKarma = options.minKarma ?? AI_DIGEST_DEFAULT_MIN_KARMA;
-  const limit = options.limit ?? AI_DIGEST_DEFAULT_CANDIDATE_LIMIT;
-  const postHistoryById = options.postHistoryById ?? new Map<string, AiDigestPostHistory>();
+  const maxAgeDays = AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
+  const minKarma = AI_DIGEST_DEFAULT_MIN_KARMA;
+  const limit = AI_DIGEST_DEFAULT_CANDIDATE_LIMIT;
   const aboutPostId = aboutPostIdSetting.get(context.forumType);
   const hiddenPostIds = new Set(
     user.hiddenPostsMetadata.map((metadata) => metadata.postId),
@@ -609,6 +527,7 @@ export async function loadAiDigestPostCandidates(
   const annotations = await annotateAiDigestPostCandidates({
     userId: user._id,
     posts: rows,
+    subscribedAuthorIds,
   });
   const annotationsByPostId = new Map(
     annotations.map((annotation) => [annotation.postId, annotation]),
@@ -618,8 +537,6 @@ export async function loadAiDigestPostCandidates(
       row,
       annotationsByPostId.get(row.postId),
       hiddenPostIds.has(row.postId),
-      maxAgeDays,
-      minKarma,
       postHistoryById.get(row.postId),
     ),
   );
@@ -641,13 +558,11 @@ export async function loadAiDigestRecentlyCuratedPosts(
 export async function loadAiDigestQuickTakeCandidates(
   user: DbUser,
   context: ResolverContext,
-  options: LoadAiDigestPostCandidatesOptions = {},
+  { now, postHistoryById, subscribedAuthorIds }: LoadAiDigestPostCandidatesOptions,
 ): Promise<AiDigestQuickTakeCandidate[]> {
-  const now = options.now ?? new Date();
-  const maxAgeDays = options.maxAgeDays ?? AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
-  const minKarma = options.quickTakeMinKarma ?? AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA;
-  const limit = options.quickTakeLimit ?? AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT;
-  const postHistoryById = options.postHistoryById ?? new Map<string, AiDigestPostHistory>();
+  const maxAgeDays = AI_DIGEST_DEFAULT_CANDIDATE_MAX_AGE_DAYS;
+  const minKarma = AI_DIGEST_DEFAULT_QUICK_TAKE_MIN_KARMA;
+  const limit = AI_DIGEST_DEFAULT_QUICK_TAKE_LIMIT;
   const minPostedAt = new Date(now.getTime() - (maxAgeDays * DAY_MS));
   const rows = await context.repos.comments.getAiDigestQuickTakeCandidateRows({
     minPostedAt,
@@ -657,6 +572,7 @@ export async function loadAiDigestQuickTakeCandidates(
   const annotations = await annotateAiDigestQuickTakes({
     userId: user._id,
     quickTakes: rows,
+    subscribedAuthorIds,
   });
   const annotationsByCommentId = new Map(
     annotations.map((annotation) => [annotation.commentId, annotation]),

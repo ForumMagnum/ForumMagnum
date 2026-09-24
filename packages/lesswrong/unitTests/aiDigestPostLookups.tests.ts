@@ -28,7 +28,7 @@ it("loads current revisions in a batch, omitting missing and blank bodies", asyn
   ]);
   expect(await loadAiDigestPostBodies(["a", "b", "c", "d"], computeContextFromUser({ user: null, isSSR: false })))
     .toEqual([{ postId: "a", revisionHtml: "<p>Current body</p>" }]);
-  expect(mockRevisions).toHaveBeenCalledWith({ _id: { $in: ["current", "missing", "blank"] } }, { projection: { _id: 1, html: 1 } });
+  expect(mockRevisions).toHaveBeenCalledWith({ _id: { $in: ["current", "missing", "blank"] } }, {}, { _id: 1, html: 1 });
 });
 
 it("does not query bodies for an empty list", async () => {
@@ -44,8 +44,8 @@ it("preserves curated order and annotates only this reader's positive read statu
     .toEqual([{ postId: "new", isRead: false }, { postId: "old", isRead: true }]);
   expect(mockPosts).toHaveBeenCalledWith({
     ...viewablePostsSelector, deletedDraft: false, rejected: false, curatedDate: { $ne: null, $lte: now },
-  }, { sort: { curatedDate: -1 }, limit: 10, projection: { _id: 1 } });
-  expect(mockReads).toHaveBeenCalledWith({ userId: "reader", postId: { $in: ["new", "old"] }, isRead: true }, { projection: { postId: 1 } });
+  }, { sort: { curatedDate: -1 }, limit: 10 }, { _id: 1 });
+  expect(mockReads).toHaveBeenCalledWith({ userId: "reader", postId: { $in: ["new", "old"] }, isRead: true }, {}, { postId: 1 });
 });
 
 it("preserves the original public-post SQL filter when sharing it with collection finds", () => {

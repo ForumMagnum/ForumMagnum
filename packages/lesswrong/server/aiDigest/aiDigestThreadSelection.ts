@@ -68,23 +68,6 @@ interface ThreadCommentLookupEntry {
   parentCommentId: string | null;
 }
 
-function allThreadCards(candidates: AiDigestThreadCandidates): AiDigestThreadCard[] {
-  return [...candidates.siteWideThreads, ...candidates.readerThreads];
-}
-
-function buildCommentLookup(
-  candidates: AiDigestThreadCandidates,
-): Map<string, ThreadCommentLookupEntry> {
-  return new Map(
-    allThreadCards(candidates).flatMap((card) =>
-      card.comments.map((comment): [string, ThreadCommentLookupEntry] => [
-        comment.commentId,
-        { threadId: card.threadId, parentCommentId: comment.parentCommentId },
-      ]),
-    ),
-  );
-}
-
 /**
  * Site-wide thread cards are a byte-stable shared prompt prefix, so previously
  * recommended threads cannot be dropped from the corpus per-reader. Instead, a
@@ -125,6 +108,7 @@ function connectedDisplayComments(
   displayCommentIds: string[],
   commentsById: Map<string, ThreadCommentLookupEntry>,
   threadId: string,
+  limit: number,
 ): string[] {
   const candidateIds = displayCommentIds.filter((commentId, index) =>
     commentId !== anchorCommentId
@@ -133,22 +117,19 @@ function connectedDisplayComments(
   );
   const kept = new Set<string>();
   let changed = true;
-  while (changed) {
+  while (changed && kept.size < limit) {
     changed = false;
-    candidateIds.forEach((commentId) => {
-      if (kept.has(commentId)) {
-        return;
-      }
+    for (const commentId of candidateIds) {
+      if (kept.size >= limit) break;
+      if (kept.has(commentId)) continue;
       const parentId = commentsById.get(commentId)?.parentCommentId;
       if (parentId === anchorCommentId || (parentId && kept.has(parentId))) {
         kept.add(commentId);
         changed = true;
       }
-    });
+    }
   }
-  return candidateIds
-    .filter((commentId) => kept.has(commentId))
-    .slice(0, AI_DIGEST_MAX_COMMENTS_PER_THREAD - 1);
+  return [...kept];
 }
 
 function contextCommentChain(
@@ -205,10 +186,12 @@ export function clampAiDigestThreadSelectionOutput(
   output: AiDigestThreadSelectionModelOutput,
   candidates: AiDigestThreadCandidates,
 ): AiDigestClampedThreadSelection {
-  const commentsById = buildCommentLookup(candidates);
-  const cardsByThreadId = new Map(
-    allThreadCards(candidates).map((card) => [card.threadId, card]),
-  );
+  const cards = [...candidates.siteWideThreads, ...candidates.readerThreads];
+  const commentsById = new Map(cards.flatMap((card) =>
+    card.comments.map((comment): [string, ThreadCommentLookupEntry] => [
+      comment.commentId,
+      { threadId: card.threadId, parentCommentId: comment.parentCommentId },
+    ])));
   const usedThreadIds = new Set<string>();
   let totalDisplayedComments = 0;
 
@@ -229,7 +212,7 @@ export function clampAiDigestThreadSelectionOutput(
       return [];
     }
     if (!threadRepeatHasNewActivity(
-      cardsByThreadId.get(anchor.threadId),
+      cards.findLast((card) => card.threadId === anchor.threadId),
       threadAnnotation,
     )) {
       return [];
@@ -243,7 +226,8 @@ export function clampAiDigestThreadSelectionOutput(
       selection.displayCommentIds,
       commentsById,
       anchor.threadId,
-    ).slice(0, remainingBudget - 1);
+      Math.min(AI_DIGEST_MAX_COMMENTS_PER_THREAD, remainingBudget) - 1,
+    );
     const contextCommentIds = contextCommentChain(
       selection.contextCommentId,
       selection.anchorCommentId,

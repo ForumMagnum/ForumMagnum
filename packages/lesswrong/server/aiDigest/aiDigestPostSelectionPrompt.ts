@@ -161,148 +161,27 @@ type PromptPastRecommendationEvent = [
   count: number,
 ];
 
-interface PromptPastRecommendationGroup {
-  documentType: "post" | "quickTake";
-  titleOrSnippet: string;
-  author: string;
-  publicationDate: string;
-  events: Map<string, PromptPastRecommendationEvent>;
-}
-
-function promptCandidateRow(
-  candidate: AiDigestPostCandidateCard,
-  asOf: Date,
-): PromptCandidateRow {
-  return [
-    candidate.postId,
-    candidate.title,
-    candidate.author,
-    daysAgo(asOf, candidate.publicationDate),
-    candidate.baseScore,
-    candidate.score,
-    candidate.tags,
-    candidate.summary,
-    candidate.isCurated,
-  ];
-}
-
-function promptQuickTakeRow(
-  candidate: AiDigestQuickTakeCandidate,
-  asOf: Date,
-): PromptQuickTakeRow {
-  return [
-    candidate.commentId,
-    candidate.author,
-    daysAgo(asOf, candidate.publicationDate),
-    candidate.baseScore,
-    candidate.body,
-  ];
-}
-
-function promptInteractionSignals(
-  interaction: AiDigestUserDossier["recentInteractions"]["posts"][number],
-  asOf: Date,
-): PromptInteractionSignal[] {
-  return [
-    ...(interaction.readAt
-      ? [["read", daysAgo(asOf, interaction.readAt)] satisfies PromptInteractionSignal]
-      : []),
-    ...(interaction.likedAt && interaction.likeStrength
-      ? [[
-        "liked",
-        interaction.likeStrength,
-        daysAgo(asOf, interaction.likedAt),
-      ] satisfies PromptInteractionSignal]
-      : []),
-    ...(interaction.authoredAt
-      ? [["authored", daysAgo(asOf, interaction.authoredAt)] satisfies PromptInteractionSignal]
-      : []),
-    ...(interaction.commentedAt
-      ? [["commented", daysAgo(asOf, interaction.commentedAt)] satisfies PromptInteractionSignal]
-      : []),
-  ];
-}
-
-function promptInteractionRow(
-  interaction: AiDigestUserDossier["recentInteractions"]["posts"][number],
-  asOf: Date,
-): PromptInteractionRow {
-  return [
-    interaction.title,
-    interaction.author,
-    daysAgo(asOf, interaction.publicationDate),
-    promptInteractionSignals(interaction, asOf),
-  ];
-}
-
-function promptPostCandidateAnnotationSignals(
-  candidate: AiDigestPostCandidateCard,
-  asOf: Date,
-): PromptCandidateAnnotationSignal[] {
-  return [
-    ...(candidate.isSubscribedToAuthor
-      ? [["followsAuthor"] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.isRead
-      ? [["hasReadStatus"] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.upvoteStrength
-      ? [["liked", candidate.upvoteStrength] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.previousDigestInclusionCount > 0
-      ? [[
-        "previousDigest",
-        candidate.previousDigestInclusionCount,
-        candidate.lastIncludedAt ? daysAgo(asOf, candidate.lastIncludedAt) : null,
-      ] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.exclusionReason
-      ? [["excluded", candidate.exclusionReason] satisfies PromptCandidateAnnotationSignal]
-      : []),
-  ];
-}
-
-function promptQuickTakeCandidateAnnotationSignals(
-  candidate: AiDigestQuickTakeCandidate,
-  asOf: Date,
-): PromptCandidateAnnotationSignal[] {
-  return [
-    ...(candidate.isSubscribedToAuthor
-      ? [["followsAuthor"] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.upvoteStrength
-      ? [["liked", candidate.upvoteStrength] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.previousDigestInclusionCount > 0
-      ? [[
-        "previousDigest",
-        candidate.previousDigestInclusionCount,
-        candidate.lastIncludedAt ? daysAgo(asOf, candidate.lastIncludedAt) : null,
-      ] satisfies PromptCandidateAnnotationSignal]
-      : []),
-    ...(candidate.exclusionReason
-      ? [["excluded", candidate.exclusionReason] satisfies PromptCandidateAnnotationSignal]
-      : []),
-  ];
-}
-
 function promptCandidateAnnotations(
   candidates: AiDigestPostCandidateCard[],
   quickTakes: AiDigestQuickTakeCandidate[],
   asOf: Date,
-): PromptCandidateAnnotationRow[] {
-  return [
-    ...candidates.flatMap((candidate) => {
-      const signals = promptPostCandidateAnnotationSignals(candidate, asOf);
-      return signals.length > 0 ? [[candidate.postId, signals] as PromptCandidateAnnotationRow] : [];
-    }),
-    ...quickTakes.flatMap((candidate) => {
-      const signals = promptQuickTakeCandidateAnnotationSignals(candidate, asOf);
-      return signals.length > 0
-        ? [[candidate.commentId, signals] as PromptCandidateAnnotationRow]
-        : [];
-    }),
-  ];
+) {
+  return [...candidates, ...quickTakes].flatMap((candidate) => {
+    const signals: PromptCandidateAnnotationSignal[] = [];
+    if (candidate.isSubscribedToAuthor) signals.push(["followsAuthor"]);
+    if ("isRead" in candidate && candidate.isRead) signals.push(["hasReadStatus"]);
+    if (candidate.upvoteStrength) signals.push(["liked", candidate.upvoteStrength]);
+    if (candidate.previousDigestInclusionCount > 0) {
+      signals.push([
+        "previousDigest",
+        candidate.previousDigestInclusionCount,
+        candidate.lastIncludedAt ? daysAgo(asOf, candidate.lastIncludedAt) : null,
+      ]);
+    }
+    if (candidate.exclusionReason) signals.push(["excluded", candidate.exclusionReason]);
+    const itemId = "postId" in candidate ? candidate.postId : candidate.commentId;
+    return signals.length ? [[itemId, signals] satisfies PromptCandidateAnnotationRow] : [];
+  });
 }
 
 export function promptReaderProfile(dossier: AiDigestUserDossier, asOf: Date) {
@@ -321,8 +200,16 @@ export function promptReaderProfile(dossier: AiDigestUserDossier, asOf: Date) {
       authored: ["kind", "daysAgo"],
       commented: ["kind", "daysAgo"],
     },
-    interactions: dossier.recentInteractions.posts.map((interaction) =>
-      promptInteractionRow(interaction, asOf)),
+    interactions: dossier.recentInteractions.posts.map((interaction): PromptInteractionRow => {
+      const signals: PromptInteractionSignal[] = [];
+      if (interaction.readAt) signals.push(["read", daysAgo(asOf, interaction.readAt)]);
+      if (interaction.likedAt && interaction.likeStrength) {
+        signals.push(["liked", interaction.likeStrength, daysAgo(asOf, interaction.likedAt)]);
+      }
+      if (interaction.authoredAt) signals.push(["authored", daysAgo(asOf, interaction.authoredAt)]);
+      if (interaction.commentedAt) signals.push(["commented", daysAgo(asOf, interaction.commentedAt)]);
+      return [interaction.title, interaction.author, daysAgo(asOf, interaction.publicationDate), signals];
+    }),
     readAgeBucketColumns: ["under7Days", "from7To30Days", "from31To180Days", "over180Days"],
     readAgeBuckets: [
       dossier.readAgeBuckets.under7Days,
@@ -352,68 +239,35 @@ export function promptReaderProfile(dossier: AiDigestUserDossier, asOf: Date) {
   };
 }
 
-/** Everything except the trailing count, which is what the key aggregates over. */
-function recommendationEventKey(event: PromptPastRecommendationEvent): string {
-  return event.slice(0, -1).join(":");
-}
-
-function withIncrementedCount(
-  event: PromptPastRecommendationEvent,
-): PromptPastRecommendationEvent {
-  return [event[0], event[1], event[2], event[3], event[4], event[5] + 1];
-}
-
-function pastRecommendationTitleOrSnippet(
-  recommendation: AiDigestPastRecommendation,
-): string {
-  return recommendation.documentType === "post"
-    ? recommendation.title
-    : recommendation.bodySnippet;
-}
-
-function pastRecommendationEngaged(
-  recommendation: AiDigestPastRecommendation,
-): boolean {
-  return recommendation.documentType === "post"
-    ? recommendation.subsequentlyRead
-    : recommendation.subsequentlyReplied;
-}
-
-function addPastRecommendation(
-  groups: Map<string, PromptPastRecommendationGroup>,
-  recommendation: AiDigestPastRecommendation,
-  asOf: Date,
-): Map<string, PromptPastRecommendationGroup> {
-  const group = groups.get(recommendation.documentId) ?? {
-    documentType: recommendation.documentType,
-    titleOrSnippet: pastRecommendationTitleOrSnippet(recommendation),
-    author: recommendation.author,
-    publicationDate: recommendation.publicationDate,
-    events: new Map<string, PromptPastRecommendationEvent>(),
-  };
-  const event: PromptPastRecommendationEvent = [
-    daysAgo(asOf, recommendation.recommendedAt),
-    pastRecommendationEngaged(recommendation),
-    recommendation.upvoteStrength,
-    recommendation.upvotedAt ? daysAgo(asOf, recommendation.upvotedAt) : null,
-    recommendation.clickedAt ? daysAgo(asOf, recommendation.clickedAt) : null,
-    1,
-  ];
-  const eventKey = recommendationEventKey(event);
-  const existing = group.events.get(eventKey);
-  group.events.set(eventKey, existing ? withIncrementedCount(existing) : event);
-  groups.set(recommendation.documentId, group);
-  return groups;
-}
-
 function promptPastRecommendations(
   recommendations: AiDigestPastRecommendation[],
   asOf: Date,
 ) {
-  const groups = recommendations.reduce(
-    (result, recommendation) => addPastRecommendation(result, recommendation, asOf),
-    new Map<string, PromptPastRecommendationGroup>(),
-  );
+  const groups = new Map<string, {
+    first: AiDigestPastRecommendation;
+    events: Map<string, PromptPastRecommendationEvent>;
+  }>();
+  for (const recommendation of recommendations) {
+    const group = groups.get(recommendation.documentId) ?? {
+      first: recommendation,
+      events: new Map<string, PromptPastRecommendationEvent>(),
+    };
+    const event: PromptPastRecommendationEvent = [
+      daysAgo(asOf, recommendation.recommendedAt),
+      recommendation.documentType === "post"
+        ? recommendation.subsequentlyRead
+        : recommendation.subsequentlyReplied,
+      recommendation.upvoteStrength,
+      recommendation.upvotedAt ? daysAgo(asOf, recommendation.upvotedAt) : null,
+      recommendation.clickedAt ? daysAgo(asOf, recommendation.clickedAt) : null,
+      1,
+    ];
+    const key = event.slice(0, -1).join(":");
+    const existing = group.events.get(key);
+    if (existing) existing[5] += 1;
+    else group.events.set(key, event);
+    groups.set(recommendation.documentId, group);
+  }
   return {
     itemColumns: ["type", "titleOrSnippet", "author", "publishedDaysAgo", "events"],
     postEventColumns: [
@@ -432,12 +286,12 @@ function promptPastRecommendations(
       "clickedDaysAgo",
       "count",
     ],
-    items: Array.from(groups.values()).map((group) => [
-      group.documentType,
-      group.titleOrSnippet,
-      group.author,
-      daysAgo(asOf, group.publicationDate),
-      Array.from(group.events.values()),
+    items: Array.from(groups.values()).map(({ first, events }) => [
+      first.documentType,
+      first.documentType === "post" ? first.title : first.bodySnippet,
+      first.author,
+      daysAgo(asOf, first.publicationDate),
+      Array.from(events.values()),
     ]),
   };
 }
@@ -448,22 +302,17 @@ export function buildAiDigestPostSelectionPrompt(
   pastRecommendations: AiDigestPastRecommendation[] = [],
   personalInstructions: string | null = null,
   asOf = new Date(),
-  quickTakes: AiDigestQuickTakeCandidate[] = [],
+  quickTakes: AiDigestQuickTakeCandidate[],
+  corpus: { retrievalWindowDays: number; minimumKarma: number },
 ): AiDigestPostSelectionPrompt {
   const trimmedInstructions = validatedAiDigestPersonalInstructions(personalInstructions);
-  const firstCandidate = candidates[0];
   const sharedPrefix = [
     "# Shared candidate corpus",
     "Columns define every fixed-position row. Day offsets are relative to `asOf`.",
     "<UNTRUSTED_CANDIDATE_CORPUS>",
     JSON.stringify({
       asOf: asOf.toISOString().slice(0, 10),
-      ...(firstCandidate
-        ? {
-          retrievalWindowDays: firstCandidate.retrievalProvenance.maxAgeDays,
-          minimumKarma: firstCandidate.retrievalProvenance.minKarma,
-        }
-        : {}),
+      ...(candidates.length ? corpus : {}),
       columns: [
         "postId",
         "title",
@@ -475,7 +324,17 @@ export function buildAiDigestPostSelectionPrompt(
         "summary",
         "curated",
       ],
-      rows: candidates.map((candidate) => promptCandidateRow(candidate, asOf)),
+      rows: candidates.map((candidate): PromptCandidateRow => [
+        candidate.postId,
+        candidate.title,
+        candidate.author,
+        daysAgo(asOf, candidate.publicationDate),
+        candidate.baseScore,
+        candidate.score,
+        candidate.tags,
+        candidate.summary,
+        candidate.isCurated,
+      ]),
     }),
     "</UNTRUSTED_CANDIDATE_CORPUS>",
     "",
@@ -491,7 +350,13 @@ export function buildAiDigestPostSelectionPrompt(
         "baseScore",
         "body",
       ],
-      rows: quickTakes.map((candidate) => promptQuickTakeRow(candidate, asOf)),
+      rows: quickTakes.map((candidate): PromptQuickTakeRow => [
+        candidate.commentId,
+        candidate.author,
+        daysAgo(asOf, candidate.publicationDate),
+        candidate.baseScore,
+        candidate.body,
+      ]),
     }),
     "</UNTRUSTED_QUICK_TAKE_CORPUS>",
   ].join("\n");

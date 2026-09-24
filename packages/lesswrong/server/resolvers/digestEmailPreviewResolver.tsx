@@ -17,7 +17,6 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 const MIN_SAMPLE_COUNT = 1;
 const MAX_SAMPLE_COUNT = 3;
 const DEFAULT_SAMPLE_COUNT = 3;
-const SAMPLE_GENERATION_ATTEMPTS = 3;
 
 function digestEmailBody(spec: AiDigestSpec) {
   return function renderDigestEmail(emailContext: EmailContextType) {
@@ -71,28 +70,12 @@ async function generateOneStoredDigestSample({
   user: DbUser;
   countsTowardHistory: boolean;
 }): Promise<string> {
-  let lastError: Error | null = null;
-  for (let attempt = 0; attempt < SAMPLE_GENERATION_ATTEMPTS; attempt++) {
-    try {
-      const result = await generateAiDigestPostSelection({
-        user,
-        context: computeContextFromUser({
-          user,
-          isSSR: false,
-        }),
-        options: {
-          countsTowardHistory,
-        },
-      });
-      if (!result.issueId) {
-        throw new Error("Generated digest sample was not persisted");
-      }
-      return result.issueId;
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-    }
-  }
-  throw lastError ?? new Error("Failed to generate digest sample");
+  const result = await generateAiDigestPostSelection({
+    user,
+    context: computeContextFromUser({ user, isSSR: false }),
+    options: { countsTowardHistory },
+  });
+  return result.issueId;
 }
 
 export const digestEmailPreviewGraphQLQueries = {

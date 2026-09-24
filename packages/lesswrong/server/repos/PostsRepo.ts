@@ -78,8 +78,6 @@ export interface AiDigestCanonicalPostCandidateRow {
   revisionId: string;
   title: string;
   author: string;
-  /** Author and coauthor IDs, empty when the post hides its author. */
-  authorIds: string[];
   hideAuthor: boolean;
   /** Author and coauthor IDs regardless of hideAuthor, for recipient-authored checks. */
   ownerIds: string[];
@@ -143,10 +141,6 @@ const aiDigestPostCandidateColumns = `
         p."contents_latest" AS "revisionId",
         p.title,
         ${aiDigestPostAuthorExpression("p", "u")} AS author,
-        CASE
-          WHEN p."hideAuthor" THEN ARRAY[]::text[]
-          ELSE array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL)
-        END AS "authorIds",
         p."hideAuthor",
         array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL) AS "ownerIds",
         p."postedAt" AS "publicationDate",

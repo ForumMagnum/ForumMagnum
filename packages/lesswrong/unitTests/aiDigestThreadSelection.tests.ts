@@ -24,6 +24,7 @@ import {
 import {
   buildAiDigestDiscussionItems,
   buildAiDigestSpecFromPostSelection,
+  validateAiDigestPostSelectionOutput,
   type AiDigestPostSelectionModelOutput,
 } from "@/server/aiDigest/aiDigestPostSelection";
 import type {
@@ -106,6 +107,21 @@ function cardCommentIds(card: AiDigestThreadCard | null): string[] {
 }
 
 describe("AI digest thread card shaping", () => {
+  it("skips cyclic branches without losing independent connected comments", () => {
+    const card = buildAiDigestThreadCard({
+      threadId: "thread-1",
+      source: "siteWide",
+      rows: [
+        makeThreadCommentRow({ commentId: "thread-1" }),
+        makeThreadCommentRow({ commentId: "cycle-a", parentCommentId: "cycle-b", baseScore: 100 }),
+        makeThreadCommentRow({ commentId: "cycle-b", parentCommentId: "cycle-a", baseScore: 100 }),
+        makeThreadCommentRow({ commentId: "self-cycle", parentCommentId: "self-cycle", baseScore: 100 }),
+        makeThreadCommentRow({ commentId: "connected", parentCommentId: "thread-1", baseScore: 1 }),
+      ],
+    });
+    expect(cardCommentIds(card)).toEqual(["connected", "thread-1"]);
+  });
+
   it("returns null when the thread root is not among the loaded rows", () => {
     expect(buildAiDigestThreadCard({
       threadId: "thread-1",
@@ -473,9 +489,36 @@ describe("AI digest thread selection clamping", () => {
     expect(clamped.selectedThreads).toEqual([{
       anchorCommentId: "thread-1-reply-1",
       contextCommentIds: [],
-      displayCommentIds: ["thread-1-reply-3", "thread-1-reply-2"],
+      displayCommentIds: ["thread-1-reply-2", "thread-1-reply-3"],
       reason: "New replies in a thread you commented in",
     }]);
+  });
+
+  it("keeps a connected prefix when reversed replies exceed the per-thread budget", () => {
+    const clamped = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [selection({
+        displayCommentIds: ["thread-1-reply-3", "thread-1-reply-2", "thread-1-reply-1"],
+      })],
+    }, makeClampCandidates());
+    expect(clamped.selectedThreads[0].displayCommentIds).toEqual([
+      "thread-1-reply-1", "thread-1-reply-2",
+    ]);
+  });
+
+  it("keeps the parent when only one reply fits in the remaining total budget", () => {
+    const candidates = makeClampCandidates();
+    candidates.threadAnnotationsById.delete("thread-3");
+    const clamped = clampAiDigestThreadSelectionOutput({
+      selectedThreads: [
+        selection({ displayCommentIds: ["thread-1-reply-1", "thread-1-reply-2"] }),
+        selection({ anchorCommentId: "thread-2" }),
+        selection({
+          anchorCommentId: "thread-3",
+          displayCommentIds: ["thread-3-reply-2", "thread-3-reply-1"],
+        }),
+      ],
+    }, candidates);
+    expect(clamped.selectedThreads[2].displayCommentIds).toEqual(["thread-3-reply-1"]);
   });
 
   it("drops display comments whose chain skips over an undisplayed parent", () => {
@@ -731,7 +774,6 @@ describe("AI digest thread merge into the spec", () => {
     revisionId: `revision-${index}`,
     title: `Candidate ${index}`,
     author: `Author ${index}`,
-    authorIds: [`author-${index}`],
     publicationDate: `2026-07-${String(index).padStart(2, "0")}T12:00:00.000Z`,
     baseScore: 20 + index,
     score: 1.5 + index,
@@ -743,11 +785,6 @@ describe("AI digest thread merge into the spec", () => {
     previousDigestInclusionCount: 0,
     lastIncludedAt: null,
     exclusionReason: null,
-    retrievalProvenance: {
-      source: "newsletterRecentPostsSql",
-      maxAgeDays: 14,
-      minKarma: 20,
-    },
     summary: `Summary for candidate ${index}. Long enough to be a valid reusable summary.`,
     summaryProvenance: {
       revisionId: `revision-${index}`,
@@ -817,9 +854,7 @@ describe("AI digest thread merge into the spec", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeOutput("quick-take-1"),
-      postCandidates,
-      quickTakeCandidates: [quickTake],
+      output: validateAiDigestPostSelectionOutput(makeOutput("quick-take-1"), postCandidates, [quickTake]),
     }).sections[0].items;
     expect(buildAiDigestDiscussionItems(selectedThreads, selectedItems)).toEqual([
       {
@@ -845,8 +880,7 @@ describe("AI digest thread merge into the spec", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeOutput(),
-      postCandidates,
+      output: validateAiDigestPostSelectionOutput(makeOutput(), postCandidates),
       selectedThreads,
     });
     const discussion = withThreads.sections.find((section) => section.kind === "discussion");
@@ -862,8 +896,7 @@ describe("AI digest thread merge into the spec", () => {
       recipientName: "Developer",
       modelLabel: "Test Model",
       personalInstructions: null,
-      output: makeOutput(),
-      postCandidates,
+      output: validateAiDigestPostSelectionOutput(makeOutput(), postCandidates),
       selectedThreads: [],
     });
     expect(withoutThreads.sections.some((section) => section.kind === "discussion")).toBe(false);
