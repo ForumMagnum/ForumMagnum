@@ -932,6 +932,15 @@ export async function updateUserNotesOnPostRejection({ newDocument, oldDocument,
 }
 
 export async function updateRecombeePost({ newDocument, oldDocument, context }: UpdateCallbackProperties<'Posts'>) {
+  // Rejected posts aren't recommendable, so the upsert below would skip them and leave any existing Recombee item in place.
+  // If the post is later unrejected, the upsert re-creates it.
+  if (newDocument.rejected && !oldDocument.rejected) {
+    if (recombeeEnabledSetting.get(context)) {
+      backgroundTask(recombeeApi.deletePosts([newDocument._id], context.forumType));
+    }
+    return;
+  }
+
   // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
