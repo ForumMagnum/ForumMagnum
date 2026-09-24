@@ -1,6 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
@@ -36,9 +37,18 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   },
   content: {
     padding: `0 ${24}px`,
+    // Stack both tabs' panels in the same grid cell, so that the dialog keeps
+    // the same size when switching between tabs
+    display: "grid",
     "& .MuiTypography-root": {
       color: theme.palette.text.normal,
     },
+  },
+  tabPanel: {
+    gridArea: "1 / 1",
+  },
+  hiddenTabPanel: {
+    visibility: "hidden",
   },
   tabbar: {
     marginBottom: 24
@@ -177,20 +187,9 @@ const SubscribeDialog = (props: {
     return currentUser && getUserEmail(currentUser) 
   }
 
-  const emailFeedExists = (view: string) => {
-    if (view === "curated") return true;
-    return false;
-  }
+  const [view, setView] = useState<keyof typeof viewNames>(props.view);
 
-  const [view, setView] = useState<keyof typeof viewNames>((props.method === "email" && !emailFeedExists(props.view)) ? "curated" : props.view);
-
-  const isAlreadySubscribed = () => {
-    if (view === "curated"
-        && currentUser
-        && currentUser.emailSubscribedToCurated)
-      return true;
-    return false;
-  }
+  const isAlreadySubscribed = !!currentUser?.emailSubscribedToCurated;
 
   const selectMethod = (method: string) => {
     setCopiedRSSLink(false);
@@ -213,24 +212,11 @@ const SubscribeDialog = (props: {
 
   const fullScreen = !useIsAboveBreakpoint('sm');
   const { onClose, open } = props;
-  const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
-    <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
-    <Select
-      value={view}
-      onChange={ event => selectView(event.target.value as keyof typeof viewNames) }
-      disabled={method === "email" && !currentUser}
-      inputProps={{ id: "subscribe-dialog-view" }}
-    >
-      {/* TODO: Forum digest */}
-      <MenuItem value="curated">Curated</MenuItem>
-      <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-      <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-    </Select>
-  </FormControl>
 
   return (
     <LWDialog
       fullScreen={fullScreen}
+      fullWidth
       open={open}
       onClose={onClose}
     >
@@ -247,8 +233,19 @@ const SubscribeDialog = (props: {
       </Tabs>
 
       <DialogContent className={classes.content}>
-        { method === "rss" && <React.Fragment>
-          {viewSelector}
+        <div className={classNames(classes.tabPanel, method !== "rss" && classes.hiddenTabPanel)}>
+          <FormControl className={classes.viewSelector}>
+            <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
+            <Select
+              value={view}
+              onChange={ event => selectView(event.target.value as keyof typeof viewNames) }
+              inputProps={{ id: "subscribe-dialog-view" }}
+            >
+              <MenuItem value="curated">Curated</MenuItem>
+              <MenuItem value="frontpage">Frontpage</MenuItem>
+              <MenuItem value="community">All Posts</MenuItem>
+            </Select>
+          </FormControl>
 
           {(view === "community" || view === "frontpage") && <div>
             <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
@@ -278,23 +275,20 @@ const SubscribeDialog = (props: {
             onFocus={autoselectRSSLink}
             onClick={autoselectRSSLink}
             value={rssTermsToUrl(rssTerms(), forumType)}
-            key="rssLinkTextField"
             fullWidth />
-        </React.Fragment> }
+        </div>
 
-        { method === "email" && [
-          viewSelector,
-          !!currentUser ? [
-              !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
-                Sorry, there's currently no email feed for {viewNames[view]}.
-              </DialogContentText>,
-              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
-                We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
-              </DialogContentText>
-            ] : <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
-              You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
-            </DialogContentText>
-        ] }
+        <div className={classNames(classes.tabPanel, method !== "email" && classes.hiddenTabPanel)}>
+          <DialogContentText>
+            Get an email whenever a post is added to Curated.
+          </DialogContentText>
+          {!currentUser && <DialogContentText className={classes.errorMsg}>
+            You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
+          </DialogContentText>}
+          {currentUser && subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText className={classes.infoMsg}>
+            We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
+          </DialogContentText>}
+        </div>
       </DialogContent>
       <DialogActions>
         { method === "rss" &&
@@ -308,15 +302,15 @@ const SubscribeDialog = (props: {
             <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
           </CopyToClipboard> }
         { method === "email" &&
-          (isAlreadySubscribed()
+          (isAlreadySubscribed
             ? <Button color="primary" disabled={true}>
-                You are already subscribed to this feed.
+                You are already subscribed to Curated.
               </Button>
             : <Button
                 color="primary"
                 onClick={ () => subscribeByEmail() }
-                disabled={!emailFeedExists(view) || subscribedByEmail || !currentUser}
-              >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button>
+                disabled={subscribedByEmail || !currentUser}
+              >{subscribedByEmail ? "Subscribed!" : "Subscribe to Curated"}</Button>
           )
         }
         <Button onClick={onClose}>Close</Button>
