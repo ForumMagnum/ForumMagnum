@@ -89,8 +89,9 @@ export function getModerationContentItems(
   return items.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 }
 
+/** Content by approved authors can be rejected too, not just unreviewed content */
 export function canRejectContent(item: ContentItem | null | undefined) {
-  return !!item && !item.rejected && item.authorIsUnreviewed;
+  return !!item && !item.rejected;
 }
 
 const CONTENT_TITLE_MAX_LENGTH = 25;
