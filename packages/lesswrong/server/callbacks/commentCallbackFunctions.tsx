@@ -939,6 +939,12 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
+  // Un-rejecting a comment never sends new-comment notifications. If the author
+  // was approved when it was posted, they were already sent then; if the author
+  // is still unreviewed, they'll be sent when the author is approved. The one
+  // case this misses (rejected while unreviewed, author approved, then
+  // un-rejected) gets no notifications, which beats sending duplicates.
+  if (oldComment.rejected && !comment.rejected) return;
   if (commentIsNotPublicForAnyReason(oldComment, context.forumType) && !commentIsNotPublicForAnyReason(comment, context.forumType)) {
     backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
