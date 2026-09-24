@@ -177,7 +177,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
     }, {
       id: 'lwAlbum',
       title: 'LW the Album',
-      link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
+      link: '/posts/hrZAvpLnBTgRhNmgk/you-have-not-been-a-good-user-lesswrong-s-second-album',
       subItem: true
     }, {
       id: 'leaderboard',
