@@ -1,33 +1,65 @@
 import "./integrationTestSetup";
 import { randomId } from "@/lib/random";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import CommentsRepo from "@/server/repos/CommentsRepo";
 import PostEmbeddingsRepo from "@/server/repos/PostEmbeddingsRepo";
+import PostsRepo from "@/server/repos/PostsRepo";
+import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
-import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHistory";
+import AiDigestSchedules from "@/server/collections/aiDigestSchedules/collection";
+import LWEvents from "@/server/collections/lwevents/collection";
+import UltraFeedEvents from "@/server/collections/ultraFeedEvents/collection";
+import Users from "@/server/collections/users/collection";
+import { clearAiDigestRecommendationHistory, loadAiDigestHistory } from "@/server/aiDigest/aiDigestHistory";
+import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
+import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 // Raw fixtures deliberately bypass callbacks: these tests exercise query eligibility,
 // not publishing, notifications, embedding generation, or provider calls.
 async function insertPost({
   id = randomId(),
   postedAt = new Date(),
+  userId = "digest-test-author",
+  coauthorUserIds = [],
   shortform = false,
   draft = false,
   unlisted = false,
+  onlyVisibleToEstablishedAccounts = false,
+  disableRecommendation = false,
 }: {
   id?: string;
   postedAt?: Date;
+  userId?: string;
+  coauthorUserIds?: string[];
   shortform?: boolean;
   draft?: boolean;
   unlisted?: boolean;
+  onlyVisibleToEstablishedAccounts?: boolean;
+  disableRecommendation?: boolean;
 } = {}): Promise<string> {
   await getSqlClientOrThrow().none(`
     INSERT INTO "Posts" (
       "_id", slug, title, "postedAt", "lastCommentedAt", status, "isFuture",
-      "userId", "baseScore", "maxBaseScore", shortform, draft, unlisted
-    ) VALUES ($1, $1, $1, $2, $2, 2, FALSE, 'digest-test-author', 50, 50, $3, $4, $5)
-  `, [id, postedAt, shortform, draft, unlisted]);
+      "userId", "coauthorUserIds", "baseScore", "maxBaseScore", shortform, draft, unlisted,
+      "onlyVisibleToEstablishedAccounts", "disableRecommendation", "contents_latest"
+    ) VALUES ($1, $1, $1, $2, $2, 2, FALSE, $3, $4, 50, 50, $5, $6, $7, $8, $9, $1)
+  `, [id, postedAt, userId, coauthorUserIds, shortform, draft, unlisted, onlyVisibleToEstablishedAccounts, disableRecommendation]);
   return id;
+}
+
+async function insertUser({ isAdmin = false, emailSubscribedToAiDigest = false } = {}): Promise<DbUser> {
+  const id = randomId();
+  const email = `${id}@example.com`;
+  await getSqlClientOrThrow().none(`
+    INSERT INTO "Users" ("_id", slug, username, "displayName", "abTestKey", email, emails, "isAdmin", "emailSubscribedToAiDigest")
+    VALUES ($1, $1, $1, $1, $1, $2, ARRAY[$3::JSONB], $4, $5)
+  `, [id, email, { address: email, verified: true }, isAdmin, emailSubscribedToAiDigest]);
+  const user = await Users.findOne(id);
+  if (!user) throw new Error("Failed to insert test user");
+  return user;
 }
 
 it("includes public shortform discussions in both pools while excluding private and deleted content", async () => {
@@ -104,4 +136,138 @@ it("clears only recommendation participation and retains sent issues", async () 
   expect(issue?.trigger).toBe("scheduled");
   expect((await AiDigestIssues.findOne(oldId))?.countsTowardHistory).toBe(true);
   expect((await AiDigestIssues.findOne(otherId))?.countsTowardHistory).toBe(true);
+});
+
+async function recordSeeLess(userId: string, documentId: string, { cancelled = false } = {}) {
+  await UltraFeedEvents.rawInsert({
+    userId,
+    documentId,
+    collectionName: "Posts",
+    eventType: "seeLess",
+    event: { feedbackReasons: { topic: true }, cancelled },
+    feedItemId: null,
+  });
+}
+
+it("never offers readers their own, hidden, see-less or restricted posts", async () => {
+  const reader = await insertUser();
+  const eligible = await insertPost();
+  const withCancelledSeeLess = await insertPost();
+  const excluded = [
+    await insertPost({ userId: reader._id }),
+    await insertPost({ coauthorUserIds: [reader._id] }),
+    await insertPost({ draft: true }),
+    await insertPost({ unlisted: true }),
+    await insertPost({ onlyVisibleToEstablishedAccounts: true }),
+    await insertPost({ disableRecommendation: true }),
+  ];
+  const hidden = await insertPost();
+  const seenLess = await insertPost();
+  await Users.rawUpdateOne({ _id: reader._id }, { $set: { hiddenPostsMetadata: [{ postId: hidden }] } });
+  await recordSeeLess(reader._id, seenLess);
+  await recordSeeLess(reader._id, withCancelledSeeLess, { cancelled: true });
+
+  const candidates = await new PostsRepo().getAiDigestPostCandidates({
+    userId: reader._id,
+    aboutPostId: randomId(),
+    minKarma: 20,
+    postIds: [eligible, withCancelledSeeLess, ...excluded, hidden, seenLess],
+  });
+  expect(candidates.map((candidate) => candidate.postId).sort()).toEqual([eligible, withCancelledSeeLess].sort());
+});
+
+it("doesn't let a run claim a reader that another run is claiming", async () => {
+  const reader = await insertUser({ isAdmin: true, emailSubscribedToAiDigest: true });
+  const repo = new AiDigestSchedulesRepo();
+  await repo.addMissingSchedules();
+  const claimAll = () => repo.claimDueSchedules({ limit: 1_000, claimDurationMs: 60_000 });
+  const claimsReader = (claims: DbAiDigestSchedule[]) => claims.some((schedule) => schedule.userId === reader._id);
+
+  // Another run's claim, left uncommitted while this run claims.
+  const otherRun = getSqlClientOrThrow().tx(async (transaction) => {
+    await transaction.none(`
+      UPDATE "AiDigestSchedules" SET "claimedUntil" = NOW() + INTERVAL '1 hour' WHERE "userId" = $1
+    `, [reader._id]);
+    await sleep(500);
+  });
+  await sleep(100);
+  const claims = await claimAll();
+  await otherRun;
+  expect(claimsReader(claims)).toBe(false);
+
+  // A claim held by a run that died lapses, and the reader can be claimed again.
+  await AiDigestSchedules.rawUpdateOne({ userId: reader._id }, { $set: { claimedUntil: new Date(Date.now() - 1_000) } });
+  expect(claimsReader(await claimAll())).toBe(true);
+});
+
+it("attributes a visit from a digest email link to the recommendation it was for", async () => {
+  const reader = await insertUser();
+  const [first, second, curated] = [await insertPost(), await insertPost(), await insertPost()];
+  const spec: AiDigestSpec = {
+    recipientName: reader.displayName,
+    subject: "Subject",
+    preheader: "Preheader",
+    aiNote: { modelName: "Model", paragraphs: ["Note"] },
+    sections: [
+      {
+        kind: "recommendations",
+        items: [
+          { documentRef: { documentType: "post", documentId: first }, placement: "headline", reason: "Reason" },
+          { documentRef: { documentType: "post", documentId: second }, placement: "compact", reason: "Reason" },
+        ],
+      },
+      {
+        kind: "curated",
+        title: "Recently curated",
+        items: [{ documentRef: { documentType: "post", documentId: curated }, placement: "quiet" }],
+      },
+    ],
+  };
+  const issueId = await AiDigestIssues.rawInsert({
+    recipientId: reader._id,
+    trigger: "scheduled",
+    countsTowardHistory: true,
+    spec,
+    emailedAt: null,
+  });
+  const email = await wrapAndRenderEmail({
+    forumType: "LessWrong",
+    user: reader,
+    to: reader.email ?? "",
+    subject: spec.subject,
+    body: aiDigestEmailBody(spec, issueId),
+    utmParams: AI_DIGEST_UTM_PARAMS,
+  });
+  const titleLinks = [...email.html.matchAll(/href="([^"]+)"/g)]
+    .map((match) => new URL(match[1].replace(/&amp;/g, "&")))
+    .filter((url) => url.searchParams.get("utm_content")?.endsWith(".title"));
+  const titleLinkTo = (postId: string) => {
+    const link = titleLinks.find((url) => url.pathname.includes(postId));
+    if (!link) throw new Error(`No title link to ${postId}`);
+    return link;
+  };
+
+  // Visit the second recommendation and the curated post from their title
+  // links, recording the links' UTM parameters as the post page does.
+  for (const [postId, link] of [[second, titleLinkTo(second)], [curated, titleLinkTo(curated)]] as const) {
+    await LWEvents.rawInsert({
+      name: "post-view",
+      userId: reader._id,
+      documentId: postId,
+      important: false,
+      intercom: false,
+      properties: {
+        utmCampaign: link.searchParams.get("utm_campaign"),
+        utmContent: link.searchParams.get("utm_content"),
+      },
+    });
+  }
+
+  const history = await loadAiDigestHistory(reader._id, computeContextFromUser({ user: reader, isSSR: false }));
+  const clickedByTitle = Object.fromEntries(history.pastRecommendations.map((recommendation) => [
+    recommendation.type === "post" ? recommendation.title : recommendation.snippet,
+    recommendation.recommendations.some((event) => !!event.clickedAt),
+  ]));
+  // Post titles are their IDs; the curated post isn't a recommendation, so it has no history.
+  expect(clickedByTitle).toEqual({ [first]: false, [second]: true });
 });
