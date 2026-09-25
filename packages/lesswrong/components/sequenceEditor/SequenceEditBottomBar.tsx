@@ -40,9 +40,6 @@ const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.greyAlpha(0.55),
   },
-  statusError: {
-    color: theme.palette.error.main,
-  },
   actions: {
     display: "flex",
     alignItems: "center",
@@ -73,15 +70,17 @@ const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
 }));
 
 const statusLabels: Record<SaveStatus, string> = {
-  idle: "Changes save as you go",
+  idle: "",
   saving: "Saving…",
   saved: "Saved",
-  error: "Couldn't save your last change",
+  error: "",
 };
 
 /**
  * The bar fixed to the bottom of the page in edit mode: save status, the
- * settings button, and Publish or Move to Drafts. Those two include any
+ * settings button, and Publish or Move to Drafts. Like the account settings
+ * page, the status says nothing until something saves, then "Saving…" and
+ * "Saved"; a failed save is reported by the save queue's flash message. Those two include any
  * unsaved description changes in the same update, so the two can't get out
  * of step. Its dialogs are rendered here rather than through openDialog so
  * they stay inside the sequence editor's context.
@@ -115,7 +114,7 @@ const SequenceEditBottomBar = () => {
       }}
     />}
     {deleteOpen && <SequenceDeleteDialog onClose={() => setDeleteOpen(false)} />}
-    <span className={saveStatus === "error" ? classes.statusError : classes.status}>
+    <span className={classes.status}>
       {statusLabels[saveStatus]}
     </span>
     <div className={classes.actions}>
