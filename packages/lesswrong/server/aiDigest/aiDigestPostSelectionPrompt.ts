@@ -8,7 +8,7 @@ import {
 import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
 import type { AiDigestPastRecommendation } from "./aiDigestHistory";
 import { aiDigestPromptSection } from "./aiDigestModelCalls";
-import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
+import { aiDigestReaderPromptSections, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 
 export const AI_DIGEST_POST_SELECTION_PROMPT_VERSION = "ai-digest-post-selection-v20";
 
@@ -125,25 +125,13 @@ export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, p
       label: "CANDIDATE_QUICK_TAKES",
       value: quickTakes,
     }),
+    ...aiDigestReaderPromptSections(profile, personalInstructions),
     aiDigestPromptSection({
-      heading: "Reader profile",
-      note: `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
-      label: "READER_PROFILE",
-      value: profile,
+      heading: "Past recommendation outcomes",
+      label: "PAST_RECOMMENDATIONS",
+      value: pastRecommendations,
     }),
   ];
-  if (personalInstructions) {
-    sections.push(aiDigestPromptSection({
-      heading: "Reader's explicit content preferences",
-      label: "READER_INSTRUCTIONS",
-      value: personalInstructions,
-    }));
-  }
-  sections.push(aiDigestPromptSection({
-    heading: "Past recommendation outcomes",
-    label: "PAST_RECOMMENDATIONS",
-    value: pastRecommendations,
-  }));
   return {
     system: `${AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT}\n\nRuntime prompt version: ${AI_DIGEST_POST_SELECTION_PROMPT_VERSION}`,
     prompt: sections.join("\n\n"),

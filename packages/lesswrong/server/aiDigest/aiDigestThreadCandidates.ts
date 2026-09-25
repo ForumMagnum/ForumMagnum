@@ -1,5 +1,7 @@
 import type { AiDigestThreadCommentRow } from "@/server/repos/CommentsRepo";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import groupBy from "lodash/groupBy";
+import sumBy from "lodash/sumBy";
 import uniq from "lodash/uniq";
 import { aiDigestCandidateWindowStart } from "./aiDigestCandidates";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
@@ -57,6 +59,27 @@ function compareByReaderFlagThenKarma(first: AiDigestThreadCommentRow, second: A
     || first.commentId.localeCompare(second.commentId);
 }
 
+function compareByPostedAt(first: AiDigestThreadCommentRow, second: AiDigestThreadCommentRow): number {
+  return first.postedAt.getTime() - second.postedAt.getTime() || first.commentId.localeCompare(second.commentId);
+}
+
+function unshownAncestry(
+  row: AiDigestThreadCommentRow,
+  rowsById: Map<string, AiDigestThreadCommentRow>,
+  shownIds: Set<string>,
+): string[] | null {
+  const ancestry: string[] = [];
+  let current: AiDigestThreadCommentRow | undefined = row;
+  while (current && !shownIds.has(current.commentId)) {
+    if (ancestry.includes(current.commentId)) {
+      return null;
+    }
+    ancestry.push(current.commentId);
+    current = current.parentCommentId ? rowsById.get(current.parentCommentId) : undefined;
+  }
+  return current ? ancestry : null;
+}
+
 /**
  * The comments of a thread to show the model, in priority order: the root for
  * orientation, then comments the reader wrote, liked or hasn't seen, then
@@ -64,40 +87,35 @@ function compareByReaderFlagThenKarma(first: AiDigestThreadCommentRow, second: A
  * parents is included too, so it can be read in context; a comment whose chain
  * doesn't fit in the budget, or doesn't resolve, is skipped.
  */
-function aiDigestThreadCardComments(threadId: string, rows: AiDigestThreadCommentRow[]): AiDigestThreadCardComment[] {
+function shownComments(threadId: string, rows: AiDigestThreadCommentRow[]): AiDigestThreadCardComment[] {
   const rowsById = new Map(rows.map((row) => [row.commentId, row]));
-  const selectedIds = new Set<string>([threadId]);
-  for (const row of rows.filter(({ commentId }) => commentId !== threadId).sort(compareByReaderFlagThenKarma)) {
-    const missingIds: string[] = [];
-    let current: AiDigestThreadCommentRow | undefined = row;
-    while (current && !selectedIds.has(current.commentId) && !missingIds.includes(current.commentId)) {
-      missingIds.push(current.commentId);
-      current = current.parentCommentId ? rowsById.get(current.parentCommentId) : undefined;
-    }
-    const chainResolves = !!current && selectedIds.has(current.commentId);
-    if (chainResolves && selectedIds.size + missingIds.length <= CARD_COMMENT_LIMIT) {
-      missingIds.forEach((id) => selectedIds.add(id));
+  const shownIds = new Set([threadId]);
+  const rowsByPriority = rows.filter((row) => row.commentId !== threadId).sort(compareByReaderFlagThenKarma);
+  for (const row of rowsByPriority) {
+    const ancestry = unshownAncestry(row, rowsById, shownIds);
+    if (ancestry && shownIds.size + ancestry.length <= CARD_COMMENT_LIMIT) {
+      ancestry.forEach((commentId) => shownIds.add(commentId));
     }
   }
   return rows
-    .filter((row) => selectedIds.has(row.commentId))
-    .sort((first, second) => first.postedAt.getTime() - second.postedAt.getTime() || first.commentId.localeCompare(second.commentId))
+    .filter((row) => shownIds.has(row.commentId))
+    .sort(compareByPostedAt)
     .map(toCardComment);
 }
 
-/** Aggregate history across a thread's comments: any of them may have anchored an earlier issue's thread. */
+/** Any of a thread's comments may have anchored an earlier issue's thread. */
 function threadPreviousInclusion(
   rows: AiDigestThreadCommentRow[],
   previousInclusions: Map<string, AiDigestPreviousInclusion>,
 ): AiDigestPreviousInclusion | undefined {
-  return rows.reduce<AiDigestPreviousInclusion | undefined>((total, { commentId }) => {
-    const inclusion = previousInclusions.get(commentId);
-    if (!inclusion) return total;
-    return {
-      count: (total?.count ?? 0) + inclusion.count,
-      lastIncludedAt: total && total.lastIncludedAt > inclusion.lastIncludedAt ? total.lastIncludedAt : inclusion.lastIncludedAt,
-    };
-  }, undefined);
+  const inclusions = filterNonnull(rows.map((row) => previousInclusions.get(row.commentId)));
+  if (inclusions.length === 0) {
+    return undefined;
+  }
+  return {
+    count: sumBy(inclusions, (inclusion) => inclusion.count),
+    lastIncludedAt: new Date(Math.max(...inclusions.map((inclusion) => inclusion.lastIncludedAt.getTime()))),
+  };
 }
 
 function toThreadCard(
@@ -110,7 +128,7 @@ function toThreadCard(
   if (!root || rows.some((row) => row.seesLess)) {
     return null;
   }
-  const comments = aiDigestThreadCardComments(threadId, rows);
+  const comments = shownComments(threadId, rows);
   const previousDigest = threadPreviousInclusion(rows, previousInclusions);
   // A thread that already ran is offered again only if the discussion has moved on since.
   if (previousDigest && !comments.some((comment) => comment.postedAt > previousDigest.lastIncludedAt)) {
@@ -149,8 +167,5 @@ export async function loadAiDigestThreadCards(
     perThreadLimit: COMMENT_LOAD_LIMIT,
   });
   const rowsByThreadId = groupBy(rows, (row) => row.threadId);
-  return threadIds.flatMap((threadId) => {
-    const card = toThreadCard(threadId, rowsByThreadId[threadId] ?? [], previousInclusions);
-    return card ? [card] : [];
-  });
+  return filterNonnull(threadIds.map((threadId) => toThreadCard(threadId, rowsByThreadId[threadId] ?? [], previousInclusions)));
 }

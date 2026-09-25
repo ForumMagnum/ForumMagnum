@@ -5,9 +5,10 @@ import type {
   AiDigestReaderReadStats,
   AiDigestReaderRecentPostRow,
 } from "@/server/repos/PostsRepo";
+import { aiDigestPromptSection } from "./aiDigestModelCalls";
 
 /** The window, in days, over which affinities and recent interactions are gathered. */
-export const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
+const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
 const RECENT_POSTS_PER_KIND = 20;
 const AFFINITY_LIMIT = 15;
 const NEGATIVE_PREFERENCE_LIMIT = 20;
@@ -49,4 +50,21 @@ export async function loadAiDigestReaderProfile(
     followedAuthors,
     negativePreferences,
   };
+}
+
+export function aiDigestReaderPromptSections(profile: AiDigestReaderProfile, personalInstructions: string | null): string[] {
+  const sections = [aiDigestPromptSection({
+    heading: "Reader profile",
+    note: `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
+    label: "READER_PROFILE",
+    value: profile,
+  })];
+  if (personalInstructions) {
+    sections.push(aiDigestPromptSection({
+      heading: "Reader's explicit content preferences",
+      label: "READER_INSTRUCTIONS",
+      value: personalInstructions,
+    }));
+  }
+  return sections;
 }

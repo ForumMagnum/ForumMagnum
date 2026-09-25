@@ -5,6 +5,7 @@ import {
   aiDigestGatewayProviderOptions,
   aiDigestModelCallRecord,
   aiDigestUserMessage,
+  assertAiDigestModelFinished,
   decodeStrayUnicodeEscapes,
 } from "./aiDigestModelCalls";
 import type { AiDigestReaderProfile } from "./aiDigestReaderProfile";
@@ -82,34 +83,33 @@ function sanitizedReason(reason: string): string | null {
  * anchor in the same thread, or anything past the comment budget) are dropped
  * rather than failing the issue.
  */
-function aiDigestSelectedThreads(
-  selections: Array<{ anchorCommentId: string; reason: string }>,
+function selectedThreads(
+  picks: Array<{ anchorCommentId: string; reason: string }>,
   cards: AiDigestThreadCard[],
 ): AiDigestSelectedThread[] {
-  const cardsByCommentId = new Map<string, AiDigestThreadCard>();
-  for (const card of cards) {
-    for (const comment of card.comments) {
-      cardsByCommentId.set(comment.commentId, card);
-    }
-  }
-  const usedThreadIds = new Set<string>();
+  const threads: AiDigestSelectedThread[] = [];
+  const shownThreadIds = new Set<string>();
   let remainingComments = MAX_SHOWN_COMMENTS;
-  return selections.flatMap(({ anchorCommentId, reason }) => {
-    const card = cardsByCommentId.get(anchorCommentId);
-    const commentsById = new Map(card?.comments.map((comment) => [comment.commentId, comment]));
-    const anchor = commentsById.get(anchorCommentId);
-    if (!card || !anchor || anchor.anchorIneligible || usedThreadIds.has(card.threadId) || remainingComments < 1) {
-      return [];
+  for (const { anchorCommentId, reason } of picks) {
+    if (remainingComments === 0) {
+      break;
     }
-    usedThreadIds.add(card.threadId);
+    const card = cards.find((candidate) => candidate.comments.some((comment) => comment.commentId === anchorCommentId));
+    const anchor = card?.comments.find((comment) => comment.commentId === anchorCommentId);
+    if (!card || !anchor || anchor.anchorIneligible || shownThreadIds.has(card.threadId)) {
+      continue;
+    }
+    const commentsById = new Map(card.comments.map((comment) => [comment.commentId, comment]));
     const replies = replyIds(card, anchorCommentId, Math.min(MAX_REPLIES_PER_THREAD, remainingComments - 1));
-    remainingComments -= 1 + replies.length;
-    return [{
+    threads.push({
       anchorCommentId,
       commentIds: [...contextCommentIds(anchor, commentsById), anchorCommentId, ...replies],
       reason: sanitizedReason(reason),
-    }];
-  });
+    });
+    shownThreadIds.add(card.threadId);
+    remainingComments -= 1 + replies.length;
+  }
+  return threads;
 }
 
 export async function selectAiDigestThreads({ profile, cards, personalInstructions, asOf }: {
@@ -133,14 +133,9 @@ export async function selectAiDigestThreads({ profile, cards, personalInstructio
     // this needs headroom well beyond the size of the output object itself.
     maxOutputTokens: 10_000,
   });
-  if (result.finishReason !== "stop") {
-    throw new Error(
-      `AI digest thread selection stopped with finish reason ${result.finishReason} after `
-      + `${result.totalUsage.outputTokens ?? 0} output tokens`,
-    );
-  }
+  assertAiDigestModelFinished(result, "thread selection");
   return {
-    threads: aiDigestSelectedThreads(result.output.selectedThreads, cards),
+    threads: selectedThreads(result.output.selectedThreads, cards),
     call: aiDigestModelCallRecord({
       purpose: "thread-selection",
       modelId: AI_DIGEST_MODEL_ID,

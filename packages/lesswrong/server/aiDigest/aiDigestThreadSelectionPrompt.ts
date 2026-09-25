@@ -1,5 +1,5 @@
-import { aiDigestPromptJson } from "./aiDigestModelCalls";
-import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
+import { aiDigestPromptSection } from "./aiDigestModelCalls";
+import { aiDigestReaderPromptSections, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 import type { AiDigestThreadCard } from "./aiDigestThreadCandidates";
 
 export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v6";
@@ -63,31 +63,18 @@ export function buildAiDigestThreadSelectionPrompt({ profile, cards, personalIns
   personalInstructions: string | null;
   asOf: Date;
 }): { system: string; prompt: string } {
-  const prompt = [
-    "# Candidate threads",
-    "Recent comment threads, with a selection of each one's comments, oldest first. A `truncated` comment body was cut at the length limit. "
-      + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
-    "<UNTRUSTED_CANDIDATE_THREADS>",
-    aiDigestPromptJson(cards),
-    "</UNTRUSTED_CANDIDATE_THREADS>",
-    "",
-    "# Reader profile",
-    `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
-    "<UNTRUSTED_READER_PROFILE>",
-    aiDigestPromptJson(profile),
-    "</UNTRUSTED_READER_PROFILE>",
-    ...(personalInstructions
-      ? [
-        "",
-        "# Reader's explicit content preferences",
-        "<UNTRUSTED_READER_INSTRUCTIONS>",
-        JSON.stringify(personalInstructions),
-        "</UNTRUSTED_READER_INSTRUCTIONS>",
-      ]
-      : []),
-  ].join("\n");
+  const sections = [
+    aiDigestPromptSection({
+      heading: "Candidate threads",
+      note: "Recent comment threads, with a selection of each one's comments, oldest first. A `truncated` comment body was cut at the length limit. "
+        + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
+      label: "CANDIDATE_THREADS",
+      value: cards,
+    }),
+    ...aiDigestReaderPromptSections(profile, personalInstructions),
+  ];
   return {
     system: `${AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT}\n\nRuntime prompt version: ${AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION}`,
-    prompt,
+    prompt: sections.join("\n\n"),
   };
 }
