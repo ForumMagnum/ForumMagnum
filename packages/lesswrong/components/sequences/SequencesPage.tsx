@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import qs from 'qs';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
@@ -197,6 +197,12 @@ const SequencesPage = ({documentId}: {
 
   const canEdit = !!document && (userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document)));
   const editing = canEdit && query.edit === "true";
+  // Once the sequence has been edited on this page, the cached chapter list
+  // is out of date, so reading mode reloads it.
+  const [hasEdited, setHasEdited] = useState(editing);
+  useEffect(() => {
+    if (editing) setHasEdited(true);
+  }, [editing]);
 
   const { data: editDocument } = useQuery(SequencesEditQuery, {
     variables: { documentId: documentId },
@@ -304,7 +310,7 @@ const SequencesPage = ({documentId}: {
             {editing
               ? <SequenceEditChapters sequenceId={document._id} />
               : <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-                  <ChaptersList sequenceId={document._id} />
+                  <ChaptersList sequenceId={document._id} fetchFresh={hasEdited} />
                 </AnalyticsContext>
             }
           </div>
@@ -314,9 +320,11 @@ const SequencesPage = ({documentId}: {
     </div>
   </AnalyticsContext>;
 
-  return editing && editableDocument
-    ? <SequenceEditorProvider sequence={editableDocument}>{page}</SequenceEditorProvider>
-    : page;
+  // Always rendered (with no sequence outside edit mode), so switching modes
+  // doesn't remount the page.
+  return <SequenceEditorProvider sequence={editing ? editableDocument ?? null : null}>
+    {page}
+  </SequenceEditorProvider>;
 }
 
 export default SequencesPage

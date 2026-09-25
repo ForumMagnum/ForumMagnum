@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import classNames from "classnames";
 import uniqBy from "lodash/uniqBy";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -275,7 +274,7 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
         <ForumIcon icon="Close" className={classes.closeIcon} />
       </button>
     </div>
-    <div className={classNames(classes.results)}>
+    <div className={classes.results}>
       {renderResults()}
     </div>
   </div>;

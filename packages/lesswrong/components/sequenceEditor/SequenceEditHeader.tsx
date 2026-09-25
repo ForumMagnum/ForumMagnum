@@ -113,7 +113,7 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
  * saved, so this only asks when the description has unsaved changes.
  */
 export const DoneEditingButton = ({ className, onDone }: { className?: string, onDone: () => void }) => {
-  const { saveSequenceNow, drainSaves, descriptionDraftRef, descriptionIsDirty } = useSequenceEditor();
+  const { saveSequenceNow, drainSaves, descriptionDraftRef } = useSequenceEditor();
   const [asking, setAsking] = useState(false);
 
   const saveAndLeave = async () => {
@@ -128,19 +128,25 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
     onDone();
   };
 
-  const leave = async () => {
+  // Asks the editor itself rather than trusting the live "unsaved" flag,
+  // which can lag a few seconds behind typing.
+  const requestLeave = async () => {
+    if (await descriptionDraftRef.current?.getUnsavedContents()) {
+      setAsking(true);
+      return;
+    }
     await drainSaves();
     onDone();
   };
 
   return <>
-    <a className={className} onClick={() => descriptionIsDirty ? setAsking(true) : void leave()}>Done editing</a>
+    <a className={className} onClick={() => void requestLeave()}>Done editing</a>
     {asking && <LWDialog open onClose={() => setAsking(false)}>
       <DialogTitle>Save your description changes?</DialogTitle>
       <DialogContent>Everything else is already saved.</DialogContent>
       <DialogActions>
         <Button onClick={() => setAsking(false)}>Keep editing</Button>
-        <Button onClick={() => { descriptionDraftRef.current?.markSaved(); onDone(); }}>Don't save</Button>
+        <Button onClick={() => { descriptionDraftRef.current?.discard(); onDone(); }}>Don't save</Button>
         <Button color="primary" onClick={() => void saveAndLeave()}>Save</Button>
       </DialogActions>
     </LWDialog>}

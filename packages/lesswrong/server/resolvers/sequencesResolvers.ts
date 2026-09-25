@@ -1,7 +1,6 @@
 import gql from "graphql-tag";
-import { editCheck as sequenceEditCheck } from "@/server/collections/sequences/mutations";
+import { editCheck as sequenceEditCheck, invalidateSequencePostPages } from "@/server/collections/sequences/mutations";
 import { canonizeChapterPostInfo } from "@/server/callbacks/chapterCallbacks";
-import { invalidatePostPageCache } from "@/server/postPageCache/invalidatePostPageCache";
 import { throwError } from "@/server/vulcan-lib/errors";
 
 export const sequencesResolversTypeDefs = gql`
@@ -87,7 +86,8 @@ export const sequencesResolversMutations = {
     await context.Chapters.rawUpdateOne({ _id: toChapterId }, { $set: { postIds: newToPostIds } });
     await markSequenceUpdated(sequenceId, context);
     await canonizeChapterPostInfo({ ...toChapter, postIds: newToPostIds }, context);
-    await invalidatePostPageCache([postId]);
+    // Neighbouring posts' previous/next links change too, not just the moved post's.
+    await invalidateSequencePostPages(sequenceId, context);
     return true;
   },
 };

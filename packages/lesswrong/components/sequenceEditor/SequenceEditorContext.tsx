@@ -22,6 +22,8 @@ export interface DescriptionDraftHandle {
   getUnsavedContents: () => Promise<UpdateSequenceDataInput["contents"] | undefined>;
   /** Call after the unsaved description has been saved some other way. */
   markSaved: () => void;
+  /** Throws away the unsaved description's browser backup (when leaving without saving). */
+  discard: () => void;
 }
 
 interface SequenceEditorContextValue {
@@ -43,8 +45,13 @@ interface SequenceEditorContextValue {
 
 const SequenceEditorContext = createContext<SequenceEditorContextValue | null>(null);
 
+/**
+ * Provides the editor's save queue and state to the edit-mode components.
+ * With no sequence (reading mode) it provides nothing; it stays mounted so
+ * that switching modes doesn't remount the page.
+ */
 export const SequenceEditorProvider = ({ sequence, children }: {
-  sequence: SequencesEdit,
+  sequence: SequencesEdit | null,
   children: React.ReactNode,
 }) => {
   const { enqueue, drain, status } = useSequentialSaveQueue();
@@ -52,7 +59,10 @@ export const SequenceEditorProvider = ({ sequence, children }: {
   const descriptionDraftRef = useRef<DescriptionDraftHandle | null>(null);
   const [descriptionIsDirty, setDescriptionIsDirty] = useState(false);
 
-  const value = useMemo((): SequenceEditorContextValue => {
+  const value = useMemo((): SequenceEditorContextValue | null => {
+    if (!sequence) {
+      return null;
+    }
     const updateSequence = (data: UpdateSequenceDataInput, rollback: () => void = () => {}) => enqueue(
       () => updateSequenceMutation({ variables: { selector: { _id: sequence._id }, data } }),
       rollback,

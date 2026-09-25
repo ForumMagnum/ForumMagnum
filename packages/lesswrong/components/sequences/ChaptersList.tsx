@@ -15,8 +15,14 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const ChaptersList = ({sequenceId}: {
+const ChaptersList = ({sequenceId, fetchFresh = false}: {
   sequenceId: string,
+  /**
+   * Skip cached (and server-rendered) chapters and load them from the server.
+   * Used after the sequence has been edited on this page, since the editor
+   * changes chapters in ways the cached list doesn't reflect.
+   */
+  fetchFresh?: boolean,
 }) => {
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
@@ -24,6 +30,7 @@ const ChaptersList = ({sequenceId}: {
       limit: 100,
       enableTotal: false,
     },
+    fetchPolicy: fetchFresh ? "network-only" : undefined,
     notifyOnNetworkStatusChange: true,
   });
 

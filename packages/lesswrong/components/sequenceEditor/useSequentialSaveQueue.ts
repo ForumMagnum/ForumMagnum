@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import { useMessages } from "../common/withMessages";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -56,10 +56,14 @@ export function createSaveQueue({ onStatusChange, onError }: {
  */
 export function useSequentialSaveQueue(): SaveQueue & { status: SaveStatus } {
   const { flash } = useMessages();
+  const flashRef = useRef(flash);
+  flashRef.current = flash;
   const [status, setStatus] = useState<SaveStatus>("idle");
-  const queue = useMemo(() => createSaveQueue({
+  // One queue for the component's lifetime (useState, not useMemo, which
+  // React may discard); a new queue would lose the ordering guarantee.
+  const [queue] = useState(() => createSaveQueue({
     onStatusChange: setStatus,
-    onError: (error) => flash({ messageString: `Couldn't save your change: ${error.message}`, type: "error" }),
-  }), [flash]);
+    onError: (error) => flashRef.current({ messageString: `Couldn't save your change: ${error.message}`, type: "error" }),
+  }));
   return { enqueue: queue.enqueue, drain: queue.drain, status };
 }
