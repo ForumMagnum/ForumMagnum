@@ -1,6 +1,6 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { ensureAiDigestPostTextCache, type AiDigestPostTextCacheTarget } from "./aiDigestPostTextCache";
-import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
+import { collapseAiDigestWhitespace, truncateAiDigestText } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { htmlToTextDefault } from "@/lib/htmlToText";
@@ -9,8 +9,9 @@ import PostSummaries from "@/server/collections/postSummaries/collection";
 import { aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
 
 const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
-const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5.1";
-const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 900;
+const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-opus-5.5";
+/** Summaries past this are truncated rather than rejected; the prompt asks for about 100 words. */
+const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 1_200;
 const AI_DIGEST_POST_SUMMARY_MIN_LENGTH = 40;
 
 const AI_DIGEST_POST_SUMMARY_MAX_INPUT_LENGTH = 24_000;
@@ -18,9 +19,7 @@ const AI_DIGEST_POST_SUMMARY_MIN_INPUT_LENGTH = 200;
 export const AI_DIGEST_SELECTION_READ_POST_MAX_CHARS = 15_000;
 
 const summaryOutputSchema = z.object({
-  summary: z.string()
-    .min(AI_DIGEST_POST_SUMMARY_MIN_LENGTH)
-    .max(AI_DIGEST_POST_SUMMARY_MAX_LENGTH),
+  summary: z.string(),
 });
 
 const POST_SUMMARY_SYSTEM_PROMPT = `You are summarizing LessWrong posts chiefly for use by an LLM recommender system. You want to accurately compress the content of the post to aid the recommender in deciding whether a post will be of interest to a user or not. Consider which information is not already conveyed by the title of the post but is key to knowing what the post is about.
@@ -42,12 +41,9 @@ interface AiDigestPostSummaryRecord extends AiDigestPostTextCacheTarget {
 }
 
 function normalizePostSummary(summary: string, postId: string): string {
-  const normalizedSummary = collapseAiDigestWhitespace(summary);
-  if (
-    normalizedSummary.length < AI_DIGEST_POST_SUMMARY_MIN_LENGTH
-    || normalizedSummary.length > AI_DIGEST_POST_SUMMARY_MAX_LENGTH
-  ) {
-    throw new Error(`Summary length was invalid for post ${postId}`);
+  const normalizedSummary = truncateAiDigestText(summary, AI_DIGEST_POST_SUMMARY_MAX_LENGTH);
+  if (normalizedSummary.length < AI_DIGEST_POST_SUMMARY_MIN_LENGTH) {
+    throw new Error(`Summary was too short for post ${postId}`);
   }
   return normalizedSummary;
 }
@@ -157,13 +153,11 @@ export async function ensureAiDigestPostSummaries<Candidate extends AiDigestPost
   context,
   modelId = AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
   promptVersion = AI_DIGEST_POST_SUMMARY_PROMPT_VERSION,
-  concurrency = 8,
 }: {
   candidates: Candidate[];
   context: ResolverContext;
   modelId?: string;
   promptVersion?: string;
-  concurrency?: number;
 }): Promise<Array<Candidate & { summary: string }>> {
   const { recordsByPostId } = await ensureAiDigestPostTextCache<AiDigestPostSummaryTarget, AiDigestPostSummaryRecord>({
     targets: candidates,
@@ -171,7 +165,6 @@ export async function ensureAiDigestPostSummaries<Candidate extends AiDigestPost
     context,
     modelId,
     promptVersion,
-    concurrency,
     generateAndSave: generateAndSaveSummary,
   });
   return candidates.flatMap((candidate) => {

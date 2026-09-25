@@ -17,7 +17,7 @@ import { selectAiDigestThreads, type AiDigestSelectedThread } from "./aiDigestTh
 const CURATED_LOOKBACK_COUNT = 10;
 const CURATED_ITEM_LIMIT = 3;
 
-/** e.g. "anthropic/claude-fable-5.1" -> "Claude Fable 5.1" */
+/** e.g. "anthropic/claude-opus-5.5" -> "Claude Opus 5.5" */
 function humanizeModelId(modelId: string): string {
   const modelName = modelId.split("/").at(-1) ?? modelId;
   return modelName

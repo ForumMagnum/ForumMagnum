@@ -267,13 +267,11 @@ export async function ensureAiDigestPostPreviews({
   context,
   modelId = AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID,
   promptVersion = AI_DIGEST_POST_PREVIEW_PROMPT_VERSION,
-  concurrency = 8,
 }: {
   targets: AiDigestPostPreviewTarget[];
   context: ResolverContext;
   modelId?: string;
   promptVersion?: string;
-  concurrency?: number;
 }): Promise<AiDigestEnsuredPreviewResult> {
   const { records, reusedCount, generatedCount, skippedPostCount } = await ensureAiDigestPostTextCache<AiDigestPostPreviewTarget, AiDigestPostPreviewRecord>({
     targets,
@@ -281,7 +279,6 @@ export async function ensureAiDigestPostPreviews({
     context,
     modelId,
     promptVersion,
-    concurrency,
     generateAndSave: generateAndSavePreview,
   });
   return {

@@ -1,4 +1,3 @@
-import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 export interface AiDigestPostTextCacheTarget {
   postId: string;
@@ -63,13 +62,12 @@ interface PostTextCacheSelector {
 export async function ensureAiDigestPostTextCache<
   Target extends AiDigestPostTextCacheTarget,
   Record extends AiDigestPostTextCacheRecord,
->({ targets, collection, context, modelId, promptVersion, concurrency, generateAndSave }: {
+>({ targets, collection, context, modelId, promptVersion, generateAndSave }: {
   targets: Target[];
   collection: { find(selector: PostTextCacheSelector): { fetch(): Promise<Record[]> } };
   context: ResolverContext;
   modelId: string;
   promptVersion: string;
-  concurrency: number;
   generateAndSave: (target: Target, revisionHtml: string, modelId: string, promptVersion: string) => Promise<Record | null>;
 }): Promise<{
   records: Record[];
@@ -89,13 +87,10 @@ export async function ensureAiDigestPostTextCache<
   );
   const bodyRows = await loadAiDigestRevisionBodies(missingTargets, context);
   const bodyRowsByPostId = new Map(bodyRows.map((row) => [row.postId, row]));
-  const tasks = missingTargets.flatMap((target) => {
+  const generatedRecords = (await Promise.all(missingTargets.map((target) => {
     const row = bodyRowsByPostId.get(target.postId);
-    return row ? [generateAndSave.bind(null, target, row.revisionHtml, modelId, promptVersion)] : [];
-  });
-  const generatedRecords = (await executePromiseQueue(
-    tasks, Math.max(1, Math.floor(concurrency)),
-  )).filter((record) => record !== null);
+    return row ? generateAndSave(target, row.revisionHtml, modelId, promptVersion) : null;
+  }))).filter((record) => record !== null);
   const recordsByPostId = new Map(cachedByPostId);
   for (const record of generatedRecords) {
     recordsByPostId.set(record.postId, record);

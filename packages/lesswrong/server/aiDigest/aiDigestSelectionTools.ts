@@ -14,7 +14,7 @@ const SEARCH_MAX_LIMIT = 20;
 /** Nearest neighbors are fetched before eligibility filtering, so fetch extra. */
 const SEARCH_OVERFETCH_MULTIPLIER = 3;
 const READ_POST_MAX_PER_GENERATION = 10;
-export const AI_DIGEST_SELECTION_STEP_LIMIT = 8;
+export const AI_DIGEST_SELECTION_STEP_LIMIT = 4;
 
 interface AiDigestSelectionToolsContext {
   user: DbUser;

@@ -1,4 +1,4 @@
-import { generateText, Output, stepCountIs } from "ai";
+import { generateText, NoObjectGeneratedError, Output, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
 import {
   loadAiDigestPostCandidatesByIds,
@@ -21,7 +21,7 @@ import {
   isSelectableAiDigestSearchResult,
 } from "./aiDigestSelectionTools";
 
-export const AI_DIGEST_SELECTION_MODEL_ID = "anthropic/claude-fable-5.1";
+export const AI_DIGEST_SELECTION_MODEL_ID = "anthropic/claude-opus-5.5";
 const MAX_QUICK_TAKES_PER_ISSUE = 2;
 
 const reasonSchema = z.string().min(1).max(180).describe(
@@ -33,11 +33,16 @@ const reasonSchema = z.string().min(1).max(180).describe(
 );
 
 const selectionOutputSchema = z.object({
+  subject: z.string().min(1).max(120).describe("The email subject line, led by the first headline post."),
+  preheader: z.string().min(1).max(180).describe(
+    "Content-bearing preview text shown after the subject in the reader's inbox.",
+  ),
+  aiNote: z.array(z.string().min(1).max(380)).min(1).max(3).describe(
+    "One to three short paragraphs for the reader explaining the useful themes behind the slate, "
+    + "or a specific connection to their reading, as described in the instructions.",
+  ),
   headlinePosts: z.array(z.object({ postId: z.string(), reason: reasonSchema })).length(2),
   otherItems: z.array(z.object({ itemId: z.string(), reason: reasonSchema })).length(3),
-  subject: z.string().min(1).max(120),
-  preheader: z.string().min(1).max(180),
-  aiNote: z.array(z.string().min(1).max(380)).min(1).max(3),
 });
 
 type AiDigestPostSelectionOutput = z.infer<typeof selectionOutputSchema>;
@@ -101,6 +106,41 @@ async function resolveSelectedItems({ output, pool, history, user, context }: {
   return items;
 }
 
+function callSelectionModel({ system, prompt, tools }: { system: string; prompt: string; tools: ToolSet }) {
+  return generateText({
+    model: AI_DIGEST_SELECTION_MODEL_ID,
+    system,
+    messages: [aiDigestUserMessage(prompt, AI_DIGEST_SELECTION_MODEL_ID)],
+    tools,
+    stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
+    providerOptions: aiDigestGatewayProviderOptions("post-selection"),
+    output: Output.object({
+      schema: selectionOutputSchema,
+      name: "aiDigestPostSelection",
+      description: "A ranked five-item LessWrong digest selection of posts and optional quick takes.",
+    }),
+    maxOutputTokens: 12_000,
+  });
+}
+
+/**
+ * The model occasionally returns output that doesn't match the schema, such as
+ * empty copy fields. One retry, which rereads the prompt from the cache, is
+ * cheaper than failing the issue.
+ */
+async function callSelectionModelRetryingInvalidOutput(options: { system: string; prompt: string; tools: ToolSet }) {
+  try {
+    return await callSelectionModel(options);
+  } catch (error) {
+    if (!NoObjectGeneratedError.isInstance(error)) {
+      throw error;
+    }
+    // eslint-disable-next-line no-console
+    console.warn("AI digest post selection output didn't match the schema; retrying", error.text);
+    return await callSelectionModel(options);
+  }
+}
+
 export async function selectAiDigestPosts({ user, context, profile, pool, history, personalInstructions, asOf }: {
   user: DbUser;
   context: ResolverContext;
@@ -118,27 +158,15 @@ export async function selectAiDigestPosts({ user, context, profile, pool, histor
     personalInstructions,
     asOf,
   });
-  const result = await generateText({
-    model: AI_DIGEST_SELECTION_MODEL_ID,
-    system,
-    messages: [aiDigestUserMessage(prompt, AI_DIGEST_SELECTION_MODEL_ID)],
-    tools: createAiDigestSelectionTools({
-      user,
-      context,
-      candidatePostIds: new Set(pool.posts.map((post) => post.postId)),
-      previousInclusions: history.previousInclusions,
-      repeatsAllowed: pool.repeatsAllowed,
-      asOf,
-    }),
-    stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
-    providerOptions: aiDigestGatewayProviderOptions("post-selection"),
-    output: Output.object({
-      schema: selectionOutputSchema,
-      name: "aiDigestPostSelection",
-      description: "A ranked five-item LessWrong digest selection of posts and optional quick takes.",
-    }),
-    maxOutputTokens: 12_000,
+  const tools = createAiDigestSelectionTools({
+    user,
+    context,
+    candidatePostIds: new Set(pool.posts.map((post) => post.postId)),
+    previousInclusions: history.previousInclusions,
+    repeatsAllowed: pool.repeatsAllowed,
+    asOf,
   });
+  const result = await callSelectionModelRetryingInvalidOutput({ system, prompt, tools });
   if (result.finishReason !== "stop") {
     throw new Error(
       `AI digest selection stopped with finish reason ${result.finishReason} after `

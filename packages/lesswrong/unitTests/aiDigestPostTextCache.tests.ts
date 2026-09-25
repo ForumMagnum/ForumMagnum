@@ -19,7 +19,7 @@ it("generates cached text from the selected revision even after the post is edit
   const result = await ensureAiDigestPostTextCache({
     targets: [target], collection: { find: () => ({ fetch: async () => [] }) },
     context: computeContextFromUser({ user: null, isSSR: false }),
-    modelId: "model", promptVersion: "version", concurrency: 1, generateAndSave,
+    modelId: "model", promptVersion: "version", generateAndSave,
   });
   expect(mockPosts).not.toHaveBeenCalled();
   expect(mockRevisions).toHaveBeenCalledWith(
