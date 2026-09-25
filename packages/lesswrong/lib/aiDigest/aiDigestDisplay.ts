@@ -3,6 +3,7 @@ import type { AiDigestEmailComment, AiDigestEmailPost } from "@/lib/generated/gq
 import { aiDigestPresentation } from "./aiDigestPresentation";
 import { truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { unflattenComments } from "@/lib/utils/unflatten";
 
 /** Collapses runs of whitespace (including newlines) to single spaces and trims the ends. */
@@ -60,9 +61,9 @@ export function formatAiDigestPostAuthors(post: {
   user: AiDigestBylineAuthor | null;
   coauthors: AiDigestBylineAuthor[] | null;
 }): string {
-  const authors = [post.user, ...(post.coauthors ?? [])].flatMap((author) =>
-    author?.displayName ? [author.displayName] : [],
-  );
+  const authors = filterNonnull([post.user, ...(post.coauthors ?? [])])
+    .map((author) => author.displayName)
+    .filter((displayName) => displayName);
   const displayed = authors.slice(0, AI_DIGEST_MAX_BYLINE_AUTHORS).join(", ");
   return authors.length > AI_DIGEST_MAX_BYLINE_AUTHORS ? `${displayed} et al.` : displayed;
 }
@@ -141,13 +142,14 @@ export function discussionCommentMaxLength(
 
 export function aiDigestContentIds(spec: AiDigestSpec) {
   const items = spec.sections.flatMap((section) => section.items);
-  const postIds = items.flatMap((item) =>
-    item.documentRef.documentType === "post" ? [item.documentRef.documentId] : [],
-  );
-  const commentIds = items.flatMap((item) => [
-    ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
-    ...(item.commentIds ?? []),
-  ]);
+  const documentRefs = items.map((item) => item.documentRef);
+  const postIds = documentRefs
+    .filter((documentRef) => documentRef.documentType === "post")
+    .map((documentRef) => documentRef.documentId);
+  const commentIds = [
+    ...documentRefs.filter((documentRef) => documentRef.documentType !== "post").map((documentRef) => documentRef.documentId),
+    ...items.flatMap((item) => item.commentIds ?? []),
+  ];
   return { postIds, commentIds };
 }
 
@@ -158,8 +160,7 @@ export function aiDigestContentIds(spec: AiDigestSpec) {
  */
 export function aiDigestDiscussionThread(item: AiDigestItem, content: DigestContentLookup) {
   const commentIds = item.commentIds ?? [];
-  const comments = commentIds
-    .flatMap((commentId) => content.commentsById.get(commentId) ?? [])
+  const comments = filterNonnull(commentIds.map((commentId) => content.commentsById.get(commentId)))
     .sort((first, second) => new Date(first.postedAt).getTime() - new Date(second.postedAt).getTime());
   return {
     roots: unflattenComments(comments),

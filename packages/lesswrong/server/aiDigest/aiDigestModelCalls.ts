@@ -1,4 +1,6 @@
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import type { LanguageModelUsage, ModelMessage, ProviderMetadata } from "ai";
+import sum from "lodash/sum";
 
 /**
  * Helpers shared by the AI digest's model calls: Vercel AI Gateway attribution,
@@ -102,14 +104,11 @@ function parseGatewayCost(cost: unknown): number | null {
  * list price for the same tokens, so it is preferred when present.
  */
 function sumGatewayCostUsd(providerMetadataByStep: Array<ProviderMetadata | undefined>): number | null {
-  const costs = providerMetadataByStep.flatMap((providerMetadata) => {
+  const costs = filterNonnull(providerMetadataByStep.map((providerMetadata) => {
     const gateway = providerMetadata?.gateway;
-    const cost = parseGatewayCost(gateway?.marketCost) ?? parseGatewayCost(gateway?.cost);
-    return cost === null ? [] : [cost];
-  });
-  return costs.length > 0
-    ? costs.reduce((total, cost) => total + cost, 0)
-    : null;
+    return parseGatewayCost(gateway?.marketCost) ?? parseGatewayCost(gateway?.cost);
+  }));
+  return costs.length > 0 ? sum(costs) : null;
 }
 
 export function aiDigestModelCallRecord({ purpose, modelId, promptVersion, system, prompt, result }: {
@@ -146,7 +145,7 @@ export function aiDigestModelCallRecord({ purpose, modelId, promptVersion, syste
 }
 
 // Models occasionally double-escape unicode in structured output, leaving
-// literal sequences like "—" in the parsed strings.
+// literal sequences like "\u2014" in the parsed strings.
 export function decodeStrayUnicodeEscapes(text: string): string {
   return text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) =>
     String.fromCharCode(parseInt(hex, 16)),
