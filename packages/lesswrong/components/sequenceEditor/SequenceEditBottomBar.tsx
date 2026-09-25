@@ -6,7 +6,6 @@ import { useSequenceEditor } from "./SequenceEditorContext";
 import type { SaveStatus } from "./useSequentialSaveQueue";
 import SequenceSettingsDialog from "./SequenceSettingsDialog";
 import SequenceDeleteDialog from "./SequenceDeleteDialog";
-import SequenceEditMenu from "./SequenceEditMenu";
 
 const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
   root: {
@@ -105,16 +104,18 @@ const SequenceEditBottomBar = () => {
   return <div className={classes.root}>
     {/* Rendered here rather than through openDialog so it stays inside the
         sequence editor's context. */}
-    {settingsOpen && <SequenceSettingsDialog onClose={() => setSettingsOpen(false)} />}
+    {settingsOpen && <SequenceSettingsDialog
+      onClose={() => setSettingsOpen(false)}
+      onDelete={() => {
+        setSettingsOpen(false);
+        setDeleteOpen(true);
+      }}
+    />}
     {deleteOpen && <SequenceDeleteDialog onClose={() => setDeleteOpen(false)} />}
     <span className={saveStatus === "error" ? classes.statusError : classes.status}>
       {statusLabels[saveStatus]}
     </span>
     <div className={classes.actions}>
-      <SequenceEditMenu
-        label="More actions"
-        items={[{ title: "Delete sequence", onClick: () => setDeleteOpen(true) }]}
-      />
       <button className={classes.settingsButton} onClick={() => setSettingsOpen(true)} title="Settings">
         <ForumIcon icon="Settings" className={classes.settingsIcon} />
       </button>
