@@ -207,7 +207,7 @@ export const MarkdownCommentsList = ({
               </div>
             ) : null}
             {includeBodies ? (
-              <MarkdownNode markdown={getCommentBodyMarkdown(comment)} indentLevel={Math.min(depth + 1, 6)} />
+              <MarkdownNode markdown={getCommentBodyMarkdown(comment)} />
             ) : null}
           </div>
         );
