@@ -7,7 +7,7 @@ jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
     Revisions: { find: () => ({ fetch: async () => [{ _id: "revision", html: "<p>Meaningful content for the preview.</p>" }] }) },
   }),
 }));
-jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
+jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ AI_DIGEST_MODEL_ID: "model", aiDigestGatewayProviderOptions: () => ({}) }));
 jest.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockGenerateText(...args), Output: { object: jest.fn() },
 }));
@@ -19,10 +19,10 @@ import { ensureAiDigestPostPreviews } from "@/server/aiDigest/aiDigestPostPrevie
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 async function generate() {
-  return await ensureAiDigestPostPreviews({
-    targets: [{ postId: "post", revisionId: "revision", title: "Post", author: "Author" }],
-    context: computeContextFromUser({ user: null, isSSR: false }),
-  });
+  return await ensureAiDigestPostPreviews(
+    [{ postId: "post", revisionId: "revision", title: "Post", author: "Author" }],
+    computeContextFromUser({ user: null, isSSR: false }),
+  );
 }
 
 beforeEach(() => {
@@ -33,17 +33,17 @@ beforeEach(() => {
 it("reports provider failure without exposing the request and keeps the excerpt fallback", async () => {
   mockGenerateText.mockRejectedValue(new Error("private request body"));
   const result = await generate();
-  expect(result.previewHtmlByPostId.size).toBe(0);
+  expect(result.size).toBe(0);
   expect(mockCaptureException).toHaveBeenCalledWith(new Error("AI digest preview generation failed"), {
     extra: expect.objectContaining({ postId: "post", revisionId: "revision" }),
   });
   expect(mockInsert).not.toHaveBeenCalled();
 });
 
-it("reports a persistence failure while retaining the excerpt fallback", async () => {
+it("reports a persistence failure and still uses the preview it built", async () => {
   mockInsert.mockRejectedValue(new Error("connection lost"));
   const result = await generate();
-  expect(result.previewHtmlByPostId.size).toBe(0);
+  expect(result.get("post")).toContain("Meaningful content");
   expect(mockCaptureException).toHaveBeenCalledWith(new Error("AI digest preview persistence failed"), {
     extra: expect.objectContaining({ postId: "post", revisionId: "revision" }),
   });
@@ -52,6 +52,6 @@ it("reports a persistence failure while retaining the excerpt fallback", async (
 it("does not report an expected concurrent cache insert as an infrastructure failure", async () => {
   mockInsert.mockRejectedValue({ code: "23505" });
   const result = await generate();
-  expect(result.previewHtmlByPostId.size).toBe(0);
+  expect(result.get("post")).toContain("Meaningful content");
   expect(mockCaptureException).not.toHaveBeenCalled();
 });

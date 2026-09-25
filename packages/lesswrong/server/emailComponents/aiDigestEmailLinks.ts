@@ -10,8 +10,6 @@ export const AI_DIGEST_UTM_PARAMS = {
   utm_campaign: "aiDigest",
 };
 
-const sectionKinds: AiDigestSectionKind[] = ["recommendations", "discussion", "curated"];
-
 type AiDigestLinkRole =
   | "image"
   | "title"
@@ -36,25 +34,25 @@ function withUtmContent(url: string, utmContent: string): string {
   return trackedUrl.toString();
 }
 
+/** Identifies a digest item in its links' `utm_content`: `<issueId>.<section>.<index>`. */
+export function aiDigestLinkSlotKey({ issueId, sectionKind, itemIndex }: AiDigestLinkSlot): string {
+  return `${issueId}.${sectionKind}.${itemIndex}`;
+}
+
+/**
+ * The slot key a link's `utm_content` starts with. Links that belong to no
+ * item give a key that matches no slot.
+ */
+export function aiDigestLinkSlotKeyFromUtmContent(utmContent: string): string {
+  return utmContent.split(".").slice(0, 3).join(".");
+}
+
 /** Tags a link to a digest item with `utm_content=<issueId>.<section>.<index>.<role>`. */
 export function aiDigestItemLinkUrl(url: string, role: AiDigestLinkRole, slot: AiDigestLinkSlot): string {
-  return withUtmContent(url, `${slot.issueId}.${slot.sectionKind}.${slot.itemIndex}.${role}`);
+  return withUtmContent(url, `${aiDigestLinkSlotKey(slot)}.${role}`);
 }
 
 /** Tags a link that belongs to no item (masthead, footer) with `utm_content=<issueId>.<role>`. */
 export function aiDigestChromeLinkUrl(url: string, role: AiDigestLinkRole, issueId: string): string {
   return withUtmContent(url, `${issueId}.${role}`);
-}
-
-function isSectionKind(value: string): value is AiDigestSectionKind {
-  return sectionKinds.some((kind) => kind === value);
-}
-
-/** The digest item an item link's `utm_content` points at, or null for anything else. */
-export function parseAiDigestItemLinkContent(utmContent: string): AiDigestLinkSlot | null {
-  const [issueId, sectionKind, itemIndex] = utmContent.split(".");
-  const index = Number(itemIndex);
-  return issueId && sectionKind && isSectionKind(sectionKind) && Number.isInteger(index)
-    ? { issueId, sectionKind, itemIndex: index }
-    : null;
 }

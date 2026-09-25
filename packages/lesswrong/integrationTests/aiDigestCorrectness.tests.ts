@@ -49,10 +49,9 @@ it("includes public shortform discussions in both pools while excluding private 
   }
   const repo = new CommentsRepo();
   const options = { minPostedAt: new Date(Date.now() - 60_000), limit: 100 };
-  const siteWide = await repo.getAiDigestSiteWideThreadRows(options);
-  const reader = await repo.getAiDigestReaderThreadRows({ ...options, userId });
-  for (const rows of [siteWide, reader]) {
-    const ids = rows.map((row) => row.threadId);
+  const siteWide = await repo.getAiDigestSiteWideThreadIds(options);
+  const reader = await repo.getAiDigestReaderThreadIds({ ...options, userId });
+  for (const ids of [siteWide, reader]) {
     expect(ids).toEqual(expect.arrayContaining(visibleThreads));
     for (const id of hiddenThreads) expect(ids).not.toContain(id);
   }

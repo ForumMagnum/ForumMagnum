@@ -39,18 +39,6 @@ export interface AiDigestPastQuickTakeOutcomeRow {
   repliedAt: Date | null;
 }
 
-export interface AiDigestSiteWideThreadRow {
-  threadId: string;
-  topCommentKarma: number;
-}
-
-export interface AiDigestReaderThreadRow {
-  threadId: string;
-  participated: boolean;
-  newCommentCount: number;
-  topCommentKarma: number;
-}
-
 export interface AiDigestThreadCommentRow {
   commentId: string;
   threadId: string;
@@ -68,8 +56,11 @@ export interface AiDigestThreadCommentRow {
   /** Viewed or expanded in the reader's feed. */
   seenInFeed: boolean;
   seesLess: boolean;
-  /** Why the reader is already notified about the comment, if they are. */
-  notifiedBecause: "readerAuthored" | "onReaderPost" | "replyToReader" | null;
+  /**
+   * Why the reader is already notified about the comment, if they are, which
+   * rules it out as a discussion anchor. Named for the thread-selection prompt.
+   */
+  anchorIneligible: "readerAuthored" | "onReaderPost" | "replyToReader" | null;
 }
 
 /**
@@ -936,7 +927,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, { userId, minPostedAt, minKarma, limit });
   }
 
-  /** How the reader has engaged with the given quick takes: their current upvote and their first reply. */
+  /**
+   * How the reader has engaged with the given quick takes: their current upvote
+   * and their first reply. In the order of `commentIds`.
+   */
   async getAiDigestPastQuickTakeOutcomes({ userId, commentIds }: {
     userId: string;
     commentIds: string[];
@@ -967,21 +961,21 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       ${joinReaderUpvote("Comments", `c."_id"`, "upvote")}
       WHERE c."_id" = ANY($(commentIds)::TEXT[])
         AND c."postedAt" IS NOT NULL
+      ORDER BY array_position($(commentIds)::TEXT[], c."_id")
     `, { userId, commentIds });
   }
 
-  async getAiDigestSiteWideThreadRows({
+  /** The recent threads with the highest-karma comments, site-wide, best first. */
+  async getAiDigestSiteWideThreadIds({
     minPostedAt,
     limit,
   }: {
     minPostedAt: Date;
     limit: number;
-  }): Promise<AiDigestSiteWideThreadRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestSiteWideThreadRow>(`
-      -- CommentsRepo.getAiDigestSiteWideThreadRows
-      SELECT
-        COALESCE(c."topLevelCommentId", c."_id") AS "threadId",
-        MAX(c."baseScore") AS "topCommentKarma"
+  }): Promise<string[]> {
+    const rows = await this.getRawDb().manyOrNone<{ threadId: string }>(`
+      -- CommentsRepo.getAiDigestSiteWideThreadIds
+      SELECT COALESCE(c."topLevelCommentId", c."_id") AS "threadId"
       FROM "Comments" c
       JOIN "Posts" p ON p."_id" = c."postId"
       WHERE ${aiDigestVisibleCommentConditions("c")}
@@ -994,6 +988,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       minPostedAt,
       limit,
     });
+    return rows.map((row) => row.threadId);
   }
 
   /**
@@ -1004,7 +999,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
    * new-comment count times top-comment karma so heavy readers' pools are not
    * dominated by whichever big posts they happened to open.
    */
-  async getAiDigestReaderThreadRows({
+  async getAiDigestReaderThreadIds({
     userId,
     minPostedAt,
     limit,
@@ -1012,9 +1007,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     userId: string;
     minPostedAt: Date;
     limit: number;
-  }): Promise<AiDigestReaderThreadRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestReaderThreadRow>(`
-      -- CommentsRepo.getAiDigestReaderThreadRows
+  }): Promise<string[]> {
+    const rows = await this.getRawDb().manyOrNone<{ threadId: string }>(`
+      -- CommentsRepo.getAiDigestReaderThreadIds
       -- Every reader-specific CTE is scoped to the posts and threads with
       -- comments in the candidate window, so the query stays bounded by the
       -- window rather than by the reader's lifetime history.
@@ -1094,11 +1089,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         LEFT JOIN participated_threads pt ON pt."threadId" = wc."threadId"
         GROUP BY wc."threadId"
       )
-      SELECT
-        ts."threadId",
-        ts."participated",
-        ts."newCommentCount",
-        ts."topCommentKarma"
+      SELECT ts."threadId"
       FROM thread_stats ts
       WHERE ts."participated"
         OR (ts."onEngagedPost" AND ts."newCommentCount" > 0)
@@ -1112,6 +1103,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       minPostedAt,
       limit,
     });
+    return rows.map((row) => row.threadId);
   }
 
   /**
@@ -1156,7 +1148,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHEN c."userId" = $(userId) THEN 'readerAuthored'
           WHEN p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds") THEN 'onReaderPost'
           WHEN parent."userId" = $(userId) THEN 'replyToReader'
-        END AS "notifiedBecause"
+        END AS "anchorIneligible"
       FROM (
         SELECT
           c.*,

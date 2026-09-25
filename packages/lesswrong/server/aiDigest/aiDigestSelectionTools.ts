@@ -3,10 +3,11 @@ import { tool, type ToolSet } from "ai";
 import { z } from "zod";
 import uniq from "lodash/uniq";
 import { getEmbeddingsFromApi, isEmbeddingsAPIEnabled } from "@/server/embeddings";
-import { AI_DIGEST_MIN_KARMA, loadAiDigestPostCandidatesByIds, type AiDigestPostCandidate } from "./aiDigestCandidates";
+import { AI_DIGEST_MIN_KARMA, loadAiDigestPostCandidates, type AiDigestPostCandidate } from "./aiDigestCandidates";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
-import { AI_DIGEST_SELECTION_READ_POST_MAX_CHARS, boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
+import { aiDigestPromptJson } from "./aiDigestModelCalls";
 import { aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
+import { aiDigestPlainText, loadAiDigestRevisionHtml } from "./aiDigestPostText";
 
 const SEARCH_RECENT_DAYS = 90;
 const SEARCH_DEFAULT_LIMIT = 10;
@@ -14,12 +15,13 @@ const SEARCH_MAX_LIMIT = 20;
 /** Nearest neighbors are fetched before eligibility filtering, so fetch extra. */
 const SEARCH_OVERFETCH_MULTIPLIER = 3;
 const READ_POST_MAX_PER_GENERATION = 10;
+const READ_POST_MAX_CHARS = 15_000;
 export const AI_DIGEST_SELECTION_STEP_LIMIT = 4;
 
 interface AiDigestSelectionToolsContext {
   user: DbUser;
   context: ResolverContext;
-  candidatePostIds: Set<string>;
+  candidatePostsById: Map<string, AiDigestPostCandidate>;
   previousInclusions: Map<string, AiDigestPreviousInclusion>;
   /** Whether posts recommended in earlier issues may be offered, as they are among the candidates. */
   repeatsAllowed: boolean;
@@ -29,33 +31,32 @@ interface AiDigestSelectionToolsContext {
 function wrapUntrustedToolPayload(label: string, payload: unknown): string {
   return [
     `<UNTRUSTED_${label}>`,
-    JSON.stringify(payload),
+    aiDigestPromptJson(payload),
     `</UNTRUSTED_${label}>`,
   ].join("\n");
 }
 
 /** Whether the model may select a post it found by search, under the same rules as the candidates. */
 export function isSelectableAiDigestSearchResult(post: AiDigestPostCandidate, repeatsAllowed: boolean): boolean {
-  return repeatsAllowed || !post.previousInclusion;
+  return repeatsAllowed || !post.previousDigest;
 }
 
-function searchResultGroup({ postIds, selectableById, candidatePostIds, asOf, limit }: {
+function searchResultGroup({ postIds, selectableById, candidatePostsById, limit }: {
   postIds: string[];
   selectableById: Map<string, AiDigestPostCandidate>;
-  candidatePostIds: Set<string>;
-  asOf: Date;
+  candidatePostsById: Map<string, AiDigestPostCandidate>;
   limit: number;
 }) {
   return postIds
     .flatMap((postId) => {
       const post = selectableById.get(postId);
-      return post ? [{ ...aiDigestPromptPost(post, asOf), inCandidates: candidatePostIds.has(postId) || undefined }] : [];
+      return post ? [{ ...aiDigestPromptPost(post), inCandidates: candidatePostsById.has(postId) }] : [];
     })
     .slice(0, limit);
 }
 
 async function searchPosts(
-  { user, context, previousInclusions, repeatsAllowed, asOf, candidatePostIds }: AiDigestSelectionToolsContext,
+  { user, context, previousInclusions, repeatsAllowed, asOf, candidatePostsById }: AiDigestSelectionToolsContext,
   { query, includeRead, limit }: { query: string; includeRead: boolean; limit: number },
 ) {
   const { embeddings } = await getEmbeddingsFromApi(query);
@@ -69,32 +70,31 @@ async function searchPosts(
       embeddings, fetchLimit, { minKarma: AI_DIGEST_MIN_KARMA, publishedAfter: recentAfter },
     ),
   ]);
-  const eligiblePosts = await loadAiDigestPostCandidatesByIds(
+  const eligiblePosts = await loadAiDigestPostCandidates({
     user,
     context,
-    uniq([...allTimePostIds, ...recentPostIds]),
     previousInclusions,
-  );
+    asOf,
+    postIds: uniq([...allTimePostIds, ...recentPostIds]),
+  });
   const selectableById = new Map(eligiblePosts
     .filter((post) => isSelectableAiDigestSearchResult(post, repeatsAllowed) && (includeRead || !post.hasReadStatus))
     .map((post) => [post.postId, post]));
   return {
-    allTime: searchResultGroup({ postIds: allTimePostIds, selectableById, candidatePostIds, asOf, limit }),
-    recent: searchResultGroup({ postIds: recentPostIds, selectableById, candidatePostIds, asOf, limit }),
+    allTime: searchResultGroup({ postIds: allTimePostIds, selectableById, candidatePostsById, limit }),
+    recent: searchResultGroup({ postIds: recentPostIds, selectableById, candidatePostsById, limit }),
   };
 }
 
+/** The body of a post the reader could be recommended, as plain text. */
 async function readPostBody(
-  { user, context, previousInclusions, candidatePostIds }: AiDigestSelectionToolsContext,
+  { user, context, previousInclusions, asOf, candidatePostsById }: AiDigestSelectionToolsContext,
   postId: string,
 ): Promise<string | null> {
-  const readable = candidatePostIds.has(postId)
-    || (await loadAiDigestPostCandidatesByIds(user, context, [postId], previousInclusions)).length > 0;
-  const post = readable ? await context.loaders.Posts.load(postId) : null;
-  const revision = post?.contents_latest ? await context.loaders.Revisions.load(post.contents_latest) : null;
-  return revision?.html
-    ? boundedPlainTextFromRevisionHtml(revision.html, AI_DIGEST_SELECTION_READ_POST_MAX_CHARS)
-    : null;
+  const post = candidatePostsById.get(postId)
+    ?? (await loadAiDigestPostCandidates({ user, context, previousInclusions, asOf, postIds: [postId] }))[0];
+  const html = post && (await loadAiDigestRevisionHtml([post.revisionId], context)).get(post.revisionId);
+  return html ? aiDigestPlainText(html, READ_POST_MAX_CHARS) : null;
 }
 
 export function createAiDigestSelectionTools(toolsContext: AiDigestSelectionToolsContext): ToolSet {

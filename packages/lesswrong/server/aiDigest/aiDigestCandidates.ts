@@ -1,10 +1,9 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
-import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
-import { htmlToTextDefault } from "@/lib/htmlToText";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import type { AiDigestQuickTakeCandidateRow } from "@/server/repos/CommentsRepo";
 import type { AiDigestPostCandidateRow } from "@/server/repos/PostsRepo";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
+import { aiDigestPlainText } from "./aiDigestPostText";
 
 // TODO: widen to 28 days once the digest is operationally validated beyond the admin beta.
 export const AI_DIGEST_CANDIDATE_MAX_AGE_DAYS = 14;
@@ -17,64 +16,51 @@ const QUICK_TAKE_BODY_MAX_CHARS = 800;
 const MIN_POST_CANDIDATES = 2;
 const MIN_CANDIDATES = 5;
 
+/** Candidates are shown to the model as they are, apart from the revision ID. */
 export interface AiDigestPostCandidate extends AiDigestPostCandidateRow {
-  previousInclusion?: AiDigestPreviousInclusion;
+  /** Set when the post was recommended in an earlier issue. */
+  previousDigest?: AiDigestPreviousInclusion;
 }
 
 export interface AiDigestQuickTakeCandidate extends Omit<AiDigestQuickTakeCandidateRow, "html"> {
   /** Bounded plaintext of the quick take. */
   body: string;
-  previousInclusion?: AiDigestPreviousInclusion;
+  /** Set when the quick take was recommended in an earlier issue. */
+  previousDigest?: AiDigestPreviousInclusion;
 }
 
-export interface AiDigestCandidatePool<Post extends AiDigestPostCandidate> {
-  posts: Post[];
+export interface AiDigestCandidatePool {
+  posts: AiDigestPostCandidate[];
   quickTakes: AiDigestQuickTakeCandidate[];
   /** Whether items recommended in earlier issues had to be let back in to fill a slate. */
   repeatsAllowed: boolean;
 }
 
-function withPreviousInclusion(
-  row: AiDigestPostCandidateRow,
-  previousInclusions: Map<string, AiDigestPreviousInclusion>,
-): AiDigestPostCandidate {
-  return { ...row, previousInclusion: previousInclusions.get(row.postId) };
+export function aiDigestCandidateWindowStart(asOf: Date): Date {
+  return new Date(asOf.getTime() - (AI_DIGEST_CANDIDATE_MAX_AGE_DAYS * DAY_MS));
 }
 
-/** The most recent posts the reader could be recommended. */
-export async function loadRecentAiDigestPostCandidates(
-  user: DbUser,
-  context: ResolverContext,
-  asOf: Date,
-  previousInclusions: Map<string, AiDigestPreviousInclusion>,
-): Promise<AiDigestPostCandidate[]> {
-  const rows = await context.repos.posts.getAiDigestPostCandidates({
-    userId: user._id,
-    aboutPostId: aboutPostIdSetting.get(context.forumType),
-    minKarma: AI_DIGEST_MIN_KARMA,
-    minPostedAt: new Date(asOf.getTime() - (AI_DIGEST_CANDIDATE_MAX_AGE_DAYS * DAY_MS)),
-    limit: POST_CANDIDATE_LIMIT,
-  });
-  return rows.map((row) => withPreviousInclusion(row, previousInclusions));
-}
-
-/** The given posts, if the reader could be recommended them, in no particular order. */
-export async function loadAiDigestPostCandidatesByIds(
-  user: DbUser,
-  context: ResolverContext,
-  postIds: string[],
-  previousInclusions: Map<string, AiDigestPreviousInclusion>,
-): Promise<AiDigestPostCandidate[]> {
-  if (postIds.length === 0) {
+/**
+ * Posts the reader could be recommended: the most recent ones, or, given
+ * `postIds`, the eligible ones among those, in no particular order.
+ */
+export async function loadAiDigestPostCandidates({ user, context, previousInclusions, asOf, postIds }: {
+  user: DbUser;
+  context: ResolverContext;
+  previousInclusions: Map<string, AiDigestPreviousInclusion>;
+  asOf: Date;
+  postIds?: string[];
+}): Promise<AiDigestPostCandidate[]> {
+  if (postIds?.length === 0) {
     return [];
   }
   const rows = await context.repos.posts.getAiDigestPostCandidates({
     userId: user._id,
     aboutPostId: aboutPostIdSetting.get(context.forumType),
     minKarma: AI_DIGEST_MIN_KARMA,
-    postIds,
+    ...(postIds ? { postIds } : { minPostedAt: aiDigestCandidateWindowStart(asOf), limit: POST_CANDIDATE_LIMIT }),
   });
-  return rows.map((row) => withPreviousInclusion(row, previousInclusions));
+  return rows.map((row) => ({ ...row, previousDigest: previousInclusions.get(row.postId) }));
 }
 
 export async function loadAiDigestQuickTakeCandidates(
@@ -85,20 +71,20 @@ export async function loadAiDigestQuickTakeCandidates(
 ): Promise<AiDigestQuickTakeCandidate[]> {
   const rows = await context.repos.comments.getAiDigestQuickTakeCandidates({
     userId: user._id,
-    minPostedAt: new Date(asOf.getTime() - (AI_DIGEST_CANDIDATE_MAX_AGE_DAYS * DAY_MS)),
+    minPostedAt: aiDigestCandidateWindowStart(asOf),
     minKarma: QUICK_TAKE_MIN_KARMA,
     limit: QUICK_TAKE_LIMIT,
   });
   return rows.flatMap(({ html, ...row }) => {
-    const body = collapseAiDigestWhitespace(htmlToTextDefault(html)).slice(0, QUICK_TAKE_BODY_MAX_CHARS);
+    const body = aiDigestPlainText(html, QUICK_TAKE_BODY_MAX_CHARS);
     return body
-      ? [{ ...row, body, previousInclusion: previousInclusions.get(row.commentId) }]
+      ? [{ ...row, body, previousDigest: previousInclusions.get(row.commentId) }]
       : [];
   });
 }
 
-function isUnrecommended(candidate: { previousInclusion?: AiDigestPreviousInclusion }): boolean {
-  return !candidate.previousInclusion;
+function isUnrecommended(candidate: { previousDigest?: AiDigestPreviousInclusion }): boolean {
+  return !candidate.previousDigest;
 }
 
 function canFillSlate(posts: unknown[], quickTakes: unknown[]): boolean {
@@ -110,10 +96,10 @@ function canFillSlate(posts: unknown[], quickTakes: unknown[]): boolean {
  * left out, unless that leaves too few to fill a slate, in which case they are
  * let back in (and the prompt steers away from repeating them).
  */
-export function aiDigestCandidatePool<Post extends AiDigestPostCandidate>(
-  posts: Post[],
+export function aiDigestCandidatePool(
+  posts: AiDigestPostCandidate[],
   quickTakes: AiDigestQuickTakeCandidate[],
-): AiDigestCandidatePool<Post> {
+): AiDigestCandidatePool {
   const unrecommendedPosts = posts.filter(isUnrecommended);
   const unrecommendedQuickTakes = quickTakes.filter(isUnrecommended);
   if (canFillSlate(unrecommendedPosts, unrecommendedQuickTakes)) {

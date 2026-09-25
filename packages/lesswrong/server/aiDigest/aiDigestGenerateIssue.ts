@@ -1,14 +1,17 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
+import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
+import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import type { AiDigestRecentlyCuratedPostRow } from "@/server/repos/PostsRepo";
 import {
   aiDigestCandidatePool,
+  loadAiDigestPostCandidates,
   loadAiDigestQuickTakeCandidates,
-  loadRecentAiDigestPostCandidates,
 } from "./aiDigestCandidates";
-import { loadAiDigestHistory, persistAiDigestIssue, type AiDigestIssueTrigger } from "./aiDigestHistory";
+import { loadAiDigestHistory } from "./aiDigestHistory";
+import { AI_DIGEST_MODEL_NAME } from "./aiDigestModelCalls";
 import { ensureAiDigestPostPreviews } from "./aiDigestPostPreviews";
-import { AI_DIGEST_SELECTION_MODEL_ID, selectAiDigestPosts, type AiDigestPostSelection } from "./aiDigestPostSelection";
+import { selectAiDigestPosts, type AiDigestPostSelection } from "./aiDigestPostSelection";
 import { ensureAiDigestPostSummaries } from "./aiDigestPostSummaries";
 import { loadAiDigestReaderProfile, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 import { loadAiDigestThreadCards, type AiDigestThreadCard } from "./aiDigestThreadCandidates";
@@ -17,14 +20,7 @@ import { selectAiDigestThreads, type AiDigestSelectedThread } from "./aiDigestTh
 const CURATED_LOOKBACK_COUNT = 10;
 const CURATED_ITEM_LIMIT = 3;
 
-/** e.g. "anthropic/claude-opus-5.5" -> "Claude Opus 5.5" */
-function humanizeModelId(modelId: string): string {
-  const modelName = modelId.split("/").at(-1) ?? modelId;
-  return modelName
-    .split("-")
-    .map((part) => part ? `${part[0].toUpperCase()}${part.slice(1)}` : part)
-    .join(" ");
-}
+type AiDigestIssueTrigger = "adminSample" | "userPreview" | "scheduled";
 
 /**
  * The discussion section is best-effort: if thread selection fails, the issue
@@ -40,7 +36,7 @@ async function selectThreadsOrNone(options: {
     return null;
   }
   try {
-    return await selectAiDigestThreads({ ...options, modelId: AI_DIGEST_SELECTION_MODEL_ID });
+    return await selectAiDigestThreads(options);
   } catch (error) {
     captureException(error);
     // eslint-disable-next-line no-console
@@ -122,7 +118,7 @@ function buildAiDigestSpec({ user, personalInstructions, postSelection, threads,
     subject: postSelection.subject,
     preheader: postSelection.preheader,
     aiNote: {
-      modelName: humanizeModelId(AI_DIGEST_SELECTION_MODEL_ID),
+      modelName: AI_DIGEST_MODEL_NAME,
       paragraphs: postSelection.aiNote,
     },
     personalInstructions: personalInstructions ?? undefined,
@@ -144,26 +140,37 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
   const asOf = new Date();
   const personalInstructions = user.aiDigestPersonalInstructions?.trim() || null;
 
-  const history = await loadAiDigestHistory(user._id, context, asOf);
+  const history = await loadAiDigestHistory(user._id, context);
+  const { previousInclusions } = history;
   const [profile, recentPosts, quickTakes, curatedPosts, threadCards] = await Promise.all([
     loadAiDigestReaderProfile(user, context, asOf),
-    loadRecentAiDigestPostCandidates(user, context, asOf, history.previousInclusions),
-    loadAiDigestQuickTakeCandidates(user, context, asOf, history.previousInclusions),
+    loadAiDigestPostCandidates({ user, context, previousInclusions, asOf }),
+    loadAiDigestQuickTakeCandidates(user, context, asOf, previousInclusions),
     context.repos.posts.getAiDigestRecentlyCuratedPosts({ userId: user._id, limit: CURATED_LOOKBACK_COUNT }),
-    loadAiDigestThreadCards(user, context, asOf, history.previousInclusions),
+    loadAiDigestThreadCards(user, context, asOf, previousInclusions),
   ]);
-  const summarizedPosts = await ensureAiDigestPostSummaries({ candidates: recentPosts, context });
-  const pool = aiDigestCandidatePool(summarizedPosts, quickTakes);
+  const pool = aiDigestCandidatePool(recentPosts, quickTakes);
+  const summarizedPosts = await ensureAiDigestPostSummaries(pool.posts, context);
 
   const [postSelection, threadSelection] = await Promise.all([
-    selectAiDigestPosts({ user, context, profile, pool, history, personalInstructions, asOf }),
+    selectAiDigestPosts({
+      user,
+      context,
+      profile,
+      posts: summarizedPosts,
+      quickTakes: pool.quickTakes,
+      repeatsAllowed: pool.repeatsAllowed,
+      history,
+      personalInstructions,
+      asOf,
+    }),
     selectThreadsOrNone({ profile, cards: threadCards, personalInstructions, asOf }),
   ]);
   // Previews are only worth generating for the handful of posts that made the slate.
-  const { previewHtmlByPostId } = await ensureAiDigestPostPreviews({
-    targets: postSelection.items.flatMap((item) => item.documentType === "post" ? [item.post] : []),
+  const previewHtmlByPostId = await ensureAiDigestPostPreviews(
+    postSelection.items.flatMap((item) => item.documentType === "post" ? [item.post] : []),
     context,
-  });
+  );
   const spec = buildAiDigestSpec({
     user,
     personalInstructions,
@@ -173,13 +180,13 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
     previewHtmlByPostId,
   });
 
-  const issueId = await persistAiDigestIssue(
-    { recipientId: user._id, trigger, countsTowardHistory, spec },
-    {
-      durationMs: Date.now() - startedAt,
-      calls: threadSelection ? [postSelection.call, threadSelection.call] : [postSelection.call],
-    },
-  );
+  // The scheduled send stamps `emailedAt` once the email is accepted for delivery.
+  const issueId = await AiDigestIssues.rawInsert({ recipientId: user._id, trigger, countsTowardHistory, spec, emailedAt: null });
+  await AiDigestIssueGenerations.rawInsert({
+    issueId,
+    durationMs: Date.now() - startedAt,
+    calls: threadSelection ? [postSelection.call, threadSelection.call] : [postSelection.call],
+  });
   serverCaptureEvent("aiDigestGenerated", { userId: user._id, issueId, trigger });
   return { issueId, spec };
 }

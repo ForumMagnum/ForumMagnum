@@ -1,14 +1,15 @@
-import { daysAgo, validatedAiDigestPersonalInstructions } from "@/lib/aiDigest/helpers";
+import omit from "lodash/omit";
 import {
   AI_DIGEST_CANDIDATE_MAX_AGE_DAYS,
   AI_DIGEST_MIN_KARMA,
   type AiDigestPostCandidate,
   type AiDigestQuickTakeCandidate,
 } from "./aiDigestCandidates";
-import type { AiDigestHistory, AiDigestPreviousInclusion } from "./aiDigestHistory";
+import type { AiDigestHistory } from "./aiDigestHistory";
+import { aiDigestPromptJson } from "./aiDigestModelCalls";
 import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 
-export const AI_DIGEST_POST_SELECTION_PROMPT_VERSION = "ai-digest-post-selection-v19";
+export const AI_DIGEST_POST_SELECTION_PROMPT_VERSION = "ai-digest-post-selection-v20";
 
 const AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT = `# Task
 
@@ -33,13 +34,13 @@ Build a provisional picture of the reader's current interests from aggregate aff
 - Think about a user's overall patterns. Someone reading 5 posts on a forecasting topic means something different if they read a total of 7 posts versus 200 posts.
 - Topic counters overlap: one read post can increment several topics. Do not add topic counts together as if they were disjoint.
 - Account age and recent-read counts indicate how much confidence to place in the dossier. They are not interests.
-- Evidence strengthens from click to read to like: \`clickedDaysAgo\` rates the email pitch, not the post. A regular or strong like may affect ranking and support wording such as "related to a post you liked."
+- Evidence strengthens from click to read to like: \`clickedAt\` rates the email pitch, not the post. A regular or strong like may affect ranking and support wording such as "related to a post you liked."
 - Candidates carrying \`previousDigest\` were recommended to this reader in an earlier issue. They are offered only when there were too few new candidates to fill a slate: prefer the others, and when you must repeat, prefer the least recently repeated.
 - \`hasReadStatus\` means the site has recorded a readStatus event, however these are triggered relatively easily and do not strongly imply a user has read or even properly noticed a post. Prefer items that do not have this status for recommending them. Do not imply a user has definitely read content on the basis of hasReadStatus only. A liked post genuinely counts as read.
 - Authorship and commenting show engagement, not automatic endorsement.
 - Following an author is useful evidence, but still consider the actual candidate.
 - Treat active negative preferences as evidence against similar authors, topics, or content types.
-- Day offsets are nonnegative whole days before the supplied \`asOf\` date.
+- Dates are UTC calendar dates; the supplied \`asOf\` date is today.
 - Quality matters: \`baseScore\` is overall karma and \`decayedScore\` favors newer engagement. Prefer the quality/relevance frontier rather than relevance alone.
 
 For sparse or new readers, use the limited specific evidence cautiously, favor broadly worthwhile recent posts with strong quality signals, diversify the slate, and let reasons state the honest site-wide rationale rather than overstating what is known. Never manufacture a personalized claim to fill a slot.
@@ -96,51 +97,9 @@ Bad forms, and why:
 
 Never mention voting mechanics.`;
 
-/** The reader-specific facts about a candidate, as they appear in the prompt. Unset facts are left out. */
-function readerAnnotations(
-  candidate: {
-    liked: "regular" | "strong" | null;
-    followsAuthor: boolean;
-    previousInclusion?: AiDigestPreviousInclusion;
-  },
-  asOf: Date,
-) {
-  return {
-    liked: candidate.liked ?? undefined,
-    followsAuthor: candidate.followsAuthor || undefined,
-    previousDigest: candidate.previousInclusion && {
-      count: candidate.previousInclusion.count,
-      lastIncludedDaysAgo: daysAgo(asOf, candidate.previousInclusion.lastIncludedAt),
-    },
-  };
-}
-
-/** A post as it appears among the candidates and in search results. */
-export function aiDigestPromptPost(post: AiDigestPostCandidate & { summary?: string }, asOf: Date) {
-  return {
-    postId: post.postId,
-    title: post.title,
-    author: post.author,
-    publishedDaysAgo: daysAgo(asOf, post.postedAt),
-    baseScore: post.baseScore,
-    decayedScore: post.score,
-    tags: post.tags,
-    summary: post.summary,
-    curated: post.curated || undefined,
-    hasReadStatus: post.hasReadStatus || undefined,
-    ...readerAnnotations(post, asOf),
-  };
-}
-
-function promptQuickTake(quickTake: AiDigestQuickTakeCandidate, asOf: Date) {
-  return {
-    commentId: quickTake.commentId,
-    author: quickTake.author,
-    publishedDaysAgo: daysAgo(asOf, quickTake.postedAt),
-    baseScore: quickTake.baseScore,
-    body: quickTake.body,
-    ...readerAnnotations(quickTake, asOf),
-  };
+/** A post as the model sees it, among the candidates and in search results. */
+export function aiDigestPromptPost(post: AiDigestPostCandidate) {
+  return omit(post, "revisionId");
 }
 
 export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, history, personalInstructions, asOf }: {
@@ -151,39 +110,38 @@ export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, h
   personalInstructions: string | null;
   asOf: Date;
 }): { system: string; prompt: string } {
-  const instructions = validatedAiDigestPersonalInstructions(personalInstructions);
   const prompt = [
     "# Candidate posts",
     `Posts from the last ${AI_DIGEST_CANDIDATE_MAX_AGE_DAYS} days with at least ${AI_DIGEST_MIN_KARMA} karma. `
-      + `Day offsets throughout are relative to asOf, ${asOf.toISOString().slice(0, 10)}.`,
+      + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
     "<UNTRUSTED_CANDIDATE_POSTS>",
-    JSON.stringify(posts.map((post) => aiDigestPromptPost(post, asOf))),
+    aiDigestPromptJson(posts.map(aiDigestPromptPost)),
     "</UNTRUSTED_CANDIDATE_POSTS>",
     "",
     "# Candidate quick takes",
     "Quick takes are short untitled posts. Bodies are bounded plaintext.",
     "<UNTRUSTED_CANDIDATE_QUICK_TAKES>",
-    JSON.stringify(quickTakes.map((quickTake) => promptQuickTake(quickTake, asOf))),
+    aiDigestPromptJson(quickTakes),
     "</UNTRUSTED_CANDIDATE_QUICK_TAKES>",
     "",
     "# Reader profile",
     `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
     "<UNTRUSTED_READER_PROFILE>",
-    JSON.stringify(profile),
+    aiDigestPromptJson(profile),
     "</UNTRUSTED_READER_PROFILE>",
-    ...(instructions
+    ...(personalInstructions
       ? [
         "",
         "# Reader's explicit content preferences",
         "<UNTRUSTED_READER_INSTRUCTIONS>",
-        JSON.stringify(instructions),
+        JSON.stringify(personalInstructions),
         "</UNTRUSTED_READER_INSTRUCTIONS>",
       ]
       : []),
     "",
     "# Past recommendation outcomes",
     "<UNTRUSTED_PAST_RECOMMENDATIONS>",
-    JSON.stringify(history.pastRecommendations),
+    aiDigestPromptJson(history.pastRecommendations),
     "</UNTRUSTED_PAST_RECOMMENDATIONS>",
   ].join("\n");
   return {

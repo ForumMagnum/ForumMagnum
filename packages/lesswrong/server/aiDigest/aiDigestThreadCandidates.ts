@@ -1,11 +1,9 @@
-import { DAY_MS } from "@/lib/aiDigest/constants";
-import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
-import { htmlToTextDefault } from "@/lib/htmlToText";
 import type { AiDigestThreadCommentRow } from "@/server/repos/CommentsRepo";
 import groupBy from "lodash/groupBy";
 import uniq from "lodash/uniq";
-import { AI_DIGEST_CANDIDATE_MAX_AGE_DAYS } from "./aiDigestCandidates";
+import { aiDigestCandidateWindowStart } from "./aiDigestCandidates";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
+import { aiDigestPlainText } from "./aiDigestPostText";
 
 const SITE_WIDE_THREAD_LIMIT = 12;
 const READER_THREAD_LIMIT = 8;
@@ -26,20 +24,21 @@ export interface AiDigestThreadCardComment extends Omit<
   truncated: boolean;
 }
 
-/** A candidate thread, and the comments from it the model is shown. */
+/** A candidate thread, and the comments from it the model is shown, as the prompt shows them. */
 export interface AiDigestThreadCard {
   threadId: string;
   postTitle: string | null;
   postBaseScore: number | null;
   /** The reader wrote or upvoted a comment in the thread. */
   participated: boolean;
-  previousInclusion?: AiDigestPreviousInclusion;
+  /** Set when the thread ran in an earlier issue. */
+  previousDigest?: AiDigestPreviousInclusion;
   /** Oldest first. */
   comments: AiDigestThreadCardComment[];
 }
 
 function toCardComment({ threadId, postTitle, postBaseScore, html, seesLess, ...row }: AiDigestThreadCommentRow): AiDigestThreadCardComment {
-  const plainText = collapseAiDigestWhitespace(htmlToTextDefault(html));
+  const plainText = aiDigestPlainText(html);
   return {
     ...row,
     body: plainText.slice(0, COMMENT_BODY_MAX_CHARS),
@@ -65,7 +64,7 @@ function compareByReaderFlagThenKarma(first: AiDigestThreadCommentRow, second: A
  * parents is included too, so it can be read in context; a comment whose chain
  * doesn't fit in the budget, or doesn't resolve, is skipped.
  */
-export function aiDigestThreadCardComments(threadId: string, rows: AiDigestThreadCommentRow[]): AiDigestThreadCardComment[] {
+function aiDigestThreadCardComments(threadId: string, rows: AiDigestThreadCommentRow[]): AiDigestThreadCardComment[] {
   const rowsById = new Map(rows.map((row) => [row.commentId, row]));
   const selectedIds = new Set<string>([threadId]);
   for (const row of rows.filter(({ commentId }) => commentId !== threadId).sort(compareByReaderFlagThenKarma)) {
@@ -112,9 +111,9 @@ function toThreadCard(
     return null;
   }
   const comments = aiDigestThreadCardComments(threadId, rows);
-  const previousInclusion = threadPreviousInclusion(rows, previousInclusions);
+  const previousDigest = threadPreviousInclusion(rows, previousInclusions);
   // A thread that already ran is offered again only if the discussion has moved on since.
-  if (previousInclusion && !comments.some((comment) => comment.postedAt > previousInclusion.lastIncludedAt)) {
+  if (previousDigest && !comments.some((comment) => comment.postedAt > previousDigest.lastIncludedAt)) {
     return null;
   }
   return {
@@ -122,7 +121,7 @@ function toThreadCard(
     postTitle: root.postTitle,
     postBaseScore: root.postBaseScore,
     participated: rows.some((row) => row.authoredByReader || row.liked !== null),
-    previousInclusion,
+    previousDigest,
     comments,
   };
 }
@@ -138,12 +137,12 @@ export async function loadAiDigestThreadCards(
   asOf: Date,
   previousInclusions: Map<string, AiDigestPreviousInclusion>,
 ): Promise<AiDigestThreadCard[]> {
-  const minPostedAt = new Date(asOf.getTime() - (AI_DIGEST_CANDIDATE_MAX_AGE_DAYS * DAY_MS));
-  const [readerThreads, siteWideThreads] = await Promise.all([
-    context.repos.comments.getAiDigestReaderThreadRows({ userId: user._id, minPostedAt, limit: READER_THREAD_LIMIT }),
-    context.repos.comments.getAiDigestSiteWideThreadRows({ minPostedAt, limit: SITE_WIDE_THREAD_LIMIT }),
+  const minPostedAt = aiDigestCandidateWindowStart(asOf);
+  const [readerThreadIds, siteWideThreadIds] = await Promise.all([
+    context.repos.comments.getAiDigestReaderThreadIds({ userId: user._id, minPostedAt, limit: READER_THREAD_LIMIT }),
+    context.repos.comments.getAiDigestSiteWideThreadIds({ minPostedAt, limit: SITE_WIDE_THREAD_LIMIT }),
   ]);
-  const threadIds = uniq([...readerThreads, ...siteWideThreads].map(({ threadId }) => threadId));
+  const threadIds = uniq([...readerThreadIds, ...siteWideThreadIds]);
   const rows = await context.repos.comments.getAiDigestThreadComments({
     userId: user._id,
     threadIds,

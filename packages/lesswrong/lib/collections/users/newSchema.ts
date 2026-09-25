@@ -28,6 +28,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
+import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
@@ -4393,7 +4394,7 @@ const schema = {
       canUpdate: [userOwns, "admins"],
       validation: {
         optional: true,
-        regEx: /^[\s\S]{0,2000}$/,
+        regEx: new RegExp(`^[\\s\\S]{0,${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH}}$`),
       },
     },
   },

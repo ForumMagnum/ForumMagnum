@@ -1,17 +1,16 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
-import { ensureAiDigestPostTextCache, type AiDigestPostTextCacheTarget } from "./aiDigestPostTextCache";
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { truncate } from "@/lib/editor/ellipsize";
 import { sanitize } from "@/lib/utils/sanitize";
 import PostPreviews from "@/server/collections/postPreviews/collection";
-import { aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
+import { AI_DIGEST_MODEL_ID, aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
+import { loadAiDigestRevisionHtml, type AiDigestPostTextTarget } from "./aiDigestPostText";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 
-const AI_DIGEST_POST_PREVIEW_PROMPT_VERSION = "ai-digest-post-preview-v1";
-const AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID = "anthropic/claude-opus-5.5";
+const PROMPT_VERSION = "ai-digest-post-preview-v1";
 /**
  * Storage cap for a cached preview. Both surfaces truncate again to their own
  * placement budget, so this only needs to be comfortably larger than those.
@@ -21,7 +20,7 @@ const AI_DIGEST_POST_PREVIEW_MAX_HTML_LENGTH = 4000;
  * A preamble that swallowed more than this share of the post's text would mean
  * the model mistook the body for boilerplate, so such answers are rejected.
  */
-export const AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE = 0.25;
+const AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE = 0.25;
 
 const AI_DIGEST_POST_PREVIEW_PROMPT_BLOCK_COUNT = 12;
 const AI_DIGEST_POST_PREVIEW_PROMPT_BLOCK_MAX_CHARS = 400;
@@ -53,30 +52,6 @@ export interface AiDigestPostPreviewBlock {
   /** Verbatim author HTML for the whole block. */
   html: string;
   text: string;
-}
-
-export interface AiDigestPostPreviewTarget extends AiDigestPostTextCacheTarget {
-  title: string;
-  author: string;
-}
-
-/** One `PostPreviews` cache row. */
-export interface AiDigestPostPreviewRecord extends AiDigestPostTextCacheTarget {
-  previewHtml: string;
-  startBlockIndex: number;
-  modelId: string;
-  promptVersion: string;
-}
-
-interface AiDigestPreviewPopulationResult {
-  previews: AiDigestPostPreviewRecord[];
-  reusedPreviewCount: number;
-  generatedPreviewCount: number;
-  skippedPostCount: number;
-}
-
-interface AiDigestEnsuredPreviewResult extends AiDigestPreviewPopulationResult {
-  previewHtmlByPostId: Map<string, string>;
 }
 
 /**
@@ -111,11 +86,7 @@ export function validateAiDigestPreviewStartBlockIndex(
   startBlockIndex: number,
   blocks: AiDigestPostPreviewBlock[],
 ): number {
-  if (
-    !Number.isInteger(startBlockIndex)
-    || startBlockIndex < 0
-    || startBlockIndex >= blocks.length
-  ) {
+  if (startBlockIndex >= blocks.length) {
     throw new Error(`Preview start block index was out of range: ${startBlockIndex}`);
   }
   const postTextLength = totalTextLength(blocks);
@@ -168,57 +139,7 @@ export function buildAiDigestPostPreviewHtml(
   return previewHtml || null;
 }
 
-/**
- * Previews are a presentational nicety, so any failure (an unusable model
- * answer, a post with no prose to show, a provider error, a losing race to
- * write the cache row) falls back to plaintext excerpts.
- * Unexpected failures are reported without including post content.
- */
-async function generateAndSavePreview(
-  target: AiDigestPostPreviewTarget,
-  revisionHtml: string,
-  modelId: string,
-  promptVersion: string,
-): Promise<AiDigestPostPreviewRecord | null> {
-  const blocks = splitPostHtmlIntoBlocks(revisionHtml);
-  if (!blocks.length) return null;
-  let stage = "generation";
-  try {
-    const startBlockIndex = validateAiDigestPreviewStartBlockIndex(
-      await selectPostPreviewStartBlockIndex(target, blocks, modelId, promptVersion),
-      blocks,
-    );
-    const previewHtml = buildAiDigestPostPreviewHtml(blocks, startBlockIndex);
-    if (!previewHtml) {
-      return null;
-    }
-    const preview: AiDigestPostPreviewRecord = {
-      postId: target.postId,
-      revisionId: target.revisionId,
-      previewHtml,
-      startBlockIndex,
-      modelId,
-      promptVersion,
-    };
-    stage = "persistence";
-    await PostPreviews.rawInsert(preview);
-    return preview;
-  } catch (error) {
-    if (stage === "persistence" && isPostgresUniqueViolation(error)) {
-      return null;
-    }
-    // Provider exceptions can contain request bodies, so report only safe context.
-    captureException(new Error(`AI digest preview ${stage} failed`), {
-      extra: { postId: target.postId, revisionId: target.revisionId, modelId, promptVersion },
-    });
-    return null;
-  }
-}
-
-function buildPostPreviewPrompt(
-  target: AiDigestPostPreviewTarget,
-  blocks: AiDigestPostPreviewBlock[],
-): string {
+function buildPostPreviewPrompt(target: AiDigestPostTextTarget, blocks: AiDigestPostPreviewBlock[]): string {
   return [
     "--- BEGIN UNTRUSTED POST DATA ---",
     JSON.stringify({
@@ -237,15 +158,10 @@ function buildPostPreviewPrompt(
   ].join("\n");
 }
 
-async function selectPostPreviewStartBlockIndex(
-  target: AiDigestPostPreviewTarget,
-  blocks: AiDigestPostPreviewBlock[],
-  modelId: string,
-  promptVersion: string,
-): Promise<number> {
+async function selectPostPreviewStartBlockIndex(target: AiDigestPostTextTarget, blocks: AiDigestPostPreviewBlock[]): Promise<number> {
   const result = await generateText({
-    model: modelId,
-    system: `${POST_PREVIEW_SYSTEM_PROMPT}\n\nPrompt version: ${promptVersion}`,
+    model: AI_DIGEST_MODEL_ID,
+    system: `${POST_PREVIEW_SYSTEM_PROMPT}\n\nPrompt version: ${PROMPT_VERSION}`,
     prompt: buildPostPreviewPrompt(target, blocks),
     providerOptions: aiDigestGatewayProviderOptions("post-preview"),
     output: Output.object({
@@ -259,35 +175,78 @@ async function selectPostPreviewStartBlockIndex(
 }
 
 /**
- * Cleaned preview HTML for the handful of posts that made it into an issue,
- * generating and caching any that are missing.
+ * Previews are a presentational nicety, so any failure (an unusable model
+ * answer, a post with no prose to show, a provider error) leaves the post
+ * without one, and its card falls back to a plaintext excerpt. Failures are
+ * reported without post content.
  */
-export async function ensureAiDigestPostPreviews({
-  targets,
-  context,
-  modelId = AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID,
-  promptVersion = AI_DIGEST_POST_PREVIEW_PROMPT_VERSION,
-}: {
-  targets: AiDigestPostPreviewTarget[];
-  context: ResolverContext;
-  modelId?: string;
-  promptVersion?: string;
-}): Promise<AiDigestEnsuredPreviewResult> {
-  const { records, reusedCount, generatedCount, skippedPostCount } = await ensureAiDigestPostTextCache<AiDigestPostPreviewTarget, AiDigestPostPreviewRecord>({
-    targets,
-    collection: PostPreviews,
-    context,
-    modelId,
-    promptVersion,
-    generateAndSave: generateAndSavePreview,
+async function generateAndSavePreview(target: AiDigestPostTextTarget, revisionHtml: string | undefined): Promise<string | null> {
+  const blocks = revisionHtml ? splitPostHtmlIntoBlocks(revisionHtml) : [];
+  if (!blocks.length) {
+    return null;
+  }
+  const safeErrorContext = { extra: { postId: target.postId, revisionId: target.revisionId } };
+  let startBlockIndex: number;
+  try {
+    startBlockIndex = validateAiDigestPreviewStartBlockIndex(await selectPostPreviewStartBlockIndex(target, blocks), blocks);
+  } catch {
+    // Provider exceptions can contain request bodies, so report only safe context.
+    captureException(new Error("AI digest preview generation failed"), safeErrorContext);
+    return null;
+  }
+  const previewHtml = buildAiDigestPostPreviewHtml(blocks, startBlockIndex);
+  if (!previewHtml) {
+    return null;
+  }
+  try {
+    await PostPreviews.rawInsert({
+      postId: target.postId,
+      revisionId: target.revisionId,
+      previewHtml,
+      startBlockIndex,
+      modelId: AI_DIGEST_MODEL_ID,
+      promptVersion: PROMPT_VERSION,
+    });
+  } catch (error) {
+    // A concurrent generation already cached a preview of the same revision.
+    if (!isPostgresUniqueViolation(error)) {
+      captureException(new Error("AI digest preview persistence failed"), safeErrorContext);
+    }
+  }
+  return previewHtml;
+}
+
+/**
+ * Cleaned preview HTML, by post ID, for the handful of posts that made it into
+ * an issue, generating and caching any that are missing.
+ */
+export async function ensureAiDigestPostPreviews(
+  targets: AiDigestPostTextTarget[],
+  context: ResolverContext,
+): Promise<Map<string, string>> {
+  const cached = targets.length ? await PostPreviews.find({
+    postId: { $in: targets.map((target) => target.postId) },
+    revisionId: { $in: targets.map((target) => target.revisionId) },
+    modelId: AI_DIGEST_MODEL_ID,
+    promptVersion: PROMPT_VERSION,
+  }).fetch() : [];
+  const previewByRevisionId = new Map(cached.map((row) => [row.revisionId, row.previewHtml]));
+  const missing = targets.filter((target) => !previewByRevisionId.has(target.revisionId));
+  const htmlByRevisionId = await loadAiDigestRevisionHtml(missing.map((target) => target.revisionId), context);
+  const generated = await Promise.all(missing.map((target) =>
+    generateAndSavePreview(target, htmlByRevisionId.get(target.revisionId))));
+  missing.forEach((target, index) => {
+    const previewHtml = generated[index];
+    if (previewHtml) {
+      previewByRevisionId.set(target.revisionId, previewHtml);
+    }
   });
-  return {
-    previews: records,
-    reusedPreviewCount: reusedCount,
-    generatedPreviewCount: generatedCount,
-    skippedPostCount,
-    previewHtmlByPostId: new Map(
-      records.map((preview) => [preview.postId, preview.previewHtml]),
-    ),
-  };
+  const previewHtmlByPostId = new Map<string, string>();
+  for (const target of targets) {
+    const previewHtml = previewByRevisionId.get(target.revisionId);
+    if (previewHtml) {
+      previewHtmlByPostId.set(target.postId, previewHtml);
+    }
+  }
+  return previewHtmlByPostId;
 }

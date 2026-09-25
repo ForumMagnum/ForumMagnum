@@ -5,6 +5,10 @@ import type { LanguageModelUsage, ModelMessage, ProviderMetadata } from "ai";
  * Anthropic prompt caching, and the diagnostics record kept for each call.
  */
 
+/** The model behind every digest call, and its name as shown to readers above the AI note. */
+export const AI_DIGEST_MODEL_ID = "anthropic/claude-opus-5.5";
+export const AI_DIGEST_MODEL_NAME = "Claude Opus 5.5";
+
 type AiDigestGatewayPurpose = "post-selection" | "thread-selection" | "post-summary" | "post-preview";
 
 /**
@@ -21,17 +25,36 @@ export function aiDigestGatewayProviderOptions(purpose: AiDigestGatewayPurpose) 
 }
 
 /**
- * The prompt as a single user message. For Anthropic models it is marked for
- * caching, so the later steps of a tool-using call reread it from the cache.
+ * The prompt as a single user message, marked for Anthropic's prompt cache so
+ * the later steps of a tool-using call reread it from the cache.
  */
-export function aiDigestUserMessage(prompt: string, modelId: string): ModelMessage {
+export function aiDigestUserMessage(prompt: string): ModelMessage {
   return {
     role: "user",
     content: prompt,
-    ...(modelId.startsWith("anthropic/")
-      ? { providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } }
-      : {}),
+    providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } },
   };
+}
+
+/**
+ * `JSON.stringify` calls `toJSON` before the replacer sees a value, so dates
+ * are recognized by looking the original value up on the containing object.
+ */
+function promptJsonValue(this: Record<string, unknown>, key: string, value: unknown): unknown {
+  const originalValue = this[key];
+  if (originalValue instanceof Date) {
+    return originalValue.toISOString().slice(0, 10);
+  }
+  return value === null || value === false ? undefined : value;
+}
+
+/**
+ * Data as it appears in the digest prompts: JSON with dates as UTC calendar
+ * dates, and null and false values left out, since absent facts cost tokens
+ * without telling the model anything.
+ */
+export function aiDigestPromptJson(value: unknown): string {
+  return JSON.stringify(value, promptJsonValue);
 }
 
 function parseGatewayCost(cost: unknown): number | null {

@@ -1,8 +1,8 @@
-import { daysAgo, validatedAiDigestPersonalInstructions } from "@/lib/aiDigest/helpers";
+import { aiDigestPromptJson } from "./aiDigestModelCalls";
 import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
-import type { AiDigestThreadCard, AiDigestThreadCardComment } from "./aiDigestThreadCandidates";
+import type { AiDigestThreadCard } from "./aiDigestThreadCandidates";
 
-export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v5";
+export const AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION = "ai-digest-thread-selection-v6";
 
 const AI_DIGEST_THREAD_SELECTION_SYSTEM_PROMPT = `# Task
 
@@ -57,63 +57,31 @@ Bad forms, and why:
 
 Write all copy as plain text with literal Unicode characters; never emit JSON-style escape sequences such as \\u2014 inside string values.`;
 
-function promptComment(comment: AiDigestThreadCardComment, asOf: Date) {
-  return {
-    commentId: comment.commentId,
-    parentCommentId: comment.parentCommentId ?? undefined,
-    author: comment.author,
-    publishedDaysAgo: daysAgo(asOf, comment.postedAt),
-    baseScore: comment.baseScore,
-    body: comment.body,
-    truncated: comment.truncated || undefined,
-    authoredByReader: comment.authoredByReader || undefined,
-    liked: comment.liked ?? undefined,
-    newSinceLastVisit: comment.newSinceLastVisit || undefined,
-    seenInFeed: comment.seenInFeed || undefined,
-    anchorIneligible: comment.notifiedBecause ?? undefined,
-  };
-}
-
-function promptThread(card: AiDigestThreadCard, asOf: Date) {
-  return {
-    threadId: card.threadId,
-    postTitle: card.postTitle ?? undefined,
-    postBaseScore: card.postBaseScore ?? undefined,
-    participated: card.participated || undefined,
-    previousDigest: card.previousInclusion && {
-      count: card.previousInclusion.count,
-      lastIncludedDaysAgo: daysAgo(asOf, card.previousInclusion.lastIncludedAt),
-    },
-    comments: card.comments.map((comment) => promptComment(comment, asOf)),
-  };
-}
-
 export function buildAiDigestThreadSelectionPrompt({ profile, cards, personalInstructions, asOf }: {
   profile: AiDigestReaderProfile;
   cards: AiDigestThreadCard[];
   personalInstructions: string | null;
   asOf: Date;
 }): { system: string; prompt: string } {
-  const instructions = validatedAiDigestPersonalInstructions(personalInstructions);
   const prompt = [
     "# Candidate threads",
     "Recent comment threads, with a selection of each one's comments, oldest first. A `truncated` comment body was cut at the length limit. "
-      + `Day offsets throughout are relative to asOf, ${asOf.toISOString().slice(0, 10)}.`,
+      + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
     "<UNTRUSTED_CANDIDATE_THREADS>",
-    JSON.stringify(cards.map((card) => promptThread(card, asOf))),
+    aiDigestPromptJson(cards),
     "</UNTRUSTED_CANDIDATE_THREADS>",
     "",
     "# Reader profile",
     `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
     "<UNTRUSTED_READER_PROFILE>",
-    JSON.stringify(profile),
+    aiDigestPromptJson(profile),
     "</UNTRUSTED_READER_PROFILE>",
-    ...(instructions
+    ...(personalInstructions
       ? [
         "",
         "# Reader's explicit content preferences",
         "<UNTRUSTED_READER_INSTRUCTIONS>",
-        JSON.stringify(instructions),
+        JSON.stringify(personalInstructions),
         "</UNTRUSTED_READER_INSTRUCTIONS>",
       ]
       : []),

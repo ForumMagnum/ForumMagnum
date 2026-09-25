@@ -1,13 +1,13 @@
 import { generateText, NoObjectGeneratedError, Output, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
 import {
-  loadAiDigestPostCandidatesByIds,
-  type AiDigestCandidatePool,
+  loadAiDigestPostCandidates,
   type AiDigestPostCandidate,
   type AiDigestQuickTakeCandidate,
 } from "./aiDigestCandidates";
 import type { AiDigestHistory } from "./aiDigestHistory";
 import {
+  AI_DIGEST_MODEL_ID,
   aiDigestGatewayProviderOptions,
   aiDigestModelCallRecord,
   aiDigestUserMessage,
@@ -21,7 +21,6 @@ import {
   isSelectableAiDigestSearchResult,
 } from "./aiDigestSelectionTools";
 
-export const AI_DIGEST_SELECTION_MODEL_ID = "anthropic/claude-opus-5.5";
 const MAX_QUICK_TAKES_PER_ISSUE = 2;
 
 const reasonSchema = z.string().min(1).max(180).describe(
@@ -63,12 +62,15 @@ export interface AiDigestPostSelection {
  * The model's five picks as candidates. Picks the model found by search are
  * checked against the same eligibility rules as the candidates it was given.
  */
-async function resolveSelectedItems({ output, pool, history, user, context }: {
+async function resolveSelectedItems({ output, posts, quickTakes, repeatsAllowed, history, user, context, asOf }: {
   output: AiDigestPostSelectionOutput;
-  pool: AiDigestCandidatePool<AiDigestPostCandidate>;
+  posts: AiDigestPostCandidate[];
+  quickTakes: AiDigestQuickTakeCandidate[];
+  repeatsAllowed: boolean;
   history: AiDigestHistory;
   user: DbUser;
   context: ResolverContext;
+  asOf: Date;
 }): Promise<AiDigestSelectedItem[]> {
   const selections = [
     ...output.headlinePosts.map(({ postId, reason }) => ({ itemId: postId, reason, isHeadline: true })),
@@ -77,14 +79,20 @@ async function resolveSelectedItems({ output, pool, history, user, context }: {
   if (new Set(selections.map(({ itemId }) => itemId)).size !== selections.length) {
     throw new Error("Selection must contain five distinct items");
   }
-  const postsById = new Map(pool.posts.map((post) => [post.postId, post]));
-  const quickTakesById = new Map(pool.quickTakes.map((quickTake) => [quickTake.commentId, quickTake]));
+  const postsById = new Map<string, AiDigestPostCandidate>(posts.map((post) => [post.postId, post]));
+  const quickTakesById = new Map(quickTakes.map((quickTake) => [quickTake.commentId, quickTake]));
   const searchResultIds = selections
     .map(({ itemId }) => itemId)
     .filter((itemId) => !postsById.has(itemId) && !quickTakesById.has(itemId));
-  const searchResults = await loadAiDigestPostCandidatesByIds(user, context, searchResultIds, history.previousInclusions);
+  const searchResults = await loadAiDigestPostCandidates({
+    user,
+    context,
+    previousInclusions: history.previousInclusions,
+    asOf,
+    postIds: searchResultIds,
+  });
   for (const post of searchResults) {
-    if (isSelectableAiDigestSearchResult(post, pool.repeatsAllowed)) {
+    if (isSelectableAiDigestSearchResult(post, repeatsAllowed)) {
       postsById.set(post.postId, post);
     }
   }
@@ -108,9 +116,9 @@ async function resolveSelectedItems({ output, pool, history, user, context }: {
 
 function callSelectionModel({ system, prompt, tools }: { system: string; prompt: string; tools: ToolSet }) {
   return generateText({
-    model: AI_DIGEST_SELECTION_MODEL_ID,
+    model: AI_DIGEST_MODEL_ID,
     system,
-    messages: [aiDigestUserMessage(prompt, AI_DIGEST_SELECTION_MODEL_ID)],
+    messages: [aiDigestUserMessage(prompt)],
     tools,
     stopWhen: stepCountIs(AI_DIGEST_SELECTION_STEP_LIMIT),
     providerOptions: aiDigestGatewayProviderOptions("post-selection"),
@@ -141,29 +149,35 @@ async function callSelectionModelRetryingInvalidOutput(options: { system: string
   }
 }
 
-export async function selectAiDigestPosts({ user, context, profile, pool, history, personalInstructions, asOf }: {
+export async function selectAiDigestPosts({
+  user,
+  context,
+  profile,
+  posts,
+  quickTakes,
+  repeatsAllowed,
+  history,
+  personalInstructions,
+  asOf,
+}: {
   user: DbUser;
   context: ResolverContext;
   profile: AiDigestReaderProfile;
-  pool: AiDigestCandidatePool<AiDigestPostCandidate & { summary: string }>;
+  posts: Array<AiDigestPostCandidate & { summary: string }>;
+  quickTakes: AiDigestQuickTakeCandidate[];
+  /** Whether items recommended in earlier issues are among the candidates. */
+  repeatsAllowed: boolean;
   history: AiDigestHistory;
   personalInstructions: string | null;
   asOf: Date;
 }): Promise<AiDigestPostSelection> {
-  const { system, prompt } = buildAiDigestPostSelectionPrompt({
-    profile,
-    posts: pool.posts,
-    quickTakes: pool.quickTakes,
-    history,
-    personalInstructions,
-    asOf,
-  });
+  const { system, prompt } = buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, history, personalInstructions, asOf });
   const tools = createAiDigestSelectionTools({
     user,
     context,
-    candidatePostIds: new Set(pool.posts.map((post) => post.postId)),
+    candidatePostsById: new Map(posts.map((post) => [post.postId, post])),
     previousInclusions: history.previousInclusions,
-    repeatsAllowed: pool.repeatsAllowed,
+    repeatsAllowed,
     asOf,
   });
   const result = await callSelectionModelRetryingInvalidOutput({ system, prompt, tools });
@@ -174,13 +188,22 @@ export async function selectAiDigestPosts({ user, context, profile, pool, histor
     );
   }
   return {
-    items: await resolveSelectedItems({ output: result.output, pool, history, user, context }),
+    items: await resolveSelectedItems({
+      output: result.output,
+      posts,
+      quickTakes,
+      repeatsAllowed,
+      history,
+      user,
+      context,
+      asOf,
+    }),
     subject: decodeStrayUnicodeEscapes(result.output.subject),
     preheader: decodeStrayUnicodeEscapes(result.output.preheader),
     aiNote: result.output.aiNote.map(decodeStrayUnicodeEscapes),
     call: aiDigestModelCallRecord({
       purpose: "post-selection",
-      modelId: AI_DIGEST_SELECTION_MODEL_ID,
+      modelId: AI_DIGEST_MODEL_ID,
       promptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
       system,
       prompt,

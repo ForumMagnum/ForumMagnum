@@ -1,6 +1,7 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
+  AI_DIGEST_MODEL_ID,
   aiDigestGatewayProviderOptions,
   aiDigestModelCallRecord,
   aiDigestUserMessage,
@@ -81,7 +82,7 @@ function sanitizedReason(reason: string): string | null {
  * anchor in the same thread, or anything past the comment budget) are dropped
  * rather than failing the issue.
  */
-export function aiDigestSelectedThreads(
+function aiDigestSelectedThreads(
   selections: Array<{ anchorCommentId: string; reason: string }>,
   cards: AiDigestThreadCard[],
 ): AiDigestSelectedThread[] {
@@ -97,7 +98,7 @@ export function aiDigestSelectedThreads(
     const card = cardsByCommentId.get(anchorCommentId);
     const commentsById = new Map(card?.comments.map((comment) => [comment.commentId, comment]));
     const anchor = commentsById.get(anchorCommentId);
-    if (!card || !anchor || anchor.notifiedBecause || usedThreadIds.has(card.threadId) || remainingComments < 1) {
+    if (!card || !anchor || anchor.anchorIneligible || usedThreadIds.has(card.threadId) || remainingComments < 1) {
       return [];
     }
     usedThreadIds.add(card.threadId);
@@ -111,18 +112,17 @@ export function aiDigestSelectedThreads(
   });
 }
 
-export async function selectAiDigestThreads({ profile, cards, personalInstructions, asOf, modelId }: {
+export async function selectAiDigestThreads({ profile, cards, personalInstructions, asOf }: {
   profile: AiDigestReaderProfile;
   cards: AiDigestThreadCard[];
   personalInstructions: string | null;
   asOf: Date;
-  modelId: string;
 }): Promise<{ threads: AiDigestSelectedThread[]; call: AiDigestModelCallRecord }> {
   const { system, prompt } = buildAiDigestThreadSelectionPrompt({ profile, cards, personalInstructions, asOf });
   const result = await generateText({
-    model: modelId,
+    model: AI_DIGEST_MODEL_ID,
     system,
-    messages: [aiDigestUserMessage(prompt, modelId)],
+    messages: [aiDigestUserMessage(prompt)],
     providerOptions: aiDigestGatewayProviderOptions("thread-selection"),
     output: Output.object({
       schema: threadSelectionOutputSchema,
@@ -143,7 +143,7 @@ export async function selectAiDigestThreads({ profile, cards, personalInstructio
     threads: aiDigestSelectedThreads(result.output.selectedThreads, cards),
     call: aiDigestModelCallRecord({
       purpose: "thread-selection",
-      modelId,
+      modelId: AI_DIGEST_MODEL_ID,
       promptVersion: AI_DIGEST_THREAD_SELECTION_PROMPT_VERSION,
       system,
       prompt,

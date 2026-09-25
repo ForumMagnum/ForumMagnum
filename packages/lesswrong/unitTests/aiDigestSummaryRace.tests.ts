@@ -7,11 +7,8 @@ jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
 const mockGenerateText = jest.fn();
 const mockInsert = jest.fn();
 const mockFindOne = jest.fn();
-jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
-jest.mock("ai", () => ({
-  generateText: (...args: unknown[]) => mockGenerateText(...args),
-  Output: { object: jest.fn() },
-}));
+jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ AI_DIGEST_MODEL_ID: "model", aiDigestGatewayProviderOptions: () => ({}) }));
+jest.mock("ai", () => ({ generateText: (...args: unknown[]) => mockGenerateText(...args) }));
 jest.mock("@/server/collections/postSummaries/collection", () => ({
   __esModule: true,
   default: {
@@ -29,22 +26,22 @@ const candidate = { postId: "post", revisionId: "revision", title: "Post", autho
 describe("summary cache insert races", () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    mockGenerateText.mockResolvedValue({ output: { summary: "A sufficiently long generated summary explaining the post's argument." } });
+    mockGenerateText.mockResolvedValue({ text: "A sufficiently long generated summary explaining the post's argument." });
   });
   async function generate() {
     const context = computeContextFromUser({ user: null, isSSR: false });
     mockLoadRevisions.mockResolvedValue([
       { _id: "revision", html: `<p>${"Some meaningful post content. ".repeat(20)}</p>` },
     ]);
-    return await ensureAiDigestPostSummaries({ candidates: [candidate], context, modelId: "model", promptVersion: "version" });
+    return await ensureAiDigestPostSummaries([candidate], context);
   }
 
   it("uses the winning summary after a concurrent insert", async () => {
     mockInsert.mockRejectedValue({ code: "23505" });
-    mockFindOne.mockResolvedValue({ postId: "post", revisionId: "revision", modelId: "model", promptVersion: "version", summary: "The cached winner" });
+    mockFindOne.mockResolvedValue({ postId: "post", revisionId: "revision", summary: "The cached winner" });
     const result = await generate();
     expect(result[0].summary).toBe("The cached winner");
-    expect(mockFindOne).toHaveBeenCalledWith({ postId: "post", revisionId: "revision", modelId: "model", promptVersion: "version" });
+    expect(mockFindOne).toHaveBeenCalledWith(expect.objectContaining({ postId: "post", revisionId: "revision", modelId: "model" }));
   });
   it("propagates unrelated database failures", async () => {
     const error = new Error("connection lost");
@@ -64,9 +61,7 @@ it("reports summary provider failures without logging request content", async ()
   jest.resetAllMocks();
   mockLoadRevisions.mockResolvedValue([{ _id: "revision", html: `<p>${"Content. ".repeat(50)}</p>` }]);
   mockGenerateText.mockRejectedValue(new Error("private request body"));
-  const result = await ensureAiDigestPostSummaries({
-    candidates: [candidate], context: computeContextFromUser({ user: null, isSSR: false }),
-  });
+  const result = await ensureAiDigestPostSummaries([candidate], computeContextFromUser({ user: null, isSSR: false }));
   expect(result).toEqual([]);
   expect(mockInsert).not.toHaveBeenCalled();
   expect(mockCaptureException).toHaveBeenCalledWith(new Error("AI digest summary generation failed"), {

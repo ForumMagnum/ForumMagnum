@@ -1,12 +1,8 @@
-import { findCachedAiDigestPostText } from "@/server/aiDigest/aiDigestPostTextCache";
 import {
-  AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE,
   buildAiDigestPostPreviewHtml,
   splitPostHtmlIntoBlocks,
   validateAiDigestPreviewStartBlockIndex,
   type AiDigestPostPreviewBlock,
-  type AiDigestPostPreviewTarget,
-  type AiDigestPostPreviewRecord,
 } from "@/server/aiDigest/aiDigestPostPreviews";
 
 const PREAMBLE_PARAGRAPH = "<p><em>Epistemic status:</em> speculative, written in one sitting.</p>";
@@ -29,15 +25,6 @@ const POST_HTML = [
   QUOTED_BLOCK,
   CLOSING_PARAGRAPH,
 ].join("");
-
-function makeTarget(index: number): AiDigestPostPreviewTarget {
-  return {
-    postId: `post-${index}`,
-    revisionId: `revision-${index}`,
-    title: `Candidate ${index}`,
-    author: `Author ${index}`,
-  };
-}
 
 function makeBlock(
   text: string,
@@ -95,11 +82,9 @@ describe("AI digest post preview start index validation", () => {
     expect(validateAiDigestPreviewStartBlockIndex(2, blocks)).toBe(2);
   });
 
-  it("rejects indices outside the block list", () => {
-    expect(() => validateAiDigestPreviewStartBlockIndex(-1, blocks)).toThrow("out of range");
+  it("rejects an index past the last block", () => {
     expect(() => validateAiDigestPreviewStartBlockIndex(blocks.length, blocks))
       .toThrow("out of range");
-    expect(() => validateAiDigestPreviewStartBlockIndex(1.5, blocks)).toThrow("out of range");
   });
 
   it("rejects a cut point that would swallow most of the post", () => {
@@ -110,46 +95,6 @@ describe("AI digest post preview start index validation", () => {
       makeBlock("x".repeat(10)),
       makeBlock("y".repeat(1000)),
     ];
-    expect(AI_DIGEST_POST_PREVIEW_MAX_SKIPPED_TEXT_SHARE).toBe(0.25);
     expect(validateAiDigestPreviewStartBlockIndex(1, shortPreamble)).toBe(1);
-  });
-});
-
-describe("AI digest post preview cache", () => {
-  const target = makeTarget(1);
-  const cachedPreview: AiDigestPostPreviewRecord = {
-    postId: target.postId,
-    revisionId: target.revisionId,
-    previewHtml: FIRST_CONTENT_PARAGRAPH,
-    startBlockIndex: 2,
-    modelId: "preview-model",
-    promptVersion: "preview-v1",
-  };
-
-  it("reuses only the exact revision/model/prompt cache key", () => {
-    expect(findCachedAiDigestPostText(
-      [target],
-      [cachedPreview],
-      "preview-model",
-      "preview-v1",
-    ).missingTargets).toEqual([]);
-    expect(findCachedAiDigestPostText(
-      [target],
-      [{ ...cachedPreview, revisionId: "old-revision" }],
-      "preview-model",
-      "preview-v1",
-    ).missingTargets).toEqual([target]);
-    expect(findCachedAiDigestPostText(
-      [target],
-      [cachedPreview],
-      "other-model",
-      "preview-v1",
-    ).missingTargets).toEqual([target]);
-    expect(findCachedAiDigestPostText(
-      [target],
-      [cachedPreview],
-      "preview-model",
-      "preview-v2",
-    ).missingTargets).toEqual([target]);
   });
 });

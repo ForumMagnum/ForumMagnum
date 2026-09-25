@@ -25,7 +25,8 @@ export interface AiDigestPostCandidateRow {
   author: string;
   postedAt: Date;
   baseScore: number;
-  score: number;
+  /** Karma decayed by age, as used to rank the front page; rounded, as it's only for the prompt. */
+  decayedScore: number;
   tags: string[];
   curated: boolean;
   hasReadStatus: boolean;
@@ -1204,7 +1205,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         ${aiDigestPostAuthorExpression("p", "u")} AS author,
         p."postedAt",
         p."baseScore",
-        p.score,
+        ROUND(p.score::NUMERIC, 2)::FLOAT AS "decayedScore",
         ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS tags,
         (p."curatedDate" IS NOT NULL) AS curated,
         EXISTS (
@@ -1499,7 +1500,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, since, limit });
   }
 
-  /** How the reader has engaged with the given posts: when they last read each, and their current upvote. */
+  /**
+   * How the reader has engaged with the given posts: when they last read each,
+   * and their current upvote. In the order of `postIds`.
+   */
   async getAiDigestPastPostOutcomes({ userId, postIds }: {
     userId: string;
     postIds: string[];
@@ -1525,6 +1529,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ${joinReaderUpvote("Posts", `p."_id"`, "upvote")}
       WHERE p."_id" = ANY($(postIds)::TEXT[])
         AND p."postedAt" IS NOT NULL
+      ORDER BY array_position($(postIds)::TEXT[], p."_id")
     `, { userId, postIds });
   }
 
