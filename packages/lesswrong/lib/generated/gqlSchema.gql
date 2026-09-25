@@ -1521,6 +1521,11 @@ extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
 }
 
+extend type Mutation {
+  deleteChapter(chapterId: String!): Boolean!
+  moveSequencePost(postId: String!, fromChapterId: String!, toChapterId: String!, toIndex: Int!): Boolean!
+}
+
 extend type Query {
   reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
 }

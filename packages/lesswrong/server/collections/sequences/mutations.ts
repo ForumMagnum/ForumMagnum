@@ -25,7 +25,7 @@ function newCheck(user: DbUser | null, document: DbSequence | null) {
     userCanDo(user, `sequences.new.all`)
 }
 
-function editCheck(user: DbUser | null, document: DbSequence | null) {
+export function editCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
   return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
