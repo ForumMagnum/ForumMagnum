@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 
 interface EditorContentsValue {
@@ -8,7 +8,12 @@ interface EditorContentsValue {
 /** The value the editor submits for its field: its contents, plus editor metadata. */
 export type SubmittedEditorContents = EditorContentsValue & { originalContents: { type: string; data: string } };
 
-function contentsKey(contents: EditorContentsValue | null | undefined) {
+interface ContentsKey {
+  type: string | null;
+  data: string | null;
+}
+
+function contentsKey(contents: EditorContentsValue | null | undefined): ContentsKey {
   return {
     type: contents?.originalContents?.type ?? null,
     data: contents?.originalContents?.data ?? null,
@@ -18,13 +23,27 @@ function contentsKey(contents: EditorContentsValue | null | undefined) {
 /**
  * An editor field that saves itself when focus leaves it, rather than on an
  * explicit form submit. `onCommit` saves the contents and resolves to whether
- * the save succeeded; unchanged contents aren't committed.
+ * the save succeeded.
  *
- * The editor periodically echoes its contents into the field for form state
- * tracking; only a commit (on blur) captures them, through the binding's
- * `setValue`. The last committed contents are advanced before the save is
- * awaited, so a second blur during an in-flight save doesn't queue a
- * duplicate revision.
+ * Only real edits are committed. The editor's output can differ from the
+ * stored contents it loaded (older formats are converted), so the baseline
+ * for "unchanged" is the editor's own first echo of its contents into the
+ * field (`handleChange`), which it normally sends before the author types:
+ * on load or when first focused. If the author types before that echo (the
+ * editor reports input through `beforeinput` events, since Lexical cancels
+ * them and applies the edit itself), the stored contents are the baseline
+ * instead, so the edit isn't mistaken for the starting point. Until either
+ * happens there is nothing to save. A commit
+ * captures the contents through the binding's `setValue`, and contents equal
+ * to the baseline aren't saved. The baseline advances to the committed
+ * contents before the save is awaited, so a second blur during an in-flight
+ * save doesn't queue a duplicate revision.
+ *
+ * Capturing the contents also writes the editor's browser backup, which is
+ * cleared once they're saved (or found unchanged). The clearing function is
+ * taken before the save is awaited, because leaving the page can unmount the
+ * editor before the save finishes; otherwise the backup would survive and
+ * offer "Restore Autosave" for text that was saved.
  */
 const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & string>({
   document,
@@ -57,30 +76,47 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
   } = useEditorFormCallbacks<D>();
 
   const capturedValueRef = useRef<SubmittedEditorContents | null>(null);
-  const lastCommittedRef = useRef(contentsKey(document[fieldName]));
+  const lastCommittedRef = useRef<ContentsKey | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const noteInputBeforeFirstEcho = () => {
+      lastCommittedRef.current ??= contentsKey(document[fieldName]);
+    };
+    root.addEventListener("beforeinput", noteInputBeforeFirstEcho);
+    return () => root.removeEventListener("beforeinput", noteInputBeforeFirstEcho);
+  }, [document, fieldName]);
 
   const binding = {
     state: { value: document[fieldName] },
     setValue: (value: SubmittedEditorContents) => {
       capturedValueRef.current = value;
     },
-    handleChange: () => {},
+    handleChange: (value: SubmittedEditorContents) => {
+      lastCommittedRef.current ??= contentsKey(value);
+    },
   };
 
   const commit = useCallback(async () => {
-    if (!onSubmitCallback.current) return;
+    if (!lastCommittedRef.current || !onSubmitCallback.current) return;
     capturedValueRef.current = null;
     await onSubmitCallback.current();
     const payload = capturedValueRef.current;
+    const clearBackup = onSuccessCallback.current;
     if (!payload) return;
 
     const newContents = contentsKey(payload);
     const previous = lastCommittedRef.current;
-    if (newContents.type === previous.type && newContents.data === previous.data) return;
+    if (newContents.type === previous.type && newContents.data === previous.data) {
+      clearBackup?.(document, { noReload: true });
+      return;
+    }
 
     lastCommittedRef.current = newContents;
     if (await onCommit(payload)) {
-      onSuccessCallback.current?.(document, { noReload: true });
+      clearBackup?.(document, { noReload: true });
     } else {
       lastCommittedRef.current = previous;
     }
@@ -93,7 +129,7 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
   }, [commit]);
 
   return (
-    <div onBlur={handleBlur}>
+    <div onBlur={handleBlur} ref={rootRef}>
       <EditorFormComponent
         field={binding}
         name={fieldName}
