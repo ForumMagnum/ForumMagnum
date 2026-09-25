@@ -35,12 +35,6 @@ const ContentForYouOverviewQuery = gql(`
         ...AiDigestIssuesList
       }
     }
-    ContentForYouGenerationStatus {
-      nextAllowedAt
-      remainingThisHour
-      typicalDurationMsLow
-      typicalDurationMsHigh
-    }
   }
 `);
 
@@ -70,10 +64,7 @@ const UpdateContentForYouInstructionsMutation = gql(`
 
 const GenerateContentForYouIssueMutation = gql(`
   mutation GenerateContentForYouIssueMutation($countsTowardHistory: Boolean) {
-    GenerateContentForYouIssue(countsTowardHistory: $countsTowardHistory) {
-      issueId
-      nextAllowedAt
-    }
+    GenerateContentForYouIssue(countsTowardHistory: $countsTowardHistory)
   }
 `);
 
@@ -90,10 +81,6 @@ const GENERATION_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   month: "short",
   day: "numeric",
   year: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-const RATE_LIMIT_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   hour: "numeric",
   minute: "2-digit",
 });
@@ -185,15 +172,10 @@ const styles = defineStyles("ContentForYouPage", (theme: ThemeType) => ({
       flexDirection: "column",
     },
   },
-  quota: {
-    color: theme.palette.text.dim3,
-    fontSize: 12,
-    lineHeight: 1.45,
-  },
   characterCount: {
-    marginLeft: 10,
     color: theme.palette.text.dim3,
     fontSize: 11,
+    lineHeight: 1.45,
     whiteSpace: "nowrap",
   },
   actions: {
@@ -317,11 +299,6 @@ interface InstructionsEditorProps {
   disabled: boolean;
   saveLoading: boolean;
   generationLoading: boolean;
-  nextAllowedAt: string | null;
-  remainingThisHour: number | null;
-  typicalDurationMsLow: number | null;
-  typicalDurationMsHigh: number | null;
-  showRemainingQuota: boolean;
   isAdmin: boolean;
   message: string | null;
   errorMessage: string | null;
@@ -334,42 +311,11 @@ function formatGenerationTime(timestamp: string | null): string {
   return timestamp ? GENERATION_TIME_FORMATTER.format(new Date(timestamp)) : "";
 }
 
-function formatRateLimitTime(timestamp: string): string {
-  return RATE_LIMIT_TIME_FORMATTER.format(new Date(timestamp));
-}
-
-function generationsLeftLabel(remainingThisHour: number): string {
-  return remainingThisHour === 1
-    ? "1 generation left this hour"
-    : `${remainingThisHour.toLocaleString()} generations left this hour`;
-}
-
-function formatTypicalDurationRange(
-  lowMs: number | null,
-  highMs: number | null,
-): string {
-  if (!lowMs || !highMs) {
-    return "a minute or two";
-  }
-  // Floor the low bound and ceil the high bound so the promise stays generous
-  const lowMinutes = Math.max(1, Math.floor(lowMs / 60_000));
-  const highMinutes = Math.max(lowMinutes, Math.ceil(highMs / 60_000));
-  if (lowMinutes === highMinutes) {
-    return lowMinutes === 1 ? "about a minute" : `about ${lowMinutes} minutes`;
-  }
-  return `${lowMinutes}–${highMinutes} minutes`;
-}
-
 function InstructionsEditor({
   savedInstructions,
   disabled,
   saveLoading,
   generationLoading,
-  nextAllowedAt,
-  remainingThisHour,
-  typicalDurationMsLow,
-  typicalDurationMsHigh,
-  showRemainingQuota,
   isAdmin,
   message,
   errorMessage,
@@ -380,7 +326,6 @@ function InstructionsEditor({
   const [countsTowardHistory, setCountsTowardHistory] = useState(true);
   const instructions = editedInstructions ?? savedInstructions;
   const isBusy = saveLoading || generationLoading;
-  const rateLimited = !!nextAllowedAt;
 
   const handleSaveAndGenerate = () => {
     onSaveAndGenerate(instructions.trim(), countsTowardHistory);
@@ -401,17 +346,9 @@ function InstructionsEditor({
         aria-label="Personal instructions for Content for You"
       />
       <div className={classes.editorFooter}>
-        <span className={classes.quota}>
-          {rateLimited && nextAllowedAt
-            ? `No generations left this hour. You can generate again after ${formatRateLimitTime(nextAllowedAt)}.`
-            : showRemainingQuota && remainingThisHour !== null
-              ? generationsLeftLabel(remainingThisHour)
-              : null}
-          {instructions.length > CHARACTER_COUNT_VISIBLE_FROM && (
-            <span className={classes.characterCount}>
-              {instructions.length.toLocaleString()} / {AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH.toLocaleString()}
-            </span>
-          )}
+        <span className={classes.characterCount}>
+          {instructions.length > CHARACTER_COUNT_VISIBLE_FROM
+            && `${instructions.length.toLocaleString()} / ${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH.toLocaleString()}`}
         </span>
         <div className={classes.actions}>
           {isAdmin && (
@@ -428,7 +365,7 @@ function InstructionsEditor({
           <button
             type="button"
             className={classes.primaryButton}
-            disabled={disabled || isBusy || rateLimited}
+            disabled={disabled || isBusy}
             onClick={handleSaveAndGenerate}
           >
             {isBusy ? "Generating…" : "Save & generate"}
@@ -438,9 +375,7 @@ function InstructionsEditor({
       <div className={classes.statusMessage} aria-live="polite">
         {isBusy && (
           <div className={classes.waiting}>
-            Generations typically take{" "}
-            {formatTypicalDurationRange(typicalDurationMsLow, typicalDurationMsHigh)}.
-            You will be notified when it completes.
+            This can take a few minutes. You will be notified when it completes.
           </div>
         )}
         {message && <div className={classes.success}>{message}</div>}
@@ -457,7 +392,6 @@ export function ContentForYouPage() {
   const isAdmin = userIsAdmin(currentUser);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [hasGeneratedThisSession, setHasGeneratedThisSession] = useState(false);
   const [historyClearDays, setHistoryClearDays] = useState(DEFAULT_HISTORY_CLEAR_DAYS);
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
@@ -520,7 +454,6 @@ export function ContentForYouPage() {
       return;
     }
     setMessage(null);
-    setHasGeneratedThisSession(true);
     void updateInstructions({
       variables: {
         selector: { _id: currentUser._id },
@@ -533,7 +466,7 @@ export function ContentForYouPage() {
         countsTowardHistory,
       },
     })).then(({ data }) => {
-      const newIssueId = data?.GenerateContentForYouIssue.issueId ?? null;
+      const newIssueId = data?.GenerateContentForYouIssue ?? null;
       setSelectedIssueId(newIssueId);
       setMessage("Your new recommendations are ready.");
       void refetchOverview();
@@ -583,7 +516,6 @@ export function ContentForYouPage() {
 
   const savedInstructions =
     overviewData?.user?.result?.aiDigestPersonalInstructions ?? "";
-  const generationStatus = overviewData?.ContentForYouGenerationStatus;
   const selectedIssue = issueData?.aiDigestIssue?.result;
   const mutationError = saveError ?? generationError ?? historyClearError;
 
@@ -610,11 +542,6 @@ export function ContentForYouPage() {
         disabled={overviewLoading}
         saveLoading={saveLoading}
         generationLoading={generationLoading}
-        nextAllowedAt={generationStatus?.nextAllowedAt ?? null}
-        remainingThisHour={generationStatus?.remainingThisHour ?? null}
-        typicalDurationMsLow={generationStatus?.typicalDurationMsLow ?? null}
-        typicalDurationMsHigh={generationStatus?.typicalDurationMsHigh ?? null}
-        showRemainingQuota={hasGeneratedThisSession}
         isAdmin={isAdmin}
         message={message}
         errorMessage={mutationError?.message ?? null}

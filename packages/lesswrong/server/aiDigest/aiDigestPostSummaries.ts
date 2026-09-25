@@ -70,11 +70,6 @@ function withSummary(
   return {
     ...candidate,
     summary: summary.summary,
-    summaryProvenance: {
-      revisionId: summary.revisionId,
-      modelId: summary.modelId,
-      promptVersion: summary.promptVersion,
-    },
   };
 }
 

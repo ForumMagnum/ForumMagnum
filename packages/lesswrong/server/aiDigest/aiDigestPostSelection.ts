@@ -494,10 +494,7 @@ export async function generateAiDigestPostSelection({
   const asOf = new Date();
   const [subscribedAuthorIds, history] = await Promise.all([
     loadReaderSubscribedAuthorIds(user._id),
-    loadAiDigestHistory({
-      userId: user._id,
-      context,
-    }),
+    loadAiDigestHistory(user._id),
   ]);
   const candidateOptions: LoadAiDigestPostCandidatesOptions = {
     subscribedAuthorIds,

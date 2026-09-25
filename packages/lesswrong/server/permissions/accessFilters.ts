@@ -460,7 +460,6 @@ const accessFilters = {
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
-  EmailEvents: adminOnly,
   EmailTokens: allowAccess,
   FieldChanges: allowAccess,
   GoogleServiceAccountSessions: allowAccess,

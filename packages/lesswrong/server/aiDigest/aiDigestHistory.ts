@@ -1,7 +1,5 @@
 import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, DAY_MS } from "@/lib/aiDigest/constants";
-import { AI_DIGEST_EMAIL_TYPE } from "@/lib/emails/emailTracking";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
-import EmailEvents from "@/server/collections/emailEvents/collection";
 import type { AiDigestSpec } from "@/lib/aiDigest/aiDigestSpec";
 import {
   loadAiDigestPostInteractions,
@@ -28,8 +26,6 @@ export interface AiDigestIssueRecord {
   discussionCommentIds: string[];
   generatedAt: Date;
   countsTowardHistory: boolean;
-  selectionModelId: string;
-  promptVersion: string;
 }
 
 export interface AiDigestPostHistory {
@@ -280,50 +276,7 @@ export function buildAiDigestHistory(
   };
 }
 
-/**
- * Clicks the recipient made on the supplied issues. Bot-flagged events are dropped;
- * email scanners and link proxies click links, so they would otherwise read as
- * engagement.
- */
-async function loadAiDigestClicks({
-  userId,
-  issueIds,
-}: {
-  userId: string;
-  issueIds: string[];
-}): Promise<AiDigestClickRecord[]> {
-  if (!issueIds.length) {
-    return [];
-  }
-  const events = await EmailEvents.find(
-    {
-      userId,
-      eventType: "clicked",
-      emailType: AI_DIGEST_EMAIL_TYPE,
-      campaignId: { $in: issueIds },
-      isBot: { $ne: true },
-    },
-    {},
-    { campaignId: 1, documentId: 1, occurredAt: 1 },
-  ).fetch();
-  return events.flatMap((event) =>
-    event.campaignId && event.documentId
-      ? [{
-        campaignId: event.campaignId,
-        documentId: event.documentId,
-        occurredAt: event.occurredAt,
-      }]
-      : [],
-  );
-}
-
-export async function loadAiDigestHistory({
-  userId,
-  context,
-}: {
-  userId: string;
-  context: ResolverContext;
-}): Promise<AiDigestHistory> {
+export async function loadAiDigestHistory(userId: string): Promise<AiDigestHistory> {
   const issues = await AiDigestIssues.find(
     {
       recipientId: userId,
@@ -338,26 +291,20 @@ export async function loadAiDigestHistory({
       discussionCommentIds: 1,
       generatedAt: 1,
       countsTowardHistory: 1,
-      selectionModelId: 1,
-      promptVersion: 1,
     },
   ).fetch();
   const postIds = Array.from(new Set(issues.flatMap((issue) => issue.postIds)));
   const quickTakeIds = Array.from(
     new Set(issues.flatMap((issue) => issue.quickTakeIds)),
   );
-  const [interactions, clicks, quickTakeInteractions] = await Promise.all([
+  const [interactions, quickTakeInteractions] = await Promise.all([
     loadAiDigestPostInteractions({ userId, postIds }),
-    loadAiDigestClicks({
-      userId,
-      issueIds: issues.map((issue) => issue._id),
-    }),
     loadAiDigestQuickTakeInteractions({ userId, commentIds: quickTakeIds }),
   ]);
   return buildAiDigestHistory(
     issues,
     interactions,
-    clicks,
+    [],
     quickTakeInteractions,
   );
 }

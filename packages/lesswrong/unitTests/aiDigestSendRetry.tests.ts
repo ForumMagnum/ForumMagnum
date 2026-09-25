@@ -62,7 +62,6 @@ describe("scheduled digest delivery retry", () => {
       await sendScheduledAiDigestEmails();
       expect(mockGenerate).toHaveBeenCalledTimes(1);
       expect(mockSend).toHaveBeenCalledTimes(2);
-      expect(mockSend.mock.calls[1][0].tracking.campaignId).toBe("issue");
       expect(mockUpdate).toHaveBeenCalledWith({ _id: "issue" }, { $set: { emailedAt: expect.any(Date) } });
       mockFind.mockReturnValue({ fetch: async () => [{ recipientId: "reader", emailedAt: new Date() }] });
       await sendScheduledAiDigestEmails();
@@ -80,7 +79,7 @@ describe("scheduled digest delivery retry", () => {
     mockFindOne.mockResolvedValue({ _id: "old", spec, emailedAt: new Date(0) });
     await sendScheduledAiDigestEmails();
     expect(mockGenerate).toHaveBeenCalledTimes(1);
-    expect(mockSend.mock.calls[0][0].tracking.campaignId).toBe("issue");
+    expect(mockUpdate).toHaveBeenCalledWith({ _id: "issue" }, { $set: { emailedAt: expect.any(Date) } });
   });
 
   it("preserves cadence for a sent issue excluded from recommendation history", async () => {
@@ -170,7 +169,6 @@ describe("scheduled digest batch ownership", () => {
       await sendScheduledAiDigestEmails();
       expect(mockGenerate).toHaveBeenCalledTimes(1);
       expect(mockSend).toHaveBeenCalledTimes(1);
-      expect(mockSend.mock.calls[0][0].tracking.campaignId).toBe("issue");
       expect(mockUpdate).toHaveBeenCalledWith({ _id: "issue" }, { $set: { emailedAt: expect.any(Date) } });
       mockFind.mockReturnValue({ fetch: async () => [{ recipientId: "reader", emailedAt: new Date() }] });
       await sendScheduledAiDigestEmails();
@@ -198,7 +196,7 @@ it("keeps the two-reader bound and releases the lease after a recipient fails", 
     await sendScheduledAiDigestEmails();
     expect(mockGenerate.mock.calls.map(([args]) => args.user._id)).toEqual(["first", "second"]);
     expect(mockSend).toHaveBeenCalledTimes(1);
-    expect(mockSend.mock.calls[0][0].tracking.recipientId).toBe("second");
+    expect(mockSend.mock.calls[0][0].user._id).toBe("second");
     expect(mockRelease).toHaveBeenCalledWith("owner");
   } finally {
     log.mockRestore();

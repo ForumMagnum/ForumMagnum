@@ -88,7 +88,6 @@ interface Query {
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
-  ContentForYouGenerationStatus: ContentForYouGenerationStatus;
   aiDigestIssue: SingleAiDigestIssueOutput | null;
   aiDigestIssues: MultiAiDigestIssueOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -313,7 +312,7 @@ interface Mutation {
   adminSendBulkEmail: AdminSendBulkEmailResult;
   GenerateAiDigestEmailSamples: Array<string>;
   ClearAiDigestEmailSampleHistory: number;
-  GenerateContentForYouIssue: GenerateContentForYouIssueResult;
+  GenerateContentForYouIssue: string;
   ClearContentForYouRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
@@ -1429,29 +1428,13 @@ interface AiDigestEmailSamplePreview {
   generationDurationMs: number;
 }
 
-interface ContentForYouGenerationStatus {
-  nextAllowedAt: Date | null;
-  remainingThisHour: number;
-  typicalDurationMsLow: number | null;
-  typicalDurationMsHigh: number | null;
-}
-
-interface GenerateContentForYouIssueResult {
-  issueId: string;
-  nextAllowedAt: Date | null;
-}
-
 interface AiDigestIssue {
   _id: string;
   createdAt: Date;
   recipientId: string | null;
-  recipient: User | null;
   postIds: Array<string> | null;
-  posts: Array<Post> | null;
   quickTakeIds: Array<string> | null;
-  quickTakes: Array<Comment> | null;
   discussionCommentIds: Array<string> | null;
-  discussionComments: Array<Comment> | null;
   generatedAt: Date | null;
   emailedAt: Date | null;
   trigger: AiDigestIssueTrigger | null;
@@ -9486,8 +9469,6 @@ interface GraphQLTypeMap {
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
-  ContentForYouGenerationStatus: ContentForYouGenerationStatus;
-  GenerateContentForYouIssueResult: GenerateContentForYouIssueResult;
   AiDigestIssue: AiDigestIssue;
   SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
   AiDigestIssuesRecipientIssuesInput: AiDigestIssuesRecipientIssuesInput;
@@ -10318,7 +10299,6 @@ interface CreateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
-  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
@@ -10417,7 +10397,6 @@ interface UpdateInputsByCollectionName {
   DialogueChecks: never;
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
-  EmailEvents: never;
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;

@@ -786,11 +786,6 @@ describe("AI digest thread merge into the spec", () => {
     lastIncludedAt: null,
     exclusionReason: null,
     summary: `Summary for candidate ${index}. Long enough to be a valid reusable summary.`,
-    summaryProvenance: {
-      revisionId: `revision-${index}`,
-      modelId: "summary-model",
-      promptVersion: "summary-v1",
-    },
   }));
 
   const quickTake: AiDigestQuickTakeCandidate = {
@@ -911,8 +906,6 @@ describe("AI digest thread merge into the spec", () => {
       discussionCommentIds: ["anchor-1"],
       generatedAt: new Date("2026-07-10T12:00:00.000Z"),
       countsTowardHistory: true,
-      selectionModelId: "selection-model",
-      promptVersion: "selection-v2",
     }], []);
     expect(history.postHistoryById.get("anchor-1")).toEqual({
       previousDigestInclusionCount: 1,

@@ -73,7 +73,7 @@ import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
 import { digestEmailPreviewGraphQLMutations, digestEmailPreviewGraphQLQueries, digestEmailPreviewGraphQLTypeDefs } from "@/server/resolvers/digestEmailPreviewResolver";
-import { contentForYouGraphQLMutations, contentForYouGraphQLQueries, contentForYouGraphQLTypeDefs } from "@/server/resolvers/contentForYouResolvers";
+import { contentForYouGraphQLMutations, contentForYouGraphQLTypeDefs } from "@/server/resolvers/contentForYouResolvers";
 
 // Collection imports
 import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
@@ -504,7 +504,6 @@ const getResolvers = () => ({
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
     ...digestEmailPreviewGraphQLQueries,
-    ...contentForYouGraphQLQueries,
 
     // CRUD Query Handlers
     ...aiDigestIssueGqlQueryHandlers,

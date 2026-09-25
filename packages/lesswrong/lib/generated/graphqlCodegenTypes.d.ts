@@ -126,7 +126,6 @@ type AiDigestIssue = {
   countsTowardHistory?: Maybe<Scalars['Boolean']['output']>;
   createdAt: Scalars['Date']['output'];
   discussionCommentIds?: Maybe<Array<Scalars['String']['output']>>;
-  discussionComments?: Maybe<Array<Comment>>;
   emailedAt?: Maybe<Scalars['Date']['output']>;
   generatedAt?: Maybe<Scalars['Date']['output']>;
   generationDurationMs?: Maybe<Scalars['Int']['output']>;
@@ -134,11 +133,8 @@ type AiDigestIssue = {
   outputTokenCount?: Maybe<Scalars['Int']['output']>;
   personalInstructions?: Maybe<Scalars['String']['output']>;
   postIds?: Maybe<Array<Scalars['String']['output']>>;
-  posts?: Maybe<Array<Post>>;
   promptVersion?: Maybe<Scalars['String']['output']>;
   quickTakeIds?: Maybe<Array<Scalars['String']['output']>>;
-  quickTakes?: Maybe<Array<Comment>>;
-  recipient?: Maybe<User>;
   recipientId?: Maybe<Scalars['String']['output']>;
   selectionCostUsd?: Maybe<Scalars['Float']['output']>;
   selectionModelId?: Maybe<Scalars['String']['output']>;
@@ -1136,14 +1132,6 @@ type CommentsWithReactsResult = {
 type ContentCollectionName =
   | 'Comments'
   | 'Posts';
-
-type ContentForYouGenerationStatus = {
-  __typename?: 'ContentForYouGenerationStatus';
-  nextAllowedAt?: Maybe<Scalars['Date']['output']>;
-  remainingThisHour: Scalars['Int']['output'];
-  typicalDurationMsHigh?: Maybe<Scalars['Int']['output']>;
-  typicalDurationMsLow?: Maybe<Scalars['Int']['output']>;
-};
 
 type ContentType = {
   __typename?: 'ContentType';
@@ -2438,12 +2426,6 @@ type FrontpageClassification = {
   __typename?: 'FrontpageClassification';
   isFrontpage: Scalars['Boolean']['output'];
   probability: Scalars['Float']['output'];
-};
-
-type GenerateContentForYouIssueResult = {
-  __typename?: 'GenerateContentForYouIssueResult';
-  issueId: Scalars['String']['output'];
-  nextAllowedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 type GivingSeasonHeart = {
@@ -3953,7 +3935,7 @@ type Mutation = {
   ClearAiDigestEmailSampleHistory: Scalars['Int']['output'];
   ClearContentForYouRecommendationHistory: Scalars['Int']['output'];
   GenerateAiDigestEmailSamples: Array<Scalars['String']['output']>;
-  GenerateContentForYouIssue: GenerateContentForYouIssueResult;
+  GenerateContentForYouIssue: Scalars['String']['output'];
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
   MarkAllNotificationsAsRead?: Maybe<Scalars['Boolean']['output']>;
@@ -7362,7 +7344,6 @@ type Query = {
   CommentEmbeddingSearch: Array<Comment>;
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
-  ContentForYouGenerationStatus: ContentForYouGenerationStatus;
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
@@ -13366,9 +13347,7 @@ type ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_
 
 type ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput = { __typename?: 'MultiAiDigestIssueOutput', results: Array<ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue> };
 
-type ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus = { __typename?: 'ContentForYouGenerationStatus', nextAllowedAt: string | null, remainingThisHour: number, typicalDurationMsLow: number | null, typicalDurationMsHigh: number | null };
-
-type ContentForYouOverviewQuery_Query = { __typename?: 'Query', user: ContentForYouOverviewQuery_user_SingleUserOutput | null, aiDigestIssues: ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput | null, ContentForYouGenerationStatus: ContentForYouOverviewQuery_ContentForYouGenerationStatus_ContentForYouGenerationStatus };
+type ContentForYouOverviewQuery_Query = { __typename?: 'Query', user: ContentForYouOverviewQuery_user_SingleUserOutput | null, aiDigestIssues: ContentForYouOverviewQuery_aiDigestIssues_MultiAiDigestIssueOutput | null };
 
 
 type ContentForYouOverviewQueryVariables = Exact<{
@@ -13411,9 +13390,7 @@ type UpdateContentForYouInstructionsMutationVariables = Exact<{
 
 type UpdateContentForYouInstructionsMutation = UpdateContentForYouInstructionsMutation_Mutation;
 
-type GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult = { __typename?: 'GenerateContentForYouIssueResult', issueId: string, nextAllowedAt: string | null };
-
-type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateContentForYouIssue: GenerateContentForYouIssueMutationMutation_GenerateContentForYouIssue_GenerateContentForYouIssueResult };
+type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateContentForYouIssue: string };
 
 
 type GenerateContentForYouIssueMutationMutationVariables = Exact<{

@@ -426,23 +426,6 @@ interface DbElicitQuestion extends DbObject {
   title: string
 }
 
-type EmailEventsCollection = PgCollection<"EmailEvents">;
-
-interface DbEmailEvent extends DbObject {
-  __collectionName?: "EmailEvents"
-  campaignId: string | null
-  createdAt: Date
-  documentId: string | null
-  documentType: string | null
-  emailType: string | null
-  eventType: string
-  isBot: boolean | null
-  mailgunEventId: string
-  occurredAt: Date
-  url: string | null
-  userId: string | null
-}
-
 type EmailTokensCollection = PgCollection<"EmailTokens">;
 
 interface DbEmailTokens extends DbObject {
@@ -2408,7 +2391,6 @@ interface CollectionsByName {
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
-  EmailEvents: EmailEventsCollection
   EmailTokens: EmailTokensCollection
   FieldChanges: FieldChangesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
@@ -2508,7 +2490,6 @@ interface ObjectsByCollectionName {
   DialogueMatchPreferences: DbDialogueMatchPreference
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
-  EmailEvents: DbEmailEvent
   EmailTokens: DbEmailTokens
   FieldChanges: DbFieldChange
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
@@ -2608,7 +2589,6 @@ interface ObjectsByTypeName {
   DialogueMatchPreference: DbDialogueMatchPreference
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
-  EmailEvent: DbEmailEvent
   EmailTokens: DbEmailTokens
   FieldChange: DbFieldChange
   GoogleServiceAccountSession: DbGoogleServiceAccountSession

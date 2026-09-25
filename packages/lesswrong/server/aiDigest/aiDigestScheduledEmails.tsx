@@ -1,7 +1,6 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
 import React from "react";
 import { captureException } from "@/lib/sentryWrapper";
-import { AI_DIGEST_EMAIL_TYPE } from "@/lib/emails/emailTracking";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import {
   aiDigestEmailCadenceDaysSetting,
@@ -130,13 +129,6 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
     user,
     subject: spec.subject,
     body: aiDigestEmailBody(spec),
-    // The click-history join in aiDigestHistory.ts matches on exactly these
-    // three values, so they are load-bearing rather than incidental metadata.
-    tracking: {
-      emailType: AI_DIGEST_EMAIL_TYPE,
-      campaignId: issueId,
-      recipientId: user._id,
-    },
   });
   if (!sent) {
     throw new Error(`Failed to send scheduled AI digest issue ${issueId} to ${user._id}`);

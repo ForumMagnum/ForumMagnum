@@ -82,7 +82,7 @@ it("finds recent eligible embeddings behind more than 200 closer historical matc
   expect(unrestricted).not.toContain(hiddenId);
 });
 
-it("clears only recommendation participation and retains sent issues and click attribution", async () => {
+it("clears only recommendation participation and retains sent issues", async () => {
   const db = getSqlClientOrThrow();
   const recipientId = randomId();
   const issueId = randomId();
@@ -99,10 +99,6 @@ it("clears only recommendation participation and retains sent issues and click a
       ) VALUES ($1, $2, $3, $3, 'scheduled', 'test-model', 'test-prompt', '{}')
     `, [id, recipient, new Date(now.getTime() - ageDays * 86_400_000)]);
   }
-  await db.none(`
-    INSERT INTO "EmailEvents" ("_id", "eventType", "mailgunEventId", "campaignId", "occurredAt")
-    VALUES ($1, 'clicked', $1, $2, $3)
-  `, [randomId(), issueId, now]);
   expect(await clearAiDigestRecommendationHistory({ recipientId, days: 7, now })).toBe(1);
   expect(await clearAiDigestRecommendationHistory({ recipientId, days: 7, now })).toBe(0);
   const issue = await AiDigestIssues.findOne(issueId);
@@ -111,8 +107,4 @@ it("clears only recommendation participation and retains sent issues and click a
   expect(issue?.trigger).toBe("scheduled");
   expect((await AiDigestIssues.findOne(oldId))?.countsTowardHistory).toBe(true);
   expect((await AiDigestIssues.findOne(otherId))?.countsTowardHistory).toBe(true);
-  expect(await db.one(`
-    SELECT COUNT(*)::integer AS count FROM "EmailEvents" e
-    JOIN "AiDigestIssues" i ON i."_id" = e."campaignId" WHERE i."_id" = $1
-  `, [issueId])).toEqual({ count: 1 });
 });

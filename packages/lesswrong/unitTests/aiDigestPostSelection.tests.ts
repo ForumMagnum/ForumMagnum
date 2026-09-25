@@ -80,11 +80,6 @@ function makeCandidateCard(index: number): AiDigestPostCandidateCard {
   return {
     ...makeCandidate(index),
     summary: `Summary for candidate ${index}. This is long enough to be a valid reusable summary.`,
-    summaryProvenance: {
-      revisionId: `revision-${index}`,
-      modelId: "summary-model",
-      promptVersion: "summary-v1",
-    },
   };
 }
 
@@ -145,8 +140,6 @@ function makeIssue(
     discussionCommentIds,
     generatedAt,
     countsTowardHistory,
-    selectionModelId: "selection-model",
-    promptVersion: "selection-v2",
   };
 }
 

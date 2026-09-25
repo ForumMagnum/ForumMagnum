@@ -2,7 +2,6 @@ import {
   DEFAULT_CREATED_AT_FIELD,
   DEFAULT_ID_FIELD,
 } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
 const userIsIssueRecipient = (user: DbUser | null, issue: DbAiDigestIssue): boolean =>
   !!user && user._id === issue.recipientId;
@@ -21,16 +20,6 @@ const schema = {
       canRead: ["admins"],
     },
   },
-  recipient: {
-    graphql: {
-      outputType: "User",
-      canRead: ["admins"],
-      resolver: generateIdResolverSingle({
-        foreignCollectionName: "Users",
-        fieldName: "recipientId",
-      }),
-    },
-  },
   postIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -41,16 +30,6 @@ const schema = {
     graphql: {
       outputType: "[String!]",
       canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
-  posts: {
-    graphql: {
-      outputType: "[Post!]",
-      canRead: [userIsIssueRecipient, "admins"],
-      resolver: generateIdResolverMulti({
-        foreignCollectionName: "Posts",
-        fieldName: "postIds",
-      }),
     },
   },
   quickTakeIds: {
@@ -65,16 +44,6 @@ const schema = {
       canRead: [userIsIssueRecipient, "admins"],
     },
   },
-  quickTakes: {
-    graphql: {
-      outputType: "[Comment!]",
-      canRead: [userIsIssueRecipient, "admins"],
-      resolver: generateIdResolverMulti({
-        foreignCollectionName: "Comments",
-        fieldName: "quickTakeIds",
-      }),
-    },
-  },
   /** Anchor comment IDs of the issue's discussion-section threads. */
   discussionCommentIds: {
     database: {
@@ -86,16 +55,6 @@ const schema = {
     graphql: {
       outputType: "[String!]",
       canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
-  discussionComments: {
-    graphql: {
-      outputType: "[Comment!]",
-      canRead: [userIsIssueRecipient, "admins"],
-      resolver: generateIdResolverMulti({
-        foreignCollectionName: "Comments",
-        fieldName: "discussionCommentIds",
-      }),
     },
   },
   generatedAt: {

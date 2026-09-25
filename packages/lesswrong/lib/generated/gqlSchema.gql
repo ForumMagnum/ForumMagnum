@@ -1627,24 +1627,8 @@ extend type Mutation {
   ClearAiDigestEmailSampleHistory(userSlug: String!, days: Int!): Int!
 }
 
-type ContentForYouGenerationStatus {
-  nextAllowedAt: Date
-  remainingThisHour: Int!
-  typicalDurationMsLow: Int
-  typicalDurationMsHigh: Int
-}
-
-type GenerateContentForYouIssueResult {
-  issueId: String!
-  nextAllowedAt: Date
-}
-
-extend type Query {
-  ContentForYouGenerationStatus: ContentForYouGenerationStatus!
-}
-
 extend type Mutation {
-  GenerateContentForYouIssue(countsTowardHistory: Boolean): GenerateContentForYouIssueResult!
+  GenerateContentForYouIssue(countsTowardHistory: Boolean): String!
   ClearContentForYouRecommendationHistory(days: Int!): Int!
 }
 
@@ -1652,13 +1636,9 @@ type AiDigestIssue {
   _id: String!
   createdAt: Date!
   recipientId: String
-  recipient: User
   postIds: [String!]
-  posts: [Post!]
   quickTakeIds: [String!]
-  quickTakes: [Comment!]
   discussionCommentIds: [String!]
-  discussionComments: [Comment!]
   generatedAt: Date
   emailedAt: Date
   trigger: AiDigestIssueTrigger

@@ -125,13 +125,6 @@ interface AiDigestReaderContext {
   evidenceCount: number;
 }
 
-
-export interface AiDigestPostSummaryProvenance {
-  revisionId: string;
-  modelId: string;
-  promptVersion: string;
-}
-
 type AiDigestCandidateExclusionReason =
   | "recipientAuthored"
   | "hiddenByRecipient"
@@ -158,12 +151,10 @@ export interface AiDigestPostCandidate {
 
 export interface AiDigestPostCandidateCard extends AiDigestPostCandidate {
   summary: string;
-  summaryProvenance: AiDigestPostSummaryProvenance;
 }
 
 export interface AiDigestSelectedPostCandidate extends AiDigestPostCandidate {
   summary?: string;
-  summaryProvenance?: AiDigestPostSummaryProvenance;
 }
 
 export interface AiDigestQuickTakeCandidate {
