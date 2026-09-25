@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { randomId } from "@/lib/random";
-import { descriptionHtmlToPlainText, plainTextToDescriptionHtml } from "@/lib/collections/chapters/plainTextDescription";
+import { descriptionHtmlToPlainText, plainTextToDescriptionHtml } from "@/components/sequenceEditor/plainTextDescription";
 import * as structure from "./sequenceStructure";
 import type { EditableChapter } from "./sequenceStructure";
 import { useSequenceEditor } from "./SequenceEditorContext";

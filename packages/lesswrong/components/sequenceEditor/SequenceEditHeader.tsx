@@ -113,16 +113,13 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
  * saved, so this only asks when the description has unsaved changes.
  */
 export const DoneEditingButton = ({ className, onDone }: { className?: string, onDone: () => void }) => {
-  const { updateSequence, drainSaves, descriptionDraftRef, descriptionIsDirty } = useSequenceEditor();
+  const { saveSequenceNow, drainSaves, descriptionDraftRef, descriptionIsDirty } = useSequenceEditor();
   const [asking, setAsking] = useState(false);
 
   const saveAndLeave = async () => {
     const contents = await descriptionDraftRef.current?.getUnsavedContents();
     if (contents) {
-      const outcome = { failed: false };
-      updateSequence({ contents }, () => { outcome.failed = true; });
-      await drainSaves();
-      if (outcome.failed) {
+      if (!await saveSequenceNow({ contents })) {
         setAsking(false);
         return;
       }

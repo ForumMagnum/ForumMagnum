@@ -218,6 +218,43 @@ describe('moveSequencePost', () => {
     (await countSequencePostNotifications(subscriber._id)).should.equal(countAfterAdding);
   });
 
+  it("refuses to move a post into a chapter of a different sequence", async () => {
+    const owner = await createDummyUser();
+    const post = await createDummyPost(owner);
+    const { chapterId } = await createSequenceAs(owner);
+    const { chapterId: otherSequenceChapterId } = await createSequenceAs(owner);
+    await setChapterPostsAs(owner, chapterId, [post._id]);
+    await withNoLogs(async () => {
+      await moveAs(owner, post._id, chapterId, otherSequenceChapterId, 0).should.be.rejectedWith("Both chapters must be in the same sequence");
+    });
+    graphQLerrors.getErrors();
+    (await Chapters.findOne(chapterId))?.postIds.should.deep.equal([post._id]);
+    (await Chapters.findOne(otherSequenceChapterId))?.postIds.should.deep.equal([]);
+  });
+
+  it("refuses to move a post that isn't in the source chapter", async () => {
+    const owner = await createDummyUser();
+    const post = await createDummyPost(owner);
+    const { sequenceId, chapterId } = await createSequenceAs(owner);
+    const secondChapterId = await addChapterAs(owner, sequenceId, []);
+    await withNoLogs(async () => {
+      await moveAs(owner, post._id, chapterId, secondChapterId, 0).should.be.rejectedWith("Post is not in the source chapter");
+    });
+    graphQLerrors.getErrors();
+    (await Chapters.findOne(secondChapterId))?.postIds.should.deep.equal([]);
+  });
+
+  it("refuses to 'move' a post within one chapter", async () => {
+    const owner = await createDummyUser();
+    const post = await createDummyPost(owner);
+    const { chapterId } = await createSequenceAs(owner);
+    await setChapterPostsAs(owner, chapterId, [post._id]);
+    await withNoLogs(async () => {
+      await moveAs(owner, post._id, chapterId, chapterId, 0).should.be.rejectedWith("Use updateChapter to reorder posts within a chapter");
+    });
+    graphQLerrors.getErrors();
+  });
+
   it("refuses to move a post in someone else's sequence", async () => {
     const owner = await createDummyUser();
     const otherUser = await createDummyUser();

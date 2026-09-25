@@ -46,7 +46,7 @@ export function descriptionHtmlToPlainText(html: string): string {
       }
     },
     ontext(text) {
-      current += text.replace(/ /g, " ");
+      current += text.replace(/\u00a0/g, " ");
     },
     onclosetag(name) {
       if (BLOCK_TAGS.has(name)) {

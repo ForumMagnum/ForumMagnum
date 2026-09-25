@@ -1,4 +1,4 @@
-import { descriptionHtmlToPlainText, plainTextToDescriptionHtml } from "@/lib/collections/chapters/plainTextDescription";
+import { descriptionHtmlToPlainText, plainTextToDescriptionHtml } from "@/components/sequenceEditor/plainTextDescription";
 
 describe("plainTextToDescriptionHtml", () => {
   it("makes one paragraph per blank-line-separated block", () => {

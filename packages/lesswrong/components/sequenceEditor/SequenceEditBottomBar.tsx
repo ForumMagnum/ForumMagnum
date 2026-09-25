@@ -113,7 +113,7 @@ const statusLabels: Record<SaveStatus, string> = {
 
 const SequenceEditBottomBar = () => {
   const classes = useStyles(styles);
-  const { sequence, saveStatus, updateSequence, drainSaves, descriptionDraftRef } = useSequenceEditor();
+  const { sequence, saveStatus, saveSequenceNow, descriptionDraftRef } = useSequenceEditor();
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -123,13 +123,8 @@ const SequenceEditBottomBar = () => {
     setIsChangingStatus(true);
     try {
       const unsavedContents = await descriptionDraftRef.current?.getUnsavedContents();
-      const outcome = { failed: false };
-      updateSequence(
-        { draft, ...(unsavedContents ? { contents: unsavedContents } : {}) },
-        () => { outcome.failed = true; },
-      );
-      await drainSaves();
-      if (unsavedContents && !outcome.failed) {
+      const saved = await saveSequenceNow({ draft, ...(unsavedContents ? { contents: unsavedContents } : {}) });
+      if (unsavedContents && saved) {
         descriptionDraftRef.current?.markSaved();
       }
     } finally {
