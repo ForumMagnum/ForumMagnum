@@ -16,8 +16,8 @@ const SunshineCommentsListMultiQuery = gql(`
 `);
 
 export function useModeratedUserContents(userId: string, contentLimit = 20) {
-  const { posts = [] } = usePublishedPosts(userId, contentLimit, false);
-  const { data: commentsData } = useQuery(SunshineCommentsListMultiQuery, {
+  const { posts } = usePublishedPosts(userId, contentLimit, false);
+  const { data: commentsData, loading: commentsLoading } = useQuery(SunshineCommentsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersComments: { userId } },
       limit: contentLimit,
@@ -30,10 +30,11 @@ export function useModeratedUserContents(userId: string, contentLimit = 20) {
 
   // In ModerationContentDetail, we embed a post page wrapper into the moderation detail view.
   // Hydrating the apollo cache here lets us avoid a loading spinner when going through a user's posts that way.
-  useHydrateModerationPostCache(posts);
+  useHydrateModerationPostCache(posts ?? []);
 
   return {
-    posts,
+    posts: posts ?? [],
     comments,
+    loading: !posts || (commentsLoading && !commentsData),
   };
 }
