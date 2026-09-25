@@ -25,7 +25,7 @@ jest.mock("@/server/collections/aiDigestIssues/collection", () => ({
     rawUpdateOne: (...args: unknown[]) => mockUpdate(...args),
   },
 }));
-jest.mock("@/server/aiDigest/aiDigestPostSelection", () => ({ generateAiDigestPostSelection: (...args: unknown[]) => mockGenerate(...args) }));
+jest.mock("@/server/aiDigest/aiDigestGenerateIssue", () => ({ generateAiDigestIssue: (...args: unknown[]) => mockGenerate(...args) }));
 jest.mock("@/server/emails/renderEmail", () => ({ wrapAndSendEmail: (...args: unknown[]) => mockSend(...args) }));
 jest.mock("@/server/notificationCallbacksHelpers", () => ({ createNotification: (...args: unknown[]) => mockNotify(...args) }));
 jest.mock("@/server/curationEmails/cron", () => ({ findUsersToEmail: (...args: unknown[]) => mockSubscribers(...args) }));

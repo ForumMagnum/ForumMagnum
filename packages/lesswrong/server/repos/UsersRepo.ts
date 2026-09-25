@@ -4,6 +4,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
+import { readerFollowedAuthorIds } from "./aiDigestSqlHelpers";
 
 // Pangram score above which a rejected item counts toward offboarding 
 // deliberately higher than the autoreject threshold in
@@ -606,6 +607,23 @@ class UsersRepo extends AbstractRepo<"Users"> {
         aa.karma_received DESC
       LIMIT $2
     `, [clientId, limit, days]);
+  }
+
+  /** Display names of the authors the user follows, alphabetically. */
+  async getAiDigestFollowedAuthorNames({ userId, limit }: {
+    userId: string;
+    limit: number;
+  }): Promise<string[]> {
+    const rows = await this.getRawDb().manyOrNone<{ displayName: string }>(`
+      -- UsersRepo.getAiDigestFollowedAuthorNames
+      SELECT u."displayName"
+      FROM "Users" u
+      WHERE u."_id" IN (${readerFollowedAuthorIds})
+        AND u."displayName" IS NOT NULL
+      ORDER BY u."displayName", u."_id"
+      LIMIT $(limit)
+    `, { userId, limit });
+    return rows.map((row) => row.displayName);
   }
 }
 

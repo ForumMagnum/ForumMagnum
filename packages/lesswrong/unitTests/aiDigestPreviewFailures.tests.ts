@@ -2,11 +2,12 @@ const mockCaptureException = jest.fn();
 const mockGenerateText = jest.fn();
 const mockInsert = jest.fn();
 jest.mock("@/lib/sentryWrapper", () => ({ captureException: (...args: unknown[]) => mockCaptureException(...args) }));
-jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => ({}) }));
-jest.mock("@/server/aiDigest/aiDigestPostLookups", () => ({
-  loadAiDigestRevisionBodies: async () => [{ postId: "post", revisionHtml: "<p>Meaningful content for the preview.</p>" }],
+jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
+  computeContextFromUser: () => ({
+    Revisions: { find: () => ({ fetch: async () => [{ _id: "revision", html: "<p>Meaningful content for the preview.</p>" }] }) },
+  }),
 }));
-jest.mock("@/server/aiDigest/aiDigestSelectionShared", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
+jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
 jest.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockGenerateText(...args), Output: { object: jest.fn() },
 }));

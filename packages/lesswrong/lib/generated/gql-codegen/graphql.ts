@@ -2124,7 +2124,14 @@ export type AiDigestModelCall = {
   promptVersion: Scalars['String']['output'];
   purpose: Scalars['String']['output'];
   systemPrompt: Scalars['String']['output'];
+  toolCalls: Array<AiDigestToolCall>;
   uncachedInputTokenCount: Maybe<Scalars['Int']['output']>;
+};
+
+export type AiDigestToolCall = {
+  __typename?: 'AiDigestToolCall';
+  input: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
 };
 
 export type AirtableLeaderboardResult = {
@@ -17066,7 +17073,7 @@ export type AiDigestEmailSamplePreviewQueryQueryVariables = Exact<{
 }>;
 
 
-export type AiDigestEmailSamplePreviewQueryQuery = { __typename?: 'Query', AiDigestEmailSamplePreview: { __typename?: 'AiDigestEmailSamplePreview', durationMs: number, email: { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null }, calls: Array<{ __typename?: 'AiDigestModelCall', purpose: string, modelId: string, promptVersion: string, systemPrompt: string, prompt: string, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, costUsd: number | null }> } };
+export type AiDigestEmailSamplePreviewQueryQuery = { __typename?: 'Query', AiDigestEmailSamplePreview: { __typename?: 'AiDigestEmailSamplePreview', durationMs: number, email: { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null }, calls: Array<{ __typename?: 'AiDigestModelCall', purpose: string, modelId: string, promptVersion: string, systemPrompt: string, prompt: string, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, costUsd: number | null, toolCalls: Array<{ __typename?: 'AiDigestToolCall', toolName: string, input: string }> }> } };
 
 export type EmailPreviewQueryQueryVariables = Exact<{
   notificationIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>>;
@@ -23421,7 +23428,7 @@ export const GenerateAiDigestEmailSamplesMutationDocument = _o1(_1,[_o11(_1001,_
 export const DigestPreviewReaderQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"DigestPreviewReaderQuery"),[_1549],_o5(_7,[_o7(_8,_297,[_o8(_549,_1018,_o14(_1016,[_o8(_1017,_1088,_o14(_1016,[_o8(_1017,_11,_1548)]))])),_1086,_1193],_1555)]))]) as unknown as DocumentNode<DigestPreviewReaderQueryQuery, DigestPreviewReaderQueryQueryVariables>;
 export const AiDigestEmailSamplesQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"AiDigestEmailSamplesQuery"),[_o12(_1003,_1556,_1007),_1065],_o5(_7,[_o7(_8,_1198,[_o8(_549,_1018,_o14(_1016,[_o8(_1017,_1199,_o14(_1016,[_o8(_1017,_1200,_1556)]))])),_1068,_1193],_1201)])),_77]) as unknown as DocumentNode<AiDigestEmailSamplesQueryQuery, AiDigestEmailSamplesQueryQueryVariables>;
 export const ClearAiDigestEmailSampleHistoryMutationDocument = _o1(_1,[_o11(_1001,_1002,_o3(_3,"ClearAiDigestEmailSampleHistoryMutation"),[_1549,_1212],_o5(_7,[_o10(_8,_o3(_3,"ClearAiDigestEmailSampleHistory"),[_1553,_1213])]))]) as unknown as DocumentNode<ClearAiDigestEmailSampleHistoryMutationMutation, ClearAiDigestEmailSampleHistoryMutationMutationVariables>;
-export const AiDigestEmailSamplePreviewQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"AiDigestEmailSamplePreviewQuery"),_1204,_o5(_7,[_o7(_8,_o3(_3,"AiDigestEmailSamplePreview"),[_o8(_549,_1202,_1203)],_o5(_7,[_o6(_8,_402,_1557),_o4(_8,_o3(_3,"durationMs")),_o6(_8,_o3(_3,"calls"),_o5(_7,[_o4(_8,_o3(_3,"purpose")),_o4(_8,_o3(_3,"modelId")),_o4(_8,_o3(_3,"promptVersion")),_o4(_8,_o3(_3,"systemPrompt")),_o4(_8,_1558),_o4(_8,_o3(_3,"inputTokenCount")),_o4(_8,_o3(_3,"outputTokenCount")),_o4(_8,_o3(_3,"uncachedInputTokenCount")),_o4(_8,_o3(_3,"cacheReadInputTokenCount")),_o4(_8,_o3(_3,"cacheWriteInputTokenCount")),_o4(_8,_o3(_3,"costUsd"))]))]))]))]) as unknown as DocumentNode<AiDigestEmailSamplePreviewQueryQuery, AiDigestEmailSamplePreviewQueryQueryVariables>;
+export const AiDigestEmailSamplePreviewQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"AiDigestEmailSamplePreviewQuery"),_1204,_o5(_7,[_o7(_8,_o3(_3,"AiDigestEmailSamplePreview"),[_o8(_549,_1202,_1203)],_o5(_7,[_o6(_8,_402,_1557),_o4(_8,_o3(_3,"durationMs")),_o6(_8,_o3(_3,"calls"),_o5(_7,[_o4(_8,_o3(_3,"purpose")),_o4(_8,_o3(_3,"modelId")),_o4(_8,_o3(_3,"promptVersion")),_o4(_8,_o3(_3,"systemPrompt")),_o4(_8,_1558),_o4(_8,_o3(_3,"inputTokenCount")),_o4(_8,_o3(_3,"outputTokenCount")),_o4(_8,_o3(_3,"uncachedInputTokenCount")),_o4(_8,_o3(_3,"cacheReadInputTokenCount")),_o4(_8,_o3(_3,"cacheWriteInputTokenCount")),_o4(_8,_o3(_3,"costUsd")),_o6(_8,_o3(_3,"toolCalls"),_o5(_7,[_o4(_8,_o3(_3,"toolName")),_o4(_8,_1015)]))]))]))]))]) as unknown as DocumentNode<AiDigestEmailSamplePreviewQueryQuery, AiDigestEmailSamplePreviewQueryQueryVariables>;
 export const EmailPreviewQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"EmailPreviewQuery"),[_o12(_1003,_1560,_1421),_1217],_o5(_7,[_o7(_8,_o3(_3,"EmailPreview"),[_o8(_549,_1559,_1560),_867],_1557)]))]) as unknown as DocumentNode<EmailPreviewQueryQuery, EmailPreviewQueryQueryVariables>;
 export const multiNotificationNotificationsListQueryDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"multiNotificationNotificationsListQuery"),[_o12(_1003,_1070,_o4(_5,_o3(_3,"NotificationSelector"))),_1065,_1131],_o5(_7,[_o7(_8,_o3(_3,"notifications"),_1133,_o5(_7,[_o6(_8,_1040,_o5(_7,[_o4(_25,_464)])),_810]))])),_469]) as unknown as DocumentNode<multiNotificationNotificationsListQueryQuery, multiNotificationNotificationsListQueryQueryVariables>;
 export const NotificationsMenuButtonDocument = _o1(_1,[_o11(_1001,_1010,_o3(_3,"NotificationsMenuButton"),_1221,_1561),_892]) as unknown as DocumentNode<NotificationsMenuButtonQuery, NotificationsMenuButtonQueryVariables>;

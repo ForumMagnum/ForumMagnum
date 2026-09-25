@@ -7,7 +7,6 @@ import {
   buildAiDigestPreview,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText,
-  type AiDigestThreadNode,
   type DigestContentLookup,
   itemKey,
   postReadMoreLabel,
@@ -19,6 +18,7 @@ import {
 } from "@/lib/aiDigest/aiDigestDisplay";
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import { gql } from "@/lib/generated/gql-codegen";
+import type { CommentTreeNode } from "@/lib/utils/unflatten";
 import type {
   AiDigestEmailComment,
   AiDigestEmailPost,
@@ -697,19 +697,18 @@ function QuickTakeItem({
 }
 
 function CommentBox({
-  comment,
-  replies,
+  node,
   anchorCommentId,
   contextCommentIds,
   nestingLevel = 0,
 }: {
-  comment: AiDigestEmailComment;
-  replies: AiDigestThreadNode<AiDigestEmailComment>[];
+  node: CommentTreeNode<AiDigestEmailComment>;
   anchorCommentId: string;
   contextCommentIds: string[];
   nestingLevel?: number;
 }) {
   const classes = useStyles(styles);
+  const comment = node.item;
   const commentUrl = getCommentUrl(comment);
   const maxLength = discussionCommentMaxLength(
     comment._id,
@@ -741,11 +740,10 @@ function CommentBox({
           <div className={classes.commentText}>{text}</div>
         </a>
       </div>
-      {replies.map((reply) => (
+      {node.children.map((reply) => (
         <CommentBox
-          key={reply.comment._id}
-          comment={reply.comment}
-          replies={reply.replies}
+          key={reply.item._id}
+          node={reply}
           anchorCommentId={anchorCommentId}
           contextCommentIds={contextCommentIds}
           nestingLevel={nestingLevel + 1}
@@ -766,7 +764,7 @@ function DiscussionItem({
 }) {
   const classes = useStyles(styles);
   const commentUrl = getCommentUrl(comment);
-  const { rootComment, threadReplies, contextCommentIds } = aiDigestDiscussionThread(item, comment, content);
+  const { roots, contextCommentIds } = aiDigestDiscussionThread(item, content);
   const { prefix, subject } = threadTitle(comment);
   return (
     <article className={classes.card}>
@@ -777,13 +775,14 @@ function DiscussionItem({
             <span className={classes.discussionThreadTitleSubject}>{subject}</span>
           </a>
         </h3>
-        <CommentBox
-          comment={rootComment}
-
-          replies={threadReplies}
-          anchorCommentId={comment._id}
-          contextCommentIds={contextCommentIds}
-        />
+        {roots.map((root) => (
+          <CommentBox
+            key={root.item._id}
+            node={root}
+            anchorCommentId={comment._id}
+            contextCommentIds={contextCommentIds}
+          />
+        ))}
         <ItemFooter url={commentUrl} label="View thread" reason={item.reason} />
       </div>
     </article>

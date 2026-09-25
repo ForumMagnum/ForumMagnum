@@ -1415,6 +1415,11 @@ interface AdminSendBulkEmailResult {
   lastAfterUserId: string | null;
 }
 
+interface AiDigestToolCall {
+  toolName: string;
+  input: string;
+}
+
 interface AiDigestModelCall {
   purpose: string;
   modelId: string;
@@ -1427,6 +1432,7 @@ interface AiDigestModelCall {
   cacheReadInputTokenCount: number | null;
   cacheWriteInputTokenCount: number | null;
   costUsd: number | null;
+  toolCalls: Array<AiDigestToolCall>;
 }
 
 interface AiDigestEmailSamplePreview {
@@ -9459,6 +9465,7 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestToolCall: AiDigestToolCall;
   AiDigestModelCall: AiDigestModelCall;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
   AiDigestIssue: AiDigestIssue;

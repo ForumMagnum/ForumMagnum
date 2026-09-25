@@ -1,4 +1,3 @@
-import { loadAiDigestRevisionBodies } from "./aiDigestPostLookups";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 export interface AiDigestPostTextCacheTarget {
@@ -13,6 +12,23 @@ interface AiDigestPostTextCacheRecord extends AiDigestPostTextCacheTarget {
 
 function cacheKey({ postId, revisionId, modelId, promptVersion }: AiDigestPostTextCacheRecord): string {
   return [postId, revisionId, modelId, promptVersion].join(":");
+}
+
+/** Load immutable revisions for revision-keyed summary and preview caches. */
+async function loadAiDigestRevisionBodies(
+  targets: { postId: string; revisionId: string }[], context: ResolverContext,
+) {
+  if (!targets.length) return [];
+  const revisions = await context.Revisions.find(
+    { _id: { $in: targets.map((target) => target.revisionId) } },
+    {},
+    { _id: 1, html: 1 },
+  ).fetch();
+  const revisionsById = new Map(revisions.map((revision) => [revision._id, revision]));
+  return targets.flatMap((target) => {
+    const html = revisionsById.get(target.revisionId)?.html;
+    return html?.trim() ? [{ postId: target.postId, revisionHtml: html }] : [];
+  });
 }
 
 export function findCachedAiDigestPostText<

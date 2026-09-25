@@ -149,7 +149,14 @@ type AiDigestModelCall = {
   promptVersion: Scalars['String']['output'];
   purpose: Scalars['String']['output'];
   systemPrompt: Scalars['String']['output'];
+  toolCalls: Array<AiDigestToolCall>;
   uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type AiDigestToolCall = {
+  __typename?: 'AiDigestToolCall';
+  input: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
 };
 
 type AirtableLeaderboardResult = {
@@ -16882,7 +16889,9 @@ type ClearAiDigestEmailSampleHistoryMutationMutation = ClearAiDigestEmailSampleH
 
 type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
 
-type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall = { __typename?: 'AiDigestModelCall', purpose: string, modelId: string, promptVersion: string, systemPrompt: string, prompt: string, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, costUsd: number | null };
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall_toolCalls_AiDigestToolCall = { __typename?: 'AiDigestToolCall', toolName: string, input: string };
+
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall = { __typename?: 'AiDigestModelCall', purpose: string, modelId: string, promptVersion: string, systemPrompt: string, prompt: string, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, costUsd: number | null, toolCalls: Array<AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall_toolCalls_AiDigestToolCall> };
 
 type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview = { __typename?: 'AiDigestEmailSamplePreview', durationMs: number, email: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview, calls: Array<AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall> };
 

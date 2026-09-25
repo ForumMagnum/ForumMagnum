@@ -1,7 +1,7 @@
 const mockGenerate = jest.fn();
 const mockFindUser = jest.fn();
 const mockContext = jest.fn();
-jest.mock("@/server/aiDigest/aiDigestPostSelection", () => ({ generateAiDigestPostSelection: (...args: unknown[]) => mockGenerate(...args) }));
+jest.mock("@/server/aiDigest/aiDigestGenerateIssue", () => ({ generateAiDigestIssue: (...args: unknown[]) => mockGenerate(...args) }));
 jest.mock("@/server/aiDigest/aiDigestHistory", () => ({ clearAiDigestRecommendationHistory: jest.fn() }));
 jest.mock("@/server/collections/users/collection", () => ({ __esModule: true, default: { findOne: (...args: unknown[]) => mockFindUser(...args) } }));
 jest.mock("@/server/collections/aiDigestIssues/collection", () => ({ __esModule: true, default: {} }));
@@ -35,7 +35,7 @@ describe("digest workbench generation", () => {
       undefined, { userSlug: "reader", count: 2, countsTowardHistory: false }, computeContextFromUser({ user: null, isSSR: false }),
     )).resolves.toEqual(["first", "second"]);
     expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(mockGenerate).toHaveBeenCalledWith(expect.objectContaining({ options: { countsTowardHistory: false } }));
+    expect(mockGenerate).toHaveBeenCalledWith(expect.objectContaining({ countsTowardHistory: false }));
   });
 
   it.each([null, { _id: "reader", isAdmin: false }])("rejects non-admin access before generation (%s)", async (currentUser) => {

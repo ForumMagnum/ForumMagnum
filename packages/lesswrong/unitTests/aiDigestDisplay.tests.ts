@@ -14,28 +14,26 @@ const reply = comment("reply", "anchor");
 const item: AiDigestItem = {
   documentRef: { documentType: "comment", documentId: "anchor" },
   placement: "full",
-  contextComments: [{ commentId: "ancestor" }],
-  threadComments: [{ commentId: "reply" }],
+  commentIds: ["ancestor", "anchor", "reply"],
 };
 
-describe("digest discussion context shared by email and site", () => {
-  it("attaches the selected comment and its replies beneath available context", () => {
-    const tree = aiDigestDiscussionThread(item, anchor, {
+describe("digest discussion threads shared by email and site", () => {
+  it("nests the anchor beneath its context and its replies beneath it", () => {
+    const thread = aiDigestDiscussionThread(item, {
       postsById: new Map(),
       commentsById: new Map([ancestor, anchor, reply].map((value) => [value._id, value])),
     });
-    expect(tree.rootComment).toBe(ancestor);
-    expect(tree.contextCommentIds).toEqual(["ancestor"]);
-    expect(tree.threadReplies).toEqual([{ comment: anchor, replies: [{ comment: reply, replies: [] }] }]);
+    expect(thread.contextCommentIds).toEqual(["ancestor"]);
+    expect(thread.roots).toEqual([
+      { item: ancestor, children: [{ item: anchor, children: [{ item: reply, children: [] }] }] },
+    ]);
   });
 
-  it("keeps the selected comment and replies when an ancestor is unavailable", () => {
-    const tree = aiDigestDiscussionThread(item, anchor, {
+  it("roots the thread at the anchor when the context is no longer available", () => {
+    const thread = aiDigestDiscussionThread(item, {
       postsById: new Map(),
-      commentsById: new Map([[reply._id, reply]]),
+      commentsById: new Map([anchor, reply].map((value) => [value._id, value])),
     });
-    expect(tree.rootComment).toBe(anchor);
-    expect(tree.contextCommentIds).toEqual([]);
-    expect(tree.threadReplies).toEqual([{ comment: reply, replies: [] }]);
+    expect(thread.roots).toEqual([{ item: anchor, children: [{ item: reply, children: [] }] }]);
   });
 });

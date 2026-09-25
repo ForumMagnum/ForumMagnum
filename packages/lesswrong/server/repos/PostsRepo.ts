@@ -1,6 +1,7 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { joinReaderUpvote, readerFollowedAuthorIds, readerSeesLessOf } from "./aiDigestSqlHelpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ForumTypeString } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
@@ -17,40 +18,57 @@ type MeanPostKarma = {
   meanKarma: number,
 }
 
-export interface AiDigestPostReferenceRow {
+export interface AiDigestPostCandidateRow {
   postId: string;
+  revisionId: string;
   title: string;
-  authorId: string | null;
-  authorName: string;
+  author: string;
   postedAt: Date;
-  occurredAt: Date;
+  baseScore: number;
+  score: number;
+  tags: string[];
+  curated: boolean;
+  hasReadStatus: boolean;
+  liked: "regular" | "strong" | null;
+  followsAuthor: boolean;
 }
 
-export interface AiDigestPositiveVoteRow extends AiDigestPostReferenceRow {
-  voteStrength: "regular" | "strong";
+export interface AiDigestReaderReadStats {
+  total: number;
+  last30Days: number;
+  last180Days: number;
+  /** Reads from the last 180 days, by how old the post was when it was read. */
+  readsByPostAge: {
+    under7Days: number;
+    from7To30Days: number;
+    from31To180Days: number;
+    over180Days: number;
+  };
 }
 
-export interface AiDigestAuthorCountRow {
-  authorId: string;
-  authorName: string;
-  readCount: number;
+export interface AiDigestReaderAffinityRow {
+  name: string;
+  reads: number;
 }
 
-export interface AiDigestTopicCountRow {
-  tagId: string;
-  tagName: string;
-  readCount: number;
+export interface AiDigestReaderRecentPostRow {
+  title: string;
+  author: string;
+  postedAt: Date;
+  readAt: Date | null;
+  liked: "regular" | "strong" | null;
+  likedAt: Date | null;
+  authoredAt: Date | null;
+  commentedAt: Date | null;
 }
 
-export interface AiDigestSeeLessRow {
-  eventId: string;
-  collectionName: "Posts" | "Comments" | "Spotlights";
-  documentId: string;
-  createdAt: Date;
-  targetPostId: string | null;
-  targetTitle: string | null;
-  targetAuthor: string | null;
-  targetTagNames: string[];
+export interface AiDigestReaderNegativePreferenceRow {
+  kind: "seeLess" | "hidden";
+  collectionName: "Posts" | "Comments" | "Spotlights" | null;
+  title: string | null;
+  author: string | null;
+  topics: string[];
+  feedbackAt: Date | null;
   feedbackReasons: {
     author?: boolean;
     topic?: boolean;
@@ -60,32 +78,19 @@ export interface AiDigestSeeLessRow {
   } | null;
 }
 
-export interface AiDigestReadCountsRow {
-  totalReadCount: number;
-  recentReadCount30Days: number;
-  recentReadCount180Days: number;
-}
-
-export interface AiDigestReadAgeBucketsRow {
-  under7Days: number;
-  from7To30Days: number;
-  from31To180Days: number;
-  over180Days: number;
-}
-
-export interface AiDigestCanonicalPostCandidateRow {
+export interface AiDigestRecentlyCuratedPostRow {
   postId: string;
-  revisionId: string;
+  isRead: boolean;
+}
+
+export interface AiDigestPastPostOutcomeRow {
+  postId: string;
   title: string;
   author: string;
-  hideAuthor: boolean;
-  /** Author and coauthor IDs regardless of hideAuthor, for recipient-authored checks. */
-  ownerIds: string[];
-  publicationDate: Date;
-  baseScore: number;
-  score: number;
-  tagNames: string[];
-  isCurated: boolean;
+  postedAt: Date;
+  readAt: Date | null;
+  liked: "regular" | "strong" | null;
+  likedAt: Date | null;
 }
 
 /**
@@ -135,37 +140,10 @@ const aiDigestEligiblePostConditions = (postAlias: string) => `
     AND ${postAlias}."postedAt" <= NOW()
 `;
 
-/** The candidate-card columns shared by the digest's post candidate queries; expects aliases `p` and `u`. */
-const aiDigestPostCandidateColumns = `
-        p."_id" AS "postId",
-        p."contents_latest" AS "revisionId",
-        p.title,
-        ${aiDigestPostAuthorExpression("p", "u")} AS author,
-        p."hideAuthor",
-        array_remove(ARRAY[p."userId"] || p."coauthorUserIds", NULL) AS "ownerIds",
-        p."postedAt" AS "publicationDate",
-        p."baseScore",
-        p.score,
-        ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS "tagNames",
-        (p."curatedDate" IS NOT NULL) AS "isCurated"
-`;
-
-/** Posts the reader-dossier queries may reference: viewable and already published. */
+/** Posts the reader-profile queries may reference: viewable and already published. */
 const aiDigestPublishedPostConditions = (postAlias: string) => `
     ${getViewablePostsSelector(postAlias)}
     AND ${postAlias}."postedAt" <= NOW()
-`;
-
-/**
- * Author columns for the reader-dossier post lists, anonymized when the post
- * hides its author. Expects aliases `p` and `u`.
- */
-const aiDigestReaderPostAuthorColumns = `
-  CASE WHEN p."hideAuthor" THEN NULL ELSE p."userId" END AS "authorId",
-  CASE
-    WHEN p."hideAuthor" THEN 'Anonymous'
-    ELSE COALESCE(u."displayName", p.author, 'LessWrong contributor')
-  END AS "authorName"
 `;
 
 const constructFilters = (
@@ -1196,44 +1174,136 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [limit]);
   }
 
-  /** The reader's lifetime and recent read counts. */
-  async getAiDigestReadCounts({
+  /**
+   * Posts the AI digest may recommend to the reader, with the reader's own
+   * relationship to each. Either the most recent eligible posts since
+   * `minPostedAt`, or the eligible ones among `postIds`. Never includes the
+   * reader's own posts, posts they hid, or posts they asked to see less of.
+   */
+  async getAiDigestPostCandidates({
     userId,
-    thirtyDaysAgo,
-    oneHundredEightyDaysAgo,
+    aboutPostId,
+    minKarma,
+    minPostedAt = null,
+    postIds = null,
+    limit = null,
   }: {
     userId: string;
-    thirtyDaysAgo: Date;
-    oneHundredEightyDaysAgo: Date;
-  }): Promise<AiDigestReadCountsRow> {
-    return this.getRawDb().one<AiDigestReadCountsRow>(`
-      -- PostsRepo.getAiDigestReadCounts
+    aboutPostId: string;
+    minKarma: number;
+    minPostedAt?: Date | null;
+    postIds?: string[] | null;
+    limit?: number | null;
+  }): Promise<AiDigestPostCandidateRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestPostCandidateRow>(`
+      -- PostsRepo.getAiDigestPostCandidates
       SELECT
-        COUNT(*)::int AS "totalReadCount",
-        COUNT(*) FILTER (WHERE rs."lastUpdated" >= $(thirtyDaysAgo))::int AS "recentReadCount30Days",
-        COUNT(*) FILTER (WHERE rs."lastUpdated" >= $(oneHundredEightyDaysAgo))::int AS "recentReadCount180Days"
+        p."_id" AS "postId",
+        p."contents_latest" AS "revisionId",
+        p.title,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
+        p."postedAt",
+        p."baseScore",
+        p.score,
+        ${aiDigestPostTagNamesSubquery(`p."_id"`, 8)} AS tags,
+        (p."curatedDate" IS NOT NULL) AS curated,
+        EXISTS (
+          SELECT 1 FROM "ReadStatuses" rs
+          WHERE rs."userId" = $(userId) AND rs."postId" = p."_id" AND rs."isRead" IS TRUE
+        ) AS "hasReadStatus",
+        upvote.liked,
+        (
+          p."hideAuthor" IS FALSE
+          AND (p."userId" IN (${readerFollowedAuthorIds}) OR p."coauthorUserIds" && ARRAY(${readerFollowedAuthorIds})::TEXT[])
+        ) AS "followsAuthor"
+      FROM "Posts" p
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      ${joinReaderUpvote("Posts", `p."_id"`, "upvote")}
+      WHERE ${aiDigestEligiblePostConditions("p")}
+        AND p."baseScore" >= $(minKarma)
+        AND p."_id" <> $(aboutPostId)
+        AND p."contents_latest" IS NOT NULL
+        AND ($(postIds)::TEXT[] IS NULL OR p."_id" = ANY($(postIds)::TEXT[]))
+        AND ($(minPostedAt)::TIMESTAMPTZ IS NULL OR p."postedAt" >= $(minPostedAt))
+        AND p."userId" IS DISTINCT FROM $(userId)
+        AND NOT ($(userId) = ANY(p."coauthorUserIds"))
+        AND NOT EXISTS (
+          SELECT 1 FROM "Users" reader, unnest(reader."hiddenPostsMetadata") hidden
+          WHERE reader."_id" = $(userId) AND hidden ->> 'postId' = p."_id"
+        )
+        AND NOT ${readerSeesLessOf("Posts", `p."_id"`)}
+      ORDER BY p."postedAt" DESC, p."baseScore" DESC, p."_id"
+      LIMIT $(limit)
+    `, { userId, aboutPostId, minKarma, minPostedAt, postIds, limit });
+  }
+
+  /** The most recently curated posts, newest curation first, and whether the reader has read each. */
+  async getAiDigestRecentlyCuratedPosts({ userId, limit }: {
+    userId: string;
+    limit: number;
+  }): Promise<AiDigestRecentlyCuratedPostRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestRecentlyCuratedPostRow>(`
+      -- PostsRepo.getAiDigestRecentlyCuratedPosts
+      SELECT
+        p."_id" AS "postId",
+        EXISTS (
+          SELECT 1 FROM "ReadStatuses" rs
+          WHERE rs."userId" = $(userId) AND rs."postId" = p."_id" AND rs."isRead" IS TRUE
+        ) AS "isRead"
+      FROM "Posts" p
+      WHERE ${getViewablePostsSelector("p")}
+        AND p."deletedDraft" IS FALSE
+        AND p.rejected IS FALSE
+        AND p."curatedDate" <= NOW()
+      ORDER BY p."curatedDate" DESC
+      LIMIT $(limit)
+    `, { userId, limit });
+  }
+
+  /** How much the reader reads: lifetime and recent counts, and how old posts were when read. */
+  async getAiDigestReaderReadStats({ userId, now }: {
+    userId: string;
+    now: Date;
+  }): Promise<AiDigestReaderReadStats> {
+    return this.getRawDb().one<AiDigestReaderReadStats>(`
+      -- PostsRepo.getAiDigestReaderReadStats
+      SELECT
+        COUNT(*)::INT AS total,
+        COUNT(*) FILTER (WHERE rs."lastUpdated" >= $(now)::TIMESTAMPTZ - INTERVAL '30 days')::INT AS "last30Days",
+        COUNT(*) FILTER (WHERE read."isRecent")::INT AS "last180Days",
+        json_build_object(
+          'under7Days', COUNT(*) FILTER (WHERE read."isRecent" AND read."postAge" < INTERVAL '7 days'),
+          'from7To30Days', COUNT(*) FILTER (
+            WHERE read."isRecent" AND read."postAge" >= INTERVAL '7 days' AND read."postAge" < INTERVAL '31 days'
+          ),
+          'from31To180Days', COUNT(*) FILTER (
+            WHERE read."isRecent" AND read."postAge" >= INTERVAL '31 days' AND read."postAge" < INTERVAL '181 days'
+          ),
+          'over180Days', COUNT(*) FILTER (WHERE read."isRecent" AND read."postAge" >= INTERVAL '181 days')
+        ) AS "readsByPostAge"
       FROM "ReadStatuses" rs
+      LEFT JOIN "Posts" p ON p."_id" = rs."postId"
+      CROSS JOIN LATERAL (
+        SELECT
+          rs."lastUpdated" >= $(now)::TIMESTAMPTZ - INTERVAL '180 days' AS "isRecent",
+          CASE WHEN p."postedAt" <= rs."lastUpdated" THEN rs."lastUpdated" - p."postedAt" END AS "postAge"
+      ) read
       WHERE rs."userId" = $(userId)
         AND rs."isRead" IS TRUE
-    `, { userId, thirtyDaysAgo, oneHundredEightyDaysAgo });
+    `, { userId, now });
   }
 
   /** Authors whose posts the reader has read most since `since`, most-read first. */
-  async getAiDigestTopReadAuthors({
-    userId,
-    since,
-    limit,
-  }: {
+  async getAiDigestReaderTopAuthors({ userId, since, limit }: {
     userId: string;
     since: Date;
     limit: number;
-  }): Promise<AiDigestAuthorCountRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestAuthorCountRow>(`
-      -- PostsRepo.getAiDigestTopReadAuthors
+  }): Promise<AiDigestReaderAffinityRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestReaderAffinityRow>(`
+      -- PostsRepo.getAiDigestReaderTopAuthors
       SELECT
-        p."userId" AS "authorId",
-        COALESCE(u."displayName", p.author, 'LessWrong contributor') AS "authorName",
-        COUNT(DISTINCT rs."postId")::int AS "readCount"
+        COALESCE(u."displayName", p.author, 'LessWrong contributor') AS name,
+        COUNT(DISTINCT rs."postId")::INT AS reads
       FROM "ReadStatuses" rs
       INNER JOIN "Posts" p ON p."_id" = rs."postId"
       INNER JOIN "Users" u ON u."_id" = p."userId"
@@ -1242,29 +1312,23 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND rs."lastUpdated" >= $(since)
         AND ${aiDigestPublishedPostConditions("p")}
         AND p."hideAuthor" IS FALSE
-        AND p."userId" IS NOT NULL
       GROUP BY p."userId", u."displayName", p.author
-      ORDER BY "readCount" DESC, p."userId"
+      ORDER BY reads DESC, p."userId"
       LIMIT $(limit)
     `, { userId, since, limit });
   }
 
   /** Topics of the posts the reader has read most since `since`, most-read first. */
-  async getAiDigestTopReadTopics({
-    userId,
-    since,
-    limit,
-  }: {
+  async getAiDigestReaderTopTopics({ userId, since, limit }: {
     userId: string;
     since: Date;
     limit: number;
-  }): Promise<AiDigestTopicCountRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestTopicCountRow>(`
-      -- PostsRepo.getAiDigestTopReadTopics
+  }): Promise<AiDigestReaderAffinityRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestReaderAffinityRow>(`
+      -- PostsRepo.getAiDigestReaderTopTopics
       SELECT
-        t."_id" AS "tagId",
-        COALESCE(t."shortName", t.name) AS "tagName",
-        COUNT(DISTINCT rs."postId")::int AS "readCount"
+        COALESCE(t."shortName", t.name) AS name,
+        COUNT(DISTINCT rs."postId")::INT AS reads
       FROM "ReadStatuses" rs
       INNER JOIN "Posts" p ON p."_id" = rs."postId"
       INNER JOIN "TagRels" tr ON tr."postId" = p."_id"
@@ -1277,292 +1341,191 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND tr."baseScore" > 0
         AND t.deleted IS FALSE
       GROUP BY t."_id", t."shortName", t.name
-      ORDER BY "readCount" DESC, t."_id"
+      ORDER BY reads DESC, t."_id"
       LIMIT $(limit)
     `, { userId, since, limit });
-  }
-
-  /** Posts the reader read since `since`, most recent first. */
-  async getAiDigestRecentReads({
-    userId,
-    since,
-    limit,
-  }: {
-    userId: string;
-    since: Date;
-    limit: number;
-  }): Promise<AiDigestPostReferenceRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestPostReferenceRow>(`
-      -- PostsRepo.getAiDigestRecentReads
-      SELECT
-        p."_id" AS "postId",
-        p.title,
-        ${aiDigestReaderPostAuthorColumns},
-        p."postedAt" AS "postedAt",
-        rs."lastUpdated" AS "occurredAt"
-      FROM "ReadStatuses" rs
-      INNER JOIN "Posts" p ON p."_id" = rs."postId"
-      LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE rs."userId" = $(userId)
-        AND rs."isRead" IS TRUE
-        AND rs."lastUpdated" >= $(since)
-        AND ${aiDigestPublishedPostConditions("p")}
-      ORDER BY rs."lastUpdated" DESC, p."_id"
-      LIMIT $(limit)
-    `, { userId, since, limit });
-  }
-
-  /** Posts the reader upvoted since `since` (current votes only), most recent first. */
-  async getAiDigestRecentPositiveVotes({
-    userId,
-    since,
-    limit,
-  }: {
-    userId: string;
-    since: Date;
-    limit: number;
-  }): Promise<AiDigestPositiveVoteRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestPositiveVoteRow>(`
-      -- PostsRepo.getAiDigestRecentPositiveVotes
-      SELECT *
-      FROM (
-        SELECT DISTINCT ON (p."_id")
-          p."_id" AS "postId",
-          p.title,
-          ${aiDigestReaderPostAuthorColumns},
-          p."postedAt" AS "postedAt",
-          v."votedAt" AS "occurredAt",
-          CASE WHEN v."voteType" = 'bigUpvote' THEN 'strong' ELSE 'regular' END AS "voteStrength"
-        FROM "Votes" v
-        INNER JOIN "Posts" p ON p."_id" = v."documentId"
-        LEFT JOIN "Users" u ON u."_id" = p."userId"
-        WHERE v."userId" = $(userId)
-          AND v."collectionName" = 'Posts'
-          AND v."voteType" IN ('smallUpvote', 'bigUpvote')
-          AND v.cancelled IS FALSE
-          AND v."isUnvote" IS FALSE
-          AND v."votedAt" >= $(since)
-          AND ${aiDigestPublishedPostConditions("p")}
-        ORDER BY p."_id", v."votedAt" DESC
-      ) current_positive_votes
-      ORDER BY "occurredAt" DESC, "postId"
-      LIMIT $(limit)
-    `, { userId, since, limit });
-  }
-
-  /** Posts the reader authored or coauthored since `since`, newest first. */
-  async getAiDigestRecentAuthoredPosts({
-    userId,
-    since,
-    limit,
-  }: {
-    userId: string;
-    since: Date;
-    limit: number;
-  }): Promise<AiDigestPostReferenceRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestPostReferenceRow>(`
-      -- PostsRepo.getAiDigestRecentAuthoredPosts
-      SELECT
-        p."_id" AS "postId",
-        p.title,
-        ${aiDigestReaderPostAuthorColumns},
-        p."postedAt" AS "postedAt",
-        p."postedAt" AS "occurredAt"
-      FROM "Posts" p
-      LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE (
-        p."userId" = $(userId)
-        OR $(userId) = ANY(p."coauthorUserIds")
-      )
-        AND p."postedAt" >= $(since)
-        AND ${aiDigestPublishedPostConditions("p")}
-      ORDER BY p."postedAt" DESC, p."_id"
-      LIMIT $(limit)
-    `, { userId, since, limit });
-  }
-
-  /** Posts the reader commented on since `since`, by most recent comment. */
-  async getAiDigestRecentCommentedPosts({
-    userId,
-    since,
-    limit,
-  }: {
-    userId: string;
-    since: Date;
-    limit: number;
-  }): Promise<AiDigestPostReferenceRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestPostReferenceRow>(`
-      -- PostsRepo.getAiDigestRecentCommentedPosts
-      SELECT
-        p."_id" AS "postId",
-        p.title,
-        ${aiDigestReaderPostAuthorColumns},
-        p."postedAt" AS "postedAt",
-        MAX(c."postedAt") AS "occurredAt"
-      FROM "Comments" c
-      INNER JOIN "Posts" p ON p."_id" = c."postId"
-      LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE c."userId" = $(userId)
-        AND c."postedAt" >= $(since)
-        AND c.draft IS FALSE
-        AND c.deleted IS FALSE
-        AND c.rejected IS FALSE
-        AND ${aiDigestPublishedPostConditions("p")}
-      GROUP BY p."_id", p.title, p."hideAuthor", p."userId", u."displayName", p.author, p."postedAt"
-      ORDER BY "occurredAt" DESC, p."_id"
-      LIMIT $(limit)
-    `, { userId, since, limit });
-  }
-
-  /** How old posts were when the reader read them, for reads since `since`. */
-  async getAiDigestReadAgeBuckets({
-    userId,
-    since,
-  }: {
-    userId: string;
-    since: Date;
-  }): Promise<AiDigestReadAgeBucketsRow> {
-    return this.getRawDb().one<AiDigestReadAgeBucketsRow>(`
-      -- PostsRepo.getAiDigestReadAgeBuckets
-      SELECT
-        COUNT(*) FILTER (WHERE rs."lastUpdated" - p."postedAt" < INTERVAL '7 days')::int AS "under7Days",
-        COUNT(*) FILTER (
-          WHERE rs."lastUpdated" - p."postedAt" >= INTERVAL '7 days'
-            AND rs."lastUpdated" - p."postedAt" < INTERVAL '31 days'
-        )::int AS "from7To30Days",
-        COUNT(*) FILTER (
-          WHERE rs."lastUpdated" - p."postedAt" >= INTERVAL '31 days'
-            AND rs."lastUpdated" - p."postedAt" < INTERVAL '181 days'
-        )::int AS "from31To180Days",
-        COUNT(*) FILTER (WHERE rs."lastUpdated" - p."postedAt" >= INTERVAL '181 days')::int AS "over180Days"
-      FROM "ReadStatuses" rs
-      INNER JOIN "Posts" p ON p."_id" = rs."postId"
-      WHERE rs."userId" = $(userId)
-        AND rs."isRead" IS TRUE
-        AND rs."lastUpdated" >= $(since)
-        AND p."postedAt" IS NOT NULL
-        AND p."postedAt" <= rs."lastUpdated"
-    `, { userId, since });
-  }
-
-  /** The reader's un-cancelled "see less" feedback since `since`, with the target's context. */
-  async getAiDigestSeeLessFeedback({
-    userId,
-    since,
-    limit,
-  }: {
-    userId: string;
-    since: Date;
-    limit: number;
-  }): Promise<AiDigestSeeLessRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestSeeLessRow>(`
-      -- PostsRepo.getAiDigestSeeLessFeedback
-      SELECT
-        ufe."_id" AS "eventId",
-        ufe."collectionName",
-        ufe."documentId",
-        ufe."createdAt",
-        target_post."_id" AS "targetPostId",
-        target_post.title AS "targetTitle",
-        CASE
-          WHEN ufe."collectionName" = 'Comments'
-            THEN COALESCE(target_comment_author."displayName", 'LessWrong contributor')
-          WHEN ufe."collectionName" = 'Posts' AND target_post."hideAuthor"
-            THEN 'Anonymous'
-          WHEN ufe."collectionName" = 'Posts'
-            THEN COALESCE(target_post_author."displayName", target_post.author, 'LessWrong contributor')
-          ELSE NULL
-        END AS "targetAuthor",
-        ${aiDigestPostTagNamesSubquery(`target_post."_id"`)} AS "targetTagNames",
-        ufe.event -> 'feedbackReasons' AS "feedbackReasons"
-      FROM "UltraFeedEvents" ufe
-      LEFT JOIN "Comments" target_comment
-        ON ufe."collectionName" = 'Comments'
-        AND target_comment."_id" = ufe."documentId"
-      LEFT JOIN "Posts" target_post
-        ON target_post."_id" = CASE
-          WHEN ufe."collectionName" = 'Posts' THEN ufe."documentId"
-          WHEN ufe."collectionName" = 'Comments' THEN target_comment."postId"
-          ELSE NULL
-        END
-        AND ${aiDigestPublishedPostConditions("target_post")}
-      LEFT JOIN "Users" target_post_author
-        ON target_post_author."_id" = target_post."userId"
-      LEFT JOIN "Users" target_comment_author
-        ON target_comment_author."_id" = target_comment."userId"
-      WHERE ufe."userId" = $(userId)
-        AND ufe."eventType" = 'seeLess'
-        AND COALESCE((ufe.event ->> 'cancelled')::boolean, FALSE) IS FALSE
-        AND ufe.event ? 'feedbackReasons'
-        AND ufe."createdAt" >= $(since)
-      ORDER BY ufe."createdAt" DESC, ufe."_id"
-      LIMIT $(limit)
-    `, { userId, since, limit });
-  }
-
-  async getAiDigestCanonicalPostCandidateRows({
-    aboutPostId,
-    minPostedAt,
-    minKarma,
-    limit,
-  }: {
-    aboutPostId: string;
-    minPostedAt: Date;
-    minKarma: number;
-    limit: number;
-  }): Promise<AiDigestCanonicalPostCandidateRow[]> {
-    return this.getRawDb().manyOrNone<AiDigestCanonicalPostCandidateRow>(`
-      -- PostsRepo.getAiDigestCanonicalPostCandidateRows
-      SELECT ${aiDigestPostCandidateColumns}
-      FROM "Posts" p
-      LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE ${aiDigestEligiblePostConditions("p")}
-        AND p."postedAt" >= $(minPostedAt)
-        AND p."baseScore" >= $(minKarma)
-        AND p."_id" <> $(aboutPostId)
-        AND p."contents_latest" IS NOT NULL
-      ORDER BY p."postedAt" DESC, p."baseScore" DESC, p."_id"
-      LIMIT $(limit)
-    `, {
-      aboutPostId,
-      minPostedAt,
-      minKarma,
-      limit,
-    });
   }
 
   /**
-   * Digest-eligible posts among the given IDs, shaped like the canonical
-   * candidate rows. Applies the same eligibility conditions as the canonical
-   * query (minus the recency window), so ineligible posts are simply absent.
+   * Posts the reader recently read, upvoted, wrote, or commented on (the most
+   * recent `limitPerKind` of each), with every one of those interactions they
+   * had with each post, most recently engaged first.
    */
-  async getAiDigestEligiblePostCandidateRowsByIds({
-    postIds,
-    aboutPostId,
-    minKarma,
-  }: {
+  async getAiDigestReaderRecentPosts({ userId, since, limitPerKind }: {
+    userId: string;
+    since: Date;
+    limitPerKind: number;
+  }): Promise<AiDigestReaderRecentPostRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestReaderRecentPostRow>(`
+      -- PostsRepo.getAiDigestReaderRecentPosts
+      WITH reads AS (
+        SELECT rs."postId", rs."lastUpdated" AS "at"
+        FROM "ReadStatuses" rs
+        INNER JOIN "Posts" p ON p."_id" = rs."postId"
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" IS TRUE
+          AND rs."lastUpdated" >= $(since)
+          AND ${aiDigestPublishedPostConditions("p")}
+        ORDER BY rs."lastUpdated" DESC
+        LIMIT $(limitPerKind)
+      ),
+      likes AS (
+        SELECT * FROM (
+          SELECT DISTINCT ON (v."documentId")
+            v."documentId" AS "postId",
+            v."votedAt" AS "at",
+            CASE WHEN v."voteType" = 'bigUpvote' THEN 'strong' ELSE 'regular' END AS liked
+          FROM "Votes" v
+          INNER JOIN "Posts" p ON p."_id" = v."documentId"
+          WHERE v."userId" = $(userId)
+            AND v."collectionName" = 'Posts'
+            AND v."voteType" IN ('smallUpvote', 'bigUpvote')
+            AND v.cancelled IS FALSE
+            AND v."isUnvote" IS FALSE
+            AND v."votedAt" >= $(since)
+            AND ${aiDigestPublishedPostConditions("p")}
+          ORDER BY v."documentId", v."votedAt" DESC
+        ) latest_likes
+        ORDER BY "at" DESC
+        LIMIT $(limitPerKind)
+      ),
+      authored AS (
+        SELECT p."_id" AS "postId", p."postedAt" AS "at"
+        FROM "Posts" p
+        WHERE (p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"))
+          AND p."postedAt" >= $(since)
+          AND ${aiDigestPublishedPostConditions("p")}
+        ORDER BY p."postedAt" DESC
+        LIMIT $(limitPerKind)
+      ),
+      commented AS (
+        SELECT c."postId", MAX(c."postedAt") AS "at"
+        FROM "Comments" c
+        INNER JOIN "Posts" p ON p."_id" = c."postId"
+        WHERE c."userId" = $(userId)
+          AND c."postedAt" >= $(since)
+          AND c.draft IS FALSE
+          AND c.deleted IS FALSE
+          AND c.rejected IS FALSE
+          AND ${aiDigestPublishedPostConditions("p")}
+        GROUP BY c."postId"
+        ORDER BY "at" DESC
+        LIMIT $(limitPerKind)
+      )
+      SELECT
+        p.title,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
+        p."postedAt",
+        reads."at" AS "readAt",
+        likes.liked,
+        likes."at" AS "likedAt",
+        authored."at" AS "authoredAt",
+        commented."at" AS "commentedAt"
+      FROM "Posts" p
+      LEFT JOIN "Users" u ON u."_id" = p."userId"
+      LEFT JOIN reads ON reads."postId" = p."_id"
+      LEFT JOIN likes ON likes."postId" = p."_id"
+      LEFT JOIN authored ON authored."postId" = p."_id"
+      LEFT JOIN commented ON commented."postId" = p."_id"
+      WHERE COALESCE(reads."postId", likes."postId", authored."postId", commented."postId") IS NOT NULL
+      ORDER BY GREATEST(reads."at", likes."at", authored."at", commented."at") DESC, p."_id"
+    `, { userId, since, limitPerKind });
+  }
+
+  /**
+   * The reader's recent un-cancelled "see less" feedback with its target's
+   * context, followed by the posts they most recently hid.
+   */
+  async getAiDigestReaderNegativePreferences({ userId, since, limit }: {
+    userId: string;
+    since: Date;
+    limit: number;
+  }): Promise<AiDigestReaderNegativePreferenceRow[]> {
+    return this.getRawDb().manyOrNone<AiDigestReaderNegativePreferenceRow>(`
+      -- PostsRepo.getAiDigestReaderNegativePreferences
+      (
+        SELECT
+          'seeLess' AS kind,
+          ufe."collectionName",
+          target_post.title,
+          CASE
+            WHEN ufe."collectionName" = 'Comments'
+              THEN COALESCE(target_comment_author."displayName", 'LessWrong contributor')
+            WHEN ufe."collectionName" = 'Posts'
+              THEN ${aiDigestPostAuthorExpression("target_post", "target_post_author")}
+          END AS author,
+          ${aiDigestPostTagNamesSubquery(`target_post."_id"`)} AS topics,
+          ufe."createdAt" AS "feedbackAt",
+          ufe.event -> 'feedbackReasons' AS "feedbackReasons"
+        FROM "UltraFeedEvents" ufe
+        LEFT JOIN "Comments" target_comment
+          ON ufe."collectionName" = 'Comments'
+          AND target_comment."_id" = ufe."documentId"
+        LEFT JOIN "Posts" target_post
+          ON target_post."_id" = CASE
+            WHEN ufe."collectionName" = 'Posts' THEN ufe."documentId"
+            WHEN ufe."collectionName" = 'Comments' THEN target_comment."postId"
+          END
+          AND ${aiDigestPublishedPostConditions("target_post")}
+        LEFT JOIN "Users" target_post_author ON target_post_author."_id" = target_post."userId"
+        LEFT JOIN "Users" target_comment_author ON target_comment_author."_id" = target_comment."userId"
+        WHERE ufe."userId" = $(userId)
+          AND ufe."eventType" = 'seeLess'
+          AND COALESCE((ufe.event ->> 'cancelled')::BOOLEAN, FALSE) IS FALSE
+          AND ufe.event ? 'feedbackReasons'
+          AND ufe."createdAt" >= $(since)
+        ORDER BY ufe."createdAt" DESC, ufe."_id"
+        LIMIT $(limit)
+      )
+      UNION ALL
+      (
+        SELECT
+          'hidden' AS kind,
+          'Posts' AS "collectionName",
+          p.title,
+          ${aiDigestPostAuthorExpression("p", "u")} AS author,
+          ${aiDigestPostTagNamesSubquery(`p."_id"`)} AS topics,
+          NULL AS "feedbackAt",
+          NULL AS "feedbackReasons"
+        FROM "Users" reader
+        CROSS JOIN LATERAL unnest(reader."hiddenPostsMetadata") WITH ORDINALITY AS hidden(metadata, position)
+        INNER JOIN "Posts" p ON p."_id" = hidden.metadata ->> 'postId'
+        LEFT JOIN "Users" u ON u."_id" = p."userId"
+        WHERE reader."_id" = $(userId)
+          AND ${aiDigestPublishedPostConditions("p")}
+        ORDER BY hidden.position DESC
+        LIMIT $(limit)
+      )
+    `, { userId, since, limit });
+  }
+
+  /** How the reader has engaged with the given posts: when they last read each, and their current upvote. */
+  async getAiDigestPastPostOutcomes({ userId, postIds }: {
+    userId: string;
     postIds: string[];
-    aboutPostId: string;
-    minKarma: number;
-  }): Promise<AiDigestCanonicalPostCandidateRow[]> {
+  }): Promise<AiDigestPastPostOutcomeRow[]> {
     if (postIds.length === 0) {
       return [];
     }
-    return this.getRawDb().manyOrNone<AiDigestCanonicalPostCandidateRow>(`
-      -- PostsRepo.getAiDigestEligiblePostCandidateRowsByIds
-      SELECT ${aiDigestPostCandidateColumns}
+    return this.getRawDb().manyOrNone<AiDigestPastPostOutcomeRow>(`
+      -- PostsRepo.getAiDigestPastPostOutcomes
+      SELECT
+        p."_id" AS "postId",
+        p.title,
+        ${aiDigestPostAuthorExpression("p", "u")} AS author,
+        p."postedAt",
+        (
+          SELECT MAX(rs."lastUpdated") FROM "ReadStatuses" rs
+          WHERE rs."userId" = $(userId) AND rs."postId" = p."_id" AND rs."isRead" IS TRUE
+        ) AS "readAt",
+        upvote.liked,
+        upvote."likedAt"
       FROM "Posts" p
       LEFT JOIN "Users" u ON u."_id" = p."userId"
-      WHERE p."_id" = ANY($(postIds)::text[])
-        AND ${aiDigestEligiblePostConditions("p")}
-        AND p."baseScore" >= $(minKarma)
-        AND p."_id" <> $(aboutPostId)
-        AND p."contents_latest" IS NOT NULL
-    `, {
-      postIds,
-      aboutPostId,
-      minKarma,
-    });
+      ${joinReaderUpvote("Posts", `p."_id"`, "upvote")}
+      WHERE p."_id" = ANY($(postIds)::TEXT[])
+        AND p."postedAt" IS NOT NULL
+    `, { userId, postIds });
   }
 
   getCurationCandidatePosts(limit: number): Promise<DbPost[]> {

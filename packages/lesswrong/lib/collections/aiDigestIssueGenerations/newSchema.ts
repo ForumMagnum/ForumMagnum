@@ -17,6 +17,7 @@ declare global {
     cacheReadInputTokenCount: number | null;
     cacheWriteInputTokenCount: number | null;
     costUsd: number | null;
+    toolCalls: Array<{ toolName: string; input: string }>;
   }
 }
 

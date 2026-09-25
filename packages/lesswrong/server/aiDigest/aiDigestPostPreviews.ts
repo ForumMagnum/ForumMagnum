@@ -7,11 +7,11 @@ import { z } from "zod";
 import { truncate } from "@/lib/editor/ellipsize";
 import { sanitize } from "@/lib/utils/sanitize";
 import PostPreviews from "@/server/collections/postPreviews/collection";
-import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
+import { aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 
 const AI_DIGEST_POST_PREVIEW_PROMPT_VERSION = "ai-digest-post-preview-v1";
-export const AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID = "anthropic/claude-opus-5";
+const AI_DIGEST_DEFAULT_PREVIEW_MODEL_ID = "anthropic/claude-opus-5";
 /**
  * Storage cap for a cached preview. Both surfaces truncate again to their own
  * placement budget, so this only needs to be comfortably larger than those.

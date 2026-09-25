@@ -1605,6 +1605,11 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
+type AiDigestToolCall {
+  toolName: String!
+  input: String!
+}
+
 type AiDigestModelCall {
   purpose: String!
   modelId: String!
@@ -1617,6 +1622,7 @@ type AiDigestModelCall {
   cacheReadInputTokenCount: Int
   cacheWriteInputTokenCount: Int
   costUsd: Float
+  toolCalls: [AiDigestToolCall!]!
 }
 
 type AiDigestEmailSamplePreview {

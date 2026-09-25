@@ -2,6 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { gql } from "@/lib/generated/gql-codegen";
+import type { CommentTreeNode } from "@/lib/utils/unflatten";
 import type {
   AiDigestEmailComment,
   AiDigestEmailPost,
@@ -12,7 +13,6 @@ import {
   formatAiDigestDate as formatDate,
   formatAiDigestPostAuthors as formatPostAuthors,
   truncateAiDigestText as truncateText,
-  type AiDigestThreadNode,
   type DigestContentLookup,
   itemKey,
   postReadMoreLabel,
@@ -1133,24 +1133,22 @@ function QuickTakeItem({ comment, item, slot, classes }: {
   );
 }
 
-/** Thread heading: the comment boxes carry author bylines, so drop the author here. */
 function CommentBox({
-  comment,
-  replies,
+  node,
   anchorCommentId,
   contextCommentIds,
   nestingLevel = 0,
   slot,
   classes,
 }: {
-  comment: AiDigestEmailComment;
-  replies: AiDigestThreadNode<AiDigestEmailComment>[];
+  node: CommentTreeNode<AiDigestEmailComment>;
   anchorCommentId: string;
   contextCommentIds: string[];
   nestingLevel?: number;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
+  const comment = node.item;
   const maxLength = discussionCommentMaxLength(
     comment._id,
     anchorCommentId,
@@ -1176,11 +1174,10 @@ function CommentBox({
         </div>
         <div className={classes.commentText}>{text}</div>
       </a>
-      {replies.map((reply) => (
+      {node.children.map((reply) => (
         <CommentBox
-          key={reply.comment._id}
-          comment={reply.comment}
-          replies={reply.replies}
+          key={reply.item._id}
+          node={reply}
           anchorCommentId={anchorCommentId}
           contextCommentIds={contextCommentIds}
           nestingLevel={nestingLevel + 1}
@@ -1194,23 +1191,20 @@ function CommentBox({
 
 function DiscussionItem({
   anchorComment,
-  rootComment,
   item,
-  threadReplies,
-  contextCommentIds,
+  content,
   slot,
   classes,
 }: {
   anchorComment: AiDigestEmailComment;
-  rootComment: AiDigestEmailComment;
   item: AiDigestItem;
-  threadReplies: AiDigestThreadNode<AiDigestEmailComment>[];
-  contextCommentIds: string[];
+  content: DigestContentLookup;
   slot: AiDigestLinkSlot;
   classes: JssStyles;
 }) {
   const commentUrl = getCommentUrl(anchorComment);
   const { prefix, subject } = threadTitle(anchorComment);
+  const { roots, contextCommentIds } = aiDigestDiscussionThread(item, content);
 
   return (
     <table
@@ -1232,15 +1226,16 @@ function DiscussionItem({
                 <span className={classes.discussionThreadTitleSubject}>{subject}</span>
               </a>
             </h3>
-            <CommentBox
-              comment={rootComment}
-
-              replies={threadReplies}
-              anchorCommentId={anchorComment._id}
-              contextCommentIds={contextCommentIds}
-              slot={slot}
-              classes={classes}
-            />
+            {roots.map((root) => (
+              <CommentBox
+                key={root.item._id}
+                node={root}
+                anchorCommentId={anchorComment._id}
+                contextCommentIds={contextCommentIds}
+                slot={slot}
+                classes={classes}
+              />
+            ))}
             <ItemFooter
               readMoreUrl={aiDigestItemLinkUrl(commentUrl, "readMore", slot)}
               readMoreLabel="View thread"
@@ -1295,14 +1290,11 @@ function DigestItem({ item, content, slot, classes }: {
       />
     );
   }
-  const { rootComment, threadReplies, contextCommentIds } = aiDigestDiscussionThread(item, comment, content);
   return (
     <DiscussionItem
       anchorComment={comment}
-      rootComment={rootComment}
       item={item}
-      threadReplies={threadReplies}
-      contextCommentIds={contextCommentIds}
+      content={content}
       slot={slot}
       classes={classes}
     />

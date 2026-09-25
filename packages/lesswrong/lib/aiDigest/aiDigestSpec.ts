@@ -18,10 +18,6 @@ type AiDigestDocumentRef =
 
 type AiDigestPlacement = "headline" | "compact" | "full" | "quiet";
 
-interface AiDigestThreadComment {
-  commentId: string;
-}
-
 interface AiDigestItem {
   documentRef: AiDigestDocumentRef;
   /** Omitted for quiet items (e.g. the curated module), which carry no personalized reason. */
@@ -38,10 +34,12 @@ interface AiDigestItem {
    * in which case the plaintext description is shown instead.
    */
   previewHtml?: string;
-  /** For discussion items: the selected replies. */
-  threadComments?: AiDigestThreadComment[];
-  /** Optional ancestor chain grounding the selection in reader engagement. */
-  contextComments?: AiDigestThreadComment[];
+  /**
+   * For discussion items: every comment to show, the anchor (the item's
+   * document) included. Comments above the anchor lead down to it from one the
+   * reader wrote or liked; the rest are its replies.
+   */
+  commentIds?: string[];
 }
 
 interface AiDigestSection {

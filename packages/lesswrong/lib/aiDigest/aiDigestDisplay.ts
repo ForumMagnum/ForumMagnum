@@ -3,6 +3,7 @@ import type { AiDigestEmailComment, AiDigestEmailPost } from "@/lib/generated/gq
 import { aiDigestPresentation } from "./aiDigestPresentation";
 import { truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
+import { unflattenComments } from "@/lib/utils/unflatten";
 
 /** Collapses runs of whitespace (including newlines) to single spaces and trims the ends. */
 export function collapseAiDigestWhitespace(text: string): string {
@@ -38,7 +39,7 @@ export function buildAiDigestPreview(
   return { html, text: htmlToTextDefault(html) };
 }
 
-export function countAiDigestWords(text: string): number {
+function countAiDigestWords(text: string): number {
   const normalizedText = collapseAiDigestWhitespace(text);
   return normalizedText ? normalizedText.split(" ").length : 0;
 }
@@ -71,50 +72,6 @@ export function formatAiDigestDate(date: string): string {
     month: "short",
     day: "numeric",
   }).format(new Date(date));
-}
-
-interface AiDigestThreadCommentFields {
-  _id: string;
-  parentCommentId: string | null;
-  postedAt: string;
-}
-
-export interface AiDigestThreadCandidate<T extends AiDigestThreadCommentFields> {
-  comment: T;
-}
-
-export interface AiDigestThreadNode<T extends AiDigestThreadCommentFields> {
-  comment: T;
-  replies: AiDigestThreadNode<T>[];
-}
-
-function compareThreadCandidatesByDate<T extends AiDigestThreadCommentFields>(
-  firstCandidate: AiDigestThreadCandidate<T>,
-  secondCandidate: AiDigestThreadCandidate<T>,
-): number {
-  return new Date(firstCandidate.comment.postedAt).getTime()
-    - new Date(secondCandidate.comment.postedAt).getTime();
-}
-
-/**
- * Arrange selected thread comments into a reply tree under the given root
- * comment. Comments whose parent isn't part of the selection have nowhere to
- * attach and are dropped.
- */
-export function buildAiDigestThreadTree<T extends AiDigestThreadCommentFields>(
-  parentCommentId: string,
-  comments: AiDigestThreadCandidate<T>[],
-): AiDigestThreadNode<T>[] {
-  const directReplies = comments
-    .filter(({ comment }) => comment.parentCommentId === parentCommentId)
-    .sort(compareThreadCandidatesByDate);
-  const remainingComments = comments.filter(
-    ({ comment }) => comment.parentCommentId !== parentCommentId,
-  );
-  return directReplies.map(({ comment }) => ({
-    comment,
-    replies: buildAiDigestThreadTree(comment._id, remainingComments),
-  }));
 }
 
 export interface DigestContentLookup {
@@ -189,40 +146,23 @@ export function aiDigestContentIds(spec: AiDigestSpec) {
   );
   const commentIds = items.flatMap((item) => [
     ...(item.documentRef.documentType === "post" ? [] : [item.documentRef.documentId]),
-    ...(item.contextComments ?? []).map(({ commentId }) => commentId),
-    ...(item.threadComments ?? []).map(({ commentId }) => commentId),
+    ...(item.commentIds ?? []),
   ]);
-
   return { postIds, commentIds };
 }
 
-export function aiDigestDiscussionThread(
-  item: AiDigestItem,
-  comment: AiDigestEmailComment,
-  content: DigestContentLookup,
-) {
-  const candidateThreadComments = (item.threadComments ?? []).flatMap(({ commentId }) => {
-    const threadComment = content.commentsById.get(commentId);
-    return threadComment ? [{ comment: threadComment }] : [];
-  });
-  const contextCommentSpecs = item.contextComments ?? [];
-  const contextComments = contextCommentSpecs.flatMap(({ commentId }) => {
-    const contextComment = content.commentsById.get(commentId);
-    return contextComment ? [{ comment: contextComment }] : [];
-  });
-  const hasCompleteContext = contextCommentSpecs.length > 0
-    && contextComments.length === contextCommentSpecs.length;
-  const rootComment = hasCompleteContext ? contextComments[0].comment : comment;
-  const descendantComments = hasCompleteContext
-    ? [
-      ...contextComments.slice(1),
-      { comment },
-      ...candidateThreadComments,
-    ]
-    : candidateThreadComments;
-  const threadReplies = buildAiDigestThreadTree(rootComment._id, descendantComments);
-  const contextCommentIds = hasCompleteContext
-    ? contextCommentSpecs.map(({ commentId }) => commentId)
-    : [];
-  return { rootComment, threadReplies, contextCommentIds };
+/**
+ * A discussion item's comments as a reply tree, oldest first, and which of them
+ * are context above the anchor. Comments that are no longer available are left
+ * out, and any replies to them become roots of their own.
+ */
+export function aiDigestDiscussionThread(item: AiDigestItem, content: DigestContentLookup) {
+  const commentIds = item.commentIds ?? [];
+  const comments = commentIds
+    .flatMap((commentId) => content.commentsById.get(commentId) ?? [])
+    .sort((first, second) => new Date(first.postedAt).getTime() - new Date(second.postedAt).getTime());
+  return {
+    roots: unflattenComments(comments),
+    contextCommentIds: commentIds.slice(0, commentIds.indexOf(item.documentRef.documentId)),
+  };
 }

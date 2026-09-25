@@ -6,14 +6,10 @@ import { z } from "zod";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 import PostSummaries from "@/server/collections/postSummaries/collection";
-import { aiDigestGatewayProviderOptions } from "./aiDigestSelectionShared";
-import {
-  type AiDigestPostCandidate,
-  type AiDigestPostCandidateCard,
-} from "./aiDigestPostCandidates";
+import { aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
 
 const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
-export const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5";
+const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5";
 const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 900;
 const AI_DIGEST_POST_SUMMARY_MIN_LENGTH = 40;
 
@@ -39,17 +35,10 @@ interface AiDigestPostSummaryTarget extends AiDigestPostTextCacheTarget {
 }
 
 /** One `PostSummaries` cache row. */
-export interface AiDigestPostSummaryRecord extends AiDigestPostTextCacheTarget {
+interface AiDigestPostSummaryRecord extends AiDigestPostTextCacheTarget {
   summary: string;
   modelId: string;
   promptVersion: string;
-}
-
-interface AiDigestEnsuredSummaryLoadResult {
-  candidates: AiDigestPostCandidateCard[];
-  reusedSummaryCount: number;
-  generatedSummaryCount: number;
-  skippedPostCount: number;
 }
 
 function normalizePostSummary(summary: string, postId: string): string {
@@ -61,16 +50,6 @@ function normalizePostSummary(summary: string, postId: string): string {
     throw new Error(`Summary length was invalid for post ${postId}`);
   }
   return normalizedSummary;
-}
-
-function withSummary(
-  candidate: AiDigestPostCandidate,
-  summary: AiDigestPostSummaryRecord,
-): AiDigestPostCandidateCard {
-  return {
-    ...candidate,
-    summary: summary.summary,
-  };
 }
 
 /**
@@ -168,24 +147,25 @@ export function boundedPlainTextFromRevisionHtml(
 }
 
 /**
- * Attach summaries to digest corpus candidates, generating and caching any that
- * are missing. Corpus candidates must always carry summaries into the selection
- * prompt; unusable bodies and failed summary generation are dropped.
+ * The candidates that have a usable summary, each with its summary, generating
+ * and caching any that are missing. The selection prompt describes posts by
+ * their summaries, so candidates whose body is too short to summarize, or whose
+ * summary could not be generated, are dropped.
  */
-export async function ensureAiDigestPostSummaries({
+export async function ensureAiDigestPostSummaries<Candidate extends AiDigestPostSummaryTarget>({
   candidates,
   context,
   modelId = AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID,
   promptVersion = AI_DIGEST_POST_SUMMARY_PROMPT_VERSION,
   concurrency = 8,
 }: {
-  candidates: Array<AiDigestPostCandidate & AiDigestPostSummaryTarget>;
+  candidates: Candidate[];
   context: ResolverContext;
   modelId?: string;
   promptVersion?: string;
   concurrency?: number;
-}): Promise<AiDigestEnsuredSummaryLoadResult> {
-  const { recordsByPostId, reusedCount, generatedCount, skippedPostCount } = await ensureAiDigestPostTextCache<AiDigestPostSummaryTarget, AiDigestPostSummaryRecord>({
+}): Promise<Array<Candidate & { summary: string }>> {
+  const { recordsByPostId } = await ensureAiDigestPostTextCache<AiDigestPostSummaryTarget, AiDigestPostSummaryRecord>({
     targets: candidates,
     collection: PostSummaries,
     context,
@@ -194,15 +174,8 @@ export async function ensureAiDigestPostSummaries({
     concurrency,
     generateAndSave: generateAndSaveSummary,
   });
-  const summarizedCandidates = candidates.flatMap((candidate) => {
-    const summary = recordsByPostId.get(candidate.postId);
-    return summary ? [withSummary(candidate, summary)] : [];
+  return candidates.flatMap((candidate) => {
+    const record = recordsByPostId.get(candidate.postId);
+    return record ? [{ ...candidate, summary: record.summary }] : [];
   });
-  return {
-    candidates: summarizedCandidates,
-    reusedSummaryCount: reusedCount,
-    generatedSummaryCount: generatedCount,
-    skippedPostCount,
-  };
 }
-

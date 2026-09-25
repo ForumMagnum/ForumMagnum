@@ -8,6 +8,7 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ForumTypeString } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import { joinReaderUpvote, readerFollowedAuthorIds, readerSeesLessOf } from "./aiDigestSqlHelpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
@@ -20,10 +21,22 @@ type ExtendedCommentWithReactions = DbComment & {
 export interface AiDigestQuickTakeCandidateRow {
   commentId: string;
   author: string;
-  authorId: string | null;
-  publicationDate: Date;
+  postedAt: Date;
   baseScore: number;
-  revisionHtml: string;
+  html: string;
+  liked: "regular" | "strong" | null;
+  followsAuthor: boolean;
+}
+
+export interface AiDigestPastQuickTakeOutcomeRow {
+  commentId: string;
+  author: string;
+  postedAt: Date;
+  html: string;
+  liked: "regular" | "strong" | null;
+  likedAt: Date | null;
+  /** When the reader first replied anywhere beneath the quick take. */
+  repliedAt: Date | null;
 }
 
 export interface AiDigestSiteWideThreadRow {
@@ -42,14 +55,21 @@ export interface AiDigestThreadCommentRow {
   commentId: string;
   threadId: string;
   parentCommentId: string | null;
-  postId: string | null;
   postTitle: string | null;
   postBaseScore: number | null;
   author: string;
-  authorId: string | null;
-  publicationDate: Date;
+  postedAt: Date;
   baseScore: number;
-  revisionHtml: string;
+  html: string;
+  authoredByReader: boolean;
+  liked: "regular" | "strong" | null;
+  /** Posted after the reader last had the post open. */
+  newSinceLastVisit: boolean;
+  /** Viewed or expanded in the reader's feed. */
+  seenInFeed: boolean;
+  seesLess: boolean;
+  /** Why the reader is already notified about the comment, if they are. */
+  notifiedBecause: "readerAuthored" | "onReaderPost" | "replyToReader" | null;
 }
 
 /**
@@ -878,48 +898,78 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return engagementStats;
   }
 
-  async getAiDigestQuickTakeCandidateRows({
-    minPostedAt,
-    minKarma,
-    limit,
-  }: {
+  /**
+   * Recent top-karma quick takes the AI digest may recommend to the reader,
+   * with the reader's own relationship to each. Never includes the reader's
+   * own quick takes or ones they asked to see less of.
+   */
+  async getAiDigestQuickTakeCandidates({ userId, minPostedAt, minKarma, limit }: {
+    userId: string;
     minPostedAt: Date;
     minKarma: number;
     limit: number;
   }): Promise<AiDigestQuickTakeCandidateRow[]> {
     return this.getRawDb().manyOrNone<AiDigestQuickTakeCandidateRow>(`
-      -- CommentsRepo.getAiDigestQuickTakeCandidateRows
+      -- CommentsRepo.getAiDigestQuickTakeCandidates
       SELECT
         c."_id" AS "commentId",
         COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
-        c."userId" AS "authorId",
-        c."postedAt" AS "publicationDate",
+        c."postedAt",
         c."baseScore",
-        r.html AS "revisionHtml"
+        r.html,
+        upvote.liked,
+        (c."userId" IN (${readerFollowedAuthorIds})) AS "followsAuthor"
       FROM "Comments" c
       INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
       LEFT JOIN "Users" u ON u."_id" = c."userId"
+      ${joinReaderUpvote("Comments", `c."_id"`, "upvote")}
       WHERE ${aiDigestVisibleCommentConditions("c")}
         AND c.shortform IS TRUE
         AND c."topLevelCommentId" IS NULL
         AND c."postedAt" >= $(minPostedAt)
         AND c."baseScore" >= $(minKarma)
-        AND c."contents_latest" IS NOT NULL
         AND length(trim(r.html)) > 0
+        AND c."userId" IS DISTINCT FROM $(userId)
+        AND NOT ${readerSeesLessOf("Comments", `c."_id"`)}
       ORDER BY c."baseScore" DESC, c."postedAt" DESC, c."_id"
       LIMIT $(limit)
-    `, {
-      minPostedAt,
-      minKarma,
-      limit,
-    });
+    `, { userId, minPostedAt, minKarma, limit });
   }
 
-  /**
-   * Top recent comment threads site-wide, grouped by top-level comment and
-   * ranked by the highest comment karma within the candidate window. This pool
-   * is shared across all AI digest readers.
-   */
+  /** How the reader has engaged with the given quick takes: their current upvote and their first reply. */
+  async getAiDigestPastQuickTakeOutcomes({ userId, commentIds }: {
+    userId: string;
+    commentIds: string[];
+  }): Promise<AiDigestPastQuickTakeOutcomeRow[]> {
+    if (commentIds.length === 0) {
+      return [];
+    }
+    return this.getRawDb().manyOrNone<AiDigestPastQuickTakeOutcomeRow>(`
+      -- CommentsRepo.getAiDigestPastQuickTakeOutcomes
+      SELECT
+        c."_id" AS "commentId",
+        COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
+        c."postedAt",
+        r.html,
+        upvote.liked,
+        upvote."likedAt",
+        (
+          SELECT MIN(reply."postedAt") FROM "Comments" reply
+          WHERE reply."userId" = $(userId)
+            AND reply."topLevelCommentId" = c."_id"
+            AND reply.deleted IS FALSE
+            AND reply.rejected IS FALSE
+            AND reply.draft IS NOT TRUE
+        ) AS "repliedAt"
+      FROM "Comments" c
+      INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
+      LEFT JOIN "Users" u ON u."_id" = c."userId"
+      ${joinReaderUpvote("Comments", `c."_id"`, "upvote")}
+      WHERE c."_id" = ANY($(commentIds)::TEXT[])
+        AND c."postedAt" IS NOT NULL
+    `, { userId, commentIds });
+  }
+
   async getAiDigestSiteWideThreadRows({
     minPostedAt,
     limit,
@@ -1066,12 +1116,11 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
   /**
    * All visible comments (bounded per thread, root first then karma) for the
-   * supplied AI digest candidate threads, with post context for card headers.
+   * supplied AI digest candidate threads, with post context for card headers
+   * and the reader's relationship to each comment.
    */
-  async getAiDigestThreadCommentRows({
-    threadIds,
-    perThreadLimit,
-  }: {
+  async getAiDigestThreadComments({ userId, threadIds, perThreadLimit }: {
+    userId: string;
     threadIds: string[];
     perThreadLimit: number;
   }): Promise<AiDigestThreadCommentRow[]> {
@@ -1081,57 +1130,66 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // Keep the root/reply predicates separate so PostgreSQL can use the ID and
     // topLevelCommentId indexes instead of scanning all comments per reader.
     return this.getRawDb().manyOrNone<AiDigestThreadCommentRow>(`
-      -- CommentsRepo.getAiDigestThreadCommentRows
+      -- CommentsRepo.getAiDigestThreadComments
       SELECT
-        "commentId",
-        "threadId",
-        "parentCommentId",
-        "postId",
-        "postTitle",
-        "postBaseScore",
-        author,
-        "authorId",
-        "publicationDate",
-        "baseScore",
-        "revisionHtml"
+        c."_id" AS "commentId",
+        c."threadId",
+        c."parentCommentId",
+        p.title AS "postTitle",
+        p."baseScore" AS "postBaseScore",
+        COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
+        c."postedAt",
+        c."baseScore",
+        c.html,
+        c."userId" IS NOT DISTINCT FROM $(userId) AS "authoredByReader",
+        upvote.liked,
+        COALESCE(post_read."isRead" AND c."postedAt" > post_read."lastUpdated", FALSE) AS "newSinceLastVisit",
+        EXISTS (
+          SELECT 1 FROM "UltraFeedEvents" ufe
+          WHERE ufe."userId" = $(userId)
+            AND ufe."collectionName" = 'Comments'
+            AND ufe."documentId" = c."_id"
+            AND ufe."eventType" IN ('viewed', 'expanded')
+        ) AS "seenInFeed",
+        ${readerSeesLessOf("Comments", `c."_id"`)} AS "seesLess",
+        CASE
+          WHEN c."userId" = $(userId) THEN 'readerAuthored'
+          WHEN p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds") THEN 'onReaderPost'
+          WHEN parent."userId" = $(userId) THEN 'replyToReader'
+        END AS "notifiedBecause"
       FROM (
         SELECT
-          c."_id" AS "commentId",
+          c.*,
           COALESCE(c."topLevelCommentId", c."_id") AS "threadId",
-          c."parentCommentId",
-          c."postId",
-          p."title" AS "postTitle",
-          p."baseScore" AS "postBaseScore",
-          COALESCE(u."displayName", c.author, 'LessWrong contributor') AS author,
-          c."userId" AS "authorId",
-          c."postedAt" AS "publicationDate",
-          c."baseScore",
-          r.html AS "revisionHtml",
+          r.html,
           ROW_NUMBER() OVER (
             PARTITION BY COALESCE(c."topLevelCommentId", c."_id")
             ORDER BY
-              (c."_id" = COALESCE(c."topLevelCommentId", c."_id")) DESC,
+              (c."topLevelCommentId" IS NULL) DESC,
               c."baseScore" DESC,
               c."postedAt",
               c."_id"
           ) AS row_number
         FROM "Comments" c
         INNER JOIN "Revisions" r ON r."_id" = c."contents_latest"
-        LEFT JOIN "Users" u ON u."_id" = c."userId"
-        LEFT JOIN "Posts" p ON p."_id" = c."postId"
         WHERE (
-            c."topLevelCommentId" = ANY($(threadIds)::text[])
-            OR (c."topLevelCommentId" IS NULL AND c."_id" = ANY($(threadIds)::text[]))
+            c."topLevelCommentId" = ANY($(threadIds)::TEXT[])
+            OR (c."topLevelCommentId" IS NULL AND c."_id" = ANY($(threadIds)::TEXT[]))
           )
           AND ${aiDigestVisibleCommentConditions("c")}
-          AND c."contents_latest" IS NOT NULL
           AND length(trim(r.html)) > 0
-      ) bounded_thread_comments
-      WHERE row_number <= $(perThreadLimit)
-    `, {
-      threadIds,
-      perThreadLimit,
-    });
+      ) c
+      LEFT JOIN "Users" u ON u."_id" = c."userId"
+      LEFT JOIN "Posts" p ON p."_id" = c."postId"
+      LEFT JOIN "Comments" parent ON parent."_id" = c."parentCommentId"
+      ${joinReaderUpvote("Comments", `c."_id"`, "upvote")}
+      LEFT JOIN LATERAL (
+        SELECT BOOL_OR(rs."isRead") AS "isRead", MAX(rs."lastUpdated") AS "lastUpdated"
+        FROM "ReadStatuses" rs
+        WHERE rs."userId" = $(userId) AND rs."postId" = c."postId"
+      ) post_read ON TRUE
+      WHERE c.row_number <= $(perThreadLimit)
+    `, { userId, threadIds, perThreadLimit });
   }
 
 }

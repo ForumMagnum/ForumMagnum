@@ -2,9 +2,7 @@ import gql from "graphql-tag";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHistory";
-import {
-  generateAiDigestPostSelection,
-} from "@/server/aiDigest/aiDigestPostSelection";
+import { generateAiDigestIssue } from "@/server/aiDigest/aiDigestGenerateIssue";
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import Users from "@/server/collections/users/collection";
@@ -66,10 +64,11 @@ async function generateOneStoredDigestSample({
   user: DbUser;
   countsTowardHistory: boolean;
 }): Promise<string> {
-  const result = await generateAiDigestPostSelection({
+  const result = await generateAiDigestIssue({
     user,
     context: computeContextFromUser({ user, isSSR: false }),
-    options: { countsTowardHistory },
+    trigger: "adminSample",
+    countsTowardHistory,
   });
   return result.issueId;
 }
@@ -149,6 +148,11 @@ export const digestEmailPreviewGraphQLMutations = {
 };
 
 export const digestEmailPreviewGraphQLTypeDefs = gql`
+  type AiDigestToolCall {
+    toolName: String!
+    input: String!
+  }
+
   type AiDigestModelCall {
     purpose: String!
     modelId: String!
@@ -161,6 +165,7 @@ export const digestEmailPreviewGraphQLTypeDefs = gql`
     cacheReadInputTokenCount: Int
     cacheWriteInputTokenCount: Int
     costUsd: Float
+    toolCalls: [AiDigestToolCall!]!
   }
 
   type AiDigestEmailSamplePreview {

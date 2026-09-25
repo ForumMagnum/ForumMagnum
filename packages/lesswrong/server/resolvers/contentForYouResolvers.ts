@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHistory";
-import { generateAiDigestPostSelection } from "@/server/aiDigest/aiDigestPostSelection";
+import { generateAiDigestIssue } from "@/server/aiDigest/aiDigestGenerateIssue";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
 
 function assertContentForYouAccess(
@@ -25,13 +25,11 @@ export const contentForYouGraphQLMutations = {
     const effectiveCountsTowardHistory = userIsAdmin(currentUser)
       ? countsTowardHistory ?? true
       : true;
-    const result = await generateAiDigestPostSelection({
+    const result = await generateAiDigestIssue({
       user: currentUser,
       context,
-      options: {
-        trigger: "userPreview",
-        countsTowardHistory: effectiveCountsTowardHistory,
-      },
+      trigger: "userPreview",
+      countsTowardHistory: effectiveCountsTowardHistory,
     });
     // Generation takes long enough that the user may well have navigated away,
     // so tell them onsite when their issue is ready.

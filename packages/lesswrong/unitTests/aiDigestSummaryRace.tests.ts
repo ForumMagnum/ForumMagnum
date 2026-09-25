@@ -1,14 +1,13 @@
 const mockCaptureException = jest.fn();
 jest.mock("@/lib/sentryWrapper", () => ({ captureException: (...args: unknown[]) => mockCaptureException(...args) }));
-jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => ({}) }));
-const mockLoadBodies = jest.fn();
-jest.mock("@/server/aiDigest/aiDigestPostLookups", () => ({
-  loadAiDigestRevisionBodies: (...args: unknown[]) => mockLoadBodies(...args),
+const mockLoadRevisions = jest.fn();
+jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
+  computeContextFromUser: () => ({ Revisions: { find: () => ({ fetch: () => mockLoadRevisions() }) } }),
 }));
 const mockGenerateText = jest.fn();
 const mockInsert = jest.fn();
 const mockFindOne = jest.fn();
-jest.mock("@/server/aiDigest/aiDigestSelectionShared", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
+jest.mock("@/server/aiDigest/aiDigestModelCalls", () => ({ aiDigestGatewayProviderOptions: () => ({}) }));
 jest.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockGenerateText(...args),
   Output: { object: jest.fn() },
@@ -23,15 +22,9 @@ jest.mock("@/server/collections/postSummaries/collection", () => ({
   },
 }));
 import { ensureAiDigestPostSummaries } from "@/server/aiDigest/aiDigestPostSummaries";
-import type { AiDigestPostCandidate } from "@/server/aiDigest/aiDigestPostCandidates";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
-const candidate: AiDigestPostCandidate = {
-  postId: "post", revisionId: "revision", title: "Post", author: "Author",
-  publicationDate: "2026-09-01", baseScore: 10, score: 10, tags: [], isCurated: false,
-  isSubscribedToAuthor: false, isRead: false, upvoteStrength: null,
-  previousDigestInclusionCount: 0, lastIncludedAt: null, exclusionReason: null,
-};
+const candidate = { postId: "post", revisionId: "revision", title: "Post", author: "Author" };
 
 describe("summary cache insert races", () => {
   beforeEach(() => {
@@ -40,8 +33,8 @@ describe("summary cache insert races", () => {
   });
   async function generate() {
     const context = computeContextFromUser({ user: null, isSSR: false });
-    mockLoadBodies.mockResolvedValue([
-      { postId: "post", revisionHtml: `<p>${"Some meaningful post content. ".repeat(20)}</p>` },
+    mockLoadRevisions.mockResolvedValue([
+      { _id: "revision", html: `<p>${"Some meaningful post content. ".repeat(20)}</p>` },
     ]);
     return await ensureAiDigestPostSummaries({ candidates: [candidate], context, modelId: "model", promptVersion: "version" });
   }
@@ -50,7 +43,7 @@ describe("summary cache insert races", () => {
     mockInsert.mockRejectedValue({ code: "23505" });
     mockFindOne.mockResolvedValue({ postId: "post", revisionId: "revision", modelId: "model", promptVersion: "version", summary: "The cached winner" });
     const result = await generate();
-    expect(result.candidates[0].summary).toBe("The cached winner");
+    expect(result[0].summary).toBe("The cached winner");
     expect(mockFindOne).toHaveBeenCalledWith({ postId: "post", revisionId: "revision", modelId: "model", promptVersion: "version" });
   });
   it("propagates unrelated database failures", async () => {
@@ -69,12 +62,12 @@ describe("summary cache insert races", () => {
 
 it("reports summary provider failures without logging request content", async () => {
   jest.resetAllMocks();
-  mockLoadBodies.mockResolvedValue([{ postId: "post", revisionHtml: `<p>${"Content. ".repeat(50)}</p>` }]);
+  mockLoadRevisions.mockResolvedValue([{ _id: "revision", html: `<p>${"Content. ".repeat(50)}</p>` }]);
   mockGenerateText.mockRejectedValue(new Error("private request body"));
   const result = await ensureAiDigestPostSummaries({
     candidates: [candidate], context: computeContextFromUser({ user: null, isSSR: false }),
   });
-  expect(result.skippedPostCount).toBe(1);
+  expect(result).toEqual([]);
   expect(mockInsert).not.toHaveBeenCalled();
   expect(mockCaptureException).toHaveBeenCalledWith(new Error("AI digest summary generation failed"), {
     extra: expect.objectContaining({ postId: "post", revisionId: "revision" }),

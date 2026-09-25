@@ -1,85 +1,65 @@
 import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, DAY_MS } from "@/lib/aiDigest/constants";
+import { daysAgo } from "@/lib/aiDigest/helpers";
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
-import {
-  loadAiDigestPostInteractions,
-  loadAiDigestQuickTakeInteractions,
-  type AiDigestPostInteractionRow,
-  type AiDigestQuickTakeInteractionRow,
-} from "./aiDigestReaderSignals";
-import { boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
 import { AI_DIGEST_UTM_PARAMS, parseAiDigestItemLinkContent } from "@/server/emailComponents/aiDigestEmailLinks";
+import type { AiDigestPastQuickTakeOutcomeRow } from "@/server/repos/CommentsRepo";
+import type { AiDigestPastPostOutcomeRow } from "@/server/repos/PostsRepo";
+import { boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
+import uniq from "lodash/uniq";
 
 /**
  * Enough issues to cover the full candidate window at the scheduled cadence,
  * with room to spare for admin previews, which also count toward history.
  */
 const AI_DIGEST_HISTORY_ISSUE_LIMIT = 14;
-const AI_DIGEST_PAST_QUICK_TAKE_SNIPPET_MAX_CHARS = 160;
+const PAST_QUICK_TAKE_SNIPPET_MAX_CHARS = 160;
 
 export type AiDigestIssueTrigger = "adminSample" | "userPreview" | "scheduled";
 
-export interface AiDigestIssueRecord {
-  _id: string;
-  recipientId: string;
-  postIds: string[];
-  quickTakeIds: string[];
-  discussionCommentIds: string[];
-  createdAt: Date;
-  countsTowardHistory: boolean;
+/** How often, and how recently, a document was recommended to the reader. */
+export interface AiDigestPreviousInclusion {
+  count: number;
+  lastIncludedAt: Date;
 }
 
-export interface AiDigestPostHistory {
-  previousDigestInclusionCount: number;
-  lastIncludedAt: string | null;
+/** One time an item was recommended, and what the reader did with it afterwards. */
+interface AiDigestPastRecommendationEvent {
+  recommendedDaysAgo: number;
+  /** Posts: read afterwards. Quick takes: replied to afterwards. */
+  engagedAfterward?: true;
+  likedAfterward?: "regular" | "strong";
+  likedDaysAgo?: number;
+  clickedDaysAgo?: number;
 }
 
-interface AiDigestPastPostRecommendation {
-  documentType: "post";
-  documentId: string;
-  title: string;
-  author: string;
-  publicationDate: string;
-  recommendedAt: string;
-  subsequentlyRead: boolean;
-  upvoteStrength: "regular" | "strong" | null;
-  upvotedAt: string | null;
-  /** When the recipient first clicked this post's link in the issue that recommended it. */
-  clickedAt: string | null;
+type AiDigestPastRecommendation =
+  | { type: "post"; title: string; author: string; publishedDaysAgo: number; recommendations: AiDigestPastRecommendationEvent[] }
+  | { type: "quickTake"; snippet: string; author: string; publishedDaysAgo: number; recommendations: AiDigestPastRecommendationEvent[] };
+
+export interface AiDigestHistory {
+  previousInclusions: Map<string, AiDigestPreviousInclusion>;
+  /** Shaped as it appears in the selection prompt, with day offsets before `asOf`. */
+  pastRecommendations: AiDigestPastRecommendation[];
 }
 
-interface AiDigestPastQuickTakeRecommendation {
-  documentType: "quickTake";
-  documentId: string;
-  bodySnippet: string;
-  author: string;
-  publicationDate: string;
-  recommendedAt: string;
-  subsequentlyReplied: boolean;
-  upvoteStrength: "regular" | "strong" | null;
-  upvotedAt: string | null;
-  /** When the recipient first clicked this quick take's link in the issue that recommended it. */
-  clickedAt: string | null;
-}
-
-export type AiDigestPastRecommendation =
-  | AiDigestPastPostRecommendation
-  | AiDigestPastQuickTakeRecommendation;
-
-/** A visit to the site from a digest link, as recorded by the post page's post-view event. */
-export interface AiDigestClickRecord {
+/** A visit to the site from a digest item link. */
+interface AiDigestClick {
   issueId: string;
   documentId: string;
   occurredAt: Date;
 }
 
-interface AiDigestHistory {
-  issues: AiDigestIssueRecord[];
-  postHistoryById: Map<string, AiDigestPostHistory>;
-  pastRecommendations: AiDigestPastRecommendation[];
+type AiDigestHistoryIssue = Pick<DbAiDigestIssue, "_id" | "createdAt" | "spec">;
+
+interface AiDigestPastRecommendationOutcome {
+  recommendation: AiDigestPastRecommendation;
+  engagedAt: Date | null;
+  liked: "regular" | "strong" | null;
+  likedAt: Date | null;
 }
 
-export interface AiDigestIssueInsert {
+interface AiDigestIssueInsert {
   recipientId: string;
   trigger: AiDigestIssueTrigger;
   countsTowardHistory: boolean;
@@ -91,216 +71,151 @@ interface AiDigestIssueGenerationInsert {
   calls: AiDigestModelCallRecord[];
 }
 
-function recordInclusion(
-  historyByDocumentId: Map<string, AiDigestPostHistory>,
-  documentId: string,
-  recommendedAt: string,
-): void {
-  const previous = historyByDocumentId.get(documentId);
-  historyByDocumentId.set(documentId, {
-    previousDigestInclusionCount: (previous?.previousDigestInclusionCount ?? 0) + 1,
-    lastIncludedAt: !previous?.lastIncludedAt || previous.lastIncludedAt < recommendedAt
-      ? recommendedAt
-      : previous.lastIncludedAt,
-  });
+/**
+ * The items an issue recommended: its selected posts and quick takes, and the
+ * anchor comments of its discussion threads. The curated module is the same
+ * for every reader, so it is not part of a reader's recommendation history.
+ */
+function recommendedDocumentRefs(spec: AiDigestSpec): AiDigestDocumentRef[] {
+  return spec.sections
+    .filter((section) => section.kind !== "curated")
+    .flatMap((section) => section.items.map((item) => item.documentRef));
 }
 
-function buildAiDigestPostHistoryById(
-  issues: AiDigestIssueRecord[],
-): Map<string, AiDigestPostHistory> {
-  const historyByDocumentId = new Map<string, AiDigestPostHistory>();
-  issues.forEach((issue) => {
-    const recommendedAt = issue.createdAt.toISOString();
-    issue.postIds.forEach((postId) => {
-      recordInclusion(historyByDocumentId, postId, recommendedAt);
-    });
-    issue.quickTakeIds.forEach((commentId) => {
-      recordInclusion(historyByDocumentId, commentId, recommendedAt);
-    });
-    issue.discussionCommentIds.forEach((commentId) => {
-      recordInclusion(historyByDocumentId, commentId, recommendedAt);
-    });
-  });
-  return historyByDocumentId;
-}
-
-function occurredAfter(
-  interactionAt: Date | null,
-  recommendationAt: Date,
-): boolean {
-  return !!interactionAt && interactionAt > recommendationAt;
+function documentIdsOfType(refs: AiDigestDocumentRef[], documentType: AiDigestDocumentRef["documentType"]): string[] {
+  return uniq(refs.filter((ref) => ref.documentType === documentType).map((ref) => ref.documentId));
 }
 
 function clickKey(issueId: string, documentId: string): string {
   return `${issueId}:${documentId}`;
 }
 
+/** Only an interaction after the recommendation can be an outcome of it. */
+function afterward(interactionAt: Date | null, recommendedAt: Date): Date | null {
+  return interactionAt && interactionAt > recommendedAt ? interactionAt : null;
+}
+
+function optionalDaysAgo(asOf: Date, date: Date | null | undefined): number | undefined {
+  return date ? daysAgo(asOf, date) : undefined;
+}
+
+function previousInclusionsById(issues: AiDigestHistoryIssue[]): Map<string, AiDigestPreviousInclusion> {
+  const byId = new Map<string, AiDigestPreviousInclusion>();
+  for (const issue of issues) {
+    for (const { documentId } of recommendedDocumentRefs(issue.spec)) {
+      const previous = byId.get(documentId);
+      byId.set(documentId, {
+        count: (previous?.count ?? 0) + 1,
+        lastIncludedAt: previous && previous.lastIncludedAt > issue.createdAt ? previous.lastIncludedAt : issue.createdAt,
+      });
+    }
+  }
+  return byId;
+}
+
 /**
- * Earliest click per (issue, document). A single recommendation can generate several
- * visits, but for selection purposes the only question is whether and when they engaged.
+ * Earliest visit per (issue, document). One recommendation can lead to several
+ * visits, but the only question here is whether and when the reader engaged.
  */
-function firstClickByIssueAndDocument(
-  clicks: AiDigestClickRecord[],
-): Map<string, Date> {
-  return clicks.reduce((earliest, click) => {
+function firstClickTimes(clicks: AiDigestClick[]): Map<string, Date> {
+  const earliest = new Map<string, Date>();
+  for (const click of clicks) {
     const key = clickKey(click.issueId, click.documentId);
     const previous = earliest.get(key);
     if (!previous || click.occurredAt < previous) {
       earliest.set(key, click.occurredAt);
     }
-    return earliest;
-  }, new Map<string, Date>());
+  }
+  return earliest;
 }
 
-function pastPostRecommendations(
-  issues: AiDigestIssueRecord[],
-  interactions: AiDigestPostInteractionRow[],
-  firstClickAt: Map<string, Date>,
-): AiDigestPastPostRecommendation[] {
-  const interactionsByPostId = new Map(
-    interactions.map((interaction) => [interaction.postId, interaction]),
-  );
-  return issues.flatMap((issue) =>
-    issue.postIds.flatMap((postId) => {
-      const interaction = interactionsByPostId.get(postId);
-      if (!interaction) {
-        return [];
-      }
-      const upvotedAt = occurredAfter(
-        interaction.positivePreferenceAt,
-        issue.createdAt,
-      )
-        ? interaction.positivePreferenceAt?.toISOString() ?? null
-        : null;
-      return [{
-        documentType: "post" as const,
-        documentId: postId,
-        title: interaction.title,
-        author: interaction.author,
-        publicationDate: interaction.publicationDate.toISOString(),
-        recommendedAt: issue.createdAt.toISOString(),
-        subsequentlyRead: interaction.isRead
-          && occurredAfter(interaction.readAt, issue.createdAt),
-        upvoteStrength: upvotedAt ? interaction.positivePreferenceStrength : null,
-        upvotedAt,
-        clickedAt: firstClickAt.get(clickKey(issue._id, postId))?.toISOString() ?? null,
-      }];
-    }),
-  );
-}
-
-function pastQuickTakeRecommendations(
-  issues: AiDigestIssueRecord[],
-  interactions: AiDigestQuickTakeInteractionRow[],
-  firstClickAt: Map<string, Date>,
-): AiDigestPastQuickTakeRecommendation[] {
-  const interactionsByCommentId = new Map(
-    interactions.map((interaction) => [interaction.commentId, interaction]),
-  );
-  return issues.flatMap((issue) =>
-    issue.quickTakeIds.flatMap((commentId) => {
-      const interaction = interactionsByCommentId.get(commentId);
-      if (!interaction) {
-        return [];
-      }
-      const upvotedAt = occurredAfter(
-        interaction.positivePreferenceAt,
-        issue.createdAt,
-      )
-        ? interaction.positivePreferenceAt?.toISOString() ?? null
-        : null;
-      return [{
-        documentType: "quickTake" as const,
-        documentId: commentId,
-        bodySnippet: boundedPlainTextFromRevisionHtml(
-          interaction.revisionHtml,
-          AI_DIGEST_PAST_QUICK_TAKE_SNIPPET_MAX_CHARS,
-        ),
-        author: interaction.author,
-        publicationDate: interaction.publicationDate.toISOString(),
-        recommendedAt: issue.createdAt.toISOString(),
-        subsequentlyReplied: occurredAfter(interaction.repliedAt, issue.createdAt),
-        upvoteStrength: upvotedAt ? interaction.positivePreferenceStrength : null,
-        upvotedAt,
-        clickedAt: firstClickAt.get(clickKey(issue._id, commentId))?.toISOString() ?? null,
-      }];
-    }),
-  );
-}
-
-function buildAiDigestPastRecommendations(
-  issues: AiDigestIssueRecord[],
-  interactions: AiDigestPostInteractionRow[],
-  clicks: AiDigestClickRecord[] = [],
-  quickTakeInteractions: AiDigestQuickTakeInteractionRow[] = [],
-): AiDigestPastRecommendation[] {
-  const firstClickAt = firstClickByIssueAndDocument(clicks);
-  return [
-    ...pastPostRecommendations(issues, interactions, firstClickAt),
-    ...pastQuickTakeRecommendations(issues, quickTakeInteractions, firstClickAt),
-  ];
-}
-
-export function buildAiDigestHistory(
-  issues: AiDigestIssueRecord[],
-  interactions: AiDigestPostInteractionRow[],
-  clicks: AiDigestClickRecord[] = [],
-  quickTakeInteractions: AiDigestQuickTakeInteractionRow[] = [],
-): AiDigestHistory {
-  const countedIssues = issues.filter((issue) => issue.countsTowardHistory);
+function postOutcome(row: AiDigestPastPostOutcomeRow, asOf: Date): AiDigestPastRecommendationOutcome {
   return {
-    issues: countedIssues,
-    postHistoryById: buildAiDigestPostHistoryById(countedIssues),
-    pastRecommendations: buildAiDigestPastRecommendations(
-      countedIssues,
-      interactions,
-      clicks,
-      quickTakeInteractions,
-    ),
+    recommendation: {
+      type: "post",
+      title: row.title,
+      author: row.author,
+      publishedDaysAgo: daysAgo(asOf, row.postedAt),
+      recommendations: [],
+    },
+    engagedAt: row.readAt,
+    liked: row.liked,
+    likedAt: row.likedAt,
   };
 }
 
-function specDocumentIds(spec: AiDigestSpec, documentType: AiDigestDocumentRef["documentType"]): string[] {
-  return spec.sections
-    .filter((section) => section.kind !== "curated")
-    .flatMap((section) => section.items)
-    .flatMap(({ documentRef }) => documentRef.documentType === documentType ? [documentRef.documentId] : []);
+function quickTakeOutcome(row: AiDigestPastQuickTakeOutcomeRow, asOf: Date): AiDigestPastRecommendationOutcome {
+  return {
+    recommendation: {
+      type: "quickTake",
+      snippet: boundedPlainTextFromRevisionHtml(row.html, PAST_QUICK_TAKE_SNIPPET_MAX_CHARS),
+      author: row.author,
+      publishedDaysAgo: daysAgo(asOf, row.postedAt),
+      recommendations: [],
+    },
+    engagedAt: row.repliedAt,
+    liked: row.liked,
+    likedAt: row.likedAt,
+  };
 }
 
-/**
- * The items an issue recommended: its selected posts and quick takes, and the
- * anchor comments of its discussion threads. The curated module is the same
- * for every reader, so it is not part of a reader's recommendation history.
- */
-function toAiDigestIssueRecord(issue: Pick<DbAiDigestIssue, "_id" | "recipientId" | "createdAt" | "countsTowardHistory" | "spec">): AiDigestIssueRecord {
+export function buildAiDigestHistory({ issues, postOutcomes, quickTakeOutcomes, clicks, asOf }: {
+  /** The reader's counted issues, newest first. */
+  issues: AiDigestHistoryIssue[];
+  postOutcomes: AiDigestPastPostOutcomeRow[];
+  quickTakeOutcomes: AiDigestPastQuickTakeOutcomeRow[];
+  clicks: AiDigestClick[];
+  asOf: Date;
+}): AiDigestHistory {
+  const firstClickAt = firstClickTimes(clicks);
+  const outcomesById = new Map<string, AiDigestPastRecommendationOutcome>();
+  for (const row of postOutcomes) {
+    outcomesById.set(row.postId, postOutcome(row, asOf));
+  }
+  for (const row of quickTakeOutcomes) {
+    outcomesById.set(row.commentId, quickTakeOutcome(row, asOf));
+  }
+  const pastRecommendations: AiDigestPastRecommendation[] = [];
+  for (const issue of issues) {
+    for (const { documentId } of recommendedDocumentRefs(issue.spec)) {
+      const outcome = outcomesById.get(documentId);
+      if (!outcome) {
+        continue;
+      }
+      const { recommendations } = outcome.recommendation;
+      if (recommendations.length === 0) {
+        pastRecommendations.push(outcome.recommendation);
+      }
+      const likedAt = afterward(outcome.likedAt, issue.createdAt);
+      recommendations.push({
+        recommendedDaysAgo: daysAgo(asOf, issue.createdAt),
+        engagedAfterward: afterward(outcome.engagedAt, issue.createdAt) ? true : undefined,
+        likedAfterward: likedAt ? outcome.liked ?? undefined : undefined,
+        likedDaysAgo: optionalDaysAgo(asOf, likedAt),
+        clickedDaysAgo: optionalDaysAgo(asOf, firstClickAt.get(clickKey(issue._id, documentId))),
+      });
+    }
+  }
   return {
-    _id: issue._id,
-    recipientId: issue.recipientId,
-    postIds: specDocumentIds(issue.spec, "post"),
-    quickTakeIds: specDocumentIds(issue.spec, "quickTake"),
-    discussionCommentIds: specDocumentIds(issue.spec, "comment"),
-    createdAt: issue.createdAt,
-    countsTowardHistory: issue.countsTowardHistory,
+    previousInclusions: previousInclusionsById(issues),
+    pastRecommendations,
   };
 }
 
 /** Visits from item links in the given issues, resolved to the item each link belonged to. */
 async function loadAiDigestClicks(
   userId: string,
-  issues: Pick<DbAiDigestIssue, "_id" | "createdAt" | "spec">[],
+  issues: AiDigestHistoryIssue[],
   context: ResolverContext,
-): Promise<AiDigestClickRecord[]> {
-  if (!issues.length) {
+): Promise<AiDigestClick[]> {
+  const oldestIssue = issues.at(-1);
+  if (!oldestIssue) {
     return [];
   }
-  const oldestIssueCreatedAt = issues.reduce(
-    (oldest, issue) => issue.createdAt < oldest ? issue.createdAt : oldest,
-    issues[0].createdAt,
-  );
   const views = await context.repos.lwEvents.getPostViewsFromUtmCampaign(
     userId,
     AI_DIGEST_UTM_PARAMS.utm_campaign,
-    oldestIssueCreatedAt,
+    oldestIssue.createdAt,
   );
   const specsByIssueId = new Map(issues.map((issue) => [issue._id, issue.spec]));
   return views.flatMap(({ utmContent, createdAt }) => {
@@ -314,37 +229,19 @@ async function loadAiDigestClicks(
   });
 }
 
-export async function loadAiDigestHistory(userId: string, context: ResolverContext): Promise<AiDigestHistory> {
-  const dbIssues = await AiDigestIssues.find(
-    {
-      recipientId: userId,
-      countsTowardHistory: true,
-    },
+export async function loadAiDigestHistory(userId: string, context: ResolverContext, asOf: Date): Promise<AiDigestHistory> {
+  const issues = await AiDigestIssues.find(
+    { recipientId: userId, countsTowardHistory: true },
     { sort: { createdAt: -1, _id: -1 }, limit: AI_DIGEST_HISTORY_ISSUE_LIMIT },
-    {
-      _id: 1,
-      recipientId: 1,
-      createdAt: 1,
-      countsTowardHistory: 1,
-      spec: 1,
-    },
+    { _id: 1, createdAt: 1, spec: 1 },
   ).fetch();
-  const issues = dbIssues.map(toAiDigestIssueRecord);
-  const postIds = Array.from(new Set(issues.flatMap((issue) => issue.postIds)));
-  const quickTakeIds = Array.from(
-    new Set(issues.flatMap((issue) => issue.quickTakeIds)),
-  );
-  const [interactions, clicks, quickTakeInteractions] = await Promise.all([
-    loadAiDigestPostInteractions({ userId, postIds }),
-    loadAiDigestClicks(userId, dbIssues, context),
-    loadAiDigestQuickTakeInteractions({ userId, commentIds: quickTakeIds }),
+  const documentRefs = issues.flatMap((issue) => recommendedDocumentRefs(issue.spec));
+  const [postOutcomes, quickTakeOutcomes, clicks] = await Promise.all([
+    context.repos.posts.getAiDigestPastPostOutcomes({ userId, postIds: documentIdsOfType(documentRefs, "post") }),
+    context.repos.comments.getAiDigestPastQuickTakeOutcomes({ userId, commentIds: documentIdsOfType(documentRefs, "quickTake") }),
+    loadAiDigestClicks(userId, issues, context),
   ]);
-  return buildAiDigestHistory(
-    issues,
-    interactions,
-    clicks,
-    quickTakeInteractions,
-  );
+  return buildAiDigestHistory({ issues, postOutcomes, quickTakeOutcomes, clicks, asOf });
 }
 
 export async function persistAiDigestIssue(
@@ -377,7 +274,7 @@ export async function clearAiDigestRecommendationHistory({
     );
   }
   const createdAfter = new Date(now.getTime() - (days * DAY_MS));
-  // Delivery timestamps and campaign IDs remain needed for cadence and click attribution.
+  // Only the history flag changes: cadence and click attribution still need the issues.
   return await AiDigestIssues.rawUpdateMany({
     recipientId,
     countsTowardHistory: true,

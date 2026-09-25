@@ -87,6 +87,10 @@ const AiDigestEmailSamplePreviewQuery = gql(`
         cacheReadInputTokenCount
         cacheWriteInputTokenCount
         costUsd
+        toolCalls {
+          toolName
+          input
+        }
       }
     }
   }
@@ -662,6 +666,12 @@ export default function DigestEmailPreviewPage() {
   const storedPrompts = (selectedSampleDetails?.calls ?? []).flatMap((call) => [
     { label: `${call.purpose} system prompt`, text: call.systemPrompt },
     { label: `${call.purpose} user prompt`, text: call.prompt },
+    ...(call.toolCalls.length > 0
+      ? [{
+        label: `${call.purpose} tool calls`,
+        text: call.toolCalls.map(({ toolName, input }) => `${toolName} ${input}`).join("\n"),
+      }]
+      : []),
   ]);
 
   return (

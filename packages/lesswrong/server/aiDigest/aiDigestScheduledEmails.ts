@@ -12,7 +12,7 @@ import { findUsersToEmail } from "@/server/curationEmails/cron";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import AiDigestScheduleLeaseRepo from "@/server/repos/AiDigestScheduleLeaseRepo";
-import { generateAiDigestPostSelection } from "./aiDigestPostSelection";
+import { generateAiDigestIssue } from "./aiDigestGenerateIssue";
 
 
 /**
@@ -107,10 +107,11 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
   );
   const result = latestIssue && !latestIssue.emailedAt
     ? { issueId: latestIssue._id, spec: latestIssue.spec }
-    : await generateAiDigestPostSelection({
+    : await generateAiDigestIssue({
       user,
       context,
-      options: { trigger: "scheduled" },
+      trigger: "scheduled",
+      countsTowardHistory: true,
     });
   const { issueId, spec } = result;
   // A generation that outlives its lease must not send after another worker

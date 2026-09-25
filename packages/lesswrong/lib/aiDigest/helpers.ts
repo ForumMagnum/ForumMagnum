@@ -1,7 +1,7 @@
 import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH, DAY_MS } from "./constants";
 
 /** UTC midnight (ms since epoch) of the calendar day containing the timestamp. */
-export function utcDay(timestamp: string | Date): number {
+function utcDay(timestamp: string | Date): number {
   const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
