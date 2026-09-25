@@ -25,6 +25,11 @@ export function usePageVisibility(onChange: (isVisible: boolean, visibilityState
   useEventListener('visibilitychange' as keyof WindowEventMap, handleVisibilityChange);
 }
 
+/** For apollo's `skipPollAttempt` option: skip polls while the tab is hidden. */
+export function skipPollWhenHidden() {
+  return !getPageVisibility().isVisible;
+}
+
 export function getPageVisibility(): {
   isVisible: boolean,
   visibilityState: DocumentVisibilityState
