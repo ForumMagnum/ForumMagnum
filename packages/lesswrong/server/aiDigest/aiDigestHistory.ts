@@ -114,7 +114,11 @@ function pastPostRecommendation(
     title: post.title,
     author: post.author,
     postedAt: post.postedAt,
-    recommendations: recommendationEvents(items, { ...post, engagedAt: post.readAt }, firstClickAtBySlotKey),
+    recommendations: recommendationEvents(
+      items,
+      { engagedAt: post.readAt, liked: post.liked, likedAt: post.likedAt },
+      firstClickAtBySlotKey,
+    ),
   };
 }
 
@@ -128,7 +132,11 @@ function pastQuickTakeRecommendation(
     snippet: aiDigestPlainText(quickTake.html, PAST_QUICK_TAKE_SNIPPET_MAX_CHARS),
     author: quickTake.author,
     postedAt: quickTake.postedAt,
-    recommendations: recommendationEvents(items, { ...quickTake, engagedAt: quickTake.repliedAt }, firstClickAtBySlotKey),
+    recommendations: recommendationEvents(
+      items,
+      { engagedAt: quickTake.repliedAt, liked: quickTake.liked, likedAt: quickTake.likedAt },
+      firstClickAtBySlotKey,
+    ),
   };
 }
 
@@ -137,15 +145,8 @@ function pastQuickTakeRecommendation(
  * slot key. One recommendation can lead to several visits, but the only
  * question here is whether and when the reader engaged.
  */
-async function loadFirstClickTimes(
-  userId: string,
-  since: Date | undefined,
-  context: ResolverContext,
-): Promise<Map<string, Date>> {
+async function loadFirstClickTimes(userId: string, since: Date, context: ResolverContext): Promise<Map<string, Date>> {
   const firstClickAt = new Map<string, Date>();
-  if (!since) {
-    return firstClickAt;
-  }
   const views = await context.repos.lwEvents.getPostViewsFromUtmCampaign(userId, AI_DIGEST_UTM_PARAMS.utm_campaign, since);
   for (const { utmContent, createdAt } of views) {
     const slotKey = aiDigestLinkSlotKeyFromUtmContent(utmContent);
@@ -163,12 +164,16 @@ export async function loadAiDigestHistory(userId: string, context: ResolverConte
     { sort: { createdAt: -1, _id: -1 }, limit: AI_DIGEST_HISTORY_ISSUE_LIMIT },
     { _id: 1, createdAt: 1, spec: 1 },
   ).fetch();
+  if (issues.length === 0) {
+    return { previousInclusions: new Map(), pastRecommendations: [] };
+  }
+  const oldestIssue = issues[issues.length - 1];
   const items = issues.flatMap(recommendedItems);
   const [postOutcomes, quickTakeOutcomes, firstClickAtBySlotKey] = await Promise.all([
     // Both come back in the order of the IDs given, most recently recommended first.
     context.repos.posts.getAiDigestPastPostOutcomes({ userId, postIds: documentIdsOfType(items, "post") }),
     context.repos.comments.getAiDigestPastQuickTakeOutcomes({ userId, commentIds: documentIdsOfType(items, "quickTake") }),
-    loadFirstClickTimes(userId, issues.at(-1)?.createdAt, context),
+    loadFirstClickTimes(userId, oldestIssue.createdAt, context),
   ]);
   const itemsByDocumentId = groupBy(items, (item) => item.documentId);
   return {

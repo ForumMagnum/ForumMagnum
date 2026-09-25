@@ -36,6 +36,13 @@ export interface AiDigestCandidatePool {
   repeatsAllowed: boolean;
 }
 
+export interface AiDigestCandidateScope {
+  user: DbUser;
+  context: ResolverContext;
+  previousInclusions: Map<string, AiDigestPreviousInclusion>;
+  asOf: Date;
+}
+
 export function aiDigestCandidateWindowStart(asOf: Date): Date {
   return new Date(asOf.getTime() - (AI_DIGEST_CANDIDATE_MAX_AGE_DAYS * DAY_MS));
 }
@@ -44,30 +51,25 @@ export function aiDigestCandidateWindowStart(asOf: Date): Date {
  * Posts the reader could be recommended: the most recent ones, or, given
  * `postIds`, the eligible ones among those, in no particular order.
  */
-export async function loadAiDigestPostCandidates({ user, context, previousInclusions, asOf, postIds }: {
-  user: DbUser;
-  context: ResolverContext;
-  previousInclusions: Map<string, AiDigestPreviousInclusion>;
-  asOf: Date;
-  postIds?: string[];
-}): Promise<AiDigestPostCandidate[]> {
+export async function loadAiDigestPostCandidates(
+  { user, context, previousInclusions, asOf }: AiDigestCandidateScope,
+  postIds?: string[],
+): Promise<AiDigestPostCandidate[]> {
   if (postIds?.length === 0) {
     return [];
   }
+  const selector = postIds ? { postIds } : { minPostedAt: aiDigestCandidateWindowStart(asOf), limit: POST_CANDIDATE_LIMIT };
   const rows = await context.repos.posts.getAiDigestPostCandidates({
     userId: user._id,
     aboutPostId: aboutPostIdSetting.get(context.forumType),
     minKarma: AI_DIGEST_MIN_KARMA,
-    ...(postIds ? { postIds } : { minPostedAt: aiDigestCandidateWindowStart(asOf), limit: POST_CANDIDATE_LIMIT }),
+    ...selector,
   });
   return rows.map((row) => ({ ...row, previousDigest: previousInclusions.get(row.postId) }));
 }
 
 export async function loadAiDigestQuickTakeCandidates(
-  user: DbUser,
-  context: ResolverContext,
-  asOf: Date,
-  previousInclusions: Map<string, AiDigestPreviousInclusion>,
+  { user, context, previousInclusions, asOf }: AiDigestCandidateScope,
 ): Promise<AiDigestQuickTakeCandidate[]> {
   const rows = await context.repos.comments.getAiDigestQuickTakeCandidates({
     userId: user._id,
@@ -75,12 +77,13 @@ export async function loadAiDigestQuickTakeCandidates(
     minKarma: QUICK_TAKE_MIN_KARMA,
     limit: QUICK_TAKE_LIMIT,
   });
-  return rows.flatMap(({ html, ...row }) => {
-    const body = aiDigestPlainText(html, QUICK_TAKE_BODY_MAX_CHARS);
-    return body
-      ? [{ ...row, body, previousDigest: previousInclusions.get(row.commentId) }]
-      : [];
-  });
+  return rows
+    .map(({ html, ...row }) => ({
+      ...row,
+      body: aiDigestPlainText(html, QUICK_TAKE_BODY_MAX_CHARS),
+      previousDigest: previousInclusions.get(row.commentId),
+    }))
+    .filter((quickTake) => quickTake.body);
 }
 
 function isUnrecommended(candidate: { previousDigest?: AiDigestPreviousInclusion }): boolean {

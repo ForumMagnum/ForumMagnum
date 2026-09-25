@@ -3,7 +3,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import groupBy from "lodash/groupBy";
 import sumBy from "lodash/sumBy";
 import uniq from "lodash/uniq";
-import { aiDigestCandidateWindowStart } from "./aiDigestCandidates";
+import { aiDigestCandidateWindowStart, type AiDigestCandidateScope } from "./aiDigestCandidates";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
 import { aiDigestPlainText } from "./aiDigestPostText";
 
@@ -150,10 +150,7 @@ function toThreadCard(
  * then the site's top threads by comment karma.
  */
 export async function loadAiDigestThreadCards(
-  user: DbUser,
-  context: ResolverContext,
-  asOf: Date,
-  previousInclusions: Map<string, AiDigestPreviousInclusion>,
+  { user, context, previousInclusions, asOf }: AiDigestCandidateScope,
 ): Promise<AiDigestThreadCard[]> {
   const minPostedAt = aiDigestCandidateWindowStart(asOf);
   const [readerThreadIds, siteWideThreadIds] = await Promise.all([

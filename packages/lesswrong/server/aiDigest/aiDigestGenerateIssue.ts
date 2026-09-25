@@ -2,6 +2,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
+import { createNotification } from "@/server/notificationCallbacksHelpers";
 import type { AiDigestRecentlyCuratedPostRow } from "@/server/repos/PostsRepo";
 import {
   aiDigestCandidatePool,
@@ -80,22 +81,26 @@ function recommendationItems(selection: AiDigestPostSelection, previewHtmlByPost
  * thread's context instead.
  */
 function discussionItems(threads: AiDigestSelectedThread[], recommendations: AiDigestItem[]): AiDigestItem[] {
-  const recommendedQuickTakeIds = new Set(recommendations.flatMap(({ documentRef }) =>
-    documentRef.documentType === "quickTake" ? [documentRef.documentId] : []));
-  return threads.flatMap(({ anchorCommentId, commentIds, reason }): AiDigestItem[] => {
+  const recommendedQuickTakeIds = new Set(recommendations
+    .filter(({ documentRef }) => documentRef.documentType === "quickTake")
+    .map(({ documentRef }) => documentRef.documentId));
+  const items: AiDigestItem[] = [];
+  for (const { anchorCommentId, commentIds, reason } of threads) {
     const anchorIndex = commentIds.indexOf(anchorCommentId);
-    const anchorAndReplies = commentIds.slice(anchorIndex);
-    if (anchorAndReplies.some((commentId) => recommendedQuickTakeIds.has(commentId))) {
-      return [];
+    const contextIds = commentIds.slice(0, anchorIndex);
+    const anchorAndReplyIds = commentIds.slice(anchorIndex);
+    if (anchorAndReplyIds.some((commentId) => recommendedQuickTakeIds.has(commentId))) {
+      continue;
     }
-    const contextOverlaps = commentIds.slice(0, anchorIndex).some((commentId) => recommendedQuickTakeIds.has(commentId));
-    return [{
+    const contextOverlaps = contextIds.some((commentId) => recommendedQuickTakeIds.has(commentId));
+    items.push({
       documentRef: { documentType: "comment", documentId: anchorCommentId },
       placement: "full",
       reason: reason ?? undefined,
-      commentIds: contextOverlaps ? anchorAndReplies : commentIds,
-    }];
-  });
+      commentIds: contextOverlaps ? anchorAndReplyIds : commentIds,
+    });
+  }
+  return items;
 }
 
 /**
@@ -126,6 +131,13 @@ function buildAiDigestSpec({ user, personalInstructions, postSelection, threads,
   const recommendations = recommendationItems(postSelection, previewHtmlByPostId);
   const discussion = discussionItems(threads, recommendations);
   const curated = curatedItems(curatedPosts, recommendations);
+  const sections: AiDigestSection[] = [{ kind: "recommendations", items: recommendations }];
+  if (discussion.length > 0) {
+    sections.push({ kind: "discussion", title: "From the discussion", items: discussion });
+  }
+  if (curated.length > 0) {
+    sections.push({ kind: "curated", title: "Recently curated", items: curated });
+  }
   return {
     recipientName: user.displayName,
     subject: postSelection.subject,
@@ -135,12 +147,19 @@ function buildAiDigestSpec({ user, personalInstructions, postSelection, threads,
       paragraphs: postSelection.aiNote,
     },
     personalInstructions: personalInstructions ?? undefined,
-    sections: [
-      { kind: "recommendations", items: recommendations },
-      ...(discussion.length > 0 ? [{ kind: "discussion" as const, title: "From the discussion", items: discussion }] : []),
-      ...(curated.length > 0 ? [{ kind: "curated" as const, title: "Recently curated", items: curated }] : []),
-    ],
+    sections,
   };
+}
+
+export async function notifyAiDigestReady(reader: DbUser, issueId: string, spec: AiDigestSpec, context: ResolverContext) {
+  await createNotification({
+    userId: reader._id,
+    notificationType: "aiDigestReady",
+    documentType: null,
+    documentId: null,
+    extraData: { issueId, subject: spec.subject, aiNote: spec.aiNote.paragraphs },
+    context,
+  });
 }
 
 export async function generateAiDigestIssue({ user, context, trigger, countsTowardHistory }: {
@@ -149,25 +168,24 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
   trigger: AiDigestIssueTrigger;
   countsTowardHistory: boolean;
 }): Promise<{ issueId: string; spec: AiDigestSpec }> {
-  const startedAt = Date.now();
   const asOf = new Date();
   const personalInstructions = user.aiDigestPersonalInstructions?.trim() || null;
 
   const history = await loadAiDigestHistory(user._id, context);
-  const { previousInclusions } = history;
+  const candidateScope = { user, context, previousInclusions: history.previousInclusions, asOf };
   const [profile, recentPosts, quickTakes, curatedPosts, threadCards] = await Promise.all([
     loadAiDigestReaderProfile(user, context, asOf),
-    loadAiDigestPostCandidates({ user, context, previousInclusions, asOf }),
-    loadAiDigestQuickTakeCandidates(user, context, asOf, previousInclusions),
+    loadAiDigestPostCandidates(candidateScope),
+    loadAiDigestQuickTakeCandidates(candidateScope),
     context.repos.posts.getAiDigestRecentlyCuratedPosts({ userId: user._id, limit: CURATED_LOOKBACK_COUNT }),
-    loadAiDigestThreadCards(user, context, asOf, previousInclusions),
+    loadAiDigestThreadCards(candidateScope),
   ]);
   const pool = aiDigestCandidatePool(recentPosts, quickTakes);
   const summarizedPosts = await ensureAiDigestPostSummaries(pool.posts, context);
 
   const [postSelection, threadSelection] = await Promise.all([
     selectAiDigestPosts({
-      scope: { user, context, previousInclusions, repeatsAllowed: pool.repeatsAllowed, asOf },
+      scope: { ...candidateScope, repeatsAllowed: pool.repeatsAllowed },
       profile,
       posts: summarizedPosts,
       quickTakes: pool.quickTakes,
@@ -192,7 +210,7 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
   const issueId = await AiDigestIssues.rawInsert({ recipientId: user._id, trigger, countsTowardHistory, spec, emailedAt: null });
   await AiDigestIssueGenerations.rawInsert({
     issueId,
-    durationMs: Date.now() - startedAt,
+    durationMs: Date.now() - asOf.getTime(),
     calls: threadSelection ? [postSelection.call, threadSelection.call] : [postSelection.call],
   });
   serverCaptureEvent("aiDigestGenerated", { userId: user._id, issueId, trigger });

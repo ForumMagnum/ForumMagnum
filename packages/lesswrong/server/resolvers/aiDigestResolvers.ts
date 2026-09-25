@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { generateAiDigestIssue } from "@/server/aiDigest/aiDigestGenerateIssue";
+import { generateAiDigestIssue, notifyAiDigestReady } from "@/server/aiDigest/aiDigestGenerateIssue";
 import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHistory";
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
@@ -9,7 +9,6 @@ import Users from "@/server/collections/users/collection";
 import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
-import { createNotification } from "@/server/notificationCallbacksHelpers";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 /** Issues generated per request, in parallel. */
@@ -44,14 +43,7 @@ async function generateIssueForReader(reader: DbUser, currentUser: DbUser, count
   });
   // Readers may navigate away while their own issue generates, so tell them when it's ready.
   if (isOwnIssue) {
-    await createNotification({
-      userId: reader._id,
-      notificationType: "aiDigestReady",
-      documentType: null,
-      documentId: null,
-      extraData: { issueId, subject: spec.subject, aiNote: spec.aiNote.paragraphs },
-      context: readerContext,
-    });
+    await notifyAiDigestReady(reader, issueId, spec, readerContext);
   }
   return issueId;
 }

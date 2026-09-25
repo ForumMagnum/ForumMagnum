@@ -4,8 +4,12 @@ import { getEmbeddingsFromApi, isEmbeddingsAPIEnabled } from "@/server/embedding
 import { tool, type ToolSet } from "ai";
 import uniq from "lodash/uniq";
 import { z } from "zod";
-import { AI_DIGEST_MIN_KARMA, loadAiDigestPostCandidates, type AiDigestPostCandidate } from "./aiDigestCandidates";
-import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
+import {
+  AI_DIGEST_MIN_KARMA,
+  loadAiDigestPostCandidates,
+  type AiDigestCandidateScope,
+  type AiDigestPostCandidate,
+} from "./aiDigestCandidates";
 import { aiDigestUntrustedJson } from "./aiDigestModelCalls";
 import { aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
 import { aiDigestPlainText, loadAiDigestPostHtml } from "./aiDigestPostText";
@@ -19,18 +23,14 @@ const READ_POST_MAX_PER_GENERATION = 10;
 const READ_POST_MAX_CHARS = 15_000;
 export const AI_DIGEST_SELECTION_STEP_LIMIT = 4;
 
-export interface AiDigestSelectionScope {
-  user: DbUser;
-  context: ResolverContext;
-  previousInclusions: Map<string, AiDigestPreviousInclusion>;
+export interface AiDigestSelectionScope extends AiDigestCandidateScope {
   /** Whether posts recommended in earlier issues may be picked, as they are among the candidates. */
   repeatsAllowed: boolean;
-  asOf: Date;
 }
 
 /** The given posts that the model may pick, under the same rules as the candidates. */
 export async function loadSelectableAiDigestPosts(scope: AiDigestSelectionScope, postIds: string[]): Promise<AiDigestPostCandidate[]> {
-  const posts = await loadAiDigestPostCandidates({ ...scope, postIds });
+  const posts = await loadAiDigestPostCandidates(scope, postIds);
   return posts.filter((post) => scope.repeatsAllowed || !post.previousDigest);
 }
 

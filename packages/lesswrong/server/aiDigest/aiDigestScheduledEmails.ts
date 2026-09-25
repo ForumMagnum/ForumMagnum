@@ -10,15 +10,13 @@ import {
 import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
-import { createNotification } from "@/server/notificationCallbacksHelpers";
 import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { generateAiDigestIssue } from "./aiDigestGenerateIssue";
+import { generateAiDigestIssue, notifyAiDigestReady } from "./aiDigestGenerateIssue";
 
 /**
- * Generation is a multi-minute LLM call and cron invocations are time-bounded,
- * so each run handles only a couple of readers and the next hourly run picks up
- * the rest. Comfortable for an admin-sized cohort.
+ * Each run handles only a couple of readers, one after another, and the next
+ * hourly run picks up the rest. Comfortable for an admin-sized cohort.
  */
 const SENDS_PER_RUN = 2;
 /** Longer than any run can last, so a claim only lapses if its run died. */
@@ -71,14 +69,7 @@ async function sendAiDigestToReader(schedule: DbAiDigestSchedule): Promise<void>
       issueId: null,
     },
   });
-  await createNotification({
-    userId: user._id,
-    notificationType: "aiDigestReady",
-    documentType: null,
-    documentId: null,
-    extraData: { issueId, subject: spec.subject, aiNote: spec.aiNote.paragraphs },
-    context,
-  });
+  await notifyAiDigestReady(user, issueId, spec, context);
 }
 
 export async function sendScheduledAiDigestEmails(): Promise<void> {
