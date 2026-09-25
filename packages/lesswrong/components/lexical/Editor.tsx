@@ -568,6 +568,8 @@ export interface EditorProps {
   placeholder?: string;
   /** Render editor in compact comment mode */
   commentEditor?: boolean;
+  /** Focus the editor when it mounts (non-comment editors only). Defaults to true. */
+  autoFocus?: boolean;
   /** Hide the default slash-command component picker when a host mounts its own menu. */
   disableComponentPicker?: boolean;
   /**
@@ -604,6 +606,7 @@ export default function Editor({
   onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
+  autoFocus = true,
   disableComponentPicker = false,
   disableMentions = false,
   children,
@@ -863,7 +866,7 @@ export default function Editor({
         )}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
-        {!isCommentEditor && <AutoFocusPlugin />}
+        {!isCommentEditor && autoFocus && <AutoFocusPlugin />}
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
