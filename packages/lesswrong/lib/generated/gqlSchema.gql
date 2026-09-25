@@ -1636,13 +1636,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  GenerateAiDigestEmailSamples(userSlug: String!, count: Int, countsTowardHistory: Boolean): [String!]!
-  ClearAiDigestEmailSampleHistory(userSlug: String!, days: Int!): Int!
-}
-
-extend type Mutation {
-  GenerateContentForYouIssue(countsTowardHistory: Boolean): String!
-  ClearContentForYouRecommendationHistory(days: Int!): Int!
+  GenerateAiDigestIssues(userSlug: String, count: Int, countsTowardHistory: Boolean): [String!]!
+  ClearAiDigestRecommendationHistory(userSlug: String, days: Int!): Int!
 }
 
 type AiDigestIssue {

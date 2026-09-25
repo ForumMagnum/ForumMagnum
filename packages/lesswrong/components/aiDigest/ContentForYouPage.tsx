@@ -64,13 +64,13 @@ const UpdateContentForYouInstructionsMutation = gql(`
 
 const GenerateContentForYouIssueMutation = gql(`
   mutation GenerateContentForYouIssueMutation($countsTowardHistory: Boolean) {
-    GenerateContentForYouIssue(countsTowardHistory: $countsTowardHistory)
+    GenerateAiDigestIssues(countsTowardHistory: $countsTowardHistory)
   }
 `);
 
 const ClearContentForYouRecommendationHistoryMutation = gql(`
   mutation ClearContentForYouRecommendationHistoryMutation($days: Int!) {
-    ClearContentForYouRecommendationHistory(days: $days)
+    ClearAiDigestRecommendationHistory(days: $days)
   }
 `);
 
@@ -373,7 +373,7 @@ function InstructionsEditor({
       <div className={classes.statusMessage} aria-live="polite">
         {isBusy && (
           <div className={classes.waiting}>
-            This can take a few minutes. You will be notified when it completes.
+            This usually takes under a minute. You will be notified when it completes.
           </div>
         )}
         {message && <div className={classes.success}>{message}</div>}
@@ -464,7 +464,7 @@ export function ContentForYouPage() {
         countsTowardHistory,
       },
     })).then(({ data }) => {
-      const newIssueId = data?.GenerateContentForYouIssue ?? null;
+      const newIssueId = data?.GenerateAiDigestIssues[0] ?? null;
       setSelectedIssueId(newIssueId);
       setMessage("Your new recommendations are ready.");
       void refetchOverview();
@@ -499,7 +499,7 @@ export function ContentForYouPage() {
         days: historyClearDays,
       },
     }).then(({ data }) => {
-      const clearedCount = data?.ClearContentForYouRecommendationHistory ?? 0;
+      const clearedCount = data?.ClearAiDigestRecommendationHistory ?? 0;
       setSelectedIssueId(null);
       setMessage(`Reset recommendation history for ${clearedCount} issue(s).`);
       void refetchOverview();

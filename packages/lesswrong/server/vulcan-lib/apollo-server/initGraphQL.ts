@@ -72,8 +72,7 @@ import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolver
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
-import { digestEmailPreviewGraphQLMutations, digestEmailPreviewGraphQLQueries, digestEmailPreviewGraphQLTypeDefs } from "@/server/resolvers/digestEmailPreviewResolver";
-import { contentForYouGraphQLMutations, contentForYouGraphQLTypeDefs } from "@/server/resolvers/contentForYouResolvers";
+import { aiDigestGraphQLMutations, aiDigestGraphQLQueries, aiDigestGraphQLTypeDefs } from "@/server/resolvers/aiDigestResolvers";
 
 // Collection imports
 import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
@@ -322,8 +321,7 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
-  ${digestEmailPreviewGraphQLTypeDefs}
-  ${contentForYouGraphQLTypeDefs}
+  ${aiDigestGraphQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAiDigestIssueQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -503,7 +501,7 @@ const getResolvers = () => ({
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
-    ...digestEmailPreviewGraphQLQueries,
+    ...aiDigestGraphQLQueries,
 
     // CRUD Query Handlers
     ...aiDigestIssueGqlQueryHandlers,
@@ -613,8 +611,7 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
-    ...digestEmailPreviewGraphQLMutations,
-    ...contentForYouGraphQLMutations,
+    ...aiDigestGraphQLMutations,
 
     // CRUD Mutation Handlers
     createBook: createBookGqlMutation,

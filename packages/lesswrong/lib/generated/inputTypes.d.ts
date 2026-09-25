@@ -310,10 +310,8 @@ interface Mutation {
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
-  GenerateAiDigestEmailSamples: Array<string>;
-  ClearAiDigestEmailSampleHistory: number;
-  GenerateContentForYouIssue: string;
-  ClearContentForYouRecommendationHistory: number;
+  GenerateAiDigestIssues: Array<string>;
+  ClearAiDigestRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;

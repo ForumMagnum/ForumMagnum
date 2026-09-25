@@ -8,12 +8,13 @@ jest.mock("@/server/collections/aiDigestIssues/collection", () => ({ __esModule:
 jest.mock("@/server/emailComponents/AiDigestEmail", () => ({ aiDigestEmailBody: () => () => null }));
 jest.mock("@/server/emails/renderEmail", () => ({ wrapAndRenderEmail: jest.fn() }));
 jest.mock("@/lib/collections/users/helpers", () => ({ getUserEmail: jest.fn() }));
+jest.mock("@/server/notificationCallbacksHelpers", () => ({ createNotification: jest.fn() }));
 jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => mockContext() }));
 
-import { digestEmailPreviewGraphQLMutations } from "@/server/resolvers/digestEmailPreviewResolver";
+import { aiDigestGraphQLMutations } from "@/server/resolvers/aiDigestResolvers";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
-describe("digest workbench generation", () => {
+describe("AI digest issue generation", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     mockContext.mockReturnValue({ currentUser: { _id: "admin", isAdmin: true } });
@@ -23,7 +24,7 @@ describe("digest workbench generation", () => {
   it("propagates a failed generation without repeating the whole pipeline", async () => {
     const failure = new Error("provider unavailable");
     mockGenerate.mockRejectedValue(failure);
-    await expect(digestEmailPreviewGraphQLMutations.GenerateAiDigestEmailSamples(
+    await expect(aiDigestGraphQLMutations.GenerateAiDigestIssues(
       undefined, { userSlug: "reader", count: 1 }, computeContextFromUser({ user: null, isSSR: false }),
     )).rejects.toBe(failure);
     expect(mockGenerate).toHaveBeenCalledTimes(1);
@@ -31,7 +32,7 @@ describe("digest workbench generation", () => {
 
   it("returns each requested saved sample and preserves the history preference", async () => {
     mockGenerate.mockResolvedValueOnce({ issueId: "first" }).mockResolvedValueOnce({ issueId: "second" });
-    await expect(digestEmailPreviewGraphQLMutations.GenerateAiDigestEmailSamples(
+    await expect(aiDigestGraphQLMutations.GenerateAiDigestIssues(
       undefined, { userSlug: "reader", count: 2, countsTowardHistory: false }, computeContextFromUser({ user: null, isSSR: false }),
     )).resolves.toEqual(["first", "second"]);
     expect(mockGenerate).toHaveBeenCalledTimes(2);
@@ -40,7 +41,7 @@ describe("digest workbench generation", () => {
 
   it.each([null, { _id: "reader", isAdmin: false }])("rejects non-admin access before generation (%s)", async (currentUser) => {
     mockContext.mockReturnValue({ currentUser });
-    await expect(digestEmailPreviewGraphQLMutations.GenerateAiDigestEmailSamples(
+    await expect(aiDigestGraphQLMutations.GenerateAiDigestIssues(
       undefined, { userSlug: "reader", count: 1 }, computeContextFromUser({ user: null, isSSR: false }),
     )).rejects.toThrow("only available to admin");
     expect(mockFindUser).not.toHaveBeenCalled();

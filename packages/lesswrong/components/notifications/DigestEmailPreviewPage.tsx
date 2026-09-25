@@ -27,7 +27,7 @@ const GenerateAiDigestEmailSamplesMutation = gql(`
     $count: Int
     $countsTowardHistory: Boolean
   ) {
-    GenerateAiDigestEmailSamples(
+    GenerateAiDigestIssues(
       userSlug: $userSlug
       count: $count
       countsTowardHistory: $countsTowardHistory
@@ -61,7 +61,7 @@ const AiDigestEmailSamplesQuery = gql(`
 
 const ClearAiDigestEmailSampleHistoryMutation = gql(`
   mutation ClearAiDigestEmailSampleHistoryMutation($userSlug: String!, $days: Int!) {
-    ClearAiDigestEmailSampleHistory(userSlug: $userSlug, days: $days)
+    ClearAiDigestRecommendationHistory(userSlug: $userSlug, days: $days)
   }
 `);
 
@@ -613,7 +613,7 @@ export default function DigestEmailPreviewPage() {
         countsTowardHistory,
       },
     }).then(({ data: generatedData }) => {
-      const newestIssueId = generatedData?.GenerateAiDigestEmailSamples[0] ?? null;
+      const newestIssueId = generatedData?.GenerateAiDigestIssues[0] ?? null;
       selectIssue(newestIssueId);
       void refetchStoredSamples();
     }, () => undefined);
@@ -630,7 +630,7 @@ export default function DigestEmailPreviewPage() {
         days: historyClearDays,
       },
     }).then(({ data: clearData }) => {
-      const clearedCount = clearData?.ClearAiDigestEmailSampleHistory ?? 0;
+      const clearedCount = clearData?.ClearAiDigestRecommendationHistory ?? 0;
       selectIssue(null);
       setHistoryMessage(`Reset recommendation history for ${clearedCount} issue(s) for ${activeSlug}.`);
       void refetchStoredSamples();
@@ -768,7 +768,7 @@ export default function DigestEmailPreviewPage() {
           {samplesLoading && (
             <div className={classes.generationStatus}>
               Generating {sampleCount} {sampleCount === 1 ? "sample" : "samples"} in
-              parallel. This can take several minutes.
+              parallel. This usually takes under a minute.
             </div>
           )}
           {samplesError && (

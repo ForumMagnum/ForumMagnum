@@ -3931,10 +3931,8 @@ type Mutation = {
   __typename?: 'Mutation';
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   CancelRSVPToEvent?: Maybe<Post>;
-  ClearAiDigestEmailSampleHistory: Scalars['Int']['output'];
-  ClearContentForYouRecommendationHistory: Scalars['Int']['output'];
-  GenerateAiDigestEmailSamples: Array<Scalars['String']['output']>;
-  GenerateContentForYouIssue: Scalars['String']['output'];
+  ClearAiDigestRecommendationHistory: Scalars['Int']['output'];
+  GenerateAiDigestIssues: Array<Scalars['String']['output']>;
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
   MarkAllNotificationsAsRead?: Maybe<Scalars['Boolean']['output']>;
@@ -4115,26 +4113,16 @@ type MutationCancelRSVPToEventArgs = {
 };
 
 
-type MutationClearAiDigestEmailSampleHistoryArgs = {
+type MutationClearAiDigestRecommendationHistoryArgs = {
   days: Scalars['Int']['input'];
-  userSlug: Scalars['String']['input'];
+  userSlug?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-type MutationClearContentForYouRecommendationHistoryArgs = {
-  days: Scalars['Int']['input'];
-};
-
-
-type MutationGenerateAiDigestEmailSamplesArgs = {
+type MutationGenerateAiDigestIssuesArgs = {
   count?: InputMaybe<Scalars['Int']['input']>;
   countsTowardHistory?: InputMaybe<Scalars['Boolean']['input']>;
-  userSlug: Scalars['String']['input'];
-};
-
-
-type MutationGenerateContentForYouIssueArgs = {
-  countsTowardHistory?: InputMaybe<Scalars['Boolean']['input']>;
+  userSlug?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -13389,7 +13377,7 @@ type UpdateContentForYouInstructionsMutationVariables = Exact<{
 
 type UpdateContentForYouInstructionsMutation = UpdateContentForYouInstructionsMutation_Mutation;
 
-type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateContentForYouIssue: string };
+type GenerateContentForYouIssueMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestIssues: Array<string> };
 
 
 type GenerateContentForYouIssueMutationMutationVariables = Exact<{
@@ -13399,7 +13387,7 @@ type GenerateContentForYouIssueMutationMutationVariables = Exact<{
 
 type GenerateContentForYouIssueMutationMutation = GenerateContentForYouIssueMutationMutation_Mutation;
 
-type ClearContentForYouRecommendationHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearContentForYouRecommendationHistory: number };
+type ClearContentForYouRecommendationHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearAiDigestRecommendationHistory: number };
 
 
 type ClearContentForYouRecommendationHistoryMutationMutationVariables = Exact<{
@@ -16832,7 +16820,7 @@ type CommentOnYourDraftNotificationHoverQueryVariables = Exact<{
 
 type CommentOnYourDraftNotificationHoverQuery = CommentOnYourDraftNotificationHoverQuery_Query;
 
-type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestEmailSamples: Array<string> };
+type GenerateAiDigestEmailSamplesMutationMutation_Mutation = { __typename?: 'Mutation', GenerateAiDigestIssues: Array<string> };
 
 
 type GenerateAiDigestEmailSamplesMutationMutationVariables = Exact<{
@@ -16876,7 +16864,7 @@ type AiDigestEmailSamplesQueryQueryVariables = Exact<{
 
 type AiDigestEmailSamplesQueryQuery = AiDigestEmailSamplesQueryQuery_Query;
 
-type ClearAiDigestEmailSampleHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearAiDigestEmailSampleHistory: number };
+type ClearAiDigestEmailSampleHistoryMutationMutation_Mutation = { __typename?: 'Mutation', ClearAiDigestRecommendationHistory: number };
 
 
 type ClearAiDigestEmailSampleHistoryMutationMutationVariables = Exact<{
