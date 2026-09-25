@@ -12,17 +12,6 @@ const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => (
     // posts start 28px below it; here that space comes after the buttons.
     marginTop: 16,
     marginBottom: 28,
-    // The shared editor is sized for post bodies, with a large minimum
-    // height. The description should be exactly as tall as its text.
-    "& .EditorFormComponent-postEditorHeight": {
-      minHeight: 0,
-    },
-    "& .LexicalPostEditor-editorShell": {
-      "--lexical-editor-min-height": "0px",
-    },
-    "& .LexicalContentEditable-root": {
-      minHeight: 0,
-    },
   },
   // Always rendered, so the page doesn't shift when the buttons activate.
   buttonRow: {
@@ -174,6 +163,8 @@ const SequenceDescriptionEditor = () => {
         // No editor-type switcher or "minor update" selector: those belong to
         // the post editor, not an inline description.
         hideControls
+        // As tall as the text, rather than a post-sized blank area.
+        fitToContent
       />}
     </form.Field>
     <div className={classes.buttonRow}>
