@@ -239,6 +239,8 @@ interface EditorProps {
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
+  /** Focus the (Lexical) editor when it mounts. Defaults to true. */
+  autoFocus?: boolean,
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
@@ -589,7 +591,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderLexicalEditor = (contents: EditorContents) => {
-    const { _classes: classes, placeholder, commentEditor, documentId, collectionName } = this.props;
+    const { _classes: classes, placeholder, commentEditor, autoFocus, documentId, collectionName } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
 
     return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
@@ -604,6 +606,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         }}
         onGetDataWithDiscardedSuggestions={this.setLexicalDataWithDiscardedSuggestionsGetter}
         commentEditor={commentEditor}
+        autoFocus={autoFocus}
         documentId={documentId}
         collectionName={collectionName}
         fieldName={this.props.fieldName}
