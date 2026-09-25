@@ -10,11 +10,14 @@ import {
   assertAiDigestModelFinished,
   decodeStrayUnicodeEscapes,
 } from "./aiDigestModelCalls";
-import { AI_DIGEST_POST_SELECTION_PROMPT_VERSION, buildAiDigestPostSelectionPrompt } from "./aiDigestPostSelectionPrompt";
+import {
+  AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
+  AI_DIGEST_SELECTION_STEP_LIMIT,
+  buildAiDigestPostSelectionPrompt,
+} from "./aiDigestPostSelectionPrompt";
 import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
 import type { AiDigestReaderProfile } from "./aiDigestReaderProfile";
 import {
-  AI_DIGEST_SELECTION_STEP_LIMIT,
   createAiDigestSelectionTools,
   loadSelectableAiDigestPosts,
   type AiDigestSelectionScope,

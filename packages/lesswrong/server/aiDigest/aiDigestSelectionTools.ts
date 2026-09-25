@@ -11,7 +11,7 @@ import {
   type AiDigestPostCandidate,
 } from "./aiDigestCandidates";
 import { aiDigestUntrustedJson } from "./aiDigestModelCalls";
-import { aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
+import { AI_DIGEST_READ_POST_LIMIT, aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
 import { aiDigestPlainText, loadAiDigestPostHtml } from "./aiDigestPostText";
 
 const SEARCH_RECENT_DAYS = 90;
@@ -19,9 +19,7 @@ const SEARCH_DEFAULT_LIMIT = 10;
 const SEARCH_MAX_LIMIT = 20;
 /** Nearest neighbors are fetched before eligibility filtering, so fetch extra. */
 const SEARCH_OVERFETCH_MULTIPLIER = 3;
-const READ_POST_MAX_PER_GENERATION = 10;
 const READ_POST_MAX_CHARS = 15_000;
-export const AI_DIGEST_SELECTION_STEP_LIMIT = 4;
 
 export interface AiDigestSelectionScope extends AiDigestCandidateScope {
   /** Whether posts recommended in earlier issues may be picked, as they are among the candidates. */
@@ -96,8 +94,8 @@ export function createAiDigestSelectionTools(
       postId: z.string().min(1),
     }),
     execute: async ({ postId }) => {
-      if (readPostCount >= READ_POST_MAX_PER_GENERATION) {
-        return aiDigestUntrustedJson("POST_BODY", { error: `readPost budget exhausted after ${READ_POST_MAX_PER_GENERATION} reads` });
+      if (readPostCount >= AI_DIGEST_READ_POST_LIMIT) {
+        return aiDigestUntrustedJson("POST_BODY", { error: `readPost budget exhausted after ${AI_DIGEST_READ_POST_LIMIT} reads` });
       }
       readPostCount += 1;
       const body = await readPostBody(scope, candidatePostsById, postId);
