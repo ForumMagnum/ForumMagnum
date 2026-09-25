@@ -7,7 +7,7 @@ import { AI_DIGEST_MIN_KARMA, loadAiDigestPostCandidates, type AiDigestPostCandi
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
 import { aiDigestPromptJson } from "./aiDigestModelCalls";
 import { aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
-import { aiDigestPlainText, loadAiDigestRevisionHtml } from "./aiDigestPostText";
+import { aiDigestPlainText, loadAiDigestPostHtml } from "./aiDigestPostText";
 
 const SEARCH_RECENT_DAYS = 90;
 const SEARCH_DEFAULT_LIMIT = 10;
@@ -93,8 +93,8 @@ async function readPostBody(
 ): Promise<string | null> {
   const post = candidatePostsById.get(postId)
     ?? (await loadAiDigestPostCandidates({ user, context, previousInclusions, asOf, postIds: [postId] }))[0];
-  const html = post && (await loadAiDigestRevisionHtml([post.revisionId], context)).get(post.revisionId);
-  return html ? aiDigestPlainText(html, READ_POST_MAX_CHARS) : null;
+  const [postWithHtml] = post ? await loadAiDigestPostHtml([post], context) : [];
+  return postWithHtml ? aiDigestPlainText(postWithHtml.html, READ_POST_MAX_CHARS) : null;
 }
 
 export function createAiDigestSelectionTools(toolsContext: AiDigestSelectionToolsContext): ToolSet {

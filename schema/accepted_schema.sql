@@ -1389,7 +1389,6 @@ CREATE TABLE "PostPreviews" (
   "postId" VARCHAR(27) NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "previewHtml" TEXT NOT NULL,
-  "startBlockIndex" INTEGER NOT NULL,
   "modelId" TEXT NOT NULL,
   "promptVersion" TEXT NOT NULL
 );

@@ -4,7 +4,7 @@ import { generateText } from "ai";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 import PostSummaries from "@/server/collections/postSummaries/collection";
 import { AI_DIGEST_MODEL_ID, aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
-import { aiDigestPlainText, loadAiDigestRevisionHtml, type AiDigestPostTextTarget } from "./aiDigestPostText";
+import { aiDigestPlainText, loadAiDigestPostHtml, type AiDigestPostTextTarget } from "./aiDigestPostText";
 
 const PROMPT_VERSION = "ai-digest-post-summary-v3";
 /** Summaries past this are truncated; the prompt asks for about 100 words. */
@@ -40,8 +40,8 @@ async function generatePostSummary(target: AiDigestPostTextTarget, body: string)
  * summarize or generation failed. When a concurrent generation cached one
  * first, that one is used; unrelated database failures propagate.
  */
-async function generateAndSaveSummary(target: AiDigestPostTextTarget, revisionHtml: string | undefined): Promise<string | null> {
-  const body = revisionHtml ? aiDigestPlainText(revisionHtml, INPUT_MAX_LENGTH) : "";
+async function generateAndSaveSummary(target: AiDigestPostTextTarget, revisionHtml: string): Promise<string | null> {
+  const body = aiDigestPlainText(revisionHtml, INPUT_MAX_LENGTH);
   if (body.length < INPUT_MIN_LENGTH) {
     return null;
   }
@@ -89,10 +89,9 @@ export async function ensureAiDigestPostSummaries<Candidate extends AiDigestPost
   }).fetch() : [];
   const summaryByRevisionId = new Map(cached.map((row) => [row.revisionId, row.summary]));
   const missing = candidates.filter((candidate) => !summaryByRevisionId.has(candidate.revisionId));
-  const htmlByRevisionId = await loadAiDigestRevisionHtml(missing.map((candidate) => candidate.revisionId), context);
-  const generated = await Promise.all(missing.map((candidate) =>
-    generateAndSaveSummary(candidate, htmlByRevisionId.get(candidate.revisionId))));
-  missing.forEach((candidate, index) => {
+  const missingWithHtml = await loadAiDigestPostHtml(missing, context);
+  const generated = await Promise.all(missingWithHtml.map(({ post, html }) => generateAndSaveSummary(post, html)));
+  missingWithHtml.forEach(({ post: candidate }, index) => {
     const summary = generated[index];
     if (summary) {
       summaryByRevisionId.set(candidate.revisionId, summary);

@@ -895,7 +895,6 @@ interface DbPostPreview extends DbObject {
   previewHtml: string
   promptVersion: string
   revisionId: string
-  startBlockIndex: number
 }
 
 type PostRecommendationsCollection = PgCollection<"PostRecommendations">;

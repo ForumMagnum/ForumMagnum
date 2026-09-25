@@ -27,12 +27,6 @@ const schema = {
     },
   },
   /** Index of the first substantive block in the post body, kept for debugging and telemetry. */
-  startBlockIndex: {
-    database: {
-      type: "INTEGER",
-      nullable: false,
-    },
-  },
   modelId: {
     database: {
       type: "TEXT",

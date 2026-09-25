@@ -14,17 +14,27 @@ export function aiDigestPlainText(html: string, maxLength = Infinity): string {
   return collapseAiDigestWhitespace(htmlToTextDefault(html)).slice(0, maxLength);
 }
 
-/** The HTML of the given revisions, by revision ID. Revisions with no HTML are left out. */
-export async function loadAiDigestRevisionHtml(revisionIds: string[], context: ResolverContext): Promise<Map<string, string>> {
-  if (revisionIds.length === 0) {
-    return new Map();
-  }
-  const revisions = await context.Revisions.find({ _id: { $in: revisionIds } }, {}, { _id: 1, html: 1 }).fetch();
-  const htmlByRevisionId = new Map<string, string>();
-  for (const { _id, html } of revisions) {
-    if (html?.trim()) {
-      htmlByRevisionId.set(_id, html);
-    }
-  }
-  return htmlByRevisionId;
+interface AiDigestPostWithHtml {
+  post: AiDigestPostTextTarget;
+  html: string;
+}
+
+function hasHtml(postWithHtml: { post: AiDigestPostTextTarget; html: string | null | undefined }): postWithHtml is AiDigestPostWithHtml {
+  return !!postWithHtml.html?.trim();
+}
+
+/** The posts whose revision has any HTML, each with that HTML. */
+export async function loadAiDigestPostHtml(
+  posts: AiDigestPostTextTarget[],
+  context: ResolverContext,
+): Promise<AiDigestPostWithHtml[]> {
+  const revisions = await context.Revisions.find(
+    { _id: { $in: posts.map((post) => post.revisionId) } },
+    {},
+    { _id: 1, html: 1 },
+  ).fetch();
+  const htmlByRevisionId = new Map(revisions.map((revision) => [revision._id, revision.html]));
+  return posts
+    .map((post) => ({ post, html: htmlByRevisionId.get(post.revisionId) }))
+    .filter(hasHtml);
 }

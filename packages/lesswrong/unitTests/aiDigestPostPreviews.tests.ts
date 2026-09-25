@@ -1,7 +1,7 @@
 import {
   buildAiDigestPostPreviewHtml,
   splitPostHtmlIntoBlocks,
-  validateAiDigestPreviewStartBlockIndex,
+  isPlausiblePreviewStart,
   type AiDigestPostPreviewBlock,
 } from "@/server/aiDigest/aiDigestPostPreviews";
 
@@ -74,27 +74,27 @@ describe("AI digest post preview block splitting", () => {
   });
 });
 
-describe("AI digest post preview start index validation", () => {
+describe("AI digest post preview start plausibility", () => {
   const blocks = splitPostHtmlIntoBlocks(POST_HTML);
 
   it("accepts a cut point inside the post", () => {
-    expect(validateAiDigestPreviewStartBlockIndex(0, blocks)).toBe(0);
-    expect(validateAiDigestPreviewStartBlockIndex(2, blocks)).toBe(2);
+    expect(isPlausiblePreviewStart(blocks, 0)).toBe(true);
+    expect(isPlausiblePreviewStart(blocks, 2)).toBe(true);
   });
 
   it("rejects an index past the last block", () => {
-    expect(() => validateAiDigestPreviewStartBlockIndex(blocks.length, blocks))
-      .toThrow("out of range");
+    expect(isPlausiblePreviewStart(blocks, blocks.length)).toBe(false);
+  });
+
+  it("rejects a block the model wasn't shown", () => {
+    const manyShortBlocks = [...Array.from({ length: 13 }, () => makeBlock("x")), makeBlock("y".repeat(1000))];
+    expect(isPlausiblePreviewStart(manyShortBlocks, 13)).toBe(false);
   });
 
   it("rejects a cut point that would swallow most of the post", () => {
     const longPreamble = [makeBlock("x".repeat(1000)), makeBlock("The actual content.")];
-    expect(() => validateAiDigestPreviewStartBlockIndex(1, longPreamble))
-      .toThrow("skipped 1000 of");
-    const shortPreamble = [
-      makeBlock("x".repeat(10)),
-      makeBlock("y".repeat(1000)),
-    ];
-    expect(validateAiDigestPreviewStartBlockIndex(1, shortPreamble)).toBe(1);
+    expect(isPlausiblePreviewStart(longPreamble, 1)).toBe(false);
+    const shortPreamble = [makeBlock("x".repeat(10)), makeBlock("y".repeat(1000))];
+    expect(isPlausiblePreviewStart(shortPreamble, 1)).toBe(true);
   });
 });
