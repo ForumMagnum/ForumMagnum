@@ -32,7 +32,6 @@ async function loadOrGenerateIssue(
   user: DbUser,
   context: ResolverContext,
 ): Promise<{ issueId: string; spec: AiDigestSpec }> {
-  // An issue that was generated but failed to send is sent rather than regenerated.
   const unsentIssue = schedule.issueId ? await AiDigestIssues.findOne(schedule.issueId) : null;
   if (unsentIssue) {
     return { issueId: unsentIssue._id, spec: unsentIssue.spec };

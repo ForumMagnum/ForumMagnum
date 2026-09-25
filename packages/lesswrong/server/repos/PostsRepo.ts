@@ -25,7 +25,6 @@ export interface AiDigestPostCandidateRow {
   author: string;
   postedAt: Date;
   baseScore: number;
-  /** Karma decayed by age, as used to rank the front page; rounded, as it's only for the prompt. */
   decayedScore: number;
   tags: string[];
   curated: boolean;
@@ -38,7 +37,6 @@ export interface AiDigestReaderReadStats {
   total: number;
   last30Days: number;
   last180Days: number;
-  /** Reads from the last 180 days, by how old the post was when it was read. */
   readsByPostAge: {
     under7Days: number;
     from7To30Days: number;
@@ -94,11 +92,6 @@ export interface AiDigestPastPostOutcomeRow {
   likedAt: Date | null;
 }
 
-/**
- * Plain-text author byline for AI digest prompts: 'Anonymous' when the post
- * hides its author, otherwise the primary author's display name followed by
- * any coauthors in order. Expects the post's author row joined as `userAlias`.
- */
 const aiDigestPostAuthorExpression = (postAlias: string, userAlias: string) => `CASE
   WHEN ${postAlias}."hideAuthor" THEN 'Anonymous'
   ELSE concat_ws(
@@ -112,7 +105,6 @@ const aiDigestPostAuthorExpression = (postAlias: string, userAlias: string) => `
   )
 END`;
 
-/** Names of the post's positively-scored tags, strongest relevance first. */
 const aiDigestPostTagNamesSubquery = (postIdExpression: string, limit?: number) => `ARRAY(
   SELECT COALESCE(t."shortName", t.name)
   FROM "TagRels" tr
@@ -125,12 +117,6 @@ const aiDigestPostTagNamesSubquery = (postIdExpression: string, limit?: number) 
   LIMIT ${limit}`}
 )`;
 
-/**
- * Posts eligible for AI digest recommendation: everything the site would show
- * (getViewablePostsSelector) minus deleted drafts, rejected posts, posts
- * restricted to established accounts, posts that opted out of recommendations,
- * group posts, and anything not yet published.
- */
 const aiDigestEligiblePostConditions = (postAlias: string) => `
     ${getViewablePostsSelector(postAlias)}
     AND ${postAlias}."deletedDraft" IS FALSE
@@ -141,7 +127,6 @@ const aiDigestEligiblePostConditions = (postAlias: string) => `
     AND ${postAlias}."postedAt" <= NOW()
 `;
 
-/** Posts the reader-profile queries may reference: viewable and already published. */
 const aiDigestPublishedPostConditions = (postAlias: string) => `
     ${getViewablePostsSelector(postAlias)}
     AND ${postAlias}."postedAt" <= NOW()
@@ -1175,12 +1160,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [limit]);
   }
 
-  /**
-   * Posts the AI digest may recommend to the reader, with the reader's own
-   * relationship to each. Either the most recent eligible posts since
-   * `minPostedAt`, or the eligible ones among `postIds`. Never includes the
-   * reader's own posts, posts they hid, or posts they asked to see less of.
-   */
   async getAiDigestPostCandidates({
     userId,
     aboutPostId,
@@ -1238,7 +1217,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, aboutPostId, minKarma, minPostedAt, postIds, limit });
   }
 
-  /** The most recently curated posts, newest curation first, and whether the reader has read each. */
   async getAiDigestRecentlyCuratedPosts({ userId, limit }: {
     userId: string;
     limit: number;
@@ -1261,7 +1239,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, limit });
   }
 
-  /** How much the reader reads: lifetime and recent counts, and how old posts were when read. */
   async getAiDigestReaderReadStats({ userId, now }: {
     userId: string;
     now: Date;
@@ -1294,7 +1271,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, now });
   }
 
-  /** Authors whose posts the reader has read most since `since`, most-read first. */
   async getAiDigestReaderTopAuthors({ userId, since, limit }: {
     userId: string;
     since: Date;
@@ -1319,7 +1295,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, since, limit });
   }
 
-  /** Topics of the posts the reader has read most since `since`, most-read first. */
   async getAiDigestReaderTopTopics({ userId, since, limit }: {
     userId: string;
     since: Date;
@@ -1347,11 +1322,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, since, limit });
   }
 
-  /**
-   * Posts the reader recently read, upvoted, wrote, or commented on (the most
-   * recent `limitPerKind` of each), with every one of those interactions they
-   * had with each post, most recently engaged first.
-   */
   async getAiDigestReaderRecentPosts({ userId, since, limitPerKind }: {
     userId: string;
     since: Date;
@@ -1433,10 +1403,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, since, limitPerKind });
   }
 
-  /**
-   * The reader's recent un-cancelled "see less" feedback with its target's
-   * context, followed by the posts they most recently hid.
-   */
   async getAiDigestReaderNegativePreferences({ userId, since, limit }: {
     userId: string;
     since: Date;
@@ -1500,10 +1466,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, since, limit });
   }
 
-  /**
-   * How the reader has engaged with the given posts: when they last read each,
-   * and their current upvote. In the order of `postIds`.
-   */
   async getAiDigestPastPostOutcomes({ userId, postIds }: {
     userId: string;
     postIds: string[];

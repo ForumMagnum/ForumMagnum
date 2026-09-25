@@ -100,7 +100,6 @@ Bad forms, and why:
 
 Never mention voting mechanics.`;
 
-/** A post as the model sees it, among the candidates and in search results. */
 export function aiDigestPromptPost(post: AiDigestPostCandidate) {
   return omit(post, "revisionId");
 }

@@ -26,7 +26,6 @@ const schema = {
       nullable: false,
     },
   },
-  /** Index of the first substantive block in the post body, kept for debugging and telemetry. */
   modelId: {
     database: {
       type: "TEXT",

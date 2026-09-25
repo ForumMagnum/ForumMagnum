@@ -20,7 +20,6 @@ const schema = {
       canRead: ["admins"],
     },
   },
-  /** When the issue was successfully emailed; null for issues never sent. */
   emailedAt: {
     database: {
       type: "TIMESTAMPTZ",

@@ -127,10 +127,6 @@ export function isSelectedPost(item: AiDigestSelectedItem): item is AiDigestSele
   return item.documentType === "post";
 }
 
-/**
- * The model's picks as candidates. Picks it found by search are checked
- * against the same eligibility rules as the candidates it was given.
- */
 async function resolveSelectedItems(
   output: AiDigestSelectionOutput,
   scope: AiDigestSelectionScope,

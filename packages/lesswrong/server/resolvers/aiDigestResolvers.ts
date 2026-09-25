@@ -11,7 +11,6 @@ import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLink
 import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
-/** Issues generated per request, in parallel. */
 const MAX_ISSUES_PER_REQUEST = 3;
 
 function assertAiDigestAccess(currentUser: DbUser | null): asserts currentUser is DbUser {
@@ -20,7 +19,6 @@ function assertAiDigestAccess(currentUser: DbUser | null): asserts currentUser i
   }
 }
 
-/** The named reader, or the current user when none is named. */
 async function aiDigestReader(currentUser: DbUser, userSlug: string | null | undefined): Promise<DbUser> {
   if (!userSlug || userSlug === currentUser.slug) {
     return currentUser;
@@ -49,7 +47,6 @@ async function generateIssueForReader(reader: DbUser, currentUser: DbUser, count
 }
 
 export const aiDigestGraphQLQueries = {
-  /** An issue rendered as the email its reader would get, with how it was generated. */
   async AiDigestEmailSamplePreview(
     _root: void,
     { issueId }: { issueId: string },
@@ -85,7 +82,6 @@ export const aiDigestGraphQLQueries = {
 };
 
 export const aiDigestGraphQLMutations = {
-  /** Generates issues for a reader (by default, the current user) and returns their IDs. */
   async GenerateAiDigestIssues(
     _root: void,
     { userSlug, count, countsTowardHistory }: {
@@ -105,7 +101,6 @@ export const aiDigestGraphQLMutations = {
     ));
   },
 
-  /** Stops a reader's recent issues (by default, the current user's) from counting toward their recommendation history. */
   async ClearAiDigestRecommendationHistory(
     _root: void,
     { userSlug, days }: { userSlug?: string | null; days: number },

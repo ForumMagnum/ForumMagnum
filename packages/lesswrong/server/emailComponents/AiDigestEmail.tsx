@@ -102,12 +102,8 @@ const AiDigestEmailCommentsQuery = gql(`
 
 `);
 
-/**
- * Styles for author-written html standing in for a plaintext excerpt. The
- * preview keeps the excerpt's typography, and, following ContentExcerpt, drops
- * multimedia and mutes links so it reads as running text rather than as a
- * second card inside the card.
- */
+// Drops multimedia and mutes links so a preview reads as running text rather
+// than as a second card inside the card.
 function previewBodyStyles({ margin, fontSize, mobileFontSize, lineHeight }: {
   margin: string;
   fontSize: number;
@@ -614,8 +610,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
       marginBottom: "5px !important",
     },
   },
-  // Alternating thread backgrounds, matching the onsite comments-node-odd /
-  // comments-node-even colors (grey 25 and grey 120 in light mode).
   commentBoxOdd: {
     backgroundColor: "#fcfcfc",
   },
@@ -661,8 +655,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
     flexWrap: "wrap",
     rowGap: aiDigestPresentation.footer.rowGap,
   },
-  // Right of the read-more link on wide layouts; on narrow screens it takes
-  // its own flex line (full basis), left-aligned, with the footer rowGap above.
   footerReason: {
     color: "#9a958a",
     flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
@@ -730,8 +722,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
       fontSize: "15px !important",
     },
   },
-  // Greyed-out title for curated posts the recipient has already read,
-  // matching the read-state dimming of post items onsite.
   quietTitleLinkRead: {
     color: "#8a8a8a",
   },
@@ -822,7 +812,6 @@ function AiNote({ note, issueId, classes }: {
   );
 }
 
-/** The reader's own custom instructions, echoed back beneath the AI note like the on-site card. */
 function CustomPrompt({ personalInstructions, classes }: {
   personalInstructions: string;
   classes: JssStyles;
@@ -1037,7 +1026,6 @@ function CompactPost({ post, item, slot, classes }: {
   );
 }
 
-/** Low-emphasis text row for the curated module: title and author, no card, no reason. */
 function QuietPost({ post, isRead, slot, classes }: {
   post: AiDigestEmailPost;
   isRead: boolean;
@@ -1473,7 +1461,6 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
   );
 }
 
-/** The `body` argument of `wrapAndSendEmail`/`wrapAndRenderEmail` for one digest issue. */
 export function aiDigestEmailBody(spec: AiDigestSpec, issueId: string) {
   return function renderAiDigestEmail(emailContext: EmailContextType) {
     return <AiDigestEmail spec={spec} issueId={issueId} emailContext={emailContext} />;

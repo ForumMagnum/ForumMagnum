@@ -18,13 +18,11 @@ import { aiDigestPlainText } from "./aiDigestPostText";
 const AI_DIGEST_HISTORY_ISSUE_LIMIT = 14;
 const PAST_QUICK_TAKE_SNIPPET_MAX_CHARS = 160;
 
-/** How often, and how recently, a document was recommended to the reader. */
 export interface AiDigestPreviousInclusion {
   count: number;
   lastIncludedAt: Date;
 }
 
-/** One time an item was recommended, and what the reader did with it afterwards. */
 interface AiDigestPastRecommendationEvent {
   recommendedAt: Date;
   /** Posts: read afterwards. Quick takes: replied to afterwards. */
@@ -40,11 +38,9 @@ export type AiDigestPastRecommendation =
 
 export interface AiDigestHistory {
   previousInclusions: Map<string, AiDigestPreviousInclusion>;
-  /** Shaped as it appears in the selection prompt. */
   pastRecommendations: AiDigestPastRecommendation[];
 }
 
-/** One item an issue recommended, and the slot key its links carry. */
 type AiDigestRecommendedItem = AiDigestDocumentRef & {
   recommendedAt: Date;
   slotKey: string;
@@ -78,7 +74,6 @@ function previousInclusionsById(items: AiDigestRecommendedItem[]): Map<string, A
   return byId;
 }
 
-/** Only an interaction after the recommendation can be an outcome of it. */
 function afterward(interactionAt: Date | null, recommendedAt: Date): Date | null {
   return interactionAt && interactionAt > recommendedAt ? interactionAt : null;
 }
@@ -140,11 +135,6 @@ function pastQuickTakeRecommendation(
   };
 }
 
-/**
- * When the reader first visited each digest item from one of its links, by
- * slot key. One recommendation can lead to several visits, but the only
- * question here is whether and when the reader engaged.
- */
 async function loadFirstClickTimes(userId: string, since: Date, context: ResolverContext): Promise<Map<string, Date>> {
   const firstClickAt = new Map<string, Date>();
   const views = await context.repos.lwEvents.getPostViewsFromUtmCampaign(userId, AI_DIGEST_UTM_PARAMS.utm_campaign, since);
@@ -170,7 +160,6 @@ export async function loadAiDigestHistory(userId: string, context: ResolverConte
   const oldestIssue = issues[issues.length - 1];
   const items = issues.flatMap(recommendedItems);
   const [postOutcomes, quickTakeOutcomes, firstClickAtBySlotKey] = await Promise.all([
-    // Both come back in the order of the IDs given, most recently recommended first.
     context.repos.posts.getAiDigestPastPostOutcomes({ userId, postIds: documentIdsOfType(items, "post") }),
     context.repos.comments.getAiDigestPastQuickTakeOutcomes({ userId, commentIds: documentIdsOfType(items, "quickTake") }),
     loadFirstClickTimes(userId, oldestIssue.createdAt, context),
@@ -205,7 +194,6 @@ export async function clearAiDigestRecommendationHistory({
     );
   }
   const createdAfter = new Date(now.getTime() - (days * DAY_MS));
-  // Only the history flag changes: cadence and click attribution still need the issues.
   return await AiDigestIssues.rawUpdateMany({
     recipientId,
     countsTowardHistory: true,

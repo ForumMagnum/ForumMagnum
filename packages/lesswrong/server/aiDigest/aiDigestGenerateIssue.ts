@@ -23,10 +23,6 @@ const CURATED_ITEM_LIMIT = 3;
 
 type AiDigestIssueTrigger = "adminSample" | "userPreview" | "scheduled";
 
-/**
- * The discussion section is best-effort: if thread selection fails, the issue
- * goes out without one rather than not at all.
- */
 async function selectThreadsOrNone(options: {
   profile: AiDigestReaderProfile;
   cards: AiDigestThreadCard[];
@@ -103,11 +99,6 @@ function discussionItems(threads: AiDigestSelectedThread[], recommendations: AiD
   return items;
 }
 
-/**
- * The curated module: the most recently curated posts that weren't already
- * recommended, unread ones first. Read ones fill any remaining slots and are
- * greyed out.
- */
 function curatedItems(curatedPosts: AiDigestRecentlyCuratedPostRow[], recommendations: AiDigestItem[]): AiDigestItem[] {
   const recommendedIds = new Set(recommendations.map(({ documentRef }) => documentRef.documentId));
   const eligiblePosts = curatedPosts.filter(({ postId }) => !recommendedIds.has(postId));
@@ -194,7 +185,6 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
     }),
     selectThreadsOrNone({ profile, cards: threadCards, personalInstructions, asOf }),
   ]);
-  // Previews are only worth generating for the handful of posts that made the slate.
   const selectedPosts = [...postSelection.headlinePosts, ...postSelection.otherItems.filter(isSelectedPost)];
   const previewHtmlByPostId = await ensureAiDigestPostPreviews(selectedPosts.map(({ post }) => post), context);
   const spec = buildAiDigestSpec({
@@ -206,7 +196,6 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
     previewHtmlByPostId,
   });
 
-  // The scheduled send stamps `emailedAt` once the email is accepted for delivery.
   const issueId = await AiDigestIssues.rawInsert({ recipientId: user._id, trigger, countsTowardHistory, spec, emailedAt: null });
   await AiDigestIssueGenerations.rawInsert({
     issueId,

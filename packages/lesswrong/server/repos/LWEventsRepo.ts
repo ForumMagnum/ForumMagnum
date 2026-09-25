@@ -7,7 +7,6 @@ class LWEventsRepo extends AbstractRepo<"LWEvents"> {
     super(LWEvents);
   }
 
-  /** The user's post views since `since` that arrived from a link tagged with the given `utm_campaign`. */
   getPostViewsFromUtmCampaign(userId: string, utmCampaign: string, since: Date): Promise<{ utmContent: string; createdAt: Date }[]> {
     return this.getRawDb().any(`
       -- LWEventsRepo.getPostViewsFromUtmCampaign

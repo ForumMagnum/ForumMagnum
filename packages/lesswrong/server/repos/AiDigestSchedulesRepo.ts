@@ -3,7 +3,6 @@ import { randomId } from "@/lib/random";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-/** Readers the scheduled digest goes to: subscribed admins who can receive email. */
 // TODO: the beta is admin-only; widening it should come with the other production changes.
 const aiDigestRecipientConditions = (userAlias: string) => `
   ${userAlias}."emailSubscribedToAiDigest" IS TRUE
@@ -19,7 +18,6 @@ class AiDigestSchedulesRepo extends AbstractRepo<"AiDigestSchedules"> {
     super(AiDigestSchedules);
   }
 
-  /** Gives every recipient without a schedule one that is due now. */
   async addMissingSchedules(): Promise<void> {
     const userIds = await this.getRawDb().manyOrNone<{ _id: string }>(`
       -- AiDigestSchedulesRepo.addMissingSchedules

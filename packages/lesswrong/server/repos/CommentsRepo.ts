@@ -35,7 +35,6 @@ export interface AiDigestPastQuickTakeOutcomeRow {
   html: string;
   liked: "regular" | "strong" | null;
   likedAt: Date | null;
-  /** When the reader first replied anywhere beneath the quick take. */
   repliedAt: Date | null;
 }
 
@@ -51,23 +50,12 @@ export interface AiDigestThreadCommentRow {
   html: string;
   authoredByReader: boolean;
   liked: "regular" | "strong" | null;
-  /** Posted after the reader last had the post open. */
   newSinceLastVisit: boolean;
-  /** Viewed or expanded in the reader's feed. */
   seenInFeed: boolean;
   seesLess: boolean;
-  /**
-   * Why the reader is already notified about the comment, if they are, which
-   * rules it out as a discussion anchor. Named for the thread-selection prompt.
-   */
   anchorIneligible: "readerAuthored" | "onReaderPost" | "replyToReader" | null;
 }
 
-/**
- * Comments the AI digest may surface, as quick takes or thread comments: the
- * site's viewable-comment filter plus no deleted, retracted, needs-review, or
- * moderator-hat comments, and only published ones.
- */
 const aiDigestVisibleCommentConditions = (alias: string) => `
   ${getViewableCommentsSelector(alias)}
   AND ${alias}.deleted IS FALSE
@@ -889,11 +877,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return engagementStats;
   }
 
-  /**
-   * Recent top-karma quick takes the AI digest may recommend to the reader,
-   * with the reader's own relationship to each. Never includes the reader's
-   * own quick takes or ones they asked to see less of.
-   */
   async getAiDigestQuickTakeCandidates({ userId, minPostedAt, minKarma, limit }: {
     userId: string;
     minPostedAt: Date;
@@ -927,10 +910,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, { userId, minPostedAt, minKarma, limit });
   }
 
-  /**
-   * How the reader has engaged with the given quick takes: their current upvote
-   * and their first reply. In the order of `commentIds`.
-   */
   async getAiDigestPastQuickTakeOutcomes({ userId, commentIds }: {
     userId: string;
     commentIds: string[];
@@ -965,7 +944,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, { userId, commentIds });
   }
 
-  /** The recent threads with the highest-karma comments, site-wide, best first. */
   async getAiDigestSiteWideThreadIds({
     minPostedAt,
     limit,
@@ -992,12 +970,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   /**
-   * Recent comment threads relevant to one reader: threads they participated in
-   * (authored or upvoted a comment), plus threads on posts they read or upvoted
-   * that have comments the reader has not seen (posted after the post's
-   * ReadStatuses.lastUpdated). Participated threads rank first; the rest rank by
-   * new-comment count times top-comment karma so heavy readers' pools are not
-   * dominated by whichever big posts they happened to open.
+   * Participated threads rank first; the rest rank by new-comment count times
+   * top-comment karma, so heavy readers' pools aren't dominated by whichever big
+   * posts they happened to open.
    */
   async getAiDigestReaderThreadIds({
     userId,
@@ -1106,11 +1081,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return rows.map((row) => row.threadId);
   }
 
-  /**
-   * All visible comments (bounded per thread, root first then karma) for the
-   * supplied AI digest candidate threads, with post context for card headers
-   * and the reader's relationship to each comment.
-   */
   async getAiDigestThreadComments({ userId, threadIds, perThreadLimit }: {
     userId: string;
     threadIds: string[];

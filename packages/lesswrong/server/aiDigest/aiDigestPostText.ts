@@ -1,7 +1,6 @@
 import { collapseAiDigestWhitespace } from "@/lib/aiDigest/aiDigestDisplay";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 
-/** A post revision the digest generates cached text (a summary or a preview) for. */
 export interface AiDigestPostTextTarget {
   postId: string;
   revisionId: string;
@@ -22,7 +21,6 @@ function hasHtml(postWithHtml: { post: AiDigestPostTextTarget; html: string | nu
   return !!postWithHtml.html?.trim();
 }
 
-/** The posts whose revision has any HTML, each with that HTML. */
 export async function loadAiDigestPostHtml(
   posts: AiDigestPostTextTarget[],
   context: ResolverContext,

@@ -249,7 +249,8 @@ it("attributes a visit from a digest email link to the recommendation it was for
 
   // Visit the second recommendation and the curated post from their title
   // links, recording the links' UTM parameters as the post page does.
-  for (const [postId, link] of [[second, titleLinkTo(second)], [curated, titleLinkTo(curated)]] as const) {
+  for (const postId of [second, curated]) {
+    const link = titleLinkTo(postId);
     await LWEvents.rawInsert({
       name: "post-view",
       userId: reader._id,

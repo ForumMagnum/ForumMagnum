@@ -3,8 +3,6 @@ import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-// Approximates a phone in portrait, which is narrow enough to trigger both of
-// the email stylesheet's breakpoints (600px and 480px).
 export const MOBILE_EMAIL_PREVIEW_WIDTH = 390;
 
 const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({

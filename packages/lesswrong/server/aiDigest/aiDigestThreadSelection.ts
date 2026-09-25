@@ -16,7 +16,6 @@ const MAX_THREADS_PER_ISSUE = 3;
 const MAX_REPLIES_PER_THREAD = 2;
 /** Anchors and replies shown across all threads; the comments above an anchor don't count. */
 const MAX_SHOWN_COMMENTS = 6;
-/** How far above the anchor to look for a comment the reader wrote or liked. */
 const MAX_CONTEXT_DEPTH = 3;
 const REASON_MAX_LENGTH = 180;
 
@@ -35,17 +34,10 @@ const threadSelectionOutputSchema = z.object({
 
 export interface AiDigestSelectedThread {
   anchorCommentId: string;
-  /** Every comment to show, the anchor included. */
   commentIds: string[];
-  /** Null when the model's reason was empty or too long to show. */
   reason: string | null;
 }
 
-/**
- * The comments leading down to the anchor from the nearest comment above it
- * that the reader wrote or liked, top-down. Empty if there is no such comment
- * within reach, so the anchor is shown on its own.
- */
 function contextCommentIds(anchor: AiDigestThreadCardComment, commentsById: Map<string, AiDigestThreadCardComment>): string[] {
   const ancestorIds: string[] = [];
   let ancestor = anchor.parentCommentId ? commentsById.get(anchor.parentCommentId) : undefined;
@@ -63,7 +55,6 @@ function isUnseenByReader(comment: AiDigestThreadCardComment): boolean {
   return comment.newSinceLastVisit && !comment.seenInFeed;
 }
 
-/** The anchor's direct replies, ones the reader hasn't seen first, then by karma. */
 function replyIds(card: AiDigestThreadCard, anchorCommentId: string, limit: number): string[] {
   return card.comments
     .filter((comment) => comment.parentCommentId === anchorCommentId)

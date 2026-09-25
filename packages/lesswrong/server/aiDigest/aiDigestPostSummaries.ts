@@ -9,7 +9,6 @@ import { AI_DIGEST_MODEL_ID, aiDigestGatewayProviderOptions } from "./aiDigestMo
 import { aiDigestPlainText, loadAiDigestPostHtml, type AiDigestPostTextTarget } from "./aiDigestPostText";
 
 const PROMPT_VERSION = "ai-digest-post-summary-v3";
-/** Summaries past this are truncated; the prompt asks for about 100 words. */
 const SUMMARY_MAX_LENGTH = 1_200;
 const SUMMARY_MIN_LENGTH = 40;
 const BODY_MAX_LENGTH = 24_000;
@@ -92,12 +91,6 @@ function hasSummary(post: AiDigestPostCandidate & { summary: string | undefined 
   return post.summary !== undefined;
 }
 
-/**
- * The candidates that have a summary, each with it, generating and caching any
- * that aren't cached for their revision. The selection prompt describes posts
- * by their summaries, so a candidate too short to summarize, or whose summary
- * couldn't be generated, is left out.
- */
 export async function ensureAiDigestPostSummaries(
   candidates: AiDigestPostCandidate[],
   context: ResolverContext,

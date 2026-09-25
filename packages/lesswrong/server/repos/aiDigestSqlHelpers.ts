@@ -1,9 +1,5 @@
-/**
- * SQL fragments for the AI digest's per-reader queries. Each expects a
- * `$(userId)` query parameter naming the reader.
- */
+// Each of these fragments expects a `$(userId)` query parameter naming the reader.
 
-/** IDs of the users the reader follows as authors. */
 export const readerFollowedAuthorIds = `
   SELECT s."documentId"
   FROM "Subscriptions" s
@@ -14,10 +10,6 @@ export const readerFollowedAuthorIds = `
     AND s.type IN ('newActivityForFeed', 'newPosts')
 `;
 
-/**
- * Joins the reader's current upvote on a document as `alias.liked`
- * ('regular' | 'strong', or NULL when they haven't upvoted it) and `alias.likedAt`.
- */
 export const joinReaderUpvote = (
   collectionName: "Posts" | "Comments",
   documentIdExpression: string,
@@ -39,7 +31,6 @@ export const joinReaderUpvote = (
   ) ${alias} ON TRUE
 `;
 
-/** Whether the reader has un-cancelled "see less" feedback on a document. */
 export const readerSeesLessOf = (
   collectionName: "Posts" | "Comments",
   documentIdExpression: string,

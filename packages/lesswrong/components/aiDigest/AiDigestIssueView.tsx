@@ -56,12 +56,8 @@ const AiDigestIssueContentQuery = gql(`
   }
 `);
 
-/**
- * Styles for author-written html standing in for a plaintext excerpt. The
- * preview keeps the excerpt's typography, and, following ContentExcerpt, drops
- * multimedia and mutes links so it reads as running text rather than as a
- * second card inside the card.
- */
+// Drops multimedia and mutes links so a preview reads as running text rather
+// than as a second card inside the card.
 function previewBodyStyles(theme: ThemeType, { margin, fontSize, lineHeight }: {
   margin: string;
   fontSize: number;
@@ -101,7 +97,6 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   aiNoteLabel: {
     marginBottom: aiDigestPresentation.aiNote.labelMarginBottom,
     color: "light-dark(#596650, #aab7a0)",
-    // Matches emailSansFont in AiDigestEmail.tsx
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: aiDigestPresentation.aiNote.labelFontSize,
     fontWeight: aiDigestPresentation.aiNote.labelFontWeight,
@@ -336,8 +331,6 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
-  // Right of the read-more link on wide layouts; on narrow layouts it takes
-  // its own flex line (full basis), left-aligned, with the footer rowGap above.
   reason: {
     minWidth: 0,
     flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
@@ -424,7 +417,6 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   commentBoxRoot: {
     background: theme.palette.panelBackground.commentNodeRoot,
   },
-  // Alternating thread backgrounds, matching onsite comment nodes.
   commentBoxOdd: {
     background: theme.palette.panelBackground.commentNodeOdd,
   },
@@ -453,8 +445,6 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-  // Greyed-out title for curated posts the reader has already read, matching
-  // the read-state dimming of post items elsewhere onsite.
   quietTitleRead: {
     color: theme.palette.text.dim55,
   },
@@ -822,14 +812,11 @@ function DigestSection({
   content: DigestContentLookup;
 }) {
   const classes = useStyles(styles);
-  // Recommendations sections render without a heading; specs stored before the
-  // heading was removed still carry "Recommended for you", so drop it here too.
-  const title = section.kind === "recommendations" ? undefined : section.title;
   return (
     <section className={classes.section}>
-      {title && (section.kind === "curated"
-        ? <div className={classes.curatedTitle}>{title}</div>
-        : <SectionTitle title={title} noTopMargin noBottomPadding />)}
+      {section.title && (section.kind === "curated"
+        ? <div className={classes.curatedTitle}>{section.title}</div>
+        : <SectionTitle title={section.title} noTopMargin noBottomPadding />)}
       {section.items.map((item, index) => (
         <div
           className={section.kind === "curated"

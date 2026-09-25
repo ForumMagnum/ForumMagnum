@@ -22,11 +22,9 @@ const SEARCH_OVERFETCH_MULTIPLIER = 3;
 const READ_POST_MAX_CHARS = 15_000;
 
 export interface AiDigestSelectionScope extends AiDigestCandidateScope {
-  /** Whether posts recommended in earlier issues may be picked, as they are among the candidates. */
   repeatsAllowed: boolean;
 }
 
-/** The given posts that the model may pick, under the same rules as the candidates. */
 export async function loadSelectableAiDigestPosts(scope: AiDigestSelectionScope, postIds: string[]): Promise<AiDigestPostCandidate[]> {
   const posts = await loadAiDigestPostCandidates(scope, postIds);
   return posts.filter((post) => scope.repeatsAllowed || !post.previousDigest);

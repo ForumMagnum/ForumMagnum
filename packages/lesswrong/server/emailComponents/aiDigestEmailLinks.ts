@@ -1,10 +1,5 @@
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 
-/**
- * Applied to every onsite link in a digest email. Each link also carries its
- * own `utm_content` identifying the issue and the item it belongs to, which the
- * post page records with its post-view event.
- */
 export const AI_DIGEST_UTM_PARAMS = {
   utm_medium: "email",
   utm_campaign: "aiDigest",
@@ -21,7 +16,6 @@ type AiDigestLinkRole =
   | "tune"
   | "explainer";
 
-/** The digest item a link belongs to. */
 export interface AiDigestLinkSlot {
   issueId: string;
   sectionKind: AiDigestSectionKind;
@@ -34,7 +28,6 @@ function withUtmContent(url: string, utmContent: string): string {
   return trackedUrl.toString();
 }
 
-/** Identifies a digest item in its links' `utm_content`: `<issueId>.<section>.<index>`. */
 export function aiDigestLinkSlotKey({ issueId, sectionKind, itemIndex }: AiDigestLinkSlot): string {
   return `${issueId}.${sectionKind}.${itemIndex}`;
 }
@@ -47,12 +40,10 @@ export function aiDigestLinkSlotKeyFromUtmContent(utmContent: string): string {
   return utmContent.split(".").slice(0, 3).join(".");
 }
 
-/** Tags a link to a digest item with `utm_content=<issueId>.<section>.<index>.<role>`. */
 export function aiDigestItemLinkUrl(url: string, role: AiDigestLinkRole, slot: AiDigestLinkSlot): string {
   return withUtmContent(url, `${aiDigestLinkSlotKey(slot)}.${role}`);
 }
 
-/** Tags a link that belongs to no item (masthead, footer) with `utm_content=<issueId>.<role>`. */
 export function aiDigestChromeLinkUrl(url: string, role: AiDigestLinkRole, issueId: string): string {
   return withUtmContent(url, `${issueId}.${role}`);
 }

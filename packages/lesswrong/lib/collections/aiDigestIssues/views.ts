@@ -7,7 +7,6 @@ declare global {
   }
 }
 
-// Issues generated for one reader, newest first.
 function recipientIssues(terms: AiDigestIssuesViewTerms) {
   return {
     selector: { recipientId: terms.recipientId },

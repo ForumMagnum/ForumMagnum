@@ -3,11 +3,6 @@ import {
   DEFAULT_ID_FIELD,
 } from "@/lib/collections/helpers/sharedFieldConstants";
 
-/**
- * When each subscriber is next due a scheduled digest, and which run is
- * currently working on it. Server-only; the hourly job claims a row before
- * generating, so overlapping runs never work on the same reader.
- */
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
@@ -24,7 +19,6 @@ const schema = {
       nullable: false,
     },
   },
-  /** Set while a run is generating or sending this reader's issue; a crashed run's claim lapses. */
   claimedUntil: {
     database: {
       type: "TIMESTAMPTZ",

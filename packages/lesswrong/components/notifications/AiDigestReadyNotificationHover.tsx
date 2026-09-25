@@ -5,7 +5,6 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { truncateAiDigestText } from '@/lib/aiDigest/aiDigestDisplay';
 
-/** Roughly the first paragraph or two of the note. */
 const AI_NOTE_PREVIEW_MAX_CHARS = 600;
 
 const styles = defineStyles('AiDigestReadyNotificationHover', (theme: ThemeType) => ({
@@ -34,7 +33,6 @@ function aiNoteParagraphs(extraData: NotificationsList["extraData"]): string[] {
     : [];
 }
 
-/** The leading paragraphs of the note, cut to a character budget at a word boundary. */
 function previewParagraphs(paragraphs: string[], maxChars: number): string[] {
   const preview: string[] = [];
   let remaining = maxChars;

@@ -7,14 +7,12 @@ import type {
 } from "@/server/repos/PostsRepo";
 import { aiDigestPromptSection } from "./aiDigestModelCalls";
 
-/** The window, in days, over which affinities and recent interactions are gathered. */
 const AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS = 180;
 const RECENT_POSTS_PER_KIND = 20;
 const AFFINITY_LIMIT = 15;
 const NEGATIVE_PREFERENCE_LIMIT = 20;
 const FOLLOWED_AUTHOR_LIMIT = 100;
 
-/** What the selection prompts know about the reader, shaped as it appears in them. */
 export interface AiDigestReaderProfile {
   accountCreatedAt: Date;
   reads: AiDigestReaderReadStats;

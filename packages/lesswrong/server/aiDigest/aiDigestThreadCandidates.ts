@@ -26,16 +26,12 @@ export interface AiDigestThreadCardComment extends Omit<
   truncated: boolean;
 }
 
-/** A candidate thread, and the comments from it the model is shown, as the prompt shows them. */
 export interface AiDigestThreadCard {
   threadId: string;
   postTitle: string | null;
   postBaseScore: number | null;
-  /** The reader wrote or upvoted a comment in the thread. */
   participated: boolean;
-  /** Set when the thread ran in an earlier issue. */
   previousDigest?: AiDigestPreviousInclusion;
-  /** Oldest first. */
   comments: AiDigestThreadCardComment[];
 }
 
@@ -80,13 +76,6 @@ function unshownAncestry(
   return current ? ancestry : null;
 }
 
-/**
- * The comments of a thread to show the model, in priority order: the root for
- * orientation, then comments the reader wrote, liked or hasn't seen, then
- * top-karma comments to fill the budget. Every included comment's chain of
- * parents is included too, so it can be read in context; a comment whose chain
- * doesn't fit in the budget, or doesn't resolve, is skipped.
- */
 function shownComments(threadId: string, rows: AiDigestThreadCommentRow[]): AiDigestThreadCardComment[] {
   const rowsById = new Map(rows.map((row) => [row.commentId, row]));
   const shownIds = new Set([threadId]);
@@ -124,13 +113,11 @@ function toThreadCard(
   previousInclusions: Map<string, AiDigestPreviousInclusion>,
 ): AiDigestThreadCard | null {
   const root = rows.find((row) => row.commentId === threadId);
-  // Threads the reader asked to see less of are never offered.
   if (!root || rows.some((row) => row.seesLess)) {
     return null;
   }
   const comments = shownComments(threadId, rows);
   const previousDigest = threadPreviousInclusion(rows, previousInclusions);
-  // A thread that already ran is offered again only if the discussion has moved on since.
   if (previousDigest && !comments.some((comment) => comment.postedAt > previousDigest.lastIncludedAt)) {
     return null;
   }
@@ -144,11 +131,6 @@ function toThreadCard(
   };
 }
 
-/**
- * Recent threads for the discussion section: those relevant to the reader (ones
- * they took part in, and ones with new comments on posts they read or upvoted),
- * then the site's top threads by comment karma.
- */
 export async function loadAiDigestThreadCards(
   { user, context, previousInclusions, asOf }: AiDigestCandidateScope,
 ): Promise<AiDigestThreadCard[]> {

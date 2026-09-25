@@ -609,7 +609,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [clientId, limit, days]);
   }
 
-  /** Display names of the authors the user follows, alphabetically. */
   async getAiDigestFollowedAuthorNames({ userId, limit }: {
     userId: string;
     limit: number;

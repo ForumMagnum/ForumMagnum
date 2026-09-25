@@ -6,7 +6,6 @@ import { htmlToTextDefault } from "@/lib/htmlToText";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { unflattenComments } from "@/lib/utils/unflatten";
 
-/** Collapses runs of whitespace (including newlines) to single spaces and trims the ends. */
 export function collapseAiDigestWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
@@ -24,14 +23,9 @@ export function truncateAiDigestText(text: string, maxLength: number): string {
 
 interface AiDigestPreview {
   html: string;
-  /** The plaintext of `html`, so callers can count the words already shown. */
   text: string;
 }
 
-/**
- * Trim a cleaned post preview to a placement's html budget. Truncation is
- * html-aware, so the result closes any tags it opened.
- */
 export function buildAiDigestPreview(
   previewHtml: string,
   maxHtmlLength: number,
@@ -51,12 +45,6 @@ interface AiDigestBylineAuthor {
   displayName: string;
 }
 
-/**
- * Comma-separated author byline, capped at AI_DIGEST_MAX_BYLINE_AUTHORS names
- * with "et al." standing in for the rest. Emails are static HTML, so this is a
- * count-based cap rather than the width-measuring TruncatedAuthorsList used on
- * post lists.
- */
 export function formatAiDigestPostAuthors(post: {
   user: AiDigestBylineAuthor | null;
   coauthors: AiDigestBylineAuthor[] | null;
@@ -108,7 +96,6 @@ export function getCommentUrl(comment: AiDigestEmailComment): string {
 }
 
 interface ThreadTitle {
-  // Rendered lighter than the subject it introduces, when there is one.
   prefix: string | null;
   subject: string;
 }
@@ -153,11 +140,6 @@ export function aiDigestContentIds(spec: AiDigestSpec) {
   return { postIds, commentIds };
 }
 
-/**
- * A discussion item's comments as a reply tree, oldest first, and which of them
- * are context above the anchor. Comments that are no longer available are left
- * out, and any replies to them become roots of their own.
- */
 export function aiDigestDiscussionThread(item: AiDigestItem, content: DigestContentLookup) {
   const commentIds = item.commentIds ?? [];
   const comments = filterNonnull(commentIds.map((commentId) => content.commentsById.get(commentId)))

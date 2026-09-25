@@ -2,22 +2,11 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import type { LanguageModelUsage, ModelMessage, ProviderMetadata } from "ai";
 import sum from "lodash/sum";
 
-/**
- * Helpers shared by the AI digest's model calls: Vercel AI Gateway attribution,
- * Anthropic prompt caching, and the diagnostics record kept for each call.
- */
-
-/** The model behind every digest call, and its name as shown to readers above the AI note. */
 export const AI_DIGEST_MODEL_ID = "anthropic/claude-opus-5.5";
 export const AI_DIGEST_MODEL_NAME = "Claude Opus 5.5";
 
 type AiDigestGatewayPurpose = "post-selection" | "thread-selection" | "post-summary" | "post-preview";
 
-/**
- * Tags every digest request so its usage and spend can be filtered in the
- * AI Gateway dashboard and spend reports, both for the feature as a whole and
- * per call type.
- */
 export function aiDigestGatewayProviderOptions(purpose: AiDigestGatewayPurpose) {
   return {
     gateway: {
@@ -59,7 +48,6 @@ export function aiDigestPromptJson(value: unknown): string {
   return JSON.stringify(value, promptJsonValue);
 }
 
-/** Data from the site, which the prompts tell the model never to take instructions from. */
 export function aiDigestUntrustedJson(label: string, value: unknown): string {
   return [`<UNTRUSTED_${label}>`, aiDigestPromptJson(value), `</UNTRUSTED_${label}>`].join("\n");
 }
