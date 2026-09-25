@@ -5859,6 +5859,7 @@ export type Mutation = {
   createUserMostValuablePost: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit: Maybe<UserRateLimitOutput>;
   createUserTagRel: Maybe<UserTagRelOutput>;
+  deleteChapter: Scalars['Boolean']['output'];
   dismissRecommendation: Maybe<Scalars['Boolean']['output']>;
   ensureResearchScratchDocument: Maybe<EnsureResearchScratchDocumentOutput>;
   fireResearchConversation: Maybe<ResearchConversationOutput>;
@@ -5880,6 +5881,7 @@ export type Mutation = {
   mergeTags: Maybe<Scalars['Boolean']['output']>;
   mintDevPreviewUrl: Maybe<DevPreviewUrlOutput>;
   moderateComment: Maybe<Comment>;
+  moveSequencePost: Scalars['Boolean']['output'];
   observeRecommendation: Maybe<Scalars['Boolean']['output']>;
   performVoteComment: Maybe<VoteResultComment>;
   performVoteMessage: Maybe<VoteResultMessage>;
@@ -6300,6 +6302,11 @@ export type MutationcreateUserTagRelArgs = {
 };
 
 
+export type MutationdeleteChapterArgs = {
+  chapterId: Scalars['String']['input'];
+};
+
+
 export type MutationdismissRecommendationArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6410,6 +6417,14 @@ export type MutationmoderateCommentArgs = {
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationmoveSequencePostArgs = {
+  fromChapterId: Scalars['String']['input'];
+  postId: Scalars['String']['input'];
+  toChapterId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
 };
 
 
