@@ -162,6 +162,32 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
   });
 });
 
+describe("htmlToMarkdown footnotes", () => {
+  it("preserves links and inline formatting in footnote definitions", () => {
+    const html =
+      '<p>Claim' +
+      '<span class="footnote-reference" data-footnote-id="source-1"><sup><a href="#fnsource-1">[1]</a></sup></span>' +
+      '</p>' +
+      '<ol class="footnote-section">' +
+      '<li class="footnote-item" data-footnote-id="source-1">' +
+      '<span class="footnote-back-link"><sup><strong><a href="#fnrefsource-1">^</a></strong></sup></span>' +
+      '<div class="footnote-content">' +
+      '<p>See <a href="https://example.com/source">the source</a> and <strong>appendix A</strong>.</p>' +
+      '<p>Additional context.</p>' +
+      '</div>' +
+      '</li>' +
+      '</ol>';
+
+    const markdown = htmlToMarkdown(html);
+
+    expect(markdown).toContain("Claim[^source-1]");
+    expect(markdown).toContain(
+      "[^source-1]: See [the source](https://example.com/source) and **appendix A**. Additional context."
+    );
+    expect(markdown).not.toContain("#fnrefsource-1");
+  });
+});
+
 /**
  * Spoiler blocks (`>!`-prefixed lines) round-trip between Lexical's
  * `<div class="spoilers">` HTML and Markdown for the agent API.
