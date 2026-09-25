@@ -120,5 +120,3 @@ const BookmarksFeed = () => {
 };
 
 export default BookmarksFeed;
-
- 

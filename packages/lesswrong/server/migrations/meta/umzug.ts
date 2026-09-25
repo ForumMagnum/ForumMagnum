@@ -5,7 +5,6 @@ import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { resolve } from "path";
 import PgStorage from "./PgStorage";
-import { safeRun } from "../../manualMigrations/migrationUtils"
 
 declare global {
   interface MigrationTimer {
@@ -70,18 +69,14 @@ export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransa
           name,
           up: async () => {
             ctx.timers[name] = {start: new Date()};
-            await safeRun(ctx.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
             const result = await require(path).up(ctx);
-            await safeRun(ctx.db, `refresh_lowercase_views`) // add the views back in
             ctx.timers[name].end = new Date();
             return result;
           },
           down: async () => {
             const migration = require(path);
             if (migration.down) {
-              await safeRun(ctx.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
               const result = await migration.down(ctx);
-              await safeRun(ctx.db, `refresh_lowercase_views`) // add the views back in
               return result;
             } else {
               console.warn(`Migration '${name}' has no down step`);

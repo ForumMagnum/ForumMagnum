@@ -2,7 +2,6 @@ import Migrations from '../../server/collections/migrations/collection';
 import * as _ from 'underscore';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
-import { getSqlClient } from '../../server/sql/sqlClient';
 import { getCollection } from '@/server/collections/allCollections';
 
 // When running migrations with split batches, the fraction of time spent
@@ -50,8 +49,7 @@ export function registerMigration({ name, dateWritten, idempotent, action }: Reg
 export async function runMigration(name: string) {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
-  // eslint-disable-next-line no-unused-vars
-  const { dateWritten, idempotent, action } = availableMigrations[name];
+  const { action } = availableMigrations[name];
   
   // eslint-disable-next-line no-console
   console.log(`Beginning migration: ${name}`);
@@ -61,11 +59,8 @@ export async function runMigration(name: string) {
     started: new Date(),
   });
   
-  const db = getSqlClient();
-
   // TODO: do this atomically in a single transaction
   try {
-    await safeRun(db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
     await action();
     
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
@@ -83,8 +78,6 @@ export async function runMigration(name: string) {
     await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: false,
     }});
-  } finally {
-    await safeRun(db, `refresh_lowercase_views`) // add the views back in
   }
 }
 
