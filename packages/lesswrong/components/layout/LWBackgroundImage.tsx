@@ -13,6 +13,8 @@ import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { Link } from '@/lib/reactRouterWrapper';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import PetrovDayStory from '../seasonal/petrovDay/petrov-day-story/PetrovDayStory';
+import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 
 function useIsInkhaven2026Active(): boolean {
   const now = useCurrentTime();
@@ -169,12 +171,15 @@ export const LWBackgroundImage = () => {
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
   // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
-  // Show event banners on homepage during active periods. LessOnline takes precedence over Inkhaven.
+  // Show event banners on homepage during active periods. Petrov Day takes precedence over LessOnline, which takes precedence over Inkhaven.
   let homePageImage = defaultImage;
   const inkhaven2026Active = useIsInkhaven2026Active();
   const lessOnline2026 = useIsLessOnline2026Active();
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
   if (standaloneNavigation && isHomePage) {
-    if (lessOnline2026.active) {
+    if (petrovDayRitualActive) {
+      homePageImage = <PetrovDayStory variant="sidebar"/>;
+    } else if (lessOnline2026.active) {
       homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
     } else if (inkhaven2026Active) {
       homePageImage = <Inkhaven2026Banner />;

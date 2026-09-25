@@ -89,6 +89,12 @@ const textColorOverrideStyles = ({
   "& .UsersMenu-arrowIcon": {
     color,
   },
+  "& .UsersMenu-userButtonContents": {
+    color,
+  },
+  "& .UsersAccountMenu-userButton": {
+    color,
+  },
   "& .EAButton-variantContained": {
     backgroundColor: color,
     color: contrastColor,

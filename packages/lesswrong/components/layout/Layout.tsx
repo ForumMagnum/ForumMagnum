@@ -41,6 +41,7 @@ import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { useIsPetrovDayRitualActive } from '@/components/seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
@@ -187,8 +188,9 @@ const Layout = ({children}: {
   
   const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
   let headerBackgroundColor: ColorString|undefined = undefined;
-  if (isBlackBarTitle) {
+  if (isBlackBarTitle || (isLW && petrovDayRitualActive)) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 

@@ -31,6 +31,8 @@ import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
+import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
+import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
@@ -100,6 +102,7 @@ const LWHome = () => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const mobileSpotlightOverrideId = getMobileSpotlightOverrideId();
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
 
   return (
     // Wait for spotlight selection and dismissal before revealing the posts
@@ -115,7 +118,7 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
         </>}
-        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get(forumType)) && <SingleColumnSection>
+        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get(forumType)) && !petrovDayRitualActive && <SingleColumnSection>
           <DismissibleSpotlightItemSuspense
             loadingStyle="placeholder"
             className={classes.desktopSpotlight}
@@ -126,6 +129,7 @@ const LWHome = () => {
             spotlightId={mobileSpotlightOverrideId}
           />
         </SingleColumnSection>}
+        {petrovDayRitualActive && <PetrovStoryMobileBanner />}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>
             <LWHomePosts>
