@@ -12,6 +12,8 @@ import {
   type DocumentProjection,
   type ProjectionSegment,
 } from "./quoteLocator";
+import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { $isPlainInsertionSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/Types";
 
 /**
  * Text-index quote locator.
@@ -496,6 +498,32 @@ interface BlockCandidate {
   spanEnd: number
 }
 
+function $isInsidePendingInsertionSuggestion(node: LexicalNode): boolean {
+  let ancestor = node.getParent();
+  while (ancestor) {
+    if (
+      $isSuggestionNode(ancestor)
+      && $isPlainInsertionSuggestion(ancestor.getSuggestionTypeOrThrow())
+    ) {
+      return true;
+    }
+    ancestor = ancestor.getParent();
+  }
+  return false;
+}
+
+/**
+ * Pending insertions are visible in the editor/read API but are not accepted
+ * document blocks. Excluding blocks made entirely from pending inserted text
+ * prevents a newly suggested rewrite from making its original block's prefix
+ * ambiguous. Mixed blocks remain addressable through their accepted text.
+ */
+function $isEntirelyPendingInsertionBlock(node: LexicalNode): boolean {
+  if (!$isElementNode(node)) return false;
+  const textNodes = node.getAllTextNodes();
+  return textNodes.length > 0 && textNodes.every($isInsidePendingInsertionSuggestion);
+}
+
 /**
  * Enumerate the prefix-addressable blocks — top-level children plus list
  * items at any nesting depth — keyed by the raw projection offset of each
@@ -555,7 +583,12 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     const rawStart = normalizedDocument.toRawStart[matchIndex];
     const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedPrefix.length - 1];
     const candidate = blocksByContentStart.get(rawStart);
-    if (candidate && rawEnd <= candidate.spanEnd && !matchedKeys.has(candidate.node.getKey())) {
+    if (
+      candidate
+      && rawEnd <= candidate.spanEnd
+      && !$isEntirelyPendingInsertionBlock(candidate.node)
+      && !matchedKeys.has(candidate.node.getKey())
+    ) {
       matchedKeys.add(candidate.node.getKey());
       matchedBlocks.push(candidate.node);
     }
