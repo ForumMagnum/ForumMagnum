@@ -15,10 +15,8 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
+const ChaptersList = ({sequenceId}: {
   sequenceId: string,
-  canEdit: boolean,
-  nextSuggestedNumberRef: React.MutableRefObject<number>,
 }) => {
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
@@ -35,20 +33,12 @@ const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
     return <Loading />
   }
 
-  // If any chapter has a number already, suggest the next number after the highest number.
-  // Otherwise, suggest the next number after the number of chapters.
-  const nextNumber = Math.max(...results.map((chapter) => chapter.number ?? 0), results.length) + 1;
-  nextSuggestedNumberRef.current = nextNumber;
-
   return <div className="chapters-list">
     {results.map((chapter) => <ChaptersItem
       key={chapter._id}
       chapter={chapter}
-      canEdit={canEdit}
     />)}
   </div>
 }
 
 export default ChaptersList;
-
-
