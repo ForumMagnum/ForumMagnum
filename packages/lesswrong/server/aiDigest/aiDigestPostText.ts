@@ -9,7 +9,6 @@ export interface AiDigestPostTextTarget {
   author: string;
 }
 
-/** The HTML as a single line of plain text, cut to `maxLength` characters. */
 export function aiDigestPlainText(html: string, maxLength = Infinity): string {
   return collapseAiDigestWhitespace(htmlToTextDefault(html)).slice(0, maxLength);
 }

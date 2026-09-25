@@ -22,7 +22,6 @@ const PREVIEW_MAX_HTML_LENGTH = 4000;
  * the model mistook the body for boilerplate, so such answers are rejected.
  */
 const MAX_SKIPPED_TEXT_SHARE = 0.25;
-/** The model sees the post's opening blocks, each cut to a length. */
 const PROMPT_BLOCK_COUNT = 12;
 const PROMPT_BLOCK_MAX_CHARS = 400;
 /**
@@ -80,10 +79,6 @@ function totalTextLength(blocks: AiDigestPostPreviewBlock[]): number {
   return blocks.reduce((length, block) => length + block.text.length, 0);
 }
 
-/**
- * Whether the model's answer is usable: one of the blocks it was shown, and
- * not so far in that the skipped preamble is a large part of the post.
- */
 export function isPlausiblePreviewStart(blocks: AiDigestPostPreviewBlock[], startBlockIndex: number): boolean {
   const skippedTextLength = totalTextLength(blocks.slice(0, startBlockIndex));
   return startBlockIndex < Math.min(blocks.length, PROMPT_BLOCK_COUNT)
@@ -132,10 +127,6 @@ function reportPreviewFailure(stage: "generation" | "persistence", post: AiDiges
   });
 }
 
-/**
- * Where the post's actual content starts, as the model judges it; null if the
- * model call failed or its answer isn't plausible.
- */
 async function selectPreviewStartBlockIndex(
   post: AiDigestPostTextTarget,
   blocks: AiDigestPostPreviewBlock[],

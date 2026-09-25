@@ -5,6 +5,7 @@ import {
   type AiDigestPostCandidate,
   type AiDigestQuickTakeCandidate,
 } from "./aiDigestCandidates";
+import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
 import type { AiDigestHistory } from "./aiDigestHistory";
 import { aiDigestPromptJson } from "./aiDigestModelCalls";
 import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
@@ -104,7 +105,7 @@ export function aiDigestPromptPost(post: AiDigestPostCandidate) {
 
 export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, history, personalInstructions, asOf }: {
   profile: AiDigestReaderProfile;
-  posts: Array<AiDigestPostCandidate & { summary: string }>;
+  posts: AiDigestSummarizedPost[];
   quickTakes: AiDigestQuickTakeCandidate[];
   history: AiDigestHistory;
   personalInstructions: string | null;

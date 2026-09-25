@@ -5,6 +5,7 @@ import {
   type AiDigestPostCandidate,
   type AiDigestQuickTakeCandidate,
 } from "./aiDigestCandidates";
+import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
 import type { AiDigestHistory } from "./aiDigestHistory";
 import {
   AI_DIGEST_MODEL_ID,
@@ -163,7 +164,7 @@ export async function selectAiDigestPosts({
   user: DbUser;
   context: ResolverContext;
   profile: AiDigestReaderProfile;
-  posts: Array<AiDigestPostCandidate & { summary: string }>;
+  posts: AiDigestSummarizedPost[];
   quickTakes: AiDigestQuickTakeCandidate[];
   /** Whether items recommended in earlier issues are among the candidates. */
   repeatsAllowed: boolean;
