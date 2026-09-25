@@ -6,8 +6,8 @@ import {
   type AiDigestQuickTakeCandidate,
 } from "./aiDigestCandidates";
 import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
-import type { AiDigestHistory } from "./aiDigestHistory";
-import { aiDigestPromptJson } from "./aiDigestModelCalls";
+import type { AiDigestPastRecommendation } from "./aiDigestHistory";
+import { aiDigestPromptSection } from "./aiDigestModelCalls";
 import { AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 
 export const AI_DIGEST_POST_SELECTION_PROMPT_VERSION = "ai-digest-post-selection-v20";
@@ -103,50 +103,49 @@ export function aiDigestPromptPost(post: AiDigestPostCandidate) {
   return omit(post, "revisionId");
 }
 
-export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, history, personalInstructions, asOf }: {
+export function buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, pastRecommendations, personalInstructions, asOf }: {
   profile: AiDigestReaderProfile;
   posts: AiDigestSummarizedPost[];
   quickTakes: AiDigestQuickTakeCandidate[];
-  history: AiDigestHistory;
+  pastRecommendations: AiDigestPastRecommendation[];
   personalInstructions: string | null;
   asOf: Date;
 }): { system: string; prompt: string } {
-  const prompt = [
-    "# Candidate posts",
-    `Posts from the last ${AI_DIGEST_CANDIDATE_MAX_AGE_DAYS} days with at least ${AI_DIGEST_MIN_KARMA} karma. `
-      + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
-    "<UNTRUSTED_CANDIDATE_POSTS>",
-    aiDigestPromptJson(posts.map(aiDigestPromptPost)),
-    "</UNTRUSTED_CANDIDATE_POSTS>",
-    "",
-    "# Candidate quick takes",
-    "Quick takes are short untitled posts. Bodies are bounded plaintext.",
-    "<UNTRUSTED_CANDIDATE_QUICK_TAKES>",
-    aiDigestPromptJson(quickTakes),
-    "</UNTRUSTED_CANDIDATE_QUICK_TAKES>",
-    "",
-    "# Reader profile",
-    `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
-    "<UNTRUSTED_READER_PROFILE>",
-    aiDigestPromptJson(profile),
-    "</UNTRUSTED_READER_PROFILE>",
-    ...(personalInstructions
-      ? [
-        "",
-        "# Reader's explicit content preferences",
-        "<UNTRUSTED_READER_INSTRUCTIONS>",
-        JSON.stringify(personalInstructions),
-        "</UNTRUSTED_READER_INSTRUCTIONS>",
-      ]
-      : []),
-    "",
-    "# Past recommendation outcomes",
-    "<UNTRUSTED_PAST_RECOMMENDATIONS>",
-    aiDigestPromptJson(history.pastRecommendations),
-    "</UNTRUSTED_PAST_RECOMMENDATIONS>",
-  ].join("\n");
+  const sections = [
+    aiDigestPromptSection({
+      heading: "Candidate posts",
+      note: `Posts from the last ${AI_DIGEST_CANDIDATE_MAX_AGE_DAYS} days with at least ${AI_DIGEST_MIN_KARMA} karma. `
+        + `Dates throughout are UTC calendar dates; asOf, today, is ${asOf.toISOString().slice(0, 10)}.`,
+      label: "CANDIDATE_POSTS",
+      value: posts.map(aiDigestPromptPost),
+    }),
+    aiDigestPromptSection({
+      heading: "Candidate quick takes",
+      note: "Quick takes are short untitled posts. Bodies are bounded plaintext.",
+      label: "CANDIDATE_QUICK_TAKES",
+      value: quickTakes,
+    }),
+    aiDigestPromptSection({
+      heading: "Reader profile",
+      note: `Affinities and recent posts cover the last ${AI_DIGEST_READER_ACTIVITY_WINDOW_DAYS} days.`,
+      label: "READER_PROFILE",
+      value: profile,
+    }),
+  ];
+  if (personalInstructions) {
+    sections.push(aiDigestPromptSection({
+      heading: "Reader's explicit content preferences",
+      label: "READER_INSTRUCTIONS",
+      value: personalInstructions,
+    }));
+  }
+  sections.push(aiDigestPromptSection({
+    heading: "Past recommendation outcomes",
+    label: "PAST_RECOMMENDATIONS",
+    value: pastRecommendations,
+  }));
   return {
     system: `${AI_DIGEST_POST_SELECTION_SYSTEM_PROMPT}\n\nRuntime prompt version: ${AI_DIGEST_POST_SELECTION_PROMPT_VERSION}`,
-    prompt,
+    prompt: sections.join("\n\n"),
   };
 }

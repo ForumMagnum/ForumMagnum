@@ -34,7 +34,7 @@ interface AiDigestPastRecommendationEvent {
   clickedAt: Date | null;
 }
 
-type AiDigestPastRecommendation =
+export type AiDigestPastRecommendation =
   | { type: "post"; title: string; author: string; postedAt: Date; recommendations: AiDigestPastRecommendationEvent[] }
   | { type: "quickTake"; snippet: string; author: string; postedAt: Date; recommendations: AiDigestPastRecommendationEvent[] };
 

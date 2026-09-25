@@ -11,7 +11,7 @@ import {
 import { loadAiDigestHistory } from "./aiDigestHistory";
 import { AI_DIGEST_MODEL_NAME } from "./aiDigestModelCalls";
 import { ensureAiDigestPostPreviews } from "./aiDigestPostPreviews";
-import { selectAiDigestPosts, type AiDigestPostSelection } from "./aiDigestPostSelection";
+import { isSelectedPost, selectAiDigestPosts, type AiDigestPostSelection, type AiDigestSelectedPost } from "./aiDigestPostSelection";
 import { ensureAiDigestPostSummaries } from "./aiDigestPostSummaries";
 import { loadAiDigestReaderProfile, type AiDigestReaderProfile } from "./aiDigestReaderProfile";
 import { loadAiDigestThreadCards, type AiDigestThreadCard } from "./aiDigestThreadCandidates";
@@ -45,19 +45,32 @@ async function selectThreadsOrNone(options: {
   }
 }
 
+function postItem(
+  { post, reason }: AiDigestSelectedPost,
+  placement: "headline" | "compact",
+  previewHtmlByPostId: Map<string, string>,
+): AiDigestItem {
+  return {
+    documentRef: { documentType: "post", documentId: post.postId },
+    placement,
+    reason,
+    previewHtml: previewHtmlByPostId.get(post.postId),
+  };
+}
+
 function recommendationItems(selection: AiDigestPostSelection, previewHtmlByPostId: Map<string, string>): AiDigestItem[] {
-  return selection.items.map((item, index): AiDigestItem => item.documentType === "quickTake"
-    ? {
+  const headlineItems = selection.headlinePosts.map((post) => postItem(post, "headline", previewHtmlByPostId));
+  const otherItems = selection.otherItems.map((item): AiDigestItem => {
+    if (item.documentType === "post") {
+      return postItem(item, "compact", previewHtmlByPostId);
+    }
+    return {
       documentRef: { documentType: "quickTake", documentId: item.quickTake.commentId },
       placement: "full",
       reason: item.reason,
-    }
-    : {
-      documentRef: { documentType: "post", documentId: item.post.postId },
-      placement: index < 2 ? "headline" : "compact",
-      reason: item.reason,
-      previewHtml: previewHtmlByPostId.get(item.post.postId),
-    });
+    };
+  });
+  return [...headlineItems, ...otherItems];
 }
 
 /**
@@ -154,23 +167,18 @@ export async function generateAiDigestIssue({ user, context, trigger, countsTowa
 
   const [postSelection, threadSelection] = await Promise.all([
     selectAiDigestPosts({
-      user,
-      context,
+      scope: { user, context, previousInclusions, repeatsAllowed: pool.repeatsAllowed, asOf },
       profile,
       posts: summarizedPosts,
       quickTakes: pool.quickTakes,
-      repeatsAllowed: pool.repeatsAllowed,
-      history,
+      pastRecommendations: history.pastRecommendations,
       personalInstructions,
-      asOf,
     }),
     selectThreadsOrNone({ profile, cards: threadCards, personalInstructions, asOf }),
   ]);
   // Previews are only worth generating for the handful of posts that made the slate.
-  const previewHtmlByPostId = await ensureAiDigestPostPreviews(
-    postSelection.items.flatMap((item) => item.documentType === "post" ? [item.post] : []),
-    context,
-  );
+  const selectedPosts = [...postSelection.headlinePosts, ...postSelection.otherItems.filter(isSelectedPost)];
+  const previewHtmlByPostId = await ensureAiDigestPostPreviews(selectedPosts.map(({ post }) => post), context);
   const spec = buildAiDigestSpec({
     user,
     personalInstructions,

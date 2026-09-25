@@ -1,11 +1,12 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
-import { tool, type ToolSet } from "ai";
-import { z } from "zod";
-import uniq from "lodash/uniq";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { getEmbeddingsFromApi, isEmbeddingsAPIEnabled } from "@/server/embeddings";
+import { tool, type ToolSet } from "ai";
+import uniq from "lodash/uniq";
+import { z } from "zod";
 import { AI_DIGEST_MIN_KARMA, loadAiDigestPostCandidates, type AiDigestPostCandidate } from "./aiDigestCandidates";
 import type { AiDigestPreviousInclusion } from "./aiDigestHistory";
-import { aiDigestPromptJson } from "./aiDigestModelCalls";
+import { aiDigestUntrustedJson } from "./aiDigestModelCalls";
 import { aiDigestPromptPost } from "./aiDigestPostSelectionPrompt";
 import { aiDigestPlainText, loadAiDigestPostHtml } from "./aiDigestPostText";
 
@@ -18,86 +19,74 @@ const READ_POST_MAX_PER_GENERATION = 10;
 const READ_POST_MAX_CHARS = 15_000;
 export const AI_DIGEST_SELECTION_STEP_LIMIT = 4;
 
-interface AiDigestSelectionToolsContext {
+export interface AiDigestSelectionScope {
   user: DbUser;
   context: ResolverContext;
-  candidatePostsById: Map<string, AiDigestPostCandidate>;
   previousInclusions: Map<string, AiDigestPreviousInclusion>;
-  /** Whether posts recommended in earlier issues may be offered, as they are among the candidates. */
+  /** Whether posts recommended in earlier issues may be picked, as they are among the candidates. */
   repeatsAllowed: boolean;
   asOf: Date;
 }
 
-function wrapUntrustedToolPayload(label: string, payload: unknown): string {
-  return [
-    `<UNTRUSTED_${label}>`,
-    aiDigestPromptJson(payload),
-    `</UNTRUSTED_${label}>`,
-  ].join("\n");
+/** The given posts that the model may pick, under the same rules as the candidates. */
+export async function loadSelectableAiDigestPosts(scope: AiDigestSelectionScope, postIds: string[]): Promise<AiDigestPostCandidate[]> {
+  const posts = await loadAiDigestPostCandidates({ ...scope, postIds });
+  return posts.filter((post) => scope.repeatsAllowed || !post.previousDigest);
 }
 
-/** Whether the model may select a post it found by search, under the same rules as the candidates. */
-export function isSelectableAiDigestSearchResult(post: AiDigestPostCandidate, repeatsAllowed: boolean): boolean {
-  return repeatsAllowed || !post.previousDigest;
-}
-
-function searchResultGroup({ postIds, selectableById, candidatePostsById, limit }: {
-  postIds: string[];
-  selectableById: Map<string, AiDigestPostCandidate>;
-  candidatePostsById: Map<string, AiDigestPostCandidate>;
-  limit: number;
-}) {
-  return postIds
-    .flatMap((postId) => {
-      const post = selectableById.get(postId);
-      return post ? [{ ...aiDigestPromptPost(post), inCandidates: candidatePostsById.has(postId) }] : [];
-    })
-    .slice(0, limit);
+function searchResultGroup(
+  postIds: string[],
+  shownPostsById: Map<string, AiDigestPostCandidate>,
+  candidatePostsById: Map<string, AiDigestPostCandidate>,
+  limit: number,
+) {
+  return filterNonnull(postIds.map((postId) => shownPostsById.get(postId)))
+    .slice(0, limit)
+    .map((post) => ({ ...aiDigestPromptPost(post), inCandidates: candidatePostsById.has(post.postId) }));
 }
 
 async function searchPosts(
-  { user, context, previousInclusions, repeatsAllowed, asOf, candidatePostsById }: AiDigestSelectionToolsContext,
+  scope: AiDigestSelectionScope,
+  candidatePostsById: Map<string, AiDigestPostCandidate>,
   { query, includeRead, limit }: { query: string; includeRead: boolean; limit: number },
 ) {
   const { embeddings } = await getEmbeddingsFromApi(query);
   const fetchLimit = limit * SEARCH_OVERFETCH_MULTIPLIER;
-  const recentAfter = new Date(asOf.getTime() - (SEARCH_RECENT_DAYS * DAY_MS));
+  const recentAfter = new Date(scope.asOf.getTime() - (SEARCH_RECENT_DAYS * DAY_MS));
   const [allTimePostIds, recentPostIds] = await Promise.all([
-    context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(
+    scope.context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(
       embeddings, fetchLimit, { minKarma: AI_DIGEST_MIN_KARMA, publishedAfter: null },
     ),
-    context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(
+    scope.context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(
       embeddings, fetchLimit, { minKarma: AI_DIGEST_MIN_KARMA, publishedAfter: recentAfter },
     ),
   ]);
-  const eligiblePosts = await loadAiDigestPostCandidates({
-    user,
-    context,
-    previousInclusions,
-    asOf,
-    postIds: uniq([...allTimePostIds, ...recentPostIds]),
-  });
-  const selectableById = new Map(eligiblePosts
-    .filter((post) => isSelectableAiDigestSearchResult(post, repeatsAllowed) && (includeRead || !post.hasReadStatus))
-    .map((post) => [post.postId, post]));
+  const selectablePosts = await loadSelectableAiDigestPosts(scope, uniq([...allTimePostIds, ...recentPostIds]));
+  const shownPosts = includeRead ? selectablePosts : selectablePosts.filter((post) => !post.hasReadStatus);
+  const shownPostsById = new Map(shownPosts.map((post) => [post.postId, post]));
   return {
-    allTime: searchResultGroup({ postIds: allTimePostIds, selectableById, candidatePostsById, limit }),
-    recent: searchResultGroup({ postIds: recentPostIds, selectableById, candidatePostsById, limit }),
+    allTime: searchResultGroup(allTimePostIds, shownPostsById, candidatePostsById, limit),
+    recent: searchResultGroup(recentPostIds, shownPostsById, candidatePostsById, limit),
   };
 }
 
-/** The body of a post the reader could be recommended, as plain text. */
 async function readPostBody(
-  { user, context, previousInclusions, asOf, candidatePostsById }: AiDigestSelectionToolsContext,
+  scope: AiDigestSelectionScope,
+  candidatePostsById: Map<string, AiDigestPostCandidate>,
   postId: string,
 ): Promise<string | null> {
-  const post = candidatePostsById.get(postId)
-    ?? (await loadAiDigestPostCandidates({ user, context, previousInclusions, asOf, postIds: [postId] }))[0];
-  const [postWithHtml] = post ? await loadAiDigestPostHtml([post], context) : [];
+  const post = candidatePostsById.get(postId) ?? (await loadSelectableAiDigestPosts(scope, [postId]))[0];
+  if (!post) {
+    return null;
+  }
+  const [postWithHtml] = await loadAiDigestPostHtml([post], scope.context);
   return postWithHtml ? aiDigestPlainText(postWithHtml.html, READ_POST_MAX_CHARS) : null;
 }
 
-export function createAiDigestSelectionTools(toolsContext: AiDigestSelectionToolsContext): ToolSet {
+export function createAiDigestSelectionTools(
+  scope: AiDigestSelectionScope,
+  candidatePostsById: Map<string, AiDigestPostCandidate>,
+): ToolSet {
   let readPostCount = 0;
   const readPost = tool({
     description:
@@ -108,13 +97,11 @@ export function createAiDigestSelectionTools(toolsContext: AiDigestSelectionTool
     }),
     execute: async ({ postId }) => {
       if (readPostCount >= READ_POST_MAX_PER_GENERATION) {
-        return wrapUntrustedToolPayload("POST_BODY", {
-          error: `readPost budget exhausted after ${READ_POST_MAX_PER_GENERATION} reads`,
-        });
+        return aiDigestUntrustedJson("POST_BODY", { error: `readPost budget exhausted after ${READ_POST_MAX_PER_GENERATION} reads` });
       }
       readPostCount += 1;
-      const body = await readPostBody(toolsContext, postId);
-      return wrapUntrustedToolPayload("POST_BODY", body ? { postId, body } : { error: "post body unavailable" });
+      const body = await readPostBody(scope, candidatePostsById, postId);
+      return aiDigestUntrustedJson("POST_BODY", body ? { postId, body } : { error: "post body unavailable" });
     },
   });
   if (!isEmbeddingsAPIEnabled()) {
@@ -131,7 +118,7 @@ export function createAiDigestSelectionTools(toolsContext: AiDigestSelectionTool
       limit: z.number().int().min(1).max(SEARCH_MAX_LIMIT).optional(),
     }),
     execute: async ({ query, includeRead = false, limit = SEARCH_DEFAULT_LIMIT }) =>
-      wrapUntrustedToolPayload("SEARCH_RESULTS", await searchPosts(toolsContext, { query, includeRead, limit })),
+      aiDigestUntrustedJson("SEARCH_RESULTS", await searchPosts(scope, candidatePostsById, { query, includeRead, limit })),
   });
   return { readPost, searchPosts: searchPostsTool };
 }

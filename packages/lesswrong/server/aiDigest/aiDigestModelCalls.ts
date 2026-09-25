@@ -57,6 +57,37 @@ export function aiDigestPromptJson(value: unknown): string {
   return JSON.stringify(value, promptJsonValue);
 }
 
+/** Data from the site, which the prompts tell the model never to take instructions from. */
+export function aiDigestUntrustedJson(label: string, value: unknown): string {
+  return [`<UNTRUSTED_${label}>`, aiDigestPromptJson(value), `</UNTRUSTED_${label}>`].join("\n");
+}
+
+export function aiDigestPromptSection({ heading, note, label, value }: {
+  heading: string;
+  note?: string;
+  label: string;
+  value: unknown;
+}): string {
+  const lines = [`# ${heading}`];
+  if (note) {
+    lines.push(note);
+  }
+  lines.push(aiDigestUntrustedJson(label, value));
+  return lines.join("\n");
+}
+
+export function assertAiDigestModelFinished(
+  result: { finishReason: string; totalUsage: LanguageModelUsage },
+  callName: string,
+) {
+  if (result.finishReason !== "stop") {
+    throw new Error(
+      `AI digest ${callName} stopped with finish reason ${result.finishReason} after `
+      + `${result.totalUsage.outputTokens ?? 0} output tokens`,
+    );
+  }
+}
+
 function parseGatewayCost(cost: unknown): number | null {
   if (typeof cost !== "string") {
     return null;

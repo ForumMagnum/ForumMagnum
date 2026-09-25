@@ -1,25 +1,23 @@
 import { generateText, NoObjectGeneratedError, Output, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
-import {
-  loadAiDigestPostCandidates,
-  type AiDigestPostCandidate,
-  type AiDigestQuickTakeCandidate,
-} from "./aiDigestCandidates";
-import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
-import type { AiDigestHistory } from "./aiDigestHistory";
+import type { AiDigestPostCandidate, AiDigestQuickTakeCandidate } from "./aiDigestCandidates";
+import type { AiDigestPastRecommendation } from "./aiDigestHistory";
 import {
   AI_DIGEST_MODEL_ID,
   aiDigestGatewayProviderOptions,
   aiDigestModelCallRecord,
   aiDigestUserMessage,
+  assertAiDigestModelFinished,
   decodeStrayUnicodeEscapes,
 } from "./aiDigestModelCalls";
 import { AI_DIGEST_POST_SELECTION_PROMPT_VERSION, buildAiDigestPostSelectionPrompt } from "./aiDigestPostSelectionPrompt";
+import type { AiDigestSummarizedPost } from "./aiDigestPostSummaries";
 import type { AiDigestReaderProfile } from "./aiDigestReaderProfile";
 import {
   AI_DIGEST_SELECTION_STEP_LIMIT,
   createAiDigestSelectionTools,
-  isSelectableAiDigestSearchResult,
+  loadSelectableAiDigestPosts,
+  type AiDigestSelectionScope,
 } from "./aiDigestSelectionTools";
 
 const MAX_QUICK_TAKES_PER_ISSUE = 2;
@@ -45,74 +43,29 @@ const selectionOutputSchema = z.object({
   otherItems: z.array(z.object({ itemId: z.string(), reason: reasonSchema })).length(3),
 });
 
-type AiDigestPostSelectionOutput = z.infer<typeof selectionOutputSchema>;
+type AiDigestSelectionOutput = z.infer<typeof selectionOutputSchema>;
 
-type AiDigestSelectedItem =
-  | { documentType: "post"; post: AiDigestPostCandidate; reason: string }
-  | { documentType: "quickTake"; quickTake: AiDigestQuickTakeCandidate; reason: string };
+export interface AiDigestSelectedPost {
+  documentType: "post";
+  post: AiDigestPostCandidate;
+  reason: string;
+}
+
+interface AiDigestSelectedQuickTake {
+  documentType: "quickTake";
+  quickTake: AiDigestQuickTakeCandidate;
+  reason: string;
+}
+
+export type AiDigestSelectedItem = AiDigestSelectedPost | AiDigestSelectedQuickTake;
 
 export interface AiDigestPostSelection {
-  items: AiDigestSelectedItem[];
   subject: string;
   preheader: string;
   aiNote: string[];
+  headlinePosts: AiDigestSelectedPost[];
+  otherItems: AiDigestSelectedItem[];
   call: AiDigestModelCallRecord;
-}
-
-/**
- * The model's five picks as candidates. Picks the model found by search are
- * checked against the same eligibility rules as the candidates it was given.
- */
-async function resolveSelectedItems({ output, posts, quickTakes, repeatsAllowed, history, user, context, asOf }: {
-  output: AiDigestPostSelectionOutput;
-  posts: AiDigestPostCandidate[];
-  quickTakes: AiDigestQuickTakeCandidate[];
-  repeatsAllowed: boolean;
-  history: AiDigestHistory;
-  user: DbUser;
-  context: ResolverContext;
-  asOf: Date;
-}): Promise<AiDigestSelectedItem[]> {
-  const selections = [
-    ...output.headlinePosts.map(({ postId, reason }) => ({ itemId: postId, reason, isHeadline: true })),
-    ...output.otherItems.map(({ itemId, reason }) => ({ itemId, reason, isHeadline: false })),
-  ];
-  if (new Set(selections.map(({ itemId }) => itemId)).size !== selections.length) {
-    throw new Error("Selection must contain five distinct items");
-  }
-  const postsById = new Map<string, AiDigestPostCandidate>(posts.map((post) => [post.postId, post]));
-  const quickTakesById = new Map(quickTakes.map((quickTake) => [quickTake.commentId, quickTake]));
-  const searchResultIds = selections
-    .map(({ itemId }) => itemId)
-    .filter((itemId) => !postsById.has(itemId) && !quickTakesById.has(itemId));
-  const searchResults = await loadAiDigestPostCandidates({
-    user,
-    context,
-    previousInclusions: history.previousInclusions,
-    asOf,
-    postIds: searchResultIds,
-  });
-  for (const post of searchResults) {
-    if (isSelectableAiDigestSearchResult(post, repeatsAllowed)) {
-      postsById.set(post.postId, post);
-    }
-  }
-
-  const items = selections.map(({ itemId, reason, isHeadline }): AiDigestSelectedItem => {
-    const post = postsById.get(itemId);
-    if (post) {
-      return { documentType: "post", post, reason: decodeStrayUnicodeEscapes(reason) };
-    }
-    const quickTake = quickTakesById.get(itemId);
-    if (quickTake && !isHeadline) {
-      return { documentType: "quickTake", quickTake, reason: decodeStrayUnicodeEscapes(reason) };
-    }
-    throw new Error(`Selection referenced an unknown or ineligible item for its slot: ${itemId}`);
-  });
-  if (items.filter((item) => item.documentType === "quickTake").length > MAX_QUICK_TAKES_PER_ISSUE) {
-    throw new Error(`Selection may include at most ${MAX_QUICK_TAKES_PER_ISSUE} quick takes`);
-  }
-  return items;
 }
 
 function callSelectionModel({ system, prompt, tools }: { system: string; prompt: string; tools: ToolSet }) {
@@ -137,71 +90,100 @@ function callSelectionModel({ system, prompt, tools }: { system: string; prompt:
  * empty copy fields. One retry, which rereads the prompt from the cache, is
  * cheaper than failing the issue.
  */
-async function callSelectionModelRetryingInvalidOutput(options: { system: string; prompt: string; tools: ToolSet }) {
+async function callSelectionModelRetryingInvalidOutput(request: { system: string; prompt: string; tools: ToolSet }) {
   try {
-    return await callSelectionModel(options);
+    return await callSelectionModel(request);
   } catch (error) {
     if (!NoObjectGeneratedError.isInstance(error)) {
       throw error;
     }
     // eslint-disable-next-line no-console
     console.warn("AI digest post selection output didn't match the schema; retrying", error.text);
-    return await callSelectionModel(options);
+    return await callSelectionModel(request);
   }
 }
 
-export async function selectAiDigestPosts({
-  user,
-  context,
-  profile,
-  posts,
-  quickTakes,
-  repeatsAllowed,
-  history,
-  personalInstructions,
-  asOf,
-}: {
-  user: DbUser;
-  context: ResolverContext;
+function selectedItem(
+  itemId: string,
+  reason: string,
+  postsById: Map<string, AiDigestPostCandidate>,
+  quickTakesById: Map<string, AiDigestQuickTakeCandidate>,
+): AiDigestSelectedItem {
+  const post = postsById.get(itemId);
+  if (post) {
+    return { documentType: "post", post, reason: decodeStrayUnicodeEscapes(reason) };
+  }
+  const quickTake = quickTakesById.get(itemId);
+  if (quickTake) {
+    return { documentType: "quickTake", quickTake, reason: decodeStrayUnicodeEscapes(reason) };
+  }
+  throw new Error(`AI digest selection picked an unknown or ineligible item: ${itemId}`);
+}
+
+export function isSelectedPost(item: AiDigestSelectedItem): item is AiDigestSelectedPost {
+  return item.documentType === "post";
+}
+
+/**
+ * The model's picks as candidates. Picks it found by search are checked
+ * against the same eligibility rules as the candidates it was given.
+ */
+async function resolveSelectedItems(
+  output: AiDigestSelectionOutput,
+  scope: AiDigestSelectionScope,
+  candidatePosts: AiDigestPostCandidate[],
+  candidateQuickTakes: AiDigestQuickTakeCandidate[],
+): Promise<Pick<AiDigestPostSelection, "headlinePosts" | "otherItems">> {
+  const pickedIds = [...output.headlinePosts.map(({ postId }) => postId), ...output.otherItems.map(({ itemId }) => itemId)];
+  if (new Set(pickedIds).size !== pickedIds.length) {
+    throw new Error("AI digest selection picked the same item twice");
+  }
+  const postsById = new Map(candidatePosts.map((post) => [post.postId, post]));
+  const quickTakesById = new Map(candidateQuickTakes.map((quickTake) => [quickTake.commentId, quickTake]));
+  const searchFoundIds = pickedIds.filter((itemId) => !postsById.has(itemId) && !quickTakesById.has(itemId));
+  for (const post of await loadSelectableAiDigestPosts(scope, searchFoundIds)) {
+    postsById.set(post.postId, post);
+  }
+
+  const headlineItems = output.headlinePosts.map(({ postId, reason }) => selectedItem(postId, reason, postsById, quickTakesById));
+  const headlinePosts = headlineItems.filter(isSelectedPost);
+  if (headlinePosts.length !== headlineItems.length) {
+    throw new Error("AI digest selection picked a quick take as a headline");
+  }
+  const otherItems = output.otherItems.map(({ itemId, reason }) => selectedItem(itemId, reason, postsById, quickTakesById));
+  if (otherItems.filter((item) => item.documentType === "quickTake").length > MAX_QUICK_TAKES_PER_ISSUE) {
+    throw new Error(`AI digest selection picked more than ${MAX_QUICK_TAKES_PER_ISSUE} quick takes`);
+  }
+  return { headlinePosts, otherItems };
+}
+
+export async function selectAiDigestPosts({ scope, profile, posts, quickTakes, pastRecommendations, personalInstructions }: {
+  scope: AiDigestSelectionScope;
   profile: AiDigestReaderProfile;
   posts: AiDigestSummarizedPost[];
   quickTakes: AiDigestQuickTakeCandidate[];
-  /** Whether items recommended in earlier issues are among the candidates. */
-  repeatsAllowed: boolean;
-  history: AiDigestHistory;
+  pastRecommendations: AiDigestPastRecommendation[];
   personalInstructions: string | null;
-  asOf: Date;
 }): Promise<AiDigestPostSelection> {
-  const { system, prompt } = buildAiDigestPostSelectionPrompt({ profile, posts, quickTakes, history, personalInstructions, asOf });
-  const tools = createAiDigestSelectionTools({
-    user,
-    context,
-    candidatePostsById: new Map(posts.map((post) => [post.postId, post])),
-    previousInclusions: history.previousInclusions,
-    repeatsAllowed,
-    asOf,
+  const { system, prompt } = buildAiDigestPostSelectionPrompt({
+    profile,
+    posts,
+    quickTakes,
+    pastRecommendations,
+    personalInstructions,
+    asOf: scope.asOf,
   });
+  const candidatePostsById = new Map(posts.map((post) => [post.postId, post]));
+  const tools = createAiDigestSelectionTools(scope, candidatePostsById);
   const result = await callSelectionModelRetryingInvalidOutput({ system, prompt, tools });
-  if (result.finishReason !== "stop") {
-    throw new Error(
-      `AI digest selection stopped with finish reason ${result.finishReason} after `
-      + `${result.totalUsage.outputTokens ?? 0} output tokens`,
-    );
-  }
+  assertAiDigestModelFinished(result, "post selection");
+  const { headlinePosts, otherItems } = await resolveSelectedItems(result.output, scope, posts, quickTakes);
   return {
-    items: await resolveSelectedItems({
-      output: result.output,
-      posts,
-      quickTakes,
-      repeatsAllowed,
-      history,
-      user,
-      context,
-      asOf,
-    }),
     subject: decodeStrayUnicodeEscapes(result.output.subject),
     preheader: decodeStrayUnicodeEscapes(result.output.preheader),
     aiNote: result.output.aiNote.map(decodeStrayUnicodeEscapes),
+    headlinePosts,
+    otherItems,
     call: aiDigestModelCallRecord({
       purpose: "post-selection",
       modelId: AI_DIGEST_MODEL_ID,
