@@ -1415,42 +1415,33 @@ interface AdminSendBulkEmailResult {
   lastAfterUserId: string | null;
 }
 
-interface AiDigestEmailSamplePreview {
-  email: EmailPreview;
-  selectionSystemPrompt: string | null;
-  selectionUserPrompt: string | null;
+interface AiDigestModelCall {
+  purpose: string;
+  modelId: string;
+  promptVersion: string;
+  systemPrompt: string;
+  prompt: string;
   inputTokenCount: number | null;
   outputTokenCount: number | null;
   uncachedInputTokenCount: number | null;
   cacheReadInputTokenCount: number | null;
   cacheWriteInputTokenCount: number | null;
-  selectionCostUsd: number | null;
-  generationDurationMs: number;
+  costUsd: number | null;
+}
+
+interface AiDigestEmailSamplePreview {
+  email: EmailPreview;
+  durationMs: number;
+  calls: Array<AiDigestModelCall>;
 }
 
 interface AiDigestIssue {
   _id: string;
   createdAt: Date;
   recipientId: string | null;
-  postIds: Array<string> | null;
-  quickTakeIds: Array<string> | null;
-  discussionCommentIds: Array<string> | null;
-  generatedAt: Date | null;
   emailedAt: Date | null;
   trigger: AiDigestIssueTrigger | null;
   countsTowardHistory: boolean | null;
-  personalInstructions: string | null;
-  selectionModelId: string | null;
-  promptVersion: string | null;
-  selectionSystemPrompt: string | null;
-  selectionUserPrompt: string | null;
-  inputTokenCount: number | null;
-  outputTokenCount: number | null;
-  uncachedInputTokenCount: number | null;
-  cacheReadInputTokenCount: number | null;
-  cacheWriteInputTokenCount: number | null;
-  selectionCostUsd: number | null;
-  generationDurationMs: number | null;
   spec: any;
   subject: string | null;
 }
@@ -9468,6 +9459,7 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestModelCall: AiDigestModelCall;
   AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
   AiDigestIssue: AiDigestIssue;
   SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
@@ -10283,6 +10275,7 @@ interface CreateInputsByCollectionName {
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  AiDigestIssueGenerations: never;
   AiDigestIssues: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
@@ -10381,6 +10374,7 @@ interface UpdateInputsByCollectionName {
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
+  AiDigestIssueGenerations: never;
   AiDigestIssues: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;

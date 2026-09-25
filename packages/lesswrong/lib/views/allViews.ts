@@ -65,6 +65,7 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
+  AiDigestIssueGenerations: new CollectionViewSet('AiDigestIssueGenerations', {}),
   AiDigestIssues: AiDigestIssuesViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),

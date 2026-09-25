@@ -23,11 +23,6 @@ import type {
   AiDigestEmailComment,
   AiDigestEmailPost,
 } from "@/lib/generated/gql-codegen/graphql";
-import type {
-  AiDigestItem,
-  AiDigestSection,
-  AiDigestSpec,
-} from "@/lib/aiDigest/aiDigestSpec";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ContentStyles from "@/components/common/ContentStyles";

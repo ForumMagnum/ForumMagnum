@@ -106,44 +106,21 @@ type AdminSendTestEmailResult = {
 
 type AiDigestEmailSamplePreview = {
   __typename?: 'AiDigestEmailSamplePreview';
-  cacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
-  cacheWriteInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  calls: Array<AiDigestModelCall>;
+  durationMs: Scalars['Int']['output'];
   email: EmailPreview;
-  generationDurationMs: Scalars['Int']['output'];
-  inputTokenCount?: Maybe<Scalars['Int']['output']>;
-  outputTokenCount?: Maybe<Scalars['Int']['output']>;
-  selectionCostUsd?: Maybe<Scalars['Float']['output']>;
-  selectionSystemPrompt?: Maybe<Scalars['String']['output']>;
-  selectionUserPrompt?: Maybe<Scalars['String']['output']>;
-  uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type AiDigestIssue = {
   __typename?: 'AiDigestIssue';
   _id: Scalars['String']['output'];
-  cacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
-  cacheWriteInputTokenCount?: Maybe<Scalars['Int']['output']>;
   countsTowardHistory?: Maybe<Scalars['Boolean']['output']>;
   createdAt: Scalars['Date']['output'];
-  discussionCommentIds?: Maybe<Array<Scalars['String']['output']>>;
   emailedAt?: Maybe<Scalars['Date']['output']>;
-  generatedAt?: Maybe<Scalars['Date']['output']>;
-  generationDurationMs?: Maybe<Scalars['Int']['output']>;
-  inputTokenCount?: Maybe<Scalars['Int']['output']>;
-  outputTokenCount?: Maybe<Scalars['Int']['output']>;
-  personalInstructions?: Maybe<Scalars['String']['output']>;
-  postIds?: Maybe<Array<Scalars['String']['output']>>;
-  promptVersion?: Maybe<Scalars['String']['output']>;
-  quickTakeIds?: Maybe<Array<Scalars['String']['output']>>;
   recipientId?: Maybe<Scalars['String']['output']>;
-  selectionCostUsd?: Maybe<Scalars['Float']['output']>;
-  selectionModelId?: Maybe<Scalars['String']['output']>;
-  selectionSystemPrompt?: Maybe<Scalars['String']['output']>;
-  selectionUserPrompt?: Maybe<Scalars['String']['output']>;
   spec?: Maybe<Scalars['JSON']['output']>;
   subject?: Maybe<Scalars['String']['output']>;
   trigger?: Maybe<AiDigestIssueTrigger>;
-  uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type AiDigestIssueSelector = {
@@ -158,6 +135,21 @@ type AiDigestIssueTrigger =
 
 type AiDigestIssuesRecipientIssuesInput = {
   recipientId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type AiDigestModelCall = {
+  __typename?: 'AiDigestModelCall';
+  cacheReadInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  cacheWriteInputTokenCount?: Maybe<Scalars['Int']['output']>;
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  inputTokenCount?: Maybe<Scalars['Int']['output']>;
+  modelId: Scalars['String']['output'];
+  outputTokenCount?: Maybe<Scalars['Int']['output']>;
+  prompt: Scalars['String']['output'];
+  promptVersion: Scalars['String']['output'];
+  purpose: Scalars['String']['output'];
+  systemPrompt: Scalars['String']['output'];
+  uncachedInputTokenCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type AirtableLeaderboardResult = {
@@ -16861,7 +16853,7 @@ type DigestPreviewReaderQueryQuery = DigestPreviewReaderQueryQuery_Query;
 
 type AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue = (
   { __typename?: 'AiDigestIssue' }
-  & AiDigestIssuesAdminList
+  & AiDigestIssuesList
 );
 
 type AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput = { __typename?: 'MultiAiDigestIssueOutput', results: Array<AiDigestEmailSamplesQueryQuery_aiDigestIssues_MultiAiDigestIssueOutput_results_AiDigestIssue> };
@@ -16890,7 +16882,9 @@ type ClearAiDigestEmailSampleHistoryMutationMutation = ClearAiDigestEmailSampleH
 
 type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
 
-type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview = { __typename?: 'AiDigestEmailSamplePreview', selectionSystemPrompt: string | null, selectionUserPrompt: string | null, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, selectionCostUsd: number | null, generationDurationMs: number, email: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview };
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall = { __typename?: 'AiDigestModelCall', purpose: string, modelId: string, promptVersion: string, systemPrompt: string, prompt: string, inputTokenCount: number | null, outputTokenCount: number | null, uncachedInputTokenCount: number | null, cacheReadInputTokenCount: number | null, cacheWriteInputTokenCount: number | null, costUsd: number | null };
+
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview = { __typename?: 'AiDigestEmailSamplePreview', durationMs: number, email: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview, calls: Array<AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall> };
 
 type AiDigestEmailSamplePreviewQueryQuery_Query = { __typename?: 'Query', AiDigestEmailSamplePreview: AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview };
 
@@ -23889,12 +23883,7 @@ type updatePostPostsEditFormMutationVariables = Exact<{
 
 type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
-type AiDigestIssuesList = { __typename?: 'AiDigestIssue', _id: string, subject: string | null, generatedAt: string | null, trigger: AiDigestIssueTrigger | null, countsTowardHistory: boolean | null, personalInstructions: string | null };
-
-type AiDigestIssuesAdminList = (
-  { __typename?: 'AiDigestIssue', selectionModelId: string | null }
-  & AiDigestIssuesList
-);
+type AiDigestIssuesList = { __typename?: 'AiDigestIssue', _id: string, subject: string | null, createdAt: string, trigger: AiDigestIssueTrigger | null, countsTowardHistory: boolean | null };
 
 type AiDigestIssuesContent = (
   { __typename?: 'AiDigestIssue', spec: any | null }

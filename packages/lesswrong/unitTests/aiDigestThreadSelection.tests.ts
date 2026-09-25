@@ -904,7 +904,7 @@ describe("AI digest thread merge into the spec", () => {
       postIds: ["post-1"],
       quickTakeIds: [],
       discussionCommentIds: ["anchor-1"],
-      generatedAt: new Date("2026-07-10T12:00:00.000Z"),
+      createdAt: new Date("2026-07-10T12:00:00.000Z"),
       countsTowardHistory: true,
     }], []);
     expect(history.postHistoryById.get("anchor-1")).toEqual({

@@ -1,6 +1,5 @@
 import { EMAIL_SRC_QUERY_PARAM } from "@/lib/emails/emailTracking";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-import type { AiDigestSectionKind } from "@/lib/aiDigest/aiDigestSpec";
 
 /** Short codes so `emailSrc` stays legible in a hovered or shared URL. */
 const sectionCodes: Record<AiDigestSectionKind, string> = {

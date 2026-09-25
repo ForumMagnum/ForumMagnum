@@ -8,7 +8,7 @@ export const AiDigestIssues = createCollection({
   schema,
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex("AiDigestIssues", { recipientId: 1, generatedAt: -1 });
+    indexSet.addIndex("AiDigestIssues", { recipientId: 1, createdAt: -1 });
     return indexSet;
   },
 });

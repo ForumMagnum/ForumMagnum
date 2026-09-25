@@ -1605,17 +1605,24 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
-type AiDigestEmailSamplePreview {
-  email: EmailPreview!
-  selectionSystemPrompt: String
-  selectionUserPrompt: String
+type AiDigestModelCall {
+  purpose: String!
+  modelId: String!
+  promptVersion: String!
+  systemPrompt: String!
+  prompt: String!
   inputTokenCount: Int
   outputTokenCount: Int
   uncachedInputTokenCount: Int
   cacheReadInputTokenCount: Int
   cacheWriteInputTokenCount: Int
-  selectionCostUsd: Float
-  generationDurationMs: Int!
+  costUsd: Float
+}
+
+type AiDigestEmailSamplePreview {
+  email: EmailPreview!
+  durationMs: Int!
+  calls: [AiDigestModelCall!]!
 }
 
 extend type Query {
@@ -1636,25 +1643,9 @@ type AiDigestIssue {
   _id: String!
   createdAt: Date!
   recipientId: String
-  postIds: [String!]
-  quickTakeIds: [String!]
-  discussionCommentIds: [String!]
-  generatedAt: Date
   emailedAt: Date
   trigger: AiDigestIssueTrigger
   countsTowardHistory: Boolean
-  personalInstructions: String
-  selectionModelId: String
-  promptVersion: String
-  selectionSystemPrompt: String
-  selectionUserPrompt: String
-  inputTokenCount: Int
-  outputTokenCount: Int
-  uncachedInputTokenCount: Int
-  cacheReadInputTokenCount: Int
-  cacheWriteInputTokenCount: Int
-  selectionCostUsd: Float
-  generationDurationMs: Int
   spec: JSON
   subject: String
 }

@@ -20,53 +20,6 @@ const schema = {
       canRead: ["admins"],
     },
   },
-  postIds: {
-    database: {
-      type: "VARCHAR(27)[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "[String!]",
-      canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
-  quickTakeIds: {
-    database: {
-      type: "VARCHAR(27)[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "[String!]",
-      canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
-  /** Anchor comment IDs of the issue's discussion-section threads. */
-  discussionCommentIds: {
-    database: {
-      type: "VARCHAR(27)[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "[String!]",
-      canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
-  generatedAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: [userIsIssueRecipient, "admins"],
-    },
-  },
   /** When the issue was successfully emailed; null for issues never sent. */
   emailedAt: {
     database: {
@@ -109,143 +62,17 @@ const schema = {
       },
     },
   },
-  personalInstructions: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: [userIsIssueRecipient, "admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  selectionModelId: {
-    database: {
-      type: "TEXT",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
-  },
-  promptVersion: {
-    database: {
-      type: "TEXT",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
-  },
-  selectionSystemPrompt: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
-  },
-  selectionUserPrompt: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["admins"],
-    },
-  },
-  inputTokenCount: {
-    database: {
-      type: "INTEGER",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
-  outputTokenCount: {
-    database: {
-      type: "INTEGER",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
-  uncachedInputTokenCount: {
-    database: {
-      type: "INTEGER",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
-  cacheReadInputTokenCount: {
-    database: {
-      type: "INTEGER",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
-  cacheWriteInputTokenCount: {
-    database: {
-      type: "INTEGER",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
-  selectionCostUsd: {
-    database: {
-      type: "DOUBLE PRECISION",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["admins"],
-    },
-  },
-  generationDurationMs: {
-    database: {
-      type: "INTEGER",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Int",
-      canRead: ["admins"],
-    },
-  },
   spec: {
     database: {
       type: "JSONB",
       nullable: false,
-      typescriptType: "import(\"@/lib/aiDigest/aiDigestSpec\").AiDigestSpec",
+      typescriptType: "AiDigestSpec",
     },
     graphql: {
       outputType: "JSON",
       canRead: [userIsIssueRecipient, "admins"],
     },
   },
-  /** The issue's subject line, lifted out of the spec so lists needn't load it. */
   subject: {
     graphql: {
       outputType: "String",

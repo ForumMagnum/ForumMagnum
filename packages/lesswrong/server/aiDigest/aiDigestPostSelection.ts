@@ -31,7 +31,6 @@ import {
   loadAiDigestHistory,
   persistAiDigestIssue,
   type AiDigestIssueTrigger,
-  type AiDigestSelectionTokenUsage,
 } from "./aiDigestHistory";
 import {
   AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
@@ -57,11 +56,6 @@ import {
   type AiDigestSelectedThread,
   type AiDigestThreadSelectionResult,
 } from "./aiDigestThreadSelection";
-import type {
-  AiDigestItem,
-  AiDigestSection,
-  AiDigestSpec,
-} from "@/lib/aiDigest/aiDigestSpec";
 
 const AI_DIGEST_DEFAULT_SELECTION_MODEL_ID = "anthropic/claude-fable-5.1";
 const AI_DIGEST_MAX_QUICK_TAKES_PER_ISSUE = 2;
@@ -578,18 +572,21 @@ export async function generateAiDigestPostSelection({
     );
   }
   const toolUsage = getUsageCounts();
-  const tokenUsage: AiDigestSelectionTokenUsage = {
+  const selectionCall: AiDigestModelCallRecord = {
+    purpose: "post-selection",
+    modelId: selectionModelId,
+    promptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
+    systemPrompt: prompt.system,
+    prompt: prompt.prompt,
     inputTokenCount: result.totalUsage.inputTokens ?? null,
     outputTokenCount: result.totalUsage.outputTokens ?? null,
     uncachedInputTokenCount: result.totalUsage.inputTokenDetails.noCacheTokens ?? null,
     cacheReadInputTokenCount: result.totalUsage.inputTokenDetails.cacheReadTokens ?? null,
     cacheWriteInputTokenCount: result.totalUsage.inputTokenDetails.cacheWriteTokens ?? null,
+    costUsd: sumAiDigestSelectionCostUsd(
+      result.steps.map((step) => step.providerMetadata),
+    ),
   };
-  const selectionCostUsd = sumAiDigestSelectionCostUsd(
-    result.steps.map((step) => step.providerMetadata),
-  );
-  const generationDurationMs = Date.now() - generationStartedAt;
-  const generatedAt = new Date();
   const validationPostCandidates: AiDigestSelectedPostCandidate[] = [
     ...selectableCandidateCards,
     ...Array.from(discoveredRegistry.byPostId.values()),
@@ -619,25 +616,15 @@ export async function generateAiDigestPostSelection({
     previewHtmlByPostId,
   });
   const discussionCommentIds = aiDigestDiscussionCommentIdsFromSpec(spec);
+  const generationDurationMs = Date.now() - generationStartedAt;
   const issueId = await persistAiDigestIssue({
     recipientId: user._id,
-    postIds: selectedPosts.map((candidate) => candidate.postId),
-    quickTakeIds: selectedCandidates.flatMap((item) =>
-      item.documentType === "quickTake" ? [item.candidate.commentId] : [],
-    ),
-    discussionCommentIds,
-    generatedAt,
-    generationDurationMs,
     trigger: options.trigger ?? "adminSample",
     countsTowardHistory: options.countsTowardHistory ?? true,
-    personalInstructions,
-    selectionModelId,
-    promptVersion: AI_DIGEST_POST_SELECTION_PROMPT_VERSION,
-    selectionSystemPrompt: prompt.system,
-    selectionUserPrompt: prompt.prompt,
-    ...tokenUsage,
-    selectionCostUsd,
     spec,
+  }, {
+    durationMs: generationDurationMs,
+    calls: [selectionCall],
   });
 
   // Diagnostics belong in analytics; issue rows retain fields consumed by the
@@ -645,7 +632,6 @@ export async function generateAiDigestPostSelection({
   serverCaptureEvent("aiDigestGenerated", {
     userId: user._id,
     issueId,
-    generatedAt: generatedAt.toISOString(),
     trigger: options.trigger ?? "adminSample",
     countsTowardHistory: options.countsTowardHistory ?? true,
     selectionModelId,
@@ -662,8 +648,12 @@ export async function generateAiDigestPostSelection({
     historyIssueCount: history.issues.length,
     pastRecommendationCount: history.pastRecommendations.length,
     ...toolUsage,
-    ...tokenUsage,
-    selectionCostUsd,
+    inputTokenCount: selectionCall.inputTokenCount,
+    outputTokenCount: selectionCall.outputTokenCount,
+    uncachedInputTokenCount: selectionCall.uncachedInputTokenCount,
+    cacheReadInputTokenCount: selectionCall.cacheReadInputTokenCount,
+    cacheWriteInputTokenCount: selectionCall.cacheWriteInputTokenCount,
+    selectionCostUsd: selectionCall.costUsd,
     threadPromptVersion: threadSelection?.promptVersion ?? null,
     threadSelectionUserPrompt: threadSelection?.prompt.prompt ?? null,
     threadCandidateCount: countAiDigestThreadCandidates(threadCandidates),

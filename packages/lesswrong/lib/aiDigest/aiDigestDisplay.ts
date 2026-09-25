@@ -1,6 +1,5 @@
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import type { AiDigestEmailComment, AiDigestEmailPost } from "@/lib/generated/gql-codegen/graphql";
-import type { AiDigestItem, AiDigestSpec } from "./aiDigestSpec";
 import { aiDigestPresentation } from "./aiDigestPresentation";
 import { truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";

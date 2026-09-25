@@ -1,8 +1,15 @@
+// These types are global so that the `AiDigestIssues.spec` schema field can
+// name them in its `typescriptType`. To augment the global scope this must be
+// a module; to be a module, it needs at least one import or export.
+export {}
+
+declare global {
+
 /**
  * The persisted shape of one AI digest issue (`AiDigestIssues.spec`), shared
  * by the selection pipeline, the email renderer, and the on-site issue view.
  */
-export type AiDigestSectionKind = "recommendations" | "discussion" | "curated";
+type AiDigestSectionKind = "recommendations" | "discussion" | "curated";
 
 type AiDigestDocumentRef =
   | { documentType: "post"; documentId: string }
@@ -15,7 +22,7 @@ interface AiDigestThreadComment {
   commentId: string;
 }
 
-export interface AiDigestItem {
+interface AiDigestItem {
   documentRef: AiDigestDocumentRef;
   /** Omitted for quiet items (e.g. the curated module), which carry no personalized reason. */
   reason?: string;
@@ -37,19 +44,19 @@ export interface AiDigestItem {
   contextComments?: AiDigestThreadComment[];
 }
 
-export interface AiDigestSection {
+interface AiDigestSection {
   kind: AiDigestSectionKind;
   /** Omitted for sections that render without a heading (e.g. recommendations). */
   title?: string;
   items: AiDigestItem[];
 }
 
-export interface AiDigestAiNote {
+interface AiDigestAiNote {
   modelName: string;
   paragraphs: string[];
 }
 
-export interface AiDigestSpec {
+interface AiDigestSpec {
   recipientName: string;
   subject: string;
   /** Hidden preview text shown after the subject in most email clients. */
@@ -59,4 +66,6 @@ export interface AiDigestSpec {
   /** The reader's own custom instructions, echoed back beneath the AI note. */
   personalInstructions?: string;
   sections: AiDigestSection[];
+}
+
 }

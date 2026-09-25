@@ -6,10 +6,10 @@ import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHi
 import {
   generateAiDigestPostSelection,
 } from "@/server/aiDigest/aiDigestPostSelection";
+import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import Users from "@/server/collections/users/collection";
 import { AiDigestEmail } from "@/server/emailComponents/AiDigestEmail";
-import type { AiDigestSpec } from "@/lib/aiDigest/aiDigestSpec";
 import type { EmailContextType } from "@/server/emailComponents/emailContext";
 import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -89,9 +89,12 @@ export const digestEmailPreviewGraphQLQueries = {
     if (!issue) {
       throw new Error(`No stored AI digest sample found for issue ${issueId}`);
     }
-    const user = await Users.findOne(issue.recipientId);
-    if (!user) {
-      throw new Error(`No recipient found for AI digest issue ${issueId}`);
+    const [user, generation] = await Promise.all([
+      Users.findOne(issue.recipientId),
+      AiDigestIssueGenerations.findOne({ issueId }),
+    ]);
+    if (!user || !generation) {
+      throw new Error(`No recipient or generation record found for AI digest issue ${issueId}`);
     }
     const email = await renderDigestSampleForUser({
       user,
@@ -99,15 +102,8 @@ export const digestEmailPreviewGraphQLQueries = {
     });
     return {
       email,
-      selectionSystemPrompt: issue.selectionSystemPrompt,
-      selectionUserPrompt: issue.selectionUserPrompt,
-      inputTokenCount: issue.inputTokenCount,
-      outputTokenCount: issue.outputTokenCount,
-      uncachedInputTokenCount: issue.uncachedInputTokenCount,
-      cacheReadInputTokenCount: issue.cacheReadInputTokenCount,
-      cacheWriteInputTokenCount: issue.cacheWriteInputTokenCount,
-      selectionCostUsd: issue.selectionCostUsd,
-      generationDurationMs: issue.generationDurationMs,
+      durationMs: generation.durationMs,
+      calls: generation.calls,
     };
   },
 };
@@ -156,17 +152,24 @@ export const digestEmailPreviewGraphQLMutations = {
 };
 
 export const digestEmailPreviewGraphQLTypeDefs = gql`
-  type AiDigestEmailSamplePreview {
-    email: EmailPreview!
-    selectionSystemPrompt: String
-    selectionUserPrompt: String
+  type AiDigestModelCall {
+    purpose: String!
+    modelId: String!
+    promptVersion: String!
+    systemPrompt: String!
+    prompt: String!
     inputTokenCount: Int
     outputTokenCount: Int
     uncachedInputTokenCount: Int
     cacheReadInputTokenCount: Int
     cacheWriteInputTokenCount: Int
-    selectionCostUsd: Float
-    generationDurationMs: Int!
+    costUsd: Float
+  }
+
+  type AiDigestEmailSamplePreview {
+    email: EmailPreview!
+    durationMs: Int!
+    calls: [AiDigestModelCall!]!
   }
 
   extend type Query {

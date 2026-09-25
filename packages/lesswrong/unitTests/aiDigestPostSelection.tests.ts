@@ -126,7 +126,7 @@ function makeReaderData(
 
 function makeIssue(
   index: number,
-  generatedAt: Date,
+  createdAt: Date,
   postIds: string[] = [`post-${index}`],
   countsTowardHistory = true,
   quickTakeIds: string[] = [],
@@ -138,7 +138,7 @@ function makeIssue(
     postIds,
     quickTakeIds,
     discussionCommentIds,
-    generatedAt,
+    createdAt,
     countsTowardHistory,
   };
 }

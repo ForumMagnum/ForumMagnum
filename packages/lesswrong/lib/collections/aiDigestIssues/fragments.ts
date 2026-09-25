@@ -4,17 +4,9 @@ export const AiDigestIssuesList = gql(`
   fragment AiDigestIssuesList on AiDigestIssue {
     _id
     subject
-    generatedAt
+    createdAt
     trigger
     countsTowardHistory
-    personalInstructions
-  }
-`);
-
-export const AiDigestIssuesAdminList = gql(`
-  fragment AiDigestIssuesAdminList on AiDigestIssue {
-    ...AiDigestIssuesList
-    selectionModelId
   }
 `);
 

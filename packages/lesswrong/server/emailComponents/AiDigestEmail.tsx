@@ -25,12 +25,6 @@ import {
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
-import type {
-  AiDigestAiNote,
-  AiDigestItem,
-  AiDigestSection,
-  AiDigestSpec,
-} from "@/lib/aiDigest/aiDigestSpec";
 import { untrackedLinkProps } from "@/lib/emails/emailTracking";
 import { absoluteEmailUrl, aiDigestLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
 import { EmailContentItemBody } from "./EmailContentItemBody";

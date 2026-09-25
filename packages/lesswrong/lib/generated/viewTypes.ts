@@ -1,3 +1,4 @@
+type AiDigestIssueGenerationsViewName = never
 type AiDigestIssuesViewName = "recipientIssues";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
@@ -96,6 +97,7 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
+  AiDigestIssueGenerations: ViewTermsBase
   AiDigestIssues: AiDigestIssuesViewTerms
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase

@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
+import type { AiDigestEmailSamplePreviewQueryQuery } from "@/lib/generated/gql-codegen/graphql";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useSubscribedLocation, useNavigate } from "@/lib/routeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -52,7 +53,7 @@ const AiDigestEmailSamplesQuery = gql(`
       enableTotal: false
     ) {
       results {
-        ...AiDigestIssuesAdminList
+        ...AiDigestIssuesList
       }
     }
   }
@@ -73,15 +74,20 @@ const AiDigestEmailSamplePreviewQuery = gql(`
         html
         text
       }
-      selectionSystemPrompt
-      selectionUserPrompt
-      inputTokenCount
-      outputTokenCount
-      uncachedInputTokenCount
-      cacheReadInputTokenCount
-      cacheWriteInputTokenCount
-      selectionCostUsd
-      generationDurationMs
+      durationMs
+      calls {
+        purpose
+        modelId
+        promptVersion
+        systemPrompt
+        prompt
+        inputTokenCount
+        outputTokenCount
+        uncachedInputTokenCount
+        cacheReadInputTokenCount
+        cacheWriteInputTokenCount
+        costUsd
+      }
     }
   }
 `);
@@ -468,20 +474,11 @@ const styles = defineStyles("DigestEmailPreviewPage", (theme: ThemeType) => ({
   },
 }));
 
-// Nullable only because permission-gated fields are typed that way; every
-// stored issue has a generation time.
-function formatGeneratedAt(generatedAt: string | null): string {
-  return generatedAt ? new Date(generatedAt).toLocaleString() : "";
+function formatSampleListDate(createdAt: string): string {
+  return SAMPLE_LIST_DATE_FORMATTER.format(new Date(createdAt));
 }
 
-function formatSampleListDate(generatedAt: string | null): string {
-  return generatedAt ? SAMPLE_LIST_DATE_FORMATTER.format(new Date(generatedAt)) : "";
-}
-
-function formatGenerationDuration(durationMs: number | undefined): string {
-  if (!durationMs) {
-    return "Not recorded";
-  }
+function formatGenerationDuration(durationMs: number): string {
   const totalSeconds = Math.round(durationMs / 1_000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -491,10 +488,20 @@ function formatGenerationDuration(durationMs: number | undefined): string {
   return seconds === 0 ? `${minutes} min` : `${minutes} min ${seconds} sec`;
 }
 
-function formatSelectionCost(costUsd: number | null | undefined): string {
-  return costUsd === null || costUsd === undefined
-    ? "Not reported"
-    : `$${costUsd.toFixed(4)}`;
+function formatSelectionCost(costUsd: number | null): string {
+  return costUsd === null ? "Not reported" : `$${costUsd.toFixed(4)}`;
+}
+
+function modelCallMetadata(call: AiDigestEmailSamplePreviewQueryQuery["AiDigestEmailSamplePreview"]["calls"][number]): Array<[string, React.ReactNode]> {
+  return [
+    [`${call.purpose} model`, `${call.modelId} (${call.promptVersion})`],
+    [`${call.purpose} input tokens`, call.inputTokenCount ?? "Not reported"],
+    [`${call.purpose} output tokens`, call.outputTokenCount ?? "Not reported"],
+    [`${call.purpose} uncached input`, call.uncachedInputTokenCount ?? "Not reported"],
+    [`${call.purpose} cache read`, call.cacheReadInputTokenCount ?? "Not reported"],
+    [`${call.purpose} cache write`, call.cacheWriteInputTokenCount ?? "Not reported"],
+    [`${call.purpose} cost`, formatSelectionCost(call.costUsd)],
+  ];
 }
 
 function ViewportToggle({ viewport, setViewport }: {
@@ -643,25 +650,19 @@ export default function DigestEmailPreviewPage() {
   const selectedSampleDetails = selectedSampleData?.AiDigestEmailSamplePreview;
   const selectedSample = selectedSampleDetails?.email;
 
-  const metadata: Array<[string, React.ReactNode]> = selectedSampleSummary && selectedSample ? [
-    ["Generated", formatGeneratedAt(selectedSampleSummary.generatedAt)],
+  const metadata: Array<[string, React.ReactNode]> = selectedSampleSummary && selectedSampleDetails ? [
+    ["Generated", new Date(selectedSampleSummary.createdAt).toLocaleString()],
     ["Reader", activeSlug],
-    ["Recipient", selectedSample.to],
-    ["Model", selectedSampleSummary.selectionModelId],
+    ["Recipient", selectedSampleDetails.email.to],
     ["Recommendation history", selectedSampleSummary.countsTowardHistory ? "Counted" : "Scratch sample (not counted)"],
-    ["Generation time", formatGenerationDuration(selectedSampleDetails?.generationDurationMs)],
-    ["Input tokens", selectedSampleDetails?.inputTokenCount ?? "Not reported"],
-    ["Output tokens", selectedSampleDetails?.outputTokenCount ?? "Not reported"],
-    ["Uncached input", selectedSampleDetails?.uncachedInputTokenCount ?? "Not reported"],
-    ["Cache read", selectedSampleDetails?.cacheReadInputTokenCount ?? "Not reported"],
-    ["Cache write", selectedSampleDetails?.cacheWriteInputTokenCount ?? "Not reported"],
-    ["Cost", formatSelectionCost(selectedSampleDetails?.selectionCostUsd)],
+    ["Generation time", formatGenerationDuration(selectedSampleDetails.durationMs)],
+    ...selectedSampleDetails.calls.flatMap(modelCallMetadata),
     ["Issue ID", selectedSampleSummary._id],
   ] : [];
-  const storedPrompts = [
-    { label: "System prompt", text: selectedSampleDetails?.selectionSystemPrompt },
-    { label: "User prompt", text: selectedSampleDetails?.selectionUserPrompt },
-  ];
+  const storedPrompts = (selectedSampleDetails?.calls ?? []).flatMap((call) => [
+    { label: `${call.purpose} system prompt`, text: call.systemPrompt },
+    { label: `${call.purpose} user prompt`, text: call.prompt },
+  ]);
 
   return (
     <SingleColumnSection className={classes.page}>
@@ -811,7 +812,7 @@ export default function DigestEmailPreviewPage() {
                         )}
                       </span>
                       <span className={classes.sampleMetadata}>
-                        {formatSampleListDate(sample.generatedAt)}
+                        {formatSampleListDate(sample.createdAt)}
                       </span>
                     </button>
                   ))}
@@ -864,13 +865,7 @@ export default function DigestEmailPreviewPage() {
               </div>
               {promptsExpanded && selectedSampleDetails && (
                 <div className={classes.promptPanel}>
-                  {!selectedSampleDetails.selectionSystemPrompt
-                    && !selectedSampleDetails.selectionUserPrompt && (
-                    <div className={classes.emptyState}>
-                      Prompts were not stored for this older sample.
-                    </div>
-                  )}
-                  {storedPrompts.map(({ label, text }) => text && (
+                  {storedPrompts.map(({ label, text }) => (
                     <section key={label} className={classes.promptSection}>
                       <h3 className={classes.promptTitle}>{label}</h3>
                       <pre className={classes.promptText}>{text}</pre>

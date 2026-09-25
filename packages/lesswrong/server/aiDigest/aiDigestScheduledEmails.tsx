@@ -7,7 +7,6 @@ import {
   aiDigestScheduledEmailsEnabledSetting,
 } from "@/server/databaseSettings";
 import { AiDigestEmail } from "@/server/emailComponents/AiDigestEmail";
-import type { AiDigestSpec } from "@/lib/aiDigest/aiDigestSpec";
 import type { EmailContextType } from "@/server/emailComponents/emailContext";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import { findUsersToEmail } from "@/server/curationEmails/cron";
@@ -111,7 +110,7 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
   const context = computeContextFromUser({ user, isSSR: false });
   const latestIssue = await AiDigestIssues.findOne(
     { recipientId: user._id, trigger: "scheduled" },
-    { sort: { generatedAt: -1, _id: -1 } },
+    { sort: { createdAt: -1, _id: -1 } },
   );
   const result = latestIssue && !latestIssue.emailedAt
     ? { issueId: latestIssue._id, spec: latestIssue.spec }

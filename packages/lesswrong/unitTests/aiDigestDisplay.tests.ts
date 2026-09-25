@@ -1,6 +1,5 @@
 import { aiDigestDiscussionThread } from "@/lib/aiDigest/aiDigestDisplay";
 import type { AiDigestEmailComment } from "@/lib/generated/gql-codegen/graphql";
-import type { AiDigestItem } from "@/lib/aiDigest/aiDigestSpec";
 
 function comment(_id: string, parentCommentId: string | null): AiDigestEmailComment {
   return {

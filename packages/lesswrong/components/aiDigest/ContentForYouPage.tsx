@@ -305,10 +305,8 @@ interface InstructionsEditorProps {
   onSaveAndGenerate: (instructions: string, countsTowardHistory: boolean) => void;
 }
 
-// Nullable only because permission-gated fields are typed that way; every
-// issue the reader can see has a generation time.
-function formatGenerationTime(timestamp: string | null): string {
-  return timestamp ? GENERATION_TIME_FORMATTER.format(new Date(timestamp)) : "";
+function formatGenerationTime(timestamp: string): string {
+  return GENERATION_TIME_FORMATTER.format(new Date(timestamp));
 }
 
 function InstructionsEditor({
@@ -428,8 +426,8 @@ export function ContentForYouPage() {
   const effectiveIssueId = selectedIssueId ?? issues[0]?._id ?? null;
   const generationOptions: Record<string, SettingsOption> = Object.fromEntries(
     issues.map((issue) => [issue._id, {
-      label: `${isAdmin && !issue.countsTowardHistory ? "Not counted · " : ""}${formatGenerationTime(issue.generatedAt)} · ${issue.subject}`,
-      shortLabel: formatGenerationTime(issue.generatedAt),
+      label: `${isAdmin && !issue.countsTowardHistory ? "Not counted · " : ""}${formatGenerationTime(issue.createdAt)} · ${issue.subject}`,
+      shortLabel: formatGenerationTime(issue.createdAt),
     }]),
   );
   if (selectedIssueId && !generationOptions[selectedIssueId]) {
@@ -577,7 +575,7 @@ export function ContentForYouPage() {
           {!issueLoading && selectedIssue && (
             <AiDigestIssueView
               spec={selectedIssue.spec}
-              personalInstructions={selectedIssue.spec.personalInstructions ?? selectedIssue.personalInstructions}
+              personalInstructions={selectedIssue.spec.personalInstructions}
             />
           )}
         </>

@@ -5,6 +5,7 @@
 import { isAnyTest } from '../executionEnvironment';
 
 // Collection imports
+import { default as AiDigestIssueGenerations } from '../collections/aiDigestIssueGenerations/newSchema';
 import { default as AiDigestIssues } from '../collections/aiDigestIssues/newSchema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
@@ -112,7 +113,7 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  AiDigestIssues, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AiDigestIssueGenerations, AiDigestIssues, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,

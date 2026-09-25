@@ -11,7 +11,7 @@ declare global {
 function recipientIssues(terms: AiDigestIssuesViewTerms) {
   return {
     selector: { recipientId: terms.recipientId },
-    options: { sort: { generatedAt: -1, _id: -1 } },
+    options: { sort: { createdAt: -1, _id: -1 } },
   };
 }
 

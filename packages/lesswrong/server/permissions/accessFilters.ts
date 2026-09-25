@@ -436,6 +436,7 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AiDigestIssueGenerations: adminOnly,
   AiDigestIssues: aiDigestIssueCheckAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,

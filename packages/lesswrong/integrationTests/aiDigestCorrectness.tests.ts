@@ -93,10 +93,8 @@ it("clears only recommendation participation and retains sent issues", async () 
     [issueId, recipientId, 0], [oldId, recipientId, 30], [otherId, randomId(), 0],
   ] as const) {
     await db.none(`
-      INSERT INTO "AiDigestIssues" (
-        "_id", "recipientId", "generatedAt", "emailedAt", trigger,
-        "selectionModelId", "promptVersion", spec
-      ) VALUES ($1, $2, $3, $3, 'scheduled', 'test-model', 'test-prompt', '{}')
+      INSERT INTO "AiDigestIssues" ("_id", "recipientId", "createdAt", "emailedAt", trigger, spec)
+      VALUES ($1, $2, $3, $3, 'scheduled', '{}')
     `, [id, recipient, new Date(now.getTime() - ageDays * 86_400_000)]);
   }
   expect(await clearAiDigestRecommendationHistory({ recipientId, days: 7, now })).toBe(1);

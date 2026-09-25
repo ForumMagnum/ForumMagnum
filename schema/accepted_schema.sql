@@ -17,35 +17,31 @@ CREATE EXTENSION IF NOT EXISTS "vector" CASCADE;
 -- Extension "pg_trgm"
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
+-- Table "AiDigestIssueGenerations"
+CREATE TABLE "AiDigestIssueGenerations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "issueId" VARCHAR(27) NOT NULL,
+  "durationMs" INTEGER NOT NULL,
+  "calls" JSONB NOT NULL
+);
+
+-- Index "idx_AiDigestIssueGenerations_issueId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_AiDigestIssueGenerations_issueId" ON "AiDigestIssueGenerations" USING btree ("issueId");
+
 -- Table "AiDigestIssues"
 CREATE TABLE "AiDigestIssues" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "recipientId" VARCHAR(27) NOT NULL,
-  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "quickTakeIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "discussionCommentIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "generatedAt" TIMESTAMPTZ NOT NULL,
   "emailedAt" TIMESTAMPTZ,
   "trigger" TEXT NOT NULL DEFAULT 'adminSample',
   "countsTowardHistory" BOOL NOT NULL DEFAULT TRUE,
-  "personalInstructions" TEXT,
-  "selectionModelId" TEXT NOT NULL,
-  "promptVersion" TEXT NOT NULL,
-  "selectionSystemPrompt" TEXT,
-  "selectionUserPrompt" TEXT,
-  "inputTokenCount" INTEGER,
-  "outputTokenCount" INTEGER,
-  "uncachedInputTokenCount" INTEGER,
-  "cacheReadInputTokenCount" INTEGER,
-  "cacheWriteInputTokenCount" INTEGER,
-  "selectionCostUsd" DOUBLE PRECISION,
-  "generationDurationMs" INTEGER NOT NULL DEFAULT 0,
   "spec" JSONB NOT NULL
 );
 
--- Index "idx_AiDigestIssues_recipientId_generatedAt"
-CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_generatedAt" ON "AiDigestIssues" USING btree ("recipientId", "generatedAt");
+-- Index "idx_AiDigestIssues_recipientId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_createdAt" ON "AiDigestIssues" USING btree ("recipientId", "createdAt");
 
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
