@@ -1,6 +1,8 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
 import { captureException } from "@/lib/sentryWrapper";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
+import AiDigestSchedules from "@/server/collections/aiDigestSchedules/collection";
+import Users from "@/server/collections/users/collection";
 import {
   aiDigestEmailCadenceDaysSetting,
   aiDigestScheduledEmailsEnabledSetting,
@@ -8,115 +10,47 @@ import {
 import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
-import { findUsersToEmail } from "@/server/curationEmails/cron";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
+import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import AiDigestScheduleLeaseRepo from "@/server/repos/AiDigestScheduleLeaseRepo";
 import { generateAiDigestIssue } from "./aiDigestGenerateIssue";
 
-
-/**
- * Slack subtracted from the cadence when deciding whether a reader is due.
- * The job runs hourly, so without it each send would drift a little later than
- * the last one and the cadence would slowly stretch.
- */
-export const AI_DIGEST_SEND_DUE_SLACK_MS = 2 * 60 * 60 * 1_000;
-const AI_DIGEST_MIN_CADENCE_DAYS = 1;
 /**
  * Generation is a multi-minute LLM call and cron invocations are time-bounded,
- * so each run drains only a couple of readers and the next hourly run picks up
+ * so each run handles only a couple of readers and the next hourly run picks up
  * the rest. Comfortable for an admin-sized cohort.
  */
-const AI_DIGEST_SCHEDULED_SENDS_PER_RUN = 2;
-
-function boundedCadenceDays(cadenceDays: number): number {
-  return Math.max(AI_DIGEST_MIN_CADENCE_DAYS, cadenceDays);
-}
-
+const SENDS_PER_RUN = 2;
+/** Longer than any run can last, so a claim only lapses if its run died. */
+const CLAIM_DURATION_MS = 30 * 60 * 1_000;
 /**
- * The newest `emailedAt` that still leaves a reader due for another issue.
+ * The next issue is due this much before a full cadence has passed: the job
+ * runs hourly, so without it each send would drift a little later than the last.
  */
-export function aiDigestSendDueBefore(now: Date, cadenceDays: number): Date {
-  return new Date(
-    now.getTime() - (boundedCadenceDays(cadenceDays) * DAY_MS) + AI_DIGEST_SEND_DUE_SLACK_MS,
-  );
-}
+const DUE_SLACK_MS = 2 * 60 * 60 * 1_000;
 
-export function isAiDigestSendDue({
-  lastScheduledEmailAt,
-  cadenceDays,
-  now,
-}: {
-  lastScheduledEmailAt: Date | null;
-  cadenceDays: number;
-  now: Date;
-}): boolean {
-  if (!lastScheduledEmailAt) {
-    return true;
+async function loadOrGenerateIssue(
+  schedule: DbAiDigestSchedule,
+  user: DbUser,
+  context: ResolverContext,
+): Promise<{ issueId: string; spec: AiDigestSpec }> {
+  // An issue that was generated but failed to send is sent rather than regenerated.
+  const unsentIssue = schedule.issueId ? await AiDigestIssues.findOne(schedule.issueId) : null;
+  if (unsentIssue) {
+    return { issueId: unsentIssue._id, spec: unsentIssue.spec };
   }
-  return lastScheduledEmailAt <= aiDigestSendDueBefore(now, cadenceDays);
+  const issue = await generateAiDigestIssue({ user, context, trigger: "scheduled", countsTowardHistory: true });
+  await AiDigestSchedules.rawUpdateOne({ _id: schedule._id }, { $set: { issueId: issue.issueId } });
+  return issue;
 }
 
-/**
- * TODO: the beta is admin-only. Widening this to all subscribers should happen
- * alongside the other production changes (notably the 28-day candidate window
- * noted in aiDigestPostCandidates.ts).
- */
-async function loadAiDigestSubscribers(): Promise<DbUser[]> {
-  return findUsersToEmail({
-    isAdmin: true,
-    emailSubscribedToAiDigest: true,
-    deleted: { $ne: true },
-    unsubscribeFromAll: { $ne: true },
-  });
-}
-
-async function loadLastScheduledEmailAt(
-  recipientIds: string[],
-  dueBefore: Date,
-): Promise<Map<string, Date>> {
-  if (recipientIds.length === 0) {
-    return new Map();
+async function sendAiDigestToReader(schedule: DbAiDigestSchedule): Promise<void> {
+  const user = await Users.findOne(schedule.userId);
+  if (!user) {
+    throw new Error(`No user ${schedule.userId} for AI digest schedule ${schedule._id}`);
   }
-  // Only issues newer than the cutoff can make a reader not-due, so this stays
-  // bounded no matter how much history a reader accumulates.
-  const issues = await AiDigestIssues.find(
-    {
-      recipientId: { $in: recipientIds },
-      trigger: "scheduled",
-      emailedAt: { $gt: dueBefore },
-    },
-    { sort: { emailedAt: -1, _id: -1 } },
-    { recipientId: 1, emailedAt: 1 },
-  ).fetch();
-  return issues.reduce((latest, issue) => {
-    if (!issue.emailedAt) return latest;
-    const previous = latest.get(issue.recipientId);
-    if (!previous || previous < issue.emailedAt) {
-      latest.set(issue.recipientId, issue.emailedAt);
-    }
-    return latest;
-  }, new Map<string, Date>());
-}
-
-async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>): Promise<void> {
   const context = computeContextFromUser({ user, isSSR: false });
-  const latestIssue = await AiDigestIssues.findOne(
-    { recipientId: user._id, trigger: "scheduled" },
-    { sort: { createdAt: -1, _id: -1 } },
-  );
-  const result = latestIssue && !latestIssue.emailedAt
-    ? { issueId: latestIssue._id, spec: latestIssue.spec }
-    : await generateAiDigestIssue({
-      user,
-      context,
-      trigger: "scheduled",
-      countsTowardHistory: true,
-    });
-  const { issueId, spec } = result;
-  // A generation that outlives its lease must not send after another worker
-  // takes over. Its persisted issue remains available to the next retry.
-  await assertLease();
+  const { issueId, spec } = await loadOrGenerateIssue(schedule, user, context);
   const sent = await wrapAndSendEmail({
     forumType: "LessWrong",
     user,
@@ -127,10 +61,16 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
   if (!sent) {
     throw new Error(`Failed to send scheduled AI digest issue ${issueId} to ${user._id}`);
   }
-  await AiDigestIssues.rawUpdateOne(
-    { _id: issueId },
-    { $set: { emailedAt: new Date() } },
-  );
+  const sentAt = new Date();
+  const cadenceDays = Math.max(1, aiDigestEmailCadenceDaysSetting.get("LessWrong"));
+  await AiDigestIssues.rawUpdateOne({ _id: issueId }, { $set: { emailedAt: sentAt } });
+  await AiDigestSchedules.rawUpdateOne({ _id: schedule._id }, {
+    $set: {
+      nextDueAt: new Date(sentAt.getTime() + (cadenceDays * DAY_MS) - DUE_SLACK_MS),
+      claimedUntil: null,
+      issueId: null,
+    },
+  });
   await createNotification({
     userId: user._id,
     notificationType: "aiDigestReady",
@@ -141,53 +81,26 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
   });
 }
 
-async function assertScheduledDigestLease(leaseRepo: AiDigestScheduleLeaseRepo, token: string): Promise<void> {
-  if (!await leaseRepo.renew(token)) {
-    throw new Error("Scheduled AI digest lease expired or was lost");
-  }
-}
-
-export async function sendScheduledAiDigestEmails(now = new Date()): Promise<void> {
+export async function sendScheduledAiDigestEmails(): Promise<void> {
   if (!aiDigestScheduledEmailsEnabledSetting.get("LessWrong")) {
     return;
   }
-  const leaseRepo = new AiDigestScheduleLeaseRepo();
-  const token = await leaseRepo.tryAcquire();
-  if (!token) return;
-  const assertLease = assertScheduledDigestLease.bind(null, leaseRepo, token);
-  try {
-    await sendScheduledAiDigestBatch(now, assertLease);
-  } finally {
-    await leaseRepo.release(token);
-  }
-}
-
-async function sendScheduledAiDigestBatch(now: Date, assertLease: () => Promise<void>): Promise<void> {
-  const cadenceDays = aiDigestEmailCadenceDaysSetting.get("LessWrong");
-  const subscribers = await loadAiDigestSubscribers();
-  const lastScheduledEmailAt = await loadLastScheduledEmailAt(
-    subscribers.map((user) => user._id),
-    aiDigestSendDueBefore(now, cadenceDays),
-  );
-  const dueUsers = subscribers
-    .filter((user) => isAiDigestSendDue({
-      lastScheduledEmailAt: lastScheduledEmailAt.get(user._id) ?? null,
-      cadenceDays,
-      now,
-    }))
-    .slice(0, AI_DIGEST_SCHEDULED_SENDS_PER_RUN);
-
-  for (const user of dueUsers) {
-    // Stop the batch if ownership expired; do not start more expensive work.
-    await assertLease();
-    // One reader's failed generation or send must not block the others. A
-    // failed generation or unsent issue is retried next hour.
+  const schedulesRepo = new AiDigestSchedulesRepo();
+  await schedulesRepo.addMissingSchedules();
+  const schedules = await schedulesRepo.claimDueSchedules({
+    limit: SENDS_PER_RUN,
+    claimDurationMs: CLAIM_DURATION_MS,
+  });
+  for (const schedule of schedules) {
+    // One reader's failed generation or send must not block the others; it is
+    // retried on the next run.
     try {
-      await sendAiDigestToUser(user, assertLease);
+      await sendAiDigestToReader(schedule);
     } catch (error) {
       captureException(error);
       // eslint-disable-next-line no-console
-      console.error(`Scheduled AI digest failed for user ${user._id}`, error);
+      console.error(`Scheduled AI digest failed for user ${schedule.userId}`, error);
+      await AiDigestSchedules.rawUpdateOne({ _id: schedule._id }, { $set: { claimedUntil: null } });
     }
   }
 }

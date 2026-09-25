@@ -43,6 +43,19 @@ CREATE TABLE "AiDigestIssues" (
 -- Index "idx_AiDigestIssues_recipientId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_createdAt" ON "AiDigestIssues" USING btree ("recipientId", "createdAt");
 
+-- Table "AiDigestSchedules"
+CREATE TABLE "AiDigestSchedules" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "nextDueAt" TIMESTAMPTZ NOT NULL,
+  "claimedUntil" TIMESTAMPTZ,
+  "issueId" VARCHAR(27)
+);
+
+-- Index "idx_AiDigestSchedules_userId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_AiDigestSchedules_userId" ON "AiDigestSchedules" USING btree ("userId");
+
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,

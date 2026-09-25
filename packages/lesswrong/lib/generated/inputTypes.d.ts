@@ -10284,6 +10284,7 @@ interface CreateInputsByCollectionName {
   Users: CreateUserInput;
   AiDigestIssueGenerations: never;
   AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10383,6 +10384,7 @@ interface UpdateInputsByCollectionName {
   Users: UpdateUserInput;
   AiDigestIssueGenerations: never;
   AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;

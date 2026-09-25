@@ -29,6 +29,17 @@ interface DbAiDigestIssue extends DbObject {
   trigger: "adminSample" | "userPreview" | "scheduled"
 }
 
+type AiDigestSchedulesCollection = PgCollection<"AiDigestSchedules">;
+
+interface DbAiDigestSchedule extends DbObject {
+  __collectionName?: "AiDigestSchedules"
+  claimedUntil: Date | null
+  createdAt: Date
+  issueId: string | null
+  nextDueAt: Date
+  userId: string
+}
+
 type ArbitalCachesCollection = PgCollection<"ArbitalCaches">;
 
 interface DbArbitalCaches extends DbObject {
@@ -2363,6 +2374,7 @@ interface DbYjsDocument extends DbObject {
 interface CollectionsByName {
   AiDigestIssueGenerations: AiDigestIssueGenerationsCollection
   AiDigestIssues: AiDigestIssuesCollection
+  AiDigestSchedules: AiDigestSchedulesCollection
   ArbitalCaches: ArbitalCachesCollection
   ArbitalTagContentRels: ArbitalTagContentRelsCollection
   AutomatedContentEvaluations: AutomatedContentEvaluationsCollection
@@ -2463,6 +2475,7 @@ interface CollectionsByName {
 interface ObjectsByCollectionName {
   AiDigestIssueGenerations: DbAiDigestIssueGeneration
   AiDigestIssues: DbAiDigestIssue
+  AiDigestSchedules: DbAiDigestSchedule
   ArbitalCaches: DbArbitalCaches
   ArbitalTagContentRels: DbArbitalTagContentRel
   AutomatedContentEvaluations: DbAutomatedContentEvaluation
@@ -2563,6 +2576,7 @@ interface ObjectsByCollectionName {
 interface ObjectsByTypeName {
   AiDigestIssueGeneration: DbAiDigestIssueGeneration
   AiDigestIssue: DbAiDigestIssue
+  AiDigestSchedule: DbAiDigestSchedule
   ArbitalCaches: DbArbitalCaches
   ArbitalTagContentRel: DbArbitalTagContentRel
   AutomatedContentEvaluation: DbAutomatedContentEvaluation
