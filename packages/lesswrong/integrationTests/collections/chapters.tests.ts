@@ -110,6 +110,17 @@ describe('Chapters editing by sequence owners', () => {
     response.data?.updateChapter.data.number.should.equal(3);
   });
 
+  it("doesn't let another user add a chapter to someone else's sequence", async () => {
+    const owner = await createDummyUser();
+    const otherUser = await createDummyUser();
+    const { sequenceId } = await createSequenceAs(owner);
+    await withNoLogs(async () => {
+      await addChapterAs(otherUser, sequenceId, []).should.be.rejected;
+    });
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
+    (await Chapters.find({sequenceId}).fetch()).length.should.equal(1);
+  });
+
   it("doesn't let another user set a chapter title", async () => {
     const owner = await createDummyUser();
     const otherUser = await createDummyUser();

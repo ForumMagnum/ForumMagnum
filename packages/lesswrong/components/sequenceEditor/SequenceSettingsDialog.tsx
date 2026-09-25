@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import LWDialog from "../common/LWDialog";
 import { DialogTitle } from "../widgets/DialogTitle";
@@ -70,6 +70,19 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
+  // Settings save as soon as they change. If a save fails, put the form back
+  // to the last saved values so it doesn't show a setting the server didn't take.
+  const lastSavedValuesRef = useRef(form.state.values);
+  const saveSetting = (data: UpdateSequenceDataInput) => {
+    void saveSequenceNow(data).then((saved) => {
+      if (saved) {
+        lastSavedValuesRef.current = form.state.values;
+      } else {
+        form.reset(lastSavedValuesRef.current);
+      }
+    });
+  };
+
   const { uploadImage: uploadCardImage } = useImageUpload({
     imageType: "gridImageId",
     onUploadSuccess: (gridImageId: string) => updateSequence({ gridImageId }),
@@ -101,11 +114,11 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       <div className={classes.section}>
-        <form.Field name="hideFromAuthorPage" listeners={{ onChange: ({ value }) => updateSequence({ hideFromAuthorPage: value }) }}>
+        <form.Field name="hideFromAuthorPage" listeners={{ onChange: ({ value }) => saveSetting({ hideFromAuthorPage: value }) }}>
           {(field) => <FormComponentCheckbox field={field} label="Hide from my user profile" />}
         </form.Field>
         {userIsMemberOf(currentUser, 'alignmentVoters') &&
-          <form.Field name="af" listeners={{ onChange: ({ value }) => updateSequence({ af: value }) }}>
+          <form.Field name="af" listeners={{ onChange: ({ value }) => saveSetting({ af: value }) }}>
             {(field) => <FormComponentCheckbox field={field} label="Alignment Forum" />}
           </form.Field>
         }
@@ -114,29 +127,29 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
       {userIsAdminOrMod(currentUser) && <div className={classes.section}>
         <div className={classes.sectionTitle}>Admin options</div>
         {userIsAdmin(currentUser) && <div className={classes.field}>
-          <form.Field name="userId" listeners={{ onChange: ({ value }) => value && updateSequence({ userId: value }) }}>
+          <form.Field name="userId" listeners={{ onChange: ({ value }) => value && saveSetting({ userId: value }) }}>
             {(field) => <FormUserSelect field={field} label="Set author" />}
           </form.Field>
         </div>}
         {userIsAdmin(currentUser) && <div className={classes.field}>
-          <form.Field name="curatedOrder" listeners={{ onBlur: ({ value }) => updateSequence({ curatedOrder: value }) }}>
+          <form.Field name="curatedOrder" listeners={{ onBlur: ({ value }) => saveSetting({ curatedOrder: value }) }}>
             {(field) => <MuiTextField field={field} type="number" label="Curated order" />}
           </form.Field>
         </div>}
         <div className={classes.field}>
-          <form.Field name="userProfileOrder" listeners={{ onBlur: ({ value }) => updateSequence({ userProfileOrder: value }) }}>
+          <form.Field name="userProfileOrder" listeners={{ onBlur: ({ value }) => saveSetting({ userProfileOrder: value }) }}>
             {(field) => <MuiTextField field={field} type="number" label="User profile order" />}
           </form.Field>
         </div>
         {userIsAdmin(currentUser) && <div className={classes.field}>
-          <form.Field name="canonicalCollectionSlug" listeners={{ onBlur: ({ value }) => updateSequence({ canonicalCollectionSlug: value }) }}>
+          <form.Field name="canonicalCollectionSlug" listeners={{ onBlur: ({ value }) => saveSetting({ canonicalCollectionSlug: value }) }}>
             {(field) => <MuiTextField field={field} label="Collection slug" />}
           </form.Field>
         </div>}
-        <form.Field name="hidden" listeners={{ onChange: ({ value }) => updateSequence({ hidden: value }) }}>
+        <form.Field name="hidden" listeners={{ onChange: ({ value }) => saveSetting({ hidden: value }) }}>
           {(field) => <FormComponentCheckbox field={field} label="Hidden (not listed or searchable, but reachable by link)" />}
         </form.Field>
-        <form.Field name="noindex" listeners={{ onChange: ({ value }) => updateSequence({ noindex: value }) }}>
+        <form.Field name="noindex" listeners={{ onChange: ({ value }) => saveSetting({ noindex: value }) }}>
           {(field) => <FormComponentCheckbox field={field} label="Noindex" />}
         </form.Field>
       </div>}

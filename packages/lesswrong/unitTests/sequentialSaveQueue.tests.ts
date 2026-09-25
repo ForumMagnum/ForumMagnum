@@ -39,6 +39,23 @@ describe("createSaveQueue", () => {
     expect(secondRan).toBe(true);
   });
 
+  it("runs a save queued from a rollback after the saves already waiting", async () => {
+    const events: string[] = [];
+    const queue = createSaveQueue({ onStatusChange: () => {}, onError: () => {} });
+
+    queue.enqueue(
+      async () => { throw new Error("first fails"); },
+      () => queue.enqueue(async () => { events.push("reload"); }, () => {}),
+    );
+    queue.enqueue(async () => { events.push("second"); }, () => {});
+    queue.enqueue(async () => { events.push("third"); }, () => {});
+    await queue.drain();
+    // drain() resolves at the tail known when it was called; wait for the reload too.
+    await queue.drain();
+
+    expect(events).toEqual(["second", "third", "reload"]);
+  });
+
   it("reports saving, then saved", async () => {
     const statuses: SaveStatus[] = [];
     const queue = createSaveQueue({ onStatusChange: (s) => statuses.push(s), onError: () => {} });

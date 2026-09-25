@@ -57,16 +57,16 @@ const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => (
   },
 }));
 
-/**
- * The sequence description, edited in place. Unlike everything else on the
- * page it doesn't save as you go: it has its own Save / Publish changes and
- * Cancel buttons. Publish and Move to Drafts in the bottom bar also save it,
- * through the handle registered in descriptionDraftRef.
- */
-function editorText(contents: SequencesEdit["contents"]): string {
+function editorText(contents: { originalContents?: { data?: string | null } | null } | null | undefined): string {
   return contents?.originalContents?.data ?? "";
 }
 
+/**
+ * The sequence description, edited in place. Unlike everything else on the
+ * page it doesn't save as you go: it has its own Save / Publish changes and
+ * Cancel buttons. Publish, Move to Drafts and Done editing also save it (or
+ * ask about it), through the handle registered in descriptionDraftRef.
+ */
 const SequenceDescriptionEditor = () => {
   const classes = useStyles(styles);
   const { sequence, saveSequenceNow, descriptionDraftRef, descriptionIsDirty, setDescriptionIsDirty } = useSequenceEditor();
@@ -81,47 +81,86 @@ const SequenceDescriptionEditor = () => {
     defaultValues: { contents: sequence.contents },
   });
 
-  // Whether the description is unsaved is decided by comparing the editor's
-  // text with the last saved text. (The form field's own dirty flag isn't
-  // reliable here: the editor re-sends its contents after a save, in a
-  // slightly different shape, which marks the field dirty again.)
-  const savedTextRef = useRef(editorText(sequence.contents));
+  // The saved description, kept current as saves update the cached sequence.
+  const savedContentsRef = useRef(sequence.contents);
+  savedContentsRef.current = sequence.contents;
+
+  // Set once the author has changed the description since it was last saved
+  // or cancelled. Loading an older (CKEditor/draftJS) description can reformat
+  // it without the author changing anything, so an unchanged editor is never
+  // treated as unsaved.
+  const editedRef = useRef(false);
+
+  // Unsaved means edited, and different from the saved text. The editor only
+  // copies its text into the form every few seconds, so callers that act on
+  // this flush it first (getUnsavedContents); the live flag below is just for
+  // enabling the buttons.
   const hasUnsavedText = useCallback(
-    () => editorText(form.state.values.contents) !== savedTextRef.current,
+    () => editedRef.current && editorText(form.state.values.contents) !== editorText(savedContentsRef.current),
     [form],
   );
 
   const getUnsavedContents = useCallback(async () => {
-    if (!hasUnsavedText()) {
+    if (!editedRef.current) {
       return undefined;
     }
     await onSubmitCallback.current?.();
+    if (!hasUnsavedText()) {
+      return undefined;
+    }
     return sanitizeEditableFieldValues({ contents: form.state.values.contents }, ["contents"]).contents ?? undefined;
   }, [form, onSubmitCallback, hasUnsavedText]);
 
-  // After a save, make the current text the new baseline, and clear the
-  // editor's browser backup without clearing the editor.
-  const markSaved = useCallback(() => {
-    savedTextRef.current = editorText(form.state.values.contents);
-    form.reset(form.state.values);
+  // Clears the editor's browser backup without clearing the editor.
+  const clearBackup = useCallback(() => {
     onSuccessCallback.current?.(sequence, { noReload: true });
+  }, [onSuccessCallback, sequence]);
+
+  const markSaved = useCallback(() => {
+    editedRef.current = false;
+    clearBackup();
     setDescriptionIsDirty(false);
-  }, [form, onSuccessCallback, sequence, setDescriptionIsDirty]);
+  }, [clearBackup, setDescriptionIsDirty]);
 
   useEffect(() => {
-    descriptionDraftRef.current = { getUnsavedContents, markSaved };
+    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: clearBackup };
     return () => { descriptionDraftRef.current = null; };
-  }, [descriptionDraftRef, getUnsavedContents, markSaved]);
+  }, [descriptionDraftRef, getUnsavedContents, markSaved, clearBackup]);
 
+  // Edits are noticed two ways: `beforeinput` events from the editor fire on
+  // every keystroke, paste or delete (Lexical cancels them and applies the
+  // edit itself, so plain `input` events never fire), while the form only
+  // hears about changes every few seconds.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const markEdited = () => {
+      editedRef.current = true;
+      setDescriptionIsDirty(true);
+    };
+    root.addEventListener("beforeinput", markEdited);
+    return () => root.removeEventListener("beforeinput", markEdited);
+  }, [setDescriptionIsDirty]);
+  const lastSeenContentsRef = useRef(form.state.values.contents);
   useEffect(() => form.store.subscribe(() => {
-    setDescriptionIsDirty(hasUnsavedText());
+    if (form.state.values.contents !== lastSeenContentsRef.current) {
+      lastSeenContentsRef.current = form.state.values.contents;
+      editedRef.current = true;
+    }
+    if (editedRef.current) {
+      setDescriptionIsDirty(hasUnsavedText());
+    }
   }), [form, hasUnsavedText, setDescriptionIsDirty]);
 
   const save = async () => {
     setIsSaving(true);
     try {
       const contents = await getUnsavedContents();
-      if (contents && await saveSequenceNow({ contents })) {
+      if (!contents) {
+        // Edited, but back to the saved text: nothing to save.
+        markSaved();
+      } else if (await saveSequenceNow({ contents })) {
         markSaved();
       }
     } finally {
@@ -130,13 +169,15 @@ const SequenceDescriptionEditor = () => {
   };
 
   const cancel = () => {
-    form.reset();
-    onSuccessCallback.current?.(sequence, { noReload: true });
+    form.reset({ contents: savedContentsRef.current });
+    lastSeenContentsRef.current = form.state.values.contents;
+    editedRef.current = false;
+    clearBackup();
     setDescriptionIsDirty(false);
     setEditorKey((key) => key + 1);
   };
 
-  return <div className={classes.root}>
+  return <div className={classes.root} ref={rootRef}>
     <form.Field name="contents">
       {(field) => <EditorFormComponent
         key={editorKey}

@@ -33,7 +33,7 @@ export function editCheck(user: DbUser | null, document: DbSequence | null) {
 }
 
 // Post pages show their sequence's title and navigation.
-async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
+export async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
   const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
   await invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
 }

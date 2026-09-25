@@ -53,7 +53,7 @@ const AutoGrowTextarea = ({ className, value, onChange, onBlur, placeholder, ari
     onChange={(e) => onChange(singleLine ? e.target.value.replace(/\n/g, " ") : e.target.value)}
     onBlur={onBlur}
     onKeyDown={(e) => {
-      if (singleLine && e.key === "Enter") {
+      if (singleLine && e.key === "Enter" && !e.nativeEvent.isComposing) {
         e.preventDefault();
         e.currentTarget.blur();
       }

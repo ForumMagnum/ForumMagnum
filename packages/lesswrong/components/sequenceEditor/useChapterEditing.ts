@@ -83,7 +83,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
   initialChapters: ChaptersEdit[],
   refetchChapters: () => Promise<ChaptersEdit[]>,
 }): ChapterEditing {
-  const { enqueueSave } = useSequenceEditor();
+  const { enqueueSave, drainSaves } = useSequenceEditor();
   const [chapters, setChaptersState] = useState<EditableChapter[]>(() => initialChapters.map(toEditableChapter));
   const [loadedPosts, setLoadedPosts] = useState<Record<string, PostsList>>(() => postsById(initialChapters));
   const chaptersRef = useRef(chapters);
@@ -106,13 +106,34 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
 
   const realId = useCallback((chapterId: string) => realIdsRef.current[chapterId] ?? chapterId, []);
 
-  const resyncFromServer = useCallback(async () => {
-    const serverChapters = await refetchChapters();
-    realIdsRef.current = {};
-    numbersRef.current = Object.fromEntries(serverChapters.map((chapter) => [chapter._id, chapter.number ?? null]));
-    setLoadedPosts(postsById(serverChapters));
-    setChapters(serverChapters.map(toEditableChapter));
-  }, [refetchChapters, setChapters]);
+  // After a failed save, reload the chapters from the server, but only once
+  // every queued save has finished: reloading earlier would show a state that
+  // later saves then change behind the page's back. Temporary-to-real id
+  // mappings are kept, since saves queued before the reload may still use them.
+  const resyncPendingRef = useRef(false);
+  const resyncFromServer = useCallback(() => {
+    if (resyncPendingRef.current) return;
+    resyncPendingRef.current = true;
+    void (async () => {
+      try {
+        let tail = drainSaves();
+        await tail;
+        while (drainSaves() !== tail) {
+          tail = drainSaves();
+          await tail;
+        }
+        const serverChapters = await refetchChapters();
+        numbersRef.current = Object.fromEntries(serverChapters.map((chapter) => [chapter._id, chapter.number ?? null]));
+        setLoadedPosts(postsById(serverChapters));
+        setChapters(serverChapters.map(toEditableChapter));
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Couldn't reload the sequence's chapters", e);
+      } finally {
+        resyncPendingRef.current = false;
+      }
+    })();
+  }, [drainSaves, refetchChapters, setChapters]);
 
   const rememberPosts = useCallback((chapter: ChaptersEdit | null | undefined) => {
     if (chapter) {
@@ -124,7 +145,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     enqueueSave(async () => {
       const result = await updateChapterMutation({ variables: { selector: { _id: realId(chapterId) }, data } });
       rememberPosts(result.data?.updateChapter?.data);
-    }, () => void resyncFromServer());
+    }, resyncFromServer);
   }, [enqueueSave, updateChapterMutation, realId, rememberPosts, resyncFromServer]);
 
   // Chapters are ordered by `number`. Older chapters often have none, so give
@@ -167,7 +188,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     } else {
       enqueueSave(
         () => movePostMutation({ variables: { postId, fromChapterId: realId(fromChapterId), toChapterId: realId(toChapterId), toIndex } }),
-        () => void resyncFromServer(),
+        resyncFromServer,
       );
     }
   }, [setChapters, savePostIds, enqueueSave, movePostMutation, realId, resyncFromServer]);
@@ -202,7 +223,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
       const created = result.data?.createChapter?.data;
       if (!created) throw new Error("Couldn't create the chapter");
       realIdsRef.current[tempId] = created._id;
-    }, () => void resyncFromServer());
+    }, resyncFromServer);
     return tempId;
   }, [saveChapterOrder, setChapters, enqueueSave, createChapterMutation, sequenceId, resyncFromServer]);
 
@@ -219,7 +240,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     setChapters(current.filter((c) => c._id !== chapterId));
     enqueueSave(
       () => deleteChapterMutation({ variables: { chapterId: realId(chapterId) }, refetchQueries: [READING_CHAPTERS_QUERY] }),
-      () => void resyncFromServer(),
+      resyncFromServer,
     );
   }, [setChapters, saveChapter, enqueueSave, deleteChapterMutation, realId, resyncFromServer]);
 
