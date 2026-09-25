@@ -18,12 +18,12 @@ const SequenceEditPostRowQuery = gql(`
   }
 `);
 
+/** Rows are the same height as post rows in reading mode (48px). */
 const styles = defineStyles("SequenceEditPostRow", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    // Rows are the same height as post rows in reading mode (48px).
     minHeight: 48,
     padding: "0 4px",
     borderBottom: theme.palette.border.itemSeparatorBottom,
@@ -114,11 +114,11 @@ function useRowPost(postId: string, loadedPost: PostsList | undefined) {
 
 /**
  * A post in the sequence editor: drag handle, karma, title, author, a menu of
- * moves (for when dragging is awkward), and a remove button.
+ * moves (for when dragging is awkward), and a remove button. `loadedPost` is
+ * the post if the chapter query already loaded it; otherwise it's fetched.
  */
 const SequenceEditPostRow = ({ postId, loadedPost, dragHandleProps, isDragging, menuItems, onRemove }: {
   postId: string,
-  /** The post, if the chapter query already loaded it. Otherwise it's fetched. */
   loadedPost?: PostsList,
   dragHandleProps?: DragHandleProps,
   isDragging?: boolean,

@@ -4,6 +4,12 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted } from "@/lib/vulcan-users/permissions";
 
+/**
+ * Chapters have no userId, so field-level ownership checks can't apply to
+ * them. Their editable fields (title, number, contents) are open to members
+ * here; the document-level newCheck/editCheck in the chapter mutations limits
+ * them to the parent sequence's owner and admins.
+ */
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -20,9 +26,6 @@ const schema = {
       outputType: "Revision",
       inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
-      // Chapters have no userId, so field-level ownership checks can't apply.
-      // The document-level newCheck/editCheck in the chapter mutations limits
-      // this to the parent sequence's owner and admins.
       canUpdate: ["members"],
       canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: false },
@@ -42,7 +45,6 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      // Limited to the parent sequence's owner and admins by the document-level checks
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
@@ -71,7 +73,6 @@ const schema = {
     graphql: {
       outputType: "Float",
       canRead: ["guests"],
-      // Limited to the parent sequence's owner and admins by the document-level checks
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {

@@ -8,6 +8,10 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
 
+/**
+ * The current user's five most recently edited drafts and ten most recent
+ * published posts, listed before they start searching.
+ */
 const SequenceAddPostRecentPostsQuery = gql(`
   query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {
     drafts: posts(selector: $draftsSelector, limit: 5, enableTotal: false) {
@@ -123,6 +127,7 @@ const styles = defineStyles("SequenceAddPostBox", (theme: ThemeType) => ({
   },
 }));
 
+/** A post as listed in the add-post box, from either a post query or a search hit. */
 interface AddablePost {
   _id: string;
   title: string;
@@ -151,18 +156,23 @@ function fromSearchHit(hit: SearchPost): AddablePost {
   };
 }
 
-async function searchPosts(query: string, currentUserId: string | undefined): Promise<AddablePost[]> {
-  const indexName = getSearchIndexName("Posts");
-  const searchParams = (hitsPerPage: number, facetFilters: string[][]) => ({
-    indexName,
+function postSearchRequest(query: string, hitsPerPage: number, facetFilters: string[][]) {
+  return {
+    indexName: getSearchIndexName("Posts"),
     query,
     params: { query, hitsPerPage, facetFilters },
-  });
-  // Two searches: the author's own posts, then everyone's. Own posts are the
-  // common case, so they're listed first.
+  };
+}
+
+/**
+ * Searches for posts matching `query`: up to five of the current user's own
+ * posts first (the common case), then up to ten from the whole site, without
+ * duplicates.
+ */
+async function searchPosts(query: string, currentUserId: string | undefined): Promise<AddablePost[]> {
   const response = await getSearchClient().search<SearchPost>([
-    ...(currentUserId ? [searchParams(5, [[`userId:${currentUserId}`]])] : []),
-    searchParams(10, []),
+    ...(currentUserId ? [postSearchRequest(query, 5, [[`userId:${currentUserId}`]])] : []),
+    postSearchRequest(query, 10, []),
   ]);
   const hits = (response?.results ?? []).flatMap((result) => result.hits);
   return uniqBy(hits.map(fromSearchHit), (post) => post._id);
@@ -171,29 +181,13 @@ async function searchPosts(query: string, currentUserId: string | undefined): Pr
 const SEARCH_DEBOUNCE_MS = 250;
 
 /**
- * An inline box for adding posts to a chapter. Before typing it lists the
- * author's recent posts and drafts; typing searches the whole site.
+ * Runs `searchPosts` for the typed query, once typing pauses. `searchResults`
+ * is null while the query is empty, and a failed search shows no results.
+ * Results for a query that has since changed are ignored.
  */
-const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
-  onAdd: (postId: string) => void,
-  onClose: () => void,
-  /** For posts already in the sequence, the name of the chapter they're in. */
-  getChapterNameForPost: (postId: string) => string | null,
-}) => {
-  const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  const [query, setQuery] = useState("");
+function useDebouncedPostSearch(query: string, currentUserId: string | undefined) {
   const [searchResults, setSearchResults] = useState<AddablePost[] | null>(null);
   const [searching, setSearching] = useState(false);
-
-  const { data: recentData, loading: recentLoading } = useQuery(SequenceAddPostRecentPostsQuery, {
-    variables: {
-      draftsSelector: { drafts: { userId: currentUser?._id, sortDraftsBy: "lastModified" } },
-      publishedSelector: { userPosts: { userId: currentUser?._id } },
-    },
-    skip: !currentUser,
-    ssr: false,
-  });
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -204,7 +198,7 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
     let cancelled = false;
     setSearching(true);
     const timer = setTimeout(() => {
-      searchPosts(trimmed, currentUser?._id)
+      searchPosts(trimmed, currentUserId)
         .then((results) => { if (!cancelled) setSearchResults(results); })
         .catch(() => { if (!cancelled) setSearchResults([]); })
         .finally(() => { if (!cancelled) setSearching(false); });
@@ -213,37 +207,79 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query, currentUser?._id]);
+  }, [query, currentUserId]);
+
+  return { searchResults, searching };
+}
+
+/**
+ * One post in the add-post box. A post already in the sequence (`chapterName`
+ * set) is shown disabled, with the chapter it's in instead of its author.
+ */
+const AddablePostRow = ({ post, chapterName, onAdd }: {
+  post: AddablePost,
+  chapterName: string | null,
+  onAdd: (postId: string) => void,
+}) => {
+  const classes = useStyles(styles);
+  return <button
+    className={classes.result}
+    disabled={chapterName !== null}
+    onClick={() => onAdd(post._id)}
+  >
+    <span className={classes.resultTitle}>
+      {post.draft && <span className={classes.draftLabel}>[Draft]</span>}
+      {post.title}
+    </span>
+    <span className={classes.resultMeta}>
+      {chapterName !== null
+        ? `Already in ${chapterName}`
+        : `${post.authorName ?? ""} · ${post.baseScore} karma`}
+    </span>
+  </button>;
+};
+
+/**
+ * An inline box for adding posts to a chapter. Before typing it lists the
+ * author's recent drafts and posts; typing searches the whole site.
+ * `getChapterNameForPost` names the chapter a post is already in, or returns
+ * null for posts not in the sequence.
+ */
+const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
+  onAdd: (postId: string) => void,
+  onClose: () => void,
+  getChapterNameForPost: (postId: string) => string | null,
+}) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const [query, setQuery] = useState("");
+  const { searchResults, searching } = useDebouncedPostSearch(query, currentUser?._id);
+
+  const { data: recentData, loading: recentLoading } = useQuery(SequenceAddPostRecentPostsQuery, {
+    variables: {
+      draftsSelector: { drafts: { userId: currentUser?._id, sortDraftsBy: "lastModified" } },
+      publishedSelector: { userPosts: { userId: currentUser?._id } },
+    },
+    skip: !currentUser,
+    ssr: false,
+  });
 
   const recentDrafts = (recentData?.drafts?.results ?? []).map(fromPostsList);
   const recentPublished = (recentData?.published?.results ?? []).map(fromPostsList);
 
-  const renderPost = (post: AddablePost) => {
-    const chapterName = getChapterNameForPost(post._id);
-    return <button
-      key={post._id}
-      className={classes.result}
-      disabled={chapterName !== null}
-      onClick={() => onAdd(post._id)}
-    >
-      <span className={classes.resultTitle}>
-        {post.draft && <span className={classes.draftLabel}>[Draft]</span>}
-        {post.title}
-      </span>
-      <span className={classes.resultMeta}>
-        {chapterName !== null
-          ? `Already in ${chapterName}`
-          : `${post.authorName ?? ""} · ${post.baseScore} karma`}
-      </span>
-    </button>;
-  };
+  const postRows = (posts: AddablePost[]) => posts.map((post) => <AddablePostRow
+    key={post._id}
+    post={post}
+    chapterName={getChapterNameForPost(post._id)}
+    onAdd={onAdd}
+  />);
 
   const renderResults = () => {
     if (searchResults !== null) {
       if (!searchResults.length) {
         return searching ? <Loading /> : <div className={classes.empty}>No posts found</div>;
       }
-      return searchResults.map(renderPost);
+      return postRows(searchResults);
     }
     if (recentLoading) {
       return <Loading />;
@@ -253,9 +289,9 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
     }
     return <>
       {recentDrafts.length > 0 && <div className={classes.sectionLabel}>Your drafts</div>}
-      {recentDrafts.map(renderPost)}
+      {postRows(recentDrafts)}
       {recentPublished.length > 0 && <div className={classes.sectionLabel}>Your recent posts</div>}
-      {recentPublished.map(renderPost)}
+      {postRows(recentPublished)}
     </>;
   };
 

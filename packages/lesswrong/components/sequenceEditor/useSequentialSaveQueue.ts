@@ -3,14 +3,14 @@ import { useMessages } from "../common/withMessages";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
+/**
+ * `enqueue` queues a save. Saves run one at a time in the order they were
+ * queued, so quick successive edits can't overwrite each other. If `save`
+ * fails, `rollback` is called to undo the optimistic change it was saving.
+ * `drain` resolves once every queued save has finished.
+ */
 export interface SaveQueue {
-  /**
-   * Queue a save. Saves run one at a time in the order they were queued, so
-   * quick successive edits can't overwrite each other. If `save` fails,
-   * `rollback` is called to undo the optimistic change it was saving.
-   */
   enqueue: (save: () => Promise<unknown>, rollback: () => void) => void;
-  /** Resolves once every queued save has finished. */
   drain: () => Promise<void>;
 }
 
@@ -52,15 +52,15 @@ export function createSaveQueue({ onStatusChange, onError }: {
 
 /**
  * A queue for changes that save as you go: each one is applied to local state
- * straight away, then saved in order in the background.
+ * straight away, then saved in order in the background. The queue lives in
+ * state (not useMemo, which React may discard) so there is one for the
+ * component's lifetime; a new queue would lose the ordering guarantee.
  */
 export function useSequentialSaveQueue(): SaveQueue & { status: SaveStatus } {
   const { flash } = useMessages();
   const flashRef = useRef(flash);
   flashRef.current = flash;
   const [status, setStatus] = useState<SaveStatus>("idle");
-  // One queue for the component's lifetime (useState, not useMemo, which
-  // React may discard); a new queue would lose the ordering guarantee.
   const [queue] = useState(() => createSaveQueue({
     onStatusChange: setStatus,
     onError: (error) => flashRef.current({ messageString: `Couldn't save your change: ${error.message}`, type: "error" }),

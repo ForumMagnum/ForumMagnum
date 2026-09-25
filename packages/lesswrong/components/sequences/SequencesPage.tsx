@@ -167,7 +167,6 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   editToggle: {
     cursor: "pointer",
   },
-  // In edit mode the title is an input; keep "[Draft]" on the same line.
   titleEditing: {
     display: "flex",
     alignItems: "baseline",
@@ -182,6 +181,17 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   },
 }))
 
+/**
+ * A sequence's page. Its owner (or an admin) can switch it into edit mode
+ * (`?edit=true`), where the title, description, chapters and settings are
+ * edited in place and the title's "[Draft]" label stays on the same line as
+ * the title input.
+ *
+ * Once the sequence has been edited on this page, the cached chapter list is
+ * out of date, so reading mode reloads it. The editor's provider is always
+ * rendered (with no sequence outside edit mode), so switching modes doesn't
+ * remount the page.
+ */
 const SequencesPage = ({documentId}: {
   documentId: string,
 }) => {
@@ -198,8 +208,6 @@ const SequencesPage = ({documentId}: {
 
   const canEdit = !!document && (userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document)));
   const editing = canEdit && query.edit === "true";
-  // Once the sequence has been edited on this page, the cached chapter list
-  // is out of date, so reading mode reloads it.
   const [hasEdited, setHasEdited] = useState(editing);
   useEffect(() => {
     if (editing) setHasEdited(true);
@@ -324,8 +332,6 @@ const SequencesPage = ({documentId}: {
     </div>
   </AnalyticsContext>;
 
-  // Always rendered (with no sequence outside edit mode), so switching modes
-  // doesn't remount the page.
   return <SequenceEditorProvider sequence={editing ? editableDocument ?? null : null}>
     {page}
   </SequenceEditorProvider>;

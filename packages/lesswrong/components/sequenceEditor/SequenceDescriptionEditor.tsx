@@ -6,14 +6,17 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { primaryEditorButtonStyles, secondaryEditorButtonStyles } from "./editorButtonStyles";
 import { useSequenceEditor } from "./SequenceEditorContext";
 
+/**
+ * The top margin matches the description's in reading mode (SequencesPage);
+ * the bottom margin puts the reading-mode gap before the chapters after the
+ * buttons instead. The button row is always rendered, so the page doesn't
+ * shift when the buttons become active.
+ */
 const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => ({
   root: {
-    // Same spacing as the description in reading mode (SequencesPage), whose
-    // posts start 28px below it; here that space comes after the buttons.
     marginTop: 16,
     marginBottom: 28,
   },
-  // Always rendered, so the page doesn't shift when the buttons activate.
   buttonRow: {
     display: "flex",
     justifyContent: "flex-end",
@@ -25,81 +28,38 @@ const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => (
   saveButton: primaryEditorButtonStyles(theme),
 }));
 
+type DescriptionContents = SequencesEdit["contents"];
+
 function editorText(contents: { originalContents?: { data?: string | null } | null } | null | undefined): string {
   return contents?.originalContents?.data ?? "";
 }
 
 /**
- * The sequence description, edited in place. Unlike everything else on the
- * page it doesn't save as you go: it has its own Save / Publish changes and
- * Cancel buttons. Publish, Move to Drafts and Done editing also save it (or
- * ask about it), through the handle registered in descriptionDraftRef.
+ * Tracks whether the author has changed the description since it was last
+ * saved or cancelled. Loading an older (CKEditor/draftJS) description can
+ * reformat it without the author changing anything, so only an actual edit
+ * counts, and only when the text then differs from the saved text.
+ *
+ * Edits are noticed two ways: `beforeinput` events on the root element fire
+ * on every keystroke, paste or delete (Lexical cancels them and applies the
+ * edit itself, so plain `input` events never fire), while the form only hears
+ * about changes every few seconds, when the editor copies its text in. So
+ * `hasUnsavedText` can lag; callers that act on it flush the editor first.
  */
-const SequenceDescriptionEditor = () => {
-  const classes = useStyles(styles);
-  const { sequence, saveSequenceNow, descriptionDraftRef, descriptionIsDirty, setDescriptionIsDirty } = useSequenceEditor();
-  // Changing the key remounts the editor, which is how Cancel restores the
-  // saved text.
-  const [editorKey, setEditorKey] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<SequencesEdit>();
-
-  const form = useForm({
-    defaultValues: { contents: sequence.contents },
-  });
-
-  // The saved description, kept current as saves update the cached sequence.
-  const savedContentsRef = useRef(sequence.contents);
-  savedContentsRef.current = sequence.contents;
-
-  // Set once the author has changed the description since it was last saved
-  // or cancelled. Loading an older (CKEditor/draftJS) description can reformat
-  // it without the author changing anything, so an unchanged editor is never
-  // treated as unsaved.
+function useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDirty }: {
+  form: { state: { values: { contents: DescriptionContents } }, store: { subscribe: (listener: () => void) => () => void } },
+  savedContentsRef: React.MutableRefObject<DescriptionContents>,
+  setDescriptionIsDirty: (dirty: boolean) => void,
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const editedRef = useRef(false);
+  const lastSeenContentsRef = useRef(form.state.values.contents);
 
-  // Unsaved means edited, and different from the saved text. The editor only
-  // copies its text into the form every few seconds, so callers that act on
-  // this flush it first (getUnsavedContents); the live flag below is just for
-  // enabling the buttons.
   const hasUnsavedText = useCallback(
     () => editedRef.current && editorText(form.state.values.contents) !== editorText(savedContentsRef.current),
-    [form],
+    [form, savedContentsRef],
   );
 
-  const getUnsavedContents = useCallback(async () => {
-    if (!editedRef.current) {
-      return undefined;
-    }
-    await onSubmitCallback.current?.();
-    if (!hasUnsavedText()) {
-      return undefined;
-    }
-    return sanitizeEditableFieldValues({ contents: form.state.values.contents }, ["contents"]).contents ?? undefined;
-  }, [form, onSubmitCallback, hasUnsavedText]);
-
-  // Clears the editor's browser backup without clearing the editor.
-  const clearBackup = useCallback(() => {
-    onSuccessCallback.current?.(sequence, { noReload: true });
-  }, [onSuccessCallback, sequence]);
-
-  const markSaved = useCallback(() => {
-    editedRef.current = false;
-    clearBackup();
-    setDescriptionIsDirty(false);
-  }, [clearBackup, setDescriptionIsDirty]);
-
-  useEffect(() => {
-    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: clearBackup };
-    return () => { descriptionDraftRef.current = null; };
-  }, [descriptionDraftRef, getUnsavedContents, markSaved, clearBackup]);
-
-  // Edits are noticed two ways: `beforeinput` events from the editor fire on
-  // every keystroke, paste or delete (Lexical cancels them and applies the
-  // edit itself, so plain `input` events never fire), while the form only
-  // hears about changes every few seconds.
-  const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -110,7 +70,7 @@ const SequenceDescriptionEditor = () => {
     root.addEventListener("beforeinput", markEdited);
     return () => root.removeEventListener("beforeinput", markEdited);
   }, [setDescriptionIsDirty]);
-  const lastSeenContentsRef = useRef(form.state.values.contents);
+
   useEffect(() => form.store.subscribe(() => {
     if (form.state.values.contents !== lastSeenContentsRef.current) {
       lastSeenContentsRef.current = form.state.values.contents;
@@ -121,12 +81,72 @@ const SequenceDescriptionEditor = () => {
     }
   }), [form, hasUnsavedText, setDescriptionIsDirty]);
 
+  const resetEdited = useCallback(() => {
+    lastSeenContentsRef.current = form.state.values.contents;
+    editedRef.current = false;
+  }, [form]);
+
+  return { rootRef, editedRef, hasUnsavedText, resetEdited };
+}
+
+/**
+ * The sequence description, edited in place. Unlike everything else on the
+ * page it doesn't save as you go: it has its own Save / Publish changes and
+ * Cancel buttons. Publish, Move to Drafts and Done editing also save it (or
+ * ask about it), through the handle registered in descriptionDraftRef.
+ *
+ * Saving with no real change just marks the description saved. Cancel resets
+ * the form to the saved description (kept current as saves update the cached
+ * sequence) and remounts the editor, by changing its key, to show it.
+ */
+const SequenceDescriptionEditor = () => {
+  const classes = useStyles(styles);
+  const { sequence, saveSequenceNow, descriptionDraftRef, descriptionIsDirty, setDescriptionIsDirty } = useSequenceEditor();
+  const [editorKey, setEditorKey] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<SequencesEdit>();
+
+  const form = useForm({
+    defaultValues: { contents: sequence.contents },
+  });
+
+  const savedContentsRef = useRef(sequence.contents);
+  savedContentsRef.current = sequence.contents;
+
+  const { rootRef, editedRef, hasUnsavedText, resetEdited } = useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDirty });
+
+  const getUnsavedContents = useCallback(async () => {
+    if (!editedRef.current) {
+      return undefined;
+    }
+    await onSubmitCallback.current?.();
+    if (!hasUnsavedText()) {
+      return undefined;
+    }
+    return sanitizeEditableFieldValues({ contents: form.state.values.contents }, ["contents"]).contents ?? undefined;
+  }, [form, editedRef, onSubmitCallback, hasUnsavedText]);
+
+  const clearBackup = useCallback(() => {
+    onSuccessCallback.current?.(sequence, { noReload: true });
+  }, [onSuccessCallback, sequence]);
+
+  const markSaved = useCallback(() => {
+    resetEdited();
+    clearBackup();
+    setDescriptionIsDirty(false);
+  }, [resetEdited, clearBackup, setDescriptionIsDirty]);
+
+  useEffect(() => {
+    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: clearBackup };
+    return () => { descriptionDraftRef.current = null; };
+  }, [descriptionDraftRef, getUnsavedContents, markSaved, clearBackup]);
+
   const save = async () => {
     setIsSaving(true);
     try {
       const contents = await getUnsavedContents();
       if (!contents) {
-        // Edited, but back to the saved text: nothing to save.
         markSaved();
       } else if (await saveSequenceNow({ contents })) {
         markSaved();
@@ -138,10 +158,7 @@ const SequenceDescriptionEditor = () => {
 
   const cancel = () => {
     form.reset({ contents: savedContentsRef.current });
-    lastSeenContentsRef.current = form.state.values.contents;
-    editedRef.current = false;
-    clearBackup();
-    setDescriptionIsDirty(false);
+    markSaved();
     setEditorKey((key) => key + 1);
   };
 
@@ -160,10 +177,7 @@ const SequenceDescriptionEditor = () => {
         collectionName="Sequences"
         commentEditor={false}
         commentStyles={false}
-        // No editor-type switcher or "minor update" selector: those belong to
-        // the post editor, not an inline description.
         hideControls
-        // As tall as the text, rather than a post-sized blank area.
         fitToContent
       />}
     </form.Field>
