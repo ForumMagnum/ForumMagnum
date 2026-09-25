@@ -69,7 +69,7 @@ function editorText(contents: SequencesEdit["contents"]): string {
 
 const SequenceDescriptionEditor = () => {
   const classes = useStyles(styles);
-  const { sequence, updateSequence, drainSaves, descriptionDraftRef, descriptionIsDirty, setDescriptionIsDirty } = useSequenceEditor();
+  const { sequence, saveSequenceNow, descriptionDraftRef, descriptionIsDirty, setDescriptionIsDirty } = useSequenceEditor();
   // Changing the key remounts the editor, which is how Cancel restores the
   // saved text.
   const [editorKey, setEditorKey] = useState(0);
@@ -121,11 +121,7 @@ const SequenceDescriptionEditor = () => {
     setIsSaving(true);
     try {
       const contents = await getUnsavedContents();
-      if (!contents) return;
-      const outcome = { failed: false };
-      updateSequence({ contents }, () => { outcome.failed = true; });
-      await drainSaves();
-      if (!outcome.failed) {
+      if (contents && await saveSequenceNow({ contents })) {
         markSaved();
       }
     } finally {

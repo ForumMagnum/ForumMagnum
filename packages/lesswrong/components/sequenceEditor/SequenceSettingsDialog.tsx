@@ -54,7 +54,7 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
-  const { sequence, updateSequence, drainSaves } = useSequenceEditor();
+  const { sequence, updateSequence, saveSequenceNow } = useSequenceEditor();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const form = useForm({
@@ -80,8 +80,10 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
   });
 
   const deleteSequence = async () => {
-    updateSequence({ isDeleted: true });
-    await drainSaves();
+    if (!await saveSequenceNow({ isDeleted: true })) {
+      setConfirmingDelete(false);
+      return;
+    }
     onClose();
     navigate(sequence.user ? userGetProfileUrl(sequence.user) : "/library");
   };

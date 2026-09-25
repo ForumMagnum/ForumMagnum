@@ -31,6 +31,11 @@ interface SequenceEditorContextValue {
   saveStatus: SaveStatus;
   /** Queues an update to the sequence's own fields. */
   updateSequence: (data: UpdateSequenceDataInput, rollback?: () => void) => void;
+  /**
+   * Queues an update to the sequence's own fields and waits for every queued
+   * save to finish. Resolves to whether this update succeeded.
+   */
+  saveSequenceNow: (data: UpdateSequenceDataInput) => Promise<boolean>;
   descriptionDraftRef: React.MutableRefObject<DescriptionDraftHandle | null>;
   descriptionIsDirty: boolean;
   setDescriptionIsDirty: (isDirty: boolean) => void;
@@ -47,19 +52,28 @@ export const SequenceEditorProvider = ({ sequence, children }: {
   const descriptionDraftRef = useRef<DescriptionDraftHandle | null>(null);
   const [descriptionIsDirty, setDescriptionIsDirty] = useState(false);
 
-  const value = useMemo((): SequenceEditorContextValue => ({
-    sequence,
-    enqueueSave: enqueue,
-    drainSaves: drain,
-    saveStatus: status,
-    updateSequence: (data, rollback = () => {}) => enqueue(
+  const value = useMemo((): SequenceEditorContextValue => {
+    const updateSequence = (data: UpdateSequenceDataInput, rollback: () => void = () => {}) => enqueue(
       () => updateSequenceMutation({ variables: { selector: { _id: sequence._id }, data } }),
       rollback,
-    ),
-    descriptionDraftRef,
-    descriptionIsDirty,
-    setDescriptionIsDirty,
-  }), [sequence, enqueue, drain, status, updateSequenceMutation, descriptionIsDirty]);
+    );
+    return {
+      sequence,
+      enqueueSave: enqueue,
+      drainSaves: drain,
+      saveStatus: status,
+      updateSequence,
+      saveSequenceNow: async (data) => {
+        const outcome = { failed: false };
+        updateSequence(data, () => { outcome.failed = true; });
+        await drain();
+        return !outcome.failed;
+      },
+      descriptionDraftRef,
+      descriptionIsDirty,
+      setDescriptionIsDirty,
+    };
+  }, [sequence, enqueue, drain, status, updateSequenceMutation, descriptionIsDirty]);
 
   return <SequenceEditorContext.Provider value={value}>
     {children}
