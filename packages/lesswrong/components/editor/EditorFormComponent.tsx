@@ -45,6 +45,11 @@ interface EditorFormComponentProps<S, R> {
   formType: 'new' | 'edit';
   editorHintText?: string;
   maxHeight?: boolean;
+  /**
+   * Make the editor only as tall as its contents, instead of reserving a
+   * post-sized (or comment-sized) blank area. For short fields shown inline.
+   */
+  fitToContent?: boolean;
   document: any;
   name: string;
   fieldName: string;
@@ -114,6 +119,7 @@ function InnerEditorFormComponent<S, R>({
   formType,
   editorHintText,
   maxHeight,
+  fitToContent,
   document,
   name,
   fieldName,
@@ -438,7 +444,7 @@ function InnerEditorFormComponent<S, R>({
       documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
-      formProps={{ maxHeight, commentMinimalistStyle }}
+      formProps={{ maxHeight, commentMinimalistStyle, fitToContent }}
       isCollaborative={isCollabEditor}
       accessLevel={document.myEditorAccess}
       value={contents}
