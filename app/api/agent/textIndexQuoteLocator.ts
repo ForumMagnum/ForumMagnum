@@ -210,13 +210,11 @@ function stripInlineMarkers(value: string): StrippedText {
   return { text: out, toSourceIndex };
 }
 
-const MAX_COUNTED_OCCURRENCES = 9;
-
 /** Occurrence count given an already-found first match index. */
 function countOccurrencesFrom(haystack: string, needle: string, firstIndex: number): number {
   let count = 1;
   let index = haystack.indexOf(needle, firstIndex + 1);
-  while (index !== -1 && count <= MAX_COUNTED_OCCURRENCES) {
+  while (index !== -1) {
     count++;
     index = haystack.indexOf(needle, index + 1);
   }
@@ -301,6 +299,11 @@ function $buildNormalizedDocument(): NormalizedDocument {
 
 type LocateOutcome = "found" | "not_found" | "ambiguous" | "empty";
 
+export type AgentTextMatchFailureCode =
+  | "no_match"
+  | "ambiguous"
+  | "empty_after_normalization";
+
 /**
  * The matched range in document-projection space: the projection itself plus
  * the raw [start, end) character range of the match within its text. Carried
@@ -315,6 +318,8 @@ export interface LocatedQuoteRange {
 
 export interface TextIndexQuoteResult extends MarkdownQuoteSelectionResult {
   range?: LocatedQuoteRange
+  code?: AgentTextMatchFailureCode
+  matchCount?: number
 }
 
 interface LocateAttempt {
@@ -349,7 +354,11 @@ function locateInSearchSpace({
   if (!needle) {
     return {
       outcome: "empty",
-      result: { found: false, reason: "Quote was empty after normalization." },
+      result: {
+        found: false,
+        reason: "Quote was empty after normalization.",
+        code: "empty_after_normalization",
+      },
     };
   }
 
@@ -357,21 +366,25 @@ function locateInSearchSpace({
   if (matchIndex === -1) {
     return {
       outcome: "not_found",
-      result: { found: false, reason: "Quote not found in document." },
+      result: {
+        found: false,
+        reason: "Quote not found in document.",
+        code: "no_match",
+        matchCount: 0,
+      },
     };
   }
   const occurrences = countOccurrencesFrom(haystack, needle, matchIndex);
   if (occurrences > 1) {
-    const countDescription = occurrences > MAX_COUNTED_OCCURRENCES
-      ? `at least ${MAX_COUNTED_OCCURRENCES}`
-      : String(occurrences);
     return {
       outcome: "ambiguous",
       result: {
         found: false,
-        reason: `Quote is ambiguous: it appears ${countDescription} times in the document`
+        reason: `Quote is ambiguous: it appears ${occurrences} times in the document`
           + `${ambiguityQualifier ? ` ${ambiguityQualifier}` : ""}. `
           + `Provide a longer quote with more surrounding context to disambiguate.`,
+        code: "ambiguous",
+        matchCount: occurrences,
       },
     };
   }
@@ -481,6 +494,8 @@ export function $locateQuoteWithTextIndex(markdownQuote: string): TextIndexQuote
 export interface BlockPrefixResult {
   node: LexicalNode | null
   reason?: string
+  code?: AgentTextMatchFailureCode
+  matchCount?: number
 }
 
 /**
@@ -539,7 +554,11 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {
-    return { node: null, reason: "Prefix was empty after normalization." };
+    return {
+      node: null,
+      reason: "Prefix was empty after normalization.",
+      code: "empty_after_normalization",
+    };
   }
 
   // A match counts only when it begins at a block's first content character
@@ -566,11 +585,18 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     return { node: matchedBlocks[0] };
   }
   if (matchedBlocks.length === 0) {
-    return { node: null, reason: "No block starts with the given prefix." };
+    return {
+      node: null,
+      reason: "No block starts with the given prefix.",
+      code: "no_match",
+      matchCount: 0,
+    };
   }
   return {
     node: null,
     reason: `Ambiguous prefix: ${matchedBlocks.length} blocks start with it. `
       + `Provide a longer prefix to disambiguate.`,
+    code: "ambiguous",
+    matchCount: matchedBlocks.length,
   };
 }

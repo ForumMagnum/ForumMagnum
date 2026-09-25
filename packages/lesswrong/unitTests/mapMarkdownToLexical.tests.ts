@@ -310,7 +310,12 @@ describe("$locateBlockByPrefix", () => {
     const editor = await setupEditorWithContent(
       "Alpha paragraph.\n\nBravo paragraph."
     );
-    expect(findFor(editor, "no such prefix")).toBeNull();
+    editor.getEditorState().read(() => {
+      const result = $locateBlockByPrefix("no such prefix");
+      expect(result.node).toBeNull();
+      expect(result.code).toBe("no_match");
+      expect(result.matchCount).toBe(0);
+    });
   });
 
   it("reports ambiguity when several blocks start with the prefix", async () => {
@@ -322,8 +327,20 @@ describe("$locateBlockByPrefix", () => {
       const result = $locateBlockByPrefix("Repeated start");
       expect(result.node).toBeNull();
       reason = result.reason;
+      expect(result.code).toBe("ambiguous");
+      expect(result.matchCount).toBe(2);
     });
     expect(reason).toContain("Ambiguous");
+  });
+
+  it("reports a prefix that is empty after normalization", async () => {
+    const editor = await setupEditorWithContent("Alpha paragraph.");
+    editor.getEditorState().read(() => {
+      const result = $locateBlockByPrefix("");
+      expect(result.node).toBeNull();
+      expect(result.code).toBe("empty_after_normalization");
+      expect(result.matchCount).toBeUndefined();
+    });
   });
 
   it("does not return the list when only a non-first item matches the prefix", async () => {

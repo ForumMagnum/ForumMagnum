@@ -5,18 +5,18 @@ import {
   $locateQuoteWithTextIndex,
   normalizeTracked,
   projectQuoteToRenderedText,
+  type TextIndexQuoteResult,
 } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $selectionCoveredText } from "../../../app/api/agent/quoteLocator";
-import type { MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 
 interface LocateOutcome {
-  result: MarkdownQuoteSelectionResult
+  result: TextIndexQuoteResult
   coveredText: string | null
 }
 
 async function locate(editor: LexicalEditor, quote: string): Promise<LocateOutcome> {
-  let result: MarkdownQuoteSelectionResult = { found: false };
+  let result: TextIndexQuoteResult = { found: false };
   let coveredText: string | null = null;
   await runEditorUpdate(editor, () => {
     result = $locateQuoteWithTextIndex(quote);
@@ -116,6 +116,17 @@ describe("$locateQuoteWithTextIndex", () => {
     expect(result.found).toBe(false);
     expect(result.reason).toContain("ambiguous");
     expect(result.reason).toContain("2");
+    expect(result.code).toBe("ambiguous");
+    expect(result.matchCount).toBe(2);
+  });
+
+  it("reports the exact match count for highly repeated quotes", async () => {
+    const editor = await setupEditorWithContent(
+      Array.from({ length: 12 }, (_, index) => `Repeated phrase ${index}.`).join("\n\n"),
+    );
+    const { result } = await locate(editor, "Repeated phrase");
+    expect(result.code).toBe("ambiguous");
+    expect(result.matchCount).toBe(12);
   });
 
   it("reports a genuinely absent quote as not found", async () => {
@@ -123,6 +134,16 @@ describe("$locateQuoteWithTextIndex", () => {
     const { result } = await locate(editor, "entirely absent text");
     expect(result.found).toBe(false);
     expect(result.reason).toContain("not found");
+    expect(result.code).toBe("no_match");
+    expect(result.matchCount).toBe(0);
+  });
+
+  it("reports a quote that is empty after normalization", async () => {
+    const editor = await setupEditorWithContent("Some ordinary content.");
+    const { result } = await locate(editor, "");
+    expect(result.found).toBe(false);
+    expect(result.code).toBe("empty_after_normalization");
+    expect(result.matchCount).toBeUndefined();
   });
 
   it("locates a quote containing an inline equation", async () => {
