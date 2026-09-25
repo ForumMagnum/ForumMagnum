@@ -7,12 +7,15 @@ import UsersName from "../users/UsersName";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSequenceEditor } from "./SequenceEditorContext";
 
+/**
+ * The bottom margin leaves room for the fixed bottom bar. The card mirrors
+ * SequencesGridItem, the card in the Library grid.
+ */
 const styles = defineStyles("SequencePreviewPanel", (theme: ThemeType) => ({
   root: {
     marginTop: 48,
     paddingTop: 24,
     borderTop: theme.palette.greyBorder("1px", 0.1),
-    // Leave room for the fixed bottom bar
     marginBottom: 96,
   },
   heading: {
@@ -29,7 +32,6 @@ const styles = defineStyles("SequencePreviewPanel", (theme: ThemeType) => ({
     marginBottom: 16,
     maxWidth: 520,
   },
-  // Mirrors SequencesGridItem, the card in the Library grid.
   card: {
     width: 315,
     maxWidth: "100%",
@@ -64,13 +66,13 @@ const styles = defineStyles("SequencePreviewPanel", (theme: ThemeType) => ({
 /**
  * Shown at the bottom of the sequence page in edit mode: a preview of the
  * sequence's card as it appears elsewhere on the site, where the author sets
- * its card image. This follows the post editor's Social Preview card.
+ * its card image. This follows the post editor's Social Preview card. With
+ * no card image, it shows the site's default, as cards elsewhere do.
  */
 const SequencePreviewPanel = () => {
   const classes = useStyles(styles);
   const { forumType } = useForumType();
   const { sequence, updateSequence } = useSequenceEditor();
-  // What cards show when a sequence has no card image.
   const defaultImageId = defaultSequenceBannerIdSetting.get(forumType);
 
   return <section className={classes.root}>

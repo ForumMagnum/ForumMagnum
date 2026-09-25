@@ -79,6 +79,13 @@ const statusLabels: Record<SaveStatus, string> = {
   error: "Couldn't save your last change",
 };
 
+/**
+ * The bar fixed to the bottom of the page in edit mode: save status, the
+ * settings button, and Publish or Move to Drafts. Those two include any
+ * unsaved description changes in the same update, so the two can't get out
+ * of step. Its dialogs are rendered here rather than through openDialog so
+ * they stay inside the sequence editor's context.
+ */
 const SequenceEditBottomBar = () => {
   const classes = useStyles(styles);
   const { sequence, saveStatus, saveSequenceNow, descriptionDraftRef } = useSequenceEditor();
@@ -86,8 +93,6 @@ const SequenceEditBottomBar = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // Publish and Move to Drafts include any unsaved description changes in
-  // the same update, so the two can't get out of step.
   const setDraft = async (draft: boolean) => {
     setIsChangingStatus(true);
     try {
@@ -102,8 +107,6 @@ const SequenceEditBottomBar = () => {
   };
 
   return <div className={classes.root}>
-    {/* Rendered here rather than through openDialog so it stays inside the
-        sequence editor's context. */}
     {settingsOpen && <SequenceSettingsDialog
       onClose={() => setSettingsOpen(false)}
       onDelete={() => {

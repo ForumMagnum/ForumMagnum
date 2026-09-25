@@ -39,6 +39,9 @@ const styles = defineStyles("SequenceSettingsDialog", (theme: ThemeType) => ({
  * Settings that aren't part of the page layout, in sections like the post
  * editor's settings panel. The card image is set in the preview panel at the
  * bottom of the page. Delete sequence asks for confirmation in its own dialog.
+ *
+ * Settings save as soon as they change. If a save fails, the form goes back
+ * to the last saved values, so it doesn't show a setting the server didn't take.
  */
 const SequenceSettingsDialog = ({ onClose, onDelete }: { onClose: () => void, onDelete: () => void }) => {
   const classes = useStyles(styles);
@@ -58,8 +61,6 @@ const SequenceSettingsDialog = ({ onClose, onDelete }: { onClose: () => void, on
     },
   });
 
-  // Settings save as soon as they change. If a save fails, put the form back
-  // to the last saved values so it doesn't show a setting the server didn't take.
   const lastSavedValuesRef = useRef(form.state.values);
   const saveSetting = (data: UpdateSequenceDataInput) => {
     void saveSequenceNow(data).then((saved) => {

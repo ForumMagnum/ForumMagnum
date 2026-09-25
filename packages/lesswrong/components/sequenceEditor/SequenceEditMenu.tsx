@@ -37,7 +37,11 @@ export interface SequenceEditMenuItem {
   disabled?: boolean;
 }
 
-/** The "⋮" menu used on chapters and post rows in the sequence editor. */
+/**
+ * The "⋮" menu used on chapters and post rows in the sequence editor. Items
+ * are keyed by position, since titles can repeat (two chapters with the same
+ * name).
+ */
 const SequenceEditMenu = ({ items, label, className }: {
   items: SequenceEditMenuItem[],
   label: string,
@@ -61,7 +65,6 @@ const SequenceEditMenu = ({ items, label, className }: {
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <Paper>
           <DropdownMenu>
-            {/* Keyed by position: titles can repeat (two chapters with the same name). */}
             {items.map((item, index) => <DropdownItem
               key={index}
               title={item.title}

@@ -15,28 +15,28 @@ export const SequenceEditorUpdateMutation = gql(`
 
 /**
  * Lets sequence-level actions (Publish, Move to Drafts, Done editing) reach
- * the description editor's unsaved changes.
+ * the description editor's unsaved changes. `getUnsavedContents` resolves to
+ * undefined if the description hasn't changed; `markSaved` is called after
+ * those contents were saved some other way; `discard` throws away the
+ * description's browser backup when leaving without saving.
  */
 export interface DescriptionDraftHandle {
-  /** The unsaved description, or undefined if it hasn't changed. */
   getUnsavedContents: () => Promise<UpdateSequenceDataInput["contents"] | undefined>;
-  /** Call after the unsaved description has been saved some other way. */
   markSaved: () => void;
-  /** Throws away the unsaved description's browser backup (when leaving without saving). */
   discard: () => void;
 }
 
+/**
+ * What the edit-mode components share. `updateSequence` queues an update to
+ * the sequence's own fields; `saveSequenceNow` does the same, then waits for
+ * every queued save to finish and resolves to whether this update succeeded.
+ */
 interface SequenceEditorContextValue {
   sequence: SequencesEdit;
   enqueueSave: (save: () => Promise<unknown>, rollback: () => void) => void;
   drainSaves: () => Promise<void>;
   saveStatus: SaveStatus;
-  /** Queues an update to the sequence's own fields. */
   updateSequence: (data: UpdateSequenceDataInput, rollback?: () => void) => void;
-  /**
-   * Queues an update to the sequence's own fields and waits for every queued
-   * save to finish. Resolves to whether this update succeeded.
-   */
   saveSequenceNow: (data: UpdateSequenceDataInput) => Promise<boolean>;
   descriptionDraftRef: React.MutableRefObject<DescriptionDraftHandle | null>;
   descriptionIsDirty: boolean;

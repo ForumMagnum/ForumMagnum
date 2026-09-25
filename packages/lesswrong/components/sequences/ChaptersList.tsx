@@ -15,13 +15,14 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
+/**
+ * A sequence's chapters in reading mode. With `fetchFresh`, it skips cached
+ * (and server-rendered) chapters and loads them from the server; that's used
+ * after the sequence has been edited on this page, since the editor changes
+ * chapters in ways the cached list doesn't reflect.
+ */
 const ChaptersList = ({sequenceId, fetchFresh = false}: {
   sequenceId: string,
-  /**
-   * Skip cached (and server-rendered) chapters and load them from the server.
-   * Used after the sequence has been edited on this page, since the editor
-   * changes chapters in ways the cached list doesn't reflect.
-   */
   fetchFresh?: boolean,
 }) => {
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
