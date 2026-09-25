@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import classNames from "classnames";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { sanitizeEditableFieldValues } from "../tanstack-form-components/helpers";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { primaryEditorButtonStyles, secondaryEditorButtonStyles } from "./editorButtonStyles";
 import { useSequenceEditor } from "./SequenceEditorContext";
 
 const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => ({
@@ -32,34 +32,8 @@ const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => (
     minHeight: 36,
     marginTop: 4,
   },
-  button: {
-    ...theme.typography.commentStyle,
-    fontSize: 14,
-    fontWeight: 500,
-    borderRadius: 8,
-    padding: "6px 14px",
-    cursor: "pointer",
-    "&:disabled": {
-      opacity: 0.35,
-      cursor: "default",
-    },
-  },
-  cancelButton: {
-    background: "none",
-    border: theme.palette.greyBorder("1px", 0.14),
-    color: theme.palette.greyAlpha(0.68),
-    "&:hover:enabled": {
-      background: theme.palette.greyAlpha(0.04),
-    },
-  },
-  saveButton: {
-    background: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    border: "none",
-    "&:hover:enabled": {
-      background: theme.palette.primary.dark,
-    },
-  },
+  cancelButton: secondaryEditorButtonStyles(theme),
+  saveButton: primaryEditorButtonStyles(theme),
 }));
 
 function editorText(contents: { originalContents?: { data?: string | null } | null } | null | undefined): string {
@@ -205,10 +179,10 @@ const SequenceDescriptionEditor = () => {
       />}
     </form.Field>
     <div className={classes.buttonRow}>
-      <button className={classNames(classes.button, classes.cancelButton)} disabled={!descriptionIsDirty || isSaving} onClick={cancel}>
+      <button className={classes.cancelButton} disabled={!descriptionIsDirty || isSaving} onClick={cancel}>
         Cancel
       </button>
-      <button className={classNames(classes.button, classes.saveButton)} disabled={!descriptionIsDirty || isSaving} onClick={save}>
+      <button className={classes.saveButton} disabled={!descriptionIsDirty || isSaving} onClick={save}>
         {isSaving ? "Saving…" : (sequence.draft ? "Save" : "Publish changes")}
       </button>
     </div>

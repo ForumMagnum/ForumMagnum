@@ -61,8 +61,9 @@ const SequenceEditMenu = ({ items, label, className }: {
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <Paper>
           <DropdownMenu>
-            {items.map((item) => <DropdownItem
-              key={item.title}
+            {/* Keyed by position: titles can repeat (two chapters with the same name). */}
+            {items.map((item, index) => <DropdownItem
+              key={index}
               title={item.title}
               disabled={item.disabled}
               onClick={() => {

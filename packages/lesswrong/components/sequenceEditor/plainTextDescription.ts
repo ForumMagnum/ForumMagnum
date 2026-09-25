@@ -46,7 +46,10 @@ export function descriptionHtmlToPlainText(html: string): string {
       }
     },
     ontext(text) {
-      current += text.replace(/\u00a0/g, " ");
+      // Whitespace in HTML source (newlines included, and non-breaking spaces)
+      // is a single space, as a browser renders it; only <br> and block tags
+      // produce line breaks.
+      current += text.replace(/\s+/g, " ");
     },
     onclosetag(name) {
       if (BLOCK_TAGS.has(name)) {
