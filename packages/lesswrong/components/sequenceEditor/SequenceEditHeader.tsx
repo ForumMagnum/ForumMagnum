@@ -98,11 +98,6 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
     value={title}
     placeholder="Sequence title"
     singleLine
-    // A new sequence opens with its placeholder title selected, ready to type over.
-    autoFocus={sequence.title === NEW_SEQUENCE_TITLE}
-    onFocus={(e) => {
-      if (e.target.value === NEW_SEQUENCE_TITLE) e.target.select();
-    }}
     onChange={setTitle}
     onBlur={save}
   />;
