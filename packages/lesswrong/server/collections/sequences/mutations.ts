@@ -78,7 +78,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     backgroundTask(elasticSyncDocument('Sequences', documentWithId._id));
   }
 
-  createFirstChapter(documentWithId, context);
+  await createFirstChapter(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,
