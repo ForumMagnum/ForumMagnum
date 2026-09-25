@@ -9,7 +9,7 @@ import PostSummaries from "@/server/collections/postSummaries/collection";
 import { aiDigestGatewayProviderOptions } from "./aiDigestModelCalls";
 
 const AI_DIGEST_POST_SUMMARY_PROMPT_VERSION = "ai-digest-post-summary-v2";
-const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5";
+const AI_DIGEST_DEFAULT_SUMMARY_MODEL_ID = "anthropic/claude-fable-5.1";
 const AI_DIGEST_POST_SUMMARY_MAX_LENGTH = 900;
 const AI_DIGEST_POST_SUMMARY_MIN_LENGTH = 40;
 
