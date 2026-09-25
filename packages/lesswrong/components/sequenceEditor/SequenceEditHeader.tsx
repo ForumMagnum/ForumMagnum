@@ -135,8 +135,19 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
       setAsking(true);
       return;
     }
+    await leave();
+  };
+
+  // Every way out waits for queued live saves first, so reading mode loads
+  // the chapters after they've landed.
+  const leave = async () => {
     await drainSaves();
     onDone();
+  };
+
+  const leaveWithoutSaving = async () => {
+    descriptionDraftRef.current?.discard();
+    await leave();
   };
 
   return <>
@@ -146,7 +157,7 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
       <DialogContent>Everything else is already saved.</DialogContent>
       <DialogActions>
         <Button onClick={() => setAsking(false)}>Keep editing</Button>
-        <Button onClick={() => { descriptionDraftRef.current?.discard(); onDone(); }}>Don't save</Button>
+        <Button onClick={() => void leaveWithoutSaving()}>Don't save</Button>
         <Button color="primary" onClick={() => void saveAndLeave()}>Save</Button>
       </DialogActions>
     </LWDialog>}

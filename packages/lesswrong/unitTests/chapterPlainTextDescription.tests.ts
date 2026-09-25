@@ -42,6 +42,11 @@ describe("descriptionHtmlToPlainText", () => {
       .toBe("It has text, in all kinds of formats.");
   });
 
+  it("treats newlines in the HTML source as spaces, as a browser does", () => {
+    expect(descriptionHtmlToPlainText("<p>line one\nline two</p>\n<p>next</p>"))
+      .toBe("line one line two\n\nnext");
+  });
+
   it("handles stray document wrappers", () => {
     expect(descriptionHtmlToPlainText("<html><head></head><body><p>Misc Updates</p></body></html>"))
       .toBe("Misc Updates");

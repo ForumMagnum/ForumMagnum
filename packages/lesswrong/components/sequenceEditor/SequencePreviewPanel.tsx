@@ -1,13 +1,11 @@
 import React from "react";
 import { makeCloudinaryImageUrl } from "../common/cloudinaryHelpers";
+import { useForumType } from "../hooks/useForumType";
+import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import ImageUpload2 from "../form-components/ImageUpload2";
 import UsersName from "../users/UsersName";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSequenceEditor } from "./SequenceEditorContext";
-
-// What the Library card shows when a sequence has no card image
-// (SequencesGridItem uses the same fallback).
-const DEFAULT_CARD_IMAGE_ID = "sequences/vnyzzznenju0hzdv6pqb.jpg";
 
 const styles = defineStyles("SequencePreviewPanel", (theme: ThemeType) => ({
   root: {
@@ -70,7 +68,10 @@ const styles = defineStyles("SequencePreviewPanel", (theme: ThemeType) => ({
  */
 const SequencePreviewPanel = () => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const { sequence, updateSequence } = useSequenceEditor();
+  // What cards show when a sequence has no card image.
+  const defaultImageId = defaultSequenceBannerIdSetting.get(forumType);
 
   return <section className={classes.root}>
     <div className={classes.heading}>How this sequence appears elsewhere</div>
@@ -85,7 +86,7 @@ const SequencePreviewPanel = () => {
         updateValue={(gridImageId: string) => updateSequence({ gridImageId })}
         clearField={() => updateSequence({ gridImageId: null })}
         label="Add card image"
-        placeholderUrl={makeCloudinaryImageUrl(DEFAULT_CARD_IMAGE_ID, { c: "fill", dpr: "auto", q: "auto", f: "auto" })}
+        placeholderUrl={defaultImageId ? makeCloudinaryImageUrl(defaultImageId, { c: "fill", dpr: "auto", q: "auto", f: "auto" }) : undefined}
       />
       <div className={classes.meta}>
         <div className={classes.title}>

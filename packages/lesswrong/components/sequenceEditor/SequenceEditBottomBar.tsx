@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { primaryEditorButtonStyles, secondaryEditorButtonStyles } from "./editorButtonStyles";
 import ForumIcon from "../common/ForumIcon";
 import { useSequenceEditor } from "./SequenceEditorContext";
 import type { SaveStatus } from "./useSequentialSaveQueue";
@@ -68,42 +69,8 @@ const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
     width: 18,
     height: 18,
   },
-  secondaryButton: {
-    ...theme.typography.commentStyle,
-    fontSize: 14,
-    fontWeight: 500,
-    background: "none",
-    border: theme.palette.greyBorder("1px", 0.14),
-    borderRadius: 8,
-    padding: "8px 14px",
-    color: theme.palette.greyAlpha(0.68),
-    cursor: "pointer",
-    "&:hover": {
-      background: theme.palette.greyAlpha(0.04),
-    },
-    "&:disabled": {
-      opacity: 0.45,
-      cursor: "not-allowed",
-    },
-  },
-  primaryButton: {
-    ...theme.typography.commentStyle,
-    fontSize: 14,
-    fontWeight: 500,
-    background: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    border: "none",
-    borderRadius: 8,
-    padding: "8px 18px",
-    cursor: "pointer",
-    "&:hover": {
-      background: theme.palette.primary.dark,
-    },
-    "&:disabled": {
-      opacity: 0.45,
-      cursor: "not-allowed",
-    },
-  },
+  secondaryButton: secondaryEditorButtonStyles(theme),
+  primaryButton: primaryEditorButtonStyles(theme),
 }));
 
 const statusLabels: Record<SaveStatus, string> = {
