@@ -1,7 +1,7 @@
-import { Map as YMap, Array as YArray } from "yjs";
+import { Doc, Map as YMap, Array as YArray } from "yjs";
 import { randomId } from "@/lib/random";
-import { $createRangeSelection, $setSelection } from "lexical";
-import { $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $createRangeSelection, $nodesOfType, $setSelection } from "lexical";
+import { $isMarkNode, $unwrapMarkNode, $wrapSelectionInMarkNode, MarkNode } from "@lexical/mark";
 import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
@@ -199,14 +199,15 @@ export async function insertCollabCommentThread({
   });
 }
 
-function findThreadCommentsArray(
+function findThreadMap(
   commentsArray: YArray<unknown>,
   threadId: string,
-): YArray<unknown> | null {
+): YMap<unknown> | null {
   for (let i = 0; i < commentsArray.length; i++) {
-    const entry = commentsArray.get(i) as YMap<unknown>;
+    const entry = commentsArray.get(i);
+    if (!(entry instanceof YMap)) continue;
     if (entry.get("type") === "thread" && entry.get("id") === threadId) {
-      return (entry.get("comments") as YArray<unknown> | undefined) ?? null;
+      return entry;
     }
   }
   return null;
@@ -239,8 +240,9 @@ export async function appendReplyToCommentThread({
     token,
     callback: async ({ doc }) => {
       const commentsArray = doc.get("comments", YArray<unknown>);
-      const threadComments = findThreadCommentsArray(commentsArray, threadId);
-      if (!threadComments) {
+      const threadMap = findThreadMap(commentsArray, threadId);
+      const threadComments = threadMap?.get("comments");
+      if (!(threadComments instanceof YArray)) {
         return { kind: "thread_not_found" };
       }
 
@@ -257,6 +259,176 @@ export async function appendReplyToCommentThread({
       }, "agent-reply-to-comment");
 
       return { kind: "success", commentId };
+    },
+  });
+}
+
+export type ResolveThreadResult =
+  | { kind: "thread_not_found" }
+  | { kind: "wrong_thread_type" }
+  | { kind: "not_open", status: ThreadStatus }
+  | { kind: "forbidden", reason: "agent_name_required" | "not_thread_author" }
+  | { kind: "success", removedMarkCount: number };
+
+interface RemoveThreadMarkArgs {
+  collectionName: string
+  documentId: string
+  token: string
+  threadId: string
+}
+
+type RemoveThreadMark = (args: RemoveThreadMarkArgs) => Promise<number>;
+
+function isThreadStatus(value: unknown): value is ThreadStatus {
+  return value === "open"
+    || value === "accepted"
+    || value === "rejected"
+    || value === "archived";
+}
+
+/**
+ * Remove a thread id from every MarkNode that carries it. Must be called
+ * inside a Lexical update context.
+ */
+export function $removeCommentThreadMark(threadId: string): number {
+  let removedMarkCount = 0;
+  for (const node of $nodesOfType(MarkNode)) {
+    if (!$isMarkNode(node) || !node.getIDs().includes(threadId)) continue;
+    node.deleteID(threadId);
+    removedMarkCount++;
+    if (node.getIDs().length === 0) {
+      $unwrapMarkNode(node);
+    }
+  }
+  return removedMarkCount;
+}
+
+async function removeCommentThreadMarkFromMainDoc({
+  collectionName,
+  documentId,
+  token,
+  threadId,
+}: RemoveThreadMarkArgs): Promise<number> {
+  return withMainDocEditorSession({
+    collectionName,
+    documentId,
+    token,
+    operationLabel: "ResolveCommentThread",
+    callback: async ({ editor, provider }) => {
+      let removedMarkCount = 0;
+      await new Promise<void>((resolve) => {
+        editor.update(() => {
+          removedMarkCount = $removeCommentThreadMark(threadId);
+        }, { onUpdate: resolve });
+      });
+      if (removedMarkCount > 0) {
+        await waitForProviderFlush(provider);
+      }
+      return removedMarkCount;
+    },
+  });
+}
+
+export async function resolveThreadInCommentsDoc({
+  doc,
+  collectionName,
+  documentId,
+  token,
+  threadId,
+  actorAuthorId,
+  actorAuthorName,
+  allowAuthorNameFallback,
+}: {
+  doc: Doc
+  collectionName: string
+  documentId: string
+  token: string
+  threadId: string
+  actorAuthorId?: string
+  actorAuthorName?: string
+  allowAuthorNameFallback?: boolean
+}, removeThreadMark: RemoveThreadMark = removeCommentThreadMarkFromMainDoc): Promise<ResolveThreadResult> {
+  const commentsArray = doc.get("comments", YArray<unknown>);
+  const threadMap = findThreadMap(commentsArray, threadId);
+  if (!threadMap) {
+    return { kind: "thread_not_found" };
+  }
+
+  const threadTypeValue = threadMap.get("threadType");
+  const threadType: ThreadType = threadTypeValue === "suggestion" ? "suggestion" : "comment";
+  if (threadType !== "comment") {
+    return { kind: "wrong_thread_type" };
+  }
+
+  const statusValue = threadMap.get("status");
+  const status = isThreadStatus(statusValue) ? statusValue : "open";
+  if (status !== "open") {
+    return { kind: "not_open", status };
+  }
+
+  const threadComments = threadMap.get("comments");
+  const firstCommentValue = threadComments instanceof YArray ? threadComments.get(0) : undefined;
+  const firstComment = firstCommentValue instanceof YMap ? firstCommentValue : undefined;
+  const firstCommentAuthorIdValue = firstComment?.get("authorId");
+  const firstCommentAuthorNameValue = firstComment?.get("author");
+  const firstCommentAuthorId = typeof firstCommentAuthorIdValue === "string" ? firstCommentAuthorIdValue : undefined;
+  const firstCommentAuthorName = typeof firstCommentAuthorNameValue === "string" ? firstCommentAuthorNameValue : undefined;
+  const authorIdMatches = !!actorAuthorId && firstCommentAuthorId === actorAuthorId;
+  const authorNameMatches = !!allowAuthorNameFallback
+    && !!actorAuthorName
+    && firstCommentAuthorName === actorAuthorName;
+  if (!authorIdMatches && !authorNameMatches) {
+    const reason = !actorAuthorId && !actorAuthorName
+      ? "agent_name_required"
+      : "not_thread_author";
+    return { kind: "forbidden", reason };
+  }
+
+  const removedMarkCount = await removeThreadMark({
+    collectionName,
+    documentId,
+    token,
+    threadId,
+  });
+  doc.transact(() => {
+    threadMap.set("status", "archived");
+    threadMap.delete("statusBeforeReopen");
+  }, "agent-resolve-comment-thread");
+  return { kind: "success", removedMarkCount };
+}
+
+export async function resolveCollabCommentThread({
+  collectionName,
+  documentId,
+  token,
+  threadId,
+  actorAuthorId,
+  actorAuthorName,
+  allowAuthorNameFallback,
+}: {
+  collectionName: string
+  documentId: string
+  token: string
+  threadId: string
+  actorAuthorId?: string
+  actorAuthorName?: string
+  allowAuthorNameFallback?: boolean
+}): Promise<ResolveThreadResult> {
+  return withCommentsDocSession({
+    collectionName,
+    documentId,
+    token,
+    callback: async ({ doc }) => {
+      return resolveThreadInCommentsDoc({
+        doc,
+        collectionName,
+        documentId,
+        token,
+        threadId,
+        actorAuthorId,
+        actorAuthorName,
+        allowAuthorNameFallback,
+      });
     },
   });
 }
