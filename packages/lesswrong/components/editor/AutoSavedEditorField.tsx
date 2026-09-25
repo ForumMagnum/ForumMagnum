@@ -1,46 +1,63 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
-import { fieldUpdate, type UpdateUserSettings } from '@/components/users/account/useAutoSavedUserSettings';
-import type { EditableUser } from '@/lib/collections/users/helpers';
+
+interface EditorContentsValue {
+  originalContents?: { type?: string | null; data?: string | null } | null;
+}
+
+/** The value the editor submits for its field: its contents, plus editor metadata. */
+export type SubmittedEditorContents = EditorContentsValue & { originalContents: { type: string; data: string } };
+
+function contentsKey(contents: EditorContentsValue | null | undefined) {
+  return {
+    type: contents?.originalContents?.type ?? null,
+    data: contents?.originalContents?.data ?? null,
+  };
+}
 
 /**
- * An editor field for the account-settings page: commits the editor contents
- * through the autosave queue when focus leaves the editor, rather than on an
- * explicit form submit.
+ * An editor field that saves itself when focus leaves it, rather than on an
+ * explicit form submit. `onCommit` saves the contents and resolves to whether
+ * the save succeeded; unchanged contents aren't committed.
  *
- * Only real edits are committed: the editor reports changes to its contents
- * (the binding's `handleChange`, which it calls periodically for form state
- * tracking, and `beforeinput` events for typing, since Lexical cancels them
- * and applies the edit itself), but not moving the cursor. So focusing and
- * leaving the field doesn't save the editor's re-rendering of contents it
- * loaded in another format. The contents themselves are captured on commit,
- * through `setValue`.
+ * The editor periodically echoes its contents into the field for form state
+ * tracking; only a commit (on blur) captures them, through the binding's
+ * `setValue`. The last committed contents are advanced before the save is
+ * awaited, so a second blur during an in-flight save doesn't queue a
+ * duplicate revision.
  */
-const AutoSavedEditorField = ({
-  name,
-  settings,
-  updateSettings,
+const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & string>({
+  document,
+  fieldName,
+  collectionName,
   hintText,
   label,
+  commentEditor,
+  commentStyles,
+  hideControls,
+  fitToContent,
+  onCommit,
 }: {
-  name: 'biography' | 'moderationGuidelines';
-  settings: EditableUser;
-  updateSettings: UpdateUserSettings;
+  document: D & Record<F, EditorContentsValue | null | undefined>;
+  fieldName: F;
+  collectionName: CollectionNameString;
   hintText: string;
   label?: string;
+  commentEditor: boolean;
+  commentStyles: boolean;
+  hideControls: boolean;
+  fitToContent?: boolean;
+  onCommit: (contents: SubmittedEditorContents) => Promise<boolean>;
 }) => {
   const {
     onSubmitCallback,
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
-  } = useEditorFormCallbacks<UsersEdit>();
+  } = useEditorFormCallbacks<D>();
 
-  const capturedValueRef = useRef<AnyBecauseHard>(null);
-  const lastCommittedRef = useRef<{ type: string | null; data: string | null }>({
-    type: settings[name]?.originalContents?.type ?? null,
-    data: settings[name]?.originalContents?.data ?? null,
-  });
+  const capturedValueRef = useRef<SubmittedEditorContents | null>(null);
+  const lastCommittedRef = useRef(contentsKey(document[fieldName]));
 
   const editedRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -56,13 +73,11 @@ const AutoSavedEditorField = ({
   }, []);
 
   const binding = {
-    state: { value: settings[name] },
-    setValue: (value: AnyBecauseHard) => {
+    state: { value: document[fieldName] },
+    setValue: (value: SubmittedEditorContents) => {
       capturedValueRef.current = value;
     },
-    handleChange: () => {
-      editedRef.current = true;
-    },
+    handleChange: () => {},
   };
 
   const commit = useCallback(async () => {
@@ -73,24 +88,18 @@ const AutoSavedEditorField = ({
     if (!payload) return;
     editedRef.current = false;
 
-    const newContents = {
-      type: payload.originalContents?.type ?? null,
-      data: payload.originalContents?.data ?? null,
-    };
+    const newContents = contentsKey(payload);
     const previous = lastCommittedRef.current;
     if (newContents.type === previous.type && newContents.data === previous.data) return;
 
-    // Advance before awaiting so a repeated blur during the in-flight save
-    // doesn't queue a duplicate revision
     lastCommittedRef.current = newContents;
-    const result = await updateSettings(fieldUpdate(name, payload));
-    if (result.success) {
-      onSuccessCallback.current?.(result.doc, { noReload: true });
+    if (await onCommit(payload)) {
+      onSuccessCallback.current?.(document, { noReload: true });
     } else {
       lastCommittedRef.current = previous;
       editedRef.current = true;
     }
-  }, [name, updateSettings, onSubmitCallback, onSuccessCallback]);
+  }, [document, onCommit, onSubmitCallback, onSuccessCallback]);
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     const focusMovedTo = e.relatedTarget instanceof Node ? e.relatedTarget : null;
@@ -102,18 +111,19 @@ const AutoSavedEditorField = ({
     <div onBlur={handleBlur} ref={rootRef}>
       <EditorFormComponent
         field={binding}
-        name={name}
+        name={fieldName}
         formType="edit"
-        document={settings}
+        document={document}
         addOnSubmitCallback={addOnSubmitCallback}
         addOnSuccessCallback={addOnSuccessCallback}
         hintText={hintText}
-        fieldName={name}
-        collectionName="Users"
+        fieldName={fieldName}
+        collectionName={collectionName}
         label={label}
-        commentEditor={true}
-        commentStyles={true}
-        hideControls={false}
+        commentEditor={commentEditor}
+        commentStyles={commentStyles}
+        hideControls={hideControls}
+        fitToContent={fitToContent}
       />
     </div>
   );

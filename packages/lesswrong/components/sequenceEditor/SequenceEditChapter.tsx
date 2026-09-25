@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import AutoGrowTextarea from "./AutoGrowTextarea";
-import classNames from "classnames";
+import React, { useEffect, useMemo, useState } from "react";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
+import AutoSavedEditorField from "../editor/AutoSavedEditorField";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import SequenceEditMenu from "./SequenceEditMenu";
-import type { EditableChapter } from "./sequenceStructure";
+import type { ChapterDescription, EditableChapter } from "./sequenceStructure";
+import { blurOnEnter } from "./blurOnEnter";
 
 const styles = defineStyles("SequenceEditChapter", (theme: ThemeType) => ({
   root: {
@@ -16,56 +17,29 @@ const styles = defineStyles("SequenceEditChapter", (theme: ThemeType) => ({
     alignItems: "center",
     gap: 4,
   },
-  inlineInput: {
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    borderRadius: 4,
-    padding: "2px 4px",
+  titleInput: {
+    fontFamily: "inherit",
+    flexGrow: 1,
+    minWidth: 0,
     margin: "0 -4px",
+    padding: "2px 4px",
+    borderRadius: 4,
     color: "inherit",
     "&:hover": {
       background: theme.palette.greyAlpha(0.04),
     },
-    "&:focus": {
+    "&:focus-within": {
       background: theme.palette.greyAlpha(0.06),
     },
-    "&::placeholder": {
-      color: theme.palette.greyAlpha(0.35),
+    "& input": {
+      ...theme.typography.chapterTitle,
+      ...theme.typography.largeChapterTitle,
+      fontFamily: "inherit",
+      margin: 0,
     },
-  },
-  // Matches ChapterTitle's large style in reading mode.
-  titleInput: {
-    ...theme.typography.chapterTitle,
-    ...theme.typography.largeChapterTitle,
-    fontFamily: "inherit",
-    margin: 0,
-    flexGrow: 1,
-    minWidth: 0,
-    resize: "none",
-    overflow: "hidden",
   },
   description: {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    width: "100%",
-    resize: "none",
-    overflow: "hidden",
     marginTop: 8,
-    marginLeft: 6,
-    lineHeight: 1.5,
-  },
-  addDescriptionLink: {
-    ...theme.typography.commentStyle,
-    fontSize: 13,
-    color: theme.palette.greyAlpha(0.45),
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    padding: "4px 0",
-    "&:hover": {
-      color: theme.palette.greyAlpha(0.8),
-    },
   },
   deleteButton: {
     display: "flex",
@@ -94,8 +68,9 @@ const styles = defineStyles("SequenceEditChapter", (theme: ThemeType) => ({
 }));
 
 /**
- * One chapter in the sequence editor: its title, optional plain-text
- * description, menu and delete button, then its posts (passed as children).
+ * One chapter in the sequence editor: its title, description, menu and delete
+ * button, then its posts (passed as children). The title saves when it loses
+ * focus or Enter is pressed; the description saves when it loses focus.
  */
 const SequenceEditChapter = ({
   chapter,
@@ -105,7 +80,7 @@ const SequenceEditChapter = ({
   isOnlyChapter,
   autoFocusTitle,
   onTitleChange,
-  onDescriptionChange,
+  onDescriptionCommit,
   onMove,
   onDelete,
   children,
@@ -117,31 +92,18 @@ const SequenceEditChapter = ({
   isOnlyChapter: boolean,
   autoFocusTitle: boolean,
   onTitleChange: (title: string) => void,
-  onDescriptionChange: (text: string) => void,
+  onDescriptionCommit: (description: ChapterDescription) => Promise<boolean>,
   onMove: (direction: "up" | "down") => void,
   onDelete: () => void,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const [title, setTitle] = useState(chapter.title ?? "");
-  const [description, setDescription] = useState(chapter.descriptionText);
-  const [showDescription, setShowDescription] = useState(!!chapter.descriptionText);
-  const [focusDescription, setFocusDescription] = useState(false);
-
-  // Keep the fields in step if the chapter changes from outside (e.g. after
-  // reloading from the server when a save failed).
   useEffect(() => setTitle(chapter.title ?? ""), [chapter.title]);
-  useEffect(() => {
-    setDescription(chapter.descriptionText);
-    if (chapter.descriptionText) setShowDescription(true);
-  }, [chapter.descriptionText]);
-
-  const saveDescription = () => {
-    onDescriptionChange(description);
-    if (!description.trim()) {
-      setShowDescription(false);
-    }
-  };
+  const descriptionDocument = useMemo(
+    () => ({ _id: chapter._id, contents: chapter.description }),
+    [chapter._id, chapter.description],
+  );
 
   const deleteTooltip = canDelete
     ? (isOnlyChapter ? "Remove chapter (keeps its posts)" : "Delete chapter")
@@ -149,14 +111,15 @@ const SequenceEditChapter = ({
 
   return <div className={classes.root}>
     <div className={classes.header}>
-      <AutoGrowTextarea
-        className={classNames(classes.inlineInput, classes.titleInput)}
+      <Input
+        className={classes.titleInput}
         value={title}
         placeholder="Chapter title"
         autoFocus={autoFocusTitle}
-        singleLine
-        onChange={setTitle}
+        disableUnderline
+        onChange={(event) => setTitle(event.target.value)}
         onBlur={() => onTitleChange(title)}
+        onKeyDown={blurOnEnter}
       />
       <SequenceEditMenu
         label="Chapter options"
@@ -171,19 +134,19 @@ const SequenceEditChapter = ({
         </button>
       </LWTooltip>
     </div>
-    {showDescription
-      ? <AutoGrowTextarea
-          className={classNames(classes.inlineInput, classes.description)}
-          value={description}
-          placeholder="Chapter description"
-          autoFocus={focusDescription}
-          onChange={setDescription}
-          onBlur={saveDescription}
-        />
-      : <button className={classes.addDescriptionLink} onClick={() => { setShowDescription(true); setFocusDescription(true); }}>
-          Add chapter description
-        </button>
-    }
+    <div className={classes.description}>
+      <AutoSavedEditorField
+        document={descriptionDocument}
+        fieldName="contents"
+        collectionName="Chapters"
+        hintText="Add chapter description"
+        commentEditor
+        commentStyles={false}
+        hideControls
+        fitToContent
+        onCommit={onDescriptionCommit}
+      />
+    </div>
     <div className={classes.posts}>
       {children}
     </div>

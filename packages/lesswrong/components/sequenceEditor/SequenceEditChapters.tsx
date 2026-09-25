@@ -178,6 +178,14 @@ function useChapterDragAndDrop(editing: ChapterEditing) {
   return { displayedChapters: preview ?? editing.chapters, onDragStart, onDragOver, onDragEnd, onDragCancel };
 }
 
+/**
+ * The chapters editor once the chapters have loaded. A sequence whose only
+ * chapter has no title or description is shown as a plain list of posts;
+ * clicking "Add chapter" there sets `showChapterHeadings`, which shows that
+ * (still untitled) chapter's heading so a title can be typed. Every sequence
+ * should have a chapter, but one with none still gets an "Add chapter" button
+ * rather than crashing.
+ */
 const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapters }: {
   sequenceId: string,
   initialChapters: ChaptersEdit[],
@@ -187,8 +195,6 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
   const editing = useChapterEditing({ sequenceId, initialChapters, refetchChapters });
   const { chapters, loadedPosts } = editing;
   const { displayedChapters, ...dragHandlers } = useChapterDragAndDrop(editing);
-  // Set when "Add chapter" is clicked on a sequence with no chapters: shows
-  // the (still untitled) chapter's heading so a title can be typed.
   const [showChapterHeadings, setShowChapterHeadings] = useState(false);
   const [addingPostToChapterId, setAddingPostToChapterId] = useState<string | null>(null);
   const [focusTitleOfChapterId, setFocusTitleOfChapterId] = useState<string | null>(null);
@@ -260,7 +266,6 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
     <ForumIcon icon="Plus" className={classes.addIcon} /> Add chapter
   </button>;
 
-  // Every sequence should have a chapter, but don't crash on one that doesn't.
   if (!chapters.length) {
     return <div className={classes.root}>
       <div className={classes.buttonRow}>
@@ -284,7 +289,7 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
           </>
         : <>
             {displayedChapters.map((chapter, index) => <SequenceEditChapter
-              key={chapter._id}
+              key={`${chapter._id}-${editing.version}`}
               chapter={chapter}
               canMoveUp={index > 0}
               canMoveDown={index < displayedChapters.length - 1}
@@ -292,7 +297,7 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
               isOnlyChapter={chapters.length === 1}
               autoFocusTitle={focusTitleOfChapterId === chapter._id}
               onTitleChange={(title) => editing.setChapterTitle(chapter._id, title)}
-              onDescriptionChange={(text) => editing.setChapterDescription(chapter._id, text)}
+              onDescriptionCommit={(description) => editing.setChapterDescription(chapter._id, description)}
               onMove={(direction) => editing.moveChapter(chapter._id, direction)}
               onDelete={() => deleteChapter(chapter._id)}
             >

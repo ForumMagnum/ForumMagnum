@@ -2,9 +2,8 @@ import { useCallback, useRef, useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { randomId } from "@/lib/random";
-import { descriptionHtmlToPlainText, plainTextToDescriptionHtml } from "@/components/sequenceEditor/plainTextDescription";
 import * as structure from "./sequenceStructure";
-import type { EditableChapter } from "./sequenceStructure";
+import type { ChapterDescription, EditableChapter } from "./sequenceStructure";
 import { useSequenceEditor } from "./SequenceEditorContext";
 
 const SequenceEditorUpdateChapterMutation = gql(`
@@ -39,16 +38,30 @@ const SequenceEditorMovePostMutation = gql(`
   }
 `);
 
-// The reading-mode chapter list; refetched when chapters are added or removed.
+/** The reading-mode chapter list's query, refetched when chapters are added or removed. */
 const READING_CHAPTERS_QUERY = "multiChapterChaptersListQuery";
 
-const EMPTY_DESCRIPTION = { originalContents: { type: "html", data: "" } };
+const EMPTY_DESCRIPTION = { originalContents: { type: "lexical", data: "" } };
+
+/**
+ * A chapter description, opened in the rich-text (Lexical) editor whatever
+ * format it was saved in. Chapter descriptions have been saved as HTML, which
+ * would otherwise open a raw HTML editor. Lexical's saved format is HTML, so
+ * the rendered HTML loads into it without loss, and saves back as Lexical.
+ */
+function toChapterDescription(contents: ChaptersEdit["contents"]): ChapterDescription | null {
+  const html = contents?.html ?? "";
+  if (structure.isBlankDescriptionHtml(html)) {
+    return null;
+  }
+  return { originalContents: { type: "lexical", data: html } };
+}
 
 export function toEditableChapter(chapter: ChaptersEdit): EditableChapter {
   return {
     _id: chapter._id,
     title: chapter.title ?? null,
-    descriptionText: descriptionHtmlToPlainText(chapter.contents?.html ?? ""),
+    description: toChapterDescription(chapter.contents),
     postIds: chapter.postIds,
   };
 }
@@ -57,16 +70,23 @@ function postsById(chapters: ChaptersEdit[]): Record<string, PostsList> {
   return Object.fromEntries(chapters.flatMap((chapter) => chapter.posts.map((post) => [post._id, post])));
 }
 
+/**
+ * The sequence editor's chapters and the actions that change them.
+ * `version` changes each time the chapters are reloaded from the server.
+ * `loadedPosts` holds the posts loaded with the chapters, by id; rows for
+ * other posts fetch their own. `setChapterDescription` resolves to whether
+ * the description was saved, and `addChapter` returns the new chapter's
+ * temporary id.
+ */
 export interface ChapterEditing {
   chapters: EditableChapter[];
-  /** Posts loaded with the chapters, by id. Rows for other posts fetch their own. */
+  version: number;
   loadedPosts: Record<string, PostsList>;
   addPost: (chapterId: string, postId: string) => void;
   removePost: (chapterId: string, postId: string) => void;
   movePost: (postId: string, fromChapterId: string, toChapterId: string, toIndex: number) => void;
   setChapterTitle: (chapterId: string, title: string) => void;
-  setChapterDescription: (chapterId: string, text: string) => void;
-  /** Adds an empty chapter at the end and returns its (temporary) id. */
+  setChapterDescription: (chapterId: string, description: ChapterDescription) => Promise<boolean>;
   addChapter: () => string;
   deleteChapter: (chapterId: string) => void;
   moveChapter: (chapterId: string, direction: "up" | "down") => void;
@@ -74,9 +94,21 @@ export interface ChapterEditing {
 
 /**
  * Local chapter/post state for the sequence editor. Every change is applied
- * locally straight away and saved through the editor's save queue. If a save
- * fails, the chapters are reloaded from the server, since later queued
- * changes may have built on the one that failed.
+ * locally straight away and saved through the editor's save queue.
+ *
+ * - **Failed saves:** the chapters are reloaded from the server, since later
+ *   queued changes may have built on the one that failed. The reload waits
+ *   until every queued save has finished; reloading earlier would show a
+ *   state that later saves then change behind the page's back.
+ * - **New chapters** get a temporary id until the server returns the real
+ *   one; saves queued meanwhile look the real id up in `realIdsRef`. The
+ *   mappings survive a reload, since saves queued before it may still use them.
+ * - **Order:** chapters are ordered by `number`, and older chapters often have
+ *   none, so every chapter whose stored number doesn't match its position
+ *   gets a new one. Adding a chapter numbers the existing ones first, so the
+ *   new one sorts after them.
+ * - **Deleting the only chapter** keeps it but removes its title and
+ *   description, which turns the sequence back into a plain list of posts.
  */
 export function useChapterEditing({ sequenceId, initialChapters, refetchChapters }: {
   sequenceId: string,
@@ -86,9 +118,8 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
   const { enqueueSave, drainSaves } = useSequenceEditor();
   const [chapters, setChaptersState] = useState<EditableChapter[]>(() => initialChapters.map(toEditableChapter));
   const [loadedPosts, setLoadedPosts] = useState<Record<string, PostsList>>(() => postsById(initialChapters));
+  const [version, setVersion] = useState(0);
   const chaptersRef = useRef(chapters);
-  // Chapters created in this session get a temporary id until the server
-  // returns the real one. Saves queued meanwhile look the real id up here.
   const realIdsRef = useRef<Record<string, string>>({});
   const numbersRef = useRef<Record<string, number | null>>(
     Object.fromEntries(initialChapters.map((chapter) => [chapter._id, chapter.number ?? null])),
@@ -106,10 +137,6 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
 
   const realId = useCallback((chapterId: string) => realIdsRef.current[chapterId] ?? chapterId, []);
 
-  // After a failed save, reload the chapters from the server, but only once
-  // every queued save has finished: reloading earlier would show a state that
-  // later saves then change behind the page's back. Temporary-to-real id
-  // mappings are kept, since saves queued before the reload may still use them.
   const resyncPendingRef = useRef(false);
   const resyncFromServer = useCallback(() => {
     if (resyncPendingRef.current) return;
@@ -126,6 +153,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
         numbersRef.current = Object.fromEntries(serverChapters.map((chapter) => [chapter._id, chapter.number ?? null]));
         setLoadedPosts(postsById(serverChapters));
         setChapters(serverChapters.map(toEditableChapter));
+        setVersion((previous) => previous + 1);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Couldn't reload the sequence's chapters", e);
@@ -141,21 +169,23 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     }
   }, []);
 
-  const saveChapter = useCallback((chapterId: string, data: UpdateChapterDataInput) => {
+  const saveChapter = useCallback((chapterId: string, data: UpdateChapterDataInput) => new Promise<boolean>((resolve) => {
     enqueueSave(async () => {
       const result = await updateChapterMutation({ variables: { selector: { _id: realId(chapterId) }, data } });
       rememberPosts(result.data?.updateChapter?.data);
-    }, resyncFromServer);
-  }, [enqueueSave, updateChapterMutation, realId, rememberPosts, resyncFromServer]);
+      resolve(true);
+    }, () => {
+      resolve(false);
+      resyncFromServer();
+    });
+  }), [enqueueSave, updateChapterMutation, realId, rememberPosts, resyncFromServer]);
 
-  // Chapters are ordered by `number`. Older chapters often have none, so give
-  // every chapter whose stored number doesn't match its position a new one.
   const saveChapterOrder = useCallback((ordered: EditableChapter[]) => {
     ordered.forEach((chapter, index) => {
       const number = index + 1;
       if (numbersRef.current[chapter._id] !== number) {
         numbersRef.current[chapter._id] = number;
-        saveChapter(chapter._id, { number });
+        void saveChapter(chapter._id, { number });
       }
     });
   }, [saveChapter]);
@@ -163,7 +193,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
   const savePostIds = useCallback((next: EditableChapter[], chapterId: string) => {
     const chapter = next.find((c) => c._id === chapterId);
     if (chapter) {
-      saveChapter(chapterId, { postIds: chapter.postIds });
+      void saveChapter(chapterId, { postIds: chapter.postIds });
     }
   }, [saveChapter]);
 
@@ -198,20 +228,21 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     const current = chaptersRef.current.find((c) => c._id === chapterId);
     if (!current || (current.title ?? null) === trimmed) return;
     setChapters(chaptersRef.current.map((c) => c._id === chapterId ? { ...c, title: trimmed } : c));
-    saveChapter(chapterId, { title: trimmed });
+    void saveChapter(chapterId, { title: trimmed });
   }, [setChapters, saveChapter]);
 
-  const setChapterDescription = useCallback((chapterId: string, text: string) => {
+  const setChapterDescription = useCallback(async (chapterId: string, description: ChapterDescription) => {
     const current = chaptersRef.current.find((c) => c._id === chapterId);
-    if (!current || current.descriptionText.trim() === text.trim()) return;
-    setChapters(chaptersRef.current.map((c) => c._id === chapterId ? { ...c, descriptionText: text.trim() } : c));
-    saveChapter(chapterId, { contents: { originalContents: { type: "html", data: plainTextToDescriptionHtml(text) } } });
+    if (!current) return false;
+    const isBlank = structure.isBlankDescriptionHtml(description.originalContents.data);
+    if (isBlank && !current.description) return true;
+    setChapters(chaptersRef.current.map((c) => c._id === chapterId ? { ...c, description: isBlank ? null : description } : c));
+    return saveChapter(chapterId, { contents: isBlank ? EMPTY_DESCRIPTION : { originalContents: description.originalContents } });
   }, [setChapters, saveChapter]);
 
   const addChapter = useCallback(() => {
     const tempId = `new-${randomId()}`;
-    const next = [...chaptersRef.current, { _id: tempId, title: null, descriptionText: "", postIds: [] }];
-    // Number the existing chapters first, so the new one sorts after them.
+    const next = [...chaptersRef.current, { _id: tempId, title: null, description: null, postIds: [] }];
     saveChapterOrder(chaptersRef.current);
     setChapters(next);
     numbersRef.current[tempId] = next.length;
@@ -231,10 +262,8 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     const current = chaptersRef.current;
     if (!structure.canDeleteChapter(current, chapterId)) return;
     if (current.length === 1) {
-      // The last chapter stays; removing its title and description turns
-      // the sequence back into a plain list of posts.
-      setChapters([{ ...current[0], title: null, descriptionText: "" }]);
-      saveChapter(chapterId, { title: null, contents: EMPTY_DESCRIPTION });
+      setChapters([{ ...current[0], title: null, description: null }]);
+      void saveChapter(chapterId, { title: null, contents: EMPTY_DESCRIPTION });
       return;
     }
     setChapters(current.filter((c) => c._id !== chapterId));
@@ -252,6 +281,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
 
   return {
     chapters,
+    version,
     loadedPosts,
     addPost,
     removePost,
