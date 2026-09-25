@@ -9,6 +9,7 @@ import {
 } from '../utils'
 import { Chapters } from '../../server/collections/chapters/collection';
 import { Notifications } from '../../server/collections/notifications/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 
 async function addChapterAs(user: DbUser, sequenceId: string, postIds: string[]): Promise<string> {
   const response = await runQuery(`
@@ -154,6 +155,27 @@ describe('deleteChapter', () => {
     const remaining = await Chapters.find({sequenceId}).fetch();
     remaining.map(c => c._id).should.not.include(secondChapterId);
     remaining.length.should.equal(1);
+  });
+
+  it("deletes the chapter's description revisions with it", async () => {
+    const owner = await createDummyUser();
+    const { sequenceId } = await createSequenceAs(owner);
+    const secondChapterId = await addChapterAs(owner, sequenceId, []);
+    await runQuery(`
+      mutation {
+        updateChapter(
+          selector: {_id: "${secondChapterId}"},
+          data: {contents: {originalContents: {type: "html", data: "<p>An intro</p>"}}}
+        ) {
+          data { _id }
+        }
+      }
+    `, {}, {currentUser: owner});
+    (await Revisions.find({documentId: secondChapterId}).fetch()).length.should.be.greaterThan(0);
+
+    await deleteChapterAs(owner, secondChapterId);
+
+    (await Revisions.find({documentId: secondChapterId}).fetch()).length.should.equal(0);
   });
 
   it("refuses to delete a chapter that still has posts", async () => {

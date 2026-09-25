@@ -53,6 +53,9 @@ export const sequencesResolversMutations = {
       throw new Error("Cannot delete a sequence's last chapter");
     }
     await context.Chapters.rawRemove({ _id: chapterId });
+    // Chapters are deleted outright, so their description history can't be
+    // reached afterwards.
+    await context.Revisions.rawRemove({ documentId: chapterId, collectionName: "Chapters" });
     await markSequenceUpdated(sequenceId, context);
     return true;
   },
