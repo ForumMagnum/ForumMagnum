@@ -10,7 +10,7 @@ original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 Forum Magnum is built on top of a number of major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
+1. [NextJS](https://nextjs.org/) is the web framework. We use the app router: pages, layouts and route handlers live in `app/`, while most React components live in `packages/lesswrong/components`.
 
 2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
@@ -20,7 +20,11 @@ Forum Magnum is built on top of a number of major open-source libraries.
 
 5. [Apollo](https://www.apollographql.com/docs/) is a client-side ORM which we use for managing data on the client. We interact with it primarily via the React hooks API.
 
-6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative rich text editor, which is no longer the default but which we still support.
+6. [PostgreSQL](https://www.postgresql.org/) is the database. Most server-side queries are written with Mongo-style selectors which are translated into SQL (`packages/lesswrong/server/sql`); queries that need real SQL (joins, CTEs) are written as raw SQL in the repos under `packages/lesswrong/server/repos`.
+
+7. [Lexical](https://lexical.dev/) is the default rich text editor for posts, comments, and some other form fields; it's shown to users as "LessWrong Docs". The other editor types are [CkEditor5](https://ckeditor.com/), markdown, and raw HTML (admin-only, per `getEditorsForUser` in `packages/lesswrong/components/editor/Editor.tsx`); see the "Editor" section of `CLAUDE.md` for how they relate to each other.
+
+8. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators, which this codebase started out as a fork of. It has since diverged to the point where very little of it is left (mostly some naming, in files and directories named `vulcan-*`), but its docs can still be useful for understanding where we came from, with the caveat that much of it no longer describes this codebase. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 
 ## Running locally
 
@@ -143,26 +147,17 @@ You can set up CloudFront to cache pages for logged out users. See [this README]
 
 Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
 
-* **Collections** – Mongo databases are organized around *collections* of documents. For example, the Users collection is where the user objects live. Mongo databases do not technically have a rigid schema, but VulcanJS has a pattern for files that determine the intended schema (which is used by the API, forms and permissions systems to determine what database modifications are allowed). Each collection is a subdirectory in `packages/lesswrong/lib/collections`.
+* **Collections** – A *collection* is our abstraction over a database table plus (usually) its GraphQL type. For example, the Users collection is where the user objects live. Each collection has a schema file at `packages/lesswrong/lib/collections/{collectionName}/newSchema.ts`, where each field can declare a `database` spec (the Postgres column) and/or a `graphql` spec (the API field, including the `canRead`/`canUpdate`/`canCreate` permissions that determine what modifications are allowed). Server-side registration, queries and mutations for each collection live in `packages/lesswrong/server/collections/{collectionName}`.
 
-* **Components** – Our React components are organized in a folder structure based loosely on our collections. (i.e. components related to the `User` collection go in the `packages/lesswrong/components/users` folder). Each component is (usually) defined in a separate `.tsx` file in `packages/lesswrong/components` and imported from `packages/lesswrong/lib/components.ts`.
+* **Components** – Our React components are organized in a folder structure based loosely on our collections. (i.e. components related to the `User` collection go in the `packages/lesswrong/components/users` folder). Each component is (usually) defined in a separate `.tsx` file in `packages/lesswrong/components`, and imported directly from the files that use it.
 
   Some edge cases just go in a randomly picked folder (such as the RecentDiscussion components, which involve both comments and posts, but live in the comments folder)
 
   There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
-  We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
+  `registerComponent` (`packages/lesswrong/lib/vulcan-lib/components.tsx`) still exists, but it is only for wrapping a component in higher-order components or memoization; components that need neither don't use it.
 
-* **Smart Forms** - Vulcan also allows us to automatically generate simple forms to create and edit Documents (in the Mongo sense of the word Document, any instance of a Collection). This functionality is called Smart Forms.
-
-  You can create an `EditFoo` page, which renders `WrappedSmartForm`, which then automagically creates a form for you. We use this to edit just about every Document in the codebase. How does it know what type of input you want though? This is the interesting part. You define the way you want to edit fields in the collection schema. So in Posts you have (selected examples):
-
-  - Sticky
-      - Because it's admin-only, it doesn't show up unless it's edited by an admin.
-      - It's control is `'checkbox'`, which makes it editable by a simple checkbox.
-      - It's grouped among admin options, so it appears with the other admin options
-  - Title
-      - It's control is `'EditTitle'`, which means the Smart Form will look in Components for an EditTitle component, and then use that as the UI for modifying the Title.
+* **Forms** - Forms are ordinary components written with [TanStack Form](https://tanstack.com/form), using the shared pieces in `packages/lesswrong/components/tanstack-form-components` (see `packages/lesswrong/components/admin/CurationNoticesForm.tsx` for a small example). Field-level permissions still come from the collection schema, via the `canUpdate`/`canCreate` specs, and the create/update GraphQL mutations the form calls enforce them.
 
 * **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
 
@@ -170,7 +165,7 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
-* **makeEditable** - To add a long text field to a schema, use `makeEditable`. It add the correct control component, and creates the necessary callbacks to sync it with the Revisions table.
+* **Editable fields** - Long rich-text fields (like a post's `contents`) are declared in the collection's schema as a field with `outputType: "Revision"` and an `editableFieldOptions` entry in its `graphql` spec; that wires up the editor and the callbacks that store each version in the Revisions table. See the `contents` field in `packages/lesswrong/lib/collections/posts/newSchema.ts`.
 
 * **Configuration and Secrets** We store most configuration and secrets in the
   database, not in environment variables like you might expect. See
