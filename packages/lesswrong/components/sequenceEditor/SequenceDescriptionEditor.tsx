@@ -8,15 +8,20 @@ import { useSequenceEditor } from "./SequenceEditorContext";
 
 const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => ({
   root: {
+    // Same spacing as the description in reading mode (SequencesPage), whose
+    // posts start 28px below it; here that space comes after the buttons.
     marginTop: 16,
-    marginBottom: 16,
-    // The shared editor is sized for post bodies; a sequence description is
-    // usually a paragraph or two, so let it start small and grow.
+    marginBottom: 28,
+    // The shared editor is sized for post bodies, with a large minimum
+    // height. The description should be exactly as tall as its text.
     "& .EditorFormComponent-postEditorHeight": {
-      minHeight: 80,
+      minHeight: 0,
     },
     "& .LexicalPostEditor-editorShell": {
-      "--lexical-editor-min-height": "80px",
+      "--lexical-editor-min-height": "0px",
+    },
+    "& .LexicalContentEditable-root": {
+      minHeight: 0,
     },
   },
   // Always rendered, so the page doesn't shift when the buttons activate.

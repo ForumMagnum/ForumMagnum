@@ -23,7 +23,9 @@ const styles = defineStyles("SequenceEditPostRow", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: 8,
-    padding: "6px 4px",
+    // Rows are the same height as post rows in reading mode (48px).
+    minHeight: 48,
+    padding: "0 4px",
     borderBottom: theme.palette.border.itemSeparatorBottom,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
