@@ -115,8 +115,6 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   };
 }
 
-// Tags that can't be found (or have no slug) are omitted from the result, so
-// callers must handle missing entries.
 const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext): Promise<Partial<Record<string,{slug: string, name: string}>>> => {
   const { Tags, loaders } = context;
   const mapping: Record<string,{slug: string, name: string}> = {};
