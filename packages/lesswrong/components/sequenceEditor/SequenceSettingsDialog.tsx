@@ -29,14 +29,18 @@ const styles = defineStyles("SequenceSettingsDialog", (theme: ThemeType) => ({
   field: {
     marginBottom: 8,
   },
+  deleteButton: {
+    color: theme.palette.error.main,
+    marginRight: "auto",
+  },
 }));
 
 /**
  * Settings that aren't part of the page layout, in sections like the post
  * editor's settings panel. The card image is set in the preview panel at the
- * bottom of the page, and Delete is in the bottom bar's "…" menu.
+ * bottom of the page. Delete sequence asks for confirmation in its own dialog.
  */
-const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
+const SequenceSettingsDialog = ({ onClose, onDelete }: { onClose: () => void, onDelete: () => void }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { sequence, saveSequenceNow } = useSequenceEditor();
@@ -113,6 +117,7 @@ const SequenceSettingsDialog = ({ onClose }: { onClose: () => void }) => {
       </div>}
     </DialogContent>
     <DialogActions>
+      <Button className={classes.deleteButton} onClick={onDelete}>Delete sequence</Button>
       <Button onClick={onClose}>Done</Button>
     </DialogActions>
   </LWDialog>;
