@@ -43,18 +43,26 @@ const READING_CHAPTERS_QUERY = "multiChapterChaptersListQuery";
 
 const EMPTY_DESCRIPTION = { originalContents: { type: "lexical", data: "" } };
 
+const HTML_BASED_FORMATS = new Set(["html", "ckEditorMarkup", "lexical"]);
+
 /**
  * A chapter description, opened in the rich-text (Lexical) editor whatever
- * format it was saved in. Chapter descriptions have been saved as HTML, which
- * would otherwise open a raw HTML editor. Lexical's saved format is HTML, so
- * the rendered HTML loads into it without loss, and saves back as Lexical.
+ * format it was saved in; it saves back as Lexical. HTML-format descriptions
+ * would otherwise open a raw HTML editor. Formats stored as HTML load their
+ * stored HTML, which for CKEditor keeps maths as `math-tex` spans that
+ * Lexical imports (its rendered HTML has MathJax output Lexical can't read).
+ * Other formats (draftJS, markdown) load their rendered HTML.
  */
 function toChapterDescription(contents: ChaptersEdit["contents"]): ChapterDescription | null {
   const html = contents?.html ?? "";
   if (structure.isBlankDescriptionHtml(html)) {
     return null;
   }
-  return { originalContents: { type: "lexical", data: html } };
+  const original = contents?.originalContents;
+  const source = original && HTML_BASED_FORMATS.has(original.type) && typeof original.data === "string"
+    ? original.data
+    : html;
+  return { originalContents: { type: "lexical", data: source } };
 }
 
 export function toEditableChapter(chapter: ChaptersEdit): EditableChapter {
