@@ -393,6 +393,7 @@ export const SpotlightForm = ({
                 commentEditor={true}
                 commentStyles={true}
                 hideControls={true}
+                fitToContent={descriptionOnly}
               />
             )}
           </form.Field>
