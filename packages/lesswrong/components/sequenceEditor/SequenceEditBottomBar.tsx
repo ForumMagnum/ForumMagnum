@@ -4,6 +4,8 @@ import ForumIcon from "../common/ForumIcon";
 import { useSequenceEditor } from "./SequenceEditorContext";
 import type { SaveStatus } from "./useSequentialSaveQueue";
 import SequenceSettingsDialog from "./SequenceSettingsDialog";
+import SequenceDeleteDialog from "./SequenceDeleteDialog";
+import SequenceEditMenu from "./SequenceEditMenu";
 
 const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
   root: {
@@ -116,6 +118,7 @@ const SequenceEditBottomBar = () => {
   const { sequence, saveStatus, saveSequenceNow, descriptionDraftRef } = useSequenceEditor();
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   // Publish and Move to Drafts include any unsaved description changes in
   // the same update, so the two can't get out of step.
@@ -136,11 +139,16 @@ const SequenceEditBottomBar = () => {
     {/* Rendered here rather than through openDialog so it stays inside the
         sequence editor's context. */}
     {settingsOpen && <SequenceSettingsDialog onClose={() => setSettingsOpen(false)} />}
+    {deleteOpen && <SequenceDeleteDialog onClose={() => setDeleteOpen(false)} />}
     <span className={saveStatus === "error" ? classes.statusError : classes.status}>
       {statusLabels[saveStatus]}
     </span>
     <div className={classes.actions}>
-      <button className={classes.settingsButton} onClick={() => setSettingsOpen(true)} title="Sequence settings">
+      <SequenceEditMenu
+        label="More actions"
+        items={[{ title: "Delete sequence", onClick: () => setDeleteOpen(true) }]}
+      />
+      <button className={classes.settingsButton} onClick={() => setSettingsOpen(true)} title="Settings">
         <ForumIcon icon="Settings" className={classes.settingsIcon} />
       </button>
       {sequence.draft

@@ -24,6 +24,7 @@ import { DoneEditingButton, SequenceBannerControls, SequenceTitleInput } from ".
 import SequenceDescriptionEditor from "../sequenceEditor/SequenceDescriptionEditor";
 import SequenceEditChapters from "../sequenceEditor/SequenceEditChapters";
 import SequenceEditBottomBar from "../sequenceEditor/SequenceEditBottomBar";
+import SequencePreviewPanel from "../sequenceEditor/SequencePreviewPanel";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionSubtitle from "../common/SectionSubtitle";
 import ChaptersList from "./ChaptersList";
@@ -308,7 +309,10 @@ const SequencesPage = ({documentId}: {
           }
           <div>
             {editing
-              ? <SequenceEditChapters sequenceId={document._id} />
+              ? <>
+                  <SequenceEditChapters sequenceId={document._id} />
+                  <SequencePreviewPanel />
+                </>
               : <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
                   <ChaptersList sequenceId={document._id} fetchFresh={hasEdited} />
                 </AnalyticsContext>

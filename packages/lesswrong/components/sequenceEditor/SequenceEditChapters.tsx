@@ -36,10 +36,7 @@ const SequenceEditChaptersQuery = gql(`
 `);
 
 const styles = defineStyles("SequenceEditChapters", (theme: ThemeType) => ({
-  root: {
-    // Leave room for the fixed bottom bar
-    paddingBottom: 80,
-  },
+  root: {},
   emptyList: {
     ...theme.typography.commentStyle,
     fontSize: 14,
