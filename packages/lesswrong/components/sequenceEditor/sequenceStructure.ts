@@ -2,11 +2,23 @@
 // edited. The editor applies these to its local state optimistically, then
 // saves the matching change to the server.
 
+import { htmlToTextDefault } from "@/lib/htmlToText";
+
+/** A chapter description, in the form the editor loads and saves. */
+export interface ChapterDescription {
+  originalContents: { type: string; data: string };
+}
+
 export interface EditableChapter {
   _id: string;
   title: string | null;
-  descriptionText: string;
+  description: ChapterDescription | null;
   postIds: string[];
+}
+
+/** Whether a description's HTML has nothing to show: no text and no images. */
+export function isBlankDescriptionHtml(html: string): boolean {
+  return !htmlToTextDefault(html).trim() && !/<img\b/i.test(html);
 }
 
 function hasTitle(chapter: EditableChapter): boolean {
@@ -18,7 +30,7 @@ function hasTitle(chapter: EditableChapter): boolean {
  * its only chapter has neither a title nor a description.
  */
 export function isChapterless(chapters: EditableChapter[]): boolean {
-  return chapters.length === 1 && !hasTitle(chapters[0]) && !chapters[0].descriptionText.trim();
+  return chapters.length === 1 && !hasTitle(chapters[0]) && !chapters[0].description;
 }
 
 function updateChapter(

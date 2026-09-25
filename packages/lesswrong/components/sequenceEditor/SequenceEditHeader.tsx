@@ -9,14 +9,12 @@ import { DialogContent } from "../widgets/DialogContent";
 import { DialogActions } from "../widgets/DialogActions";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useSequenceEditor } from "./SequenceEditorContext";
-import AutoGrowTextarea from "./AutoGrowTextarea";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
+import { blurOnEnter } from "./blurOnEnter";
 
 const styles = defineStyles("SequenceEditHeader", (theme: ThemeType) => ({
   titleInput: {
     width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
     padding: "2px 4px",
     margin: "0 -4px",
     borderRadius: 4,
@@ -24,16 +22,15 @@ const styles = defineStyles("SequenceEditHeader", (theme: ThemeType) => ({
     font: "inherit",
     fontVariant: "inherit",
     letterSpacing: "inherit",
-    resize: "none",
-    overflow: "hidden",
     "&:hover": {
       background: theme.palette.greyAlpha(0.04),
     },
-    "&:focus": {
+    "&:focus-within": {
       background: theme.palette.greyAlpha(0.06),
     },
-    "&::placeholder": {
+    "& textarea::placeholder": {
       color: theme.palette.text.sequenceTitlePlaceholder,
+      opacity: 1,
     },
   },
   bannerControls: {
@@ -93,19 +90,25 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
     });
   };
 
-  return <AutoGrowTextarea
+  return <Input
     className={classNames(classes.titleInput, className)}
     value={title}
     placeholder="Sequence title"
-    singleLine
-    onChange={setTitle}
+    multiline
+    disableUnderline
+    inputProps={{ "aria-label": "Sequence title" }}
+    onChange={(event) => setTitle(event.target.value.replace(/\n/g, " "))}
     onBlur={save}
+    onKeyDown={blurOnEnter}
   />;
 };
 
 /**
  * Leaves edit mode. Everything except the description has already been
- * saved, so this only asks when the description has unsaved changes.
+ * saved, so this only asks when the description has unsaved changes. It asks
+ * the description editor itself rather than trusting the live "unsaved" flag,
+ * which can lag a few seconds behind typing. Every way out waits for queued
+ * live saves first, so reading mode loads the chapters after they've landed.
  */
 export const DoneEditingButton = ({ className, onDone }: { className?: string, onDone: () => void }) => {
   const { saveSequenceNow, drainSaves, descriptionDraftRef } = useSequenceEditor();
@@ -123,8 +126,6 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
     onDone();
   };
 
-  // Asks the editor itself rather than trusting the live "unsaved" flag,
-  // which can lag a few seconds behind typing.
   const requestLeave = async () => {
     if (await descriptionDraftRef.current?.getUnsavedContents()) {
       setAsking(true);
@@ -133,8 +134,6 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
     await leave();
   };
 
-  // Every way out waits for queued live saves first, so reading mode loads
-  // the chapters after they've landed.
   const leave = async () => {
     await drainSaves();
     onDone();

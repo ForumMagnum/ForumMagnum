@@ -3,14 +3,16 @@ import {
   addPost,
   canDeleteChapter,
   findPostChapter,
+  isBlankDescriptionHtml,
   isChapterless,
   moveChapter,
   movePost,
   removePost,
 } from "@/components/sequenceEditor/sequenceStructure";
 
-function chapter(_id: string, postIds: string[], title: string | null = null, descriptionText = ""): EditableChapter {
-  return { _id, title, descriptionText, postIds };
+function chapter(_id: string, postIds: string[], title: string | null = null, descriptionHtml = ""): EditableChapter {
+  const description = descriptionHtml ? { originalContents: { type: "html", data: descriptionHtml } } : null;
+  return { _id, title, description, postIds };
 }
 
 describe("isChapterless", () => {
@@ -118,5 +120,22 @@ describe("findPostChapter", () => {
 
   it("returns undefined for a post not in the sequence", () => {
     expect(findPostChapter([chapter("a", ["p1"])], "p9")).toBeUndefined();
+  });
+});
+
+describe("isBlankDescriptionHtml", () => {
+  it("treats empty and whitespace-only paragraphs as blank", () => {
+    expect(isBlankDescriptionHtml("")).toBe(true);
+    expect(isBlankDescriptionHtml("<p></p>")).toBe(true);
+    expect(isBlankDescriptionHtml("<p><br></p>")).toBe(true);
+    expect(isBlankDescriptionHtml("<p> &nbsp; </p>")).toBe(true);
+  });
+
+  it("isn't blank when there's text", () => {
+    expect(isBlankDescriptionHtml("<p><em>Part one</em></p>")).toBe(false);
+  });
+
+  it("isn't blank when there's only an image", () => {
+    expect(isBlankDescriptionHtml('<p><img src="https://example.com/a.png"></p>')).toBe(false);
   });
 });
