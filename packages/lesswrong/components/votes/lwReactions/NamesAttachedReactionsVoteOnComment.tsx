@@ -2,7 +2,7 @@ import React, { useState, useRef, RefObject, useContext } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionsCommentBottomProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
-import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
+import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, normalizeReactionQuote } from '@/lib/voting/reactionDisplayHelpers';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
@@ -241,7 +241,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       {
         react: reactionName,
         vote,
-        quotes: quote ? [quote] : undefined,
+        quotes: quote ? [normalizeReactionQuote(quote)] : undefined,
       }
     ]
     const newExtendedVote: NamesAttachedReactionsVote = {
@@ -307,7 +307,8 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
   if (react.react !== name)
     return false;
   if (quote) {
-    return !!(react.quotes && react.quotes.indexOf(quote)>=0);
+    const normalizedQuote = normalizeReactionQuote(quote);
+    return !!react.quotes?.some(reactQuote => normalizeReactionQuote(reactQuote) === normalizedQuote);
   } else {
     return !(react.quotes?.length);
   }
