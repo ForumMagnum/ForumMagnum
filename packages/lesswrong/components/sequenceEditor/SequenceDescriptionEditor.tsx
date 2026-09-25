@@ -174,8 +174,6 @@ const SequenceDescriptionEditor = () => {
         // No editor-type switcher or "minor update" selector: those belong to
         // the post editor, not an inline description.
         hideControls
-        // Entering edit mode shouldn't jump focus into the description.
-        autoFocus={false}
       />}
     </form.Field>
     <div className={classes.buttonRow}>

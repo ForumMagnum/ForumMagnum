@@ -42,8 +42,6 @@ interface EditorFormComponentProps<S, R> {
   commentMinimalistStyle?: boolean;
   collectionName: CollectionNameString;
   hideControls?: boolean;
-  /** Focus the editor when it mounts. Defaults to true. */
-  autoFocus?: boolean;
   formType: 'new' | 'edit';
   editorHintText?: string;
   maxHeight?: boolean;
@@ -118,7 +116,6 @@ function InnerEditorFormComponent<S, R>({
   commentMinimalistStyle,
   collectionName,
   hideControls,
-  autoFocus,
   formType,
   editorHintText,
   maxHeight,
@@ -458,7 +455,6 @@ function InnerEditorFormComponent<S, R>({
       answerStyles={document.answer}
       questionStyles={document.question}
       commentEditor={commentEditor}
-      autoFocus={autoFocus}
       hideControls={hideControls}
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}

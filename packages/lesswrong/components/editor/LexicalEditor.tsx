@@ -268,8 +268,6 @@ interface LexicalEditorProps {
    */
   onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
   commentEditor?: boolean;
-  /** Focus the editor when it mounts. Defaults to true. */
-  autoFocus?: boolean;
   /** Collection name to determine whether collaboration is supported. */
   collectionName?: CollectionNameString;
   /** Document ID for collaborative editing. When provided for Posts, the editor always uses
@@ -359,7 +357,6 @@ const LexicalEditor = ({
   documentId = null,
   fieldName = 'contents',
   commentEditor = false,
-  autoFocus = true,
   accessLevel,
   fitToContent = false,
   extraNodes,
@@ -508,7 +505,6 @@ const LexicalEditor = ({
                   onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
-                  autoFocus={autoFocus}
                   disableComponentPicker={disableComponentPicker}
                   disableMentions={disableMentions}
                 >

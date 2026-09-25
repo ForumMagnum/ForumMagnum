@@ -11,7 +11,7 @@ function fitHeight(textarea: HTMLTextAreaElement | null) {
  * it would otherwise be displayed. With `singleLine`, Enter finishes editing
  * (by blurring) instead of adding a line break, but long text still wraps.
  */
-const AutoGrowTextarea = ({ className, value, onChange, onBlur, placeholder, ariaLabel, autoFocus, singleLine, onFocus }: {
+const AutoGrowTextarea = ({ className, value, onChange, onBlur, placeholder, ariaLabel, autoFocus, singleLine }: {
   className: string,
   value: string,
   onChange: (value: string) => void,
@@ -20,7 +20,6 @@ const AutoGrowTextarea = ({ className, value, onChange, onBlur, placeholder, ari
   ariaLabel?: string,
   autoFocus?: boolean,
   singleLine?: boolean,
-  onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void,
 }) => {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => fitHeight(ref.current), [value]);
@@ -49,7 +48,6 @@ const AutoGrowTextarea = ({ className, value, onChange, onBlur, placeholder, ari
     placeholder={placeholder}
     aria-label={ariaLabel ?? placeholder}
     autoFocus={autoFocus}
-    onFocus={onFocus}
     onChange={(e) => onChange(singleLine ? e.target.value.replace(/\n/g, " ") : e.target.value)}
     onBlur={onBlur}
     onKeyDown={(e) => {
