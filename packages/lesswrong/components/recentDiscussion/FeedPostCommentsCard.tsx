@@ -246,5 +246,3 @@ export default registerComponent('FeedPostCommentsCard', FeedPostCommentsCard, {
     },
   }
 );
-
-
