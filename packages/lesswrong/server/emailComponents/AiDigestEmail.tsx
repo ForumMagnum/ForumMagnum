@@ -26,7 +26,7 @@ import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
 import { untrackedLinkProps } from "@/lib/emails/emailTracking";
-import { absoluteEmailUrl, aiDigestLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
+import { aiDigestChromeLinkUrl, aiDigestItemLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
 import { EmailContentItemBody } from "./EmailContentItemBody";
 import { EmailContextType, emailUseStyles } from "./emailContext";
 
@@ -758,8 +758,9 @@ const tuneDigestUrl = "/contentForYou";
 // Placeholder until the dedicated explainer exists.
 const digestExplanationUrl = "/posts/zd4pwyeKGuhuSKX6g";
 
-function AiNote({ note, classes }: {
+function AiNote({ note, issueId, classes }: {
   note: AiDigestAiNote;
+  issueId: string;
   classes: JssStyles;
 }) {
   return (
@@ -796,7 +797,7 @@ function AiNote({ note, classes }: {
                 <tr>
                   <td className={classes.aiNoteFooterLeftCell}>
                     <a
-                      href={aiDigestLinkUrl(tuneDigestUrl, "tune")}
+                      href={aiDigestChromeLinkUrl(tuneDigestUrl, "tune", issueId)}
                       className={classes.aiNoteTuneLink}
                     >
                       <TuneIcon className={classNames(classes.tuneIcon, classes.tuneIconWithLabel)} />
@@ -805,7 +806,7 @@ function AiNote({ note, classes }: {
                   </td>
                   <td className={classes.aiNoteFooterRightCell}>
                     <a
-                      href={aiDigestLinkUrl(digestExplanationUrl, "explainer")}
+                      href={aiDigestChromeLinkUrl(digestExplanationUrl, "explainer", issueId)}
                       className={classes.aiNoteExplanationLink}
                     >
                       what is this?
@@ -910,7 +911,7 @@ function HeadlinePost({ post, item, slot, classes }: {
           <tr>
             <td>
               <a
-                href={aiDigestLinkUrl(postUrl, "image", slot)}
+                href={aiDigestItemLinkUrl(postUrl, "image", slot)}
                 aria-label={`Open ${post.title}`}
               >
                 <img
@@ -927,12 +928,12 @@ function HeadlinePost({ post, item, slot, classes }: {
         <tr>
           <td className={classes.headlineBody}>
             <h2 className={classes.headlineTitle}>
-              <a href={aiDigestLinkUrl(postUrl, "title", slot)} className={classes.titleLink}>
+              <a href={aiDigestItemLinkUrl(postUrl, "title", slot)} className={classes.titleLink}>
                 {post.title}
               </a>
             </h2>
             <div className={classes.metadata}>
-              <a href={aiDigestLinkUrl(postUrl, "byline", slot)} className={classes.metadataLink}>
+              <a href={aiDigestItemLinkUrl(postUrl, "byline", slot)} className={classes.metadataLink}>
                 {formatPostAuthors(post)}
               </a>
             </div>
@@ -942,12 +943,12 @@ function HeadlinePost({ post, item, slot, classes }: {
                 dangerouslySetInnerHTML={{ __html: preview.html }}
               />
             ) : excerpt && (
-              <a href={aiDigestLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
+              <a href={aiDigestItemLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
                 <p className={classes.excerpt}>{excerpt}</p>
               </a>
             )}
             <ItemFooter
-              readMoreUrl={aiDigestLinkUrl(postUrl, "readMore", slot)}
+              readMoreUrl={aiDigestItemLinkUrl(postUrl, "readMore", slot)}
               readMoreLabel={postReadMoreLabel(post, excerpt)}
               reason={item.reason}
               classes={classes}
@@ -992,11 +993,11 @@ function CompactPost({ post, item, slot, classes }: {
         <tr>
           <td className={classes.compactTextCell}>
             <h3 className={classes.compactTitle}>
-              <a href={aiDigestLinkUrl(postUrl, "title", slot)} className={classes.titleLink}>
+              <a href={aiDigestItemLinkUrl(postUrl, "title", slot)} className={classes.titleLink}>
                 {post.title}
               </a>
             </h3>
-            <a href={aiDigestLinkUrl(postUrl, "byline", slot)} className={classes.compactByline}>
+            <a href={aiDigestItemLinkUrl(postUrl, "byline", slot)} className={classes.compactByline}>
               {formatPostAuthors(post)}
             </a>
             {preview ? (
@@ -1005,7 +1006,7 @@ function CompactPost({ post, item, slot, classes }: {
                 dangerouslySetInnerHTML={{ __html: preview.html }}
               />
             ) : excerpt && (
-              <a href={aiDigestLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
+              <a href={aiDigestItemLinkUrl(postUrl, "excerpt", slot)} className={classes.textLink}>
                 <p className={classes.compactExcerpt}>{excerpt}</p>
               </a>
             )}
@@ -1013,7 +1014,7 @@ function CompactPost({ post, item, slot, classes }: {
           {imageUrl && (
             <td className={classes.compactImageCell}>
               <a
-                href={aiDigestLinkUrl(postUrl, "image", slot)}
+                href={aiDigestItemLinkUrl(postUrl, "image", slot)}
                 aria-label={`Open ${post.title}`}
               >
                 <img src={imageUrl} width="112" height="76" alt="" className={classes.compactImage} />
@@ -1024,7 +1025,7 @@ function CompactPost({ post, item, slot, classes }: {
         <tr>
           <td colSpan={imageUrl ? 2 : 1} className={classes.compactFooterCell}>
             <ItemFooter
-              readMoreUrl={aiDigestLinkUrl(postUrl, "readMore", slot)}
+              readMoreUrl={aiDigestItemLinkUrl(postUrl, "readMore", slot)}
               readMoreLabel={postReadMoreLabel(post, excerpt)}
               reason={item.reason}
               classes={classes}
@@ -1047,7 +1048,7 @@ function QuietPost({ post, isRead, slot, classes }: {
   return (
     <div className={classes.quietItem}>
       <a
-        href={aiDigestLinkUrl(postUrl, "title", slot)}
+        href={aiDigestItemLinkUrl(postUrl, "title", slot)}
         className={classNames(
           classes.quietTitleLink,
           isRead && classes.quietTitleLinkRead,
@@ -1055,7 +1056,7 @@ function QuietPost({ post, isRead, slot, classes }: {
       >
         {post.title}
       </a>
-      <a href={aiDigestLinkUrl(postUrl, "byline", slot)} className={classes.quietByline}>
+      <a href={aiDigestItemLinkUrl(postUrl, "byline", slot)} className={classes.quietByline}>
         {formatPostAuthors(post)}
       </a>
     </div>
@@ -1096,7 +1097,7 @@ function QuickTakeItem({ comment, item, slot, classes }: {
                 <tr>
                   <td className={classes.quickTakeAuthorCell}>
                     <a
-                      href={aiDigestLinkUrl(commentUrl, "byline", slot)}
+                      href={aiDigestItemLinkUrl(commentUrl, "byline", slot)}
                       className={classes.quickTakeLink}
                     >
                       <span className={classes.quickTakeAuthor}>
@@ -1113,14 +1114,14 @@ function QuickTakeItem({ comment, item, slot, classes }: {
             </table>
             {text && (
               <a
-                href={aiDigestLinkUrl(commentUrl, "excerpt", slot)}
+                href={aiDigestItemLinkUrl(commentUrl, "excerpt", slot)}
                 className={classes.quickTakeLink}
               >
                 <p className={classes.quickTakeText}>{text}</p>
               </a>
             )}
             <ItemFooter
-              readMoreUrl={aiDigestLinkUrl(commentUrl, "readMore", slot)}
+              readMoreUrl={aiDigestItemLinkUrl(commentUrl, "readMore", slot)}
               readMoreLabel="Read more"
               reason={item.reason}
               classes={classes}
@@ -1166,7 +1167,7 @@ function CommentBox({
       )}
     >
       <a
-        href={aiDigestLinkUrl(commentUrl, "threadComment", slot)}
+        href={aiDigestItemLinkUrl(commentUrl, "threadComment", slot)}
         className={classNames(classes.commentLink, classes.commentContent)}
       >
         <div className={classes.commentByline}>
@@ -1224,7 +1225,7 @@ function DiscussionItem({
           <td className={classes.discussionBody}>
             <h3 className={classes.discussionThreadTitle}>
               <a
-                href={aiDigestLinkUrl(commentUrl, "title", slot)}
+                href={aiDigestItemLinkUrl(commentUrl, "title", slot)}
                 className={classes.discussionThreadTitleLink}
               >
                 {prefix ? `${prefix} ` : ""}
@@ -1241,7 +1242,7 @@ function DiscussionItem({
               classes={classes}
             />
             <ItemFooter
-              readMoreUrl={aiDigestLinkUrl(commentUrl, "readMore", slot)}
+              readMoreUrl={aiDigestItemLinkUrl(commentUrl, "readMore", slot)}
               readMoreLabel="View thread"
               reason={item.reason}
               classes={classes}
@@ -1308,8 +1309,9 @@ function DigestItem({ item, content, slot, classes }: {
   );
 }
 
-function DigestSection({ section, content, classes }: {
+function DigestSection({ section, issueId, content, classes }: {
   section: AiDigestSection;
+  issueId: string;
   content: DigestContentLookup;
   classes: JssStyles;
 }) {
@@ -1361,7 +1363,7 @@ function DigestSection({ section, content, classes }: {
               <DigestItem
                 item={item}
                 content={content}
-                slot={{ sectionKind: section.kind, itemIndex: index }}
+                slot={{ issueId, sectionKind: section.kind, itemIndex: index }}
                 classes={classes}
               />
             </td>
@@ -1372,8 +1374,9 @@ function DigestSection({ section, content, classes }: {
   );
 }
 
-export async function AiDigestEmail({ spec, emailContext }: {
+export async function AiDigestEmail({ spec, issueId, emailContext }: {
   spec: AiDigestSpec;
+  issueId: string;
   emailContext: EmailContextType;
 }) {
   const classes = emailUseStyles(styles, emailContext);
@@ -1423,7 +1426,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
                   <tr>
                     <td className={classes.mastheadCompassCell}>
                       <a
-                        href={aiDigestLinkUrl(mastheadHomeUrl, "masthead")}
+                        href={aiDigestChromeLinkUrl(mastheadHomeUrl, "masthead", issueId)}
                         className={classes.mastheadCompassLink}
                         aria-label="LessWrong"
                       >
@@ -1432,7 +1435,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
                     </td>
                     <td className={classes.mastheadNameCell}>
                       <a
-                        href={aiDigestLinkUrl(mastheadHomeUrl, "masthead")}
+                        href={aiDigestChromeLinkUrl(mastheadHomeUrl, "masthead", issueId)}
                         className={classes.wordmark}
                       >
                         LessWrong
@@ -1441,7 +1444,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
                     </td>
                     <td className={classes.mastheadUnsubscribeCell}>
                       <a
-                        href={absoluteEmailUrl(mastheadUnsubscribeUrl)}
+                        href={mastheadUnsubscribeUrl}
                         className={classes.mastheadUnsubscribeLink}
                         {...untrackedLinkProps}
                       >
@@ -1452,7 +1455,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
                 </tbody>
               </table>
 
-              <AiNote note={spec.aiNote} classes={classes} />
+              <AiNote note={spec.aiNote} issueId={issueId} classes={classes} />
 
               {spec.personalInstructions && (
                 <CustomPrompt
@@ -1465,6 +1468,7 @@ export async function AiDigestEmail({ spec, emailContext }: {
                 <DigestSection
                   key={section.kind}
                   section={section}
+                  issueId={issueId}
                   content={content}
                   classes={classes}
                 />
@@ -1475,4 +1479,11 @@ export async function AiDigestEmail({ spec, emailContext }: {
       </table>
     </>
   );
+}
+
+/** The `body` argument of `wrapAndSendEmail`/`wrapAndRenderEmail` for one digest issue. */
+export function aiDigestEmailBody(spec: AiDigestSpec, issueId: string) {
+  return function renderAiDigestEmail(emailContext: EmailContextType) {
+    return <AiDigestEmail spec={spec} issueId={issueId} emailContext={emailContext} />;
+  };
 }

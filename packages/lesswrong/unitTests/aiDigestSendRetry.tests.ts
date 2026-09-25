@@ -1,4 +1,4 @@
-jest.mock("@/server/emailComponents/AiDigestEmail", () => ({ AiDigestEmail: () => null }));
+jest.mock("@/server/emailComponents/AiDigestEmail", () => ({ aiDigestEmailBody: () => () => null }));
 const mockFind = jest.fn();
 const mockFindOne = jest.fn();
 const mockUpdate = jest.fn();

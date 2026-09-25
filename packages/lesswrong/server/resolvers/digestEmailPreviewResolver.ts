@@ -1,4 +1,3 @@
-import React from "react";
 import gql from "graphql-tag";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -9,20 +8,14 @@ import {
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import Users from "@/server/collections/users/collection";
-import { AiDigestEmail } from "@/server/emailComponents/AiDigestEmail";
-import type { EmailContextType } from "@/server/emailComponents/emailContext";
+import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 const MIN_SAMPLE_COUNT = 1;
 const MAX_SAMPLE_COUNT = 3;
 const DEFAULT_SAMPLE_COUNT = 3;
-
-function digestEmailBody(spec: AiDigestSpec) {
-  return function renderDigestEmail(emailContext: EmailContextType) {
-    return <AiDigestEmail spec={spec} emailContext={emailContext} />;
-  };
-}
 
 function boundedSampleCount(count: number | null | undefined): number {
   const requested = count ?? DEFAULT_SAMPLE_COUNT;
@@ -46,9 +39,11 @@ async function findUserBySlug(userSlug: string): Promise<DbUser> {
 async function renderDigestSampleForUser({
   user,
   spec,
+  issueId,
 }: {
   user: DbUser;
   spec: AiDigestSpec;
+  issueId: string;
 }) {
   const userEmail = getUserEmail(user);
   if (!userEmail) {
@@ -59,7 +54,8 @@ async function renderDigestSampleForUser({
     user,
     to: userEmail,
     subject: spec.subject,
-    body: digestEmailBody(spec),
+    body: aiDigestEmailBody(spec, issueId),
+    utmParams: AI_DIGEST_UTM_PARAMS,
   });
 }
 
@@ -99,6 +95,7 @@ export const digestEmailPreviewGraphQLQueries = {
     const email = await renderDigestSampleForUser({
       user,
       spec: issue.spec,
+      issueId,
     });
     return {
       email,

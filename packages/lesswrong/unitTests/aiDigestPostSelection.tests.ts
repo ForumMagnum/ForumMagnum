@@ -371,12 +371,12 @@ describe("AI digest recommendation history", () => {
     }];
     const clicks: AiDigestClickRecord[] = [
       {
-        campaignId: "issue-1",
+        issueId: "issue-1",
         documentId: "post-1",
         occurredAt: new Date("2026-07-10T18:00:00.000Z"),
       },
       {
-        campaignId: "issue-1",
+        issueId: "issue-1",
         documentId: "post-1",
         occurredAt: new Date("2026-07-10T13:00:00.000Z"),
       },

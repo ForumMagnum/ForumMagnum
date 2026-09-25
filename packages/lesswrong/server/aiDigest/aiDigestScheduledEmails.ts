@@ -1,13 +1,12 @@
 import { DAY_MS } from "@/lib/aiDigest/constants";
-import React from "react";
 import { captureException } from "@/lib/sentryWrapper";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import {
   aiDigestEmailCadenceDaysSetting,
   aiDigestScheduledEmailsEnabledSetting,
 } from "@/server/databaseSettings";
-import { AiDigestEmail } from "@/server/emailComponents/AiDigestEmail";
-import type { EmailContextType } from "@/server/emailComponents/emailContext";
+import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import { findUsersToEmail } from "@/server/curationEmails/cron";
 import { createNotification } from "@/server/notificationCallbacksHelpers";
@@ -56,12 +55,6 @@ export function isAiDigestSendDue({
     return true;
   }
   return lastScheduledEmailAt <= aiDigestSendDueBefore(now, cadenceDays);
-}
-
-function aiDigestEmailBody(spec: AiDigestSpec) {
-  return function renderAiDigestEmail(emailContext: EmailContextType) {
-    return <AiDigestEmail spec={spec} emailContext={emailContext} />;
-  };
 }
 
 /**
@@ -127,7 +120,8 @@ async function sendAiDigestToUser(user: DbUser, assertLease: () => Promise<void>
     forumType: "LessWrong",
     user,
     subject: spec.subject,
-    body: aiDigestEmailBody(spec),
+    body: aiDigestEmailBody(spec, issueId),
+    utmParams: AI_DIGEST_UTM_PARAMS,
   });
   if (!sent) {
     throw new Error(`Failed to send scheduled AI digest issue ${issueId} to ${user._id}`);

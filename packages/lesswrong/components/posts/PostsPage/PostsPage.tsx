@@ -391,7 +391,12 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       void recordPostView({
         post: post,
         extraEventProperties: {
-          sequenceId: getSequenceId()
+          sequenceId: getSequenceId(),
+          // Lets features attribute a visit to the email link that led to it
+          ...(query.utm_campaign ? {
+            utmCampaign: query.utm_campaign,
+            utmContent: query.utm_content,
+          } : {}),
         },
         recommendationOptions: {
           recombeeOptions: { recommId },

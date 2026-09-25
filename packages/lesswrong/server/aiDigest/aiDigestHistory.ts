@@ -8,6 +8,7 @@ import {
   type AiDigestQuickTakeInteractionRow,
 } from "./aiDigestReaderSignals";
 import { boundedPlainTextFromRevisionHtml } from "./aiDigestPostSummaries";
+import { AI_DIGEST_UTM_PARAMS, parseAiDigestItemLinkContent } from "@/server/emailComponents/aiDigestEmailLinks";
 
 /**
  * Enough issues to cover the full candidate window at the scheduled cadence,
@@ -65,9 +66,9 @@ export type AiDigestPastRecommendation =
   | AiDigestPastPostRecommendation
   | AiDigestPastQuickTakeRecommendation;
 
-/** A click on a digest link, as recorded by the Mailgun webhook. */
+/** A visit to the site from a digest link, as recorded by the post page's post-view event. */
 export interface AiDigestClickRecord {
-  campaignId: string;
+  issueId: string;
   documentId: string;
   occurredAt: Date;
 }
@@ -130,20 +131,19 @@ function occurredAfter(
   return !!interactionAt && interactionAt > recommendationAt;
 }
 
-function clickKey(campaignId: string, documentId: string): string {
-  return `${campaignId}:${documentId}`;
+function clickKey(issueId: string, documentId: string): string {
+  return `${issueId}:${documentId}`;
 }
 
 /**
  * Earliest click per (issue, document). A single recommendation can generate several
- * click events — five links point at the same post, and scanners re-fetch them — but
- * for selection purposes the only question is whether and when they engaged.
+ * visits, but for selection purposes the only question is whether and when they engaged.
  */
 function firstClickByIssueAndDocument(
   clicks: AiDigestClickRecord[],
 ): Map<string, Date> {
   return clicks.reduce((earliest, click) => {
-    const key = clickKey(click.campaignId, click.documentId);
+    const key = clickKey(click.issueId, click.documentId);
     const previous = earliest.get(key);
     if (!previous || click.occurredAt < previous) {
       earliest.set(key, click.occurredAt);
@@ -284,8 +284,38 @@ function toAiDigestIssueRecord(issue: Pick<DbAiDigestIssue, "_id" | "recipientId
   };
 }
 
-export async function loadAiDigestHistory(userId: string): Promise<AiDigestHistory> {
-  const issues = (await AiDigestIssues.find(
+/** Visits from item links in the given issues, resolved to the item each link belonged to. */
+async function loadAiDigestClicks(
+  userId: string,
+  issues: Pick<DbAiDigestIssue, "_id" | "createdAt" | "spec">[],
+  context: ResolverContext,
+): Promise<AiDigestClickRecord[]> {
+  if (!issues.length) {
+    return [];
+  }
+  const oldestIssueCreatedAt = issues.reduce(
+    (oldest, issue) => issue.createdAt < oldest ? issue.createdAt : oldest,
+    issues[0].createdAt,
+  );
+  const views = await context.repos.lwEvents.getPostViewsFromUtmCampaign(
+    userId,
+    AI_DIGEST_UTM_PARAMS.utm_campaign,
+    oldestIssueCreatedAt,
+  );
+  const specsByIssueId = new Map(issues.map((issue) => [issue._id, issue.spec]));
+  return views.flatMap(({ utmContent, createdAt }) => {
+    const slot = parseAiDigestItemLinkContent(utmContent);
+    const documentId = slot && specsByIssueId.get(slot.issueId)?.sections
+      .find((section) => section.kind === slot.sectionKind)
+      ?.items[slot.itemIndex]?.documentRef.documentId;
+    return slot && documentId
+      ? [{ issueId: slot.issueId, documentId, occurredAt: createdAt }]
+      : [];
+  });
+}
+
+export async function loadAiDigestHistory(userId: string, context: ResolverContext): Promise<AiDigestHistory> {
+  const dbIssues = await AiDigestIssues.find(
     {
       recipientId: userId,
       countsTowardHistory: true,
@@ -298,19 +328,21 @@ export async function loadAiDigestHistory(userId: string): Promise<AiDigestHisto
       countsTowardHistory: 1,
       spec: 1,
     },
-  ).fetch()).map(toAiDigestIssueRecord);
+  ).fetch();
+  const issues = dbIssues.map(toAiDigestIssueRecord);
   const postIds = Array.from(new Set(issues.flatMap((issue) => issue.postIds)));
   const quickTakeIds = Array.from(
     new Set(issues.flatMap((issue) => issue.quickTakeIds)),
   );
-  const [interactions, quickTakeInteractions] = await Promise.all([
+  const [interactions, clicks, quickTakeInteractions] = await Promise.all([
     loadAiDigestPostInteractions({ userId, postIds }),
+    loadAiDigestClicks(userId, dbIssues, context),
     loadAiDigestQuickTakeInteractions({ userId, commentIds: quickTakeIds }),
   ]);
   return buildAiDigestHistory(
     issues,
     interactions,
-    [],
+    clicks,
     quickTakeInteractions,
   );
 }

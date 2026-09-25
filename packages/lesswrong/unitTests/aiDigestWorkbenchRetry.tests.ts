@@ -5,7 +5,7 @@ jest.mock("@/server/aiDigest/aiDigestPostSelection", () => ({ generateAiDigestPo
 jest.mock("@/server/aiDigest/aiDigestHistory", () => ({ clearAiDigestRecommendationHistory: jest.fn() }));
 jest.mock("@/server/collections/users/collection", () => ({ __esModule: true, default: { findOne: (...args: unknown[]) => mockFindUser(...args) } }));
 jest.mock("@/server/collections/aiDigestIssues/collection", () => ({ __esModule: true, default: {} }));
-jest.mock("@/server/emailComponents/AiDigestEmail", () => ({ AiDigestEmail: () => null }));
+jest.mock("@/server/emailComponents/AiDigestEmail", () => ({ aiDigestEmailBody: () => () => null }));
 jest.mock("@/server/emails/renderEmail", () => ({ wrapAndRenderEmail: jest.fn() }));
 jest.mock("@/lib/collections/users/helpers", () => ({ getUserEmail: jest.fn() }));
 jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({ computeContextFromUser: () => mockContext() }));
