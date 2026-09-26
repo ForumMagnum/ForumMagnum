@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { TopPostsManager } from './TopPostsManager';
-import AutoSavedEditorField from './AutoSavedEditorField';
+import AutoSavedEditorField from '@/components/editor/AutoSavedEditorField';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import type { SettingsTabProps } from './settingsTabTypes';
