@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
-import { fieldUpdate, type UpdateUserSettings } from './useAutoSavedUserSettings';
+import { fieldUpdate, type UpdateUserSettings } from '@/components/users/account/useAutoSavedUserSettings';
 import type { EditableUser } from '@/lib/collections/users/helpers';
 
 /**
