@@ -9,8 +9,8 @@ import { useSequenceEditor } from "./SequenceEditorContext";
 /**
  * The top margin matches the description's in reading mode (SequencesPage);
  * the bottom margin puts the reading-mode gap before the chapters after the
- * buttons instead. The button row is always rendered, so the page doesn't
- * shift when the buttons become active.
+ * buttons instead. The button row keeps its height when empty, so the page
+ * doesn't shift when the buttons appear.
  */
 const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => ({
   root: {
@@ -92,8 +92,10 @@ function useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDi
 /**
  * The sequence description, edited in place. Unlike everything else on the
  * page it doesn't save as you go: it has its own Save / Publish changes and
- * Cancel buttons. Publish, Move to Drafts and Done editing also save it (or
- * ask about it), through the handle registered in descriptionDraftRef.
+ * Cancel buttons, which appear once it has changed, as the account settings'
+ * explicit-save fields do (ExplicitSaveTextSetting). Publish, Move to Drafts
+ * and Done editing also save it (or ask about it), through the handle
+ * registered in descriptionDraftRef.
  *
  * Saving with no real change just marks the description saved. Cancel resets
  * the form to the saved description (kept current as saves update the cached
@@ -182,12 +184,14 @@ const SequenceDescriptionEditor = () => {
       />}
     </form.Field>
     <div className={classes.buttonRow}>
-      <button className={classes.cancelButton} disabled={!descriptionIsDirty || isSaving} onClick={cancel}>
-        Cancel
-      </button>
-      <button className={classes.saveButton} disabled={!descriptionIsDirty || isSaving} onClick={save}>
-        {isSaving ? "Saving…" : (sequence.draft ? "Save" : "Publish changes")}
-      </button>
+      {(descriptionIsDirty || isSaving) && <>
+        <button className={classes.cancelButton} disabled={isSaving} onClick={cancel}>
+          Cancel
+        </button>
+        <button className={classes.saveButton} disabled={isSaving} onClick={save}>
+          {isSaving ? "Saving…" : (sequence.draft ? "Save" : "Publish changes")}
+        </button>
+      </>}
     </div>
   </div>;
 };

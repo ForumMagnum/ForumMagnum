@@ -6,7 +6,6 @@ import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import SequenceEditMenu from "./SequenceEditMenu";
 import type { ChapterDescription, EditableChapter } from "./sequenceStructure";
-import { blurOnEnter } from "./blurOnEnter";
 
 const styles = defineStyles("SequenceEditChapter", (theme: ThemeType) => ({
   root: {
@@ -69,8 +68,8 @@ const styles = defineStyles("SequenceEditChapter", (theme: ThemeType) => ({
 
 /**
  * One chapter in the sequence editor: its title, description, menu and delete
- * button, then its posts (passed as children). The title saves when it loses
- * focus or Enter is pressed; the description saves when it loses focus.
+ * button, then its posts (passed as children). The title and description
+ * save when they lose focus.
  */
 const SequenceEditChapter = ({
   chapter,
@@ -119,7 +118,6 @@ const SequenceEditChapter = ({
         disableUnderline
         onChange={(event) => setTitle(event.target.value)}
         onBlur={() => onTitleChange(title)}
-        onKeyDown={blurOnEnter}
       />
       <SequenceEditMenu
         label="Chapter options"
