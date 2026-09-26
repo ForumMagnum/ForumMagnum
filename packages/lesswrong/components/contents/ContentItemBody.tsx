@@ -25,6 +25,7 @@ import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
 import SpoilerBlock, { containsSpoilerClassName, removeSpoilerClassNames } from './SpoilerBlock';
+import { ContentItemBodyContext } from './ContentItemBodyContext';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -225,16 +226,18 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   };
   
   return (
-    <div className={className} ref={bodyRef}>
-      {parsedHtml.childNodes.map((child, i) => (
-        <ContentItemBodyInner
-          key={i}
-          parsedHtml={child}
-          passedThroughProps={passedThroughProps}
-          root={true}
-        />
-      ))}
-    </div>
+    <ContentItemBodyContext.Provider value={html}>
+      <div className={className} ref={bodyRef}>
+        {parsedHtml.childNodes.map((child, i) => (
+          <ContentItemBodyInner
+            key={i}
+            parsedHtml={child}
+            passedThroughProps={passedThroughProps}
+            root={true}
+          />
+        ))}
+      </div>
+    </ContentItemBodyContext.Provider>
   );
 }
 

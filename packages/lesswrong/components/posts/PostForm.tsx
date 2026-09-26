@@ -725,14 +725,16 @@ const PostForm = ({
                     </span>
                   ))}
                   {canEditMetadata && userCanEditCoauthors(currentUser) && (
-                    <button
-                      type="button"
-                      className={classes.addCoauthorButton}
-                      title="Add co-author"
-                      onClick={() => setShowCoauthorSearch((v) => !v)}
-                    >
-                      {" +"}
-                    </button>
+                    <LWTooltip title="Add co-author">
+                      <button
+                        type="button"
+                        className={classes.addCoauthorButton}
+                        aria-label="Add co-author"
+                        onClick={() => setShowCoauthorSearch((v) => !v)}
+                      >
+                        {" +"}
+                      </button>
+                    </LWTooltip>
                   )}
                 </>}
               </form.Field>
@@ -845,27 +847,29 @@ const PostForm = ({
 
                 // Show toggle button (no URL set, not editing)
                 return (
-                  <button
-                    type="button"
-                    className={classNames(
-                      classes.linkpostToggle,
-                      isLinkpost && classes.linkpostToggleActive,
-                    )}
-                    title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
-                    onClick={() => {
-                      if (isLinkpost) {
-                        form.setFieldValue("postCategory", "post");
-                        form.setFieldValue("url", "");
-                        setEditingLinkpostUrl(false);
-                      } else {
-                        form.setFieldValue("postCategory", "linkpost");
-                        setLinkpostUrlDraft("");
-                        setEditingLinkpostUrl(true);
-                      }
-                    }}
-                  >
-                    {isLinkpost ? "Linkpost" : "+ Linkpost"}
-                  </button>
+                  <LWTooltip title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}>
+                    <button
+                      type="button"
+                      className={classNames(
+                        classes.linkpostToggle,
+                        isLinkpost && classes.linkpostToggleActive,
+                      )}
+                      aria-label={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
+                      onClick={() => {
+                        if (isLinkpost) {
+                          form.setFieldValue("postCategory", "post");
+                          form.setFieldValue("url", "");
+                          setEditingLinkpostUrl(false);
+                        } else {
+                          form.setFieldValue("postCategory", "linkpost");
+                          setLinkpostUrlDraft("");
+                          setEditingLinkpostUrl(true);
+                        }
+                      }}
+                    >
+                      {isLinkpost ? "Linkpost" : "+ Linkpost"}
+                    </button>
+                  </LWTooltip>
                 );
               }}
             </form.Subscribe>}

@@ -14,7 +14,7 @@ import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtF
 import uniqBy from "lodash/uniqBy";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
-import { userIsSubforumModerator } from "./helpers";
+import { userCanRenameTag, userIsSubforumModerator } from "./helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
@@ -177,7 +177,7 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
-      canUpdate: ["members"],
+      canUpdate: ["sunshineRegiment", "admins", userCanRenameTag],
       canCreate: ["members"],
     },
   },

@@ -2,7 +2,8 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
-import { isCachedPostRoutePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { buildCachedPostPath, getCacheablePostPagePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -54,8 +55,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (isCachedPostRoutePath(request.nextUrl.pathname)) {
-    return getCachedPostPassthroughResponse(request, addedClientId);
+  if (postPageCacheConfig.htmlCacheEnabled) {
+    const cachedPostResponse = getCachedPostRewriteResponse(request, addedClientId);
+    if (cachedPostResponse) {
+      return cachedPostResponse;
+    }
   }
 
   if (shouldProxyForStatusCode(request)) {
@@ -269,15 +273,21 @@ function addVaryHeader(response: NextResponse, headerName: string) {
   }
 }
 
-// Passes requests for the cached post route handler (app/cache/posts) straight
-// through. It sets its own status code, so the status code proxying below is
-// not needed, and its responses are CDN-cached per post, so the request must
-// not carry anything that would vary them beyond the normalized encoding.
-function getCachedPostPassthroughResponse(request: NextRequest, addedClientId: string | null): NextResponse {
+// Routes eligible logged-out post page requests to the cached post route
+// handler (app/cache/posts), whose responses Vercel's CDN caches, one entry
+// per post.
+function getCachedPostRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
+  const parsedPath = getCacheablePostPagePath(request);
+  if (!parsedPath) {
+    return null;
+  }
+  const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
+  // The handler's responses are CDN-cached per post, so the request must not
+  // carry anything that would vary them beyond the normalized encoding.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
-
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  const response = NextResponse.rewrite(targetUrl, { request: { headers: requestHeaders } });
+  response.headers.set('x-lw-post-cache-routing', 'cached');
   if (addedClientId) {
     addClientIdToResponseHeaders(response, addedClientId);
   }
@@ -294,10 +304,11 @@ function shouldProxyForStatusCode(req: NextRequest) {
 
 function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
   const cookies = headers.get("Cookie")?.split("; ") ?? [];
-  const cookiesByName = {};
+  const cookiesByName: Record<string, string> = {};
   for (const cookie of cookies) {
-    const [k,v] = cookie.split("=");
-    cookies[k] = cookie;
+    const separatorIndex = cookie.indexOf("=");
+    if (separatorIndex <= 0) continue;
+    cookiesByName[cookie.slice(0, separatorIndex)] = cookie.slice(separatorIndex + 1);
   }
   cookiesByName[CLIENT_ID_COOKIE] = clientId;
   cookiesByName[CLIENT_ID_NEW_COOKIE] = "true";
@@ -342,7 +353,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
       ],

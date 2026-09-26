@@ -90,7 +90,7 @@ export function getModerationContentItems(
 }
 
 export function canRejectContent(item: ContentItem | null | undefined) {
-  return !!item && !item.rejected && item.authorIsUnreviewed;
+  return !!item && !item.rejected;
 }
 
 const CONTENT_TITLE_MAX_LENGTH = 25;

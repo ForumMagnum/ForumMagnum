@@ -319,12 +319,18 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
 
 				this._editor = null;
 
+				// LW modification: if editor creation failed (eg because a plugin's
+				// initialization rejected), there's no editor to destroy.
+				if ( !editor ) {
+					return;
+				}
+
 				// Remove the `change:data` listener before destroying the editor.
 				// Incorrectly written plugins may trigger firing `change:data` events during the editor destruction phase
 				// causing the watchdog to call `editor.getData()` when some parts of editor are already destroyed.
-				editor!.model.document.off( 'change:data', this._throttledSave );
+				editor.model.document.off( 'change:data', this._throttledSave );
 
-				return this._destructor( editor! );
+				return this._destructor( editor );
 			} );
 	}
 
