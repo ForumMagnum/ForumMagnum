@@ -63,6 +63,7 @@ const SequencePreviewPanel = () => {
           clearField={() => updateSequence({ gridImageId: null })}
           label="Add card image"
           placeholderUrl={DEFAULT_CARD_IMAGE_URL}
+          fillContainer
         />}
       />
     </div>
