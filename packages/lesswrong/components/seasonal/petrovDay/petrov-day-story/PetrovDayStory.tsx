@@ -12,25 +12,33 @@ import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
 import { PetrovStoryVariant } from './PetrovStoryComponents';
 
-const HIDE_PAGE_SCROLLBAR_CLASS_NAMES = {
-  page: 'petrov-day-story-page-hide-page-scrollbar',
-  sidebar: 'petrov-day-story-sidebar-hide-page-scrollbar',
+// Hard-coded class names, because JSS can't parse self-references ($root) inside @global
+const STORY_VARIANT_CLASS_NAMES = {
+  page: 'petrov-day-story-page',
+  sidebar: 'petrov-day-story-sidebar',
 };
 
-const hiddenScrollbarStyles = (className: string) => ({
-  [`html.${className}`]: {
-    scrollbarWidth: 'none',
-  },
-  [`html.${className}::-webkit-scrollbar`]: {
-    display: 'none',
-  },
-});
+// The page scrollbar is a light gutter against the black story, and in the sidebar variant it would
+// otherwise vanish (shifting the layout) once scrolling the story sets overflow: hidden on the body.
+// Stories inside an inline display: none are excluded, since that's how React hides route trees that
+// cacheComponents keeps in the DOM after navigating away.
+const hiddenScrollbarStyles = (variantClassName: string) => {
+  const htmlWithVisibleStory = `html:has(.${variantClassName}:not([style*="display: none"] *))`;
+  return {
+    [htmlWithVisibleStory]: {
+      scrollbarWidth: 'none',
+    },
+    [`${htmlWithVisibleStory}::-webkit-scrollbar`]: {
+      display: 'none',
+    },
+  };
+};
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   '@global': {
-    ...hiddenScrollbarStyles(HIDE_PAGE_SCROLLBAR_CLASS_NAMES.page),
+    ...hiddenScrollbarStyles(STORY_VARIANT_CLASS_NAMES.page),
     // The sidebar variant is display: none below this breakpoint, so leave the page scrollbar alone there
-    [theme.breakpoints.up(1400)]: hiddenScrollbarStyles(HIDE_PAGE_SCROLLBAR_CLASS_NAMES.sidebar),
+    [theme.breakpoints.up(1400)]: hiddenScrollbarStyles(STORY_VARIANT_CLASS_NAMES.sidebar),
   },
   root: {
     display: 'flex',
@@ -474,16 +482,6 @@ export default function PetrovDayStory({variant}: {
     }
   };
 
-  // The page scrollbar is a light gutter against the black story, and in the sidebar variant it would
-  // otherwise vanish (shifting the layout) once scrolling the story sets overflow: hidden on the body
-  React.useEffect(() => {
-    const className = HIDE_PAGE_SCROLLBAR_CLASS_NAMES[variant];
-    document.documentElement.classList.add(className);
-    return () => {
-      document.documentElement.classList.remove(className);
-    };
-  }, [variant]);
-
   // Disable page scrolling when the Petrov Day story itself is being scrolled
   React.useEffect(() => {
     if (storyScrolled && variant === "sidebar") {
@@ -527,7 +525,7 @@ export default function PetrovDayStory({variant}: {
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
       <div
-        className={classNames(classes.root, {
+        className={classNames(classes.root, STORY_VARIANT_CLASS_NAMES[variant], {
           [classes.rootSidebar]: variant==="sidebar",
           [classes.rootFullWidth]: storyScrolled
         })}
