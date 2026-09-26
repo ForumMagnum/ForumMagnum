@@ -328,7 +328,7 @@ const SequencesPage = ({documentId}: {
           </div>
         </div>
       </SingleColumnSection>
-      {editing && <SequenceEditBottomBar />}
+      {editing && <SequenceEditBottomBar onDone={() => setEditing(false)} />}
     </div>
   </AnalyticsContext>;
 

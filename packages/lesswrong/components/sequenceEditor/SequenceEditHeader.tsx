@@ -102,15 +102,21 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
 };
 
 /**
- * Leaves edit mode. Everything except the description has already been
- * saved, so this only asks when the description has unsaved changes. It asks
- * the description editor itself rather than trusting the live "unsaved" flag,
+ * Leaving edit mode. Everything except the description has already been
+ * saved, so `requestLeave` only asks (through `confirmDialog`, which the
+ * caller renders) when the description has unsaved changes. It asks the
+ * description editor itself rather than trusting the live "unsaved" flag,
  * which can lag a few seconds behind typing. Every way out waits for queued
  * live saves first, so reading mode loads the chapters after they've landed.
  */
-export const DoneEditingButton = ({ className, onDone }: { className?: string, onDone: () => void }) => {
+export function useDoneEditing(onDone: () => void) {
   const { saveSequenceNow, drainSaves, descriptionDraftRef } = useSequenceEditor();
   const [asking, setAsking] = useState(false);
+
+  const leave = async () => {
+    await drainSaves();
+    onDone();
+  };
 
   const saveAndLeave = async () => {
     const contents = await descriptionDraftRef.current?.getUnsavedContents();
@@ -124,6 +130,11 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
     onDone();
   };
 
+  const leaveWithoutSaving = async () => {
+    descriptionDraftRef.current?.discard();
+    await leave();
+  };
+
   const requestLeave = async () => {
     if (await descriptionDraftRef.current?.getUnsavedContents()) {
       setAsking(true);
@@ -132,27 +143,25 @@ export const DoneEditingButton = ({ className, onDone }: { className?: string, o
     await leave();
   };
 
-  const leave = async () => {
-    await drainSaves();
-    onDone();
-  };
+  const confirmDialog = asking && <LWDialog open onClose={() => setAsking(false)}>
+    <DialogTitle>Save your description changes?</DialogTitle>
+    <DialogContent>Everything else is already saved.</DialogContent>
+    <DialogActions>
+      <Button onClick={() => setAsking(false)}>Keep editing</Button>
+      <Button onClick={() => void leaveWithoutSaving()}>Don't save</Button>
+      <Button color="primary" onClick={() => void saveAndLeave()}>Save</Button>
+    </DialogActions>
+  </LWDialog>;
 
-  const leaveWithoutSaving = async () => {
-    descriptionDraftRef.current?.discard();
-    await leave();
-  };
+  return { requestLeave, confirmDialog };
+}
 
+/** The "Done editing" link beside the sequence's author line. */
+export const DoneEditingButton = ({ className, onDone }: { className?: string, onDone: () => void }) => {
+  const { requestLeave, confirmDialog } = useDoneEditing(onDone);
   return <>
     <a className={className} onClick={() => void requestLeave()}>Done editing</a>
-    {asking && <LWDialog open onClose={() => setAsking(false)}>
-      <DialogTitle>Save your description changes?</DialogTitle>
-      <DialogContent>Everything else is already saved.</DialogContent>
-      <DialogActions>
-        <Button onClick={() => setAsking(false)}>Keep editing</Button>
-        <Button onClick={() => void leaveWithoutSaving()}>Don't save</Button>
-        <Button color="primary" onClick={() => void saveAndLeave()}>Save</Button>
-      </DialogActions>
-    </LWDialog>}
+    {confirmDialog}
   </>;
 };
 

@@ -6,6 +6,7 @@ import { useSequenceEditor } from "./SequenceEditorContext";
 import type { SaveStatus } from "./useSequentialSaveQueue";
 import SequenceSettingsDialog from "./SequenceSettingsDialog";
 import SequenceDeleteDialog from "./SequenceDeleteDialog";
+import { useDoneEditing } from "./SequenceEditHeader";
 
 const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
   root: {
@@ -34,6 +35,12 @@ const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
       borderRight: "none",
       paddingBottom: "env(safe-area-inset-bottom, 0px)",
     },
+  },
+  leftGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    minWidth: 0,
   },
   status: {
     ...theme.typography.commentStyle,
@@ -77,17 +84,19 @@ const statusLabels: Record<SaveStatus, string> = {
 };
 
 /**
- * The bar fixed to the bottom of the page in edit mode: save status, the
- * settings button, and Publish or Move to Drafts. Like the account settings
+ * The bar fixed to the bottom of the page in edit mode: Done editing and
+ * the save status on the left, then the settings button, and Publish or Move
+ * to Drafts. Like the account settings
  * page, the status says nothing until something saves, then "Saving…" and
  * "Saved"; a failed save is reported by the save queue's flash message. Those two include any
  * unsaved description changes in the same update, so the two can't get out
  * of step. Its dialogs are rendered here rather than through openDialog so
  * they stay inside the sequence editor's context.
  */
-const SequenceEditBottomBar = () => {
+const SequenceEditBottomBar = ({ onDone }: { onDone: () => void }) => {
   const classes = useStyles(styles);
   const { sequence, saveStatus, saveSequenceNow, descriptionDraftRef } = useSequenceEditor();
+  const { requestLeave, confirmDialog } = useDoneEditing(onDone);
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -114,9 +123,15 @@ const SequenceEditBottomBar = () => {
       }}
     />}
     {deleteOpen && <SequenceDeleteDialog onClose={() => setDeleteOpen(false)} />}
-    <span className={classes.status}>
-      {statusLabels[saveStatus]}
-    </span>
+    {confirmDialog}
+    <div className={classes.leftGroup}>
+      <button className={classes.secondaryButton} onClick={() => void requestLeave()}>
+        Done editing
+      </button>
+      <span className={classes.status}>
+        {statusLabels[saveStatus]}
+      </span>
+    </div>
     <div className={classes.actions}>
       <button className={classes.settingsButton} onClick={() => setSettingsOpen(true)} title="Settings">
         <ForumIcon icon="Settings" className={classes.settingsIcon} />
