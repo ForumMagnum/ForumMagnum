@@ -1,29 +1,17 @@
 import React, { useCallback, useState } from "react";
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCorners,
-  useDroppable,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type DragOverEvent,
-  type DragStartEvent,
-} from "@dnd-kit/core";
-import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
+import { MultiRegionSortableList, type RegionItemMove } from "../form-components/multiRegionSortableList";
+import type { DragHandleProps } from "../form-components/sortableList";
 import SequenceEditChapter from "./SequenceEditChapter";
 import SequenceEditPostRow from "./SequenceEditPostRow";
 import SequenceAddPostBox from "./SequenceAddPostBox";
 import type { SequenceEditMenuItem } from "./SequenceEditMenu";
-import { type ChapterEditing, useChapterEditing } from "./useChapterEditing";
-import { type EditableChapter, canDeleteChapter, findPostChapter, isChapterless, movePost } from "./sequenceStructure";
+import { useChapterEditing } from "./useChapterEditing";
+import { type EditableChapter, canDeleteChapter, findPostChapter, isChapterless } from "./sequenceStructure";
 
 const SequenceEditChaptersQuery = gql(`
   query SequenceEditChapters($selector: ChapterSelector, $limit: Int) {
@@ -76,115 +64,20 @@ const styles = defineStyles("SequenceEditChapters", (theme: ThemeType) => ({
   },
 }));
 
-const CHAPTER_DROPPABLE_PREFIX = "chapter:";
-
-const SortablePostRow = ({ postId, loadedPost, menuItems, onRemove }: {
-  postId: string,
-  loadedPost?: PostsList,
-  menuItems: SequenceEditMenuItem[],
-  onRemove: () => void,
-}) => {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: postId });
-  return <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}>
-    <SequenceEditPostRow
-      postId={postId}
-      loadedPost={loadedPost}
-      dragHandleProps={{ ref: setActivatorNodeRef, attributes, listeners }}
-      isDragging={isDragging}
-      menuItems={menuItems}
-      onRemove={onRemove}
-    />
-  </div>;
-};
-
-/** A chapter's post list: sortable, and a drop target even when empty. */
-const ChapterPostList = ({ chapterId, postIds, children }: {
-  chapterId: string,
-  postIds: string[],
-  children: React.ReactNode,
-}) => {
-  const classes = useStyles(styles);
-  const { setNodeRef } = useDroppable({ id: `${CHAPTER_DROPPABLE_PREFIX}${chapterId}` });
-  return <SortableContext id={chapterId} items={postIds} strategy={verticalListSortingStrategy}>
-    <div ref={setNodeRef}>
-      {children}
-      {postIds.length === 0 && <div className={classes.emptyList}>No posts yet</div>}
-    </div>
-  </SortableContext>;
-};
-
-function chapterForDragTarget(chapters: EditableChapter[], id: string): EditableChapter | undefined {
-  if (id.startsWith(CHAPTER_DROPPABLE_PREFIX)) {
-    const chapterId = id.slice(CHAPTER_DROPPABLE_PREFIX.length);
-    return chapters.find((c) => c._id === chapterId);
-  }
-  return findPostChapter(chapters, id);
-}
-
 function chapterName(chapters: EditableChapter[], chapter: EditableChapter): string {
   if (chapter.title) return `“${chapter.title}”`;
   return chapters.length === 1 ? "this sequence" : `chapter ${chapters.indexOf(chapter) + 1}`;
 }
 
 /**
- * Dragging posts between chapters: while dragging, a preview of the chapters
- * follows the pointer across chapters; on drop, the move is applied and saved.
- */
-function useChapterDragAndDrop(editing: ChapterEditing) {
-  const [preview, setPreview] = useState<EditableChapter[] | null>(null);
-  const [origin, setOrigin] = useState<{ postId: string, chapterId: string } | null>(null);
-
-  const onDragStart = useCallback(({ active }: DragStartEvent) => {
-    const postId = String(active.id);
-    const chapter = findPostChapter(editing.chapters, postId);
-    if (chapter) {
-      setOrigin({ postId, chapterId: chapter._id });
-      setPreview(editing.chapters);
-    }
-  }, [editing.chapters]);
-
-  const onDragOver = useCallback(({ active, over }: DragOverEvent) => {
-    if (!over || !preview) return;
-    const postId = String(active.id);
-    const from = findPostChapter(preview, postId);
-    const to = chapterForDragTarget(preview, String(over.id));
-    if (!from || !to || from._id === to._id) return;
-    const overIndex = to.postIds.indexOf(String(over.id));
-    setPreview(movePost(preview, postId, from._id, to._id, overIndex >= 0 ? overIndex : to.postIds.length));
-  }, [preview]);
-
-  const onDragEnd = useCallback(({ active, over }: DragEndEvent) => {
-    if (origin && preview && over) {
-      const postId = String(active.id);
-      const current = findPostChapter(preview, postId);
-      if (current) {
-        const overIndex = current.postIds.indexOf(String(over.id));
-        const toIndex = overIndex >= 0 ? overIndex : current.postIds.indexOf(postId);
-        const originIndex = editing.chapters.find((c) => c._id === origin.chapterId)?.postIds.indexOf(postId);
-        if (current._id !== origin.chapterId || toIndex !== originIndex) {
-          editing.movePost(postId, origin.chapterId, current._id, toIndex);
-        }
-      }
-    }
-    setPreview(null);
-    setOrigin(null);
-  }, [origin, preview, editing]);
-
-  const onDragCancel = useCallback(() => {
-    setPreview(null);
-    setOrigin(null);
-  }, []);
-
-  return { displayedChapters: preview ?? editing.chapters, onDragStart, onDragOver, onDragEnd, onDragCancel };
-}
-
-/**
  * The chapters editor once the chapters have loaded. A sequence whose only
  * chapter has no title or description is shown as a plain list of posts;
  * clicking "Add chapter" there sets `showChapterHeadings`, which shows that
- * (still untitled) chapter's heading so a title can be typed. Every sequence
- * should have a chapter, but one with none still gets an "Add chapter" button
- * rather than crashing.
+ * (still untitled) chapter's heading so a title can be typed. Each chapter
+ * is a region of a MultiRegionSortableList: its posts can be dragged within
+ * it or to another chapter, but not above its heading or below its Add post.
+ * Every sequence should have a chapter, but one with none still gets an "Add
+ * chapter" button rather than crashing.
  */
 const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapters }: {
   sequenceId: string,
@@ -194,15 +87,9 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
   const classes = useStyles(styles);
   const editing = useChapterEditing({ sequenceId, initialChapters, refetchChapters });
   const { chapters, loadedPosts } = editing;
-  const { displayedChapters, ...dragHandlers } = useChapterDragAndDrop(editing);
   const [showChapterHeadings, setShowChapterHeadings] = useState(false);
   const [addingPostToChapterId, setAddingPostToChapterId] = useState<string | null>(null);
   const [focusTitleOfChapterId, setFocusTitleOfChapterId] = useState<string | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
 
   const chapterless = isChapterless(chapters) && !showChapterHeadings;
 
@@ -240,15 +127,22 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
     ];
   };
 
-  const renderPosts = (chapter: EditableChapter) => <ChapterPostList chapterId={chapter._id} postIds={chapter.postIds}>
-    {chapter.postIds.map((postId) => <SortablePostRow
-      key={postId}
+  const renderPost = (postId: string, dragHandleProps: DragHandleProps, isDragging: boolean) => {
+    const chapter = findPostChapter(chapters, postId);
+    if (!chapter) return null;
+    return <SequenceEditPostRow
       postId={postId}
       loadedPost={loadedPosts[postId]}
+      dragHandleProps={dragHandleProps}
+      isDragging={isDragging}
       menuItems={postMenuItems(chapter, postId)}
       onRemove={() => editing.removePost(chapter._id, postId)}
-    />)}
-  </ChapterPostList>;
+    />;
+  };
+
+  const applyMove = ({ itemId, fromRegionId, toRegionId, toIndex }: RegionItemMove) => {
+    editing.movePost(itemId, fromRegionId, toRegionId, toIndex);
+  };
 
   const renderAddPost = (chapter: EditableChapter) => addingPostToChapterId === chapter._id
     ? <SequenceAddPostBox
@@ -276,39 +170,48 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
     </div>;
   }
 
+  const renderChapter = (chapterId: string, posts: React.ReactNode) => {
+    const index = chapters.findIndex((c) => c._id === chapterId);
+    const chapter = chapters[index];
+    if (!chapter) return null;
+    if (chapterless) {
+      return <>
+        {posts}
+        {renderAddPost(chapter)}
+        <div className={classes.buttonRow}>
+          {addPostButton(chapter._id)}
+          {addChapterButton}
+        </div>
+      </>;
+    }
+    return <SequenceEditChapter
+      key={`${chapter._id}-${editing.version}`}
+      chapter={chapter}
+      canMoveUp={index > 0}
+      canMoveDown={index < chapters.length - 1}
+      canDelete={canDeleteChapter(chapters, chapter._id)}
+      isOnlyChapter={chapters.length === 1}
+      autoFocusTitle={focusTitleOfChapterId === chapter._id}
+      onTitleChange={(title) => editing.setChapterTitle(chapter._id, title)}
+      onDescriptionCommit={(description) => editing.setChapterDescription(chapter._id, description)}
+      onMove={(direction) => editing.moveChapter(chapter._id, direction)}
+      onDelete={() => deleteChapter(chapter._id)}
+    >
+      {posts}
+      {renderAddPost(chapter)}
+      {addingPostToChapterId !== chapter._id && <div className={classes.buttonRow}>{addPostButton(chapter._id)}</div>}
+    </SequenceEditChapter>;
+  };
+
   return <div className={classes.root}>
-    <DndContext sensors={sensors} collisionDetection={closestCorners} {...dragHandlers}>
-      {chapterless
-        ? <>
-            {renderPosts(displayedChapters[0])}
-            {renderAddPost(chapters[0])}
-            <div className={classes.buttonRow}>
-              {addPostButton(chapters[0]._id)}
-              {addChapterButton}
-            </div>
-          </>
-        : <>
-            {displayedChapters.map((chapter, index) => <SequenceEditChapter
-              key={`${chapter._id}-${editing.version}`}
-              chapter={chapter}
-              canMoveUp={index > 0}
-              canMoveDown={index < displayedChapters.length - 1}
-              canDelete={canDeleteChapter(chapters, chapter._id)}
-              isOnlyChapter={chapters.length === 1}
-              autoFocusTitle={focusTitleOfChapterId === chapter._id}
-              onTitleChange={(title) => editing.setChapterTitle(chapter._id, title)}
-              onDescriptionCommit={(description) => editing.setChapterDescription(chapter._id, description)}
-              onMove={(direction) => editing.moveChapter(chapter._id, direction)}
-              onDelete={() => deleteChapter(chapter._id)}
-            >
-              {renderPosts(chapter)}
-              {renderAddPost(chapter)}
-              {addingPostToChapterId !== chapter._id && <div className={classes.buttonRow}>{addPostButton(chapter._id)}</div>}
-            </SequenceEditChapter>)}
-            <div className={classes.addChapterRow}>{addChapterButton}</div>
-          </>
-      }
-    </DndContext>
+    <MultiRegionSortableList
+      regions={chapters.map((chapter) => ({ id: chapter._id, itemIds: chapter.postIds }))}
+      onMove={applyMove}
+      renderItem={renderPost}
+      renderRegion={renderChapter}
+      renderEmptyRegion={() => <div className={classes.emptyList}>No posts yet</div>}
+    />
+    {!chapterless && <div className={classes.addChapterRow}>{addChapterButton}</div>}
   </div>;
 };
 
