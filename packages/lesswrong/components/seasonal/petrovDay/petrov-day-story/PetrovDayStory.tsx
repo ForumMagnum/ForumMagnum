@@ -12,7 +12,26 @@ import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
 import { PetrovStoryVariant } from './PetrovStoryComponents';
 
+const HIDE_PAGE_SCROLLBAR_CLASS_NAMES = {
+  page: 'petrov-day-story-page-hide-page-scrollbar',
+  sidebar: 'petrov-day-story-sidebar-hide-page-scrollbar',
+};
+
+const hiddenScrollbarStyles = (className: string) => ({
+  [`html.${className}`]: {
+    scrollbarWidth: 'none',
+  },
+  [`html.${className}::-webkit-scrollbar`]: {
+    display: 'none',
+  },
+});
+
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
+  '@global': {
+    ...hiddenScrollbarStyles(HIDE_PAGE_SCROLLBAR_CLASS_NAMES.page),
+    // The sidebar variant is display: none below this breakpoint, so leave the page scrollbar alone there
+    [theme.breakpoints.up(1400)]: hiddenScrollbarStyles(HIDE_PAGE_SCROLLBAR_CLASS_NAMES.sidebar),
+  },
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -454,6 +473,16 @@ export default function PetrovDayStory({variant}: {
       storyContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
+  // The page scrollbar is a light gutter against the black story, and in the sidebar variant it would
+  // otherwise vanish (shifting the layout) once scrolling the story sets overflow: hidden on the body
+  React.useEffect(() => {
+    const className = HIDE_PAGE_SCROLLBAR_CLASS_NAMES[variant];
+    document.documentElement.classList.add(className);
+    return () => {
+      document.documentElement.classList.remove(className);
+    };
+  }, [variant]);
 
   // Disable page scrolling when the Petrov Day story itself is being scrolled
   React.useEffect(() => {
