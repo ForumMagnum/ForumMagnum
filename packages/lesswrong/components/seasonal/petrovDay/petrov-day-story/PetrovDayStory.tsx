@@ -12,7 +12,34 @@ import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
 import { PetrovStoryVariant } from './PetrovStoryComponents';
 
+// Hard-coded class names, because JSS can't parse self-references ($root) inside @global
+const STORY_VARIANT_CLASS_NAMES = {
+  page: 'petrov-day-story-page',
+  sidebar: 'petrov-day-story-sidebar',
+};
+
+// The page scrollbar is a light gutter against the black story, and in the sidebar variant it would
+// otherwise vanish (shifting the layout) once scrolling the story sets overflow: hidden on the body.
+// Stories inside an inline display: none are excluded, since that's how React hides route trees that
+// cacheComponents keeps in the DOM after navigating away.
+const hiddenScrollbarStyles = (variantClassName: string) => {
+  const htmlWithVisibleStory = `html:has(.${variantClassName}:not([style*="display: none"] *))`;
+  return {
+    [htmlWithVisibleStory]: {
+      scrollbarWidth: 'none',
+    },
+    [`${htmlWithVisibleStory}::-webkit-scrollbar`]: {
+      display: 'none',
+    },
+  };
+};
+
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
+  '@global': {
+    ...hiddenScrollbarStyles(STORY_VARIANT_CLASS_NAMES.page),
+    // The sidebar variant is display: none below this breakpoint, so leave the page scrollbar alone there
+    [theme.breakpoints.up(1400)]: hiddenScrollbarStyles(STORY_VARIANT_CLASS_NAMES.sidebar),
+  },
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -498,7 +525,7 @@ export default function PetrovDayStory({variant}: {
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
       <div
-        className={classNames(classes.root, {
+        className={classNames(classes.root, STORY_VARIANT_CLASS_NAMES[variant], {
           [classes.rootSidebar]: variant==="sidebar",
           [classes.rootFullWidth]: storyScrolled
         })}
