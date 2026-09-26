@@ -84,7 +84,11 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
+const isSameContents = (a: EditorContents, b: EditorContents) => a.type === b.type && a.value === b.value;
+
 type LocalStorageCheckProps = {
+  /** What the editor opened with, e.g. the saved contents. */
+  currentContents: EditorContents,
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   getNewPostLocalStorageHandlers: GetLocalStorageHandlers,
@@ -92,12 +96,15 @@ type LocalStorageCheckProps = {
 }
 
 const LocalStorageCheck = (props: LocalStorageCheckProps) => {
-  const {getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
+  const {currentContents, getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
   const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
   useEffectOnce(() => {
-    const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+    const backup = getRestorableState(currentUser, getLocalStorageHandlers);
+    // A backup identical to what the editor already has (e.g. of text that
+    // was then saved) has nothing to restore.
+    const restorableState = backup && !isSameContents(backup.savedDocument, currentContents) ? backup : null;
     const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
     if (restorableState || newPostRestorableState) {
       setRestorableState({
