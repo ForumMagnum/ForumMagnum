@@ -140,7 +140,7 @@ const SequenceDescriptionEditor = () => {
   }, [resetEdited, clearBackup, setDescriptionIsDirty]);
 
   useEffect(() => {
-    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: clearBackup };
+    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: markSaved };
     return () => { descriptionDraftRef.current = null; };
   }, [descriptionDraftRef, getUnsavedContents, markSaved, clearBackup]);
 
