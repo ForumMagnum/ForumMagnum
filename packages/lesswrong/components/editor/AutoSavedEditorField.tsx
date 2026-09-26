@@ -33,17 +33,10 @@ function contentsKey(contents: EditorContentsValue | null | undefined): Contents
  * editor reports input through `beforeinput` events, since Lexical cancels
  * them and applies the edit itself), the stored contents are the baseline
  * instead, so the edit isn't mistaken for the starting point. Until either
- * happens there is nothing to save. A commit
- * captures the contents through the binding's `setValue`, and contents equal
- * to the baseline aren't saved. The baseline advances to the committed
+ * happens there is nothing to save. A commit captures the contents through
+ * the binding's `setValue`, and contents equal to the baseline aren't saved. The baseline advances to the committed
  * contents before the save is awaited, so a second blur during an in-flight
  * save doesn't queue a duplicate revision.
- *
- * Capturing the contents also writes the editor's browser backup, which is
- * cleared once they're saved (or found unchanged). The clearing function is
- * taken before the save is awaited, because leaving the page can unmount the
- * editor before the save finishes; otherwise the backup would survive and
- * offer "Restore Autosave" for text that was saved.
  */
 const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & string>({
   document,
@@ -104,19 +97,15 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
     capturedValueRef.current = null;
     await onSubmitCallback.current();
     const payload = capturedValueRef.current;
-    const clearBackup = onSuccessCallback.current;
     if (!payload) return;
 
     const newContents = contentsKey(payload);
     const previous = lastCommittedRef.current;
-    if (newContents.type === previous.type && newContents.data === previous.data) {
-      clearBackup?.(document, { noReload: true });
-      return;
-    }
+    if (newContents.type === previous.type && newContents.data === previous.data) return;
 
     lastCommittedRef.current = newContents;
     if (await onCommit(payload)) {
-      clearBackup?.(document, { noReload: true });
+      onSuccessCallback.current?.(document, { noReload: true });
     } else {
       lastCommittedRef.current = previous;
     }
