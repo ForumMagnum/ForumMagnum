@@ -15,10 +15,15 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
+/**
+ * A sequence's chapters in reading mode. With `fetchFresh`, it skips cached
+ * (and server-rendered) chapters and loads them from the server; that's used
+ * after the sequence has been edited on this page, since the editor changes
+ * chapters in ways the cached list doesn't reflect.
+ */
+const ChaptersList = ({sequenceId, fetchFresh = false}: {
   sequenceId: string,
-  canEdit: boolean,
-  nextSuggestedNumberRef: React.MutableRefObject<number>,
+  fetchFresh?: boolean,
 }) => {
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
@@ -26,6 +31,7 @@ const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
       limit: 100,
       enableTotal: false,
     },
+    fetchPolicy: fetchFresh ? "network-only" : undefined,
     notifyOnNetworkStatusChange: true,
   });
 
@@ -35,20 +41,12 @@ const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
     return <Loading />
   }
 
-  // If any chapter has a number already, suggest the next number after the highest number.
-  // Otherwise, suggest the next number after the number of chapters.
-  const nextNumber = Math.max(...results.map((chapter) => chapter.number ?? 0), results.length) + 1;
-  nextSuggestedNumberRef.current = nextNumber;
-
   return <div className="chapters-list">
     {results.map((chapter) => <ChaptersItem
       key={chapter._id}
       chapter={chapter}
-      canEdit={canEdit}
     />)}
   </div>
 }
 
 export default ChaptersList;
-
-

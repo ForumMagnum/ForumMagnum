@@ -35,9 +35,21 @@ const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
     backgroundPosition: 'center',
     display: 'flex',
   },
+  fillContainer: {
+    height: '100%',
+  },
 }));
 
-const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
+/**
+ * An image upload control shown on the image itself: the current image (or
+ * `placeholderUrl`) as the background of a box in the image type's preview
+ * shape, with the upload and remove buttons centred on it. With
+ * `fillContainer`, the box fills its container instead of taking the preview
+ * shape, for when the container already has the image's shape (e.g. the
+ * image area of a card).
+ */
+
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, fillContainer=false}: {
   name: string,
   value: string | null | undefined,
   updateValue: (value: string) => void,
@@ -45,6 +57,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   label: string,
   croppingAspectRatio?: number,
   placeholderUrl?: string,
+  fillContainer?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {uploadImage} = useImageUpload({
@@ -70,7 +83,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
     
-  const imageStyle: React.CSSProperties = {
+  const imageStyle: React.CSSProperties = fillContainer ? {} : {
     aspectRatio: formPreviewSize.width === 'auto' ? '1.91' : `${formPreviewSize.width} / ${formPreviewSize.height}`
   }
 
@@ -87,9 +100,9 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, fillContainer && classes.fillContainer)}>
       <div
-        className={classes.imageBackground}
+        className={classNames(classes.imageBackground, fillContainer && classes.fillContainer)}
         style={imageStyle}
       >
         <div className={classes.buttonRow}>

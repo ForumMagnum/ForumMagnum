@@ -46,6 +46,18 @@ export function fieldUpdate<K extends keyof EditableUser>(name: K, value: Editab
   return update;
 }
 
+/**
+ * Saves a rich-text user setting from an AutoSavedEditorField. The submitted
+ * contents are untyped here because EditableUser's editable fields combine
+ * the revision input and fragment types, which submitted data can't satisfy.
+ */
+export function commitUserEditorField(updateSettings: UpdateUserSettings, name: 'biography' | 'moderationGuidelines') {
+  return async (contents: AnyBecauseHard): Promise<boolean> => {
+    const result = await updateSettings(fieldUpdate(name, contents));
+    return result.success;
+  };
+}
+
 export function toEditableUser(user: UsersEdit): EditableUser {
   return withDateFields(user, ['banned', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent']);
 }

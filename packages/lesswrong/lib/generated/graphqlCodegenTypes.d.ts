@@ -3930,6 +3930,7 @@ type Mutation = {
   createUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
+  deleteChapter: Scalars['Boolean']['output'];
   dismissRecommendation?: Maybe<Scalars['Boolean']['output']>;
   ensureResearchScratchDocument?: Maybe<EnsureResearchScratchDocumentOutput>;
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
@@ -3951,6 +3952,7 @@ type Mutation = {
   mergeTags?: Maybe<Scalars['Boolean']['output']>;
   mintDevPreviewUrl?: Maybe<DevPreviewUrlOutput>;
   moderateComment?: Maybe<Comment>;
+  moveSequencePost: Scalars['Boolean']['output'];
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteMessage?: Maybe<VoteResultMessage>;
@@ -4371,6 +4373,11 @@ type MutationcreateUserTagRelArgs = {
 };
 
 
+type MutationdeleteChapterArgs = {
+  chapterId: Scalars['String']['input'];
+};
+
+
 type MutationdismissRecommendationArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4481,6 +4488,14 @@ type MutationmoderateCommentArgs = {
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationmoveSequencePostArgs = {
+  fromChapterId: Scalars['String']['input'];
+  postId: Scalars['String']['input'];
+  toChapterId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
 };
 
 
@@ -19464,23 +19479,141 @@ type HomepageCommunityEventPostsQueryQueryVariables = Exact<{
 
 type HomepageCommunityEventPostsQueryQuery = HomepageCommunityEventPostsQueryQuery_Query;
 
-type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersFragment
+type SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
 );
 
-type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter | null };
+type SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput_results_Post> };
 
-type updateChapterAddDraftPostDialogMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput | null };
+type SequenceAddPostRecentPostsQuery_published_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type SequenceAddPostRecentPostsQuery_published_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<SequenceAddPostRecentPostsQuery_published_MultiPostOutput_results_Post> };
+
+type SequenceAddPostRecentPostsQuery_Query = { __typename?: 'Query', drafts: SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput | null, published: SequenceAddPostRecentPostsQuery_published_MultiPostOutput | null };
 
 
-type updateChapterAddDraftPostDialogMutationVariables = Exact<{
+type SequenceAddPostRecentPostsQueryVariables = Exact<{
+  draftsSelector: InputMaybe<PostSelector>;
+  publishedSelector: InputMaybe<PostSelector>;
+}>;
+
+
+type SequenceAddPostRecentPostsQuery = SequenceAddPostRecentPostsQuery_Query;
+
+type SequenceEditChaptersQuery_chapters_MultiChapterOutput_results_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type SequenceEditChaptersQuery_chapters_MultiChapterOutput = { __typename?: 'MultiChapterOutput', results: Array<SequenceEditChaptersQuery_chapters_MultiChapterOutput_results_Chapter> };
+
+type SequenceEditChaptersQuery_Query = { __typename?: 'Query', chapters: SequenceEditChaptersQuery_chapters_MultiChapterOutput | null };
+
+
+type SequenceEditChaptersQueryVariables = Exact<{
+  selector: InputMaybe<ChapterSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SequenceEditChaptersQuery = SequenceEditChaptersQuery_Query;
+
+type SequenceEditPostRowQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type SequenceEditPostRowQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: SequenceEditPostRowQuery_post_SinglePostOutput_result_Post | null };
+
+type SequenceEditPostRowQuery_Query = { __typename?: 'Query', post: SequenceEditPostRowQuery_post_SinglePostOutput | null };
+
+
+type SequenceEditPostRowQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SequenceEditPostRowQuery = SequenceEditPostRowQuery_Query;
+
+type updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput_data_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequencesEdit
+);
+
+type updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput_data_Sequence | null };
+
+type updateSequenceSequenceEditorMutation_Mutation = { __typename?: 'Mutation', updateSequence: updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput | null };
+
+
+type updateSequenceSequenceEditorMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateSequenceDataInput;
+}>;
+
+
+type updateSequenceSequenceEditorMutation = updateSequenceSequenceEditorMutation_Mutation;
+
+type updateChapterSequenceEditorMutation_updateChapter_ChapterOutput_data_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type updateChapterSequenceEditorMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterSequenceEditorMutation_updateChapter_ChapterOutput_data_Chapter | null };
+
+type updateChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterSequenceEditorMutation_updateChapter_ChapterOutput | null };
+
+
+type updateChapterSequenceEditorMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateChapterDataInput;
 }>;
 
 
-type updateChapterAddDraftPostDialogMutation = updateChapterAddDraftPostDialogMutation_Mutation;
+type updateChapterSequenceEditorMutation = updateChapterSequenceEditorMutation_Mutation;
+
+type createChapterSequenceEditorMutation_createChapter_ChapterOutput_data_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type createChapterSequenceEditorMutation_createChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: createChapterSequenceEditorMutation_createChapter_ChapterOutput_data_Chapter | null };
+
+type createChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', createChapter: createChapterSequenceEditorMutation_createChapter_ChapterOutput | null };
+
+
+type createChapterSequenceEditorMutationVariables = Exact<{
+  data: CreateChapterDataInput;
+}>;
+
+
+type createChapterSequenceEditorMutation = createChapterSequenceEditorMutation_Mutation;
+
+type deleteChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', deleteChapter: boolean };
+
+
+type deleteChapterSequenceEditorMutationVariables = Exact<{
+  chapterId: Scalars['String']['input'];
+}>;
+
+
+type deleteChapterSequenceEditorMutation = deleteChapterSequenceEditorMutation_Mutation;
+
+type moveSequencePostSequenceEditorMutation_Mutation = { __typename?: 'Mutation', moveSequencePost: boolean };
+
+
+type moveSequencePostSequenceEditorMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  fromChapterId: Scalars['String']['input'];
+  toChapterId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
+}>;
+
+
+type moveSequencePostSequenceEditorMutation = moveSequencePostSequenceEditorMutation_Mutation;
 
 type updateBookBooksFormMutation_updateBook_BookOutput_data_Book = (
   { __typename?: 'Book' }
@@ -19543,58 +19676,6 @@ type GetBookWordCountQueryVariables = Exact<{
 
 
 type GetBookWordCountQuery = GetBookWordCountQuery_Query;
-
-type updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type updateChapterChaptersFormMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter | null };
-
-type updateChapterChaptersFormMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterChaptersFormMutation_updateChapter_ChapterOutput | null };
-
-
-type updateChapterChaptersFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateChapterDataInput;
-}>;
-
-
-type updateChapterChaptersFormMutation = updateChapterChaptersFormMutation_Mutation;
-
-type createChapterChaptersFormMutation_createChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type createChapterChaptersFormMutation_createChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: createChapterChaptersFormMutation_createChapter_ChapterOutput_data_Chapter | null };
-
-type createChapterChaptersFormMutation_Mutation = { __typename?: 'Mutation', createChapter: createChapterChaptersFormMutation_createChapter_ChapterOutput | null };
-
-
-type createChapterChaptersFormMutationVariables = Exact<{
-  data: CreateChapterDataInput;
-}>;
-
-
-type createChapterChaptersFormMutation = createChapterChaptersFormMutation_Mutation;
-
-type ChaptersItemQuery_chapter_SingleChapterOutput_result_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type ChaptersItemQuery_chapter_SingleChapterOutput = { __typename?: 'SingleChapterOutput', result: ChaptersItemQuery_chapter_SingleChapterOutput_result_Chapter | null };
-
-type ChaptersItemQuery_Query = { __typename?: 'Query', chapter: ChaptersItemQuery_chapter_SingleChapterOutput | null };
-
-
-type ChaptersItemQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ChaptersItemQuery = ChaptersItemQuery_Query;
 
 type multiChapterChaptersListQueryQuery_chapters_MultiChapterOutput_results_Chapter = (
   { __typename?: 'Chapter' }
@@ -19662,60 +19743,6 @@ type GetSequenceStatsQueryVariables = Exact<{
 
 type GetSequenceStatsQuery = GetSequenceStatsQuery_Query;
 
-type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type multiPostSequenceDraftsListQueryQuery_Query = { __typename?: 'Query', posts: multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostSequenceDraftsListQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostSequenceDraftsListQueryQuery = multiPostSequenceDraftsListQueryQuery_Query;
-
-type updateSequenceSequencesFormMutation_updateSequence_SequenceOutput_data_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesEdit
-);
-
-type updateSequenceSequencesFormMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: updateSequenceSequencesFormMutation_updateSequence_SequenceOutput_data_Sequence | null };
-
-type updateSequenceSequencesFormMutation_Mutation = { __typename?: 'Mutation', updateSequence: updateSequenceSequencesFormMutation_updateSequence_SequenceOutput | null };
-
-
-type updateSequenceSequencesFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateSequenceDataInput;
-}>;
-
-
-type updateSequenceSequencesFormMutation = updateSequenceSequencesFormMutation_Mutation;
-
-type createSequenceSequencesFormMutation_createSequence_SequenceOutput_data_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesEdit
-);
-
-type createSequenceSequencesFormMutation_createSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: createSequenceSequencesFormMutation_createSequence_SequenceOutput_data_Sequence | null };
-
-type createSequenceSequencesFormMutation_Mutation = { __typename?: 'Mutation', createSequence: createSequenceSequencesFormMutation_createSequence_SequenceOutput | null };
-
-
-type createSequenceSequencesFormMutationVariables = Exact<{
-  data: CreateSequenceDataInput;
-}>;
-
-
-type createSequenceSequencesFormMutation = createSequenceSequencesFormMutation_Mutation;
-
 type multiSequenceSequencesGridWrapperQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageFragment
@@ -19734,6 +19761,20 @@ type multiSequenceSequencesGridWrapperQueryQueryVariables = Exact<{
 
 
 type multiSequenceSequencesGridWrapperQueryQuery = multiSequenceSequencesGridWrapperQueryQuery_Query;
+
+type createSequenceSequencesNewFormMutation_createSequence_SequenceOutput_data_Sequence = { __typename?: 'Sequence', _id: string };
+
+type createSequenceSequencesNewFormMutation_createSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: createSequenceSequencesNewFormMutation_createSequence_SequenceOutput_data_Sequence | null };
+
+type createSequenceSequencesNewFormMutation_Mutation = { __typename?: 'Mutation', createSequence: createSequenceSequencesNewFormMutation_createSequence_SequenceOutput | null };
+
+
+type createSequenceSequencesNewFormMutationVariables = Exact<{
+  data: CreateSequenceDataInput;
+}>;
+
+
+type createSequenceSequencesNewFormMutation = createSequenceSequencesNewFormMutation_Mutation;
 
 type SequencesPageQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
