@@ -2,7 +2,6 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailContextType, emailUseStyles } from './emailContext';
-import { untrackedLinkProps } from '@/lib/emails/emailTracking';
 import { defineStyles } from '@/components/hooks/defineStyles';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
@@ -82,7 +81,7 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
                     <tr><td className="container-padding">
                       <br/>
                       {unsubscribeAllLink && <>
-                        <a href={unsubscribeAllLink} {...untrackedLinkProps}>Unsubscribe</a>{' '}
+                        <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
                         (from all emails from {siteNameWithArticle})
                         or <a href={accountLink}>Change your notifications settings</a>
                       </>}

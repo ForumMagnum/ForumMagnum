@@ -25,7 +25,6 @@ import {
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
-import { untrackedLinkProps } from "@/lib/emails/emailTracking";
 import { aiDigestChromeLinkUrl, aiDigestItemLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
 import { EmailContentItemBody } from "./EmailContentItemBody";
 import { EmailContextType, emailUseStyles } from "./emailContext";
@@ -1426,7 +1425,6 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
                       <a
                         href={mastheadUnsubscribeUrl}
                         className={classes.mastheadUnsubscribeLink}
-                        {...untrackedLinkProps}
                       >
                         unsubscribe
                       </a>
