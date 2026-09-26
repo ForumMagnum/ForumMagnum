@@ -4,7 +4,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
-import LWTooltip from "../common/LWTooltip";
+import PostsTitle from "../posts/PostsTitle";
 import type { DragHandleProps } from "../form-components/sortableList";
 import SequenceEditMenu, { type SequenceEditMenuItem } from "./SequenceEditMenu";
 
@@ -60,21 +60,10 @@ const styles = defineStyles("SequenceEditPostRow", (theme: ThemeType) => ({
   title: {
     flexGrow: 1,
     minWidth: 0,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontSize: 16,
   },
   unavailable: {
     color: theme.palette.greyAlpha(0.5),
     fontStyle: "italic",
-  },
-  draftLabel: {
-    ...theme.typography.commentStyle,
-    fontSize: 12,
-    color: theme.palette.greyAlpha(0.5),
-    whiteSpace: "nowrap",
   },
   author: {
     fontSize: 13,
@@ -140,11 +129,8 @@ const SequenceEditPostRow = ({ postId, loadedPost, dragHandleProps, isDragging, 
     </button>
     <span className={classes.karma}>{post?.baseScore ?? ""}</span>
     <span className={classNames(classes.title, !post && !loading && classes.unavailable)}>
-      {post?.title ?? (loading ? "Loading…" : "Unavailable post")}
+      {post ? <PostsTitle post={post} isLink={false} showIcons={false} /> : (loading ? "Loading…" : "Unavailable post")}
     </span>
-    {post?.draft && <LWTooltip title="Readers won't see this post until it's published">
-      <span className={classes.draftLabel}>Draft</span>
-    </LWTooltip>}
     {post?.user && <span className={classes.author}>{post.user.displayName}</span>}
     <SequenceEditMenu items={menuItems} label="Move post" />
     <button className={classes.removeButton} onClick={onRemove} aria-label="Remove from sequence" title="Remove from sequence">

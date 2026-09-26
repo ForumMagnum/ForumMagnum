@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
-import uniqBy from "lodash/uniqBy";
+import React from "react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { getSearchClient, getSearchIndexName } from "@/lib/search/searchUtil";
+import { getSearchIndexName } from "@/lib/search/searchUtil";
 import { useCurrentUser } from "../common/withUser";
+import { useMessages } from "../common/withMessages";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
+import SearchAutoComplete from "../search/SearchAutoComplete";
+import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
+import PostsTitle from "../posts/PostsTitle";
 
 /**
  * The current user's five most recently edited drafts and ten most recent
@@ -33,27 +36,17 @@ const styles = defineStyles("SequenceAddPostBox", (theme: ThemeType) => ({
     borderRadius: 8,
     background: theme.palette.panelBackground.default,
     margin: "8px 0",
-    overflow: "hidden",
   },
   searchRow: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 8,
     padding: "8px 12px",
     borderBottom: theme.palette.greyBorder("1px", 0.1),
   },
-  searchIcon: {
-    width: 18,
-    height: 18,
-    color: theme.palette.greyAlpha(0.45),
-  },
-  input: {
+  search: {
     flexGrow: 1,
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    ...theme.typography.body2,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    minWidth: 0,
   },
   closeButton: {
     background: "none",
@@ -105,19 +98,12 @@ const styles = defineStyles("SequenceAddPostBox", (theme: ThemeType) => ({
   },
   resultTitle: {
     flexGrow: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+    minWidth: 0,
   },
   resultMeta: {
     fontSize: 12,
     color: theme.palette.greyAlpha(0.5),
     whiteSpace: "nowrap",
-  },
-  draftLabel: {
-    fontSize: 12,
-    color: theme.palette.greyAlpha(0.5),
-    marginRight: 4,
   },
   empty: {
     ...theme.typography.commentStyle,
@@ -127,97 +113,13 @@ const styles = defineStyles("SequenceAddPostBox", (theme: ThemeType) => ({
   },
 }));
 
-/** A post as listed in the add-post box, from either a post query or a search hit. */
-interface AddablePost {
-  _id: string;
-  title: string;
-  authorName: string | null;
-  baseScore: number;
-  draft: boolean;
-}
-
-function fromPostsList(post: PostsList): AddablePost {
-  return {
-    _id: post._id,
-    title: post.title,
-    authorName: post.user?.displayName ?? null,
-    baseScore: post.baseScore ?? 0,
-    draft: !!post.draft,
-  };
-}
-
-function fromSearchHit(hit: SearchPost): AddablePost {
-  return {
-    _id: hit._id,
-    title: hit.title ?? "Untitled",
-    authorName: hit.authorDisplayName ?? null,
-    baseScore: hit.baseScore,
-    draft: hit.draft,
-  };
-}
-
-function postSearchRequest(query: string, hitsPerPage: number, facetFilters: string[][]) {
-  return {
-    indexName: getSearchIndexName("Posts"),
-    query,
-    params: { query, hitsPerPage, facetFilters },
-  };
-}
-
 /**
- * Searches for posts matching `query`: up to five of the current user's own
- * posts first (the common case), then up to ten from the whole site, without
- * duplicates.
+ * One of the author's recent posts in the add-post box. A post already in the
+ * sequence (`chapterName` set) is shown disabled, with the chapter it's in
+ * instead of its author.
  */
-async function searchPosts(query: string, currentUserId: string | undefined): Promise<AddablePost[]> {
-  const response = await getSearchClient().search<SearchPost>([
-    ...(currentUserId ? [postSearchRequest(query, 5, [[`userId:${currentUserId}`]])] : []),
-    postSearchRequest(query, 10, []),
-  ]);
-  const hits = (response?.results ?? []).flatMap((result) => result.hits);
-  return uniqBy(hits.map(fromSearchHit), (post) => post._id);
-}
-
-const SEARCH_DEBOUNCE_MS = 250;
-
-/**
- * Runs `searchPosts` for the typed query, once typing pauses. `searchResults`
- * is null while the query is empty, and a failed search shows no results.
- * Results for a query that has since changed are ignored.
- */
-function useDebouncedPostSearch(query: string, currentUserId: string | undefined) {
-  const [searchResults, setSearchResults] = useState<AddablePost[] | null>(null);
-  const [searching, setSearching] = useState(false);
-
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      setSearchResults(null);
-      return;
-    }
-    let cancelled = false;
-    setSearching(true);
-    const timer = setTimeout(() => {
-      searchPosts(trimmed, currentUserId)
-        .then((results) => { if (!cancelled) setSearchResults(results); })
-        .catch(() => { if (!cancelled) setSearchResults([]); })
-        .finally(() => { if (!cancelled) setSearching(false); });
-    }, SEARCH_DEBOUNCE_MS);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [query, currentUserId]);
-
-  return { searchResults, searching };
-}
-
-/**
- * One post in the add-post box. A post already in the sequence (`chapterName`
- * set) is shown disabled, with the chapter it's in instead of its author.
- */
-const AddablePostRow = ({ post, chapterName, onAdd }: {
-  post: AddablePost,
+const RecentPostRow = ({ post, chapterName, onAdd }: {
+  post: PostsList,
   chapterName: string | null,
   onAdd: (postId: string) => void,
 }) => {
@@ -228,22 +130,26 @@ const AddablePostRow = ({ post, chapterName, onAdd }: {
     onClick={() => onAdd(post._id)}
   >
     <span className={classes.resultTitle}>
-      {post.draft && <span className={classes.draftLabel}>[Draft]</span>}
-      {post.title}
+      <PostsTitle post={post} isLink={false} showIcons={false} />
     </span>
     <span className={classes.resultMeta}>
       {chapterName !== null
         ? `Already in ${chapterName}`
-        : `${post.authorName ?? ""} · ${post.baseScore} karma`}
+        : `${post.user?.displayName ?? ""} · ${post.baseScore ?? 0} karma`}
     </span>
   </button>;
 };
 
+function renderSearchHit(hit: SearchPost) {
+  return <PostsListEditorSearchHit hit={hit} />;
+}
+
 /**
- * An inline box for adding posts to a chapter. Before typing it lists the
- * author's recent drafts and posts; typing searches the whole site.
- * `getChapterNameForPost` names the chapter a post is already in, or returns
- * null for posts not in the sequence.
+ * An inline box for adding posts to a chapter: the site's standard post
+ * search (which doesn't include drafts), above the author's recent drafts
+ * and posts. `getChapterNameForPost` names the chapter a post is already in,
+ * or returns null for posts not in the sequence; picking one of those from
+ * search says where it is instead of adding it again.
  */
 const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
   onAdd: (postId: string) => void,
@@ -252,8 +158,7 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [query, setQuery] = useState("");
-  const { searchResults, searching } = useDebouncedPostSearch(query, currentUser?._id);
+  const { flash } = useMessages();
 
   const { data: recentData, loading: recentLoading } = useQuery(SequenceAddPostRecentPostsQuery, {
     variables: {
@@ -264,23 +169,26 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
     ssr: false,
   });
 
-  const recentDrafts = (recentData?.drafts?.results ?? []).map(fromPostsList);
-  const recentPublished = (recentData?.published?.results ?? []).map(fromPostsList);
+  const recentDrafts = recentData?.drafts?.results ?? [];
+  const recentPublished = recentData?.published?.results ?? [];
 
-  const postRows = (posts: AddablePost[]) => posts.map((post) => <AddablePostRow
+  const addFromSearch = (postId: string) => {
+    const chapterName = getChapterNameForPost(postId);
+    if (chapterName !== null) {
+      flash(`That post is already in ${chapterName}.`);
+      return;
+    }
+    onAdd(postId);
+  };
+
+  const recentRows = (posts: PostsList[]) => posts.map((post) => <RecentPostRow
     key={post._id}
     post={post}
     chapterName={getChapterNameForPost(post._id)}
     onAdd={onAdd}
   />);
 
-  const renderResults = () => {
-    if (searchResults !== null) {
-      if (!searchResults.length) {
-        return searching ? <Loading /> : <div className={classes.empty}>No posts found</div>;
-      }
-      return postRows(searchResults);
-    }
+  const renderRecentPosts = () => {
     if (recentLoading) {
       return <Loading />;
     }
@@ -289,29 +197,30 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
     }
     return <>
       {recentDrafts.length > 0 && <div className={classes.sectionLabel}>Your drafts</div>}
-      {postRows(recentDrafts)}
+      {recentRows(recentDrafts)}
       {recentPublished.length > 0 && <div className={classes.sectionLabel}>Your recent posts</div>}
-      {postRows(recentPublished)}
+      {recentRows(recentPublished)}
     </>;
   };
 
   return <div className={classes.root}>
     <div className={classes.searchRow}>
-      <ForumIcon icon="Search" className={classes.searchIcon} />
-      <input
-        className={classes.input}
-        autoFocus
-        value={query}
-        placeholder="Search for a post to add"
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
-      />
+      <div className={classes.search}>
+        <SearchAutoComplete
+          indexName={getSearchIndexName("Posts")}
+          resultType="Posts"
+          clickAction={addFromSearch}
+          renderSuggestion={renderSearchHit}
+          placeholder="Search for a post to add"
+          noSearchPlaceholder="Post ID"
+        />
+      </div>
       <button className={classes.closeButton} onClick={onClose} title="Close">
         <ForumIcon icon="Close" className={classes.closeIcon} />
       </button>
     </div>
     <div className={classes.results}>
-      {renderResults()}
+      {renderRecentPosts()}
     </div>
   </div>;
 };

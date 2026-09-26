@@ -10,7 +10,6 @@ import { DialogActions } from "../widgets/DialogActions";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useSequenceEditor } from "./SequenceEditorContext";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { blurOnEnter } from "./blurOnEnter";
 
 const styles = defineStyles("SequenceEditHeader", (theme: ThemeType) => ({
   titleInput: {
@@ -61,8 +60,8 @@ const styles = defineStyles("SequenceEditHeader", (theme: ThemeType) => ({
 export const NEW_SEQUENCE_TITLE = "Untitled Sequence";
 
 /**
- * The sequence title, edited in place. Saves when the field loses focus or
- * Enter is pressed, like a post title. An empty title isn't allowed: it
+ * The sequence title, edited in place. Saves when the field loses focus,
+ * like a post title (EditTitle). An empty title isn't allowed: it
  * reverts to the last saved title.
  */
 export const SequenceTitleInput = ({ className }: { className?: string }) => {
@@ -97,9 +96,8 @@ export const SequenceTitleInput = ({ className }: { className?: string }) => {
     multiline
     disableUnderline
     inputProps={{ "aria-label": "Sequence title" }}
-    onChange={(event) => setTitle(event.target.value.replace(/\n/g, " "))}
+    onChange={(event) => setTitle(event.target.value)}
     onBlur={save}
-    onKeyDown={blurOnEnter}
   />;
 };
 

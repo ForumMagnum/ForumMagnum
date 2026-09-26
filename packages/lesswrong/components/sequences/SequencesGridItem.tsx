@@ -104,10 +104,22 @@ const styles = defineStyles('SequencesGridItem', (theme: ThemeType) => ({
   }
 }))
 
-const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
+/** The image a sequence's card shows when it has no card image of its own. */
+export const DEFAULT_SEQUENCE_CARD_IMAGE_ID = "sequences/vnyzzznenju0hzdv6pqb.jpg";
+
+/**
+ * A sequence's card, as shown in the Library grid: its card image, title and
+ * (optionally) author, linking to the sequence with a summary on hover.
+ * `linked={false}` shows the card without the link and hover summary, and
+ * `image` replaces the card image; the sequence editor uses both to let the
+ * author set the card image on a preview of the card.
+ */
+const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle, linked=true, image}: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  bookItemStyle?: boolean
+  bookItemStyle?: boolean,
+  linked?: boolean,
+  image?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
 
@@ -115,42 +127,42 @@ const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
   if (sequence.title.length > 26) positionAdjustment -= 17
-  
-  let imageId: string|null = sequence.gridImageId
-  if (!imageId) {
-    imageId = "sequences/vnyzzznenju0hzdv6pqb.jpg"
-  }
+
+  const imageId = sequence.gridImageId || DEFAULT_SEQUENCE_CARD_IMAGE_ID;
+
+  const contents = <>
+    <div className={classes.image}>
+      {image ?? <DeferRender ssr={false}>
+        <CloudinaryImage
+          publicId={imageId}
+          height={124}
+          width={315}
+        />
+      </DeferRender>}
+    </div>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
+      <div className={classes.title}>
+        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+        {sequence.title}
+      </div>
+      { showAuthor && sequence.user &&
+        <div className={classes.author}>
+          by <UsersName user={sequence.user} />
+        </div>}
+    </div>
+  </>;
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
-    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={
-      <div style={{marginTop:positionAdjustment}}>
-        <SequencesSummary sequence={sequence} showAuthor={showAuthor}/>
-      </div>
-    }>
-      <div className={classes.image}>
-        <DeferRender ssr={false}>
-          {imageId && <CloudinaryImage
-            publicId={imageId}
-            height={124}
-            width={315}
-          />}
-        </DeferRender>
-      </div>
-      <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
-        <div className={classes.title}>
-          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-          {sequence.title}
-        </div>
-        { showAuthor && sequence.user &&
-          <div className={classes.author}>
-            by <UsersName user={sequence.user} />
-          </div>}
-      </div>
-    </LinkCard>
+    {linked
+      ? <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={
+          <div style={{marginTop:positionAdjustment}}>
+            <SequencesSummary sequence={sequence} showAuthor={showAuthor}/>
+          </div>
+        }>
+          {contents}
+        </LinkCard>
+      : contents}
   </div>
 }
 
 export default SequencesGridItem;
-
-
-
