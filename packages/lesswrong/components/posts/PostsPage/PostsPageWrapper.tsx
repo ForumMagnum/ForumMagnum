@@ -31,11 +31,12 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
+const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, recordView }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
   embedded?: boolean,
+  recordView?: boolean,
 }) => {
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
@@ -105,6 +106,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
       sequenceIdFromUrl={sequenceId}
       refetch={refetch}
       embedded={embedded}
+      recordView={recordView}
     />
   </>;
 }

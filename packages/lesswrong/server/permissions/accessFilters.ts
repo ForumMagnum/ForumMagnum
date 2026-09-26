@@ -20,6 +20,11 @@ const typoSuggestionCheckAccess: CheckAccessFunction<'TypoSuggestions'> = async 
   return userCanAccessTypoSuggestion(currentUser, document);
 };
 
+const aiDigestIssueCheckAccess: CheckAccessFunction<'AiDigestIssues'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return document.recipientId === currentUser._id || userIsAdmin(currentUser);
+};
+
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return userIsAdmin(currentUser)
@@ -431,6 +436,9 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AiDigestIssueGenerations: adminOnly,
+  AiDigestIssues: aiDigestIssueCheckAccess,
+  AiDigestSchedules: adminOnly,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -485,8 +493,10 @@ const accessFilters = {
   Podcasts: allowAccess,
   Posts: postCheckAccess,
   PostEmbeddings: allowAccess,
+  PostPreviews: allowAccess,
   PostRecommendations: allowAccess,
   PostRelations: allowAccess,
+  PostSummaries: allowAccess,
   PostViewTimes: allowAccess,
   PostViews: allowAccess,
   ReadStatuses: allowAccess,
