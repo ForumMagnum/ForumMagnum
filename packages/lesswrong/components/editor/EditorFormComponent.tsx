@@ -429,6 +429,7 @@ function InnerEditorFormComponent<S, R>({
       />
     }
     {!suppressLocalStorageRestore && <LocalStorageCheck
+      currentContents={contents}
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
       onRestoreNewPostLegacy={onRestoreNewPostLegacy}
