@@ -42,6 +42,7 @@ import { SubtitlePortalProvider } from './SubtitlePortalContext';
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { useIsPetrovDayRitualActive } from '@/components/seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
+import { routeHasCreamBackground } from '@/lib/routeChecks/routeBackgroundColors';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
@@ -190,7 +191,8 @@ const Layout = ({children}: {
 
   const petrovDayRitualActive = useIsPetrovDayRitualActive();
   let headerBackgroundColor: ColorString|undefined = undefined;
-  if (isBlackBarTitle || (isLW && petrovDayRitualActive)) {
+  // Cream-background routes force a cream header with !important in pageBackground.css, which would leave white header text on cream
+  if (isBlackBarTitle || (isLW && petrovDayRitualActive && !routeHasCreamBackground(prerenderablePathname))) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
