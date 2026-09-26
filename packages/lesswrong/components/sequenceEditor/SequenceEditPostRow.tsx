@@ -60,6 +60,7 @@ const styles = defineStyles("SequenceEditPostRow", (theme: ThemeType) => ({
   title: {
     flexGrow: 1,
     minWidth: 0,
+    overflow: "hidden",
   },
   unavailable: {
     color: theme.palette.greyAlpha(0.5),

@@ -99,6 +99,7 @@ const styles = defineStyles("SequenceAddPostBox", (theme: ThemeType) => ({
   resultTitle: {
     flexGrow: 1,
     minWidth: 0,
+    overflow: "hidden",
   },
   resultMeta: {
     fontSize: 12,
