@@ -86,6 +86,16 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
 
 const isSameContents = (a: EditorContents, b: EditorContents) => a.type === b.type && a.value === b.value;
 
+/**
+ * Whether a backup has nothing in it to restore: no text and no images. An
+ * emptied Lexical editor reports `<p><br></p>` rather than an empty string,
+ * so typing into an empty editor and deleting it again leaves such a backup.
+ */
+const hasNothingToRestore = (contents: EditorContents) => {
+  const value = typeof contents.value === 'string' ? contents.value : '';
+  return !htmlToTextDefault(value).trim() && !/<img\b/i.test(value);
+};
+
 type LocalStorageCheckProps = {
   /** What the editor opened with, e.g. the saved contents. */
   currentContents: EditorContents,
@@ -103,8 +113,8 @@ const LocalStorageCheck = (props: LocalStorageCheckProps) => {
   useEffectOnce(() => {
     const backup = getRestorableState(currentUser, getLocalStorageHandlers);
     // A backup identical to what the editor already has (e.g. of text that
-    // was then saved) has nothing to restore.
-    const restorableState = backup && !isSameContents(backup.savedDocument, currentContents) ? backup : null;
+    // was then saved), or with no text or images, has nothing to restore.
+    const restorableState = backup && !isSameContents(backup.savedDocument, currentContents) && !hasNothingToRestore(backup.savedDocument) ? backup : null;
     const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
     if (restorableState || newPostRestorableState) {
       setRestorableState({
