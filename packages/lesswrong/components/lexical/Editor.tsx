@@ -951,6 +951,7 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
+                ignoreSelectionChange
                 onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
