@@ -1,0 +1,151 @@
+import React, { useState } from "react";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { primaryEditorButtonStyles, secondaryEditorButtonStyles } from "./editorButtonStyles";
+import ForumIcon from "../common/ForumIcon";
+import { useSequenceEditor } from "./SequenceEditorContext";
+import type { SaveStatus } from "./useSequentialSaveQueue";
+import SequenceSettingsDialog from "./SequenceSettingsDialog";
+import SequenceDeleteDialog from "./SequenceDeleteDialog";
+import { useDoneEditing } from "./SequenceEditHeader";
+
+const styles = defineStyles("SequenceEditBottomBar", (theme: ThemeType) => ({
+  root: {
+    position: "fixed",
+    bottom: 16,
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "calc(100% - 32px)",
+    maxWidth: 765,
+    height: 56,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    padding: "0 12px 0 20px",
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.greyBorder("1px", 0.12),
+    borderRadius: 12,
+    boxShadow: `0 4px 16px ${theme.palette.boxShadowColor(0.12)}`,
+    zIndex: theme.zIndexes.header - 1,
+    [theme.breakpoints.down("xs")]: {
+      bottom: 0,
+      width: "100%",
+      borderRadius: 0,
+      borderLeft: "none",
+      borderRight: "none",
+      paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    },
+  },
+  leftGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    minWidth: 0,
+  },
+  status: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.greyAlpha(0.55),
+  },
+  actions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  settingsButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 999,
+    border: theme.palette.greyBorder("1px", 0.16),
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.greyAlpha(0.75),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    "&:hover": {
+      color: theme.palette.greyAlpha(0.96),
+      borderColor: theme.palette.greyAlpha(0.25),
+    },
+  },
+  settingsIcon: {
+    width: 18,
+    height: 18,
+  },
+  secondaryButton: secondaryEditorButtonStyles(theme),
+  primaryButton: primaryEditorButtonStyles(theme),
+}));
+
+const statusLabels: Record<SaveStatus, string> = {
+  idle: "",
+  saving: "Saving…",
+  saved: "Saved",
+  error: "",
+};
+
+/**
+ * The bar fixed to the bottom of the page in edit mode: Done editing and
+ * the save status on the left, then the settings button, and Publish or Move
+ * to Drafts. Like the account settings
+ * page, the status says nothing until something saves, then "Saving…" and
+ * "Saved"; a failed save is reported by the save queue's flash message. Those two include any
+ * unsaved description changes in the same update, so the two can't get out
+ * of step. Its dialogs are rendered here rather than through openDialog so
+ * they stay inside the sequence editor's context.
+ */
+const SequenceEditBottomBar = ({ onDone }: { onDone: () => void }) => {
+  const classes = useStyles(styles);
+  const { sequence, saveStatus, saveSequenceNow, descriptionDraftRef } = useSequenceEditor();
+  const { requestLeave, confirmDialog } = useDoneEditing(onDone);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const setDraft = async (draft: boolean) => {
+    setIsChangingStatus(true);
+    try {
+      const unsavedContents = await descriptionDraftRef.current?.getUnsavedContents();
+      const saved = await saveSequenceNow({ draft, ...(unsavedContents ? { contents: unsavedContents } : {}) });
+      if (unsavedContents && saved) {
+        descriptionDraftRef.current?.markSaved();
+      }
+    } finally {
+      setIsChangingStatus(false);
+    }
+  };
+
+  return <div className={classes.root}>
+    {settingsOpen && <SequenceSettingsDialog
+      onClose={() => setSettingsOpen(false)}
+      onDelete={() => {
+        setSettingsOpen(false);
+        setDeleteOpen(true);
+      }}
+    />}
+    {deleteOpen && <SequenceDeleteDialog onClose={() => setDeleteOpen(false)} />}
+    {confirmDialog}
+    <div className={classes.leftGroup}>
+      <button className={classes.secondaryButton} onClick={() => void requestLeave()}>
+        Done editing
+      </button>
+      <span className={classes.status}>
+        {statusLabels[saveStatus]}
+      </span>
+    </div>
+    <div className={classes.actions}>
+      <button className={classes.settingsButton} onClick={() => setSettingsOpen(true)} title="Settings">
+        <ForumIcon icon="Settings" className={classes.settingsIcon} />
+      </button>
+      {sequence.draft
+        ? <button className={classes.primaryButton} disabled={isChangingStatus} onClick={() => setDraft(false)}>
+            {isChangingStatus ? "Publishing…" : "Publish"}
+          </button>
+        : <button className={classes.secondaryButton} disabled={isChangingStatus} onClick={() => setDraft(true)}>
+            {isChangingStatus ? "Saving…" : "Move to Drafts"}
+          </button>
+      }
+    </div>
+  </div>;
+};
+
+export default SequenceEditBottomBar;

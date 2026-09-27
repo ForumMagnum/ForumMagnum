@@ -69,7 +69,7 @@ import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs }
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs, upscaleReviewWinnerArtGraphQLMutations, upscaleReviewWinnerArtGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
-import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
+import { sequencesResolversTypeDefs, sequencesResolversQueries, sequencesResolversMutations } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
 
@@ -588,6 +588,7 @@ const getResolvers = () => ({
     ...homePageDesignGqlMutations,
     ...typoSuggestionGqlMutations,
     ...hidePostGqlMutations,
+    ...sequencesResolversMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,

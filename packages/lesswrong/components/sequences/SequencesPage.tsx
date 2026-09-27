@@ -1,22 +1,30 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import qs from 'qs';
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import omit from 'lodash/omit';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useNavigate, useSubscribedLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
-import SequencesEditForm from "./SequencesEditForm";
 import CloudinaryImage from "../common/CloudinaryImage";
+import { SequenceEditorProvider } from "../sequenceEditor/SequenceEditorContext";
+import { DoneEditingButton, SequenceBannerControls, SequenceTitleInput } from "../sequenceEditor/SequenceEditHeader";
+import SequenceDescriptionEditor from "../sequenceEditor/SequenceDescriptionEditor";
+import SequenceEditChapters from "../sequenceEditor/SequenceEditChapters";
+import SequenceEditBottomBar from "../sequenceEditor/SequenceEditBottomBar";
+import SequencePreviewPanel from "../sequenceEditor/SequencePreviewPanel";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionSubtitle from "../common/SectionSubtitle";
 import ChaptersList from "./ChaptersList";
@@ -25,7 +33,6 @@ import SectionFooter from "../common/SectionFooter";
 import UsersName from "../users/UsersName";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { Typography } from "../common/Typography";
-import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -157,59 +164,66 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   imageScrim: {
     ...sequencesImageScrim(theme)
   },
-  newChapterForm: {
-    maxWidth: 695,
-    marginLeft: "auto",
-    marginRight: 90,
-    padding: 15,
-    border: theme.palette.border.normal,
-    borderRadius: 2,
-    marginBottom: "2em",
-  
-    "& form": {
-      clear: "both",
-      overflow: "auto",
-    },
-    "& .form-submit": {
-      float: "right",
-    },
-    "& h3": {
-      fontSize: "2em",
-      marginBottom: "1em",
-    },
-    "& .input-title input": {
-      fontSize: "2em",
-    },
+  editToggle: {
+    cursor: "pointer",
+  },
+  titleEditing: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  draftLabel: {
+    whiteSpace: "nowrap",
+  },
+  titleInput: {
+    flex: 1,
+    minWidth: 0,
   },
 }))
 
+/**
+ * A sequence's page. Its owner (or an admin) can switch it into edit mode
+ * (`?edit=true`), where the title, description, chapters and settings are
+ * edited in place and the title's "[Draft]" label stays on the same line as
+ * the title input.
+ *
+ * Once the sequence has been edited on this page, the cached chapter list is
+ * out of date, so reading mode reloads it. The editor's provider is always
+ * rendered (with no sequence outside edit mode), so switching modes doesn't
+ * remount the page.
+ */
 const SequencesPage = ({documentId}: {
   documentId: string,
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const [edit,setEdit] = useState(false);
-  const [showNewChapterForm,setShowNewChapterForm] = useState(false);
-  const nextSuggestedNumberRef = useRef(1);
-
   const currentUser = useCurrentUser();
+  const { query } = useSubscribedLocation();
+  const navigate = useNavigate();
+
   const { loading, data } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: documentId },
   });
   const document = data?.sequence?.result;
 
-  const { data: editDocument, loading: editLoading } = useQuery(SequencesEditQuery, {
+  const canEdit = !!document && (userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document)));
+  const editing = canEdit && query.edit === "true";
+  const [hasEdited, setHasEdited] = useState(editing);
+  useEffect(() => {
+    if (editing) setHasEdited(true);
+  }, [editing]);
+
+  const { data: editDocument } = useQuery(SequencesEditQuery, {
     variables: { documentId: documentId },
-    skip: !edit,
+    skip: !editing,
   });
   const editableDocument = editDocument?.sequence?.result ?? undefined;
 
-  const showEdit = useCallback(() => {
-    setEdit(true);
-  }, []);
-  const showSequence = useCallback(() => {
-    setEdit(false);
-  }, []);
+  const setEditing = (edit: boolean) => {
+    const newQuery = edit ? { ...query, edit: "true" } : omit(query, "edit");
+    navigate({ search: isEmpty(newQuery) ? "" : `?${qs.stringify(newQuery)}` }, { replace: true, scroll: false });
+  };
+
   if (document?.isDeleted) {
     return <SingleColumnSection>
       <StatusCodeSetter status={200}/>
@@ -219,53 +233,27 @@ const SequencesPage = ({documentId}: {
     </SingleColumnSection>
   }
   if (loading) return <Loading />
-  
+
   if (!document) {
     return <Error404/>
   }
-  if (edit) {
-    if (!currentUser) {
-      return <>
-        <StatusCodeSetter status={401}/>
-        <div>You must be logged in to edit this sequence.</div>
-      </>
-    }
-    if (editLoading) {
-      return <Loading />
-    }
-    if (!editableDocument) {
-      return <Error404/>
-    }
-    return (<>
-      <StatusCodeSetter status={200}/>
-      <SequencesEditForm
-        sequence={editableDocument}
-        currentUser={currentUser}
-        successCallback={showSequence}
-        cancelCallback={showSequence}
-      />
-    </>)
-  }
-
-  const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
-  const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
-  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
-  const { html = "", plaintextDescription } = document.contents || {}
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
 
+  if (editing && !editableDocument) {
+    return <Loading />
+  }
+
+  const { html = "" } = document.contents || {}
+
   const bannerId = document.bannerImageId || defaultSequenceBannerIdSetting.get(forumType);
-  const socialImageId = document.gridImageId || document.bannerImageId;
-  const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
-    c: "fill",
-    dpr: "auto",
-    q: "auto",
-    f: "auto",
-    g: "auto:faces",
-  }) : undefined;
-    
-  return <AnalyticsContext pageContext="sequencesPage">
+
+  const editToggle = canEdit && (editing
+    ? <DoneEditingButton className={classes.editToggle} onDone={() => setEditing(false)} />
+    : <a className={classes.editToggle} onClick={() => setEditing(true)}>Edit</a>);
+
+  const page = <AnalyticsContext pageContext="sequencesPage">
     <StatusCodeSetter status={200}/>
     <div className={classes.root}>
       {bannerId && <div className={classes.banner}>
@@ -280,6 +268,7 @@ const SequencesPage = ({documentId}: {
               <div className={classes.imageScrim}/>
             </div>
           </DeferRender>
+          {editing && <SequenceBannerControls />}
         </div>
       </div>}
       <SingleColumnSection>
@@ -287,8 +276,9 @@ const SequencesPage = ({documentId}: {
           <section className={classes.topSection}>
             <div className={classes.titleCol}>
               <div className={classes.titleWrapper}>
-                <Typography variant='display2' className={classes.title}>
-                  {document.draft && <span>[Draft] </span>}{document.title}
+                <Typography variant='display2' className={classNames(classes.title, editing && classes.titleEditing)}>
+                  {document.draft && <span className={classes.draftLabel}>[Draft] </span>}
+                  {editing ? <SequenceTitleInput className={classes.titleInput} /> : document.title}
                 </Typography>
               </div>
               <SectionFooter>
@@ -296,10 +286,8 @@ const SequencesPage = ({documentId}: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
-                {!allowSubscribeToSequencePosts() && canEdit && <span className={classes.leftAction}>
-                  <SectionSubtitle>
-                    <a onClick={showEdit}>edit</a>
-                  </SectionSubtitle>
+                {!allowSubscribeToSequencePosts() && editToggle && <span className={classes.leftAction}>
+                  <SectionSubtitle>{editToggle}</SectionSubtitle>
                 </span>}
               </SectionFooter>
             </div>
@@ -315,42 +303,38 @@ const SequencesPage = ({documentId}: {
                   hideFlashes
                 />
               </AnalyticsContext>
-              {canEdit && <SectionFooter className={classes.edit}>
-                <SectionSubtitle>
-                  <a onClick={showEdit}>Edit sequence</a>
-                </SectionSubtitle>
+              {editToggle && <SectionFooter className={classes.edit}>
+                <SectionSubtitle>{editToggle}</SectionSubtitle>
               </SectionFooter>}
             </div>}
           </section>
-          
-          {html && <ContentStyles contentType="post" className={classes.description}>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}/>
-          </ContentStyles>}
+
+          {editing
+            ? <SequenceDescriptionEditor />
+            : html && <ContentStyles contentType="post" className={classes.description}>
+                <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}/>
+              </ContentStyles>
+          }
           <div>
-            <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-              <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
-            </AnalyticsContext>
-            {canCreateChapter && <SectionFooter>
-              <SectionButton>
-                <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
-              </SectionButton>
-            </SectionFooter>}
-            {showNewChapterForm && (
-              <div className={classes.newChapterForm}>
-                <h3>Add Chapter</h3>
-                <ChaptersForm
-                  prefilledProps={{ sequenceId: document._id, number: nextSuggestedNumberRef.current }}
-                  onSuccess={() => setShowNewChapterForm(false)}
-                  onCancel={() => setShowNewChapterForm(false)}
-                />
-              </div>
-            )}
+            {editing
+              ? <>
+                  <SequenceEditChapters sequenceId={document._id} />
+                  <SequencePreviewPanel />
+                </>
+              : <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
+                  <ChaptersList sequenceId={document._id} fetchFresh={hasEdited} />
+                </AnalyticsContext>
+            }
           </div>
         </div>
       </SingleColumnSection>
+      {editing && <SequenceEditBottomBar onDone={() => setEditing(false)} />}
     </div>
-  </AnalyticsContext>
+  </AnalyticsContext>;
+
+  return <SequenceEditorProvider sequence={editing ? editableDocument ?? null : null}>
+    {page}
+  </SequenceEditorProvider>;
 }
 
 export default SequencesPage
-

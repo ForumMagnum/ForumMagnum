@@ -25,7 +25,7 @@ function newCheck(user: DbUser | null, document: DbSequence | null) {
     userCanDo(user, `sequences.new.all`)
 }
 
-function editCheck(user: DbUser | null, document: DbSequence | null) {
+export function editCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
   return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
@@ -33,7 +33,7 @@ function editCheck(user: DbUser | null, document: DbSequence | null) {
 }
 
 // Post pages show their sequence's title and navigation.
-async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
+export async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
   const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
   await invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
 }
@@ -78,7 +78,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     backgroundTask(elasticSyncDocument('Sequences', documentWithId._id));
   }
 
-  createFirstChapter(documentWithId, context);
+  await createFirstChapter(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,

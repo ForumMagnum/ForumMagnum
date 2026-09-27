@@ -5,6 +5,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import AutoSavedEditorField from '@/components/editor/AutoSavedEditorField';
+import { commitUserEditorField } from './useAutoSavedUserSettings';
 import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
@@ -22,10 +23,14 @@ const ModerationSettingsTab = ({
       <SettingsSection title="Moderation Guidelines" description="Set the norms for discussions on your posts">
           <div className={classNames("form-component-EditorFormComponent", fieldWrapperClass)}>
             <AutoSavedEditorField
-              name="moderationGuidelines"
-              settings={settings}
-              updateSettings={updateSettings}
+              document={settings}
+              fieldName="moderationGuidelines"
+              collectionName="Users"
               hintText={getDefaultEditorPlaceholder()}
+              commentEditor
+              commentStyles
+              hideControls={false}
+              onCommit={commitUserEditorField(updateSettings, "moderationGuidelines")}
             />
           </div>
 
