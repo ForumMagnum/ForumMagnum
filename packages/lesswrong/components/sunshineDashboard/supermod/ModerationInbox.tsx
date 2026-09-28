@@ -27,6 +27,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { hideScrollBars } from '@/themes/styleUtils';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -81,6 +82,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'fixed',
     marginTop: -50,
+    // Portaled template previews can extend past the viewport. Keep the page
+    // scrollable without showing an extra scrollbar alongside the sidebar.
+    'html:has(&)': {
+      ...hideScrollBars,
+    },
   },
   mainContent: {
     flex: 1,
