@@ -18,6 +18,7 @@ import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
 import { backgroundTask } from '../utils/backgroundTask';
 import { maybeEvaluateTypoReacts } from './typoSuggestionCallbacks';
+import { maybeNotifyMessageReaction } from './messageReactionCallbacks';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
 const TRUSTLEVEL1_THRESHOLD = 2000;
@@ -125,6 +126,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   backgroundTask(incVoteCount(voteDocTuple));
   backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   backgroundTask(maybeEvaluateTypoReacts(voteDocTuple, context));
+  backgroundTask(maybeNotifyMessageReaction(voteDocTuple, context));
   await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
 }
 
