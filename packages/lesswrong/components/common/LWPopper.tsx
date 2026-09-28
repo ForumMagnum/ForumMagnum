@@ -123,14 +123,7 @@ const LWPopper = ({
     if (updateRef) updateRef.current = update
   }
 
-  // Popper measures the popper element when it mounts and then only recomputes
-  // on scroll and window resize -- it does not watch the popper's own size. A
-  // tooltip whose contents load asynchronously (a hover preview that starts as
-  // a spinner) therefore keeps the position that was computed for the
-  // placeholder, so once the real contents arrive it can run off the bottom of
-  // the screen or cover the thing it was meant to sit beside. Only the second
-  // hover looks right, because by then the contents are cached and the popper
-  // is the right size on its first measurement.
+  // Reposition when async content changes the popper's size.
   useLayoutEffect(() => {
     if (!popperElement) return;
     const observer = new ResizeObserver(() => {
