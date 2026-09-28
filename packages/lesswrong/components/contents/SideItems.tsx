@@ -51,10 +51,15 @@ export const styles = defineStyles("SideItems", (theme: ThemeType) => ({
     position: "absolute",
     width: "100%",
     transition: "top 0.25s ease-in-out",
+    pointerEvents: "auto",
   },
   sidebar: {
     position: "relative",
     height: "100%",
+    // The sidebar is mostly empty space, and at some widths it overlaps
+    // things positioned outside the central column (eg the post-page audio
+    // player). Let clicks pass through, except on the side items themselves.
+    pointerEvents: "none",
   },
 }));
 
