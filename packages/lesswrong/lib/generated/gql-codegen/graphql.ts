@@ -4884,6 +4884,7 @@ export type ModeratorActionSelector = {
 };
 
 export type ModeratorActionType =
+  | 'aiDetectedObviousSpam'
   | 'autoBlockedFromSendingDMs'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
