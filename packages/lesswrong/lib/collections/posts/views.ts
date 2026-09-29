@@ -549,7 +549,7 @@ function curatedRss(terms: PostsViewTerms) {
 function community(terms: PostsViewTerms) {
   return {
     selector: {
-      frontpageDatgroupId: { $exists: false },
+      frontpageDate: { $exists: false },
       isEvent: false,
     },
     options: {
