@@ -21105,19 +21105,23 @@ type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
 
 type ModerationInboxDataQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User> };
 
+type ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput_results_User = { __typename?: 'User', _id: string, reviewGroup: ReviewGroup | null };
+
+type ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput_results_User> };
+
 type ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
 
 type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
 
 type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
@@ -21128,7 +21132,7 @@ type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePosts
 
 type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
@@ -21136,12 +21140,31 @@ type ModerationInboxDataQueryQueryVariables = Exact<{
   postSelector: InputMaybe<PostSelector>;
   classifiedPostSelector: InputMaybe<PostSelector>;
   userLimit: InputMaybe<Scalars['Int']['input']>;
+  reviewQueueLimit: InputMaybe<Scalars['Int']['input']>;
   postLimit: InputMaybe<Scalars['Int']['input']>;
   curationLimit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
 type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
+
+type ReviewQueueUsersQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type ReviewQueueUsersQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ReviewQueueUsersQueryQuery_users_MultiUserOutput_results_User> };
+
+type ReviewQueueUsersQueryQuery_Query = { __typename?: 'Query', users: ReviewQueueUsersQueryQuery_users_MultiUserOutput | null };
+
+
+type ReviewQueueUsersQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ReviewQueueUsersQueryQuery = ReviewQueueUsersQueryQuery_Query;
 
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

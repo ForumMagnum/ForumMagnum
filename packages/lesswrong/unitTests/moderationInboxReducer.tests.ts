@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { getVisibleTabsInOrder, inboxStateReducer, type InboxState, type ReviewQueueEntry, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -88,6 +88,7 @@ describe('Moderation Inbox Reducer', () => {
 
       const state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -120,6 +121,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -148,6 +150,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -178,6 +181,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -220,6 +224,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -258,6 +263,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -289,6 +295,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -318,6 +325,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -351,6 +359,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -382,6 +391,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -412,6 +422,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -445,6 +456,7 @@ describe('Moderation Inbox Reducer', () => {
 
       const state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -478,6 +490,7 @@ describe('Moderation Inbox Reducer', () => {
 
       const state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -504,6 +517,7 @@ describe('Moderation Inbox Reducer', () => {
     test('does nothing when the user is not in the undo queue', () => {
       const state: InboxState = {
         users: [createMockUser('user2', 'newContent')],
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -533,6 +547,7 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -559,6 +574,7 @@ describe('Moderation Inbox Reducer', () => {
     function stateWithSidebarTab(sidebarTab: InboxState['sidebarTab']): InboxState {
       return {
         users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')],
+        unloadedUsers: [],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -612,6 +628,119 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('unloaded review queue users', () => {
+    function createState(users: SunshineUsersList[], unloadedUsers: ReviewQueueEntry[], overrides?: Partial<InboxState>): InboxState {
+      return {
+        users,
+        unloadedUsers,
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: null,
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        ...overrides,
+      };
+    }
+
+    test('tab counts include users that have not been loaded yet', () => {
+      const state = createState(
+        [createMockUser('user1', 'newContent')],
+        [{ _id: 'user2', reviewGroup: 'newContent' }, { _id: 'user3', reviewGroup: 'snoozeExpired' }],
+      );
+      const tabs = getVisibleTabsInOrder(state, { posts: 150, classifiedPosts: 0 });
+
+      expect(tabs.find(tab => tab.group === 'newContent')?.count).toBe(2);
+      expect(tabs.find(tab => tab.group === 'snoozeExpired')?.count).toBe(1);
+      expect(tabs.find(tab => tab.group === 'all')?.count).toBe(3);
+      expect(tabs.find(tab => tab.group === 'posts')?.count).toBe(150);
+    });
+
+    test('NEXT_TAB does not skip a tab whose users are all unloaded', () => {
+      const state = createState(
+        [createMockUser('user1', 'newContent')],
+        [{ _id: 'user2', reviewGroup: 'highContext' }],
+        { focusedUserId: 'user1' },
+      );
+      const newState = inboxStateReducer(state, { type: 'NEXT_TAB' });
+
+      expect(newState.activeTab).toBe('highContext');
+      expect(newState.focusedUserId).toBe(null);
+    });
+
+    test('ADD_LOADED_USERS adds the users in queue order and focuses the first one in the active tab', () => {
+      const state = createState(
+        [createMockUser('user1', 'newContent')],
+        [
+          { _id: 'user2', reviewGroup: 'highContext' },
+          { _id: 'user3', reviewGroup: 'highContext' },
+          { _id: 'user4', reviewGroup: 'automod' },
+        ],
+        { activeTab: 'highContext' },
+      );
+      const newState = inboxStateReducer(state, {
+        type: 'ADD_LOADED_USERS',
+        requestedUserIds: ['user2', 'user3'],
+        users: [createMockUser('user3', 'highContext'), createMockUser('user2', 'highContext')],
+      });
+
+      expect(newState.users.map(user => user._id)).toEqual(['user1', 'user2', 'user3']);
+      expect(newState.unloadedUsers.map(user => user._id)).toEqual(['user4']);
+      expect(newState.focusedUserId).toBe('user2');
+    });
+
+    test('ADD_LOADED_USERS drops requested users that were missing or no longer need review', () => {
+      const state = createState(
+        [],
+        [
+          { _id: 'user1', reviewGroup: 'highContext' },
+          { _id: 'user2', reviewGroup: 'highContext' },
+          { _id: 'user3', reviewGroup: 'highContext' },
+        ],
+        { activeTab: 'highContext' },
+      );
+      const newState = inboxStateReducer(state, {
+        type: 'ADD_LOADED_USERS',
+        requestedUserIds: ['user1', 'user2', 'user3'],
+        users: [createMockUser('user2', 'highContext', { needsReview: false }), createMockUser('user3', 'highContext')],
+      });
+
+      expect(newState.users.map(user => user._id)).toEqual(['user3']);
+      expect(newState.unloadedUsers).toEqual([]);
+      expect(newState.focusedUserId).toBe('user3');
+    });
+
+    test('REMOVE_USER stays on the tab while the rest of its users are loading', () => {
+      const state = createState(
+        [createMockUser('user1', 'highContext'), createMockUser('user2', 'newContent')],
+        [{ _id: 'user3', reviewGroup: 'highContext' }],
+        { activeTab: 'highContext', focusedUserId: 'user1' },
+      );
+      const newState = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
+
+      expect(newState.activeTab).toBe('highContext');
+      expect(newState.focusedUserId).toBe(null);
+    });
+
+    test('REMOVE_USER moves to the next tab that has only unloaded users', () => {
+      const state = createState(
+        [createMockUser('user1', 'newContent')],
+        [{ _id: 'user2', reviewGroup: 'automod' }],
+        { activeTab: 'newContent', focusedUserId: 'user1' },
+      );
+      const newState = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
+
+      expect(newState.activeTab).toBe('automod');
+      expect(newState.focusedUserId).toBe(null);
     });
   });
 });
