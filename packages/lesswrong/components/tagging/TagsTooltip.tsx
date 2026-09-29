@@ -16,6 +16,7 @@ import HoverOver from "../common/HoverOver";
 import TagRelCard from "./TagRelCard";
 import TagPreview from "./TagPreview";
 import LWClickAwayListener from "../common/LWClickAwayListener";
+import { useOnNavigateOrHide } from '../hooks/useOnNavigateOrHide';
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: {
@@ -219,6 +220,7 @@ const TagsTooltip = ({
   const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
   const [forceOpen, setForceOpen] = useState(false);
+  useOnNavigateOrHide(() => setForceOpen(false));
   const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered)

@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import process from 'process';
-import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../server/sql/sqlClient';
+import { setSqlClient } from '../server/sql/sqlClient';
 import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,

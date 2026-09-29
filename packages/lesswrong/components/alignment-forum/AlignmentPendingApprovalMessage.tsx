@@ -1,5 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -15,13 +15,14 @@ const styles = defineStyles("AlignmentPendingApprovalMessage", (theme: ThemeType
 const AlignmentPendingApprovalMessage = ({post}: {
   post: PostsBase,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   if (!currentUser) return null
   
   const userSubmittedPost = !!post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
   
-  if (!post.af && userSubmittedPost && isAF()) {
+  if (!post.af && userSubmittedPost && isAF) {
     return (
       <div className={classes.root}>
         <p>

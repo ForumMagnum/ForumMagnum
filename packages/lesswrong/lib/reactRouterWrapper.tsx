@@ -1,6 +1,6 @@
 'use client';
 
-import React, { CSSProperties, FC, useState } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
@@ -66,7 +66,8 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
     return <span>Broken Link</span>
   }
 
-  const {to, ...otherProps} = props;
+  // These navigation options are only used by HashLink, not native anchors.
+  const {to, smooth, doOnDown, scroll, ...otherProps} = props;
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {

@@ -1,7 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isEAForum } from "../../lib/instanceSettings";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
@@ -399,8 +398,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
-
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
       FROM "Users"
@@ -408,7 +405,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND "deleted" IS NOT TRUE
         AND "email" IS NOT NULL
         AND "unsubscribeFromAll" IS NOT TRUE
-        ${verifiedEmailFilter}
+        AND fm_has_verified_email(emails)
     `);
 
     return userIdRecords.map(({ _id }) => _id);

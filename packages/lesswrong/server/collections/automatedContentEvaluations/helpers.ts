@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
@@ -321,6 +322,7 @@ async function rejectContentForLLM(
         } 
       }
     );
+    await invalidatePostPageCache(documentId, { hardDelete: true });
     // We're deliberate not sending auto-llm-rejections from a human account, 
     // because we wanna blankface in this context.
     await sendRejectionPM({ post: { ...post, rejectedReason }, currentUser: null, context });
@@ -329,7 +331,7 @@ async function rejectContentForLLM(
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
     const lwAccount = await getAdminTeamAccount(context);
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     await updateComment({
       selector: { _id: documentId },

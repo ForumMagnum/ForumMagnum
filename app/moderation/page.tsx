@@ -1,3 +1,4 @@
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
@@ -7,10 +8,10 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
 import ModerationPageContent from "./ModerationPageContent";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
-import { adminAccountSetting } from "@/lib/instanceSettings";
+import { adminAccountSetting, type ForumTypeString } from "@/lib/instanceSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Moderation Log'), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Moderation Log'), {
     robots: { index: false },
   });
 }
@@ -28,6 +29,7 @@ export default async function Page({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const forumType = await getForumTypeForPage();
   const defaultLimit = 20;
   const params = await searchParams;
 
@@ -76,8 +78,8 @@ export default async function Page({
   );
 
   const getCachedDeletedComments = unstable_cache(
-    async (limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean) =>
-      fetchDeletedComments(db, limit, offset, hideAdminDeletions, hideSelfDeletions),
+    async (limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean, forumType: ForumTypeString) =>
+      fetchDeletedComments(db, limit, offset, hideAdminDeletions, hideSelfDeletions, forumType),
     [`moderation-deleted-comments-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-deleted-comments'] }
   );
@@ -116,7 +118,7 @@ export default async function Page({
   const { comments: moderatorCommentIds, count: moderatorCommentsCount } = await getCachedModeratorCommentIds(limit, moderatorCommentsOffset);
   const moderatorPosts = await getCachedModeratorPosts();
   const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = await getCachedActiveRateLimits(limit, activeRateLimitsOffset, showExpiredRateLimits, showNewUserRateLimits);
-  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset, hideAdminDeletions, hideSelfDeletions);
+  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset, hideAdminDeletions, hideSelfDeletions, forumType);
   const { posts: rejectedPosts, count: rejectedPostsCount } = await getCachedRejectedPosts(limit, rejectedPostsOffset);
   const { comments: rejectedComments, count: rejectedCommentsCount } = await getCachedRejectedComments(limit, rejectedCommentsOffset);
   const { posts: postsWithBannedUsers, count: postsWithBannedUsersCount } = await getCachedPostsWithBannedUsers(limit, bannedFromPostsOffset);
@@ -466,12 +468,12 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
   return { rateLimits, count: activeRateLimitsCountResult.count };
 }
 
-async function fetchDeletedComments(db: SqlClient, limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean) {
+async function fetchDeletedComments(db: SqlClient, limit: number, offset: number, hideAdminDeletions: boolean, hideSelfDeletions: boolean, forumType: ForumTypeString) {
   // A comment with no deletedByUserId (older data) counts as neither an admin
   // deletion nor a self-deletion, so it stays visible under both filters. The
   // admin team account isn't flagged isAdmin but only deletes on behalf of
   // admins (e.g. deleteUserContent), so it counts as an admin deletion.
-  const adminAccountId = adminAccountSetting.get()?._id ?? null;
+  const adminAccountId = adminAccountSetting.get(forumType)?._id ?? null;
   const deletionFilters = `
     ${hideSelfDeletions ? `AND c."deletedByUserId" IS DISTINCT FROM c."userId"` : ''}
     ${hideAdminDeletions ? `AND NOT EXISTS (

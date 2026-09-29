@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
@@ -104,9 +105,10 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
   absolute?: boolean,
   hideIfNoVotes?: boolean
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
-  const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
+  const allRateLimits = [...forumSelect(autoPostRateLimits, forumType), ...forumSelect(autoCommentRateLimits, forumType)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
 
   const totalReceivedVotes = (

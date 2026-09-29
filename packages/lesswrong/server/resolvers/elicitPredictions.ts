@@ -95,9 +95,9 @@ export const elicitPredictionsGraphQLFieldResolvers = {
 }
 
 export const elicitPredictionsGraphQLMutations = {
-  async MakeElicitPrediction(root: void, { questionId, prediction }: { questionId: string, prediction: number }, { currentUser }: ResolverContext) {
+  async MakeElicitPrediction(root: void, { questionId, prediction }: { questionId: string, prediction: number }, { currentUser, forumType }: ResolverContext) {
     if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-    const userContext = await computeContextFromUser({ user: currentUser, isSSR: false });
+    const userContext = await computeContextFromUser({ user: currentUser, isSSR: false, forumType });
     const predictionObj = (await createElicitQuestionPrediction({
       data: {
         prediction,

@@ -45,7 +45,9 @@ const LLMScoreBadge = ({
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
 
-  const isPangramV3 = automatedContentEvaluations?.pangramApiVersion === 'v3';
+  const apiVersion = automatedContentEvaluations?.pangramApiVersion;
+  const hasFractionScores = automatedContentEvaluations?.pangramApiVersion === 'v3'
+    || automatedContentEvaluations?.pangramApiVersion === 'pangram-4';
   const score = automatedContentEvaluations?.pangramScore;
   const maxScore = automatedContentEvaluations?.pangramMaxScore;
   const hasScore = typeof score === 'number';
@@ -72,10 +74,10 @@ const LLMScoreBadge = ({
   return (
     <HoverOver
       title={hasScore
-        ? isPangramV3
+        ? hasFractionScores
           ? (
             <div>
-              AI-involved: {score.toFixed(2)}, AI-written: {automatedContentEvaluations.pangramFractionAi?.toFixed(2) ?? 'N/A'},
+              Model: {apiVersion}, AI-involved: {score.toFixed(2)}, AI-written: {automatedContentEvaluations.pangramFractionAi?.toFixed(2) ?? 'N/A'},
               {' '}AI-assisted: {automatedContentEvaluations.pangramFractionAiAssisted?.toFixed(2) ?? 'N/A'},
               {' '}Max window: {maxScore?.toFixed(2) ?? 'N/A'}
             </div>

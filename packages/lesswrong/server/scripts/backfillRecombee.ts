@@ -27,7 +27,7 @@ function getUserBatch(offsetDate: Date) {
 
 export async function backfillRecombeeUsers(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
-  const recombeeClient = getRecombeeClientOrThrow();
+  const recombeeClient = getRecombeeClientOrThrow("LessWrong");
 
   if (!offsetDate) {
     ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Users"'));
@@ -129,7 +129,7 @@ function getPostBatch(offsetDate: Date) {
 
 export async function backfillRecombeePosts(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
-  const recombeeClient = getRecombeeClientOrThrow();
+  const recombeeClient = getRecombeeClientOrThrow("LessWrong");
 
   if (!offsetDate) {
     ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));

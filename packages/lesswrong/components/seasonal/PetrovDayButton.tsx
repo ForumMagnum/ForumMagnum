@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -144,6 +145,7 @@ const PetrovDayButton = ({alreadyLaunched}: {
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
@@ -190,8 +192,8 @@ const PetrovDayButton = ({alreadyLaunched}: {
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
   
-  const currentKarmaThreshold = getPetrovDayKarmaThreshold()
-  const disableLaunchButton = !userCanLaunchPetrovMissile(currentUser) 
+  const currentKarmaThreshold = getPetrovDayKarmaThreshold(forumType)
+  const disableLaunchButton = !userCanLaunchPetrovMissile(currentUser, forumType)
   
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
@@ -208,7 +210,7 @@ const PetrovDayButton = ({alreadyLaunched}: {
         
         {<div className={classes.panel}>
           <Typography variant="display1" className={classes.karmaThreshold}>
-            <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
+            <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get(forumType)}>
               <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
               <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
               {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma}`}</div>}
@@ -257,7 +259,7 @@ const PetrovDayButton = ({alreadyLaunched}: {
             </div>
           </div>
           
-            <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
+            <Link to={"/posts/" + petrovGamePostIdSetting.get(forumType)} className={classes.link}>
               Learn More
             </Link>
           </div>}

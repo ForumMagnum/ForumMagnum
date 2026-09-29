@@ -6,6 +6,7 @@ import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitl
   CONTEXT_SELECTION_SYSTEM_PROMPT, LlmPost, BasePromptArgs,
   contextSelectionChoiceDescriptions } from "../languageModels/promptUtils";
 import type { MessageParam, Model, TextBlockParam } from "@anthropic-ai/sdk/resources/messages.mjs";
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import type { LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
   LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
@@ -228,10 +229,10 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation;
 };
 
-function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null): string {
+function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null, forumType: ForumTypeString): string {
 
   const postsList = postsLoadedIntoContext.map((post) => {
-    const author = userGetDisplayName(post.user)
+    const author = userGetDisplayName(post.user, forumType)
     return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
   ).join("\n");
 
@@ -466,7 +467,7 @@ async function getContextMessages({ content, ragMode, currentPost, postContext, 
     getContextualPosts({ content, ragMode, currentPost, postContext, context })
   ]);
   const assistantContextMessage = await generateAssistantContextMessage({query: content, currentPost, postContext,providedPosts, contextualPosts, includeComments: true, context});
-  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost);
+  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost, context.forumType);
 
   return { userContextMessage, assistantContextMessage, providedPosts, contextualPosts };
 }

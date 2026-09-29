@@ -7,7 +7,6 @@ import { global } from '@ckeditor/ckeditor5-utils/src/dom/global';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 
 import { defaultConfig, extractDelimiters, hasDelimiters, delimitersCounts } from './utils';
-import type MathCommand from './mathcommand';
 
 export default class AutoMath extends Plugin {
 	_timeoutId: number|null

@@ -1,8 +1,8 @@
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
+import type { ForumTypeString } from './instanceSettings';
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
-import { isLWorAF } from "./instanceSettings";
 import maxBy from "lodash/maxBy";
 
 export interface ToCAnswer {
@@ -261,27 +261,9 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
 export function getTocComments({
   post,
   commentCount,
-}: { post?: PostWithCommentCounts | null; commentCount?: number | undefined } = {}) {
-  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
-}
-
-export function shouldShowTableOfContents({
-  sections,
-  post,
-}: {
-  sections: ToCSection[];
-  post?: { question: boolean } | null;
-}): boolean {
-  
-  if (isLWorAF()) return true;
-
-  // Number of headings below which a table of contents won't be generated.
-  // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
-  // it's empty) to keep the horizontal position of things on the page from
-  // being imbalanced.
-  const minHeadingsForToC = 0;
-
-  return sections.length > minHeadingsForToC || (post?.question ?? false);
+  forumType,
+}: { post?: PostWithCommentCounts | null; commentCount?: number; forumType: ForumTypeString }) {
+  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, forumType, commentCount) }];
 }
 
 /**

@@ -275,7 +275,11 @@ export const sanitize = function(s: string): string {
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
-        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/],
+        // Lexical exports every text node as a span with white-space: pre-wrap,
+        // which is what makes typed double spaces visible in the editor.
+        // Keep it so published HTML renders the same whitespace.
+        'white-space': [/^pre-wrap$/],
       },
     }
   });

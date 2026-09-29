@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';

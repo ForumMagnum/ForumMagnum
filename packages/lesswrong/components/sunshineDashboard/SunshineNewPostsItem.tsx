@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -112,6 +113,7 @@ const SunshineNewPostsItem = ({post, refetch}: {
   post: SunshinePostsList,
   refetch: () => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
@@ -233,9 +235,9 @@ const SunshineNewPostsItem = ({post, refetch}: {
             <MetaInfo>
               <FormatDate date={post.postedAt}/>
             </MetaInfo>
-            {postGetCommentCount(post) && <MetaInfo>
+            {postGetCommentCount(post, forumType) && <MetaInfo>
               <Link to={`${postGetPageUrl(post)}#comments`}>
-                {postGetCommentCountStr(post)}
+                {postGetCommentCountStr(post, forumType)}
               </Link>
             </MetaInfo>}
           </div>

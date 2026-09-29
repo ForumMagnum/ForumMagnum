@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import {
   defineExtension,

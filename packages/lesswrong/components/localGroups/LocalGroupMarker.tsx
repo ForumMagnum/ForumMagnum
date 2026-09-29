@@ -1,9 +1,7 @@
 import React from 'react';
 import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import ForumIcon from "../common/ForumIcon";
 import StyledMapPopup from "./StyledMapPopup";
 import GroupLinks from "./GroupLinks";
 import { defineStyles } from '../hooks/defineStyles';
@@ -17,12 +15,6 @@ const styles = defineStyles("LocalGroupMarker", (theme: ThemeType) => ({
     width: 15,
     fill: theme.palette.group,
     opacity: 0.8
-  },
-  eaIcon: {
-    width: 20,
-    height: 20,
-    fill: theme.palette.group,
-    opacity: 0.8,
   },
 }));
 
@@ -40,9 +32,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { html = "" } = group.contents || {}
   const htmlBody = {__html: html};
 
-  const groupIcon = isEAForum()
-    ? <ForumIcon icon="Star" className={classes.eaIcon}/>
-    : <GroupIconSVG className={classes.icon}/>;
+  const groupIcon = <GroupIconSVG className={classes.icon}/>;
 
   return <React.Fragment>
     <Marker

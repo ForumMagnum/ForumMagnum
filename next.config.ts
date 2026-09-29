@@ -40,6 +40,8 @@ const isE2E = (process.env.E2E === "true");
 
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
+  // Keep our repository-maintained agent instructions unchanged by next dev.
+  agentRules: false,
   cacheComponents: !isE2E,
   reactStrictMode: false,
   // Lets a second dev instance run from the same checkout (next dev holds a
@@ -64,6 +66,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    // LW/AF metadata intentionally reads request headers and cookies. Only
+    // validate instant navigations for routes that explicitly opt in.
+    instantInsights: { validationLevel: 'manual-warning' },
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },

@@ -67,7 +67,6 @@ import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
-import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 // import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
@@ -520,6 +519,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorScrollerComment: {
     minHeight: 'var(--lexical-comment-min-height, 60px)',
     resize: 'none',
+    // Let floating editor controls receive clicks when they extend over the
+    // comment form's submit row or moderation guidelines.
+    zIndex: 1,
   },
   editor: {
     flex: 'auto',

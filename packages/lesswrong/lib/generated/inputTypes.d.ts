@@ -1864,7 +1864,7 @@ interface Comment {
   tagId: string | null;
   tag: Tag | null;
   tagCommentType: TagCommentType;
-  userId: string | null;
+  userId: string;
   user: User | null;
   userIP: string | null;
   userAgent: string | null;
@@ -2195,6 +2195,7 @@ interface CommentsAnswersAndRepliesInput {
 }
 
 interface CommentsTopShortformInput {
+  sortBy?: CommentSortingMode | null;
   userId?: string | null;
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
@@ -3977,7 +3978,6 @@ interface Post {
   commentCount: number;
   topLevelCommentCount: number;
   recentComments: Array<Comment> | null;
-  languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
   totalDialogueResponseCount: number;
@@ -7278,7 +7278,6 @@ interface User {
   subforumPreferredLayout: SubforumPreferredLayout | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
-  allowDatadogSessionReplay: boolean;
   afPostCount: number;
   afCommentCount: number;
   afSequenceCount: number;
@@ -9028,7 +9027,6 @@ interface CreateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
@@ -9223,7 +9221,6 @@ interface UpdateUserDataInput {
   subforumPreferredLayout?: SubforumPreferredLayout | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
-  allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afApplicationText?: string | null;
   afSubmittedApplication?: boolean | null;

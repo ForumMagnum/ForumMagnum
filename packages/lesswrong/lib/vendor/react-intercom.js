@@ -1,5 +1,5 @@
 // react-intercom, vendored from https://github.com/nhagen/react-intercom/blob/master/src/index.js
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 const canUseDOM = !!(
   (typeof window !== 'undefined' &&

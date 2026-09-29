@@ -1,11 +1,11 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { isAF } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
-type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
+type DebouncerCallback<KeyType> = (key: KeyType, events: string[], forumType: ForumTypeString) => void | Promise<void>;
 
 export type DebouncerTiming =
     { type: "none" }
@@ -156,12 +156,12 @@ export class EventDebouncer<KeyType = string>
     }
   }
   
-  _dispatchEvent = async (key: KeyType, events: string[]|null) => {
+  _dispatchEvent = async (key: KeyType, events: string[]|null, forumType: ForumTypeString) => {
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
-    await this.callback(key, events||[]);
+    await this.callback(key, events||[], forumType);
   };
 }
 
@@ -202,7 +202,12 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
   
-  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
+  // Debounced work (notification emails, welcome messages, etc.) is always
+  // dispatched as LessWrong, regardless of which site the triggering action
+  // came through: the recipient's email shouldn't depend on whether a reply was
+  // submitted via lesswrong.com or alignmentforum.org. The `af` column on
+  // DebouncerEvents is retained but no longer affects branding.
+  await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents, "LessWrong");
 }
 
 export const dispatchPendingEvents = async () => {
@@ -219,7 +224,6 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF(),
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -284,7 +288,6 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF(),
         ...timeCondition,
       },
       { $set: { dispatched: true } },

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
@@ -143,6 +144,7 @@ function getPageNotificationIcon(notificationName: string) {
     case 'newReplyToYou': return <CommentsIcon style={iconStyle}/>;
     case 'newUser': return <ForumIcon icon="Bell" style={iconStyle} />;
     case 'newMessage': return <MailIcon style={iconStyle}/>;
+    case 'newMessageReaction': return <MailIcon style={iconStyle}/>;
     case 'wrapped': return <GiftIcon style={flatIconStyle}/>;
     case 'emailVerificationRequired': return <ForumIcon icon="Bell" style={iconStyle} />;
     case 'postSharedWithUser': return <ForumIcon icon="Bell" style={iconStyle} />;
@@ -194,6 +196,7 @@ const NotificationsPageItem = ({notification, lastNotificationsCheck}: {
   notification: NotificationsList,
   lastNotificationsCheck: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [clicked, setClicked] = useState(false);
   const { captureEvent } = useTracking();
@@ -320,7 +323,7 @@ const NotificationsPageItem = ({notification, lastNotificationsCheck}: {
             setClicked(true);
 
             const UrlClass = getUrlClass();
-            const url = new UrlClass(notificationLink, getSiteUrl());
+            const url = new UrlClass(notificationLink, getSiteUrl(forumType));
             const hash = url.hash;
             if (hash) {
               const element = document.getElementById(hash.substring(1));

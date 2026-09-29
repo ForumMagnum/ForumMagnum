@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { TopPostsManager } from './TopPostsManager';
 import AutoSavedEditorField from './AutoSavedEditorField';
 import SettingsSection from './SettingsSection';
@@ -23,7 +22,6 @@ const ProfileSettingsTab = ({
         />
       </SettingsSection>
 
-      {!isEAForum() && (
         <SettingsSection title="Biography" description="Tell other users about yourself">
           <div className={classNames("form-component-EditorFormComponent", fieldWrapperClass)}>
             <AutoSavedEditorField
@@ -35,9 +33,7 @@ const ProfileSettingsTab = ({
             />
           </div>
         </SettingsSection>
-      )}
 
-      {isLWorAF() && (
         <SettingsSection title="Full Name">
           <SettingsTextRow
             value={settings.fullName}
@@ -46,7 +42,6 @@ const ProfileSettingsTab = ({
             description="Your legal name, if different from your display name"
           />
         </SettingsSection>
-      )}
     </div>
   );
 };

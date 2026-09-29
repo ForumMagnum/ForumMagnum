@@ -1,5 +1,6 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
@@ -13,7 +14,6 @@ import ContentStyles from "../common/ContentStyles";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useStyles } from '../hooks/useStyles';
@@ -46,6 +46,7 @@ const styles = defineStyles("GlossaryEditorPage", (theme: ThemeType) => ({
 }));
 
 export const GlossaryEditorPage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -69,7 +70,7 @@ export const GlossaryEditorPage = () => {
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }
-  if (!userCanPassivelyGenerateJargonTerms(currentUser)) {
+  if (!userCanPassivelyGenerateJargonTerms(currentUser, forumType)) {
     return <SingleColumnSection>
       Currently, the Glossary Editor is only available to users with over 100 karma.
     </SingleColumnSection>;

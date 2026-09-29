@@ -3,9 +3,8 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Link } from '@/lib/reactRouterWrapper';
-import { userGetProfileUrl as _userGetProfileUrl, userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
+import { userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 
 // Helper to handle our custom user types
 const userGetProfileUrl = (user: { slug: string } | null): string => {

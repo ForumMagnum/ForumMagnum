@@ -11,7 +11,10 @@ declare global {
     themeOptions: AbstractThemeOptions,
     ssrTime?: Date
     publicSettings: any,
-    publicInstanceSettings: any,
+    publicInstanceSettings: {
+      LessWrong: Record<string, unknown>,
+      AlignmentForum: Record<string, unknown>,
+    },
     
     googleMapsFinishedLoading?: () => void,
     killPreloadScroll?: () => void,

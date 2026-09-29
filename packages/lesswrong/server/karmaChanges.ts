@@ -1,7 +1,7 @@
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import type { KarmaChangesArgs, AnyKarmaChange } from './collections/users/karmaChangesGraphQL';
+import type { KarmaChangesArgs } from './collections/users/karmaChangesGraphQL';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType } from '@/lib/collections/users/helpers';
 
 // Our graphql type codegen returns output types with Dates as strings because
@@ -53,7 +53,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
-    karmaChangeNotifierDefaultSettings.get();
+    karmaChangeNotifierDefaultSettings.get(context);
 
   const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {
@@ -87,13 +87,13 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   const tagIdToMetadata = await mapTagIdsToMetadata([...tagIdsReferenced.keys()], context)
   for (let changedComment of changedComments) {
     if (changedComment.tagId) {
-      changedComment.tagSlug = tagIdToMetadata[changedComment.tagId].slug;
+      changedComment.tagSlug = tagIdToMetadata[changedComment.tagId]?.slug ?? null;
     }
   }
   for (let changedRevision of changedTagRevisions) {
     if (changedRevision.tagId) {
-      changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId].slug;
-      changedRevision.tagName = tagIdToMetadata[changedRevision.tagId].name;
+      changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId]?.slug ?? null;
+      changedRevision.tagName = tagIdToMetadata[changedRevision.tagId]?.name ?? null;
     }
   }
   
@@ -115,7 +115,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   };
 }
 
-const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext): Promise<Record<string,{slug: string, name: string}>> => {
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext): Promise<Partial<Record<string,{slug: string, name: string}>>> => {
   const { Tags, loaders } = context;
   const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {

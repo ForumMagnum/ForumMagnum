@@ -1,10 +1,10 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { isLW, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactorSetting } from './instanceSettings';
+import { type ForumTypeString, defaultActivityHalfLife, defaultActivityWeight, curatedScoreBonus, defaultDecayFactorFastest, defaultDecayFactorSlowest, frontpageScoreBonus, defaultStartingAgeHours, timeDecayFactor } from './instanceSettings';
 
-export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
+export const TIME_DECAY_FACTOR = timeDecayFactor;
 // Basescore bonuses for various categories
-export const FRONTPAGE_BONUS = frontpageBonusSetting;
-export const CURATED_BONUS = curatedBonusSetting;
+export const FRONTPAGE_BONUS = frontpageScoreBonus;
+export const CURATED_BONUS = curatedScoreBonus;
 export const SCORE_BIAS = 2;
 
 // NB: If you want to change this algorithm, make sure to also change the
@@ -21,19 +21,18 @@ export const recalculateScore = (item: VoteableType) => {
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
-    const frontpageBonus = (item as any).frontpageDate ? FRONTPAGE_BONUS.get() : 0;
-    const curatedBonus = (item as any).curatedDate ? CURATED_BONUS.get() : 0;
+    const frontpageBonus = (item as any).frontpageDate ? FRONTPAGE_BONUS : 0;
+    const curatedBonus = (item as any).curatedDate ? CURATED_BONUS : 0;
     baseScore = baseScore + frontpageBonus + curatedBonus;
 
     // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
+    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR))*1000000)/1000000;
 
     return newScore;
   } else {
     return item.baseScore ?? 0;
   }
 };
-
 
 type TimeDecayExprProps = {
   startingAgeHours?: number
@@ -53,11 +52,11 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
     activityHalfLifeHours,
     overrideActivityFactor,
   } = {
-    startingAgeHours: props?.startingAgeHours ?? startingAgeHoursSetting.get(),
-    decayFactorSlowest: props?.decayFactorSlowest ?? decayFactorSlowestSetting.get(),
-    decayFactorFastest: props?.decayFactorFastest ?? decayFactorFastestSetting.get(),
-    activityWeight: props?.activityWeight ?? activityWeightSetting.get(),
-    activityHalfLifeHours: props?.activityHalfLifeHours ?? activityHalfLifeSetting.get(),
+    startingAgeHours: props?.startingAgeHours ?? defaultStartingAgeHours,
+    decayFactorSlowest: props?.decayFactorSlowest ?? defaultDecayFactorSlowest,
+    decayFactorFastest: props?.decayFactorFastest ?? defaultDecayFactorFastest,
+    activityWeight: props?.activityWeight ?? defaultActivityWeight,
+    activityHalfLifeHours: props?.activityHalfLifeHours ?? defaultActivityHalfLife,
     overrideActivityFactor: props?.overrideActivityFactor,
   };
 
@@ -88,9 +87,9 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
-const getAgeOffset = () => isLW() ? 6 : SCORE_BIAS 
+const getAgeOffset = (forumType: ForumTypeString) => forumType === 'LessWrong' ? 6 : SCORE_BIAS
 
-export const timeDecayExpr = () => {
+export const timeDecayExpr = (forumType: ForumTypeString) => {
   return {$pow: [
     {$add: [
       {$divide: [
@@ -99,16 +98,16 @@ export const timeDecayExpr = () => {
         ]},
         60 * 60 * 1000
       ] }, // Age in hours
-      getAgeOffset()
+      getAgeOffset(forumType)
     ]},
-    TIME_DECAY_FACTOR.get()
+    TIME_DECAY_FACTOR
   ]}
 }
 
 export const postScoreModifiers = () => {
   return [
-    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS.get(), else: 0}},
-    {$cond: {if: "$curatedDate", then: CURATED_BONUS.get(), else: 0}}
+    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
+    {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}}
   ];
 };
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ChangeEvent, useState } from "react";
 import { frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
@@ -97,6 +98,7 @@ const featureInputToFeatures = (
 }
 
 const RecommendationsSamplePage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -120,7 +122,7 @@ const RecommendationsSamplePage = () => {
       selector: {
         magic: {
           after: moment(now).subtract(
-            frontpageDaysAgoCutoffSetting.get() * 24,
+            frontpageDaysAgoCutoffSetting.get(forumType) * 24,
             "hours",
           ).startOf("hour").toISOString(),
           forum: true,

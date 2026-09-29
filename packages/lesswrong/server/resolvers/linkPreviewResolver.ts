@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
 import { sanitize } from "@/lib/utils/sanitize";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { cloudinaryCloudNameSetting } from "@/lib/instanceSettings";
+import { cloudinaryCloudName } from "@/lib/instanceSettings";
 import { Images } from "@/server/collections/images/collection";
-import { cloudinaryApiKey, cloudinaryApiSecret } from "@/server/databaseSettings";
+
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
@@ -487,9 +487,9 @@ function buildSanitizedPreviewHtml({
 
 function getCloudinaryCredentials():
   { cloud_name: string; api_key: string; api_secret: string } | null {
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
+  const cloudName = cloudinaryCloudName;
+  const apiKey = (process.env.private_cloudinaryApiKey ?? "");
+  const apiSecret = (process.env.private_cloudinaryApiSecret ?? "");
   if (!cloudName || !apiKey || !apiSecret) {
     return null;
   }

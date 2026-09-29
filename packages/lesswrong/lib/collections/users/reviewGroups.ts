@@ -82,3 +82,30 @@ export function getReviewGroupFromActions(
   const freshModeratorActionGroups = fresh.map(action => getModeratorActionGroup(action.type));
   return maxBy(freshModeratorActionGroups, group => REVIEW_GROUP_TO_PRIORITY[group]) ?? 'unknown';
 }
+
+export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation'): string {
+  switch (group) {
+    case 'newContent':
+      return 'New Content';
+    case 'offboard':
+      return 'Offboard?';
+    case 'highContext':
+      return 'High Context';
+    case 'maybeSpam':
+      return 'Maybe Spam';
+    case 'automod':
+      return 'Automod';
+    case 'snoozeExpired':
+      return 'Snooze Expired';
+    case 'unknown':
+      return 'Unknown';
+    case 'all':
+      return 'All';
+    case 'posts':
+      return 'Posts';
+    case 'classifiedPosts':
+      return 'Auto-Classified';
+    case 'curation':
+      return 'Curation';
+  }
+}

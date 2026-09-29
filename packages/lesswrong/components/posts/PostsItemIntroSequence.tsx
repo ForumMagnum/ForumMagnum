@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
@@ -152,7 +152,7 @@ const PostsItemIntroSequence = ({
 }) => {
   const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
-  const postLink = postGetPageUrl(post, false, sequence?._id);
+  const postLink = postGetPageUrl(post, sequence?._id);
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>
@@ -198,7 +198,7 @@ const PostsItemIntroSequence = ({
 
           {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />
@@ -213,5 +213,4 @@ const PostsItemIntroSequence = ({
 export default registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
   hocs: [withErrorBoundary],
 });
-
 

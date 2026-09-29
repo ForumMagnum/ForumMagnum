@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Ref, useCallback, useState } from 'react';
+import classNames from 'classnames';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -27,6 +28,33 @@ const styles = defineStyles("AllPostsPage", (theme: ThemeType) => ({
   divider: {
     border: "none",
     borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
+  settings: {
+    display: "grid",
+    gridTemplateRows: "0fr",
+    // Fade out before collapsing; expand before fading in.
+    transition: "grid-template-rows 180ms ease 120ms",
+    "@media (prefers-reduced-motion: reduce)": {
+      "&, & $settingsContent": {
+        transition: "none",
+      },
+    },
+  },
+  settingsContent: {
+    minHeight: 0,
+    overflow: "hidden",
+    opacity: 0,
+    visibility: "hidden",
+    transition: "opacity 120ms ease, visibility 0ms linear 120ms",
+  },
+  settingsExpanded: {
+    gridTemplateRows: "1fr",
+    transitionDelay: "0ms",
+    "& $settingsContent": {
+      opacity: 1,
+      visibility: "visible",
+      transitionDelay: "180ms, 0ms",
+    },
   },
 }));
 
@@ -83,16 +111,23 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
             </div>}
           </TooltipRef>
           {isFriendlyUI() && !showSettings && <hr className={classes.divider} />}
-          <PostsListSettings
-            hidden={!showSettings}
-            currentTimeframe={currentTimeframe}
-            currentSorting={currentSorting}
-            currentFilter={currentFilter}
-            currentShowLowKarma={currentShowLowKarma}
-            currentIncludeEvents={currentIncludeEvents}
-            persistentSettings
-            showTimeframe
-          />
+          <div
+            className={classNames(classes.settings, { [classes.settingsExpanded]: showSettings })}
+            inert={!showSettings}
+          >
+            <div className={classes.settingsContent}>
+              <PostsListSettings
+                hidden={false}
+                currentTimeframe={currentTimeframe}
+                currentSorting={currentSorting}
+                currentFilter={currentFilter}
+                currentShowLowKarma={currentShowLowKarma}
+                currentIncludeEvents={currentIncludeEvents}
+                persistentSettings
+                showTimeframe
+              />
+            </div>
+          </div>
           <AllPostsList
             {...{
               currentTimeframe,
@@ -111,6 +146,5 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
 }
 
 export default AllPostsPage;
-
 
 

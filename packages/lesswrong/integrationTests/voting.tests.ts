@@ -43,21 +43,26 @@ describe('Voting', function() {
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
       (updatedPost[0].inactive as any).should.be.true;
     });
-    it('should compute a higher score if post is categorized as frontpage and even higher if curated', async () => {
+    it('gives curated posts a bonus but no bonus for frontpage placement alone', async () => {
       const user = await createDummyUser();
-      const normalPost = await createDummyPost(user, {baseScore: 10});
-      const frontpagePost = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
-      const curatedPost = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      const postedAt = new Date(Date.now() - (60 * 60 * 1000));
+      const normalPost = await createDummyPost(user, {postedAt, baseScore: 10});
+      const frontpagePost = await createDummyPost(user, {postedAt, frontpageDate: new Date(), baseScore: 10});
+      const curatedPost = await createDummyPost(user, {postedAt, curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
-      // TODO: HACK - one of the callbacks seems to set normalPost.frontpageDate, but we want it to be null
+      // Set the category explicitly after creation callbacks have finished.
       await Posts.rawUpdateOne({_id: normalPost._id}, {$set: {frontpageDate: null}});
-      await batchUpdateScore({collection: Posts});
-      const updatedNormalPost = await Posts.find({_id: normalPost._id}).fetch();
-      const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
-      const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
+      await batchUpdateScore({collection: Posts, forceUpdate: true});
+      const updatedNormalPost = await Posts.findOne({_id: normalPost._id});
+      const updatedFrontpagePost = await Posts.findOne({_id: frontpagePost._id});
+      const updatedCuratedPost = await Posts.findOne({_id: curatedPost._id});
+      if (!updatedNormalPost || !updatedFrontpagePost || !updatedCuratedPost) {
+        throw new Error('Expected all three posts to exist');
+      }
 
-      (updatedFrontpagePost[0].score as any).should.be.above(updatedNormalPost[0].score + 1);
-      (updatedCuratedPost[0].score as any).should.be.above(updatedFrontpagePost[0].score + 1);
+      expect(updatedFrontpagePost.score).toBeCloseTo(updatedNormalPost.score, 3);
+      expect(updatedCuratedPost.score).toBeGreaterThan(updatedFrontpagePost.score + 1);
     });
     it('produces the same result as `recalculateScore`', async () => {
       const user = await createDummyUser();
@@ -66,17 +71,19 @@ describe('Voting', function() {
         createDummyPost(user, {frontpageDate: new Date(), baseScore: 10}),
         createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10}),
       ]);
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
-      await batchUpdateScore({collection: Posts});
+      await batchUpdateScore({collection: Posts, forceUpdate: true});
       const [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost] = await Promise.all([
         Posts.findOne({_id: normalPost._id}),
         Posts.findOne({_id: frontpagePost._id}),
         Posts.findOne({_id: curatedPost._id}),
       ]);
 
-      (updatedNormalPost?.score as any).should.be.closeTo(recalculateScore(normalPost), 0.002);
-      (updatedFrontpagePost?.score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.002);
-      (updatedCuratedPost?.score as any).should.be.closeTo(recalculateScore(curatedPost), 0.002);
+      for (const post of [updatedNormalPost, updatedFrontpagePost, updatedCuratedPost]) {
+        if (!post) throw new Error('Expected the scored post to exist');
+        expect(Math.abs(post.score - recalculateScore(post))).toBeLessThan(0.002);
+      }
     });
   });
   describe('performVoteServer', () => {
@@ -85,7 +92,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(yesterday, 1000);
@@ -97,7 +105,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -108,7 +117,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
@@ -119,8 +129,10 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
       await waitUntilPgQueriesFinished();
 
@@ -133,8 +145,10 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser, skipRateLimits: false })
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -148,7 +162,8 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         await waitUntilPgQueriesFinished();
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
@@ -162,7 +177,8 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
   
         (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
@@ -175,8 +191,10 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
         await waitUntilPgQueriesFinished();
 
@@ -190,8 +208,10 @@ describe('Voting', function() {
         const post = await createDummyPost(user, {postedAt: new Date(yesterday), votingSystem: 'twoAxis'})
         const comment = await createDummyComment(user, {postId: post._id})
         const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
-        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
+        await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser, skipRateLimits: false })
         const updatedComment = await Comments.find({_id: comment._id}).fetch();
 
         (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);
@@ -211,7 +231,8 @@ describe('Voting', function() {
       expect(author.karma).toBe(0);
       expect(coauthor.karma).toBe(0);
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilPgQueriesFinished();
 
       const updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -228,7 +249,8 @@ describe('Voting', function() {
         postedAt: new Date(yesterday),
       });
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilPgQueriesFinished();
 
       let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -243,7 +265,8 @@ describe('Voting', function() {
         selector: { _id: post._id }
       }, createAnonymousContext());
 
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
+      await performVoteServer({
+      context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilPgQueriesFinished();
 
       updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
@@ -260,7 +283,8 @@ describe('Voting', function() {
       const maxVotesPerHour = 100;
       await createManyDummyVotes(maxVotesPerHour, voter);
       await expect(async () => {
-        await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
+        await performVoteServer({
+          context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
     });
     it("self-votes don't count towards rate limit", async () => {
@@ -268,7 +292,8 @@ describe('Voting', function() {
       const post = await createDummyPost(voter);
       const maxVotesPerHour = 100;
       await createManyDummyVotes(maxVotesPerHour, voter);
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
+      await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }), documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
     });
   })
   describe('getKarmaChanges', () => {
@@ -280,6 +305,7 @@ describe('Voting', function() {
       const post = await createDummyPost(poster, {createdAt: postedAt});
 
       await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
         document: post,
         voteType: "smallUpvote",
         collection: Posts,
@@ -319,6 +345,7 @@ describe('Voting', function() {
       });
 
       await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
         document: post,
         voteType: "smallUpvote",
         collection: Posts,
@@ -354,6 +381,7 @@ describe('Voting', function() {
       const post = await createDummyPost(poster, {createdAt: postedAt});
 
       await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
         document: post,
         voteType: "smallUpvote",
         collection: Posts,
@@ -382,6 +410,7 @@ describe('Voting', function() {
       const comment = await createDummyComment(poster, {postId: post._id});
 
       await performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
         document: comment,
         voteType: "smallUpvote",
         collection: Comments,

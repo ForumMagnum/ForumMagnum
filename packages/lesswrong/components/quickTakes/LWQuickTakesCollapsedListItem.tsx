@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useState } from "react";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
@@ -86,6 +87,7 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
   setExpanded: (expanded: boolean) => void,
   linesToDisplay?: number,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
@@ -150,7 +152,7 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
   );
 
   const commenterNames = Array.from(new Set(
-    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
+    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user, forumType)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user, forumType))
   ));
 
   const commentersElement = commenterNames.length > 0 && (

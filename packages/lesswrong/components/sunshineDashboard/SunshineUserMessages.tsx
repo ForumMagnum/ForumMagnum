@@ -357,8 +357,17 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       {results.map(conversation => {
         const isExpanded = expandedConversationId === conversation._id;
         return (
-          <LWTooltip key={conversation._id} placement="left-start" tooltip={false} titleClassName={classes.conversationPreviewTooltip} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
-            <div className={classes.conversationItem}>
+          <div key={conversation._id} className={classes.conversationItem}>
+            {/* Anchored on the header alone, so hovering the expanded preview
+                below doesn't pop a duplicate copy of it over the page */}
+            <LWTooltip
+              As="div"
+              inlineBlock={false}
+              placement="left-start"
+              tooltip={false}
+              titleClassName={classes.conversationPreviewTooltip}
+              title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}
+            >
               <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
                 <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
                 <span>
@@ -375,11 +384,11 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
                 </Link>
                 <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
               </div>
-              {isExpanded && (
-                <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
-              )}
-            </div>
-          </LWTooltip>
+            </LWTooltip>
+            {isExpanded && (
+              <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
+            )}
+          </div>
         );
       })}
     </div>}

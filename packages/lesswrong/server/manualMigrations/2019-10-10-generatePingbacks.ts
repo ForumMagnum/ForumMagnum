@@ -1,3 +1,4 @@
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getEditableFieldsByCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
@@ -43,7 +44,7 @@ const updatePingbacks = async (collectionName: CollectionNameString, fieldName: 
         }
         const html = rev.html;
         if (html) {
-          const pingbacks = await htmlToPingbacks(html, null);
+          const pingbacks = await htmlToPingbacks(html, null, forumTypeSetting.get());
           if (JSON.stringify(document.pingbacks) !== JSON.stringify(pingbacks)) {
             updates.push({
               updateOne: {

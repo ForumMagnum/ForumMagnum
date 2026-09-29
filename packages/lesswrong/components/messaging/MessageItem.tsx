@@ -22,7 +22,7 @@ import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { invertHexColor, invertIfDarkMode } from '@/themes/colorUtil';
+import { invertHexColor } from '@/themes/colorUtil';
 
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {

@@ -17,6 +17,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import Loading from '../vulcan-core/Loading';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import AnimatedExpansion from '../common/AnimatedExpansion';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -112,7 +113,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   const [expanded,setExpanded] = useState(false);
   documentDeletions ??= [];
 
-  return <div className={classes.root} >
+  const content = <div className={classes.root} >
     <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 
       <div className={classes.title} >
@@ -201,9 +202,9 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
         )}
       </SuspenseWrapper>}
     </div>}
-  </div>
+  </div>;
+
+  return <AnimatedExpansion expanded={expanded}>{content}</AnimatedExpansion>;
 }
 
 export default SingleLineTagUpdates
-
-

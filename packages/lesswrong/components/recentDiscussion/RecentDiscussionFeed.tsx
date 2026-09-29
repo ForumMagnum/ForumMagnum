@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
@@ -50,6 +51,7 @@ const RecentDiscussionFeed = ({
   title?: string,
   shortformButton?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
@@ -92,7 +94,7 @@ const RecentDiscussionFeed = ({
     MeetupsPokeComponent,
   } = recentDisucssionFeedComponents();
 
-  const subscribeReminderRenderer = showSubscribeReminderInFeed.get()
+  const subscribeReminderRenderer = showSubscribeReminderInFeed.get(forumType)
     ? { render: () => <SubscribeReminderComponent/> }
     : undefined;
 

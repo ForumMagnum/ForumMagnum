@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { type OperationVariables } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
@@ -67,61 +67,76 @@ export function useQueryWithLoadMore<
     ...remainingOptions
   } = options;
 
-  const { limit, selector, ...remainingVariables } = variables ?? {};
+  const { limit, selector } = variables;
   const initialLimit = (selector && 'limit' in selector && typeof selector.limit === 'number')
     ? selector.limit
     : (limit ?? 10);
+
+  // Keep the last successful limit separately so a failed request can be retried.
+  const [paginationState, setPaginationState] = useState({
+    selector, limit: initialLimit, loadedLimit: initialLimit,
+  });
+  const enableTotal = variables.enableTotal;
+
+  let pagination = paginationState;
+  const selectorChanged = !isEqual(selector, pagination.selector);
+  if (selectorChanged) {
+    pagination = { selector, limit: initialLimit, loadedLimit: initialLimit };
+    setPaginationState(pagination);
+  }
 
   const queryOutput = useQuery(query, {
     ...remainingOptions,
     ssr,
     notifyOnNetworkStatusChange,
-    variables: {
-      ...({ selector, ...remainingVariables }) as TVariables,
-      limit: initialLimit,
-    }
+    variables: { ...variables, limit: pagination.limit },
   });
-  const { data, loading, fetchMore } = queryOutput;
+  const { loading, refetch } = queryOutput;
+  const previousData = useRef(queryOutput.data);
+  if (queryOutput.data || selectorChanged) {
+    previousData.current = queryOutput.data;
+  }
+  // Keep the existing list visible while refetch changes the limit, including
+  // when that list came from SSR injection rather than an Apollo query result.
+  const data = queryOutput.data ?? (
+    pagination.limit !== pagination.loadedLimit
+      ? previousData.current
+      : undefined
+  );
 
   const queryName = query.definitions.find(d => d.kind === Kind.OPERATION_DEFINITION)?.selectionSet?.selections?.find(s => s.kind === Kind.FIELD)?.name?.value;
-  const queryResult = data?.[queryName as keyof typeof data];
-
-  const [limitState, setLimitState] = useState(initialLimit);
-  const resetTrigger = variables.selector;
-  const [lastResetTrigger, setLastResetTrigger] = useState(resetTrigger);
-  const enableTotal = variables.enableTotal;
-
-  let effectiveLimit = limitState;
-  if (!isEqual(resetTrigger, lastResetTrigger)) {
-    setLastResetTrigger(resetTrigger);
-    setLimitState(initialLimit);
-    effectiveLimit = initialLimit;
-  }
+  const queryResult = queryName ? data?.[queryName] : undefined;
 
   const count = queryResult?.results?.length ?? 0;
   const totalCount = queryResult?.totalCount ?? undefined;
 
-  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= effectiveLimit));
+  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= pagination.loadedLimit));
 
   const loadMore = useStabilizedCallbackAsync<void>(async () => {
-    const newLimit: number = effectiveLimit + itemsPerPage;
+    const newLimit: number = pagination.loadedLimit + itemsPerPage;
+    const nextPagination = { ...pagination, limit: newLimit };
+    setPaginationState(nextPagination);
     
-    const result = await fetchMore({
-      variables: { limit: newLimit } as AnyBecauseHard,
-      updateQuery: (prev, {fetchMoreResult}) => fetchMoreResult ?? prev,
-    });
-    setLimitState(newLimit);
+    // We fetch the whole expanded list, so advance the watched query's variables.
+    // fetchMore would write the expanded list under the original limit, where a
+    // late initial response (including one started during hydration) can replace it.
+    await refetch({ ...variables, limit: newLimit });
+    // A response for an old selector must not advance the current selector's limit.
+    setPaginationState(current => current === nextPagination
+      ? { ...current, loadedLimit: newLimit }
+      : current);
   });
 
   return {
     ...queryOutput,
+    data,
     loadMoreProps: {
       loadMore,
       count,
       totalCount,
       loading,
       hidden: !showLoadMore,
-      limit: effectiveLimit,
+      limit: pagination.loadedLimit,
       showLoadMore,
     },
   };

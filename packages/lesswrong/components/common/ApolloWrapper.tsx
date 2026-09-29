@@ -1,7 +1,8 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { use, useCallback, useMemo } from 'react';
 import { headerLink, createErrorLink, createHttpLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
-import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
 import {
   ApolloClient,
@@ -34,8 +35,9 @@ const makeApolloClientForServer = async (searchParamsStr: string, requestId: str
   return { client, context };
 }
 
-function makeApolloClientForClient({ loginToken }: {
-  loginToken: string|null
+function makeApolloClientForClient({ loginToken, forumType }: {
+  loginToken: string|null,
+  forumType: ForumTypeString,
 }): ApolloClient {
   if (isServer) {
     throw new Error("Not client")
@@ -45,7 +47,7 @@ function makeApolloClientForClient({ loginToken }: {
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),
-      createHttpLink(isServer ? getSiteUrl() : '/', loginToken)
+      createHttpLink('/', loginToken, forumType)
     ])
   });
 
@@ -97,7 +99,8 @@ const ApolloWrapperClient = ({ loginToken, searchParams, children }: React.Props
   loginToken: string|null,
   searchParams: Record<string, string>,
 }>) => {
-  const makeClient = useCallback(() => makeApolloClientForClient({ loginToken }), [loginToken]);
+  const { forumType } = useForumType();
+  const makeClient = useCallback(() => makeApolloClientForClient({ loginToken, forumType }), [loginToken, forumType]);
   return (
     <ApolloNextAppProvider makeClient={makeClient}>
       {children}

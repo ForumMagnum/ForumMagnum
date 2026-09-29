@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import Posts from "../collections/posts/collection";
-import { getNextVersion, getNextVersionAfterSemver } from "../editor/utils";
+import { getNextVersionAfterSemver } from "../editor/utils";
 import { runSqlQuery } from "../sql/sqlClient";
 import uniq from "lodash/uniq";
 import Revisions from "../collections/revisions/collection";

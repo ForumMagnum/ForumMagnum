@@ -92,6 +92,7 @@ const PostsTimeframeListExponential = ({postListParameters}: {
         }}
         timeBlockLoadComplete={()=>{}}
         hideIfEmpty={true}
+        isMostRecent={i === 0}
         shortform="frontpage"
         includeTags={true}
       />

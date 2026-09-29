@@ -1,5 +1,4 @@
 import React from 'react';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { getAllUserGroups, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import ExplicitSaveDateSetting from './ExplicitSaveDateSetting';
@@ -186,13 +185,11 @@ const AdminSettingsTab = ({
           />
         )}
 
-        {isLWorAF() && userIsAdmin(currentUser) && (
-          <SettingsToggleRow
+        {userIsAdmin(currentUser) && <SettingsToggleRow
             value={settings.hideSunshineSidebar}
             onChange={(value) => void updateSettings({ hideSunshineSidebar: value })}
             label="Hide Sunshine Sidebar"
-          />
-        )}
+          />}
 
         <SettingsToggleRow
           value={settings.viewUnreviewedComments}
@@ -274,8 +271,7 @@ const AdminSettingsTab = ({
         </SettingsSection>
       )}
 
-      {isLWorAF() && userIsAdmin(currentUser) && (
-        <SettingsSection title="Prize / Payment Info">
+      {userIsAdmin(currentUser) && <SettingsSection title="Prize / Payment Info">
           <SettingsTextRow
             type="email"
             value={settings.paymentEmail}
@@ -290,8 +286,7 @@ const AdminSettingsTab = ({
             label="PayPal info"
             description="Their PayPal account info for sending small payments"
           />
-        </SettingsSection>
-      )}
+        </SettingsSection>}
 
       <SettingsSection title="Groups & Access">
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && (

@@ -26,17 +26,16 @@ const styles = defineStyles('ShortformThreadList', (theme: ThemeType) => ({
   }
 }))
 
-const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20}: {
+const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20, sortBy = 'recentComments'}: {
   userId?: string,
   showQuickTakeEntry?: boolean,
   showPostTitle?: boolean,
   limit?: number,
+  sortBy?: CommentSortingMode,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const shortformSelector = userId
-    ? { shortform: { userId } }
-    : { shortform: {} };
+  const shortformSelector = { topShortform: { userId, sortBy } };
   
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {

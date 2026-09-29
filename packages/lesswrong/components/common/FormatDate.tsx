@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { formatRelative } from '../../lib/utils/timeFormat';

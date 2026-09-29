@@ -1,4 +1,5 @@
-import React, { ComponentType } from "react";
+import React, { ComponentType, useRef } from "react";
+import Transition from "react-transition-group/Transition";
 import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -36,12 +37,30 @@ const styles = defineStyles("ExpandableSection", (theme: ThemeType) => ({
     fontSize: 16,
     cursor: "pointer",
     transition: "transform 0.2s ease-in-out",
+    "@media (prefers-reduced-motion: reduce)": {
+      transition: "none",
+    },
     "&:hover": {
       color: theme.palette.grey[800],
     }
   },
   chevronExpanded: {
     transform: "rotate(90deg)",
+  },
+  content: {
+    display: "grid",
+    gridTemplateRows: "0fr",
+    transition: "grid-template-rows 200ms ease-in-out",
+    "@media (prefers-reduced-motion: reduce)": {
+      transition: "none",
+    },
+  },
+  contentExpanded: {
+    gridTemplateRows: "1fr",
+  },
+  contentInner: {
+    minHeight: 0,
+    overflow: "hidden",
   },
 }));
 
@@ -67,6 +86,7 @@ const ExpandableSection = ({
   ...sectionTitleProps
 }: ExpandableSectionProps) => {
   const classes = useStyles(styles);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
@@ -104,7 +124,27 @@ const ExpandableSection = ({
             </div>
           }
         </SectionTitle>
-        {expanded && <>{children}</>}
+        <Transition
+          nodeRef={contentRef}
+          in={expanded}
+          timeout={200}
+          mountOnEnter
+          unmountOnExit
+          onEnter={() => {
+            // Establish the collapsed layout before transitioning newly mounted content.
+            contentRef.current?.getBoundingClientRect();
+          }}
+        >
+          {state => <div
+            ref={contentRef}
+            className={classNames(classes.content, {
+              [classes.contentExpanded]: state === 'entering' || state === 'entered',
+            })}
+            inert={!expanded}
+          >
+            <div className={classes.contentInner}>{children}</div>
+          </div>}
+        </Transition>
       </SingleColumnSection>
     </AnalyticsContext>
   );

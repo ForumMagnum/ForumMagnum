@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -91,6 +92,7 @@ const HighlightBody = ({
   expandedDocument?: PostsExpandedHighlight,
   smallerFonts?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
@@ -118,7 +120,7 @@ const HighlightBody = ({
       }
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
-      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}
     />
     {expandedLoading && expanded && <Loading/>}
   </ContentStyles>

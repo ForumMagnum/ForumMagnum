@@ -103,7 +103,8 @@ function LLMScoreDialog({
   
   const canRunCheck = !!documentId;
 
-  const isPangramV3 = aceData?.pangramApiVersion === 'v3';
+  const apiVersion = aceData?.pangramApiVersion;
+  const hasFractionScores = apiVersion === 'v3' || apiVersion === 'pangram-4';
   const score = aceData?.pangramScore;
   const maxScore = aceData?.pangramMaxScore;
   
@@ -116,7 +117,8 @@ function LLMScoreDialog({
       <DialogContent>
         {aceData ? (
           <div className={classes.contentContainer}>
-            {isPangramV3 ? (
+            {apiVersion && <p>Model: {apiVersion}</p>}
+            {hasFractionScores ? (
               <p>
                 LLM AI-involved score: {score?.toFixed(2) ?? 'N/A'}
                 {' '}(AI-written: {aceData.pangramFractionAi?.toFixed(2) ?? 'N/A'},

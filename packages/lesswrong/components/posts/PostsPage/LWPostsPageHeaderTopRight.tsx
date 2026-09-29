@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
@@ -69,6 +70,7 @@ export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbed
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
@@ -78,7 +80,7 @@ export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbed
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
-      {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
+      {!post.shortform && postHasAudioPlayer(post, forumType) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>

@@ -1,4 +1,5 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -104,6 +105,7 @@ export function ProfilePageFeedTabContents({user, settings}: {
   user: UsersProfile,
   settings: ProfilePageFeedTabSettings,
 }) {
+  const { forumType } = useForumType();
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageFeedTabUnsharedStyles);
 
@@ -113,7 +115,7 @@ export function ProfilePageFeedTabContents({user, settings}: {
   return <TabPanel className={classes.feedList}>
     {!hasFeedContent && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} hasn&apos;t written anything yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user, forumType)} hasn&apos;t written anything yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-4.png" alt="" />
         </div>

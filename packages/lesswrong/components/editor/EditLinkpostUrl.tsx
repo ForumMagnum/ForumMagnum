@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { placeholderSetting } from '@/lib/instanceSettings';
@@ -35,6 +36,7 @@ interface EditLinkpostUrlProps {
 }
 
 export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const { postCategory } = post;
@@ -53,7 +55,7 @@ export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
         className={classes.input}
         value={value || ""}
         onChange={onChange}
-        placeholder={placeholderSetting.get()}
+        placeholder={placeholderSetting.get(forumType)}
         disableUnderline
         fullWidth
       />

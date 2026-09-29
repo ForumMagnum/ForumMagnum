@@ -6,7 +6,7 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isAF } from "../../lib/instanceSettings";
+import type { ForumTypeString } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
@@ -103,12 +103,14 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   async getPopularComments({
+    forumType,
     minScore = 15,
     offset = 0,
     limit = 3,
     recencyFactor = 250000,
     recencyBias = 60 * 60 * 2,
   }: {
+    forumType: ForumTypeString,
     offset?: number,
     limit?: number,
     minScore?: number,
@@ -118,8 +120,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
-    const lookbackPeriod = isAF() ? '1 month' : '1 week';
-    const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
+    const lookbackPeriod = forumType === 'AlignmentForum' ? '1 month' : '1 week';
+    const afCommentsFilter = forumType === 'AlignmentForum' ? 'AND "af" IS TRUE' : '';
 
     return this.any(`
       -- CommentsRepo.getPopularComments

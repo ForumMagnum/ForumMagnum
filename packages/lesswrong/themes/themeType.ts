@@ -115,8 +115,8 @@ declare global {
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   
   type BaseThemeSpecification = {
-    componentPalette: (dark: boolean) => ThemeComponentPalette,
-    make: (palette: ThemePalette) => NativeThemeType
+    componentPalette: (dark: boolean, forumType: ForumTypeString) => ThemeComponentPalette,
+    make: (palette: ThemePalette, forumType: ForumTypeString) => NativeThemeType
   };
   type SiteThemeSpecification = {
     componentPalette?: (dark: boolean) => PartialDeep<ThemeComponentPalette>,

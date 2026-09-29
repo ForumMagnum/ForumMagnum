@@ -96,7 +96,7 @@ const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListPa
   }
   const timeBlock = timeframeToTimeBlock[timeframe]
   const dates = getDateRange(afterState, beforeState, timeBlock)
-  const orderedDates = reverse ? dates.reverse() : dates
+  const orderedDates = reverse ? [...dates].reverse() : dates
 
   const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
   
@@ -117,6 +117,7 @@ const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListPa
           }}
           timeBlockLoadComplete={timeBlockLoadComplete}
           hideIfEmpty={index===0}
+          isMostRecent={date === dates[0]}
           shortform={shortform}
           includeTags={includeTags}
         />

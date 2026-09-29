@@ -1,4 +1,7 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
@@ -220,6 +223,7 @@ const styles = defineStyles('ElicitBlock', (theme: ThemeType) => ({
 const ElicitBlock = ({questionId = "IyWNjzc5P"}: {
   questionId: string
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
@@ -268,7 +272,7 @@ const ElicitBlock = ({questionId = "IyWNjzc5P"}: {
                 const predictions = data?.ElicitBlockData?.predictions || []
                 const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
-                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
+                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser, forumType), ...filteredPredictions]
 
                 setRevealed(true);
 
@@ -330,7 +334,7 @@ export default registerComponent('ElicitBlock', ElicitBlock, {
 
 
 
-function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
+function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo, forumType: ForumTypeString) {
   return {
     __typename: "ElicitPrediction" as const,
     _id: randomId(),
@@ -338,8 +342,8 @@ function createNewElicitPrediction(questionId: string, prediction: number, curre
     prediction: prediction,
     createdAt: new Date().toISOString(),
     notes: "",
-    sourceUrl: elicitSourceURL.get(),
-    sourceId: elicitSourceId.get(),
+    sourceUrl: elicitSourceURL.get(forumType),
+    sourceId: elicitSourceId.get(forumType),
     binaryQuestionId: questionId,
     creator: {
       __typename: "ElicitUser" as const,

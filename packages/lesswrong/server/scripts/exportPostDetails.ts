@@ -1,6 +1,6 @@
 /*
 
-    # exportPostDetails({ selector, outputDir })
+    # exportPostDetails({ selector, outputDir, forumType })
 
       Script to export a list of post details to a CSV file.
 
@@ -21,6 +21,7 @@
 
 */
 
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import moment from 'moment';
 import fs from 'fs';
 import Papa from 'papaparse';
@@ -66,8 +67,8 @@ function getPosts (selector: MongoSelector<DbPost>) {
 
 export const exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
-  async ({selector, outputDir, outputFile = 'post_details.csv'}: {
-    selector: MongoSelector<DbPost>, outputDir: string, outputFile?: string
+  async ({selector, outputDir, forumType, outputFile = 'post_details.csv'}: {
+    selector: MongoSelector<DbPost>, outputDir: string, forumType: ForumTypeString, outputFile?: string
   }) => {
     if (!outputDir) throw new Error('you must specify an output directory (hint: {outputDir})')
     const documents = getPosts(selector)
@@ -87,7 +88,7 @@ export const exportPostDetails = wrapVulcanAsyncScript(
         tags = tagsResult.map(({ name }) => name)
       }
       
-      const postUrl = siteUrlSetting.get()
+      const postUrl = siteUrlSetting.get(forumType)
       const row = {
         display_name: user.displayName,
         id: post._id,
@@ -115,16 +116,17 @@ export const exportPostDetails = wrapVulcanAsyncScript(
 )
 
 export const exportLowKarma = async (
-  {outputFilepath, karma = LOW_KARMA_THRESHOLD}: {outputFilepath: string, karma?: number}
+  {outputFilepath, forumType, karma = LOW_KARMA_THRESHOLD}: {outputFilepath: string, forumType: ForumTypeString, karma?: number}
 ) => {
   await exportPostDetails({
+    forumType,
     selector: makeLowKarmaSelector(karma),
     outputFile: path.basename(outputFilepath),
     outputDir: path.dirname(outputFilepath)
   })
 }
 
-export const exportPostDetailsByMonth = async ({month, outputDir, outputFile}: AnyBecauseTodo) => {
+export const exportPostDetailsByMonth = async ({month, outputDir, outputFile, forumType}: {month: string, outputDir: string, outputFile?: string, forumType: ForumTypeString}) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console
@@ -137,6 +139,7 @@ export const exportPostDetailsByMonth = async ({month, outputDir, outputFile}: A
       }
     },
     outputFile,
-    outputDir
+    outputDir,
+    forumType
   })
 }
