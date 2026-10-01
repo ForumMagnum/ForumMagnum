@@ -12,7 +12,9 @@ import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
 import { isPost, type ContentItem } from './helpers';
 
-const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+// Passing `loading` gives the editor its own Suspense boundary. Without one, the
+// first render suspends up to the route's loading boundary, blanking the page.
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
   root: {

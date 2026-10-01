@@ -9,8 +9,6 @@ import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
 import { getModerationContentItems, isMapPin } from './helpers';
-import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import Loading from '@/components/vulcan-core/Loading';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -109,35 +107,29 @@ const ModerationUserDetailView = ({
           </div>
         </div>
         <div className={classes.contentListColumn}>
-          <SuspenseWrapper name="ModerationContentList" fallback={<Loading/>}>
-            <ModerationContentList
-              items={allContent}
-              title="Content"
-              focusedItemId={allContent[focusedContentIndex]?._id ?? null}
-              runningLlmCheckId={runningLlmCheckId}
-              dispatch={dispatch}
-            />
-          </SuspenseWrapper>
+          <ModerationContentList
+            items={allContent}
+            title="Content"
+            focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+            runningLlmCheckId={runningLlmCheckId}
+            dispatch={dispatch}
+          />
         </div>
         <div className={classes.contentListColumn}>
-          <SuspenseWrapper name="ModerationContentDetail" fallback={<Loading/>}>
-            <ModerationContentDetail item={focusedItem} />
-          </SuspenseWrapper>
+          <ModerationContentDetail item={focusedItem} />
         </div>
         <div className={classes.sidebarColumn}>
-          <SuspenseWrapper name="ModerationSidebar" fallback={<Loading/>}>
-            <ModerationSidebar
-              user={user}
-              currentUser={currentUser}
-              posts={posts}
-              comments={comments}
-              focusedContent={focusedContent}
-              sidebarTab={sidebarTab}
-              setSidebarTab={setSidebarTab}
-              addToUndoQueue={addToUndoQueue}
-              dispatch={dispatch}
-            />
-          </SuspenseWrapper>
+          <ModerationSidebar
+            user={user}
+            currentUser={currentUser}
+            posts={posts}
+            comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
+            addToUndoQueue={addToUndoQueue}
+            dispatch={dispatch}
+          />
         </div>
       </div>
     </div>

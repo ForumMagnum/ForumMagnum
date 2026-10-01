@@ -27,7 +27,6 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
-import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { hideScrollBars } from '@/themes/styleUtils';
 
 // All of the moderation inbox's initial data is fetched in a single query so
@@ -464,10 +463,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           lastCuratedDate={lastCuratedDate}
         />
       )}
-      {/* Lazily-loaded components (eg the editor in the reject panel) suspend the
-          first time they render. Without a boundary here, the nearest one is at
-          the root of the app, so the whole page goes blank until they load. */}
-      <SuspenseWrapper name="ModerationInboxMainContent" fallback={<Loading/>}>
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
@@ -494,46 +489,39 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
                 </div>
               )}
               <div className={classes.inboxListContainer}>
-                <SuspenseWrapper name="ModerationInboxList" fallback={<Loading/>}>
-                  <ModerationInboxList
-                    userGroups={filteredGroups}
-                    posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
-                    curationPosts={state.curationPosts}
-                    focusedUserId={state.focusedUserId}
-                    focusedPostId={state.focusedPostId}
-                    onFocusUser={handleOpenUser}
-                    onOpenUser={handleOpenUser}
-                    onFocusPost={handleFocusPost}
-                    activeTab={state.activeTab}
-                  />
-                </SuspenseWrapper>
+                <ModerationInboxList
+                  userGroups={filteredGroups}
+                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                  curationPosts={state.curationPosts}
+                  focusedUserId={state.focusedUserId}
+                  focusedPostId={state.focusedPostId}
+                  onFocusUser={handleOpenUser}
+                  onOpenUser={handleOpenUser}
+                  onFocusPost={handleFocusPost}
+                  activeTab={state.activeTab}
+                />
               </div>
             </>
           )}
         </div>
         {isPostsTab && !openedUser && (
           <div className={classes.postDetailPanel}>
-            <SuspenseWrapper name="ModerationPostSidebar" fallback={<Loading/>}>
-              <ModerationPostSidebar
-                post={focusedPost}
-                currentUser={currentUser}
-                dispatch={dispatch}
-              />
-            </SuspenseWrapper>
+            <ModerationPostSidebar
+              post={focusedPost}
+              currentUser={currentUser}
+              dispatch={dispatch}
+            />
           </div>
         )}
         {isCurationTab && !openedUser && (
           <div className={classes.postDetailPanel}>
-            <SuspenseWrapper name="CurationPostView" fallback={<Loading/>}>
-              <CurationPostView
-                post={focusedCurationPost}
-                currentUser={currentUser}
-              />
-            </SuspenseWrapper>
+            <CurationPostView
+              post={focusedCurationPost}
+              currentUser={currentUser}
+            />
           </div>
         )}
       </div>
-      </SuspenseWrapper>
     </div>
     </CoreTagsKeyboardProvider>
   );
