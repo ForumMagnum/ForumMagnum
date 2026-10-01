@@ -1,0 +1,27 @@
+import type { SavedChat, TChat, TTTDDialog } from "../types";
+export declare const TTDChatPanel: ({ chatId, messages, currentPrompt, onPromptChange, onGenerate, isGenerating, generatedResponse, isMenuOpen, onMenuToggle, onMenuClose, onNewChat, onRestoreChat, onDeleteChat, savedChats, activeSessionId, onAbort, onMermaidTabClick, onAiRepairClick, onDeleteMessage, onInsertMessage, onRetry, onViewAsMermaid, renderWelcomeScreen, renderWarning, }: {
+    chatId: string;
+    messages: TChat.ChatMessage[];
+    currentPrompt: string;
+    onPromptChange: (prompt: string) => void;
+    onGenerate: TTTDDialog.OnGenerate;
+    isGenerating: boolean;
+    generatedResponse: string | null | undefined;
+    isMenuOpen: boolean;
+    onMenuToggle: () => void;
+    onMenuClose: () => void;
+    onNewChat: () => void;
+    onRestoreChat: (chat: SavedChat) => void;
+    onDeleteChat: (chatId: string, event: React.MouseEvent) => void;
+    savedChats: SavedChat[];
+    activeSessionId: string;
+    onAbort: () => void;
+    onMermaidTabClick: (message: TChat.ChatMessage) => void;
+    onAiRepairClick: (message: TChat.ChatMessage) => void;
+    onDeleteMessage: (messageId: string) => void;
+    onInsertMessage: (message: TChat.ChatMessage) => void;
+    onRetry?: (message: TChat.ChatMessage) => void;
+    onViewAsMermaid: () => void;
+    renderWelcomeScreen?: TTTDDialog.renderWelcomeScreen;
+    renderWarning?: TTTDDialog.renderWarning;
+}) => import("react/jsx-runtime").JSX.Element;

@@ -1,0 +1,35 @@
+import React from "react";
+import type { NonDeletedExcalidrawElement } from "../../element/src/types";
+import "./LayerUI.scss";
+import "./Toolbar.scss";
+import type { ActionManager } from "../actions/manager";
+import type { Language } from "../i18n";
+import type { AppProps, AppState, ExcalidrawProps, BinaryFiles, UIAppState, AppClassProperties } from "../types";
+interface LayerUIProps {
+    actionManager: ActionManager;
+    appState: UIAppState;
+    files: BinaryFiles;
+    canvas: HTMLCanvasElement;
+    setAppState: React.Component<any, AppState>["setState"];
+    elements: readonly NonDeletedExcalidrawElement[];
+    onLockToggle: () => void;
+    onPenModeToggle: AppClassProperties["togglePenMode"];
+    showExitZenModeBtn: boolean;
+    langCode: Language["code"];
+    renderTopLeftUI?: ExcalidrawProps["renderTopLeftUI"];
+    renderTopRightUI?: ExcalidrawProps["renderTopRightUI"];
+    renderCustomStats?: ExcalidrawProps["renderCustomStats"];
+    UIOptions: AppProps["UIOptions"];
+    onExportImage: AppClassProperties["onExportImage"];
+    renderWelcomeScreen: boolean;
+    children?: React.ReactNode;
+    app: AppClassProperties;
+    defaultUIEnabled: boolean;
+    zoomUIEnabled: boolean;
+    scrollBackToContentUIEnabled: boolean;
+    isCollaborating: boolean;
+    generateLinkForSelection?: AppProps["generateLinkForSelection"];
+    currentUserControls?: ExcalidrawProps["currentUserControls"];
+}
+declare const _default: React.MemoExoticComponent<({ actionManager, appState, files, setAppState, elements, canvas, onLockToggle, onPenModeToggle, showExitZenModeBtn, renderTopLeftUI, renderTopRightUI, renderCustomStats, UIOptions, onExportImage, renderWelcomeScreen, children, app, defaultUIEnabled, zoomUIEnabled, scrollBackToContentUIEnabled, isCollaborating, generateLinkForSelection, currentUserControls, }: LayerUIProps) => import("react/jsx-runtime").JSX.Element>;
+export default _default;

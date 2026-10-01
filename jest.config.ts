@@ -208,6 +208,10 @@ export default () => createJestConfig({
     // geist's font modules are ESM and call next/font/local at module scope,
     // which only works under the Next build.
     "^geist/font/(sans|mono)$": "<rootDir>/packages/lesswrong/stubs/geistFont.ts",
+    // The vendored Excalidraw build uses browser globals at module scope. (By
+    // the time imports get here, the @excalidraw/excalidraw path alias has been
+    // replaced with a relative path to excalidraw/dist/index.)
+    "(^|/)excalidraw/dist/index(\\.js)?$": "<rootDir>/packages/lesswrong/stubs/excalidraw.ts",
     // react-dom/server.edge is apparently needed instead of react-dom/server to avoid this error:
     // > Uncaught ReferenceError: MessageChannel is not defined
     // See https://github.com/facebook/react/issues/31827#issuecomment-2563094822

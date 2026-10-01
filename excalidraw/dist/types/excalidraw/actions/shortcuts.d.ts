@@ -1,0 +1,4 @@
+import type { SubtypeOf } from "../../common/src/utility-types";
+import type { ActionName } from "./types";
+export type ShortcutName = SubtypeOf<ActionName, "toggleTheme" | "loadScene" | "clearCanvas" | "cut" | "copy" | "paste" | "copyStyles" | "pasteStyles" | "selectAll" | "deleteSelectedElements" | "duplicateSelection" | "sendBackward" | "bringForward" | "sendToBack" | "bringToFront" | "copyAsPng" | "group" | "ungroup" | "gridMode" | "zenMode" | "objectsSnapMode" | "stats" | "addToLibrary" | "viewMode" | "flipHorizontal" | "flipVertical" | "hyperlink" | "toggleElementLock" | "resetZoom" | "zoomOut" | "zoomIn" | "zoomToFit" | "zoomToFitSelectionInViewport" | "zoomToFitSelection" | "saveFileToDisk" | "saveToActiveFile" | "toggleShortcuts" | "wrapSelectionInFrame"> | "saveScene" | "imageExport" | "commandPalette" | "searchMenu" | "toolLock";
+export declare const getShortcutFromShortcutName: (name: ShortcutName, idx?: number) => string;

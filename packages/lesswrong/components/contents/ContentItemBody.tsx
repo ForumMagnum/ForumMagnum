@@ -297,6 +297,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
       if (TagName === 'html' || TagName === 'body' || TagName === 'head') {
         TagName = 'div';
       }
+      if (TagName in mapTagNames) {
+        TagName = mapTagNames[TagName];
+      }
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
@@ -562,6 +565,39 @@ const mapAttributeNames: Record<string,string> = {
   "rowspan": "rowSpan",
   "allowfullscreen": "allowFullScreen",
   "for": "htmlFor",
+
+  // SVG attributes (see svgAllowedAttributes in @/lib/utils/sanitize). Unlike
+  // the browser's HTML parser, React doesn't fix the capitalization of SVG
+  // attributes, and lowercased ones like "viewbox" don't work.
+  "viewbox": "viewBox",
+  "preserveaspectratio": "preserveAspectRatio",
+  "maskunits": "maskUnits",
+  "clippathunits": "clipPathUnits",
+  "clip-path": "clipPath",
+  "fill-opacity": "fillOpacity",
+  "fill-rule": "fillRule",
+  "stroke-width": "strokeWidth",
+  "stroke-opacity": "strokeOpacity",
+  "stroke-linecap": "strokeLinecap",
+  "stroke-linejoin": "strokeLinejoin",
+  "stroke-dasharray": "strokeDasharray",
+  "stroke-dashoffset": "strokeDashoffset",
+  "stroke-miterlimit": "strokeMiterlimit",
+  "font-family": "fontFamily",
+  "font-size": "fontSize",
+  "font-weight": "fontWeight",
+  "font-style": "fontStyle",
+  "text-anchor": "textAnchor",
+  "dominant-baseline": "dominantBaseline",
+}
+
+/**
+ * Mapping from tag names as they appear in HTML (lowercased by the parser) to
+ * tag names as React wants them, for SVG elements whose names aren't
+ * lowercase.
+ */
+const mapTagNames: Record<string,string> = {
+  "clippath": "clipPath",
 }
 
 function camelCaseCssAttribute(input: string) {

@@ -1,0 +1,10 @@
+import type { ExcalidrawProps } from "../../excalidraw/types";
+import type { MarkRequired } from "../../common/src/utility-types";
+import type { ExcalidrawIframeLikeElement, IframeData, NonDeletedExcalidrawElement } from "./types";
+type IframeDataWithSandbox = MarkRequired<IframeData, "sandbox">;
+export declare const createSrcDoc: (body: string) => string;
+export declare const getEmbedLink: (link: string | null | undefined) => IframeDataWithSandbox | null;
+export declare const createPlaceholderEmbeddableLabel: (element: ExcalidrawIframeLikeElement) => NonDeletedExcalidrawElement;
+export declare const maybeParseEmbedSrc: (str: string) => string;
+export declare const embeddableURLValidator: (url: string | null | undefined, validateEmbeddable: ExcalidrawProps["validateEmbeddable"]) => boolean;
+export {};

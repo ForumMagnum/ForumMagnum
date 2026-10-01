@@ -12,6 +12,7 @@ import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
+import { excalidrawFontFaces } from '@/lib/lexical/excalidrawFontFaces';
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
@@ -98,6 +99,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         fontFamily: "ETBookRoman",
         src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
       },
+      ...excalidrawFontFaces,
     ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {

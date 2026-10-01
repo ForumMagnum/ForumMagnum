@@ -69,7 +69,7 @@ import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
-// import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
+import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
@@ -991,7 +991,7 @@ export default function Editor({
             <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
-            {/* <ExcalidrawPlugin /> */}
+            <ExcalidrawPlugin isSuggestionMode={isSuggestionMode} />
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />
