@@ -198,6 +198,13 @@ async function buildBundle() {
     ],
     define: {
       "import.meta.env": JSON.stringify(IMPORT_META_ENV),
+      // Some bundled dependencies (eg mermaid's layout engines) are UMD
+      // modules, whose AMD branch looks like `define(["some-package"], ...)`.
+      // There's no AMD loader at runtime (so the bundled CommonJS branch is
+      // what runs), but the main app's bundler would still try to resolve
+      // those package names. Defining `define` as undefined removes the AMD
+      // branches entirely.
+      define: "undefined",
     },
   });
 }

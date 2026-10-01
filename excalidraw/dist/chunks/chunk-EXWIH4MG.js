@@ -1,1 +1,0 @@
-import{b as r}from"./chunk-4EKV47ZX.js";import{a as i}from"./chunk-HZVFQ46Q.js";i();var t,o=(t=class{constructor(s){this.init=s,this.records=this.init()}reset(){this.records=this.init()}},r(t,"ImperativeState"),t);export{o as a};
