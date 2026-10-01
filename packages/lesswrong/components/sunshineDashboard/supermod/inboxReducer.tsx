@@ -2,7 +2,6 @@
 
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import countBy from 'lodash/countBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
@@ -32,9 +31,6 @@ export interface UndoHistoryItem {
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
   users: SunshineUsersList[];
-  // Users in the review queue whose full data hasn't been loaded yet, in queue order.
-  // A tab's users are loaded (and moved into `users`) when that tab is opened.
-  unloadedUsers: ReviewQueueEntry[];
   // The local copy of posts (mutated when actions complete)
   posts: SunshinePostsList[];
   // The local copy of auto-classified posts (mutated when actions complete)
@@ -79,7 +75,6 @@ export type InboxAction =
   | { type: 'OPEN_CONTENT'; contentIndex: number; sidebarTab?: SelectedSidebarTab; }
   | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
-  | { type: 'ADD_LOADED_USERS'; requestedUserIds: string[]; users: SunshineUsersList[]; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
@@ -118,74 +113,26 @@ export function getFilteredGroups(
   return orderedGroups.filter(([group]) => group === activeTab);
 }
 
-export interface ReviewQueueEntry {
-  _id: string;
-  reviewGroup: ReviewGroup | null;
-}
-
-/**
- * Counts of posts that match the inbox views but fall beyond the page of
- * loaded posts, so the tab counts can show the true size of each queue.
- */
-export interface UnloadedPostCounts {
-  posts: number;
-  classifiedPosts: number;
-}
-
-export const NO_UNLOADED_POSTS: UnloadedPostCounts = { posts: 0, classifiedPosts: 0 };
-
-interface TabCountSource extends Pick<InboxState, 'users' | 'unloadedUsers' | 'posts' | 'classifiedPosts' | 'curationPosts'> {}
-
-export function getVisibleTabsInOrder(source: TabCountSource, unloadedPosts: UnloadedPostCounts): TabInfo[] {
-  const loadedUsersByGroup = countBy(source.users, user => getUserReviewGroup(user));
-  const unloadedUsersByGroup = countBy(source.unloadedUsers, user => user.reviewGroup ?? 'unknown');
-  const curationNoticeCount = sumBy(source.curationPosts, p => p.curationNotices?.length ?? 0);
-
-  const tabs: TabInfo[] = [{ group: 'curation', count: curationNoticeCount }];
+export function getVisibleTabsInOrder(
+  groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
+  totalUsers: number,
+  totalPosts: number,
+  totalClassifiedPosts: number,
+  totalCurationNotices: number,
+): TabInfo[] {
+  const tabsInOrder = getTabsInPriorityOrder();
+  const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
   
   // Always show all tabs, even if empty
-  for (const group of getTabsInPriorityOrder()) {
-    tabs.push({ group, count: (loadedUsersByGroup[group] ?? 0) + (unloadedUsersByGroup[group] ?? 0) });
+  for (const group of tabsInOrder) {
+    const count = groupedUsers[group]?.length ?? 0;
+    tabs.push({ group, count });
   }
-  tabs.push({ group: 'all', count: source.users.length + source.unloadedUsers.length });
-  tabs.push({ group: 'posts', count: source.posts.length + unloadedPosts.posts });
-  tabs.push({ group: 'classifiedPosts', count: source.classifiedPosts.length + unloadedPosts.classifiedPosts });
+  tabs.push({ group: 'all', count: totalUsers });
+  tabs.push({ group: 'posts', count: totalPosts });
+  tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
   return tabs;
-}
-
-export function getUnloadedUserIdsForTab(unloadedUsers: ReviewQueueEntry[], tab: TabId): string[] {
-  if (tab === 'posts' || tab === 'classifiedPosts' || tab === 'curation') {
-    return [];
-  }
-  const usersInTab = tab === 'all'
-    ? unloadedUsers
-    : unloadedUsers.filter(user => (user.reviewGroup ?? 'unknown') === tab);
-  return usersInTab.map(user => user._id);
-}
-
-function addLoadedUsers(state: InboxState, requestedUserIds: string[], loadedUsers: SunshineUsersList[]): InboxState {
-  // Requested users missing from the results (eg deleted since the page loaded) are dropped too
-  const requestedIds = new Set(requestedUserIds);
-  const existingIds = new Set(state.users.map(user => user._id));
-  const queuePositions = new Map(state.unloadedUsers.map((user, index) => [user._id, index]));
-  // Users who were handled elsewhere since the page loaded no longer need review
-  const newUsers = sortBy(
-    loadedUsers.filter(user => user.needsReview && !existingIds.has(user._id) && queuePositions.has(user._id)),
-    user => queuePositions.get(user._id),
-  );
-  const users = [...state.users, ...newUsers];
-  const unloadedUsers = state.unloadedUsers.filter(user => !requestedIds.has(user._id));
-
-  const isUserTab = state.activeTab !== 'posts' && state.activeTab !== 'classifiedPosts' && state.activeTab !== 'curation';
-  if (!isUserTab || state.focusedUserId || state.openedUserId) {
-    return { ...state, users, unloadedUsers };
-  }
-
-  // The active tab was waiting on these users, so focus the first one
-  const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-  const orderedUsers = getFilteredGroups(groupedUsers, state.activeTab).flatMap(([_, users]) => users);
-  return { ...state, users, unloadedUsers, focusedUserId: orderedUsers[0]?._id ?? null };
 }
 
 /**
@@ -304,10 +251,6 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       };
     }
 
-    case 'ADD_LOADED_USERS': {
-      return addLoadedUsers(state, action.requestedUserIds, action.users);
-    }
-
     case 'UPDATE_USER': {
       const updatedUsers = state.users.map(user => user._id === action.userId
         ? { ...user, ...action.fields }
@@ -418,7 +361,8 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(state, NO_UNLOADED_POSTS);
+      const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 
@@ -487,7 +431,8 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(state, NO_UNLOADED_POSTS);
+      const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 
@@ -628,7 +573,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     case 'REMOVE_USER': {
       const newUsers = state.users.filter(u => u._id !== action.userId);
 
-      if (newUsers.length === 0 && state.unloadedUsers.length === 0) {
+      if (newUsers.length === 0) {
         return {
           ...state,
           users: [],
@@ -686,23 +631,12 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         }
       }
 
-      // Current tab's remaining users are still loading; they'll be focused when they arrive
-      if (getUnloadedUserIdsForTab(state.unloadedUsers, state.activeTab).length > 0) {
-        return {
-          ...state,
-          users: newUsers,
-          focusedUserId: null,
-          openedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
       // Current tab is empty, switch to next non-empty tab
       const tabsInOrder = getTabsInPriorityOrder();
       let nextTab: ReviewGroup | 'all' = 'all';
 
       for (const group of tabsInOrder) {
-        if (groupedUsers[group]?.length > 0 || getUnloadedUserIdsForTab(state.unloadedUsers, group).length > 0) {
+        if (groupedUsers[group]?.length > 0) {
           nextTab = group;
           break;
         }
@@ -711,15 +645,16 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab);
       const nextOrderedUsers = nextFilteredGroups.flatMap(([_, users]) => users);
 
-      if (nextOrderedUsers.length > 0 || getUnloadedUserIdsForTab(state.unloadedUsers, nextTab).length > 0) {
+      if (nextOrderedUsers.length > 0) {
+        const nextUserId = nextOrderedUsers[0]._id;
+
         // When switching tabs due to current tab being empty,
-        // always return to inbox view (not detail view).
-        // If the next tab's users are still unloaded, they'll be focused when they arrive.
+        // always return to inbox view (not detail view)
         return {
           ...state,
           users: newUsers,
           activeTab: nextTab,
-          focusedUserId: nextOrderedUsers[0]?._id ?? null,
+          focusedUserId: nextUserId,
           openedUserId: null,
           focusedContentIndex: 0,
         };

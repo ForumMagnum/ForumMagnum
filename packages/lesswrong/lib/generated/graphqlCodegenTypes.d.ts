@@ -21149,24 +21149,6 @@ type ModerationInboxDataQueryQueryVariables = Exact<{
 
 type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
 
-type ReviewQueueUsersQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type ReviewQueueUsersQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ReviewQueueUsersQueryQuery_users_MultiUserOutput_results_User> };
-
-type ReviewQueueUsersQueryQuery_Query = { __typename?: 'Query', users: ReviewQueueUsersQueryQuery_users_MultiUserOutput | null };
-
-
-type ReviewQueueUsersQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type ReviewQueueUsersQueryQuery = ReviewQueueUsersQueryQuery_Query;
-
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & SunshineUsersList

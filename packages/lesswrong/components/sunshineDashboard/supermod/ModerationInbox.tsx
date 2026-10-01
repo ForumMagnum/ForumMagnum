@@ -13,10 +13,11 @@ import { useModeratedUserContents } from '@/components/hooks/useModeratedUserCon
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
+import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { getFilteredGroups, getOrderedGroups, getUnloadedUserIdsForTab, getVisibleTabsInOrder, InboxState, inboxStateReducer, type ReviewQueueEntry, type UnloadedPostCounts } from './inboxReducer';
+import { getFilteredGroups, getOrderedGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -42,8 +43,7 @@ const ModerationInboxDataQuery = gql(`
       }
     }
     # Just the review group of every user in the queue, so that the tab counts
-    # aren't capped at the number of fully-loaded users, and so that opening a
-    # tab can load the rest of that tab's users
+    # aren't capped at the number of loaded users
     reviewQueueUsers: users(selector: $userSelector, limit: $reviewQueueLimit) {
       results {
         _id
@@ -73,15 +73,15 @@ const ModerationInboxDataQuery = gql(`
   }
 `);
 
-const ReviewQueueUsersQuery = gql(`
-  query ReviewQueueUsersQuery($selector: UserSelector, $limit: Int) {
-    users(selector: $selector, limit: $limit) {
-      results {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
+/**
+ * For each tab, the number of queued items beyond the page that's loaded, which
+ * the tab counts add on so they show the size of the whole queue.
+ */
+type UnloadedCounts = Partial<Record<TabId, number>>;
+
+function addUnloadedCounts(tabs: TabInfo[], unloadedCounts: UnloadedCounts): TabInfo[] {
+  return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
+}
 
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
@@ -146,13 +146,12 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, curationPosts, unloadedPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
-  unloadedUsers: ReviewQueueEntry[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
-  unloadedPosts: UnloadedPostCounts;
+  unloadedCounts: UnloadedCounts;
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -164,13 +163,12 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], unloadedUsers: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
         return {
           users: [],
-          unloadedUsers: [],
           posts: [],
           classifiedPosts: [],
           curationPosts: [],
@@ -189,7 +187,6 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
       if (initialOpenedUserId) {
         return {
           users: initialUsers,
-          unloadedUsers,
           posts,
           classifiedPosts,
           curationPosts,
@@ -207,7 +204,7 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder({ users: initialUsers, unloadedUsers, posts, classifiedPosts, curationPosts }, unloadedPosts);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -219,7 +216,6 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
       if (firstTab === 'curation') {
         return { 
           users: initialUsers,
-          unloadedUsers,
           posts,
           classifiedPosts,
           curationPosts,
@@ -238,7 +234,6 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
       if (firstTab === 'posts') {
         return {
           users: initialUsers,
-          unloadedUsers,
           posts,
           classifiedPosts,
           curationPosts,
@@ -257,7 +252,6 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
       if (firstTab === 'classifiedPosts') {
         return {
           users: initialUsers,
-          unloadedUsers,
           posts,
           classifiedPosts,
           curationPosts,
@@ -278,7 +272,6 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
 
       return {
         users: initialUsers,
-        unloadedUsers,
         posts,
         classifiedPosts,
         curationPosts,
@@ -328,36 +321,12 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
-  const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder({
-      users: state.users,
-      unloadedUsers: state.unloadedUsers,
-      posts: state.posts,
-      classifiedPosts: state.classifiedPosts,
-      curationPosts: state.curationPosts,
-    }, unloadedPosts);
-  }, [state.users, state.unloadedUsers, state.posts, state.classifiedPosts, state.curationPosts, unloadedPosts]);
+  const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
-  // Only the first page of the review queue is loaded up front; load the rest of a tab's users when it's opened
-  const userIdsToLoad = useMemo(
-    () => getUnloadedUserIdsForTab(state.unloadedUsers, state.activeTab),
-    [state.unloadedUsers, state.activeTab],
-  );
-  const { data: tabUsersData, loading: tabUsersLoading } = useQuery(ReviewQueueUsersQuery, {
-    variables: {
-      selector: { usersByUserIds: { userIds: userIdsToLoad } },
-      limit: userIdsToLoad.length,
-    },
-    skip: userIdsToLoad.length === 0,
-    ssr: false,
-  });
-  const loadedTabUsers = tabUsersData?.users?.results;
-  useEffect(() => {
-    // Wait until the results are for the current set of requested users
-    if (loadedTabUsers && !tabUsersLoading && userIdsToLoad.length > 0) {
-      dispatch({ type: 'ADD_LOADED_USERS', requestedUserIds: userIdsToLoad, users: loadedTabUsers });
-    }
-  }, [loadedTabUsers, tabUsersLoading, userIdsToLoad]);
+  const visibleTabs = useMemo((): TabInfo[] => {
+    const loadedTabs = getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+    return addUnloadedCounts(loadedTabs, unloadedCounts);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, unloadedCounts]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -607,23 +576,24 @@ const ModerationInbox = () => {
   const curationPosts = useMemo(() => data?.CurationCandidatePosts?.results ?? [], [data]);
   const lastCuratedDate = data?.LastCuratedDate?.lastCuratedDate ?? null;
 
-  const unloadedPosts = useMemo((): UnloadedPostCounts => ({
-    posts: Math.max(0, (data?.posts?.totalCount ?? 0) - (data?.posts?.results.length ?? 0)),
-    classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - (data?.classifiedPosts?.results.length ?? 0)),
-  }), [data]);
-
   const directUser = useMemo(() => {
     if (!shouldFetchDirectUser) return null;
     return directUserData?.user?.result ?? null;
   }, [shouldFetchDirectUser, directUserData]);
 
-  const unloadedUsers = useMemo((): ReviewQueueEntry[] => {
-    const loadedUserIds = new Set(data?.users?.results.map(user => user._id));
+  const unloadedCounts = useMemo((): UnloadedCounts => {
+    const loadedUserIds = new Set(users.map(user => user._id));
     if (directUser) {
       loadedUserIds.add(directUser._id);
     }
-    return data?.reviewQueueUsers?.results.filter(user => !loadedUserIds.has(user._id)) ?? [];
-  }, [data, directUser]);
+    const unloadedUsers = data?.reviewQueueUsers?.results.filter(user => !loadedUserIds.has(user._id)) ?? [];
+    return {
+      ...countBy(unloadedUsers, user => user.reviewGroup ?? 'unknown'),
+      all: unloadedUsers.length,
+      posts: Math.max(0, (data?.posts?.totalCount ?? 0) - (data?.posts?.results.length ?? 0)),
+      classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - (data?.classifiedPosts?.results.length ?? 0)),
+    };
+  }, [data, users, directUser]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -645,11 +615,10 @@ const ModerationInbox = () => {
 
   return <ModerationInboxInner
     users={users}
-    unloadedUsers={unloadedUsers}
     posts={posts}
     classifiedPosts={classifiedPosts}
     curationPosts={curationPosts}
-    unloadedPosts={unloadedPosts}
+    unloadedCounts={unloadedCounts}
     lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
