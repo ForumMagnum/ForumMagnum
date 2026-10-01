@@ -26,6 +26,7 @@ import { getHighlights, highlightCodeElement, updateHighlightContext, removeHigh
 import dynamic from 'next/dynamic';
 import SpoilerBlock, { containsSpoilerClassName, removeSpoilerClassNames } from './SpoilerBlock';
 import { ContentItemBodyContext } from './ContentItemBodyContext';
+import { handleMathCopy } from './mathCopyHandler';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -191,6 +192,16 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
       onContentReady?.(bodyRef.current);
     }
   }, [onContentReady]);
+
+  // Put the TeX source of rendered equations into copied plaintext
+  useEffect(() => {
+    const container = bodyRef.current;
+    if (!container) return;
+    container.addEventListener('copy', handleMathCopy);
+    return () => {
+      container.removeEventListener('copy', handleMathCopy);
+    };
+  }, []);
 
   // Apply CSS Custom Highlights API syntax highlighting to code blocks
   useEffect(() => {
