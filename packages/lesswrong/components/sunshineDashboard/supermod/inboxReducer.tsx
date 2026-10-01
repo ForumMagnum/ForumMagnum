@@ -88,12 +88,29 @@ export type InboxAction =
 
 
 
+/**
+ * Within the new content group, users whose comments are being held until
+ * they're reviewed come first, since those comments can't go live until then.
+ * Otherwise users keep their queue order.
+ */
+function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
+  if (group !== 'newContent') {
+    return users;
+  }
+  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+}
+
+export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
+  return (Object.entries(groupedUsers) as GroupEntry[])
+    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
+    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+}
+
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: TabId
 ): GroupEntry[] {
-  const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
-    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+  const orderedGroups = getOrderedGroups(groupedUsers);
   
   if (activeTab === 'all') {
     return orderedGroups;

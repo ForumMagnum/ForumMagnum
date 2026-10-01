@@ -7,7 +7,7 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
+import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
@@ -16,8 +16,7 @@ import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
-import { getFilteredGroups, getUnloadedUserIdsForTab, getVisibleTabsInOrder, InboxState, inboxStateReducer, NO_UNLOADED_POSTS, type ReviewQueueEntry, type UnloadedPostCounts } from './inboxReducer';
+import { getFilteredGroups, getOrderedGroups, getUnloadedUserIdsForTab, getVisibleTabsInOrder, InboxState, inboxStateReducer, type ReviewQueueEntry, type UnloadedPostCounts } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -27,6 +26,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { hideScrollBars } from '@/themes/styleUtils';
 
 // All of the moderation inbox's initial data is fetched in a single query so
@@ -315,9 +315,7 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
-  const orderedGroups = useMemo(() => (
-    (Object.entries(groupedUsers) as GroupEntry[]).sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-  ), [groupedUsers]);
+  const orderedGroups = useMemo(() => getOrderedGroups(groupedUsers), [groupedUsers]);
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
@@ -497,6 +495,10 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
           lastCuratedDate={lastCuratedDate}
         />
       )}
+      {/* Lazily-loaded components (eg the editor in the reject panel) suspend the
+          first time they render. Without a boundary here, the nearest one is at
+          the root of the app, so the whole page goes blank until they load. */}
+      <SuspenseWrapper name="ModerationInboxMainContent" fallback={<Loading/>}>
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
@@ -523,39 +525,46 @@ const ModerationInboxInner = ({ users, unloadedUsers, posts, classifiedPosts, cu
                 </div>
               )}
               <div className={classes.inboxListContainer}>
-                <ModerationInboxList
-                  userGroups={filteredGroups}
-                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
-                  curationPosts={state.curationPosts}
-                  focusedUserId={state.focusedUserId}
-                  focusedPostId={state.focusedPostId}
-                  onFocusUser={handleOpenUser}
-                  onOpenUser={handleOpenUser}
-                  onFocusPost={handleFocusPost}
-                  activeTab={state.activeTab}
-                />
+                <SuspenseWrapper name="ModerationInboxList" fallback={<Loading/>}>
+                  <ModerationInboxList
+                    userGroups={filteredGroups}
+                    posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                    curationPosts={state.curationPosts}
+                    focusedUserId={state.focusedUserId}
+                    focusedPostId={state.focusedPostId}
+                    onFocusUser={handleOpenUser}
+                    onOpenUser={handleOpenUser}
+                    onFocusPost={handleFocusPost}
+                    activeTab={state.activeTab}
+                  />
+                </SuspenseWrapper>
               </div>
             </>
           )}
         </div>
         {isPostsTab && !openedUser && (
           <div className={classes.postDetailPanel}>
-            <ModerationPostSidebar
-              post={focusedPost}
-              currentUser={currentUser}
-              dispatch={dispatch}
-            />
+            <SuspenseWrapper name="ModerationPostSidebar" fallback={<Loading/>}>
+              <ModerationPostSidebar
+                post={focusedPost}
+                currentUser={currentUser}
+                dispatch={dispatch}
+              />
+            </SuspenseWrapper>
           </div>
         )}
         {isCurationTab && !openedUser && (
           <div className={classes.postDetailPanel}>
-            <CurationPostView
-              post={focusedCurationPost}
-              currentUser={currentUser}
-            />
+            <SuspenseWrapper name="CurationPostView" fallback={<Loading/>}>
+              <CurationPostView
+                post={focusedCurationPost}
+                currentUser={currentUser}
+              />
+            </SuspenseWrapper>
           </div>
         )}
       </div>
+      </SuspenseWrapper>
     </div>
     </CoreTagsKeyboardProvider>
   );

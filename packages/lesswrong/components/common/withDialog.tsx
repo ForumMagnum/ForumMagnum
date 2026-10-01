@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
+import { SuspenseWrapper } from './SuspenseWrapper';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
@@ -48,8 +49,12 @@ export const DialogManager = ({children}: {
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}
+      {/* Dialogs often contain lazily-loaded components (eg editors). Without
+          this boundary, those suspending would blank the whole page. */}
       {dialogContents && <span>
-        {dialogContents({onClose: closeDialog})}
+        <SuspenseWrapper name="DialogManager">
+          {dialogContents({onClose: closeDialog})}
+        </SuspenseWrapper>
       </span>}
     </OpenDialogContext.Provider>
   );

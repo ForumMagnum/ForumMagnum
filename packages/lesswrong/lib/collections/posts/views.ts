@@ -1072,7 +1072,7 @@ function sunshineAutoClassifiedPosts(_terms: PostsViewTerms, _client: ApolloClie
     },
     options: {
       sort: {
-        frontpageDate: -1,
+        postedAt: -1,
       }
     }
   };
