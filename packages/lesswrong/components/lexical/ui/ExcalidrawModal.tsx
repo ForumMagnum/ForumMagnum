@@ -22,6 +22,8 @@
 //  * Excalidraw is configured with our theme (light/dark), the asset path for
 //    its self-hosted fonts, and without the canvas actions that don't make
 //    sense here.
+//  * Excalidraw's own dialogs and tooltips are raised above this modal, and
+//    its internal layers are isolated below the modal's own controls.
 
 import type {NonDeletedExcalidrawElement} from '@excalidraw/excalidraw/element/types';
 import type {
@@ -78,6 +80,16 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     zIndex: theme.zIndexes.modal,
     backgroundColor: theme.palette.lexicalEditor.modalOverlay,
   },
+  '@global': {
+    // Excalidraw renders its own dialogs (eg help, and the Mermaid
+    // text-to-diagram dialog) and tooltips in containers appended to <body>,
+    // with z-indexes taken from these variables (declared on :root by
+    // Excalidraw's CSS). Their defaults would put them underneath this modal.
+    body: {
+      '--zIndex-modal': String(theme.zIndexes.modal + 1),
+      '--zIndex-popup': String(theme.zIndexes.modal + 2),
+    },
+  },
   modal: {
     position: 'relative',
     width: 'auto',
@@ -97,6 +109,13 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     '& > div': {
       borderRadius: 5,
     },
+  },
+  excalidrawWrapper: {
+    height: '100%',
+    // Excalidraw's internal layers have z-indexes (up to ~130) but don't form
+    // their own stacking context, so without this they'd compete with (and
+    // could cover) the action buttons and discard confirmation below.
+    isolation: 'isolate',
   },
   actions: {
     display: 'flex',
@@ -195,10 +214,23 @@ function getReferencedFiles(
 }
 
 /**
+ * Replace each <a> that's inside another <a> with its contents. Excalidraw
+ * wraps elements that have a link in an <a>, and also renders web embeds as
+ * an <a> (with the same link), but links can't be nested.
+ */
+function unwrapNestedLinks(svg: SVGSVGElement) {
+  for (const nestedLink of Array.from(svg.querySelectorAll('a a'))) {
+    nestedLink.replaceWith(...Array.from(nestedLink.childNodes));
+  }
+}
+
+/**
  * Render a diagram to SVG markup, for display outside the editor. This is
  * always rendered in light mode, with a transparent background and without
  * embedded fonts; the fonts are loaded from our @font-face rules, and dark
- * mode is handled with a CSS filter.
+ * mode is handled with a CSS filter. Web embeds are rendered as a placeholder
+ * that links to the embedded page (rather than as an iframe, which the
+ * sanitizer wouldn't allow inside an SVG).
  */
 async function renderDiagramSvg(
   elements: NonDeletedElements,
@@ -212,8 +244,10 @@ async function renderDiagramSvg(
       exportEmbedScene: false,
     },
     files,
+    renderEmbeddables: false,
     skipInliningFonts: true,
   });
+  unwrapNestedLinks(svg);
   return svg.outerHTML;
 }
 
@@ -355,33 +389,35 @@ export default function ExcalidrawModal({
         tabIndex={-1}>
         <div className={classes.row}>
           {discardModalOpen && renderDiscardDialog()}
-          <Excalidraw
-            onChange={onChange}
-            onExcalidrawAPI={setExcalidrawAPI}
-            onInitialize={(api) => {
-              initialSceneVersionRef.current = hashElementsVersion(
-                api.getSceneElementsIncludingDeleted(),
-              );
-            }}
-            initialData={{
-              appState: initialAppState,
-              elements: initialElements,
-              files: initialFiles,
-              scrollToContent: true,
-            }}
-            theme={theme.dark ? 'dark' : 'light'}
-            UIOptions={{
-              canvasActions: {
-                // Diagrams are always displayed on the page background
-                changeViewBackgroundColor: false,
-                saveToActiveFile: false,
-                // The theme follows the site theme
-                toggleTheme: false,
-              },
-            }}
-            aiEnabled={false}
-            autoFocus
-          />
+          <div className={classes.excalidrawWrapper}>
+            <Excalidraw
+              onChange={onChange}
+              onExcalidrawAPI={setExcalidrawAPI}
+              onInitialize={(api) => {
+                initialSceneVersionRef.current = hashElementsVersion(
+                  api.getSceneElementsIncludingDeleted(),
+                );
+              }}
+              initialData={{
+                appState: initialAppState,
+                elements: initialElements,
+                files: initialFiles,
+                scrollToContent: true,
+              }}
+              theme={theme.dark ? 'dark' : 'light'}
+              UIOptions={{
+                canvasActions: {
+                  // Diagrams are always displayed on the page background
+                  changeViewBackgroundColor: false,
+                  saveToActiveFile: false,
+                  // The theme follows the site theme
+                  toggleTheme: false,
+                },
+              }}
+              aiEnabled={false}
+              autoFocus
+            />
+          </div>
           <div className={classes.actions}>
             <Button small onClick={discard} disabled={isSaving}>
               Discard

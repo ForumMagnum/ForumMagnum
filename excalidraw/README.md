@@ -24,10 +24,14 @@ upstream's, so dependency versions match upstream's.
 
 ## Local modifications
 
-Changes to vendored source files are marked with `LessWrong patch` comments.
+Changes to vendored source files are marked with `LessWrong patch` comments
+(except in JSON files, which can't have comments).
 
 - `packages/excalidraw/fonts/ExcalidrawFontFace.ts`: removed the fallback that
   loads fonts from esm.sh if they can't be loaded from our server.
+- `packages/excalidraw/locales/en.json`: the help dialog's "Read our blog"
+  link is labelled "Excalidraw blog" instead (`helpDialog.blog`), since in
+  our context "our" would read as referring to LessWrong.
 - Test files and test helpers were removed, as were upstream's per-package
   `.eslintrc.json`, `.gitignore` and `.size-limit.json` files.
 

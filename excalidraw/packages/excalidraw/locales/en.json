@@ -453,7 +453,7 @@
     "excalidrawplus_exportError": "Couldn't export to Excalidraw+ at this moment..."
   },
   "helpDialog": {
-    "blog": "Read our blog",
+    "blog": "Excalidraw blog",
     "click": "click",
     "deepSelect": "Deep select",
     "deepBoxSelect": "Deep select within box, and prevent dragging",
