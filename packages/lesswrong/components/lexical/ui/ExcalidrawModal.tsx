@@ -9,7 +9,7 @@
 
 // LessWrong modifications from upstream:
 //  * Styles converted from ExcalidrawModal.css to JSS, and the modal is
-//    larger.
+//    larger (and full-screen on phones).
 //  * On save, the diagram is also rendered to SVG (passed to `onSave`), and
 //    deleted elements and unused files are dropped.
 //  * The Escape key no longer deletes the diagram (Excalidraw itself uses
@@ -64,6 +64,15 @@ if (typeof window !== 'undefined') {
   window.EXCALIDRAW_ASSET_PATH = EXCALIDRAW_ASSET_PATH;
 }
 
+/**
+ * Media query for screens that are too small to show the editor as a modal
+ * with a margin around it (phones, including in landscape). On those, it's
+ * full-screen instead.
+ */
+function smallScreenMediaQuery(theme: ThemeType): string {
+  return `${theme.breakpoints.down('xs')}, (max-height: 499.95px)`;
+}
+
 const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
   overlay: {
     display: 'flex',
@@ -98,6 +107,12 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     alignItems: 'center',
     borderRadius: 8,
     backgroundColor: theme.palette.grey[200],
+    [smallScreenMediaQuery(theme)]: {
+      // Fill the overlay (which covers the viewport)
+      alignSelf: 'stretch',
+      flexGrow: 1,
+      borderRadius: 0,
+    },
   },
   row: {
     position: 'relative',
@@ -108,6 +123,19 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     boxShadow: `0 12px 28px 0 ${theme.palette.boxShadowColor(0.2)}, 0 2px 4px 0 ${theme.palette.boxShadowColor(0.1)}`,
     '& > div': {
       borderRadius: 5,
+    },
+    [smallScreenMediaQuery(theme)]: {
+      // Fill the modal
+      width: 'auto',
+      height: 'auto',
+      flexGrow: 1,
+      alignSelf: 'stretch',
+      padding: '44px 0 0',
+      borderRadius: 0,
+      boxShadow: 'none',
+      '& > div': {
+        borderRadius: 0,
+      },
     },
   },
   excalidrawWrapper: {
@@ -137,6 +165,9 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     justifyContent: 'center',
     borderRadius: 8,
     backgroundColor: theme.palette.lexicalEditor.modalOverlay,
+    [smallScreenMediaQuery(theme)]: {
+      borderRadius: 0,
+    },
   },
   discardDialog: {
     padding: 20,
