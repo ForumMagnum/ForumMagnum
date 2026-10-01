@@ -432,7 +432,11 @@ export async function approveUnreviewedSubmissions(userId: string, context: Reso
 }
 
 export async function approveUnreviewedSubmissionsOnApproval(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
-  if (newUser.reviewedByUserId && !oldUser.reviewedByUserId) {
+  // Purging a user also sets reviewedByUserId, but their content is about to be
+  // deleted, so don't approve it. (Approving it here would also race with the
+  // background deletion in userDeleteContent, which can leave denormalized
+  // comment counts too high.)
+  if (newUser.reviewedByUserId && !oldUser.reviewedByUserId && !newUser.deleteContent) {
     await approveUnreviewedSubmissions(newUser._id, context);
   }
 }
