@@ -48,6 +48,82 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
+/**
+ * Inline SVG support. This exists for diagrams made with Excalidraw (see
+ * @/lib/lexical/excalidrawDiagrams), so it covers the parts of SVG that
+ * Excalidraw's SVG export uses, and little else. In particular, there's no
+ * <style>, <script>, <foreignObject> or animation elements, no event handler
+ * attributes, and no references (href or url(...)) to anything other than
+ * elements within the same SVG, except for links and embedded raster images.
+ *
+ * Note that the HTML parser lowercases tag and attribute names, so these are
+ * lowercased here (eg "clippath" rather than "clipPath"). Browsers' HTML
+ * parsers restore the correct casing for SVG elements and attributes.
+ */
+const svgTags = [
+  'svg', 'g', 'defs', 'symbol', 'use', 'path', 'rect', 'text', 'image', 'mask', 'clippath',
+];
+
+const svgPresentationAttributes = [
+  'fill', 'fill-opacity', 'fill-rule', 'stroke', 'stroke-width', 'stroke-opacity',
+  'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset',
+  'stroke-miterlimit', 'opacity', 'transform', 'mask', 'clip-path',
+];
+
+const svgSizeAttributes = ['x', 'y', 'width', 'height'];
+
+const svgAllowedAttributes: Record<string, string[]> = {
+  svg: ['version', 'xmlns', 'viewbox', 'width', 'height', ...svgPresentationAttributes],
+  g: svgPresentationAttributes,
+  defs: [],
+  symbol: ['id', 'viewbox'],
+  use: ['href', ...svgSizeAttributes, 'opacity', 'transform'],
+  path: ['d', ...svgPresentationAttributes],
+  rect: [...svgSizeAttributes, 'rx', 'ry', ...svgPresentationAttributes],
+  text: [
+    ...svgSizeAttributes, 'font-family', 'font-size', 'font-weight', 'font-style',
+    'text-anchor', 'direction', 'dominant-baseline', 'style', ...svgPresentationAttributes,
+  ],
+  image: ['href', ...svgSizeAttributes, 'preserveaspectratio', 'opacity', 'transform'],
+  mask: ['id', 'maskunits', ...svgSizeAttributes, 'fill'],
+  clippath: ['id', 'clippathunits'],
+};
+
+// The only url(...) values allowed are references to elements by ID, eg a
+// mask="url(#mask-123)"
+const svgLocalUrlReferenceRegex = /^url\(#[\w.-]+\)$/;
+const svgLocalHrefRegex = /^#[\w.-]+$/;
+const svgImageHrefRegex = /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/=\s]+$/;
+
+function sanitizeSvgTag(tagName: string, attribs: Record<string, string>) {
+  const sanitizedAttribs: Record<string, string> = {};
+  for (const [name, value] of Object.entries(attribs)) {
+    // Presentation attributes are parsed as CSS, where backslash escapes could
+    // be used to disguise a url(...), so we don't allow them at all.
+    if (value.includes('\\')) {
+      continue;
+    }
+    if (value.toLowerCase().includes('url(') && !svgLocalUrlReferenceRegex.test(value)) {
+      continue;
+    }
+    if (name === 'href') {
+      const hrefRegex = tagName === 'image' ? svgImageHrefRegex : svgLocalHrefRegex;
+      if (!hrefRegex.test(value)) {
+        continue;
+      }
+    }
+    sanitizedAttribs[name] = value;
+  }
+  return {
+    tagName,
+    attribs: sanitizedAttribs,
+  };
+}
+
+const svgTransformTags = Object.fromEntries(
+  svgTags.map((tag) => [tag, sanitizeSvgTag])
+);
+
 function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
   const srcdoc = attribs.srcdoc;
   if (srcdoc !== undefined) {
@@ -81,9 +157,10 @@ function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
-    allowedTags: sanitizeAllowedTags,
+    allowedTags: [...sanitizeAllowedTags, ...svgTags],
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      ...svgAllowedAttributes,
       '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
@@ -152,8 +229,13 @@ export const sanitize = function(s: string): string {
       'neuronpedia.org',
       'lwartifacts.vercel.app'
     ],
+    allowedSchemesByTag: {
+      // Embedded raster images in SVGs; see sanitizeSvgTag
+      image: ['data'],
+    },
     transformTags: {
       iframe: sanitizeIframeTag,
+      ...svgTransformTags,
     },
     // `transformTags.iframe` may strip invalid iframe src values to empty attrs, and we want those empty wrappers removed.
     exclusiveFilter: (frame) => {
@@ -272,6 +354,9 @@ export const sanitize = function(s: string): string {
       },
       pre: {
         '--gutter-chars': [/^\d+$/],
+      },
+      text: {
+        'white-space': [/^pre$/],
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899

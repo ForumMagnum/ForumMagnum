@@ -31,6 +31,7 @@
     "combine-coverage": "./scripts/combineCoverage.sh",
     "generate": "scripts/generateTypes.sh",
     "rebuild-ckeditor": "cd ./ckEditor && yarn install && yarn run build",
+    "rebuild-excalidraw": "cd ./excalidraw && yarn install && yarn run build --force",
     "playwright-db": "docker run --rm --name forum-magnum-test-postgres -e POSTGRES_PASSWORD=password -p 5433:5432 -v $PWD/schema/accepted_schema.sql:/docker-entrypoint-initdb.d/00_accepted_schema.sql -v $PWD/playwright/fixtures.sql:/docker-entrypoint-initdb.d/01_fixtures.sql ankane/pgvector",
     "playwright-db-crosspost": "docker run --rm --name forum-magnum-test-postgres-crosspost -e POSTGRES_PASSWORD=password -p 5434:5432 -v $PWD/schema/accepted_schema.sql:/docker-entrypoint-initdb.d/00_accepted_schema.sql -v $PWD/playwright/fixtures.sql:/docker-entrypoint-initdb.d/01_fixtures.sql ankane/pgvector",
     "playwright-test": "playwright test",
