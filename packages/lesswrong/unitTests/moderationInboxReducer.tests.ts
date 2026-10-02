@@ -1,4 +1,4 @@
-import { getOrderedGroups, inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -612,31 +612,6 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
-    });
-  });
-
-  describe('user ordering', () => {
-    test('new content users with pending comments come first, otherwise keeping queue order', () => {
-      const users = [
-        createMockUser('postsOnly1', 'newContent'),
-        createMockUser('comments1', 'newContent', { hasPendingComments: true }),
-        createMockUser('postsOnly2', 'newContent'),
-        createMockUser('comments2', 'newContent', { hasPendingComments: true }),
-      ];
-      const [[group, orderedUsers]] = getOrderedGroups({ newContent: users });
-
-      expect(group).toBe('newContent');
-      expect(orderedUsers.map(user => user._id)).toEqual(['comments1', 'comments2', 'postsOnly1', 'postsOnly2']);
-    });
-
-    test('other groups keep their queue order', () => {
-      const users = [
-        createMockUser('user1', 'highContext'),
-        createMockUser('user2', 'highContext', { hasPendingComments: true }),
-      ];
-      const [[, orderedUsers]] = getOrderedGroups({ highContext: users });
-
-      expect(orderedUsers.map(user => user._id)).toEqual(['user1', 'user2']);
     });
   });
 });

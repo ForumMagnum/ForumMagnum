@@ -480,10 +480,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return rows.map((row) => row.userId);
   }
 
-  /**
-   * Of the given users, returns those who have comments that are hidden until
-   * their author is reviewed (see `commentIsHiddenPendingReview`).
-   */
+  // Mirrors `commentIsHiddenPendingReview`
   async getUserIdsWithPendingComments(userIds: string[], hideSince: Date): Promise<string[]> {
     const rows = await this.getRawDb().any<{ userId: string }>(`
       -- UsersRepo.getUserIdsWithPendingComments

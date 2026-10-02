@@ -41,8 +41,6 @@ const ModerationInboxDataQuery = gql(`
         ...SunshineUsersList
       }
     }
-    # Just the review group of every user in the queue, so that the tab counts
-    # aren't capped at the number of loaded users
     reviewQueueUsers: users(selector: $userSelector, limit: $reviewQueueLimit) {
       results {
         _id
@@ -72,10 +70,6 @@ const ModerationInboxDataQuery = gql(`
   }
 `);
 
-/**
- * For each tab, the number of queued items beyond the page that's loaded, which
- * the tab counts add on so they show the size of the whole queue.
- */
 type UnloadedCounts = Partial<Record<TabId, number>>;
 
 function addUnloadedCounts(tabs: TabInfo[], unloadedCounts: UnloadedCounts): TabInfo[] {

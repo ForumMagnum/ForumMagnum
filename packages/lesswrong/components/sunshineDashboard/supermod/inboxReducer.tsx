@@ -83,11 +83,7 @@ export type InboxAction =
 
 
 
-/**
- * Within the new content group, users whose comments are being held until
- * they're reviewed come first, since those comments can't go live until then.
- * Otherwise users keep their queue order.
- */
+// Held comments can't go live until their author is reviewed
 function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
   if (group !== 'newContent') {
     return users;
