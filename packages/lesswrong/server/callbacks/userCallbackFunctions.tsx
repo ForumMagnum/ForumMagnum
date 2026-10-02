@@ -20,7 +20,7 @@ import { editableUserProfileFields, simpleUserProfileFields } from "../userProfi
 import { userDeleteContent } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
-import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { triggerReviewAndMaybeAutoPurgeProfileSpam } from "../profileSpamClassifier/autoPurge";
 import isEqual from "lodash/isEqual";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 import { createConversation } from "../collections/conversations/mutations";
@@ -387,7 +387,7 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
 
   if (updatedField) {
     const reviewTrigger = updatedField === 'mapMarkerText' ? 'mapLocation' : updatedField;
-    backgroundTask(triggerReviewIfNeeded(newDocument._id, reviewTrigger, context));
+    backgroundTask(triggerReviewAndMaybeAutoPurgeProfileSpam(newDocument._id, reviewTrigger, context));
   }
 }
 

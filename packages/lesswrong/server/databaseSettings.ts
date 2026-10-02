@@ -119,6 +119,8 @@ export const autoFrontpageSetting = new ParsedServerSetting<boolean>('languageMo
 export const autoFrontpageModelSetting = new ServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
 export const autoFrontpagePromptSetting = new ServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
+export const profileSpamAutoPurgeSetting = new ParsedServerSetting<boolean>('languageModels.profileSpamAutoPurge', false);
+
 export const welcomeEmailPostId = new ServerSetting<string|null>("welcomeEmailPostId", null);
 export const forumTeamUserId = new ServerSetting<string|null>("forumTeamUserId", null);
 
