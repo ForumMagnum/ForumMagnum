@@ -10,9 +10,14 @@
 //    relative paths, so the main app only needs a single path alias.
 //  * We emit a list of font faces (readerFontFaces.json), which the main app
 //    uses to define @font-face rules for diagrams displayed outside the editor.
+//
+// The output isn't committed; this runs on every `yarn install` of the main
+// app (see scripts/postinstall.sh), and skips rebuilding if none of its inputs
+// have changed since the last build. Pass --force to rebuild anyway.
 import { build } from "esbuild";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { execFileSync } from "child_process";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -306,8 +311,59 @@ function buildTypes() {
   );
 }
 
-fs.rmSync(distDir, { recursive: true, force: true });
-await buildBundle();
-await buildReaderFontFaces();
-copyFontFiles();
-buildTypes();
+// Everything (relative to rootDir) that the build output depends on.
+const BUILD_INPUTS = [
+  "build.mjs",
+  "package.json",
+  "yarn.lock",
+  "tsconfig.json",
+  "packages",
+];
+const buildHashFile = path.join(distDir, ".build-hash");
+
+function listFilesSorted(dir) {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .flatMap((entry) => {
+      const entryPath = path.join(dir, entry.name);
+      return entry.isDirectory() ? listFilesSorted(entryPath) : [entryPath];
+    });
+}
+
+function computeBuildHash() {
+  const hash = crypto.createHash("sha256");
+  for (const input of BUILD_INPUTS) {
+    const inputPath = path.join(rootDir, input);
+    const files = fs.statSync(inputPath).isDirectory()
+      ? listFilesSorted(inputPath)
+      : [inputPath];
+    for (const file of files) {
+      hash.update(path.relative(rootDir, file));
+      hash.update(fs.readFileSync(file));
+    }
+  }
+  return hash.digest("hex");
+}
+
+function isBuildUpToDate(buildHash) {
+  return (
+    fs.existsSync(buildHashFile) &&
+    fs.readFileSync(buildHashFile, "utf8") === buildHash &&
+    fs.existsSync(path.join(distDir, "index.js")) &&
+    fs.existsSync(path.join(assetsOutDir, "fonts"))
+  );
+}
+
+const buildHash = computeBuildHash();
+if (!process.argv.includes("--force") && isBuildUpToDate(buildHash)) {
+  console.log("Excalidraw build is up to date (pass --force to rebuild)");
+} else {
+  fs.rmSync(distDir, { recursive: true, force: true });
+  await buildBundle();
+  await buildReaderFontFaces();
+  copyFontFiles();
+  buildTypes();
+  fs.writeFileSync(buildHashFile, buildHash);
+  console.log("Built Excalidraw");
+}

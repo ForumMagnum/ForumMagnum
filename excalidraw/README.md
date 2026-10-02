@@ -37,15 +37,17 @@ Changes to vendored source files are marked with `LessWrong patch` comments
 
 ## Building
 
-The build output is committed, so this only needs to be rebuilt after changing
-something in this directory:
+The build output isn't committed. It's built by the main app's
+`scripts/postinstall.sh` (so, on every `yarn install`, including in deploys),
+and by the `setupEnvironment` GitHub action in CI. `build.mjs` skips the build
+if none of its inputs have changed since the last one; to force a rebuild, run
 
 ```
 yarn rebuild-excalidraw
 ```
 
-(which runs `yarn install && yarn build` in this directory). `build.mjs`
-produces:
+(which runs `yarn install && yarn build --force` in this directory). `build.mjs`
+produces (both gitignored):
 
 - `dist/`: an ESM bundle (with lazily-loaded chunks) of the editor, with
   everything but React bundled in; its CSS; type declarations; and
