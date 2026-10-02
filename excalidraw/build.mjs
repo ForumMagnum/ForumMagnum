@@ -317,6 +317,7 @@ const BUILD_INPUTS = [
   "package.json",
   "yarn.lock",
   "tsconfig.json",
+  "assets.d.ts",
   "packages",
 ];
 const buildHashFile = path.join(distDir, ".build-hash");

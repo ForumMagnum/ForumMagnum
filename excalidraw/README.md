@@ -34,6 +34,11 @@ Changes to vendored source files are marked with `LessWrong patch` comments
   our context "our" would read as referring to LessWrong.
 - Test files and test helpers were removed, as were upstream's per-package
   `.eslintrc.json`, `.gitignore` and `.size-limit.json` files.
+- `assets.d.ts` (ours, not vendored) declares the types of the source's font
+  imports. Upstream gets those from Vite's types (via
+  `packages/excalidraw/vite-env.d.ts`), but we don't build with Vite. The build
+  must not depend on anything installed outside this directory (in
+  particular, the main app's devDependencies aren't installed in deploys).
 
 ## Building
 
