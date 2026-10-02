@@ -9,13 +9,40 @@ import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { randomId } from "@/lib/random";
 
-const LINK_PREVIEW_CACHE_VERSION = 2;
+const LINK_PREVIEW_CACHE_VERSION = 3;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const LINK_PREVIEW_FETCH_TIMEOUT_MS = 8000;
 const LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS = 8000;
 const MAX_REMOTE_HTML_LENGTH = 300_000;
 const MAX_IMAGE_PROBE_BYTES = 262_144;
 const MAX_EXCERPT_LENGTH = 3000;
+
+// Some sites (eg PubMed) block our fetcher with a bot-check or CAPTCHA
+// interstitial. Previewing that page is worse than showing no preview at all.
+// These checks only apply to pages without ordinary preview metadata, so that
+// eg an article about CAPTCHAs, or a page with a reCAPTCHA-protected contact
+// form, still gets a preview.
+const BOT_CHALLENGE_TITLE_PATTERNS = [
+  /captcha/i,
+  /checking (your|the|if the site connection is secure|browser)/i,
+  /^just a moment/i,
+  /attention required/i,
+  /are you a (robot|human)/i,
+  /verify(ing)? (that )?you are (a )?human/i,
+  /^(access denied|security check|ddos-guard)\b/i,
+];
+const BOT_CHALLENGE_HTML_MARKERS = [
+  "challenges.cloudflare.com",
+  "/cdn-cgi/challenge-platform/",
+  "cf_chl_opt",
+  "_incapsula_resource",
+  "captcha-delivery.com",
+  "px-captcha",
+  "ddos-guard",
+  "g-recaptcha",
+  "h-captcha",
+  "challengeid",
+];
 
 interface LinkPreviewResult {
   title: string | null;
@@ -165,6 +192,24 @@ function extractTitle($: CheerioAPI): ExtractedValue {
     value: title,
     source: title ? truncate($.html(titleTag)) : null,
   };
+}
+
+export function looksLikeBotChallengePage(rawHtml: string): boolean {
+  const $ = cheerioParse(rawHtml);
+  const hasPreviewMetadata = !!extractMetaContent($, [
+    "meta[property='og:title']",
+    "meta[property='og:description']",
+    "meta[name='description']",
+  ]).value;
+  if (hasPreviewMetadata) {
+    return false;
+  }
+  const title = $("title").first().text();
+  if (BOT_CHALLENGE_TITLE_PATTERNS.some((pattern) => pattern.test(title))) {
+    return true;
+  }
+  const lowercaseHtml = rawHtml.toLowerCase();
+  return BOT_CHALLENGE_HTML_MARKERS.some((marker) => lowercaseHtml.includes(marker));
 }
 
 function toAbsoluteHttpUrl(url: string, baseUrl: string): string {
@@ -986,6 +1031,9 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 
   try {
     const remoteHtml = await fetchRemoteHtml(normalizedUrl);
+    if (looksLikeBotChallengePage(remoteHtml)) {
+      throw new Error("Page is a bot check or CAPTCHA");
+    }
     const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
     const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
     const hasPreviewData = !!(parsed.title || resolvedImage.imageUrl || parsed.sanitizedHtml);
