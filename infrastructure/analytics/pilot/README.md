@@ -2,6 +2,8 @@
 
 Authorized October 1, 2026: up to **$500**, networking delegated. Production RDS capture and application deployment are outside this pilot. The main source continues writing to RDS normally.
 
+Final verified state: **EC2 stopped, automatic public IPv4 released; encrypted disks and private S3 retained.**
+
 ## Resources
 
 | Resource | Identifier |

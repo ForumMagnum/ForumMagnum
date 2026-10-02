@@ -93,6 +93,6 @@ The query latencies are single warm measurements on a bounded sample. They do no
 
 ### Final populated restart verification
 
-After the final artifact/bootstrap update, a second real EC2 stop/start preserved **all 1,000,000 events** and fingerprint **5126686002570470873**. All 147 query result groups matched the independent source calculations again. Post-restart wall times were traffic **220 ms**, breakdown **371 ms**, and retention **77 ms**. The stop timer remained active and ClickHouse still listened only on loopback. The instance was then requested to stop; final power state is recorded in the pilot runbook.
+After the final artifact/bootstrap update, a second real EC2 stop/start preserved **all 1,000,000 events** and fingerprint **5126686002570470873**. All 147 query result groups matched the independent source calculations again. Post-restart wall times were traffic **220 ms**, breakdown **371 ms**, and retention **77 ms**. The stop timer remained active and ClickHouse still listened only on loopback. The instance was then stopped; AWS confirmed `State=stopped` and `PublicIP=null`. Encrypted EBS and private S3 remain retained.
 
 Private Terraform state is backed up to `s3://lw-analytics-pilot-083919364732-20261001/operator/terraform.tfstate` with bucket encryption/versioning. The host role cannot write that prefix. Final implementation commit and cloud resource identifiers are reviewable in the draft PR; raw payloads and credentials remain outside Git.
