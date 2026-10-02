@@ -28,6 +28,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
+import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
@@ -2268,6 +2269,20 @@ const schema = {
       },
     },
   },
+  emailSubscribedToAiDigest: {
+    database: {
+      type: "BOOL",
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   unsubscribeFromAll: {
     database: {
       type: "BOOL",
@@ -4365,6 +4380,22 @@ const schema = {
       inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
+    },
+  },
+  aiDigestPersonalInstructions: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        regEx: new RegExp(`^[\\s\\S]{0,${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH}}$`),
+      },
     },
   },
   lastRemovedFromReviewQueueAt: {

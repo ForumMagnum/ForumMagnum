@@ -251,10 +251,12 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
+const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded, recordView = true}: {
   sequenceIdFromUrl: string|null,
   refetch: () => void,
   embedded?: boolean,
+  /** Whether mounting the page counts as the reader viewing the post (read status, view count, recommendations). */
+  recordView?: boolean,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -385,15 +387,22 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
 
-    void recordPostView({
-      post: post,
-      extraEventProperties: {
-        sequenceId: getSequenceId()
-      },
-      recommendationOptions: {
-        recombeeOptions: { recommId },
-      }
-    });
+    if (recordView) {
+      void recordPostView({
+        post: post,
+        extraEventProperties: {
+          sequenceId: getSequenceId(),
+          // Lets features attribute a visit to the email link that led to it
+          ...(query.utm_campaign ? {
+            utmCampaign: query.utm_campaign,
+            utmContent: query.utm_content,
+          } : {}),
+        },
+        recommendationOptions: {
+          recombeeOptions: { recommId },
+        }
+      });
+    }
 
     if (!recombeeEnabledSetting.get(forumType)) return;
     setRecommId(recommId);

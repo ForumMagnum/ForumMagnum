@@ -93,7 +93,7 @@ function addEmailBoilerplate({ css, title, body, forumType }: {
   return `
     <html lang="en">
     <head>
-      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       <!-- So that mobile webkit will display zoomed in -->
       <meta name="viewport" content="initial-scale=1.0"/>
       <!-- disable auto telephone linking in iOS -->

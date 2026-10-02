@@ -13,14 +13,17 @@ export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
 /**
  * When changing this, also update the default view.
  */
-export const getViewablePostsSelector = (postsTableAlias?: string) => {
+export const getViewablePostsSelector = (
+  postsTableAlias?: string,
+  { includeShortform = false }: { includeShortform?: boolean } = {},
+) => {
   const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
   return `
     ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
     ${aliasPrefix}"draft" = FALSE AND
     ${aliasPrefix}"isFuture" = FALSE AND
     ${aliasPrefix}"unlisted" = FALSE AND
-    ${aliasPrefix}"shortform" = FALSE AND
+    ${includeShortform ? "" : `${aliasPrefix}"shortform" = FALSE AND`}
     ${aliasPrefix}"authorIsUnreviewed" = FALSE AND
     ${aliasPrefix}"hiddenRelatedQuestion" = FALSE AND
     ${aliasPrefix}"isEvent" = FALSE AND

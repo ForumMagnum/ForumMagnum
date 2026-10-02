@@ -14,13 +14,14 @@ const styles = defineStyles("Menu", (theme) => ({
   },
 }));
 
-export function Menu({open, anchorEl, onClose, onClick, minWidth, className, children}: {
+export function Menu({open, anchorEl, onClose, onClick, minWidth, className, placement, children}: {
   open: boolean
   anchorEl: any
   onClose?: (event: AnyBecauseTodo) => void
   onClick?: (event: AnyBecauseTodo) => void
   minWidth?: number
   className?: string,
+  placement?: PopperPlacementType,
   children?: React.ReactNode
 }) {
   if (!anchorEl) return null;
@@ -33,6 +34,7 @@ export function Menu({open, anchorEl, onClose, onClick, minWidth, className, chi
     open={open}
     anchorEl={anchorEl}
     className={className}
+    placement={placement}
   >
     <div onClick={sendCloseAndClick}>
       <LWClickAwayListener onClickAway={sendCloseAndClick}>
@@ -49,17 +51,18 @@ export function Menu({open, anchorEl, onClose, onClick, minWidth, className, chi
  * the positioning used by popperjs in that the placement covers the anchor
  * element, rather than being next to the anchor element.
  */
-function MenuPopper({open, className, anchorEl, children}: {
+function MenuPopper({open, className, anchorEl, placement = "bottom-start", children}: {
   open: boolean
   anchorEl: HTMLElement|null,
   className?: string
+  placement?: PopperPlacementType
   children: React.ReactNode
 }) {
   const [element, setElement] = useState<HTMLDivElement|null>(null);
   const classes = useStyles(styles);
 
   const positioning = (anchorEl && element)
-    ? getMenuPositionStyles(anchorEl, element, "bottom-start")
+    ? getMenuPositionStyles(anchorEl, element, placement)
     : getOffScreeStyles();
 
   if (!open) {
@@ -98,6 +101,8 @@ function getOffScreeStyles(): React.CSSProperties {
 
 function placeRectOverlapping(anchorRect: DOMRect, elementRect: DOMRect, placement: PopperPlacementType): DOMRect {
   switch(placement) {
+    case "bottom-end":
+      return new DOMRect(anchorRect.right - elementRect.width, anchorRect.y, elementRect.width, elementRect.height);
     case "bottom-start":
     default:
       return new DOMRect(anchorRect.x, anchorRect.y, elementRect.width, elementRect.height);
@@ -110,7 +115,9 @@ function placeRectOverlapping(anchorRect: DOMRect, elementRect: DOMRect, placeme
 function rectToCSS(rect: DOMRect, anchorFromRight: boolean): React.CSSProperties {
   if (anchorFromRight) {
     return {
-      right: window.innerWidth - rect.right - window.scrollX,
+      // Use clientWidth rather than window.innerWidth because `right` resolves
+      // against the initial containing block, which excludes the scrollbar
+      right: document.documentElement.clientWidth - rect.right - window.scrollX,
       top: rect.top + window.scrollY,
       position: "absolute",
     };
@@ -135,8 +142,9 @@ function pushRectInFromOffScreen({rect, anchorFromRight}: {
   rect: DOMRect,
   anchorFromRight: boolean
 } {
-  // Get viewport dimensions
-  const viewportWidth = window.innerWidth;
+  // Get viewport dimensions (clientWidth excludes the scrollbar, matching how
+  // CSS left/right offsets resolve in rectToCSS)
+  const viewportWidth = document.documentElement.clientWidth;
   const viewportHeight = window.innerHeight;
   
   // Create a new rect that we can modify

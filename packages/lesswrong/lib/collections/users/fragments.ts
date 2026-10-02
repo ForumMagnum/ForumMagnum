@@ -177,6 +177,7 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -472,6 +473,7 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
 
     # Moderation

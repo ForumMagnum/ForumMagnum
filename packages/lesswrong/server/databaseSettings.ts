@@ -193,6 +193,9 @@ export const memoryUsageCheckInterval = new ParsedServerSetting<number>("memoryU
 export const logGraphqlQueriesSetting = new ParsedServerSetting<boolean>("logGraphqlQueries", false);
 export const logGraphqlMutationsSetting = new ParsedServerSetting<boolean>("logGraphqlMutations", false);
 
+export const aiDigestScheduledEmailsEnabledSetting = new ParsedServerSetting<boolean>('aiDigestScheduledEmailsEnabled', false)
+export const aiDigestEmailCadenceDaysSetting = new ParsedServerSetting<number>('aiDigestEmailCadenceDays', 2)
+
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])
 

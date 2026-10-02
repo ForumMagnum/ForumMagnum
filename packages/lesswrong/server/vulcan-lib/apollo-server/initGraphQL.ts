@@ -72,8 +72,10 @@ import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolver
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
+import { aiDigestGraphQLMutations, aiDigestGraphQLQueries, aiDigestGraphQLTypeDefs } from "@/server/resolvers/aiDigestResolvers";
 
 // Collection imports
+import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -319,7 +321,9 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
+  ${aiDigestGraphQLTypeDefs}
   ## CRUD Query typedefs
+  ${graphqlAiDigestIssueQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -497,8 +501,10 @@ const getResolvers = () => ({
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
+    ...aiDigestGraphQLQueries,
 
     // CRUD Query Handlers
+    ...aiDigestIssueGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -605,6 +611,7 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
+    ...aiDigestGraphQLMutations,
 
     // CRUD Mutation Handlers
     createBook: createBookGqlMutation,
@@ -677,6 +684,7 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
+  ...aiDigestIssueGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,

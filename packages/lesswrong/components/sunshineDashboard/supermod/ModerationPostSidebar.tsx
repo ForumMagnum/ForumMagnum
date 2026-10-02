@@ -209,7 +209,8 @@ const ModerationPostSidebar = ({
       </div>
 
       <div className={classes.postWrapper} key={post._id}>
-        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded />
+        {/* Paging through posts to moderate them is not reading them: don't mark them read for the moderator. */}
+        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded recordView={false} />
       </div>
     </div>
   );
