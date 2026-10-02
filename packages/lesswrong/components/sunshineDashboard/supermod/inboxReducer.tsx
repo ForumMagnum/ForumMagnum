@@ -83,7 +83,7 @@ export type InboxAction =
 
 
 
-// Held comments can't go live until their author is reviewed
+// Held comments can't go live until reviewed
 function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
   if (group !== 'newContent') {
     return users;
