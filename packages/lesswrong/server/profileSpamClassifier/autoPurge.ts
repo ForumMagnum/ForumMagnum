@@ -95,13 +95,6 @@ async function purgeProfileSpammer(user: DbUser, reason: string, context: Resolv
       deleteContent: true,
       banned: moment().add(1000, "years").toDate(),
       sunshineNotes: note + (user.sunshineNotes ?? ""),
-      // Banned users' profiles stay public. The bio stays recoverable from Revisions.
-      biography: null,
-      biography_latest: null,
-      mapLocation: null,
-      mapLocationSet: false,
-      mapMarkerText: null,
-      htmlMapMarkerText: null,
     },
   }, adminContext);
 
