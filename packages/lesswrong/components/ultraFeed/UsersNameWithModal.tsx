@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import UsersName from '../users/UsersName';
 import UltraFeedUserCard from '../ultraFeed/UltraFeedUserCard';
-import HoverOver from '../common/HoverOver';
+import LWTooltip from '../common/LWTooltip';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -96,13 +96,14 @@ const UsersNameWithModal = ({
   return (
     <AnalyticsContext pageElementContext="ultraFeedUserName" userIdDisplayed={user._id}>
       <span {...eventHandlers}>
-        <HoverOver
+        <LWTooltip
           title={<UltraFeedUserCard user={user} />}
           placement={tooltipPlacement}
           clickable
           disabledOnMobile
           flip
           popperClassName={classes.cardWrapper}
+          inlineBlock={false}
         >
           <Link
             to={profileUrl}
@@ -112,7 +113,7 @@ const UsersNameWithModal = ({
             {displayName}
             {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
           </Link>
-        </HoverOver>
+        </LWTooltip>
       </span>
     </AnalyticsContext>
   );
