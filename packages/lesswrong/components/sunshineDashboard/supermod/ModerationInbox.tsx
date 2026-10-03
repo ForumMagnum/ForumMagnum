@@ -17,7 +17,7 @@ import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { getFilteredGroups, getOrderedGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
+import { getFilteredGroups, getOrderedGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer, type UnloadedCounts } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -69,12 +69,6 @@ const ModerationInboxDataQuery = gql(`
     }
   }
 `);
-
-type UnloadedCounts = Partial<Record<TabId, number>>;
-
-function addUnloadedCounts(tabs: TabInfo[], unloadedCounts: UnloadedCounts): TabInfo[] {
-  return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
-}
 
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
@@ -156,7 +150,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, unloadedCounts },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -174,6 +168,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          unloadedCounts,
         };
       }
 
@@ -192,12 +187,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          unloadedCounts,
         };
       }
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
+      // Start on a tab with loaded items, so ignore the unloaded ones here
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, {});
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -221,6 +218,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          unloadedCounts,
         };
       }
       
@@ -239,6 +237,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          unloadedCounts,
         };
       }
 
@@ -257,6 +256,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          unloadedCounts,
         };
       }
 
@@ -277,6 +277,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts,
       };
     }
   );
@@ -316,10 +317,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
-  const visibleTabs = useMemo((): TabInfo[] => {
-    const loadedTabs = getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
-    return addUnloadedCounts(loadedTabs, unloadedCounts);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, unloadedCounts]);
+  const visibleTabs = useMemo(
+    (): TabInfo[] => getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts),
+    [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts]
+  );
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -493,6 +494,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
+                  unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
                 />
               </div>
             </>

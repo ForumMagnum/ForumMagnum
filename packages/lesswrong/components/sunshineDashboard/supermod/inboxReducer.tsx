@@ -27,6 +27,7 @@ export interface UndoHistoryItem {
   wasDetailView: boolean;
 };
 
+export type UnloadedCounts = Partial<Record<TabId, number>>;
 
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
@@ -55,6 +56,8 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
+  // Queued items beyond the loaded page, per tab. Tab counts include these.
+  unloadedCounts: UnloadedCounts;
 };
 
 export type InboxAction =
@@ -115,6 +118,7 @@ export function getVisibleTabsInOrder(
   totalPosts: number,
   totalClassifiedPosts: number,
   totalCurationNotices: number,
+  unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
@@ -128,7 +132,7 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
-  return tabs;
+  return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
 }
 
 /**
@@ -358,7 +362,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -428,7 +432,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
