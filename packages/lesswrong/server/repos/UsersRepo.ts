@@ -480,6 +480,22 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return rows.map((row) => row.userId);
   }
 
+  // Mirrors `commentIsHiddenPendingReview`
+  async getUserIdsWithPendingComments(userIds: string[], hideSince: Date): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ userId: string }>(`
+      -- UsersRepo.getUserIdsWithPendingComments
+      SELECT DISTINCT c."userId"
+      FROM "Comments" c
+      WHERE c."userId" = ANY($(userIds)::text[])
+        AND c."authorIsUnreviewed" IS TRUE
+        AND c."postedAt" > $(hideSince)
+        AND c."rejected" IS NOT TRUE
+        AND c."deleted" IS NOT TRUE
+        AND c."draft" IS NOT TRUE
+    `, { userIds, hideSince });
+    return rows.map((row) => row.userId);
+  }
+
   async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
     const rows = await this.getRawDb().any<{ userId: string, count: number }>(`
       -- UsersRepo.getRejectedContentCounts
