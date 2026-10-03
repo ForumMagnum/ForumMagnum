@@ -5,6 +5,8 @@ import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
 import isEqual from "lodash/isEqual";
 import { useStabilizedCallbackAsync } from "./useDebouncedCallback";
+import { useForumType } from "./useForumType";
+import { maxDocumentsPerRequestSetting } from "@/lib/instanceSettings";
 
 // Safe to import because it's imported only for its type
 // eslint-disable-next-line no-restricted-imports
@@ -67,6 +69,7 @@ export function useQueryWithLoadMore<
     ...remainingOptions
   } = options;
 
+  const { forumType } = useForumType();
   const { limit, selector } = variables;
   const initialLimit = (selector && 'limit' in selector && typeof selector.limit === 'number')
     ? selector.limit
@@ -112,8 +115,7 @@ export function useQueryWithLoadMore<
 
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= pagination.loadedLimit));
 
-  const loadMore = useStabilizedCallbackAsync<void>(async () => {
-    const newLimit: number = pagination.loadedLimit + itemsPerPage;
+  const loadWithLimit = async (newLimit: number) => {
     const nextPagination = { ...pagination, limit: newLimit };
     setPaginationState(nextPagination);
     
@@ -125,6 +127,15 @@ export function useQueryWithLoadMore<
     setPaginationState(current => current === nextPagination
       ? { ...current, loadedLimit: newLimit }
       : current);
+  };
+
+  const loadMore = useStabilizedCallbackAsync<void>(async () => {
+    await loadWithLimit(pagination.loadedLimit + itemsPerPage);
+  });
+
+  // Requests as many results as the server will return in a single query.
+  const loadAll = useStabilizedCallbackAsync<void>(async () => {
+    await loadWithLimit(maxDocumentsPerRequestSetting.get(forumType));
   });
 
   return {
@@ -132,6 +143,7 @@ export function useQueryWithLoadMore<
     data,
     loadMoreProps: {
       loadMore,
+      loadAll,
       count,
       totalCount,
       loading,
