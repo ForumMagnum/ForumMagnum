@@ -141,6 +141,9 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   levelZero: {
     '& img': limitImageHeightClass(theme),
   },
+  retracted: {
+    textDecoration: "line-through",
+  },
 }));
 
 export interface FeedContentBodyProps {
@@ -163,6 +166,8 @@ export interface FeedContentBodyProps {
   serifStyle?: boolean;
   /** If true, item has been read - apply style changes and text to "read again" */
   isRead?: boolean;
+  /** If true, the comment has been retracted - apply strikethrough styling */
+  isRetracted?: boolean;
 }
 
 const FeedContentBody = ({
@@ -179,6 +184,7 @@ const FeedContentBody = ({
   resetSignal,
   serifStyle = false,
   isRead = false,
+  isRetracted = false,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -368,6 +374,7 @@ const FeedContentBody = ({
                 [classes.lineClamp]: applyLineClamp && wasTruncated,
                 [getLineClampClass()]: applyLineClamp && wasTruncated,
                 [classes.levelZero]: !isExpanded,
+                [classes.retracted]: isRetracted,
               })}
             />
           </div>
