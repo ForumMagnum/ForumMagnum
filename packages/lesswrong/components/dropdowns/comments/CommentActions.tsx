@@ -17,6 +17,7 @@ import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
+import OpenQuickTakeInNewTabDropdownItem from "./OpenQuickTakeInNewTabDropdownItem";
 import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
@@ -64,6 +65,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <PinToProfileDropdownItem comment={comment} post={post} />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}
+      <OpenQuickTakeInNewTabDropdownItem comment={comment} post={post} />
       <ReportCommentDropdownItem comment={comment} post={post} />
       {comment.postId && <CopyMarkdownDropdownItem path={`/api/post/${comment.postId}/comments/${comment._id}`} />}
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
