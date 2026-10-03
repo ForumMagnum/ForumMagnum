@@ -70,7 +70,7 @@ resource "aws_iam_role_policy" "data" {
   policy = jsonencode({ Version = "2012-10-17", Statement = [
     { Effect = "Allow", Action = ["s3:ListBucket"], Resource = [aws_s3_bucket.pilot.arn] },
     { Effect = "Allow", Action = ["s3:GetObject"], Resource = ["${aws_s3_bucket.pilot.arn}/*"] },
-    { Effect = "Allow", Action = ["s3:PutObject"], Resource = ["${aws_s3_bucket.pilot.arn}/archive/*", "${aws_s3_bucket.pilot.arn}/backups/*", "${aws_s3_bucket.pilot.arn}/clickhouse/*", "${aws_s3_bucket.pilot.arn}/evidence/*"] }
+    { Effect = "Allow", Action = ["s3:PutObject"], Resource = ["${aws_s3_bucket.pilot.arn}/archive/*", "${aws_s3_bucket.pilot.arn}/backups/*", "${aws_s3_bucket.pilot.arn}/clickhouse/*", "${aws_s3_bucket.pilot.arn}/evidence/*", "${aws_s3_bucket.pilot.arn}/coverage/*"] }
   ] })
 }
 resource "aws_iam_instance_profile" "host" {
@@ -80,7 +80,7 @@ resource "aws_iam_instance_profile" "host" {
 resource "aws_ebs_volume" "data" {
   availability_zone = "us-east-1f"
   type              = "gp3"
-  size              = 100
+  size              = var.data_gib
   encrypted         = true
   tags              = { Name = "${local.name}-data" }
   lifecycle { prevent_destroy = true }
@@ -143,7 +143,7 @@ resource "aws_lambda_function" "guard" {
   filename         = data.archive_file.guard.output_path
   source_code_hash = data.archive_file.guard.output_base64sha256
   timeout          = 30
-  environment { variables = { INSTANCE_ID = aws_instance.host.id, DEADLINE = "2026-10-09T00:00:00+00:00" } }
+  environment { variables = { INSTANCE_ID = aws_instance.host.id, DEADLINE = "2026-10-09T00:00:00+00:00", MAX_RUNTIME_HOURS = tostring(var.max_runtime_hours) } }
   depends_on = [aws_iam_role_policy.guard]
 }
 resource "aws_cloudwatch_event_rule" "guard" {
@@ -165,3 +165,31 @@ output "instance_id" { value = aws_instance.host.id }
 output "data_volume_id" { value = aws_ebs_volume.data.id }
 output "bucket" { value = aws_s3_bucket.pilot.id }
 output "security_group_id" { value = aws_security_group.host.id }
+
+# Only the named analytics RDS security group is reachable, with no new host ingress.
+resource "aws_vpc_security_group_egress_rule" "backfill_source" {
+  count                        = var.backfill_enabled ? 1 : 0
+  security_group_id            = aws_security_group.host.id
+  referenced_security_group_id = "sg-0a0e6d57dc01035c0"
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  description                  = "Read-only analytics backfill to existing RDS"
+}
+resource "aws_vpc_security_group_ingress_rule" "backfill_source" {
+  count                        = var.backfill_enabled ? 1 : 0
+  security_group_id            = "sg-0a0e6d57dc01035c0"
+  referenced_security_group_id = aws_security_group.host.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  description                  = "Analytics backfill host only"
+}
+resource "aws_iam_role_policy" "backfill_source" {
+  count = var.backfill_enabled ? 1 : 0
+  name  = "ReadOnlyBackfillCredential"
+  role  = aws_iam_role.host.name
+  policy = jsonencode({ Version = "2012-10-17", Statement = [
+    { Effect = "Allow", Action = ["ssm:GetParameter"], Resource = ["arn:aws:ssm:us-east-1:083919364732:parameter/lw-analytics-pilot/backfill-source"] }
+  ] })
+}

@@ -11,7 +11,7 @@ def handler(event, context):
     instance = ec2.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]
     now = datetime.now(timezone.utc)
     expired = now >= datetime.fromisoformat(os.environ['DEADLINE'])
-    overrun = (now - instance['LaunchTime']).total_seconds() >= 4 * 3600
+    overrun = (now - instance['LaunchTime']).total_seconds() >= float(os.environ.get('MAX_RUNTIME_HOURS', '4')) * 3600
     if instance['State']['Name'] == 'running' and (expired or overrun):
         ec2.stop_instances(InstanceIds=[instance_id])
         return {'stopped': instance_id, 'expired': expired, 'overrun': overrun}
