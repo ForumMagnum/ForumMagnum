@@ -133,6 +133,18 @@ export const styles = defineStyles("MuiInputBase", theme => {
     /* Styles applied to the `input` element. */
     input: {
       font: 'inherit',
+      // iOS Safari auto-zooms the viewport whenever a focused form control's
+      // computed font-size is below 16px. Our root font-size is 13px, so most
+      // inputs would trigger the zoom on iPhone. Floor the input at 16px on
+      // touch devices to suppress it while leaving pinch-to-zoom intact. Using
+      // max(16px, 1em) — where 1em is the inherited (root) font-size — makes
+      // this raise-only: it never shrinks inputs that intentionally set a
+      // larger font (e.g. the 3.75rem post-title input). Applied to the input
+      // rather than the root so it overrides `font: inherit` above without any
+      // !important or specificity hacks.
+      '@media (pointer: coarse)': {
+        fontSize: 'max(16px, 1em)',
+      },
       color: 'currentColor',
       padding: `${8 - 2}px 0 ${8 - 1}px`,
       border: 0,

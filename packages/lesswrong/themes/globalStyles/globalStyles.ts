@@ -35,7 +35,23 @@ const clearStyle = (theme: ThemeType) => ({
     outline: "none",
     color: theme.palette.text.maxIntensity,
   },
-  
+
+  // On iOS Safari, focusing a form control whose computed font-size is below
+  // 16px causes the browser to automatically zoom the viewport in to "make it
+  // readable". Our root font-size is 13px, so tapping into inputs on iPhone
+  // zooms the page. We fix the shared sources of input font-size directly
+  // (MUI's InputBase input rule and the Algolia SearchBar) so no !important is
+  // needed; this element selector is the baseline that catches the handful of
+  // raw <input>/<textarea>/<select> elements that aren't styled through either
+  // of those. max(16px, 1em) — where 1em is the inherited font-size — makes it
+  // raise-only, so an element that intentionally inherits a font larger than
+  // 16px is never shrunk. Scoped to coarse pointers so desktop is unaffected.
+  "@media (pointer: coarse)": {
+    "input, textarea, select": {
+      fontSize: "max(16px, 1em)",
+    },
+  },
+
   button: {
     border: "none",
     boxShadow: "none",
