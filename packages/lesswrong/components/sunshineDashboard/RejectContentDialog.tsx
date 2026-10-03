@@ -188,7 +188,9 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   },
 }));
 
-interface TemplateConfig {
+// Also read (and written) by GroupedModerationTemplateList, which shows the same
+// rejection templates in the supermod sidebar
+export interface RejectionTemplateConfig {
   hiddenTemplateIds: string[];
   templateOrder: string[];
 }
@@ -307,7 +309,7 @@ const SortableTemplateRow = ({ contents: templateId }: { contents: string }) => 
 
 const SortableTemplateList = makeSortableListComponent({ RenderItem: SortableTemplateRow });
 
-const STORAGE_KEY_PREFIX = 'rejectionTemplateConfig_';
+export const REJECTION_TEMPLATE_CONFIG_PREFIX = 'rejectionTemplateConfig_';
 
 const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displayName}: {
   rejectionTemplates: ModerationTemplateFragment[],
@@ -369,12 +371,12 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
     const ls = getBrowserLocalStorage();
     if (!ls || !currentUser) return;
 
-    const storageKey = `${STORAGE_KEY_PREFIX}${currentUser._id}`;
+    const storageKey = `${REJECTION_TEMPLATE_CONFIG_PREFIX}${currentUser._id}`;
     const storedConfig = ls.getItem(storageKey);
     
     if (storedConfig) {
       try {
-        const config: TemplateConfig = JSON.parse(storedConfig);
+        const config: RejectionTemplateConfig = JSON.parse(storedConfig);
         setHiddenTemplateIds(new Set(config.hiddenTemplateIds || []));
         
         const currentTemplateIds = new Set(rejectionTemplates.map(t => t._id));
@@ -433,8 +435,8 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
     const ls = getBrowserLocalStorage();
     if (!ls || !currentUser) return;
 
-    const storageKey = `${STORAGE_KEY_PREFIX}${currentUser._id}`;
-    const config: TemplateConfig = {
+    const storageKey = `${REJECTION_TEMPLATE_CONFIG_PREFIX}${currentUser._id}`;
+    const config: RejectionTemplateConfig = {
       hiddenTemplateIds: Array.from(hiddenIds),
       templateOrder: order,
     };
