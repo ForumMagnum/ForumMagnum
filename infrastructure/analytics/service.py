@@ -23,7 +23,7 @@ from archive import store_config
 from cloud_control import publish_status, read_state, state_table
 from control import admit, begin_drain, new_state
 from operations import backup
-from pipeline import ch, clickhouse_config, cycle, replay, source_connection, worker_lock
+from pipeline import ch, clickhouse_config, cycle, events_view, replay, source_connection, worker_lock
 
 state = new_state()
 
@@ -66,7 +66,8 @@ async def maintain():
         try:
             remote = await asyncio.to_thread(read_state, state_table())
             if state['phase'] == 'starting':
-                await asyncio.to_thread(ch, clickhouse_config(), 'SELECT 1 FROM analytics.events LIMIT 0')
+                config = clickhouse_config()
+                await asyncio.to_thread(ch, config, f'SELECT 1 FROM {events_view(config)} LIMIT 0')
                 state['phase'] = 'ready'
                 state['last_activity'] = time.monotonic()
             if state['phase'] == 'ready':

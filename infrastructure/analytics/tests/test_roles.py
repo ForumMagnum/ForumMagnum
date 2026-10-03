@@ -1,9 +1,11 @@
 import os
+from datetime import datetime
 
 import httpx
 import pytest
 
-from pipeline import ch, initialize
+from archive import envelope, publish
+from pipeline import ch, initialize, load_batch
 
 pytestmark = pytest.mark.skipif(os.environ.get('ANALYTICS_TEST_ROLES') != '1', reason='Requires fixture role config')
 
@@ -36,3 +38,18 @@ def test_maintenance_can_create_the_production_view(databases):
     ch(config, 'DROP DATABASE analytics SYNC')
     initialize(admin)
     assert request(config, 'SELECT count() FROM analytics.events').status_code == 200
+
+
+def test_typed_roles_can_use_only_their_granted_tables(databases):
+    _, config, store, _ = databases
+    admin = {**config, 'user': 'analytics_maintenance', 'password': 'q' * 32, 'event_schema': 'typed-v1'}
+    initialize(admin)
+    event = envelope(('1', 'fixture', 'navigate', datetime(2026, 1, 1), '{"to":"/destination"}', None))
+    key, _ = publish(store, [event])
+    ingest = {**config, 'user': 'analytics_ingest', 'password': 'q' * 32, 'event_schema': 'typed-v1'}
+    load_batch(store, ingest, key)
+    assert request(config, 'SELECT page_ttfb_ms FROM analytics.events_typed_v1').status_code == 200
+    assert request(config, 'SELECT navigation_to FROM analytics.events_typed_v1').text.strip() == '/destination'
+    for table in ('raw_events_typed_v1', 'applied_batches_typed_v1'):
+        assert request(config, f'SELECT * FROM analytics.{table}').status_code != 200
+        assert request(config, f'TRUNCATE TABLE analytics.{table}').status_code != 200

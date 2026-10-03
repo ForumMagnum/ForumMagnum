@@ -15,7 +15,7 @@ def databases(tmp_path, monkeypatch):
     connection = psycopg.connect(dsn, autocommit=True)
     assert connection.info.dbname == 'analytics_fixture'
     assert connection.info.host in ('localhost', '127.0.0.1', 'postgres')
-    config = clickhouse_config()
+    config = {**clickhouse_config(), 'event_schema': 'legacy'}
     assert config['url'] in ('http://127.0.0.1:58123', 'http://clickhouse:8123')
     connection.execute('DROP SCHEMA IF EXISTS analytics_export CASCADE; DROP TABLE IF EXISTS public.raw')
     connection.execute('''CREATE TABLE public.raw (

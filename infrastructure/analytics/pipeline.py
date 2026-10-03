@@ -6,14 +6,16 @@ import os
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from urllib.parse import urlparse
 from uuid import uuid4
 
-import httpx
 import psycopg
 
 from archive import (MAX_BATCH_BYTES, MAX_ROWS, MAX_ROW_BYTES, decode_batch, envelope,
                      get_object, inventory, json_bytes, publish, put_immutable)
+
+from clickhouse import ch, clickhouse_config as clickhouse_config
+from typed_pipeline import initialize_typed, load_typed_batch, receipt_typed, replay_typed
+from typed_schema import EVENTS_VIEW
 
 SQL_DIR = Path(__file__).parent / 'sql'
 SOURCE_COLUMNS = '''r.id::text, r.environment, r.event_type, r.timestamp,
@@ -84,42 +86,21 @@ def read_pending(connection, limit=10000):
     return events
 
 
-def clickhouse_config(role='ingest'):
-    url = os.environ['ANALYTICS_CLICKHOUSE_URL']
-    parsed = urlparse(url)
-    test = os.environ.get('ANALYTICS_TEST_MODE') == '1'
-    if parsed.scheme != 'https' and not (test and parsed.hostname in ('127.0.0.1', 'localhost', 'clickhouse')):
-        raise ValueError('ClickHouse requires TLS')
-    if parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise ValueError('Credentials/options must not be embedded in ClickHouse URL')
-    prefix = f'ANALYTICS_CH_{role.upper()}'
-    return {'url': url, 'user': os.environ[prefix + '_USER'],
-            'password': os.environ[prefix + '_PASSWORD'], 'read_only': role == 'query'}
+def typed_mode(config):
+    mode = config.get('event_schema', 'legacy')
+    if mode not in ('legacy', 'typed-v1'):
+        raise ValueError('Unknown event schema')
+    return mode == 'typed-v1'
 
 
-def ch(config, sql, parameters=None, data=None, query_id=None, timeout=330):
-    params = {'query': sql, 'wait_end_of_query': '1'}
-    # readonly=1 rejects setting changes even when a value seems harmless.
-    # The query profile supplies parsing/output settings; keep its HTTP requests
-    # free of write settings such as async_insert.
-    if not config.get('read_only'):
-        params.update({'async_insert': '0', 'date_time_input_format': 'best_effort',
-                       'function_json_value_return_type_allow_nullable': '1',
-                       'output_format_json_quote_64bit_integers': '1'})
-    if query_id:
-        params['query_id'] = query_id
-    for key, value in (parameters or {}).items():
-        params[f'param_{key}'] = value
-    with httpx.Client(timeout=httpx.Timeout(timeout, connect=10), follow_redirects=False) as client:
-        response = client.post(config['url'], params=params, content=data or b'',
-                               auth=(config['user'], config['password']))
-        if response.status_code != 200:
-            # Server errors can contain payloads, SQL, and URLs. Don't log them.
-            raise RuntimeError(f'ClickHouse request failed (HTTP {response.status_code})')
-        return response.text
+def events_view(config):
+    return EVENTS_VIEW if typed_mode(config) else 'analytics.events'
 
 
 def initialize(config):
+    if typed_mode(config):
+        initialize_typed(config)
+        return
     sql = '\n'.join(line.split('--')[0] for line in (SQL_DIR / 'clickhouse.sql').read_text().splitlines())
     for statement in sql.split(';'):
         if statement.strip():
@@ -127,6 +108,8 @@ def initialize(config):
 
 
 def receipt(config, key):
+    if typed_mode(config):
+        return receipt_typed(config, key)
     rows = ch(config, '''SELECT checksum, row_count FROM analytics.applied_batches FINAL
                         WHERE object_key = {key:String} FORMAT JSONEachRow''', {'key': key})
     return json.loads(rows) if rows.strip() else None
@@ -154,6 +137,8 @@ def validate_destination(config, events):
 
 
 def load_batch(store, config, key, failpoint=None):
+    if typed_mode(config):
+        return load_typed_batch(store, config, key, failpoint)
     manifest = json.loads(get_object(store, key))
     if key != f"archive/v1/manifests/{manifest['sha256']}.json":
         raise ValueError('Noncanonical manifest key')
@@ -210,6 +195,8 @@ def cycle(connection, store, config, max_batches=100, failpoint=None):
 
 
 def replay(store, config):
+    if typed_mode(config):
+        return replay_typed(store, config)
     count = 0
     for key in inventory(store):
         load_batch(store, config, key)

@@ -33,7 +33,7 @@ def utc(value):
     # Source is timestamp WITHOUT time zone. The application explicitly writes UTC.
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')
+    return value.astimezone(timezone.utc).isoformat(sep=' ', timespec='microseconds')[:-6]
 
 
 def envelope(row):
@@ -86,7 +86,7 @@ def encode_batch(events):
     return f'archive/v1/manifests/{checksum}.json', manifest, gzip.compress(data, mtime=0)
 
 
-def decode_batch(manifest, compressed):
+def decode_batch(manifest, compressed, prepare=None):
     if manifest.get('schema_version') != SCHEMA_VERSION:
         raise ValueError('Unsupported archive version')
     if not 0 < manifest['row_count'] <= MAX_ROWS:
@@ -104,12 +104,14 @@ def decode_batch(manifest, compressed):
             [event['event_id'] for event in events] != manifest['event_ids'] or
             [event['source_id'] for event in events] != manifest['source_ids']):
         raise ValueError('Manifest identities do not match archive')
-    for event in events:
+    for index, event in enumerate(events):
         if event['schema_version'] != SCHEMA_VERSION or event['content_hash'] != event_hash(event):
             raise ValueError('Invalid event version/hash')
         if utc(event['event_time']) != event['event_time']:
             raise ValueError('Noncanonical timestamp')
-        json.loads(event['event_json'], parse_float=Decimal)
+        payload = json.loads(event['event_json'], parse_float=Decimal)
+        if prepare is not None:
+            events[index] = prepare(event, payload)
     return events
 
 

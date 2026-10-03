@@ -95,7 +95,7 @@ POST /api/adminAnalytics/cancel  {"query_id":"UUID"}
 
 Poll status with bounded backoff until `ready`; a wake may return 202 `starting`. Retry 503/queue-full only with a deliberate client retry policy. A queued/active duplicate UUID returns 409. Query admission is one-at-a-time, at most ten pending jobs, with a 30-second queue timeout. Queries are read-only, limited to 120 seconds, 16 GiB, four threads, 10,000 rows, and 8 MiB. Select narrower output when limits reject a query. SQL and result payloads are not written to controller logs.
 
-Read through `analytics.events`, never bypassing deduplication with `raw_events`. Use explicit UTC windows with the example queries in `queries/`. Event user/client/tab/session IDs remain separate; NULL/missing fields and original JSON are available for interpretation.
+Read through `analytics.events`, or `analytics.events_typed_v1` after the explicit [typed-schema activation](SCHEMA.md), never bypassing deduplication with raw tables. Use explicit UTC windows with the example queries in `queries/`. Event user/client/tab/session IDs remain separate; NULL/missing fields and original JSON are available for interpretation. Restore clears all versioned receipts: replay every retained schema version before treating its view as reconciled.
 
 For manual retry/inventory, stop the service first and load the protected environment as above:
 

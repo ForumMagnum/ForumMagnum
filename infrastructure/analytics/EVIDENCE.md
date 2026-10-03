@@ -96,3 +96,31 @@ The query latencies are single warm measurements on a bounded sample. They do no
 After the final artifact/bootstrap update, a second real EC2 stop/start preserved **all 1,000,000 events** and fingerprint **5126686002570470873**. All 147 query result groups matched the independent source calculations again. Post-restart wall times were traffic **220 ms**, breakdown **371 ms**, and retention **77 ms**. The stop timer remained active and ClickHouse still listened only on loopback. The instance was then stopped; AWS confirmed `State=stopped` and `PublicIP=null`. Encrypted EBS and private S3 remain retained.
 
 Private Terraform state is backed up to `s3://lw-analytics-pilot-083919364732-20261001/operator/terraform.tfstate` with bucket encryption/versioning. The host role cannot write that prefix. Final implementation commit and cloud resource identifiers are reviewable in the draft PR; raw payloads and credentials remain outside Git.
+
+
+## Typed schema evaluation — October 2, 2026
+
+The separate, opt-in typed destination promotes **142 source properties and eight derived browser intervals**. [SCHEMA.md](SCHEMA.md) records the judgment, complete mapping, event scopes, units, aliases, structured types and versioning contract. [typed-schema-audit.json](typed-schema-audit.json) contains field-level aggregate counts only; private values and historical scanner event names are excluded.
+
+The audit processed the existing 1,000,000-row pilot and 75,789 historical sample rows. There are 2,706 overlapping IDs, so their union is **1,073,083 distinct events**. The historical sample spans 30 quarters and all 4,565 sampled event names, selecting at most the first 25 rows per type/quarter. Neither sample provides unbiased population frequencies or exhaustive shape coverage. All 142 selected fields have at least one valid value across the samples.
+
+The pilot has **zero invalid selected properties**. Historical rows include 176 recognized legacy `props.eventProps` wrappers and 3,237 rows with at least one invalid selected property. None is dropped. Exact named `pageLoadFinished`, `navigate`, `timerEvent`, `ssr` and `postListMounted` events have no invalid selected values in the sample. Known historical exceptions include 313 numeric `timeToCapture` values with unproven units, 25 object-valued `listContext` values on `postsListDisplayed`, and 26 noninteger `buttonPressed` values on `postItemClicked`; many other failures are malformed/scanner inputs. Raw JSON and explicit invalid flags retain all of them.
+
+The audit corrected optional recommendation generation timestamps: curated/stickied scenario records legitimately omit `generatedAt`. It also distinguishes the misleadingly named `postVisibility` map, currently populated from `hiddenPosts`, from actual visibility observations. No cross-event user/session/experiment enrichment is inferred.
+
+The fixture suite passed **62 tests** with PostgreSQL 15 and ClickHouse 26.3.38.2. It covers both schema versions, missing/null/false/zero/empty distinctions, historical wrappers, event scopes, invalid structures, array ordering, floating-point comparison bounds, grouped replay and conflicts, five crash/acknowledgement boundaries, role permissions, and full/incremental native restoration followed by archive/pending replay. After the final codec-only change, all 29 affected extraction/import/role/native-restore tests passed again. Ruff, Python compilation, generated-DDL consistency and diff checks passed. The only test warning is an upstream Starlette/AnyIO deprecation. No application schema, GraphQL or frontend code changed, so application generation/build was not rerun for this increment.
+
+Final local archive-to-ClickHouse measurement: **1,000,000 pilot rows in 154.17 seconds**, plus 75,789 historical rows in 9.66 seconds. The two runs used 20 and two groups, with **100 and ten HTTP requests** respectively. Full field/metadata/original-JSON readback for all 75,789 historical rows took 44.66 seconds. Seventy-nine Float64 values differed from the Python projection by one binary ULP; all were within the explicit four-ULP ceiling. IDs, integers, timestamps, metadata and original JSON matched exactly. Independent raw-JSON checks for timer increments, navigation destinations and browser response timestamps reported zero mismatches across the union.
+
+Both layouts were compacted and compared on the same **1,073,083 logical rows**:
+
+| Layout | Compressed column bytes | Bytes on disk |
+| --- | ---: | ---: |
+| Legacy original JSON + four identity columns | 196,284,228 | 196,334,855 |
+| Typed v1, original JSON + 142 properties + metadata + eight intervals | 290,202,623 | 291,201,999 |
+
+Typed storage is **48.3% larger** on this sample. The first version occupied 358,409,056 disk bytes; ZSTD(3) on the two per-row hexadecimal hashes saved 67,207,057 bytes without changing the values. In the initial layout, the new projection hash alone accounted for 67,907,634 compressed bytes, explaining why column count alone was misleading. Rare selected properties are not the principal cost. These biased samples must not be treated as a full-history disk estimate.
+
+Python peak RSS for the final import/readback process was **1,236,172,800 bytes (1.15 GiB)**. The 64 MiB group limit covers archive envelopes, not total process memory. The timing excludes RDS export, S3/network transfer and production query concurrency; it is a single local run, not a three-billion-row completion forecast or a controlled codec-speed comparison. Exact results are in [typed-schema-benchmark.json](typed-schema-benchmark.json). The field-count audit preceded the storage-codec-only revision; the parser and registry were unchanged, and both fingerprints are recorded in the audit artifact.
+
+The typed schema is tested locally, not deployed to the AWS pilot. No production source capture, full historical backfill or reader switch was performed. The earlier native S3 backup/restore gate remains unresolved; later cleanup authorization does not itself demonstrate a successful cloud restoration. Full-history query layout, source export throughput, target disk capacity and the end-to-end backfill estimate still need a larger bounded cloud test before the billions-row load.

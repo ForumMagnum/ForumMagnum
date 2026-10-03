@@ -32,14 +32,18 @@
       <profile>default</profile><quota>default</quota>
       <grants><query>GRANT SELECT, INSERT ON analytics.raw_events</query>
         <query>GRANT SELECT, INSERT ON analytics.applied_batches</query>
+        <query>GRANT SELECT, INSERT ON analytics.raw_events_typed_v1</query>
+        <query>GRANT SELECT, INSERT ON analytics.applied_batches_typed_v1</query>
         <query>GRANT SELECT ON analytics.events</query>
+        <query>GRANT SELECT ON analytics.events_typed_v1</query>
       </grants>
     </analytics_ingest>
     <analytics_query>
       <password_sha256_hex from_env="ANALYTICS_CH_QUERY_PASSWORD_SHA256"/>
       <networks><ip>127.0.0.1</ip></networks>
       <profile>analytics_query</profile><quota>default</quota>
-      <grants><query>GRANT SELECT ON analytics.events</query></grants>
+      <grants><query>GRANT SELECT ON analytics.events</query>
+        <query>GRANT SELECT ON analytics.events_typed_v1</query></grants>
     </analytics_query>
     <analytics_maintenance>
       <password_sha256_hex from_env="ANALYTICS_CH_MAINTENANCE_PASSWORD_SHA256"/>

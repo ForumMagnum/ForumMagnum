@@ -4,6 +4,8 @@ Implementation of [the October 1 plan](PLAN.md) in ForumMagnum, which owns the e
 
 The pipeline publishes immutable compressed event batches to S3 before loading ClickHouse. A transactional PostgreSQL pending-ID queue captures late commits without relying on a maximum ID. Only validated, synchronously inserted, durably receipted batches acknowledge exact source IDs. The canonical query view uses `FINAL`, so replay does not inflate counts. Original JSON text and bigint precision are preserved.
 
+The opt-in [typed event schema](SCHEMA.md) promotes 142 selected properties and eight browser intervals, retaining original JSON and explicit missing/null/invalid/source metadata. It uses a separate versioned destination and grouped archive replay; the default remains the legacy pilot layout. Selection, semantics, validation and activation instructions are in that document.
+
 `archive.py` owns the versioned envelope/storage format; `pipeline.py` contains the RDS adapter and reusable loader. `operations.py` handles native backup/restore. `service.py` provides a private authenticated query gateway, daily worker, independent heartbeat, and graceful idle shutdown. `cloud_control.py` provides the authenticated serverless wake/status controller and external watchdog. Source DDL is manual and is deliberately outside application migrations.
 
 `deploy/` describes one private EC2 host with a retained encrypted EBS volume, two protected S3 buckets, DynamoDB control state, Lambda, disabled-by-default schedules, and alarms. It does not silently add paid networking. An approved subnet, outbound path, trusted TLS hostname, source role, secrets, and cost estimate are prerequisites for scheduled production use. The separate `pilot/` stack uses no inbound rules and SSM access.

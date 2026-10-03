@@ -35,6 +35,14 @@ def backup(store, config, name, base=None):
     return manifest
 
 
+def clear_restored_receipts(config):
+    names = ch(config, "SELECT name FROM system.tables WHERE database = 'analytics' FORMAT JSONEachRow")
+    for row in map(json.loads, names.splitlines()):
+        name = row['name']
+        if re.fullmatch(r'applied_batches(_typed_v[0-9]+)?', name):
+            ch(config, f'TRUNCATE TABLE analytics.{name}')
+
+
 def restore(store, config, name):
     manifest = json.loads(get_object(store, f'backups/{name}.json'))
     if manifest['url'] != backup_url(name):
@@ -49,5 +57,5 @@ def restore(store, config, name):
     # A crash during backup can leave table snapshots at slightly different
     # instants. Reconcile every archive object after restore; never trust a receipt
     # captured ahead of its data table. Raw duplicates remain logically invisible.
-    ch(config, 'TRUNCATE TABLE analytics.applied_batches')
+    clear_restored_receipts(config)
     return {'restored': name, 'next': 'replay archive, then drain pending source queue'}

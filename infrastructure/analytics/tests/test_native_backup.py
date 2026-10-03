@@ -5,14 +5,21 @@ from uuid import uuid4
 import pytest
 
 from archive import publish
-from pipeline import ch, read_pending, replay
-from test_integration import logical_count
+from operations import clear_restored_receipts
+from pipeline import ch, events_view, initialize, read_pending, replay
 
 pytestmark = pytest.mark.skipif(os.environ.get('ANALYTICS_NATIVE_BACKUP') != '1', reason='Requires local backup disk')
 
 
-def test_full_incremental_restore_then_archive_and_pending(databases):
+def logical_count(config):
+    return int(ch(config, f'SELECT count() FROM {events_view(config)}'))
+
+
+@pytest.mark.parametrize('mode', ['legacy', 'typed-v1'])
+def test_full_incremental_restore_then_archive_and_pending(databases, mode):
     connection, config, store, _ = databases
+    config = {**config, 'event_schema': mode}
+    initialize(config)
     name = 'fixture-' + uuid4().hex
     connection.execute('INSERT INTO raw (id) VALUES (1)')
     publish(store, read_pending(connection))
@@ -30,7 +37,9 @@ def test_full_incremental_restore_then_archive_and_pending(databases):
     ch(config, 'DROP DATABASE analytics SYNC')
     restored = json.loads(ch(config, f"RESTORE DATABASE analytics FROM Disk('backups','{name}-inc') FORMAT JSONEachRow"))
     assert restored['status'] == 'RESTORED'
-    ch(config, 'TRUNCATE TABLE analytics.applied_batches')
+    clear_restored_receipts(config)
+    for table in ('applied_batches',) + (('applied_batches_typed_v1',) if mode == 'typed-v1' else ()):
+        assert ch(config, f'SELECT count() FROM analytics.{table}').strip() == '0'
     assert logical_count(config) == 2
     replay(store, config)
     assert logical_count(config) == 3

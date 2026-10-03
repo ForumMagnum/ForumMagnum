@@ -10,6 +10,8 @@ from pipeline import (ch, clickhouse_config, cycle, export_snapshot, initialize,
 
 def main():
     parser = argparse.ArgumentParser(description='LessWrong archived analytics operator commands')
+    parser.add_argument('--event-schema', choices=('legacy', 'typed-v1'),
+                        help='Explicit destination; defaults to ANALYTICS_EVENT_SCHEMA or legacy')
     commands = parser.add_subparsers(dest='command', required=True)
     for name in ('init', 'cycle', 'export', 'replay', 'inventory'):
         commands.add_parser(name)
@@ -24,6 +26,8 @@ def main():
     restores.add_argument('name')
     args = parser.parse_args()
     config = clickhouse_config('maintenance' if args.command in ('init', 'backup', 'restore') else 'ingest')
+    if args.event_schema:
+        config['event_schema'] = args.event_schema
     with worker_lock():
         if args.command == 'init':
             initialize(config)
