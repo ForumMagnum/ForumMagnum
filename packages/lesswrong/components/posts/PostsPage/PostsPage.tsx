@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, maxDocumentsPerRequestSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
@@ -365,7 +365,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
 
   const defaultView = commentGetDefaultView(post, currentUser, forumType);
-  const defaultTerms = { view: defaultView, limit: 1000 };
+  // Shortform posts accumulate so many comments that paging through them is
+  // impractical, so load all of them by default.
+  const defaultLimit = post.shortform ? maxDocumentsPerRequestSetting.get(forumType) : 1000;
+  const defaultTerms = { view: defaultView, limit: defaultLimit };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
@@ -462,7 +465,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     ssr: !isCommentPermalink,
   });
 
-  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
+  const { loading, data: rawData, networkStatus, loadMoreProps: { loadAll } } = lazyResults;
   const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
@@ -681,7 +684,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
           <Suspense>
             {fullPost && <CommentsListSection
               comments={comments ?? []}
-              loadMoreComments={loadMore}
+              loadAllComments={loadAll}
               totalComments={totalComments}
               commentCount={displayedPublicCommentCount}
               loadingMoreComments={loadingMore}
