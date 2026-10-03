@@ -1,12 +1,11 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import LWTooltip from '@/components/common/LWTooltip';
-import KeystrokeDisplay from './KeystrokeDisplay';
+import ModerationActionButton from './ModerationActionButton';
 import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
-import classNames from 'classnames';
+import { getActionHighlightStyle, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionsColumn: {
@@ -21,38 +20,15 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     gap: 4,
     flexWrap: 'wrap',
   },
-  actionButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 4,
-    padding: '4px 4px 4px 6px',
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    cursor: 'pointer',
-    fontSize: 12,
-    transition: 'all 0.15s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[50],
-      borderColor: theme.palette.grey[400],
-    },
-    '&.active': {
-      backgroundColor: theme.palette.error.light,
-      borderColor: theme.palette.error.main,
-      color: theme.palette.error.contrastText,
-      '&:hover': {
-        backgroundColor: theme.palette.error.main,
-      },
-    },
-  },
 }));
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, onlyHighlighted=false}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>;
+  onlyHighlighted?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -74,6 +50,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     tooltip: string;
     onClick: () => void;
     active?: boolean;
+    highlightKey?: HighlightableModeratorAction;
   }>> = [
     [
       {
@@ -81,6 +58,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'A',
         tooltip: "Approve this user and all their content. Marks them as reviewed by you, so their future posts and comments no longer need review. Clears any snooze and any flag, and signs an 'Approved' note in their moderator notes.",
         onClick: handleReview,
+        highlightKey: 'approve',
       },
     ],
     [
@@ -95,12 +73,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'Shift+S',
         tooltip: 'Same as Snooze 10, but opens a dialog to choose how many more posts or comments the user can make before they return to the review queue.',
         onClick: handleSnoozeCustom,
+        highlightKey: 'snoozeCustom',
       },
       {
         label: 'Approve Current Only',
         keystroke: 'Shift+A',
         tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
         onClick: handleApproveCurrentOnly,
+        highlightKey: 'approveCurrentOnly',
       },
     ],
     [
@@ -109,12 +89,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'Q',
         tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
         onClick: handleRemoveNeedsReview,
+        highlightKey: 'remove',
       },
       {
         label: 'Purge',
         keystroke: 'P',
         tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
         onClick: handlePurge,
+        highlightKey: 'purge',
       },
       {
         label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
@@ -124,21 +106,46 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
           : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
         onClick: toggleAllPermissions,
         active: allPermissionsDisabled,
+        highlightKey: 'disablePermissions',
       },
     ],
   ];
+
+  // When showing only the highlighted actions (i.e. while the section is collapsed),
+  // render the buttons bare so they all flow together in the parent's wrapping row.
+  if (onlyHighlighted) {
+    const highlightedButtons = moderatorActionRows
+      .flat()
+      .filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey));
+    return <>
+      {highlightedButtons.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
+        <ModerationActionButton
+          key={label}
+          label={label}
+          keystroke={keystroke}
+          tooltip={tooltip}
+          onClick={onClick}
+          active={!!active}
+          highlightStyle={highlightKey ? getActionHighlightStyle(highlightKey, highlightedActions?.get(highlightKey), true) : null}
+        />
+      ))}
+    </>;
+  }
 
   return (
     <div className={classes.actionsColumn}>
       {moderatorActionRows.map((row, rowIndex) => (
         <div key={rowIndex} className={classes.actionRow}>
-          {row.map(({label, keystroke, tooltip, onClick, active}) => (
-            <LWTooltip key={label} title={tooltip} placement="left">
-              <div className={classNames(classes.actionButton, active && 'active')} onClick={onClick}>
-                <span>{label}</span>
-                <KeystrokeDisplay keystroke={keystroke} splitBeforeTranslation activeContext={!!active} />
-              </div>
-            </LWTooltip>
+          {row.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
+            <ModerationActionButton
+              key={label}
+              label={label}
+              keystroke={keystroke}
+              tooltip={tooltip}
+              onClick={onClick}
+              active={!!active}
+              highlightStyle={highlightKey ? getActionHighlightStyle(highlightKey, highlightedActions?.get(highlightKey), false) : null}
+            />
           ))}
         </div>
       ))}

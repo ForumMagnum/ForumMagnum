@@ -404,7 +404,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   const isCurationTab = state.activeTab === 'curation';
   const isPostLikeTab = isPostsTab || isCurationTab;
 
-  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
+  const { posts: userPosts, comments: userComments, loading: userContentsLoading } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
     <CoreTagsKeyboardProvider>
@@ -466,6 +466,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
               user={openedUser}
               posts={userPosts}
               comments={userComments}
+              contentsLoading={userContentsLoading}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               sidebarTab={state.sidebarTab}
