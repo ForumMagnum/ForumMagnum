@@ -9,53 +9,45 @@ from env.
 - `researchTool.cjs` — the CLI itself. Pure Node (built-ins only, no npm
   deps). Designed to be copied into the sandbox via `sandbox.writeFiles`.
 
-## How T2 deploys it
+## How it's deployed
 
-`sandboxManager.getOrCreateSandbox()` (task #17) writes this file into the
-sandbox at provision time, e.g.:
+`buildSupervisorBundle.js` (`yarn research-supervisor-build`) copies this file
+verbatim to `sandbox/dist/research-tool.cjs`. From there it reaches a sandbox
+two ways, both writing it to `RESEARCH_TOOL_PATH` from `sandboxLayout.ts` —
+`/root/.research/bin/research-tool`, mode `0755`, outside the agent's cwd:
 
-```ts
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+- `sandboxManager.overlayPlatformFiles()` writes it on every fresh provision and
+  every resume, so a sandbox always runs the deployed server's copy rather than
+  whatever its snapshot froze.
+- `scripts/buildResearchSandboxSnapshot.ts` seeds the same path into the
+  baseline snapshots.
 
-const researchToolSrc = readFileSync(
-  resolve(__dirname, "supervisor/researchTool/researchTool.cjs"),
-  "utf8",
-);
+There is no `/usr/local/bin` shim: the file carries a `#!/usr/bin/env node`
+shebang, and the supervisor prepends `~/.research/bin` to the `PATH` it gives
+the Claude Code subprocess (`researchBinPath()` in `supervisor/devServer.ts`),
+so `research-tool ...` resolves from Bash.
 
-await sandbox.writeFiles([
-  { path: "/vercel/sandbox/research-tool.cjs", content: researchToolSrc },
-]);
-```
-
-The supervisor's Claude Code spawn (task #19) sets `PATH` and env vars so
-that Claude can invoke `research-tool ...`. Recommended approach: drop a
-shim at `/usr/local/bin/research-tool`:
-
-```sh
-#!/bin/sh
-exec node /vercel/sandbox/research-tool.cjs "$@"
-```
-
-The spawn must set per-subprocess env:
+The supervisor sets this per-subprocess env at spawn (`supervisor/index.ts`):
 - `RESEARCH_BACKEND_BASE_URL` — the ForumMagnum backend host
-- `RESEARCH_BACKEND_TOKEN` — the sandbox-callback token for *this conversation*
-  (minted fresh per dispatch with a TTL sized to outlive the sandbox session)
-- `RESEARCH_PROJECT_ID` — convenience for `list-project`
+- `RESEARCH_BACKEND_TOKEN` — the agent-scoped sandbox-callback token for *this
+  conversation* (minted fresh per dispatch with a TTL sized to outlive the
+  sandbox session)
+- `RESEARCH_PROJECT_ID` — the project this sandbox is scoped to; used to build
+  URLs (the token also pins the project server-side)
 - `RESEARCH_CONVERSATION_ID` — the current conversation id, for disambiguating
   fetched document/transcript references that point back to this same session
+- `RESEARCH_DEV_CONTROL_URL` — where `research-tool dev …` reaches the
+  supervisor's localhost-only dev-server controller
 
 ## Auth contract
 
 The CLI sends `Authorization: Bearer $RESEARCH_BACKEND_TOKEN` on every
 request. The token is validated by `researchAgentAuth.ts:verifySandboxCallbackToken`
-on the backend. The same token authorizes:
-
-- All endpoints under `/api/research/agent/*` from this CLI
-- The supervisor's own POST persistence callback to
-  `/api/research/agent/conversations/:id/events`
-
-The token is per-conversation.
+on the backend. That function verifies both scopes of sandbox-callback token:
+the `agent` scope this CLI carries, which is per-conversation, and the
+`supervisor` scope the supervisor process uses for its own POST persistence
+callback to `/api/research/agent/conversations/:id/events` and its heartbeats.
+They are separate tokens; this CLI only ever holds the agent-scoped one.
 
 ## Output format
 
