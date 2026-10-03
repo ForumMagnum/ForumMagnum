@@ -555,7 +555,11 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
 
 export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
-  const commentPrompt = (comment.forumEventMetadata as ForumEventCommentMetadata)?.poll?.commentPrompt;
+  // Both poll formats prefill the comment with the poll question; reject a
+  // comment that is only that prompt. Slider polls store it under `poll`,
+  // multiple-choice polls under `mcPoll`.
+  const metadata = comment.forumEventMetadata as ForumEventCommentMetadata;
+  const commentPrompt = metadata?.poll?.commentPrompt ?? metadata?.mcPoll?.commentPrompt;
 
   if (commentPrompt && data) {
     // commentPrompt will be like `<blockquote>${plaintextQuestion}</blockquote><p></p>`

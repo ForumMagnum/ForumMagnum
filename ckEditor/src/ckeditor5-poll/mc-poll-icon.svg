@@ -1,0 +1,8 @@
+<svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- FILLER logo for the multiple-choice poll button. Placeholder: a stacked
+       "histogram on its side" of bars of differing lengths. Replace when the
+       real logo is ready. -->
+  <path d="M1 2.5H13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1 7H19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1 11.5H9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

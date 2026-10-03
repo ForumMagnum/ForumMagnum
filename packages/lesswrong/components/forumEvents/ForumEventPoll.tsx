@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
 import { gql, useMutation } from "@apollo/client";
-import { useMulti } from "@/lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
@@ -14,7 +13,6 @@ import DeferRender from "../common/DeferRender";
 import ForumEventResultIcon, { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
@@ -23,7 +21,8 @@ import { useSingle } from "@/lib/crud/withSingle";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import UsersProfileImage from "../users/UsersProfileImage";
-import ForumEventCommentForm from "./ForumEventCommentForm";
+import PollCommentForm from "./PollCommentForm";
+import { usePollParticipants } from "./usePollParticipants";
 import Loading from "../vulcan-core/Loading";
 
 const SLIDER_MAX_WIDTH = 880;
@@ -641,49 +640,17 @@ export const ForumEventPoll = ({
   }, [captureEvent, commentFormOpen])
 
   // Get profile image and display name for all other users who voted, to display on the slider.
-  // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
-  const votersRef = useRef<UsersMinimumInfo[]>([])
-  const { results: voters } = useMulti({
-    terms: {
-      view: 'usersByUserIds',
-      userIds: event?.publicData
-        ? Object.keys(event?.publicData)
-        : [],
-      limit: 1000,
-    },
-    collectionName: "Users",
-    fragmentName: 'UsersMinimumInfo',
-    enableTotal: false,
-    skip: !event?.publicData,
-  });
-  const { results: comments, refetch: refetchComments } = useMulti({
-    terms: {
-      view: 'forumEventComments',
-      forumEventId: event?._id,
-      limit: 1000,
-    },
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
-    enableTotal: false,
-    // Don't run on the first pass, to prioritise loading the user images
-    skip: !event?._id || !voters,
-  });
-
-  if (voters !== undefined) {
-    votersRef.current = voters;
-  }
+  const { voters, comments, currentUserComment, refetchComments, votesLoading } =
+    usePollParticipants({
+      eventId: event?._id,
+      voterIds: event?.publicData ? Object.keys(event.publicData) : [],
+      currentUser,
+    });
 
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters: votersRef.current, comments, event: event, currentUser }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [votersRef.current, event, currentUser, comments]
+    () => clusterForumEventVotes({ voters, comments, event, currentUser }),
+    [voters, event, currentUser, comments]
   );
-
-  const votesLoading = (voters === undefined && votersRef.current.length === 0) || !event || !event.publicData;
-
-  const currentUserComment = useMemo(() => {
-    return comments?.find(comment => comment.userId === currentUser?._id) || null;
-  }, [comments, currentUser]);
 
   const [addVote] = useMutation(gql`
     mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
@@ -999,30 +966,15 @@ export const ForumEventPoll = ({
                     </LWTooltip>
                   </div>
                   {/* Popper containing the form for creating a comment */}
-                  {event.post && (
-                    <ForumEventCommentForm
-                      open={commentFormOpen}
-                      comment={currentUserComment}
-                      prefilledProps={commentPrefilledProps}
-                      successMessage="Success! Open the results to view everyone's votes and comments."
-                      forumEvent={event}
-                      cancelLabel="Skip"
-                      cancelCallback={() => setCommentFormOpen(false)}
-                      successCallback={refetchComments}
-                      anchorEl={userVoteRef.current}
-                      post={event.post}
-                      title="What made you vote this way?"
-                      subtitle={(post, comment) => (<>
-                        <div>
-                          Your response will appear as a comment on{" "}
-                          {event.isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
-                            this Debate Week post
-                          </Link> : 'this post'}
-                          , and show next to your avatar in the results.
-                        </div>
-                      </>)}
-                    />
-                  )}
+                  <PollCommentForm
+                    event={event}
+                    open={commentFormOpen}
+                    setOpen={setCommentFormOpen}
+                    currentUserComment={currentUserComment}
+                    prefilledProps={commentPrefilledProps}
+                    refetchComments={refetchComments}
+                    anchorEl={userVoteRef.current}
+                  />
                 </AnalyticsContext>
               </div>
               {/* Arrows */}

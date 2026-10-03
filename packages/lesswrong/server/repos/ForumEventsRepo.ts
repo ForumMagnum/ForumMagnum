@@ -1,7 +1,7 @@
 import ForumEvents from "@/server/collections/forumEvents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker } from "@/lib/collections/forumEvents/types";
+import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker, McPollAnswer } from "@/lib/collections/forumEvents/types";
 
 class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   constructor() {
@@ -34,6 +34,28 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       SET "publicData" = "publicData" - $1
       WHERE "_id" = $2
     `, [userId, _id])
+  }
+
+  // --- Multiple-choice polls ---
+  // Answers/mode live in publicData under `answers`/`multiSelect`; each user's
+  // vote is stored at the top level keyed by userId, exactly like the slider —
+  // so voting reuses getUserVote/addVote/removeVote above, and publicData holds
+  // { answers: [{_id, text}], multiSelect: boolean, [userId]: { answerIds } }.
+
+  /** Write a multiple-choice poll's answer options + mode without touching votes. */
+  async setMcPollOptions({ forumEventId, answers, multiSelect }: {
+    forumEventId: string;
+    answers: McPollAnswer[];
+    multiSelect: boolean;
+  }) {
+    return this.none(`
+      -- ForumEventsRepo.setMcPollOptions
+      -- Top-level merge replaces the answer options and mode while preserving
+      -- the per-user votes (and any other keys) already in publicData.
+      UPDATE "ForumEvents"
+      SET "publicData" = COALESCE("publicData", '{}'::jsonb) || $2::jsonb
+      WHERE "_id" = $1
+    `, [forumEventId, JSON.stringify({ answers, multiSelect })])
   }
 
   /**

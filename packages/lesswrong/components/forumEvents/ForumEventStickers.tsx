@@ -292,7 +292,8 @@ const ForumEventStickers: FC<{
     forumEventMetadata: {
       eventFormat: "STICKERS",
       sticker: draftSticker,
-      poll: null
+      poll: null,
+      mcPoll: null
     },
   };
 
