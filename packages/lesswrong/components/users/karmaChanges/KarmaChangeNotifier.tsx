@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Badge } from "@/components/widgets/Badge";
@@ -20,6 +20,7 @@ import { useLocation } from '@/lib/routeUtil';
 import { canonicalizePath } from '@/lib/generated/routeManifest';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+import { usePageVisibility } from '@/components/hooks/usePageVisibility';
 
 const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   root: {
@@ -59,6 +60,15 @@ const KarmaChangesCheckedMutation = gql(`
   }
 `);
 
+// Daily and weekly batches are only fetched when the notifier mounts, and the
+// header (and therefore the notifier) stays mounted across client-side
+// navigations, so a long-lived tab can keep showing a batch that has since been
+// superseded. Returns whether a newer batch should be available by now.
+function isPastNextBatch(karmaChanges: { nextBatchDate: string | null } | null | undefined): boolean {
+  if (!karmaChanges?.nextBatchDate) return false;
+  return new Date() >= new Date(karmaChanges.nextBatchDate);
+}
+
 const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
   className?: string,
   onOpen?: () => void,
@@ -73,12 +83,33 @@ const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
 
-  const { data } = useSuspenseQuery(UserKarmaChangesQuery, {
+  const { data, refetch } = useSuspenseQuery(UserKarmaChangesQuery, {
     variables: { documentId: currentUser._id },
   });
+  const [_refetchPending, startTransition] = useTransition();
   const document = data?.user?.result;
+  const karmaChanges = document?.karmaChanges;
 
-  const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
+  const refetchKarmaChanges = () => {
+    // Refetch inside a transition so that the notifier keeps showing the
+    // current batch rather than suspending while the new one loads
+    startTransition(() => {
+      void refetch();
+    });
+  }
+
+  usePageVisibility((isVisible) => {
+    if (isVisible && !open && isPastNextBatch(karmaChanges)) {
+      refetchKarmaChanges();
+    }
+  });
+
+  // When a new batch arrives (eg in realtime mode after a refetch), it hasn't
+  // been cleared yet
+  const endDate = karmaChanges?.endDate;
+  useEffect(() => {
+    setCleared(false);
+  }, [endDate]);
 
   // Close karma panel (without marking as read) when notifications panel opens
   useEffect(() => {
@@ -91,20 +122,23 @@ const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
     setOpen(true);
     setKarmaChangeLastOpened(new Date());
     onOpen?.();
+    if (karmaChanges?.updateFrequency === "realtime" || isPastNextBatch(karmaChanges)) {
+      refetchKarmaChanges();
+    }
   }
 
   const handleClose = () => {
     setOpen(false);
     if (!currentUser) return;
-    if (document?.karmaChanges) {
+    if (karmaChanges) {
       void karmaChangesChecked({
         variables: {
-          startDate: document.karmaChanges.startDate,
-          endDate: document.karmaChanges.endDate,
+          startDate: karmaChanges.startDate,
+          endDate: karmaChanges.endDate,
         },
       });
 
-      if (document.karmaChanges.updateFrequency === "realtime") {
+      if (karmaChanges.updateFrequency === "realtime") {
         setCleared(true);
       }
     }
@@ -116,13 +150,9 @@ const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
     } else {
       handleOpen()
     }
-    captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
+    captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges})
   }
 
-  if (!document) {
-    return <KarmaChangeNotifierPlaceholder/>
-  }
-  const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
   if (!karmaChanges) {
     return <KarmaChangeNotifierPlaceholder/>
   }
@@ -131,7 +161,7 @@ const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
   if (settings && settings.updateFrequency === "disabled")
     return null;
 
-  const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
+  const { posts, comments, tagRevisions, totalChange } = karmaChanges
   //Check if user opened the karmaChangeNotifications for the current interval
   const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
   const starIsHollow = ((!comments?.length && !posts?.length && !tagRevisions?.length) || cleared || !newKarmaChangesSinceLastVisit)
