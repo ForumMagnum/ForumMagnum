@@ -171,6 +171,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userId, section, String(expanded)]);
   }
 
+  /**
+   * Record that the user has seen the karma-change batch with the given date
+   * range. These dates only move forward, so that checking an old tab can't
+   * cause a batch to be shown twice. Dates in the future are clamped to now,
+   * and existing values that are in the future get replaced, because a future
+   * karmaChangeLastOpened would otherwise never be moved forward again.
+   */
   markKarmaChangesChecked(userId: string, startDate: Date | null | undefined, endDate: Date | null | undefined): Promise<null> {
     return this.none(`
       -- UsersRepo.markKarmaChangesChecked
@@ -178,12 +185,18 @@ class UsersRepo extends AbstractRepo<"Users"> {
       SET
         "karmaChangeBatchStart" = CASE
           WHEN $2::TIMESTAMPTZ IS NULL THEN "karmaChangeBatchStart"
-          WHEN "karmaChangeBatchStart" IS NULL OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ THEN $2::TIMESTAMPTZ
+          WHEN "karmaChangeBatchStart" IS NULL
+            OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ
+            OR "karmaChangeBatchStart" > NOW()
+          THEN LEAST($2::TIMESTAMPTZ, NOW())
           ELSE "karmaChangeBatchStart"
         END,
         "karmaChangeLastOpened" = CASE
           WHEN $3::TIMESTAMPTZ IS NULL THEN "karmaChangeLastOpened"
-          WHEN "karmaChangeLastOpened" IS NULL OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ THEN $3::TIMESTAMPTZ
+          WHEN "karmaChangeLastOpened" IS NULL
+            OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ
+            OR "karmaChangeLastOpened" > NOW()
+          THEN LEAST($3::TIMESTAMPTZ, NOW())
           ELSE "karmaChangeLastOpened"
         END
       WHERE "_id" = $1
