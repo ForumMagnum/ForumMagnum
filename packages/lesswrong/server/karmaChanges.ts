@@ -139,6 +139,16 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   lastBatchStart?: Date|null,
 }): null|{start: any, end: any}
 {
+  // karmaChangeLastOpened and karmaChangeBatchStart only ever move forward (see
+  // UsersRepo.markKarmaChangesChecked), so if either of them ends up in the
+  // future, every daily or weekly batch would be treated as a reopening of the
+  // current batch, and keep the same start date indefinitely. Ignore them in
+  // that case.
+  if ((lastOpened && lastOpened > now) || (lastBatchStart && lastBatchStart > now)) {
+    lastOpened = null;
+    lastBatchStart = null;
+  }
+
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.
   let todaysDailyReset = moment(now).tz("GMT");
