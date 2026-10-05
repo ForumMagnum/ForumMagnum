@@ -25,8 +25,10 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
   }
 }
 
-export function getSharingKeyFromContext(context: ResolverContext|null) {
-  const key = context?.searchParams?.get('key');
+export function getSharingKeyFromContext(context: Pick<ResolverContext, 'searchParams'|'headers'>|null) {
+  // During SSR, searchParams are the page's. Client-side GraphQL requests go
+  // to a different URL, so the client forwards the page's key in a header.
+  const key = context?.searchParams?.get('key') || context?.headers?.get('link-sharing-key');
   if (typeof key === 'string') {
     return key;
   }

@@ -18,6 +18,7 @@ import {
 import { captureException } from '@/lib/sentryWrapper';
 import { FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { getSharingKeyFromContext } from '@/lib/collections/posts/collabEditingPermissions';
 import { backgroundTask } from '../utils/backgroundTask';
 import { runQueryNonThrowing } from '../vulcan-lib/query';
 
@@ -83,7 +84,7 @@ function isContextEligibleForSharedCache(context: Partial<ResolverContext>): boo
   if (context.currentUser || context.userId) return false;
   // A logged-out visitor may hold a sharing key granting access to a private
   // draft.
-  if (context.searchParams?.get('key')) return false;
+  if (getSharingKeyFromContext(context)) return false;
   return true;
 }
 
