@@ -8,6 +8,7 @@ import { Observable, type Subscriber } from "rxjs";
 import { parse, print } from "graphql";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { ForumTypeProvider } from "@/components/hooks/useForumType";
 
 interface SpotlightData {
   spotlights: {
@@ -55,7 +56,9 @@ function setupPagination(fetchPolicy: "network-only" | "cache-first" | "no-cache
       requests.push({ limit: operation.variables.limit, observer });
     })),
   });
-  const wrapper = ({ children }: React.PropsWithChildren) => <ApolloProvider client={client}>{children}</ApolloProvider>;
+  const wrapper = ({ children }: React.PropsWithChildren) => <ForumTypeProvider forumType="LessWrong">
+    <ApolloProvider client={client}>{children}</ApolloProvider>
+  </ForumTypeProvider>;
   const hook = renderHook((selector: Record<string, unknown>) => useQueryWithLoadMore(query, {
     variables: { limit: 1, selector },
     fetchPolicy,
