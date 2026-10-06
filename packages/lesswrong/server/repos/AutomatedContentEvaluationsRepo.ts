@@ -2,12 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import AutomatedContentEvaluations from "../collections/automatedContentEvaluations/collection";
 
-interface UnevaluatedRevision {
-  revisionId: string;
-  documentId: string;
-  publishedAt: Date;
-}
-
 class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEvaluations"> {
   constructor() {
     super(AutomatedContentEvaluations);
@@ -37,11 +31,11 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
     publishedAfter: Date,
     publishedBefore: Date,
     limit: number,
-  ): Promise<UnevaluatedRevision[]> {
-    return await this.getRawDb().any<UnevaluatedRevision>(`
+  ): Promise<DbRevision[]> {
+    return await this.getRawDb().any<DbRevision>(`
       -- AutomatedContentEvaluationsRepo.getUnevaluatedRevisionsAwaitingReview
       WITH candidates AS (
-        SELECT r._id AS "revisionId", p._id AS "documentId", p."postedAt" AS "publishedAt"
+        SELECT r.*
         FROM "Posts" p
         JOIN "Revisions" r ON r._id = p."contents_latest"
         JOIN "Users" u ON u._id = p."userId"
@@ -53,7 +47,7 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
           AND p."reviewedByUserId" IS NULL
           AND (u."reviewedAt" IS NULL OR u."reviewedAt" < r."editedAt")
         UNION ALL
-        SELECT r._id AS "revisionId", c._id AS "documentId", c."postedAt" AS "publishedAt"
+        SELECT r.*
         FROM "Comments" c
         JOIN "Revisions" r ON r._id = c."contents_latest"
         JOIN "Users" u ON u._id = c."userId"
@@ -72,7 +66,6 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
         JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r._id
         WHERE r."documentId" = candidates."documentId" AND r."fieldName" = 'contents'
       )
-      ORDER BY candidates."publishedAt"
       LIMIT $(limit)
     `, { publishedAfter, publishedBefore, limit });
   }
