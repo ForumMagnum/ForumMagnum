@@ -63,8 +63,11 @@ const PANGRAM_TASK_POLL_INTERVAL_MS = 2_000;
 const PANGRAM_TASK_REQUEST_TIMEOUT_MS = 10_000;
 
 // The GraphQL route has a 120-second limit. Leave time for request overhead and
-// for GraphQL to return a useful timeout error.
+// for GraphQL to return a useful timeout error. Retries share this deadline.
 const PANGRAM_TASK_TIMEOUT_MS = 90_000;
+
+const PANGRAM_MAX_ATTEMPTS = 3;
+const PANGRAM_RETRY_BASE_DELAY_MS = 3_000;
 
 export interface PangramEvaluationResult {
   analyzedText: string;
@@ -84,6 +87,15 @@ export interface PangramEvaluationResult {
     confidence?: string;
     wordCount?: number;
   }[] | null;
+}
+
+// Errors are retried unless marked otherwise.
+function nonRetryablePangramError(message: string): Error {
+  return Object.assign(new Error(message), { retryable: false });
+}
+
+function isRetryablePangramError(error: unknown): boolean {
+  return !(error instanceof Error && "retryable" in error && error.retryable === false);
 }
 
 async function fetchPangramJson(
@@ -111,35 +123,29 @@ async function fetchPangramJson(
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   } catch (e) {
-    const error = new Error(`Pangram API request failed: ${e instanceof Error ? e.message : "Unknown error"}`);
-    captureException(error);
-    throw error;
+    throw new Error(`Pangram API request failed: ${e instanceof Error ? e.message : "Unknown error"}`);
   }
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "Unable to read error response");
-    const error = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
-    captureException(error);
-    throw error;
+    const message = `Pangram API request failed with status ${response.status}: ${errorText}`;
+    const isTransient = response.status >= 500 || response.status === 408 || response.status === 429;
+    throw isTransient ? new Error(message) : nonRetryablePangramError(message);
   }
 
   try {
     return await response.json();
   } catch (e) {
-    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : "Unknown error"}`);
-    captureException(error);
-    throw error;
+    throw new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : "Unknown error"}`);
   }
 }
 
 function parsePangramResponse(pangramResponse: unknown, apiVersion: string): PangramEvaluationResult {
   const validatedResponse = pangramResponseSchema.safeParse(pangramResponse);
   if (!validatedResponse.success) {
-    const error = new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
     // eslint-disable-next-line no-console
     console.error(`Pangram validation failed. Original response: ${JSON.stringify(pangramResponse)}`);
-    captureException(error);
-    throw error;
+    throw new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
   }
 
   const pangramWindowScores = validatedResponse.data.windows?.map(w => ({
@@ -166,18 +172,35 @@ function parsePangramResponse(pangramResponse: unknown, apiVersion: string): Pan
   };
 }
 
+async function waitForNextPangramPoll(deadline: number): Promise<void> {
+  const remainingTime = deadline - Date.now();
+  if (remainingTime > 0) {
+    await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
+  }
+}
+
 async function pollPangramTask(taskId: string, key: string, deadline: number): Promise<unknown> {
   while (Date.now() < deadline) {
-    const taskResponse = await fetchPangramJson(
-      `${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`,
-      key,
-      deadline,
-    );
+    let taskResponse: unknown;
+    try {
+      taskResponse = await fetchPangramJson(
+        `${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`,
+        key,
+        deadline,
+      );
+    } catch (e) {
+      // A failed poll doesn't mean the task failed, so keep polling it rather
+      // than letting the caller resubmit (and pay for) a new task.
+      if (!isRetryablePangramError(e)) throw e;
+      // eslint-disable-next-line no-console
+      console.warn(`Polling Pangram task ${taskId} failed:`, e);
+      await waitForNextPangramPoll(deadline);
+      continue;
+    }
+
     const validatedStage = pangramTaskStageSchema.safeParse(taskResponse);
     if (!validatedStage.success) {
-      const error = new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
-      captureException(error);
-      throw error;
+      throw new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
     }
 
     if (validatedStage.data.stage === "STAGE_SUCCESS") {
@@ -188,34 +211,22 @@ async function pollPangramTask(taskId: string, key: string, deadline: number): P
         || validatedStage.data.headline
         || validatedStage.data.detail
         || "no error message given";
-      const error = new Error(`Pangram task failed: ${failureMessage}`);
-      captureException(error);
-      throw error;
+      throw new Error(`Pangram task failed: ${failureMessage}`);
     }
 
-    const remainingTime = deadline - Date.now();
-    if (remainingTime > 0) {
-      await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
-    }
+    await waitForNextPangramPoll(deadline);
   }
 
-  const error = new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
-  captureException(error);
-  throw error;
+  throw new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
 }
 
-export async function getPangramEvaluationForText(
-  text: string,
-  model: PangramModel = DEFAULT_PANGRAM_MODEL,
+async function requestPangramEvaluation(
+  textToCheck: string,
+  model: PangramModel,
+  key: string,
+  deadline: number,
 ): Promise<PangramEvaluationResult> {
-  const key = process.env.PANGRAM_API_KEY;
-  if (!key) {
-    throw new Error("PANGRAM_API_KEY is not configured");
-  }
-
-  const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
   if (model === "pangram4") {
-    const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
     const submission = await fetchPangramJson(
       PANGRAM_TASK_URL,
       key,
@@ -224,9 +235,7 @@ export async function getPangramEvaluationForText(
     );
     const validatedSubmission = pangramTaskSubmissionSchema.safeParse(submission);
     if (!validatedSubmission.success) {
-      const error = new Error(`Invalid Pangram task submission response: ${validatedSubmission.error.message}`);
-      captureException(error);
-      throw error;
+      throw new Error(`Invalid Pangram task submission response: ${validatedSubmission.error.message}`);
     }
 
     const result = await pollPangramTask(validatedSubmission.data.task_id, key, deadline);
@@ -240,6 +249,36 @@ export async function getPangramEvaluationForText(
     { text: textToCheck },
   );
   return parsePangramResponse(result, "v3");
+}
+
+export async function getPangramEvaluationForText(
+  text: string,
+  model: PangramModel = DEFAULT_PANGRAM_MODEL,
+): Promise<PangramEvaluationResult> {
+  const key = process.env.PANGRAM_API_KEY;
+  if (!key) {
+    throw new Error("PANGRAM_API_KEY is not configured");
+  }
+
+  const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
+  const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await requestPangramEvaluation(textToCheck, model, key, deadline);
+    } catch (e) {
+      const retryDelay = PANGRAM_RETRY_BASE_DELAY_MS * attempt;
+      const canRetry = attempt < PANGRAM_MAX_ATTEMPTS
+        && isRetryablePangramError(e)
+        && Date.now() + retryDelay < deadline;
+      if (!canRetry) {
+        captureException(e);
+        throw e;
+      }
+      // eslint-disable-next-line no-console
+      console.warn(`Pangram attempt ${attempt} failed, retrying in ${retryDelay}ms:`, e);
+      await sleep(retryDelay);
+    }
+  }
 }
 
 export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {

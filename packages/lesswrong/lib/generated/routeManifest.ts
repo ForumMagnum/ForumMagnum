@@ -347,6 +347,9 @@ export const routeTrie = {
             "every-ten-minutes": {
               "hasRoute": true
             },
+            "retry-missing-pangram-evaluations": {
+              "hasRoute": true
+            },
             "run-twitter-bot": {
               "hasRoute": true
             },
@@ -376,6 +379,7 @@ export const routeTrie = {
             "every-midnight": "every-midnight",
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
+            "retry-missing-pangram-evaluations": "retry-missing-pangram-evaluations",
             "run-twitter-bot": "run-twitter-bot",
             "supermod-status-to-slack": "supermod-status-to-slack",
             "update-analytics-collections": "update-analytics-collections",
