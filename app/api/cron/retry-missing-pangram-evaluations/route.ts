@@ -6,18 +6,16 @@ import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { createAutomatedContentEvaluation } from '@/server/collections/automatedContentEvaluations/helpers';
 
-// The checks run in parallel, and each can take up to 90 seconds.
+// Checks run in parallel; each can take up to 90s.
 export const maxDuration = 120;
 
-// Retry on every run from 5 minutes after publication (leaving time for the
-// publish-time check to finish) until 2 hours after, which bounds the cost of
-// content that always fails.
+// The delay lets the publish-time check finish; the cutoff caps retries of content that always fails.
 const RETRY_FROM_MS = 5 * 60 * 1000;
 const RETRY_UNTIL_MS = 2 * 60 * 60 * 1000;
 const MAX_RETRIES_PER_RUN = 20;
 
 async function retryMissingPangramEvaluations(forumType: ForumTypeString): Promise<void> {
-  // Like the publish-time check, this only runs on LessWrong.
+  // Matches the publish-time check.
   if (forumType !== 'LessWrong') return;
 
   const context = createAnonymousContext({ forumType });
@@ -41,7 +39,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // The lock keeps overlapping runs from evaluating, and autorejecting, the same content twice.
+  // Prevents double autorejection if runs overlap.
   await getLockOrAbort(
     'retryMissingPangramEvaluations',
     retryMissingPangramEvaluations.bind(null, getForumTypeForRequest(request)),

@@ -20,13 +20,8 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
     return postIds.map((postId) => evaluationsByPostId.get(postId) ?? null);
   }
 
-  /**
-   * Latest revisions of published posts and comments that publishing would have
-   * run an automated content evaluation on, but that have no evaluation on any
-   * revision, and that no moderator has acted on yet. A moderator approving,
-   * snoozing or banning the author sets `reviewedAt`, so content written before
-   * then is excluded.
-   */
+  // Mirrors the publish-time check's conditions. Every moderator action on a user
+  // sets `reviewedAt`; compare it to `createdAt`, which edits and approval don't change.
   async getUnevaluatedRevisionsAwaitingReview(
     publishedAfter: Date,
     publishedBefore: Date,
@@ -45,7 +40,7 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
           AND p."isEvent" IS NOT TRUE
           AND p."shortform" IS NOT TRUE
           AND p."reviewedByUserId" IS NULL
-          AND (u."reviewedAt" IS NULL OR u."reviewedAt" < r."editedAt")
+          AND (u."reviewedAt" IS NULL OR u."reviewedAt" < p."createdAt")
         UNION ALL
         SELECT r.*
         FROM "Comments" c
@@ -56,7 +51,7 @@ class AutomatedContentEvaluationsRepo extends AbstractRepo<"AutomatedContentEval
           AND c."rejected" IS NOT TRUE
           AND c."deleted" IS NOT TRUE
           AND u."reviewedByUserId" IS NULL
-          AND (u."reviewedAt" IS NULL OR u."reviewedAt" < r."editedAt")
+          AND (u."reviewedAt" IS NULL OR u."reviewedAt" < c."createdAt")
       )
       SELECT candidates.*
       FROM candidates
