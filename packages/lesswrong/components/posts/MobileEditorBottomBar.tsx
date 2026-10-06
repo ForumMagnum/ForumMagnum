@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
+import UnanchoredCommentsBadge from "./UnanchoredCommentsBadge";
 import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
@@ -71,6 +72,10 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(0.96),
       borderColor: theme.palette.greyAlpha(0.25),
     },
+  },
+  commentsButton: {
+    // Positioning context for UnanchoredCommentsBadge
+    position: "relative",
   },
   settingsButtonActive: {
     color: theme.palette.greyAlpha(0.98),
@@ -439,6 +444,7 @@ const MobileEditorBottomBar = ({
                     type="button"
                     className={classNames(
                       classes.settingsButton,
+                      classes.commentsButton,
                       showComments && classes.settingsButtonActive,
                     )}
                     onClick={() => {
@@ -448,6 +454,7 @@ const MobileEditorBottomBar = ({
                     }}
                   >
                     <ForumIcon icon="Comment" className={classes.settingsIcon} />
+                    <UnanchoredCommentsBadge />
                   </button>
                 )}
                 <button
