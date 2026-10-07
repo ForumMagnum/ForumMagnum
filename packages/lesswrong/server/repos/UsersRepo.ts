@@ -4,6 +4,8 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
+import { reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
+import { getModeratorActionGroup } from "@/lib/collections/users/reviewGroups";
 
 export interface PendingContentStats {
   pendingPostCount: number;
@@ -539,6 +541,58 @@ class UsersRepo extends AbstractRepo<"Users"> {
       approvedContentCount: 0,
       totalContentCount: 0,
     });
+  }
+
+  /**
+   * Review-queue users who are there only because of posts or comments (per
+   * `getModeratorActionGroup`), with nothing still awaiting approval (as in
+   * `getPendingContentStats`) and nothing rejected, e.g. because they moved
+   * their post back to draft or deleted their comment. Users with rejected
+   * content are left to moderators and the LLM-rejection triage.
+   */
+  async getContentQueueUserIdsWithNothingPending(): Promise<string[]> {
+    const reviewTriggerTypes = [...reviewTriggerModeratorActions];
+    const contentTriggerTypes = reviewTriggerTypes.filter((type) => getModeratorActionGroup(type) === "newContent");
+    const rows = await this.getRawDb().any<{ _id: string }>(`
+      -- UsersRepo.getContentQueueUserIdsWithNothingPending
+      WITH "queue" AS (
+        SELECT u."_id", (
+          SELECT MAX(fc."createdAt") FROM "FieldChanges" fc
+          WHERE fc."documentId" = u."_id"
+            AND fc."fieldName" = 'needsReview'
+            AND fc."newValue" = 'false'::jsonb
+        ) AS "lastRemovedAt"
+        FROM "Users" u
+        WHERE u."needsReview" IS TRUE
+      ),
+      -- Mirrors getFreshReviewTriggerActions
+      "freshTriggers" AS (
+        SELECT q."_id" AS "userId", ma."type"
+        FROM "queue" q
+        JOIN "ModeratorActions" ma ON ma."userId" = q."_id"
+        WHERE ma."type" = ANY($(reviewTriggerTypes)::text[])
+          AND (ma."endedAt" IS NULL OR ma."endedAt" > NOW())
+          AND ma."createdAt" > COALESCE(q."lastRemovedAt", '-infinity'::timestamptz)
+      )
+      SELECT q."_id"
+      FROM "queue" q
+      WHERE EXISTS (SELECT 1 FROM "freshTriggers" ft WHERE ft."userId" = q."_id")
+        AND NOT EXISTS (
+          SELECT 1 FROM "freshTriggers" ft
+          WHERE ft."userId" = q."_id" AND ft."type" <> ALL($(contentTriggerTypes)::text[])
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM "Posts" p
+          WHERE p."userId" = q."_id"
+            AND (p."rejected" IS TRUE OR (p."authorIsUnreviewed" IS TRUE AND p."draft" IS NOT TRUE AND p."shortform" IS NOT TRUE))
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM "Comments" c
+          WHERE c."userId" = q."_id"
+            AND (c."rejected" IS TRUE OR (c."authorIsUnreviewed" IS TRUE AND c."deleted" IS NOT TRUE AND c."draft" IS NOT TRUE))
+        )
+    `, { reviewTriggerTypes, contentTriggerTypes });
+    return rows.map((row) => row._id);
   }
 
   /**

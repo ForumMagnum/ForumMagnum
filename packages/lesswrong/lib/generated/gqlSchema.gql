@@ -3772,6 +3772,8 @@ enum ModeratorActionType {
   manualRateLimitExpired
   votingDisabled
   autoPurgedProfileSpam
+  autoRemovedLlmRejectedUser
+  autoPurgedLlmRejectedSpam
 }
 
 input SingleModeratorActionInput {

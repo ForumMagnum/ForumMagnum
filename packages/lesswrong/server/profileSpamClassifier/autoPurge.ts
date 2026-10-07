@@ -77,13 +77,19 @@ function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
 
-async function purgeProfileSpammer(user: DbUser, reason: string, context: ResolverContext) {
+// Purges the same way the supermod Purge button does, acting as the admin team account.
+export async function purgeSpamUser(
+  user: DbUser,
+  sunshineNote: string,
+  moderatorActionType: ModeratorActionType,
+  context: ResolverContext,
+) {
   const adminTeamAccountId = adminAccountSetting.get(context)?._id;
   const adminTeamAccount = adminTeamAccountId ? await context.Users.findOne({ _id: adminTeamAccountId }) : null;
   if (!adminTeamAccount) return;
   const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
 
-  const note = getSignatureWithNote(adminTeamAccount.displayName, `Auto-purged (profile spam classifier): ${reason}`);
+  const note = getSignatureWithNote(adminTeamAccount.displayName, sunshineNote);
   await updateUser({
     selector: { _id: user._id },
     data: {
@@ -99,7 +105,7 @@ async function purgeProfileSpammer(user: DbUser, reason: string, context: Resolv
   }, adminContext);
 
   // Must come after the update, which would otherwise overwrite this action's sunshine note.
-  await createModeratorAction({ data: { userId: user._id, type: AUTO_PURGED_PROFILE_SPAM } }, adminContext);
+  await createModeratorAction({ data: { userId: user._id, type: moderatorActionType } }, adminContext);
 }
 
 async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContext) {
@@ -115,7 +121,7 @@ async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContex
   const latestUser = await context.Users.findOne({ _id: userId });
   if (!latestUser || profileTextChanged(user, latestUser) || !(await isEligibleForAutoPurge(latestUser, context))) return;
 
-  await purgeProfileSpammer(latestUser, verdict.reason, context);
+  await purgeSpamUser(latestUser, `Auto-purged (profile spam classifier): ${verdict.reason}`, AUTO_PURGED_PROFILE_SPAM, context);
 }
 
 // The purge must wait for the review trigger, which sets needsReview and would put a purged user back in the queue.
