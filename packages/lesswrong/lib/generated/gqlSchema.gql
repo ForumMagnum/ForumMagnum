@@ -7882,7 +7882,6 @@ type User {
   rejectedContentCount: Int
   pendingPostCount: Int
   pendingCommentCount: Int
-  oldestPendingContentAt: Date
   pendingPostWordCount: Int
   pendingCommentWordCount: Int
   userRateLimits: [UserRateLimit!]
