@@ -7,6 +7,7 @@ import {
   selectHttpOptionsAndBodyInternal,
   selectURI,
 } from "@apollo/client/link/http";
+import { ServerError, ServerParseError } from "@apollo/client/errors";
 import { filterOperationVariables } from "@apollo/client/link/utils";
 import { __DEV__ } from "@apollo/client/utilities/environment";
 import { compact } from "@apollo/client/utilities/internal";
@@ -25,22 +26,17 @@ type RequestEntry = {
   complete: Array<() => void>;
 };
 
-async function readJsonArrayStreamObjects(
-  response: Response,
-  onLine: (obj: any) => void,
-): Promise<void> {
+/**
+ * Yield the lines of a response body as they arrive.
+ */
+async function* readResponseLines(response: Response): AsyncGenerator<string> {
   const body = response.body;
-  if (!body || typeof (body as any).getReader !== "function") {
-    return response.text().then((text) => {
-      const lines = text.split("\n").filter(Boolean);
-      for (const line of lines) {
-        const parsed = parseJsonArrayStreamLine(line);
-        if (parsed !== undefined) onLine(parsed);
-      }
-    });
+  if (!body || typeof body.getReader !== "function") {
+    yield* (await response.text()).split("\n");
+    return;
   }
 
-  const reader = (body as any).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+  const reader = body.getReader();
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
 
@@ -52,35 +48,59 @@ async function readJsonArrayStreamObjects(
       buffer += decoder.decode(value, { stream: true });
       let newlineIndex = buffer.indexOf("\n");
       while (newlineIndex >= 0) {
-        const line = buffer.slice(0, newlineIndex);
+        yield buffer.slice(0, newlineIndex);
         buffer = buffer.slice(newlineIndex + 1);
-        if (line.trim()) {
-          const parsed = parseJsonArrayStreamLine(line);
-          if (parsed !== undefined) onLine(parsed);
-        }
         newlineIndex = buffer.indexOf("\n");
       }
     }
-
-    const remaining = buffer.trim();
-    if (remaining) {
-      const parsed = parseJsonArrayStreamLine(remaining);
-      if (parsed !== undefined) onLine(parsed);
-    }
-  } catch(e) {
-    // ignore
+    yield buffer + decoder.decode();
   } finally {
     reader.releaseLock();
   }
 }
 
-function parseJsonArrayStreamLine(line: string): any | undefined {
+/**
+ * Read a response in the format written by /api/streamGraphql: a JSON array
+ * with one element per line, where elements are written as they become
+ * available. Calls `onElement` with each element as it arrives. Returns whether
+ * the array's closing bracket was received; if it wasn't, the response was cut
+ * off (eg because the server crashed or timed out).
+ */
+async function readJsonArrayStreamObjects(
+  response: Response,
+  onElement: (obj: any) => void,
+): Promise<boolean> {
+  let sawClosingBracket = false;
+  for await (const line of readResponseLines(response)) {
+    if (line.trim() === "]") {
+      sawClosingBracket = true;
+      continue;
+    }
+    const parsed = parseJsonArrayStreamLine(line, response);
+    if (parsed !== undefined) onElement(parsed);
+  }
+  return sawClosingBracket;
+}
+
+function parseJsonArrayStreamLine(line: string, response: Response): any | undefined {
   const trimmed = line.trim();
   if (!trimmed) return undefined;
-  if (trimmed === "[" || trimmed === "]" || trimmed === ",") return undefined;
+  if (trimmed === "[" || trimmed === ",") return undefined;
   const withoutTrailingComma = trimmed.endsWith(",") ? trimmed.slice(0, -1).trim() : trimmed;
   if (!withoutTrailingComma) return undefined;
-  return JSON.parse(withoutTrailingComma);
+  try {
+    return JSON.parse(withoutTrailingComma);
+  } catch (e) {
+    throw new ServerParseError(e, { response, bodyText: line });
+  }
+}
+
+function getMissingResultError(operationName: string | undefined, uri: string, responseWasComplete: boolean): Error {
+  const name = operationName || "(anonymous)";
+  return new Error(responseWasComplete
+    ? `Response from ${uri} did not include a result for operation ${name}`
+    : `Response from ${uri} was cut off before the result for operation ${name} arrived`
+  );
 }
 
 interface StreamingGraphQLHttpLinkContextOptions extends BaseHttpLink.ContextOptions {}
@@ -306,10 +326,19 @@ export class StreamingGraphqlHttpLink extends ApolloLink {
     };
 
     void currentFetch(chosenURI, httpOptions)
-      .then((response) => {
+      .then(async (response) => {
         operations.forEach((op) => op.setContext({ response }));
 
-        return readJsonArrayStreamObjects(response, (obj) => {
+        // The server responds with status 200 once it starts running
+        // operations, even if they have errors, so any other status means
+        // something went wrong before that or outside of the request handler
+        // (eg a failure setting up the request, a timeout, or a proxy error)
+        if (!response.ok) {
+          const bodyText = await response.text();
+          throw new ServerError(`Response not successful: Received status code ${response.status}`, { response, bodyText });
+        }
+
+        const responseWasComplete = await readJsonArrayStreamObjects(response, (obj) => {
           const index = obj?.index;
           const rawResult = obj?.result;
           const storeDelta = obj?.storeDelta;
@@ -329,13 +358,11 @@ export class StreamingGraphqlHttpLink extends ApolloLink {
           entries[index].complete.forEach((c) => c());
           finished[index] = true;
         });
-      })
-      .then(() => {
+
         for (let i = 0; i < entries.length; i++) {
           if (!finished[i]) {
-            entries[i].error.forEach((fn) =>
-              fn(new Error(`Missing response for batched operation index ${i}`)),
-            );
+            const error = getMissingResultError(entries[i].operation.operationName, chosenURI, responseWasComplete);
+            entries[i].error.forEach((fn) => fn(error));
           }
         }
       })
