@@ -46,11 +46,13 @@ export function useSupermodKeyboardCommands({
           return;
         }
 
-        // Don't handle keyboard shortcuts if user is typing in an input/textarea
+        // Don't handle keyboard shortcuts if user is typing in an input/textarea,
+        // or using arrow keys in a dropdown
         const target = event.target as HTMLElement;
         const isInTextInput = (
           target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
           target.isContentEditable
         );
 

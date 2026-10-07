@@ -1,4 +1,5 @@
 import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { DEFAULT_USER_SORT } from '@/components/sunshineDashboard/supermod/userSort';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -9,9 +10,8 @@ import {
 } from '../lib/collections/moderatorActions/constants';
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
+  simple: UNREVIEWED_FIRST_POST,
   newContent: UNREVIEWED_FIRST_POST,
-  // `offboard` has no moderator action; mocks just need a plausible one.
-  offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
@@ -101,6 +101,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -134,6 +135,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       // Next from last user should wrap to first
@@ -163,6 +165,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       // Prev from first user should wrap to last
@@ -194,6 +197,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       // Start at newContent (highest priority)
@@ -237,6 +241,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       // Start at newContent (highest priority)
@@ -276,6 +281,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -308,6 +314,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -338,6 +345,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -372,6 +380,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -404,6 +413,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -435,6 +445,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -469,6 +480,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -503,6 +515,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -530,6 +543,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -560,6 +574,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
 
       // Try to change tabs
@@ -587,6 +602,7 @@ describe('Moderation Inbox Reducer', () => {
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
+        userSort: DEFAULT_USER_SORT,
       };
     }
 
@@ -628,6 +644,77 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('user sort', () => {
+    // user1: oldest pending item, no comments; user2: newer, has comments; user3: nothing pending
+    const users = [
+      createMockUser('user1', 'newContent', { pendingPostCount: 2, pendingCommentCount: 0, oldestPendingContentAt: '2026-10-01T00:00:00.000Z' }),
+      createMockUser('user2', 'newContent', { pendingPostCount: 0, pendingCommentCount: 1, oldestPendingContentAt: '2026-10-05T00:00:00.000Z' }),
+      createMockUser('user3', 'newContent', { pendingPostCount: 0, pendingCommentCount: 0, oldestPendingContentAt: null }),
+    ];
+
+    function stateWithSort(userSort: InboxState['userSort']): InboxState {
+      return {
+        users,
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: 'user2',
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        unloadedCounts: {},
+        userSort,
+      };
+    }
+
+    test('default sort puts users with pending comments first, then oldest submission', () => {
+      const state = inboxStateReducer(stateWithSort(DEFAULT_USER_SORT), { type: 'NEXT_USER' });
+      expect(state.focusedUserId).toBe('user1');
+    });
+
+    test('users with nothing pending sort last even when sorting newest first', () => {
+      const state = inboxStateReducer(
+        stateWithSort({ primary: { key: 'oldestPendingContent', direction: 'desc' }, secondary: null }),
+        { type: 'CHANGE_TAB', tab: 'newContent' },
+      );
+      expect(state.focusedUserId).toBe('user2');
+      expect(inboxStateReducer({ ...state, focusedUserId: 'user1' }, { type: 'NEXT_USER' }).focusedUserId).toBe('user3');
+    });
+
+    test('SET_USER_SORT changes navigation order', () => {
+      let state = inboxStateReducer(stateWithSort(DEFAULT_USER_SORT), {
+        type: 'SET_USER_SORT',
+        sort: { primary: { key: 'pendingItemCount', direction: 'desc' }, secondary: null },
+      });
+      state = inboxStateReducer({ ...state, focusedUserId: 'user1' }, { type: 'NEXT_USER' });
+      expect(state.focusedUserId).toBe('user2');
+    });
+
+    test('Simple tab ignores the sort setting: comments first, then posts, each by fewest words', () => {
+      const simpleUsers = [
+        createMockUser('longPost', 'simple', { pendingPostCount: 1, pendingCommentCount: 0, pendingPostWordCount: 3000, pendingCommentWordCount: 0 }),
+        createMockUser('shortPost', 'simple', { pendingPostCount: 1, pendingCommentCount: 0, pendingPostWordCount: 50, pendingCommentWordCount: 0 }),
+        createMockUser('longComment', 'simple', { pendingPostCount: 1, pendingCommentCount: 1, pendingPostWordCount: 10, pendingCommentWordCount: 400 }),
+        createMockUser('shortComment', 'simple', { pendingPostCount: 0, pendingCommentCount: 2, pendingPostWordCount: 0, pendingCommentWordCount: 20 }),
+      ];
+      let state = inboxStateReducer(
+        { ...stateWithSort({ primary: { key: 'pendingItemCount', direction: 'desc' }, secondary: null }), users: simpleUsers },
+        { type: 'CHANGE_TAB', tab: 'simple' },
+      );
+      const visited = [state.focusedUserId];
+      for (let i = 0; i < simpleUsers.length - 1; i++) {
+        state = inboxStateReducer(state, { type: 'NEXT_USER' });
+        visited.push(state.focusedUserId);
+      }
+      expect(visited).toEqual(['shortComment', 'longComment', 'shortPost', 'longPost']);
     });
   });
 });

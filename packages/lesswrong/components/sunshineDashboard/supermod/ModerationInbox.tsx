@@ -28,6 +28,7 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import { hideScrollBars } from '@/themes/styleUtils';
+import { DEFAULT_USER_SORT, type UserSort } from './userSort';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -150,7 +151,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, unloadedCounts },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, unloadedCounts, userSort: DEFAULT_USER_SORT },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -169,6 +170,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           history: [],
           runningLlmCheckId: null,
           unloadedCounts,
+          userSort: DEFAULT_USER_SORT,
         };
       }
 
@@ -188,6 +190,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           history: [],
           runningLlmCheckId: null,
           unloadedCounts,
+          userSort: DEFAULT_USER_SORT,
         };
       }
 
@@ -219,6 +222,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           history: [],
           runningLlmCheckId: null,
           unloadedCounts,
+          userSort: DEFAULT_USER_SORT,
         };
       }
       
@@ -238,6 +242,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           history: [],
           runningLlmCheckId: null,
           unloadedCounts,
+          userSort: DEFAULT_USER_SORT,
         };
       }
 
@@ -257,10 +262,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           history: [],
           runningLlmCheckId: null,
           unloadedCounts,
+          userSort: DEFAULT_USER_SORT,
         };
       }
 
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, firstTab, DEFAULT_USER_SORT);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -278,6 +284,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
         history: [],
         runningLlmCheckId: null,
         unloadedCounts,
+        userSort: DEFAULT_USER_SORT,
       };
     }
   );
@@ -302,7 +309,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
-  const orderedGroups = useMemo(() => getOrderedGroups(groupedUsers), [groupedUsers]);
+  const orderedGroups = useMemo(() => getOrderedGroups(groupedUsers, state.userSort), [groupedUsers, state.userSort]);
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
@@ -365,6 +372,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   }, []);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
+
+  const handleUserSortChange = useCallback((sort: UserSort) => dispatch({ type: 'SET_USER_SORT', sort }), []);
 
   const handlePrevTab = useCallback(() => dispatch({ type: 'PREV_TAB' }), []);
 
@@ -495,6 +504,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
                   unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
+                  userSort={state.userSort}
+                  onUserSortChange={handleUserSortChange}
                 />
               </div>
             </>

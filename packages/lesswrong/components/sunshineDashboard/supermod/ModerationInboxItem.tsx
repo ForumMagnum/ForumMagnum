@@ -263,7 +263,7 @@ const ModerationInboxItem = ({
       )}
 
       <div className={classes.contextualInfo}>
-        {reviewGroup === 'newContent' || reviewGroup === 'offboard'
+        {(reviewGroup === 'simple' || reviewGroup === 'newContent')
           ? <ContentPreview user={user} />
           : <PreloadUserContents user={user} />
         }

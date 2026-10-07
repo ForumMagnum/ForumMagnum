@@ -7880,6 +7880,11 @@ type User {
   lastRemovedFromReviewQueueAt: Date
   hasPendingComments: Boolean
   rejectedContentCount: Int
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  oldestPendingContentAt: Date
+  pendingPostWordCount: Int
+  pendingCommentWordCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
   hasClaudeCodeOAuthToken: Boolean
@@ -7932,8 +7937,8 @@ enum SubforumPreferredLayout {
 }
 
 enum ReviewGroup {
+  simple
   newContent
-  offboard
   highContext
   maybeSpam
   automod

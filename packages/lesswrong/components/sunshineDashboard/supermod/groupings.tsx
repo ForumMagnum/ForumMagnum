@@ -36,7 +36,9 @@ export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
 export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): React.ReactNode {
   const reviewGroup = getUserReviewGroup(user);
   const { fresh } = partitionModeratorActions(user);
-  const actionForGroup = fresh.find(action => getModeratorActionGroup(action.type) === reviewGroup);
+  // Simple is a subset of New Content, so its users were put in the queue by New Content actions
+  const actionGroup = reviewGroup === 'simple' ? 'newContent' : reviewGroup;
+  const actionForGroup = fresh.find(action => getModeratorActionGroup(action.type) === actionGroup);
   if (!actionForGroup) {
     return undefined;
   }
@@ -45,7 +47,7 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
 }
 
 export function getTabsInPriorityOrder(): ReviewGroup[] {
-  return ['newContent', 'offboard', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
+  return ['simple', 'newContent', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
 }
 
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({

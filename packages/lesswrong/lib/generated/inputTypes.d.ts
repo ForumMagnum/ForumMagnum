@@ -7295,6 +7295,11 @@ interface User {
   lastRemovedFromReviewQueueAt: Date | null;
   hasPendingComments: boolean | null;
   rejectedContentCount: number | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | null;
+  pendingPostWordCount: number | null;
+  pendingCommentWordCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
   hasClaudeCodeOAuthToken: boolean | null;

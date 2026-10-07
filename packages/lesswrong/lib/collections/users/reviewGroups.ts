@@ -8,8 +8,8 @@ import maxBy from "lodash/maxBy";
  * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
-  newContent: 7,
-  offboard: 6,
+  simple: 7,
+  newContent: 6,
   highContext: 5,
   maybeSpam: 4,
   automod: 3,
@@ -74,6 +74,25 @@ export function getFreshReviewTriggerActions<T extends ReviewTriggerActionInfo>(
     .filter(action => new Date(action.createdAt).getTime() > lastRemovedFromReviewQueueAtTs);
 }
 
+const MAX_SIMPLE_TOTAL_ITEMS = 2;
+
+interface SimpleReviewContentStats {
+  pendingPostCount: number;
+  pendingCommentCount: number;
+  approvedContentCount: number;
+  totalContentCount: number;
+}
+
+/**
+ * "Simple" users are the New Content users who are quickest to decide on: one or
+ * two items in total (rejected, drafted and deleted ones included), at least one
+ * of them awaiting approval, and no approved history to weigh them against.
+ */
+export function isSimpleReviewCandidate({ pendingPostCount, pendingCommentCount, approvedContentCount, totalContentCount }: SimpleReviewContentStats): boolean {
+  const pendingCount = pendingPostCount + pendingCommentCount;
+  return pendingCount > 0 && totalContentCount <= MAX_SIMPLE_TOTAL_ITEMS && approvedContentCount === 0;
+}
+
 export function getReviewGroupFromActions(
   moderatorActions: ReviewTriggerActionInfo[],
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,
@@ -85,10 +104,10 @@ export function getReviewGroupFromActions(
 
 export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation'): string {
   switch (group) {
+    case 'simple':
+      return 'Simple';
     case 'newContent':
       return 'New Content';
-    case 'offboard':
-      return 'Offboard?';
     case 'highContext':
       return 'High Context';
     case 'maybeSpam':

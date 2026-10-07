@@ -1,13 +1,13 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import { sortSimpleUsers, sortUsers, type UserSort } from './userSort';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -58,6 +58,8 @@ export type InboxState = {
   runningLlmCheckId: string | null;
   // Queued items beyond the loaded page, per tab. Tab counts include these.
   unloadedCounts: UnloadedCounts;
+  // Order of users within each review group
+  userSort: UserSort;
 };
 
 export type InboxAction =
@@ -82,29 +84,23 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'SET_USER_SORT'; sort: UserSort; };
 
 
 
-// Held comments can't go live until reviewed
-function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
-  if (group !== 'newContent') {
-    return users;
-  }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
-}
-
-export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
+export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>, userSort: UserSort): GroupEntry[] {
   return (Object.entries(groupedUsers) as GroupEntry[])
     .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+    .map(([group, users]): GroupEntry => [group, group === 'simple' ? sortSimpleUsers(users) : sortUsers(users, userSort)]);
 }
 
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
-  activeTab: TabId
+  activeTab: TabId,
+  userSort: UserSort,
 ): GroupEntry[] {
-  const orderedGroups = getOrderedGroups(groupedUsers);
+  const orderedGroups = getOrderedGroups(groupedUsers, userSort);
   
   if (activeTab === 'all') {
     return orderedGroups;
@@ -301,7 +297,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       // Switching to a user tab
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
+      const filteredGroups = getFilteredGroups(groupedUsers, action.tab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -318,7 +314,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       if (orderedUsers.length === 0) return state;
@@ -340,7 +336,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       if (orderedUsers.length === 0) return state;
@@ -415,7 +411,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       }
 
       // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, nextTab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -485,7 +481,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       }
 
       // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, prevTab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -594,14 +590,14 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       // Recalculate groups and tabs
       const groupedUsers = groupBy(newUsers, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.userSort);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       // If current tab still has users
       if (orderedUsers.length > 0) {
         // Find where we were in the list
         const oldGroupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-        const oldFilteredGroups = getFilteredGroups(oldGroupedUsers, state.activeTab);
+        const oldFilteredGroups = getFilteredGroups(oldGroupedUsers, state.activeTab, state.userSort);
         const oldOrderedUsers = oldFilteredGroups.flatMap(([_, users]) => users);
 
         const currentId = state.openedUserId ?? state.focusedUserId;
@@ -642,7 +638,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         }
       }
 
-      const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab);
+      const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab, state.userSort);
       const nextOrderedUsers = nextFilteredGroups.flatMap(([_, users]) => users);
 
       if (nextOrderedUsers.length > 0) {
@@ -675,6 +671,13 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         runningLlmCheckId: action.documentId,
+      };
+    }
+
+    case 'SET_USER_SORT': {
+      return {
+        ...state,
+        userSort: action.sort,
       };
     }
 

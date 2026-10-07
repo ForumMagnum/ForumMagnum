@@ -371,6 +371,11 @@ export const SunshineUsersList = gql(`
     }
     reviewGroup
     hasPendingComments
+    pendingPostCount
+    pendingCommentCount
+    oldestPendingContentAt
+    pendingPostWordCount
+    pendingCommentWordCount
     usersContactedBeforeReview
 
     voteReceivedCount

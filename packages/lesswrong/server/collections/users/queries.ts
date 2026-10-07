@@ -55,8 +55,8 @@ export const graphqlUserQueryTypeDefs = gql`
   }
 
   enum ReviewGroup {
+    simple
     newContent
-    offboard
     highContext
     maybeSpam
     automod
