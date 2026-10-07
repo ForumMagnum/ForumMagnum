@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
@@ -8,8 +9,9 @@ const LoginToTrack = ({className, children = "Log in to save where you left off"
   className?: string,
   children?: ReactNode,
 }) => {
+  const { forumType } = useForumType();
   return (
-    <LoginPopupButton title={`${startCase(siteNameWithArticleSetting.get())} keeps track of what posts logged in users have read, so you can keep reading wherever you've left off`} className={className}>
+    <LoginPopupButton title={`${startCase(siteNameWithArticleSetting.get(forumType))} keeps track of what posts logged in users have read, so you can keep reading wherever you've left off`} className={className}>
       {children}
     </LoginPopupButton>
   );

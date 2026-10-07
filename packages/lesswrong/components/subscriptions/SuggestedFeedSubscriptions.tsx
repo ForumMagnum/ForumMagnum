@@ -1,7 +1,7 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useMessages } from '../common/withMessages';
-import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
+import { UserDisplayNameInfo } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';
@@ -135,12 +135,13 @@ const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => 
 }));
 
 function useSuggestedUsers(skipFetch = false) {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
 
   const initialLimit = 64;
 
-  const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser));
+  const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser, forumType));
   
   const { data: suggestedUsersData, loading } = useQuery(gql(`
     query SuggestedFeedSubscriptionUsers($limit: Int) {
@@ -347,7 +348,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
             ))}
           </div>
           <div className={classes.bottomButtonsContainer}>
-            <Link to="/manageSubscriptions" className={classes.manageButton}>
+            <Link to="/account?tab=subscriptions" className={classes.manageButton}>
               <span className={classes.followingCount}>{followingCount}</span> following
             </Link>
             {availableUsers.length > usersToShow && (

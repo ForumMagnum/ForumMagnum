@@ -8,15 +8,16 @@ import UserMentionHit from '@/components/search/UserMentionHit'
 import PostMentionHit from '@/components/search/PostMentionHit'
 import TagMentionHit from '@/components/search/TagMentionHit'
 import { CkEditorPortalContextType } from '@/components/editor/CKEditorPortalProvider'
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 const MARKER = "@";
 
-const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
-  const linkPrefix = getSiteUrl();
+const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag, forumType: ForumTypeString) => {
+  const linkPrefix = getSiteUrl(forumType);
 
   switch (hit._index) {
     case "users":
-      const displayName = MARKER + userGetDisplayName(hit);
+      const displayName = MARKER + userGetDisplayName(hit, forumType);
       return {
         type: "Users",
         id: displayName,
@@ -49,7 +50,7 @@ const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
 
 const collectionNames = ["Posts", "Users", "Tags"] as const;
 
-const fetchMentionableSuggestions = async (searchString: string) => {
+const fetchMentionableSuggestions = async (forumType: ForumTypeString, searchString: string) => {
   const indexName = collectionNames.map(getSearchIndexName).join(",");
   const searchClient = getSearchClient();
   const response = await searchClient.search<SearchUser | SearchPost | SearchTag>([{
@@ -61,7 +62,7 @@ const fetchMentionableSuggestions = async (searchString: string) => {
     },
   }])
   const hits = response?.results?.[0]?.hits;
-  return Array.isArray(hits) ? filterNonnull(hits.map(formatSearchHit)) : [];
+  return Array.isArray(hits) ? filterNonnull(hits.map(hit => formatSearchHit(hit, forumType))) : [];
 }
 
 type MentionUser = {
@@ -107,11 +108,11 @@ const MentionHit = ({item}: {item: MentionItem}) => {
   }
 }
 
-export const mentionPluginConfiguration = (portalContext: CkEditorPortalContextType|null) => ({
+export const mentionPluginConfiguration = (portalContext: CkEditorPortalContextType|null, forumType: ForumTypeString) => ({
   feeds: [
     {
       marker: MARKER,
-      feed: fetchMentionableSuggestions,
+      feed: fetchMentionableSuggestions.bind(null, forumType),
       minimumCharacters: 1,
       itemRenderer: itemRenderer(portalContext),
     },

@@ -192,6 +192,7 @@ const allCollections = {
   ReviewWinners,
   RevisionOriginalContents,
   Revisions,
+  SandboxBaselineSnapshots,
   Sequences,
   Sessions,
   SideCommentCaches,

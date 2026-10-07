@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { getEditorTypeToDisplayMap, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
+import { editorTypeToDisplayMap, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
@@ -45,10 +45,10 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
   return <div>
     {loading && <Loading/>}
     <Typography variant="body2" className={classes.lastEditedWarning}>
-      This document was last saved in {getEditorTypeToDisplayMap()[initialType].name} format.{' '}
+      This document was last saved in {editorTypeToDisplayMap[initialType].name} format.{' '}
       {autoConvert
         ? <>Converting...</>
-        : <>Showing the {getEditorTypeToDisplayMap()[currentType].name} editor.</>
+        : <>Showing the {editorTypeToDisplayMap[currentType].name} editor.</>
       }
       {!autoConvert && <>
         <a
@@ -59,7 +59,7 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
         >
           Click here
         </a>
-        {' '}to switch to the {getEditorTypeToDisplayMap()['lexical'].name} editor (the default editor).
+        {' '}to switch to the {editorTypeToDisplayMap['lexical'].name} editor (the default editor).
       </>}
     </Typography>
     <br/>

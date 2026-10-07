@@ -96,6 +96,7 @@ const performCrosspost = async (
     createCrosspostRoute,
     {token},
     "Failed to create crosspost",
+    context.forumType,
   );
 
   post.fmCrosspost.foreignPostId = postId;
@@ -126,6 +127,7 @@ const updateCrosspost = async (
     updateCrosspostRoute,
     {token},
     "Failed to update crosspost",
+    context.forumType,
   );
 }
 

@@ -12,6 +12,7 @@ import {
 } from "../../captureResearchAgentAnalytics";
 import { insertBlockInResearchDocSchema } from "../../researchToolSchemas";
 import { validateMentionsOrRespond } from "../../researchMentionValidation";
+import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
 import { insertMarkdownBlockInResearchDoc } from "./insertMarkdownBlockInResearchDoc";
 
 const ROUTE = "documents.insertBlock";
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { documentId, location, markdown } = parseResult.data;
+  const { documentId, location, markdown, mode } = parseResult.data;
 
   try {
     const docAuth = await authorizeAgentResearchDocumentAccess({
@@ -62,6 +63,19 @@ export async function POST(req: NextRequest) {
       hocuspocusToken,
       location,
       markdown: mentionResult.markdown,
+      mode,
+    });
+
+    const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
+      mode,
+      documentId,
+      hocuspocusToken,
+      suggestionId: result.suggestionId,
+      conversationId: payload.conversationId,
+      summaryItems: [{
+        type: "insert",
+        content: mentionResult.markdown,
+      }],
     });
 
     captureResearchAgentApiEvent({
@@ -78,7 +92,12 @@ export async function POST(req: NextRequest) {
       documentId,
       inserted: result.inserted,
       insertionIndex: result.insertionIndex ?? null,
-      note: result.note,
+      note: threadCreationFailed
+        ? `${result.note} Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.`
+        : result.note,
+      mode,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed,
       requestId: randomId(),
     });
   } catch (error) {

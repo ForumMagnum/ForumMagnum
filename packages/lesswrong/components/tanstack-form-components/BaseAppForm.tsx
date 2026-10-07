@@ -13,6 +13,26 @@ export type TypedFieldApi<TValue extends DeepValue<TData, keyof TData>, TData = 
   handleChange: (value: Updater<TValue>) => void;
 };
 
+/**
+ * Minimal structural subset of the field API for components that only read a
+ * value and write changes back. Satisfied both by real TanStack fields and by
+ * plain binding objects (e.g. the account-settings autosave bindings).
+ *
+ * TRead is what the component accepts when reading (wide, covering every
+ * caller's field type); TWrite is exactly what the component passes to
+ * handleChange (narrow, so fields with stricter value types stay assignable).
+ */
+export interface FieldValueBinding<TRead, TWrite = TRead> {
+  state: { value: TRead };
+  handleChange: (value: TWrite) => void;
+}
+
+/** Like {@link FieldValueBinding}, for components that write via `setValue`. */
+export interface FieldValueSetter<TRead, TWrite = TRead> {
+  state: { value: TRead };
+  setValue: (value: TWrite) => void;
+}
+
 export type TypedFormApi<TFormData, TSubmitMeta = never> = FormApi<TFormData, any, any, any, any, any, any, any, any, TSubmitMeta>;
 
 export type TypedReactFormApi<TFormData, TSubmitMeta = never> = ReactFormExtendedApi<TFormData, any, any, any, any, any, any, any, any, TSubmitMeta>;

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
@@ -57,6 +58,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const userCanReplyOnBlocked = useFilteredCurrentUser(u => userCanDo(u, 'comments.replyOnBlocked.all'));
   const userCanModerateAll = useFilteredCurrentUser(u => userCanDo(u, 'posts.moderate.all'));
@@ -74,7 +76,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
-  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get(forumType)
   const commentHidden = hideSince && new Date(hideSince) < new Date(comment.postedAt) &&
     comment.authorIsUnreviewed
   const showReplyButton = (

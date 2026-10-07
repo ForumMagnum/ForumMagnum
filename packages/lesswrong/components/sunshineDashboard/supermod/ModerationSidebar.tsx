@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
-import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import SunshineUserMessages from '../SunshineUserMessages';
 import SupermodModeratorActions from './SupermodModeratorActions';
 import type { InboxAction } from './inboxReducer';
+import type { ContentItem } from './helpers';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -27,33 +28,8 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
       borderBottom: theme.palette.border.normal,
     },
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    color: theme.palette.grey[600],
-    letterSpacing: '0.5px',
-    flexShrink: 0,
-  },
   userMessages: {
     overflow: 'auto',
-  },
-  newTemplateButton: {
-    flexShrink: 0,
-    cursor: 'pointer',
-  },
-  modTemplateForm: {
-    marginTop: 16,
-    paddingLeft: 12,
-    paddingRight: 0,
-    marginLeft: -6,
-    marginRight: -6,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    '& .vulcan-form': {
-      marginTop: -16
-    },
   },
 }));
 
@@ -62,16 +38,23 @@ const ModerationSidebar = ({
   currentUser,
   posts,
   comments,
+  focusedContent,
+  sidebarTab,
+  setSidebarTab,
+  addToUndoQueue,
   dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  focusedContent: ContentItem | null;
+  sidebarTab: SelectedSidebarTab;
+  setSidebarTab: (tab: SelectedSidebarTab) => void;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
 
   if (!user) {
     return (
@@ -86,37 +69,22 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Moderator Actions</div>
-        <SupermodModeratorActions user={user} dispatch={dispatch} />
+        <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>User Messages</div>
-
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
+          <SunshineUserMessages
+            key={user._id}
+            user={user}
+            currentUser={currentUser}
+            posts={posts}
+            comments={comments}
+            focusedContent={focusedContent}
+            sidebarTab={sidebarTab}
+            setSidebarTab={setSidebarTab}
+          />
         </div>
-        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
-          NEW MOD TEMPLATE
-        </div>
-        {showNewTemplateForm && (
-          <div className={classes.modTemplateForm}>
-            <ModerationTemplatesForm
-              onSuccess={() => {
-                setShowNewTemplateForm(false);
-              }}
-              onCancel={() => setShowNewTemplateForm(false)}
-              refetchQueries={[{
-                query: ModerationTemplatesListQuery,
-                variables: {
-                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
-                  limit: 50,
-                  enableTotal: false,
-                },
-              }]}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

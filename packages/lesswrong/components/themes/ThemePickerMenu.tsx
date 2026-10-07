@@ -1,7 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, getThemeMetadata, AbstractThemeOptions } from '../../themes/themeNames';
-import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { ThemeContext } from './useTheme';
 import { HomeDesignChatContext } from '../common/HomeDesignChatContext';
 import { useCurrentUser } from '../common/withUser';
@@ -30,6 +31,7 @@ const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
 const ThemePickerMenu = ({children}: {
   children: React.ReactNode,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const themeContext = React.useContext(ThemeContext)!;
   const designChat = React.useContext(HomeDesignChatContext);
@@ -38,6 +40,7 @@ const ThemePickerMenu = ({children}: {
   const navigate = useNavigate();
   const updateCurrentUser = useUpdateCurrentUser();
 
+  // TODO: Consider syncing theme preferences across devices on LW/AF; coordinate with ThemeContextProvider.
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
     if (isEAForum() && currentUser) {
       void updateCurrentUser({
@@ -74,9 +77,8 @@ const ThemePickerMenu = ({children}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {isLWorAF() &&
           <>
-            {isLW() && <>
+            {isLW && <>
               <DropdownItem
                 title="Custom Front Page"
                 onClick={openCustomizeSidebar}
@@ -95,7 +97,6 @@ const ThemePickerMenu = ({children}: {
               />
             )}
           </>
-        }
       </DropdownMenu>
     </Paper>
   );

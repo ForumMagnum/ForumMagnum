@@ -3,7 +3,7 @@ import Sequences from "../../server/collections/sequences/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
-async function getCompleteCollection(id: string) {
+async function getCompleteCollection(id: string, context: ResolverContext) {
   const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
   const query = `
   query CodexComplete {
@@ -36,13 +36,13 @@ async function getCompleteCollection(id: string) {
       }
     }   
   }`;
-  const result = await runQuery(query)
+  const result = await runQuery(query, {}, context)
   return result
 }
 
-async function getAllCollectionPosts(id: string | null) {
+async function getAllCollectionPosts(id: string | null, context: ResolverContext) {
   if (!id) return Promise.resolve({posts: [], sequences: [], collectionSlug: ""});
-  let queryResult: any = await getCompleteCollection(id);
+  let queryResult: any = await getCompleteCollection(id, context);
 
   let allCollectionPosts: Array<any> = [];
   let allCollectionSequences: Array<any> = [];
@@ -103,9 +103,9 @@ async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: strin
   })
 }
 
-export async function updateCollectionLinks(book: DbBook) {
+export async function updateCollectionLinks(book: DbBook, context: ResolverContext) {
   const collectionId = book.collectionId
-  const results = await getAllCollectionPosts(collectionId)
+  const results = await getAllCollectionPosts(collectionId, context)
 
   //eslint-disable-next-line no-console
   console.log(`Updating Collection Links for ${collectionId}...`)

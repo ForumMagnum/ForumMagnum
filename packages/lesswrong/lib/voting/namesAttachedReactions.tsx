@@ -2,7 +2,7 @@ import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import { defineVotingSystem } from './defineVotingSystem';
-import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold, isLW } from '../instanceSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -13,7 +13,7 @@ import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reacti
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
-  userCanActivate: isLW,
+  userCanActivate: (forumType) => forumType === 'LessWrong',
   description: "Reacts (Two-axis plus Names-attached reactions)",
   hasInlineReacts: true,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
@@ -146,25 +146,25 @@ export function isVoteWithReactsAllowed({user, document, oldExtendedScore, exten
 
   // If the user is disagreeing with a react, they need at least
   // downvoteExistingReactKarmaThreshold karma
-  if (!skipRateLimits && userKarma < downvoteExistingReactKarmaThreshold.get()
+  if (!skipRateLimits && userKarma < downvoteExistingReactKarmaThreshold
     && some(extendedVote.reacts, r=>r.vote==="disagreed"))
   {
-    return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold.get()} karma to antireact`};
+    return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold} karma to antireact`};
   }
 
   // If the user is using any react at all, they need at least
   // existingReactKarmaThreshold karma for it to be a valid vote.
-  if (!skipRateLimits && userKarma<addNameToExistingReactKarmaThreshold.get()) {
-    return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
+  if (!skipRateLimits && userKarma<addNameToExistingReactKarmaThreshold) {
+    return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold} karma to use reacts`};
   }
   
   // If the user is using a react which no one else has used on this comment
   // before, they need at least newReactKarmaThreshold karma for it to be a
   // valid vote.
-  if (!skipRateLimits && userKarma<addNewReactKarmaThreshold.get()) {
+  if (!skipRateLimits && userKarma<addNewReactKarmaThreshold) {
     for (let reaction of extendedVote.reacts) {
       if (!(reaction.react in oldExtendedScore.reacts)) {
-        return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
+        return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold} karma to be the first to use a new react on a given comment`};
       }
     }
   }

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -33,6 +34,7 @@ const UserNameDeleted = ({userShownToAdmins}: {
 const UserNameDeletedWithAdminHover = ({user}: {
   user: UsersMinimumInfo
 }) => {
+  const { forumType } = useForumType();
   const {eventHandlers,hover} = useHover();
   return <span {...eventHandlers}>
     <LWTooltip
@@ -43,7 +45,7 @@ const UserNameDeletedWithAdminHover = ({user}: {
     >
       {hover
         ? <Link to={userGetProfileUrl(user)}>
-            {userGetDisplayName(user)}
+            {userGetDisplayName(user, forumType)}
           </Link>
         : "[anonymous]"
       }

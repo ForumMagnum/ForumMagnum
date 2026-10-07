@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUtils";
@@ -29,6 +30,7 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
 }))
 
 function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList}) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -36,7 +38,7 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   return (
     <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get(forumType)} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Review</div>
       </LWTooltip>}/>
     </div>

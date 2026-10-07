@@ -13,10 +13,13 @@ import {
   $isRangeSelection,
   type TextNode,
 } from 'lexical';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import moment from 'moment';
+import { useMessages } from '@/components/common/withMessages';
+import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -124,8 +127,19 @@ export function MentionTypeaheadPlugin({ projectId }: MentionTypeaheadPluginProp
   const [editor] = useLexicalComposerContext();
   const classes = useStyles(styles);
   const [queryString, setQueryString] = useState<string | null>(null);
+  const { flash } = useMessages();
+  const externalModeContext = useContext(EditorUserModeContext);
+  const isSuggestionMode = externalModeContext?.userMode === EditorUserMode.Suggest;
 
-  const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('@', { minLength: 0 });
+  const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('@', { minLength: 0 });
+  // Mention chips are decorator nodes inserted directly into the document,
+  // which can't be represented as tracked suggestions — suppress the
+  // typeahead entirely in suggesting mode.
+  const checkForTriggerMatch = useCallback(
+    (text: string, editorInstance: typeof editor) =>
+      isSuggestionMode ? null : baseCheckForTriggerMatch(text, editorInstance),
+    [isSuggestionMode, baseCheckForTriggerMatch],
+  );
 
   const { data } = useQuery(MentionTypeaheadProjectResourcesQuery, {
     variables: { projectId },
@@ -169,6 +183,11 @@ export function MentionTypeaheadPlugin({ projectId }: MentionTypeaheadPluginProp
       nodeToRemove: TextNode | null,
       closeMenu: () => void,
     ) => {
+      if (isSuggestionMode) {
+        flash({ messageString: 'Mentions are not supported in suggesting mode', type: 'error' });
+        closeMenu();
+        return;
+      }
       editor.update(() => {
         nodeToRemove?.remove();
         const selection = $getSelection();
@@ -186,7 +205,7 @@ export function MentionTypeaheadPlugin({ projectId }: MentionTypeaheadPluginProp
       });
       closeMenu();
     },
-    [editor],
+    [editor, isSuggestionMode, flash],
   );
 
   return (

@@ -111,7 +111,14 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           comment."tagCommentType" AS "commentTagCommentType",
           post."title" AS "postTitle",
           post."slug" AS "postSlug",
-          revision."documentId" AS "revisionTagId"
+          -- Revisions of lenses and summaries belong to MultiDocuments, not
+          -- Tags, so walk up to the tag they're attached to. (A summary can be
+          -- attached to a lens, so this can take two hops.)
+          CASE
+            WHEN revision."collectionName" IS DISTINCT FROM 'MultiDocuments' THEN revision."documentId"
+            WHEN revision_md."collectionName" = 'Tags' THEN revision_md."parentDocumentId"
+            WHEN revision_md_parent."collectionName" = 'Tags' THEN revision_md_parent."parentDocumentId"
+          END AS "revisionTagId"
         FROM (
           SELECT
             "documentId" AS "_id",
@@ -144,6 +151,14 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         LEFT JOIN "Revisions" revision ON (
           v."collectionName" = 'Revisions'
           AND revision._id = v._id
+        )
+        LEFT JOIN "MultiDocuments" revision_md ON (
+          revision."collectionName" = 'MultiDocuments'
+          AND revision_md._id = revision."documentId"
+        )
+        LEFT JOIN "MultiDocuments" revision_md_parent ON (
+          revision_md."collectionName" = 'MultiDocuments'
+          AND revision_md_parent._id = revision_md."parentDocumentId"
         )
         WHERE
           v."scoreChange" ${showNegative ? "<>" : ">"} 0
@@ -375,6 +390,43 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       )
     `, [userId])
     return votes
+  }
+
+  async getVotesOnRecentContentForUsers(userIds: string[]): Promise<RecentVoteInfo[][]> {
+    const votes = await this.getRawDb().any<RecentVoteInfo & { contentUserId: string }>(`
+      -- VotesRepo.getVotesOnRecentContentForUsers
+      (
+        WITH "recentPosts" AS (
+          SELECT _id, "userId", ROW_NUMBER() OVER (
+            PARTITION BY "userId" ORDER BY "postedAt" DESC
+          ) AS "rn"
+          FROM "Posts"
+          WHERE "userId" = ANY($1::text[]) AND "draft" IS NOT TRUE
+        )
+        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}, "recentPosts"."userId" AS "contentUserId"
+        FROM "Votes"
+        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        JOIN "recentPosts" on "recentPosts"._id = "Posts"._id
+        WHERE "recentPosts"."rn" <= ${RECENT_CONTENT_COUNT} AND "Votes"."cancelled" IS NOT true
+      )
+      UNION ALL
+      (
+        WITH "recentComments" AS (
+          SELECT _id, "userId", ROW_NUMBER() OVER (
+            PARTITION BY "userId" ORDER BY "postedAt" DESC
+          ) AS "rn"
+          FROM "Comments"
+          WHERE "userId" = ANY($1::text[]) AND "debateResponse" IS NOT TRUE AND "draft" IS NOT TRUE
+        )
+        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}, "recentComments"."userId" AS "contentUserId"
+        FROM "Votes"
+        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        JOIN "recentComments" on "recentComments"._id = "Comments"._id
+        WHERE "recentComments"."rn" <= ${RECENT_CONTENT_COUNT} AND "Votes"."cancelled" IS NOT true
+      )
+    `, [userIds]);
+    const votesByContentUser = groupBy(votes, (vote) => vote.contentUserId);
+    return userIds.map((userId) => votesByContentUser[userId] ?? []);
   }
 
   async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {

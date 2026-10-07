@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
 import { petrovBeforeTime } from '@/lib/instanceSettings';
 import { petrovFalseAlarmMissileCount, petrovRealAttackMissileCount } from "../databaseSettings";
@@ -5,12 +6,12 @@ import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import gql from "graphql-tag";
 
 
-const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') => {
+const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov', forumType: ForumTypeString) => {
   const currentHour = new Date().getHours();
   const roleSeed = role === 'eastPetrov' ? 0 : 13;
   const seed = currentHour + roleSeed + (incoming ? 17 : 0); // Different seed for each hour, role, and incoming state
 
-  const missileCountArray = incoming ? petrovRealAttackMissileCount.get() : petrovFalseAlarmMissileCount.get();
+  const missileCountArray = incoming ? petrovRealAttackMissileCount.get(forumType) : petrovFalseAlarmMissileCount.get(forumType);
 
   const result = seed % missileCountArray.length
   return missileCountArray[result];
@@ -28,7 +29,7 @@ export const petrovDay2024GraphQLTypeDefs = gql`
 
 export const petrovDay2024GraphQLQueries = {
   async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
-    const startTime = new Date(petrovBeforeTime.get())
+    const startTime = new Date(petrovBeforeTime.get(context))
     const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}).fetch()
 
     if (!inWarningWindow(new Date().getMinutes()) || !context.currentUser) {
@@ -40,12 +41,12 @@ export const petrovDay2024GraphQLQueries = {
     if (userRole === 'eastPetrov') {  
       const nukeTheEastActions = actions.filter(action => action.actionType === 'nukeTheEast')
       const incoming = !!(nukeTheEastActions?.length > 0)
-      return { count: getIncomingCount(incoming, 'eastPetrov') }
+      return { count: getIncomingCount(incoming, 'eastPetrov', context.forumType) }
     }
     if (userRole === 'westPetrov') {
       const nukeTheWestActions = actions.filter(action => action.actionType === 'nukeTheWest')
       const incoming = !!(nukeTheWestActions?.length > 0)
-      return { count: getIncomingCount(incoming, 'westPetrov') }
+      return { count: getIncomingCount(incoming, 'westPetrov', context.forumType) }
     }
     return { count: 0 }
   },

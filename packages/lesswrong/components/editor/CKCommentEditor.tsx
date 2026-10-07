@@ -1,11 +1,12 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext, useRef, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '@/lib/instanceSettings';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
@@ -17,11 +18,12 @@ import { ckEditorPluginStyles } from './ckEditorStyles';
 import { augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { CkEditorLoadError } from './CkEditorLoadError';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const getCommentEditorToolbarConfig = () => ({
+const commentEditorToolbarConfig = {
   toolbar: [
     'heading',
     '|',
@@ -38,18 +40,16 @@ const getCommentEditorToolbarConfig = () => ({
     'math',
     // Similar to the post editor, we don't have the collapsible sections plugin in the selected-text toolbar,
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
-    ...(isEAForum() ? ['imageUpload', 'ctaButtonToolbarItem', 'pollToolbarItem'] : []),
     'footnote',
-    ...(isLWorAF() ? ['collapsibleSectionButton'] : []),
-    ...(isLWorAF() ? ['insertClaimButton'] : []),
+    'collapsibleSectionButton',
+    'insertClaimButton',
   ],
-});
+};
 
 const CKCommentEditor = ({
   data,
   collectionName,
   fieldName,
-  onSave,
   onChange,
   onFocus,
   onReady,
@@ -58,20 +58,21 @@ const CKCommentEditor = ({
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
-  onSave?: any,
   onChange?: any,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   onReady: (editor: Editor) => void,
   placeholder?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
   const portalContext = useContext(CkEditorPortalContext);
   const { openDialog } = useDialog();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
+  const [loadError, setLoadError] = useState<Error | null>(null);
   const editorRef = useRef<CKEditor<AnyBecauseHard>>(null);
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder('ckEditorMarkup');
@@ -79,7 +80,7 @@ const CKCommentEditor = ({
   const openCommandPalette = useCommandPalette();
 
   const editorConfig = makeEditorConfig({
-    ...getCommentEditorToolbarConfig(),
+    ...commentEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
       // (It's accessible via drag-and-drop onto the comment box, and is
@@ -88,22 +89,21 @@ const CKCommentEditor = ({
       // The collaborative editor is not activated because no `websocketUrl`
       // or `documentId` is provided.
       tokenUrl: generateTokenRequest(collectionName, fieldName),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
-    autosave: {
-      save (editor: any) {
-        return onSave && onSave( editor.getData() )
-      }
-    },
     initialData: data || "",
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
-    ...cloudinaryConfig,
+    mention: mentionPluginConfiguration(portalContext, forumType),
+    ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),
   });
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
+
+  if (loadError) {
+    return <CkEditorLoadError error={loadError} />
+  }
 
   return <div className={classes.ckWrapper}>
     <CKEditor
@@ -122,6 +122,13 @@ const CKCommentEditor = ({
         // CKEditorInspector.attach(editor)
         onReady(editor)
         return editor
+      }}
+      onError={(error, { phase }) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        if (phase === 'initialization') {
+          setLoadError(error);
+        }
       }}
       onChange={onChange}
       onFocus={onFocus}

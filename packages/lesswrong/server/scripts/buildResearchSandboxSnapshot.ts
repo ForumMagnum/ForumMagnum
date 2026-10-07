@@ -5,6 +5,7 @@ import { randomId } from "@/lib/random";
 import SandboxBaselineSnapshots from "@/server/collections/sandboxBaselineSnapshots/collection";
 import {
   CLAUDE_MD_PATH,
+  PINNED_CLAUDE_CODE_VERSION,
   RESEARCH_TOOL_PATH,
   SUPERVISOR_PATH,
 } from "@/server/research/sandbox/sandboxLayout";
@@ -117,7 +118,10 @@ async function ensureNodeInstalled(sandbox: Sandbox): Promise<boolean> {
  *
  * Run `yarn research-supervisor-build` first to produce the supervisor bundle in
  * `sandbox/dist/`. Rebuild a runtime's snapshot whenever the supervisor source,
- * research-tool, or Claude Code changes.
+ * research-tool, or `PINNED_CLAUDE_CODE_VERSION` changes. (Existing sandboxes
+ * and saved environments don't need a rebuild for a Claude Code bump — the
+ * launch path reconciles their install to the pin — but fresh provisions
+ * shouldn't pay that upgrade cost, so keep the baselines current.)
  *
  * Requires Vercel auth in env (via `yarn repl` / `.env.local`: `VERCEL_OIDC_TOKEN`
  * from `vercel env pull`, or `VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID`).
@@ -163,10 +167,10 @@ export async function buildResearchSandboxSnapshot(args: BuildResearchSandboxSna
     const installedNode = await ensureNodeInstalled(sandbox);
 
     // eslint-disable-next-line no-console
-    console.log("[snapshot] installing @anthropic-ai/claude-code (this may take a minute)…");
+    console.log(`[snapshot] installing @anthropic-ai/claude-code@${PINNED_CLAUDE_CODE_VERSION} (this may take a minute)…`);
     const installResult = await sandbox.runCommand({
       cmd: "npm",
-      args: ["install", "-g", "@anthropic-ai/claude-code"],
+      args: ["install", "-g", `@anthropic-ai/claude-code@${PINNED_CLAUDE_CODE_VERSION}`],
       // On the node* images npm's global prefix is already user-writable, but a
       // dnf-installed Node uses the system prefix (/usr), so a non-root `-g`
       // install would hit EACCES — run it as root there. claude lands on the
@@ -178,11 +182,14 @@ export async function buildResearchSandboxSnapshot(args: BuildResearchSandboxSna
       throw new Error(`npm install failed (exit ${installResult.exitCode}): ${stderr.slice(0, 1000)}`);
     }
 
-    const verify = await sandbox.runCommand({ cmd: "which", args: ["claude"] });
-    const which = (await verify.stdout()).trim();
-    if (verify.exitCode !== 0 || !which) {
+    const verify = await sandbox.runCommand({ cmd: "sh", args: ["-c", "claude --version"] });
+    const installedVersion = (await verify.stdout()).trim().split(" ")[0];
+    if (verify.exitCode !== 0 || installedVersion !== PINNED_CLAUDE_CODE_VERSION) {
       const stderr = await verify.stderr();
-      throw new Error(`claude binary not found after install: ${stderr || "(no stderr)"}`);
+      throw new Error(
+        `claude ${PINNED_CLAUDE_CODE_VERSION} not runnable after install ` +
+        `(got "${installedVersion || stderr || "(nothing)"}")`,
+      );
     }
 
     // Paths come from the shared sandboxLayout module so the baseline seed and

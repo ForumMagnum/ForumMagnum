@@ -1,5 +1,4 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 // Deny all permissions on these objects - they're only used internally
 const commonFields = () => ({

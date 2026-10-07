@@ -52,6 +52,25 @@ describe("findMathSpansInMarkdown", () => {
     // the linear scanner returns promptly rather than re-scanning per opener.
     expect(findMathSpansInMarkdown("\\(".repeat(20000))).toEqual([]);
   });
+
+  it("does not pair dollar signs across a blank line (block boundary)", () => {
+    // markdown-it's inline tokenizer runs per-paragraph; a phantom span here
+    // would swallow the heading between the two prose dollars.
+    expect(findMathSpansInMarkdown(
+      "damages of ~$1 trillion are possible\n\n### A heading\n\nsee the report ($)",
+    )).toEqual([]);
+  });
+
+  it("reads same-paragraph prose dollars as currency, not an equation", () => {
+    expect(findMathSpansInMarkdown("they raised $2B from investors ($), roughly")).toEqual([]);
+  });
+
+  it("still recognizes digit-leading real math", () => {
+    expect(findMathSpansInMarkdown("the bound $2^{100}$ holds")).toHaveLength(1);
+    expect(findMathSpansInMarkdown("we get $2x$ as expected")).toHaveLength(1);
+    // Math operators distinguish a spaced equation from prose currency.
+    expect(findMathSpansInMarkdown("so $2 + 2 = 4$ holds")).toHaveLength(1);
+  });
 });
 
 describe("stripMathTokens", () => {

@@ -21,17 +21,26 @@ export interface DocumentContext {
 interface SystemReminderInputs {
   activeDocument: DocumentContext;
   originDocument?: DocumentContext;
+  conversationId?: string;
 }
 
 export function buildSystemReminderWrap(inputs: SystemReminderInputs, userPrompt: string): string {
-  const { activeDocument, originDocument } = inputs;
+  const { activeDocument, originDocument, conversationId } = inputs;
   const attrs = [`active-document-id="${escapeHtml(activeDocument.id)}"`];
+  if (conversationId) {
+    attrs.push(`conversation-id="${escapeHtml(conversationId)}"`);
+  }
   if (originDocument && originDocument.id !== activeDocument.id) {
     attrs.push(`origin-document-id="${escapeHtml(originDocument.id)}"`);
   }
   const bodyLines = [
     `The user is currently viewing the research document "${activeDocument.title}" (id: ${activeDocument.id}) in the workspace.`,
   ];
+  if (conversationId) {
+    bodyLines.push(
+      `This is research conversation ${conversationId}; references to that same conversation id are this conversation, not a separate prior conversation.`,
+    );
+  }
   if (originDocument && originDocument.id !== activeDocument.id) {
     bodyLines.push(
       `This conversation was originally invoked from "${originDocument.title}" (id: ${originDocument.id}).`,
@@ -43,6 +52,7 @@ export function buildSystemReminderWrap(inputs: SystemReminderInputs, userPrompt
 export interface ParsedSystemReminder {
   activeDocumentId: string | null;
   originDocumentId: string | null;
+  conversationId: string | null;
 }
 
 export function parseLeadingSystemReminder(text: string): ParsedSystemReminder | null {
@@ -54,6 +64,7 @@ export function parseLeadingSystemReminder(text: string): ParsedSystemReminder |
   return {
     activeDocumentId: el.attr("active-document-id") ?? null,
     originDocumentId: el.attr("origin-document-id") ?? null,
+    conversationId: el.attr("conversation-id") ?? null,
   };
 }
 

@@ -6,7 +6,6 @@
  *
  */
 
-import {TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {HeadingTagType} from '@lexical/rich-text';
 import {
   COMMAND_PRIORITY_NORMAL,

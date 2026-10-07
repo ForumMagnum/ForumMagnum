@@ -12,7 +12,7 @@ assertRouteAttributes("/compare/w/[slug]", {
   hasMarkdownVersion: false,
 });
 
-export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
+export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { noIndex: true });
 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>

@@ -2,7 +2,7 @@ import { Command, Plugin, type Editor } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
-import type { ViewDowncastWriter as DowncastWriter, ModelElement as Element, Conversion, Model } from '@ckeditor/ckeditor5-engine';
+import type { ViewDowncastWriter as DowncastWriter, ModelElement as Element } from '@ckeditor/ckeditor5-engine';
 import type { ModelRootElement as RootElement } from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import type { ViewContainerElement as ContainerElement} from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';

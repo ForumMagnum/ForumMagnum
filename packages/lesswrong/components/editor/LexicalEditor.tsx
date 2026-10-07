@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import {
   defineExtension,
@@ -16,10 +16,9 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
-import type { CollaborationConfig } from '../lexical/collaboration';
+import { fetchHocuspocusToken, type CollaborationConfig } from '../lexical/collaboration';
 import { useApolloClient } from '@apollo/client/react';
 import { useLocation } from '@/lib/routeUtil';
-import type { ApolloClient } from '@apollo/client/core';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
@@ -29,23 +28,12 @@ import { TableContext } from '../lexical/plugins/TablePlugin';
 import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
-import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
-import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 import DeferRender from '../common/DeferRender';
-
-const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
-    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`);
-
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -267,7 +255,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
 interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
-  onChange: (html: string) => void;
+  onChange?: (html: string) => void;
   onReady?: () => void;
   /**
    * Called with a function that generates HTML with all suggestions rejected,
@@ -352,24 +340,6 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   return output;
 };
 
-async function fetchHocuspocusToken(
-  apolloClient: ApolloClient,
-  collectionName: CollectionNameString,
-  documentId: string,
-  linkSharingKey: string | null,
-): Promise<string> {
-  const { data } = await apolloClient.query({
-    query: HocuspocusAuthQuery,
-    variables: { collectionName, documentId, linkSharingKey },
-    fetchPolicy: 'network-only',
-  });
-  const token = data?.HocuspocusAuth?.token;
-  if (!token) {
-    throw new Error('Failed to fetch collaboration token');
-  }
-  return token;
-}
-
 const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
@@ -411,10 +381,12 @@ const LexicalEditor = ({
   const collaborationCollectionName = collectionName === 'Posts' || collectionName === 'ResearchDocuments'
     ? collectionName
     : null;
+  const supportsCollabComments = !!collaborationCollectionName;
   const editorContextValue = useMemo(() => ({
     collectionName,
     isPostEditor,
-  }), [collectionName, isPostEditor]);
+    supportsCollabComments,
+  }), [collectionName, isPostEditor, supportsCollabComments]);
 
   // Always enable collaboration for supported collections (when documentId is
   // available). This keeps Posts behavior unchanged and lets ResearchDocuments
@@ -467,9 +439,12 @@ const LexicalEditor = ({
     setEditorVersion((prev) => prev + 1);
   }, [shouldEnableCollaboration, data]);
 
-  const handleChange = useCallback((html: string) => {
-    lastEmittedHtmlRef.current = html;
-    onChange(html);
+  const handleChange = useMemo(() => {
+    if (!onChange) return undefined;
+    return (html: string) => {
+      lastEmittedHtmlRef.current = html;
+      onChange(html);
+    };
   }, [onChange]);
 
   const app = useMemo(
@@ -529,12 +504,6 @@ const LexicalEditor = ({
                 </Editor>
                 </ErrorBoundary>
               </div>
-              {/* {!commentEditor && <Settings />} */}
-              {/* {isDevPlayground ? <DocsPlugin /> : null}
-              {isDevPlayground ? <PasteLogPlugin /> : null}
-              {isDevPlayground ? <TestRecorderPlugin /> : null}
-
-              {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
             </ToolbarContext>
           </TableContext>
         </SharedHistoryContext>

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
 import { MenuItemLink } from '@/components/common/Menus';
@@ -81,8 +82,8 @@ export const styles = defineStyles("KarmaChangesDisplay", (theme: ThemeType) => 
   },
   tooltipSubtitle: {
     marginLeft: 2,
-    ...theme.typography.italic,
-    fontFamily: theme.typography.postStyle.fontFamily,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
   },
@@ -192,6 +193,7 @@ const KarmaChangesDisplay = ({ karmaChanges, handleClose }: {
   karmaChanges: KarmaChanges;
   handleClose: (ev: React.MouseEvent) => any;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges;
   const noKarmaChanges = !(
@@ -200,7 +202,7 @@ const KarmaChangesDisplay = ({ karmaChanges, handleClose }: {
     || (tagRevisions && (tagRevisions.length > 0))
   );
 
-  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices(forumType);
 
   const postIds = (posts ?? []).map(p => p.postId);
   const { data: postBodiesData } = useQuery(KarmaChangePostBodiesQuery, {

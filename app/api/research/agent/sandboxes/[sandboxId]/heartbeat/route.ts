@@ -107,7 +107,9 @@ export async function POST(
       route: ROUTE,
       status: "success",
       projectId: payload.projectId,
-      operationResult: `turnRunning=${turnRunning}`,
+      conversationId,
+      sandboxId,
+      turnRunning,
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

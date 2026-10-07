@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from 'react';
 import { Posts } from '../server/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
@@ -9,7 +10,7 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from './collections/posts/mutations';
 import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
 
-export async function checkAndSendUpcomingEventEmails() {
+export async function checkAndSendUpcomingEventEmails(forumType: ForumTypeString) {
   const in24hours = moment(new Date()).add(24, 'hours').toDate();
   
   // Find events that:
@@ -34,7 +35,7 @@ export async function checkAndSendUpcomingEventEmails() {
     await updatePost({
       data: { nextDayReminderSent: true },
       selector: { _id: upcomingEvent._id }
-    }, createAnonymousContext());
+    }, createAnonymousContext({ forumType }));
     
     // skip to the next event if this one has no RSVPs
     if (!upcomingEvent.rsvps) {
@@ -50,6 +51,7 @@ export async function checkAndSendUpcomingEventEmails() {
       if (!user) return;
       
       await wrapAndSendEmail({
+        forumType,
         user, to: email,
         subject: `Event reminder: ${upcomingEvent.title}`,
         body: (emailContext) => <EventTomorrowReminder rsvp={rsvp} postIds={[upcomingEvent._id]} emailContext={emailContext}/>

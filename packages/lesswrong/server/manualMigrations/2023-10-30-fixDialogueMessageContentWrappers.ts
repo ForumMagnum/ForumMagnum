@@ -1,3 +1,4 @@
+import { createAdminContext, createAnonymousContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import { Posts } from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
@@ -8,7 +9,6 @@ import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 function wrapMessageContents(html: string) {
@@ -47,7 +47,7 @@ async function revisionHasContentWrapper(revision: DbRevision, context: Resolver
 }
 
 async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml: string) {
-  await saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await saveOrUpdateDocumentRevision(postId, migratedHtml, "LessWrong");
 
   const updatedContent = {
     content: {
@@ -67,7 +67,7 @@ async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml
     await deleteCkEditorCloudDocument(ckEditorId);
 
     await sleep(10000);
-    await createRemoteStorageDocument(newDocumentPayload);
+    await createRemoteStorageDocument(newDocumentPayload, createAdminContext().forumType);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log('Failed to delete remote document from storage', { err });

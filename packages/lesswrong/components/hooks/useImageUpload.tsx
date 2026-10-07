@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
-import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { useCallback } from "react";
+import { cloudinaryCloudName, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { useExternalScript } from "./useExternalScript";
 
@@ -94,19 +95,19 @@ declare global {
   }
 }
 
-const getCloudinaryArgsByImageType = () => ({
+const getCloudinaryArgsByImageType = (forumType: ForumTypeString) => ({
   gridImageId: {
     minImageHeight: 80,
     minImageWidth: 203,
     croppingAspectRatio: 2.5375,
-    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
+    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(forumType),
   },
   bannerImageId: {
     minImageHeight: 300,
     minImageWidth: 700,
     croppingAspectRatio: 4.7,
     croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(forumType),
   },
   squareImageId: {
     minImageHeight: 300,
@@ -115,46 +116,46 @@ const getCloudinaryArgsByImageType = () => ({
     croppingDefaultSelectionRatio: 1,
     // Reuse the banner upload preset, since they are basically different versions
     // of the same image
-    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(forumType),
   },
   profileImageId: {
     minImageHeight: 170,
     minImageWidth: 170,
     croppingAspectRatio: 1,
     croppingDefaultSelectionRatio: 1,
-    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
+    uploadPreset: cloudinaryUploadPresetProfileSetting.get(forumType),
   },
   socialPreviewImageId: {
     minImageHeight: 270,
     minImageWidth: 500,
     croppingAspectRatio: 1.91,
     croppingDefaultSelectionRatio: 1.91,
-    uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+    uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(forumType),
   },
   eventImageId: {
     minImageHeight: 270,
     minImageWidth: 500,
     croppingAspectRatio: 1.91,
     croppingDefaultSelectionRatio: 1.91,
-    uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
+    uploadPreset: cloudinaryUploadPresetEventImageSetting.get(forumType)
   },
   spotlightImageId: {
     minImageHeight: 232,
     minImageWidth: 345,
     cropping: false,
-    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get(forumType)
   },
   spotlightDarkImageId: {
     minImageHeight: 232,
     minImageWidth: 345,
     cropping: false,
-    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+    uploadPreset: cloudinaryUploadPresetSpotlightSetting.get(forumType)
   },
   onsiteDigestImageId: {
     minImageHeight: 300,
     minImageWidth: 200,
     cropping: false,
-    uploadPreset: cloudinaryUploadPresetDigestSetting.get()
+    uploadPreset: cloudinaryUploadPresetDigestSetting.get(forumType)
   },
 } as const);
 
@@ -181,7 +182,7 @@ export const useImageUpload = ({
       throw new Error("Cloudinary is not loaded");
     }
 
-    const cloudinaryArgs = getCloudinaryArgsByImageType()[imageType];
+    const cloudinaryArgs = getCloudinaryArgsByImageType(theme.forumType)[imageType];
     if (!cloudinaryArgs) {
       throw new Error("Unsupported image upload type")
     }
@@ -197,7 +198,7 @@ export const useImageUpload = ({
       multiple: false,
       sources: ["local", "url", "camera", "facebook", "instagram", "google_drive"],
       cropping: true,
-      cloudName: cloudinaryCloudNameSetting.get(),
+      cloudName: cloudinaryCloudName,
       theme: "minimal",
       croppingValidateDimensions: true,
       croppingShowDimensions: true,
@@ -242,6 +243,7 @@ export const useImageUpload = ({
       }
     });
   }, [
+    theme.forumType,
     croppingAspectRatio,
     imageType,
     onUploadSuccess,

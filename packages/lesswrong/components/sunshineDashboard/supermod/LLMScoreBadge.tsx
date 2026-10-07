@@ -45,6 +45,9 @@ const LLMScoreBadge = ({
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
 
+  const apiVersion = automatedContentEvaluations?.pangramApiVersion;
+  const hasFractionScores = automatedContentEvaluations?.pangramApiVersion === 'v3'
+    || automatedContentEvaluations?.pangramApiVersion === 'pangram-4';
   const score = automatedContentEvaluations?.pangramScore;
   const maxScore = automatedContentEvaluations?.pangramMaxScore;
   const hasScore = typeof score === 'number';
@@ -71,7 +74,15 @@ const LLMScoreBadge = ({
   return (
     <HoverOver
       title={hasScore
-        ? <div>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</div>
+        ? hasFractionScores
+          ? (
+            <div>
+              Model: {apiVersion}, AI-involved: {score.toFixed(2)}, AI-written: {automatedContentEvaluations.pangramFractionAi?.toFixed(2) ?? 'N/A'},
+              {' '}AI-assisted: {automatedContentEvaluations.pangramFractionAiAssisted?.toFixed(2) ?? 'N/A'},
+              {' '}Max window: {maxScore?.toFixed(2) ?? 'N/A'}
+            </div>
+          )
+          : <div>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</div>
         : <div>No LLM evaluation — click to run check</div>}
     >
       <span className={classNames(classes.badge, className)} onClick={handleClick}>

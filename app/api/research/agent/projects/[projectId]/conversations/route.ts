@@ -50,7 +50,7 @@ export async function GET(
       status: "success",
       conversationId: payload.conversationId,
       projectId,
-      operationResult: `conversations=${conversations.length}`,
+      count: conversations.length,
     });
 
     return NextResponse.json({

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import SingleColumnSection from "../common/SingleColumnSection";
 import RecentComments from "../comments/RecentComments";
 import SectionTitle from "../common/SectionTitle";
@@ -7,7 +6,6 @@ import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { ReviewYear } from '@/lib/reviewUtils';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUserReviewsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

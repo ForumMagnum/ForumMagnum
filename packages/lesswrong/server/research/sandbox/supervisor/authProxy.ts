@@ -24,7 +24,7 @@ import {
 import { Socket } from "node:net";
 import { Duplex } from "node:stream";
 import { DEVAUTH_SCOPE, validateSupervisorToken } from "./auth";
-import { DevServerHandle } from "./devServer";
+import { DevServerHandle, DEV_PORT } from "./devServer";
 
 /** Cookie the auth-proxy sets and checks; host-only, so scoped to the subdomain. */
 const COOKIE_NAME = "research_devauth";
@@ -32,8 +32,6 @@ const COOKIE_NAME = "research_devauth";
 export interface AuthProxyConfig {
   /** Public port to listen on (`AUTH_PROXY_PORT`). */
   port: number;
-  /** localhost port the dev server binds. */
-  devPort: number;
   /** Shared HMAC secret (`DEV_PROXY_SECRET`). */
   proxySecret: string;
   /** Sandbox name — the token's `sandboxId` claim must match it. */
@@ -150,7 +148,7 @@ async function handleRequest(
   config.onActivity();
 
   if (await config.devServer.isListening()) {
-    proxyHttp(req, res, config.devPort);
+    proxyHttp(req, res, DEV_PORT);
   } else {
     send(res, 503, NOT_DETECTED_PAGE, "text/html");
   }
@@ -178,7 +176,7 @@ export function startAuthProxy(config: AuthProxyConfig): Server {
       return;
     }
     config.onActivity();
-    proxyUpgrade(req, socket, head, config.devPort);
+    proxyUpgrade(req, socket, head, DEV_PORT);
   });
 
   server.listen(config.port, "0.0.0.0", () => {

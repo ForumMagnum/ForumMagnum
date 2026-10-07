@@ -42,7 +42,7 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
+      canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
     },
   },
@@ -71,6 +71,23 @@ const schema = {
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: { optional: true },
+    },
+  },
+  // Soft-archive flag. Archived snapshots drop out of the sidebar's main
+  // list (the `byProject` view filters them out) and surface only in the
+  // collapsed "Archived" section, from which they can be restored. Toggled
+  // via the standard update mutation.
+  archived: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
       validation: { optional: true },
     },
   },

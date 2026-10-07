@@ -16,7 +16,7 @@
  *   3. Use @lexical/yjs V1 binding to sync the Yjs state into Lexical
  *   4. Serialize the Lexical editor state to HTML via $generateHtmlFromNodes
  */
-import { createEditor, $getRoot } from 'lexical';
+import { createEditor, $getRoot, type LexicalEditor } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { createBinding } from '@lexical/yjs';
 import type { Provider, Binding } from '@lexical/yjs';
@@ -86,6 +86,27 @@ function $syncV1BindingToLexical(binding: Binding): void {
 }
 
 /**
+ * Hydrate a caller-supplied headless Lexical editor from a Yjs binary state
+ * (from Y.encodeStateAsUpdate) via the @lexical/yjs V1 binding and a mock
+ * provider. Replaces the editor's current document with the Yjs content.
+ */
+function hydrateEditorFromYjsBinary(editor: LexicalEditor, binary: Uint8Array): void {
+  const ydoc = new Y.Doc();
+  Y.applyUpdate(ydoc, binary);
+
+  const docMap = new Map<string, Y.Doc>([['main', ydoc]]);
+  const mockProvider = createMockProvider();
+  const binding = createBinding(editor, mockProvider, 'main', ydoc, docMap);
+
+  editor.update(
+    () => {
+      $syncV1BindingToLexical(binding);
+    },
+    { discrete: true },
+  );
+}
+
+/**
  * Converts a Yjs binary state into an HTML string by hydrating a headless
  * Lexical editor through the @lexical/yjs V1 binding.
  *
@@ -93,20 +114,8 @@ function $syncV1BindingToLexical(binding: Binding): void {
  */
 export function yjsBinaryToHtml(binary: Uint8Array): string {
   return withDomGlobals(() => {
-    const ydoc = new Y.Doc();
-    Y.applyUpdate(ydoc, binary);
-
     const editor = createHeadlessEditor('yjsBinaryToHtml');
-    const docMap = new Map<string, Y.Doc>([['main', ydoc]]);
-    const mockProvider = createMockProvider();
-    const binding = createBinding(editor, mockProvider, 'main', ydoc, docMap);
-
-    editor.update(
-      () => {
-        $syncV1BindingToLexical(binding);
-      },
-      { discrete: true },
-    );
+    hydrateEditorFromYjsBinary(editor, binary);
 
     let html = '';
     editor.getEditorState().read(() => {

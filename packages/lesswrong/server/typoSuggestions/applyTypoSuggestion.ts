@@ -12,7 +12,7 @@ import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
 import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../app/api/agent/applyEditAtSelection";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 
@@ -305,10 +305,7 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
     editor.update(
       () => {
         const root = $getRoot();
-        const selectionResult = locateMarkdownQuoteSelectionInSubtree({
-          rootNodeKey: root.getKey(),
-          markdownQuote: quote,
-        });
+        const selectionResult = $locateQuoteWithTextIndex(quote);
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 
@@ -323,6 +320,7 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
           focus: selectionResult.focus,
           quote,
           replacement,
+          range: selectionResult.range,
           markdownIt: getMarkdownItForAgentPosts(),
         }).replaced;
       },

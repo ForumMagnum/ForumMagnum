@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $createParagraphNode,
@@ -46,16 +46,19 @@ import {
   QueryInputContentNode,
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
+import { useActiveResearchEnvironmentIds, type ActiveResearchEnvironmentIds } from '../researchEnvironmentsQuery';
+import { isSandboxWarmingError } from '../sandboxWarming';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
+import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode';
 
-/**
- * TODO: suggestion-mode support. The research editor doesn't currently thread
- * `isSuggestionMode` through ResearchEditorPlugins, so this plugin doesn't
- * block creation/deletion of query inputs in suggesting mode. If suggestion
- * mode arrives in the research editor, add the flash-error gates documented
- * in `components/editor/CLAUDE.md`.
- */
+// Query inputs are structural blocks that fire agent conversations and get
+// replaced by AgentBlocks; none of that can be represented as a tracked
+// suggestion, so creation, submission, and removal are all blocked in
+// suggesting mode (see the suggestion-mode section of
+// `components/editor/CLAUDE.md`).
+const QUERY_INPUT_SUGGESTION_MODE_MESSAGE = 'Query blocks are not supported in suggesting mode';
 
 export const QUERY_COMMAND_PREFIX = '/query ';
 const QUERY_BARE = '/query';
@@ -153,9 +156,13 @@ async function fireQuery({
     // The AgentBlock is already in the doc with the correct conversationId,
     // so a successful mutation needs no further client-side action.
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[research] /query failed to fire', err);
-    flash({ messageString: 'Failed to send query — try again.', type: 'error' });
+    if (isSandboxWarmingError(err)) {
+      flash({ messageString: 'The sandbox is still starting up — try again in a moment.' });
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('[research] /query failed to fire', err);
+      flash({ messageString: 'Failed to send query — try again.', type: 'error' });
+    }
     editor.update(() => {
       const agentBlock = $getNodeByKey(agentBlockKey);
       if (!$isAgentBlockNode(agentBlock)) return;
@@ -202,6 +209,19 @@ export function QueryInputPlugin() {
   const [editor] = useLexicalComposerContext();
   const env = useResearchEditorEnvironment();
   const { flash } = useMessages();
+  const externalModeContext = useContext(EditorUserModeContext);
+  // Read through a ref inside the long-lived handlers below so a mode toggle
+  // doesn't tear down and re-register them all (re-registering the node
+  // transform would also mark every QueryInputNode dirty and force a
+  // reconciliation pass).
+  const isSuggestionModeRef = useRef(false);
+  isSuggestionModeRef.current = externalModeContext?.userMode === EditorUserMode.Suggest;
+
+  // Read through a ref for the same reason as the mode above: the submit
+  // handler must see the current environment list without re-registering.
+  const activeEnvironments = useActiveResearchEnvironmentIds(env.projectId);
+  const activeEnvironmentsRef = useRef<ActiveResearchEnvironmentIds>(activeEnvironments);
+  activeEnvironmentsRef.current = activeEnvironments;
 
   useEffect(() => {
     if (!editor.hasNodes([QueryInputNode, QueryInputContentNode])) {
@@ -213,6 +233,10 @@ export function QueryInputPlugin() {
       editor.registerCommand(
         INSERT_QUERY_INPUT_COMMAND,
         () => {
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            return true;
+          }
           editor.update(() => $insertQueryInputAtSelection());
           return true;
         },
@@ -233,6 +257,10 @@ export function QueryInputPlugin() {
           }
         });
         if (!hasMatch) return;
+        if (isSuggestionModeRef.current) {
+          flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+          return;
+        }
         editor.update(() => {
           $insertQueryInputAtSelection();
         });
@@ -254,6 +282,12 @@ export function QueryInputPlugin() {
           const queryInput = $findMatchingParent(selection.anchor.getNode(), $isQueryInputNode);
           if (!queryInput) return false;
 
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: 'Queries cannot be run in suggesting mode', type: 'error' });
+            event.preventDefault();
+            return true;
+          }
+
           if (!queryInput.getTextContent().trim()) {
             event.preventDefault();
             return true;
@@ -269,11 +303,22 @@ export function QueryInputPlugin() {
           // Default to a blank baseline if neither field is set (e.g. a submit
           // before the header finished hydrating), so we never send "neither"
           // and trip the backend's exactly-one check.
+          //
+          // A saved-environment selection that no longer resolves to an active
+          // environment (archived or deleted since it was stored in the node)
+          // must never reach the server either — it would boot the sandbox
+          // from an obsolete snapshot. `settled` gates the check so a
+          // cold-load submit can't misclassify a valid environment as stale.
           const rawSelection = queryInput.getSelection();
+          const { settled, activeIds } = activeEnvironmentsRef.current;
+          const environmentIsStale = !!rawSelection.baseEnvironmentId && settled && !activeIds.has(rawSelection.baseEnvironmentId);
           const querySelection: QueryInputSelection =
-            rawSelection.baseEnvironmentId || rawSelection.runtime
+            !environmentIsStale && (rawSelection.baseEnvironmentId || rawSelection.runtime)
               ? rawSelection
               : { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
+          if (environmentIsStale) {
+            flash({ messageString: `The selected environment is no longer available — running on a blank ${DEFAULT_BLANK_RUNTIME} sandbox instead.` });
+          }
 
           // Generate the conversation id client-side so the doc binds to the
           // conversation BEFORE the mutation returns: a refresh mid-flight
@@ -315,6 +360,12 @@ export function QueryInputPlugin() {
           if (!$isRootNode(block.getParent())) return false;
           if (block.getTextContent() !== QUERY_BARE) return false;
 
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            event?.preventDefault();
+            return true;
+          }
+
           editor.update(() => {
             $insertQueryInputAtSelection();
           });
@@ -345,6 +396,12 @@ export function QueryInputPlugin() {
           const only = content.getFirstChild();
           if (!$isElementNode(only)) return false;
           if (only.getTextContentSize() !== 0) return false;
+
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            event.preventDefault();
+            return true;
+          }
 
           event.preventDefault();
           $dissolveQueryInput(queryInput);

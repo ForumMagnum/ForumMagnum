@@ -9,41 +9,10 @@ interface DynamicTableOfContentsContextType {
   setToc: (document: EditorContents) => void;
 }
 
-type AutosaveFunc = () => Promise<void>;
-interface AutosaveEditorStateContext {
-  autosaveEditorState: AutosaveFunc | null;
-  /**
-   * WARNING: since `setAutosaveEditorState` is a React setState function,
-   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
-   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
-   *
-   * (prevValue: T) => (): T => { ...;  return newValue; }
-   */
-  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
-}
-
 type DisableNoKibitzContextType = { disableNoKibitz: boolean; setDisableNoKibitz: (disableNoKibitz: boolean) => void; };
 
 export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
 export const DynamicTableOfContentsContext = createContext<DynamicTableOfContentsContextType | null>(null);
-
-export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
-  autosaveEditorState: null,
-  setAutosaveEditorState: _ => { },
-});
-
-export const AutosaveEditorStateContextProvider = ({children}: {
-  children: React.ReactNode
-}) => {
-  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
-  const autosaveEditorStateContext = useMemo(
-    () => ({ autosaveEditorState, setAutosaveEditorState }),
-    [autosaveEditorState, setAutosaveEditorState]
-  );
-  return <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
-    {children}
-  </AutosaveEditorStateContext.Provider>
-}
 
 export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType>({ disableNoKibitz: false, setDisableNoKibitz: () => { } });
 
@@ -66,6 +35,11 @@ interface InlineCommentsPanelContextType {
   setShowComments: React.Dispatch<React.SetStateAction<boolean>>;
   commentCount: number;
   setCommentCount: React.Dispatch<React.SetStateAction<number>>;
+  /**
+   * When set, the editor's comments panel renders docked inside this element
+   * (the host owns open/close) instead of floating over the page.
+   */
+  panelPortalEl?: HTMLElement | null;
 }
 
 export const InlineCommentsPanelContext = createContext<InlineCommentsPanelContextType>({

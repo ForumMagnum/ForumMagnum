@@ -1,11 +1,11 @@
 "use client";
 
+import { useForumType } from '@/components/hooks/useForumType';
 import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -103,7 +103,6 @@ type EventTemplateFields =
 
 type PrefilledPostFields =
   | "isEvent"
-  | "question"
   | "activateRSVPs"
   | "onlineEvent"
   | "globalEvent"
@@ -163,12 +162,10 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
   }
 }
 
-function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
+function getPostCategory(query: Record<string, string>) {
   return isPostCategory(query.category)
     ? query.category
-    : questionInQuery
-      ? ("question" as const)
-      : postDefaultCategory;
+    : postDefaultCategory;
 }
 
 const PostsNewForm = () => {
@@ -176,15 +173,15 @@ const PostsNewForm = () => {
   return <PostsNewFormInner key={pathname}/>;
 }
 const PostsNewFormInner = () => {
+  const { isAF } = useForumType();
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const questionInQuery = query && !!query.question;
 
-  const postCategory = getPostCategory(query, questionInQuery);
+  const postCategory = getPostCategory(query);
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -216,7 +213,6 @@ const PostsNewFormInner = () => {
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
-    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -233,7 +229,7 @@ const PostsNewFormInner = () => {
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      af: isAF() || (query && !!query.af),
+      af: isAF || (query && !!query.af),
     };
   }
 
@@ -282,7 +278,7 @@ const PostsNewFormInner = () => {
           const createdPost = data?.createPost?.data;
 
           if (createdPost) {
-            navigate(postGetEditUrl(createdPost._id, false, createdPost.linkSharingKey ?? undefined), {replace: true});
+            navigate(postGetEditUrl(createdPost._id, createdPost.linkSharingKey ?? undefined), {replace: true});
           }
         } catch(e) {
           setError(e.message);
@@ -316,5 +312,3 @@ const PostsNewFormInner = () => {
 }
 
 export default PostsNewForm;
-
-

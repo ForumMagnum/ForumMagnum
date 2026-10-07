@@ -652,10 +652,14 @@ export function useMenuAnchorRef(
             rootElementRect.right - menuWidth + window.pageXOffset
           }px`;
         }
+        // Flip above when the menu would overflow downward and fits above the
+        // caret within the VIEWPORT. (Upstream required room above within the
+        // editor root element, which never holds for short editors like chat
+        // composers — the menu ran off the bottom of the screen.)
         if (
           (top + menuHeight > window.innerHeight ||
             top + menuHeight > rootElementRect.bottom) &&
-          top - rootElementRect.top > menuHeight + height
+          top - menuHeight - height > 0
         ) {
           containerDiv.style.top = `${
             top -
@@ -686,12 +690,20 @@ export function useMenuAnchorRef(
     if (resolution !== null) {
       positionMenu();
     }
+    // The menu's content can render or change size after positioning (options
+    // fetched async, list filtered while typing) — reposition when it does,
+    // or the overflow flip above runs against a stale/empty menu rect.
+    const containerDiv = anchorElementRef.current;
+    let contentObserver: MutationObserver | null = null;
+    if (resolution !== null && containerDiv !== null) {
+      contentObserver = new MutationObserver(() => positionMenu());
+      contentObserver.observe(containerDiv, {childList: true, subtree: true});
+    }
     return () => {
+      contentObserver?.disconnect();
       if (rootElement !== null) {
         rootElement.removeAttribute('aria-controls');
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const containerDiv = anchorElementRef.current;
       if (containerDiv !== null && containerDiv.isConnected) {
         containerDiv.remove();
         containerDiv.removeAttribute('id');

@@ -1,12 +1,14 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { Posts } from '@/server/collections/posts/collection';
 import ResearchDocuments from '@/server/collections/researchDocuments/collection';
 import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
-import { createAdminContext } from '@/server/vulcan-lib/createContexts';
+import { createAdminContext, createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { buildAndCreateRevision } from '@/server/collections/revisions/mutations';
 import { getLatestRev, getNextVersion } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
+import { escapeHtml } from '@/lib/utils/sanitize';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 import { captureException } from '@/lib/sentryWrapper';
@@ -113,8 +115,9 @@ async function saveLexicalDocumentRevision(
   postId: string,
   html: string,
   yjsStateBase64: string,
+  forumType: ForumTypeString,
 ): Promise<void> {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const fieldName = 'contents';
   const { user, isAdmin } = await getUserForSavedPost(postId, userId);
   const previousRev = await getLatestRev(postId, fieldName, context);
@@ -170,6 +173,7 @@ export async function saveOrUpdateLexicalRevision(
   documentId: string,
   html: string,
   yjsStateBase64: string,
+  forumType: ForumTypeString,
 ): Promise<void> {
   if (collectionName === 'ResearchDocuments') {
     backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
@@ -182,7 +186,7 @@ export async function saveOrUpdateLexicalRevision(
   if (!post) {
     throw new Error(`saveOrUpdateLexicalRevision: no Posts document ${documentId}`);
   }
-  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64);
+  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64, forumType);
 }
 
 // Generate a title via Haiku only while the doc still has a null title — once
@@ -318,21 +322,28 @@ export interface HocuspocusCommentData {
 
 /**
  * Handle the "comment added" callback from Hocuspocus.
- * Notifies the post author, coauthors, and other commenters in the thread.
+ * Notifies the document's stakeholders (for Posts: author, coauthors, and
+ * other thread commenters; for ResearchDocuments: document and project
+ * owners plus other thread commenters).
  *
- * Equivalent of CKEditor's `comment.added` webhook event. Currently only
- * fires for Posts; other collab-editor-backed collections (e.g.
- * ResearchDocuments) silently no-op until per-collection notification
- * mechanics are wired up.
+ * Equivalent of CKEditor's `comment.added` webhook event.
  */
 export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
+  forumType: ForumTypeString,
 ): Promise<void> {
   const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  if (collectionName === 'ResearchDocuments') {
+    // comment.added fires on the comments subdocument, named
+    // "research-doc-{id}/comments"; the owning document id is the segment
+    // before the slash.
+    await handleResearchDocumentCommentAdded(documentId.split('/')[0], comment, forumType);
+    return;
+  }
   if (collectionName !== 'Posts') {
     // eslint-disable-next-line no-console
-    console.log(`[HocuspocusWebhook] Ignoring comment.added for non-Posts document ${documentName}`);
+    console.log(`[HocuspocusWebhook] Ignoring comment.added for unsupported collection ${documentName}`);
     return;
   }
   // comment.added fires on the comments subdocument, named "post-{id}/comments";
@@ -361,6 +372,7 @@ export async function handleCommentAdded(
   console.log(`[HocuspocusWebhook] Notifying users: ${JSON.stringify(usersToNotify)}`);
 
   await createNotifications({
+    context: createAnonymousContext({ forumType }),
     userIds: usersToNotify,
     notificationType: 'newCommentOnDraft',
     documentType: 'post',
@@ -368,8 +380,67 @@ export async function handleCommentAdded(
     extraData: {
       senderUserID: comment.authorId,
       senderDisplayName: comment.authorName,
-      commentHtml: comment.content,
+      // The Yjs comment body is plain text, but extraData.commentHtml is
+      // rendered as HTML downstream (notification email/hover) — escape it
+      // so collaborator-controlled text can't inject markup.
+      commentHtml: escapeHtml(comment.content),
       linkSharingKey: post.linkSharingKey,
     },
+  });
+}
+
+/**
+ * ResearchDocuments branch of handleCommentAdded: notifies the document
+ * owner, the project owner, and other commenters in the thread. Agent
+ * comments use the conversation id as authorId, which never matches a user
+ * id, so agents are naturally excluded from the recipient list (and from
+ * being treated as the suppressed "own comment" author when a user
+ * comments).
+ */
+async function handleResearchDocumentCommentAdded(
+  researchDocumentId: string,
+  comment: HocuspocusCommentData,
+  forumType: ForumTypeString,
+): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.log(`[HocuspocusWebhook] Comment added on research document ${researchDocumentId} by ${comment.authorId}`);
+
+  const document = await ResearchDocuments.findOne({ _id: researchDocumentId });
+  if (!document) {
+    throw new Error(`Couldn't find research document for Hocuspocus comment notification: ${researchDocumentId}`);
+  }
+  const context = createAdminContext({ forumType });
+  const project = await context.ResearchProjects.findOne({ _id: document.projectId });
+
+  const candidateUserIds = [
+    document.userId,
+    project?.userId,
+    ...comment.commentersInThread,
+  ].filter((u): u is string => !!u && u !== comment.authorId);
+  // Thread commenter ids can be agent conversation ids or anonymous client
+  // ids; only notify ones that resolve to real users.
+  const users = await Users.find(
+    { _id: { $in: [...new Set(candidateUserIds)] } },
+    {},
+    { _id: 1 },
+  ).fetch();
+  const usersToNotify = users.map((u) => u._id);
+  if (usersToNotify.length === 0) return;
+
+  await createNotifications({
+    userIds: usersToNotify,
+    notificationType: 'newCommentOnResearchDoc',
+    documentType: 'researchDocument',
+    documentId: researchDocumentId,
+    extraData: {
+      senderUserID: comment.authorId,
+      senderDisplayName: comment.authorName,
+      commentHtml: escapeHtml(comment.content),
+      projectId: document.projectId,
+    },
+    // Onsite-only at the product's current stage: emails in response to
+    // agent/collaborator comments aren't justified yet.
+    noEmail: true,
+    context,
   });
 }

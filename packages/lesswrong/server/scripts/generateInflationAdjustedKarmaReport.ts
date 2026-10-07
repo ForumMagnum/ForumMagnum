@@ -1,5 +1,5 @@
 import { Posts } from "../../server/collections/posts/collection";
-import { getKarmaInflationSeries } from "../../lib/collections/posts/karmaInflation";
+import { getKarmaInflationSeries } from "../karmaInflation/cache";
 import { buildInflationAdjustedField } from "../../lib/collections/posts/views";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import fs from 'fs';
@@ -8,7 +8,7 @@ const RELATIVE_TO = '2023-07-01T00:00:00.000Z';
 
 // Exported to allow running manually with "yarn repl"
 export const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo = RELATIVE_TO}: {threshold?: number, relativeTo?: string}) => {
-  const karmaInflationSeries = getKarmaInflationSeries();
+  const karmaInflationSeries = await getKarmaInflationSeries();
 
   // Get threshold in inflation adjusted karma
   const relativeToIdx = Math.floor((new Date(relativeTo).getTime() - karmaInflationSeries.start) / karmaInflationSeries.interval);
@@ -18,7 +18,7 @@ export const generateInflationAdjustedKarmaReport = async ({threshold = 100, rel
   // Get all posts with required fields
   const pipeline = [
     {
-      $addFields: buildInflationAdjustedField()
+      $addFields: buildInflationAdjustedField(karmaInflationSeries)
     },
     {
       $project: {

@@ -9,6 +9,9 @@ import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { getUserFromReq } from './getUserFromReq';
+import { getForumTypeFromRequestData } from '@/server/utils/requestUtil';
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 
 
 // Generate a set of DataLoader objects, one per collection, to be added to a resolver context
@@ -47,7 +50,8 @@ export function requestIsFromIssaRiceReader(headers?: Headers): boolean {
   return requestIsFromUserAgent(headers, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
-export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR}: {
+export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR, forumType: explicitForumType}: {
+  forumType?: ForumTypeString,
   user: DbUser|null,
   headers?: Headers,
   searchParams?: URLSearchParams,
@@ -56,12 +60,16 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
 }): ResolverContext => {
   const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
+  const forumType = explicitForumType ?? (headers || cookies
+    ? getForumTypeFromRequestData(headers, cookies)
+    : forumTypeSetting.get());
   let context: ResolverContext = {
+    forumType,
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     searchParams,
     headers,
-    locale: headers ? getHeaderLocale(headers, null) : "en-US",
+    locale: headers ? getHeaderLocale(headers, null, forumType) : "en-US",
     isSSR,
     isGreaterWrong: requestIsFromGreaterWrong(headers),
     isIssaRiceReader: requestIsFromIssaRiceReader(headers),

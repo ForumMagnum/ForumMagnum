@@ -1,9 +1,11 @@
 import { Sandbox, Snapshot } from "@vercel/sandbox";
 import { signSupervisorToken } from "./supervisor/auth";
+import { CLAUDE_DIR, SANDBOX_HOME_DIR } from "./sandboxLayout";
 import {
   getRunningSandbox,
   sandboxNameForConversation,
   supervisorUrlForSandbox,
+  SNAPSHOT_EXPIRATION_MS,
 } from "./sandboxManager";
 
 const QUIESCE_TIMEOUT_MS = 60_000;
@@ -54,7 +56,10 @@ async function quiesce(supervisorUrl: string, bearer: string): Promise<void> {
     const status = await fetchSupervisorStatus(supervisorUrl, bearer);
     if (status) {
       if (status.turnRunning) {
-        throw new Error("Can't save an environment while a turn is running. Wait for it to finish.");
+        // `turnRunning` also covers pending background tasks: snapshotting
+        // stops the sandbox, which would kill the task and the agent's
+        // promised continuation.
+        throw new Error("Can't save an environment while a turn or background task is running. Wait for it to finish.");
       }
       if (status.pendingEvents === 0) return;
     }
@@ -85,18 +90,28 @@ function deriveLabel(repoDir: string | null, conversationTitle: string | null): 
 }
 
 async function scrubAgentSession(clone: Sandbox): Promise<void> {
-  // `~/.claude/projects` is the session transcript; `~/.claude/history.jsonl` is
-  // the global cross-conversation prompt log (outside projects/); `~/.claude.json`
-  // may hold MRU prompt state. This removes only the agent session — it is NOT a
+  // `.claude/projects` is the session transcript (and Claude Code's auto-memory
+  // under it); `.claude/history.jsonl` is the global cross-conversation prompt
+  // log (outside projects/); `.claude.json` may hold MRU prompt state. Paths are
+  // spelled out under SANDBOX_HOME_DIR and removed as root: `runCommand` runs as
+  // the unprivileged `vercel-sandbox` user, whose `~` is /home/vercel-sandbox,
+  // not the agent's home. This removes only the agent session — it is NOT a
   // secrets scrub (the env keeps the user's functional setup, e.g. `.env`).
-  await clone.runCommand({
-    cmd: "sh",
+  const result = await clone.runCommand({
+    cmd: "rm",
     args: [
-      "-c",
-      "rm -rf ~/.claude/projects ~/.claude/history.jsonl; " +
-        "[ -f ~/.claude.json ] && rm -f ~/.claude.json; true",
+      "-rf",
+      `${CLAUDE_DIR}/projects`,
+      `${CLAUDE_DIR}/history.jsonl`,
+      `${SANDBOX_HOME_DIR}/.claude.json`,
     ],
+    sudo: true,
   });
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `Failed to scrub the agent session from the environment clone (exit ${result.exitCode}): ${(await result.stderr()).slice(0, 500)}`,
+    );
+  }
 }
 
 async function createCloneFromSnapshot(snapshotId: string): Promise<Sandbox> {
@@ -141,52 +156,40 @@ export async function buildEnvironmentSnapshot(args: {
   }
   const effectiveWith = withConversation && sourceEventId !== null;
 
-  let intermediateSnapshot: Snapshot | null = null;
   let clone: Sandbox | null = null;
 
   try {
-    let repoDir: string | null = null;
-    let envSnapshotId: string;
-
-    if (effectiveWith) {
-      if (running) {
-        repoDir = await detectRepoDirName(running);
-        // Snapshot the quiesced sandbox directly (stops it → cold resume next turn).
-        const snap = await running.snapshot({ expiration: 0 });
-        envSnapshotId = snap.snapshotId;
-      } else {
-        const srcSnapshotId = await Snapshot.fromSandbox(sandboxName);
-        clone = await createCloneFromSnapshot(srcSnapshotId);
-        repoDir = await detectRepoDirName(clone);
-        const snap = await clone.snapshot({ expiration: 0 });
-        envSnapshotId = snap.snapshotId;
-      }
+    // The env snapshot is always taken from a throwaway clone, never from the
+    // conversation's persistent sandbox: an env snapshot's lifecycle is the
+    // environment's (deleted if the insert fails, deletable by the user), and
+    // the persistent sandbox must never resume from a snapshot that can be
+    // deleted out from under it.
+    let cloneSourceSnapshotId: string;
+    if (running) {
+      // Stops the sandbox (cold resume next turn). This snapshot is what the
+      // persistent sandbox resumes from, so it must outlive this function; it
+      // gets the same retention as the sandbox's own auto-snapshots and is
+      // superseded by the next one.
+      const intermediate = await running.snapshot({ expiration: SNAPSHOT_EXPIRATION_MS });
+      cloneSourceSnapshotId = intermediate.snapshotId;
     } else {
-      let cloneSourceSnapshotId: string;
-      if (running) {
-        intermediateSnapshot = await running.snapshot({ expiration: 0 });
-        cloneSourceSnapshotId = intermediateSnapshot.snapshotId;
-      } else {
-        cloneSourceSnapshotId = await Snapshot.fromSandbox(sandboxName);
-      }
-      clone = await createCloneFromSnapshot(cloneSourceSnapshotId);
-      repoDir = await detectRepoDirName(clone);
-      await scrubAgentSession(clone);
-      const snap = await clone.snapshot({ expiration: 0 });
-      envSnapshotId = snap.snapshotId;
+      cloneSourceSnapshotId = await Snapshot.fromSandbox(sandboxName);
     }
+    clone = await createCloneFromSnapshot(cloneSourceSnapshotId);
+    const repoDir = await detectRepoDirName(clone);
+    if (!effectiveWith) {
+      await scrubAgentSession(clone);
+    }
+    const snap = await clone.snapshot({ expiration: 0 });
 
     return {
-      vercelSnapshotId: envSnapshotId,
+      vercelSnapshotId: snap.snapshotId,
       sourceEventId: effectiveWith ? sourceEventId : null,
       label: deriveLabel(repoDir, conversationTitle),
     };
   } finally {
     if (clone) {
       await clone.stop().catch(() => {});
-    }
-    if (intermediateSnapshot) {
-      await intermediateSnapshot.delete().catch(() => {});
     }
   }
 }

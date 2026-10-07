@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useTracking } from '@/lib/analyticsEvents';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
@@ -56,6 +57,7 @@ export const FollowUserButton = ({user, styleVariant = "default"}: {
   user: UsersMinimumInfo,
   styleVariant?: "default" | "ultraFeed",
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
@@ -97,7 +99,7 @@ export const FollowUserButton = ({user, styleVariant = "default"}: {
     captureEvent("followUserButtonClick", {subcribedToUser: user._id, subscribed: !subscribed})
   }
 
-  const followTooltip = `${userGetDisplayName(user)}'s content will appear in your feed`
+  const followTooltip = `${userGetDisplayName(user, forumType)}'s content will appear in your feed`
 
   if (disabled) {
     return null;

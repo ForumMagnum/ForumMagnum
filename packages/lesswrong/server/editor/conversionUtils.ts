@@ -6,7 +6,6 @@ import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
-import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import { formatMathToken } from '@/lib/utils/mathTokens';
@@ -19,6 +18,12 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+// Preload all HTML entity tables. Without this, parsing content that contains
+// a less-common entity makes MathJax try to lazy-load the entity table via
+// mathjax.asyncLoad, which isn't configured here; the parse fails ("Can't find
+// handler for document", leaving math unrendered) and the load rejection is
+// unhandled.
+import 'mathjax-full/js/util/entities/all.js';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
 import {
@@ -71,6 +76,73 @@ function firstCharFollowingNode(node: Node): string | undefined {
   return undefined;
 }
 
+/** Mirror of `firstCharFollowingNode`: the character immediately preceding `node`. */
+function lastCharPrecedingNode(node: Node): string | undefined {
+  let current: Node | null = node;
+  while (current) {
+    for (let sibling = current.previousSibling; sibling; sibling = sibling.previousSibling) {
+      const text = sibling.textContent;
+      if (text && text.length > 0) {
+        return text[text.length - 1];
+      }
+    }
+    const parent: Node | null = current.parentNode;
+    if (!parent || (parent.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(parent.nodeName))) {
+      return undefined;
+    }
+    current = parent;
+  }
+  return undefined;
+}
+
+// CommonMark's punctuation set, used by its emphasis flanking rules: the
+// Unicode P and S general categories (the spec's "Unicode punctuation
+// character"). ASCII-only matching here would emit unparseable emphasis next
+// to curly quotes and other typographic punctuation.
+const COMMONMARK_PUNCTUATION = /[\p{P}\p{S}]/u;
+
+const isFlankingWhitespaceOrBoundary = (ch: string | undefined): boolean =>
+  ch === undefined || /\s/.test(ch);
+
+/**
+ * Emphasis replacement that only emits delimiters CommonMark can parse back.
+ *
+ * A delimiter run can open emphasis only if it is left-flanking: not followed
+ * by whitespace, and not followed by punctuation unless preceded by
+ * whitespace/punctuation (mirrored for closing). Emitting markers that
+ * violate this — e.g. `boundaries**.**` for `boundaries<b>.</b>` — produces
+ * literal asterisks in the rendered output, corrupting the text. In that
+ * case the content is emitted unwrapped: dropping the formatting is the
+ * faithful-text choice, and there is no valid markdown spelling anyway.
+ */
+function flankingAwareEmphasis(marker: string): (content: string, node: Node) => string {
+  return (content, node) => {
+    const match = content.match(/^(\s*)([\s\S]*?)(\s*)$/);
+    const leading = match?.[1] ?? '';
+    const core = match?.[2] ?? content;
+    const trailing = match?.[3] ?? '';
+    if (!core) return content;
+
+    // Turndown relocates the element's edge whitespace outside the
+    // replacement, so when the node's own text had it, the effective
+    // neighbor character is a space.
+    const nodeText = node.textContent ?? '';
+    const charBefore = /^\s/.test(nodeText) ? ' ' : lastCharPrecedingNode(node);
+    const charAfter = /\s$/.test(nodeText) ? ' ' : firstCharFollowingNode(node);
+
+    const canOpen = !COMMONMARK_PUNCTUATION.test(core[0])
+      || isFlankingWhitespaceOrBoundary(charBefore)
+      || COMMONMARK_PUNCTUATION.test(charBefore ?? '');
+    const canClose = !COMMONMARK_PUNCTUATION.test(core[core.length - 1])
+      || isFlankingWhitespaceOrBoundary(charAfter)
+      || COMMONMARK_PUNCTUATION.test(charAfter ?? '');
+    if (!canOpen || !canClose) {
+      return leading + core + trailing;
+    }
+    return `${leading}${marker}${core}${marker}${trailing}`;
+  };
+}
+
 function isLexicalIframeWidgetElement(node: Node): node is Element {
   if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
     return false;
@@ -100,7 +172,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v2-mentions';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -246,10 +318,37 @@ function getTurndown(): TurndownService {
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
-    
-        // Get the content of the footnote by getting the content of the footnote-content div
-        const text = (node as unknown as Element).querySelector('.footnote-content')?.textContent || ''
+
+        // Get the content of the footnote from the footnote-content div.
+        // `textContent` of the div as a whole jams adjacent block children
+        // together ("…bonus post?A fellow Resident…"); join the blocks'
+        // texts with spaces instead.
+        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
+        const blockChildren = contentElement ? Array.from(contentElement.children) : []
+        const text = blockChildren.length > 0
+          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
+          : (contentElement?.textContent || '')
         return `[^${id}]: ${text} \n\n`
+      }
+    })
+    // CommonMark link text cannot contain blank lines, but an anchor wrapping
+    // block content (a clickable figure/image) otherwise emits
+    // `[\n\n![alt](img)\n\n](target)`, which renders as literal brackets.
+    // Collapse the link text onto one line; mirrors Turndown's default
+    // inlineLink rule otherwise.
+    turndownService.addRule('inline-link-single-line', {
+      filter: (node, options) =>
+        options.linkStyle === 'inlined'
+        && node.nodeName === 'A'
+        && !!(node as Element).getAttribute('href'),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const href = (element.getAttribute('href') ?? '').replace(/([()])/g, '\\$1');
+        const rawTitle = element.getAttribute('title');
+        const title = rawTitle ? ` "${rawTitle.replace(/(\n+\s*)+/g, ' ').replace(/"/g, '\\"')}"` : '';
+        const singleLineContent = content.replace(/\s*\n\s*/g, ' ').trim();
+        if (!singleLineContent) return '';
+        return `[${singleLineContent}](${href}${title})`;
       }
     })
     turndownService.addRule('subscript', {
@@ -261,25 +360,29 @@ function getTurndown(): TurndownService {
       replacement: (content) => `^${content}^`
     })
     turndownService.addRule('italic', {
-      filter: ['i'],
-      replacement: (content) => `*${content}*`
+      filter: ['i', 'em'],
+      replacement: flankingAwareEmphasis('*'),
     })
-    const unescapeMarkdownInMath = (text: string): string =>
-      text.replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1');
-
+    turndownService.addRule('bold', {
+      filter: ['b', 'strong'],
+      replacement: flankingAwareEmphasis('**'),
+    })
+    // The `\(…\)` / `\[…\]` annotation delimiters, with one backslash in the
+    // raw DOM text; a second is tolerated for content that carries an extra
+    // level of escaping.
     const convertMathDelimiters = (text: string, followingChar?: string): string | null => {
       const trimmed = text.trim();
-      const inlineMatch = trimmed.match(/^\\\\?\\\(([\s\S]*?)\\\\?\\\)$/);
+      const inlineMatch = trimmed.match(/^\\{1,2}\(([\s\S]*?)\\{1,2}\)$/);
       if (inlineMatch) {
         // `followingChar` lets `formatMathToken` fall back to the `\(…\)` form
         // when the bare `$…$` form would not round-trip (e.g. before a digit).
-        return formatMathToken({ equation: unescapeMarkdownInMath(inlineMatch[1]), inline: true }, followingChar);
+        return formatMathToken({ equation: inlineMatch[1], inline: true }, followingChar);
       }
-      const blockMatch = trimmed.match(/^\\\\?\\\[([\s\S]*?)\\\\?\\\]$/);
+      const blockMatch = trimmed.match(/^\\{1,2}\[([\s\S]*?)\\{1,2}\]$/);
       if (blockMatch) {
         // Display equations are block-level here: pad with blank lines so the
         // `$$…$$` sits on its own lines in the surrounding markdown.
-        return `\n\n${formatMathToken({ equation: unescapeMarkdownInMath(blockMatch[1]), inline: false })}\n\n`;
+        return `\n\n${formatMathToken({ equation: blockMatch[1], inline: false })}\n\n`;
       }
       return null;
     };
@@ -287,20 +390,29 @@ function getTurndown(): TurndownService {
     //If we have a math-tex block, we want to convert it to markdown math delimiters
     turndownService.addRule('latex-spans', {
       filter: (node, options) => node.classList?.contains('math-tex'),
-      replacement: (content, node) => {
+      replacement: (_content, node) => {
         const followingChar = firstCharFollowingNode(node);
-        const converted = convertMathDelimiters(content, followingChar);
-        return converted ?? content;
+        // Take the equation from the DOM text directly rather than from
+        // `content`: content has been through Turndown's markdown escaping,
+        // and un-escaping it cannot distinguish an escaped `\` from a
+        // genuine LaTeX `\\` row separator (which it halved, corrupting
+        // array/matrix equations).
+        const rawText = node.textContent ?? '';
+        const converted = convertMathDelimiters(rawText, followingChar);
+        return converted ?? rawText;
       }
     })
     
+    // Collapsible-section markers are line-anchored syntax: without the
+    // blank-line padding they can fuse onto the preceding block's text
+    // ("…it). +++ Can I…"), where consumers' line-start parsing misses them.
     turndownService.addRule('collapsible-section-start', {
       filter: (node, options) => node.classList?.contains('detailsBlockTitle'),
-      replacement: (content) => `+++ ${content.trim()}\n`
+      replacement: (content) => `\n\n+++ ${content.trim()}\n\n`
     });
     turndownService.addRule('collapsible-section-end', {
       filter: (node, options) => node.classList?.contains('detailsBlock'),
-      replacement: (content) => `${content}\n+++`
+      replacement: (content) => `\n\n${content.trim()}\n\n+++\n\n`
     });
 
     // Spoiler blocks: `<div class="spoilers">…</div>` → `>!`-prefixed lines.
@@ -389,6 +501,18 @@ export function renderMathInHtml(html: string): string {
     });
 
     doc.render();
+
+    // Attach the TeX source to each rendered equation. CHTML output has no
+    // text content (glyphs are drawn via CSS), so without this the equation is
+    // invisible to screen readers; MathNode.importDOM also relies on
+    // aria-label to recover the equation when converting rendered HTML back
+    // into the editor.
+    for (const item of doc.math) {
+      if (item.typesetRoot) {
+        adaptor.setAttribute(item.typesetRoot, 'aria-label', item.math);
+        adaptor.setAttribute(item.typesetRoot, 'role', 'math');
+      }
+    }
 
     const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
     const css: string = adaptor.textContent(chtml.styleSheet(doc));
@@ -558,8 +682,35 @@ export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   return wrapSpoilerTags(trimmedHtml)
 }
 
+// Fold non-breaking spaces in TEXT content to plain spaces. Turndown's
+// whitespace machinery (collapse + flankingWhitespace) only recognizes ASCII
+// whitespace; Lexical exports boundary spaces as &nbsp;, which Turndown
+// mishandles — in some configurations dropping the space entirely (e.g.
+// `<i>a</i><span>&nbsp;b c </span><i>d</i>` → `*a*b c *d*`). Markdown has no
+// meaningful non-breaking space in prose, so fold them before conversion and
+// let Turndown's native handling place them. The fold operates on parsed text
+// nodes, not the raw string: attribute values (most importantly widget
+// iframes' srcdoc, which round-trips verbatim through the agent read/write
+// path) must keep their NBSPs.
+function foldNbspInTextNodes(html: string): string {
+  if (!/&nbsp;|&#0*160;|&#[xX]0*[aA]0;|\u00A0/.test(html)) {
+    return html;
+  }
+  const $ = cheerioParse(html);
+  $.root().find('*').addBack().contents().each((_index, node) => {
+    // domhandler's isText guard can't be used here: cheerio bundles its own
+    // domhandler copy, so the guard's Node type doesn't unify with the nodes
+    // cheerio yields. The type/cast pair matches the emptyParagraph check above.
+    if (node.type === 'text') {
+      const dataNode = node as DataNode;
+      dataNode.data = dataNode.data.replace(/\u00A0/g, ' ');
+    }
+  });
+  return $.html();
+}
+
 export function htmlToMarkdown(html: string): string {
-  return getTurndown().turndown(html)
+  return getTurndown().turndown(foldNbspInTextNodes(html))
 }
 
 export function ckEditorMarkupToMarkdown(markup: string): string {

@@ -1,3 +1,4 @@
+import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { generateOAuthState, getGitHubAuthUrl } from '@/lib/auth/githubOAuth';
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     cookieStore.set('github_oauth_return', returnTo, GITHUB_OAUTH_COOKIE_SETTINGS);
   }
   
-  const authUrl = getGitHubAuthUrl(request, state);
+  const context = await getContextFromReqAndRes({ req: request, isSSR: false });
+  const authUrl = getGitHubAuthUrl(request, state, context.forumType);
   return NextResponse.redirect(authUrl);
 }

@@ -1,3 +1,5 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAdminContext, createAnonymousContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import Revisions from '../../server/collections/revisions/collection';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -9,7 +11,6 @@ import { registerMigration } from './migrationUtils';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
 import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 const widgetizeDialogueMessages = (html: string, _postId: string) => {
@@ -60,7 +61,7 @@ async function wrapMessageContents(dialogue: PostsOriginalContents) {
 }
 
 async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string, ckEditorId: string) {
-  await saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await saveOrUpdateDocumentRevision(postId, migratedHtml, "LessWrong");
 
   try {
     //Repeated twice because ckEditor is bad at their jobs. Without this, 
@@ -94,7 +95,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
       const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
       // Push the selected revision
       try {
-        await createRemoteStorageDocument(newDocumentPayload);
+        await createRemoteStorageDocument(newDocumentPayload, createAdminContext().forumType);
       } catch (err) {
         //eslint-disable-next-line no-console
         console.log('Error pushing new document payload', { err })
@@ -107,6 +108,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
 
 export const migrateDialogue = async (postId: string) => {
   const dialogue = await fetchFragmentSingle({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsOriginalContents,
     selector: {_id: postId},
@@ -122,6 +124,7 @@ export default registerMigration({
   idempotent: true,
   action: async () => {
     const dialogues = await fetchFragment({
+      context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
       collectionName: "Posts",
       fragmentDoc: PostsOriginalContents,
       selector: {collabEditorDialogue: true},

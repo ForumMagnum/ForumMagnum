@@ -1,5 +1,5 @@
 import { isFriendlyUI } from "../themes/forumTheme";
-import { isAF } from "./instanceSettings";
+import type { ForumTypeString } from "./instanceSettings";
 
 const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postCommentsMagic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
@@ -13,14 +13,14 @@ const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postLWComments': 'top scoring (include LW)',
 });
 
-const getCommentsTopView = (): CommentsViewName =>
-  isAF()
+const getCommentsTopView = (forumType: ForumTypeString): CommentsViewName =>
+  forumType === 'AlignmentForum'
     ? "afPostCommentsTop"
     : "postCommentsTop";
 
-const getDefaultViews = (): CommentsViewName[] => [
+const getDefaultViews = (forumType: ForumTypeString): CommentsViewName[] => [
   "postCommentsMagic",
-  getCommentsTopView(),
+  getCommentsTopView(forumType),
   "postCommentsNew",
   "postCommentsOld",
   "postCommentsRecentReplies",
@@ -33,23 +33,26 @@ type CommentViewsConfig = {
 }
 
 const getCommentViewNames = (
+  forumType: ForumTypeString,
   options?: CommentViewsConfig,
 ): CommentsViewName[] => [
-  ...getDefaultViews(),
+  ...getDefaultViews(forumType),
   ...(options?.includeAdminViews ? adminViews : []),
-  ...(isAF() ? afViews : []),
+  ...(forumType === 'AlignmentForum' ? afViews : []),
 ];
 
 export const getCommentViewOptions = (
+  forumType: ForumTypeString,
   options?: CommentViewsConfig,
 ): {value: CommentsViewName, label: string}[] =>
-  getCommentViewNames(options).map((view) => ({
+  getCommentViewNames(forumType, options).map((view) => ({
     value: view,
     label: getCustomViewNames()[view] ?? view,
   }));
 
 export const isValidCommentView = (
   name: string,
+  forumType: ForumTypeString,
   options?: CommentViewsConfig,
 ): name is CommentsViewName =>
-  getCommentViewNames(options).includes(name as CommentsViewName);
+  getCommentViewNames(forumType, options).includes(name as CommentsViewName);

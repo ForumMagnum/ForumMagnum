@@ -7,14 +7,9 @@ WebSearch, Task, etc.) plus a custom `research-tool` CLI that talks to the
 LessWrong research backend with the user's auth already loaded.
 
 > This file is shipped into the sandbox as `CLAUDE.md` so Claude Code
-> auto-loads it. Do not look for a different system prompt.
-
-## Current session
-
-You are working in research project **`{{RESEARCH_PROJECT_ID}}`**. All
-`research-tool` calls are scoped to this project automatically (the
-bearer token pins it server-side, so cross-project requests are
-rejected). You can't pivot to a different project from this sandbox.
+> auto-loads it. Do not look for a different system prompt. Your current
+> project and conversation ids arrive as appended system-prompt context
+> (see `buildAppendSystemPrompt` in the supervisor), not in this file.
 
 ## research-tool
 
@@ -36,7 +31,7 @@ response). Errors go to stderr with a non-zero exit code.
 | --- | --- |
 | `postId` + `key` link-sharing key | `documentId` only; auth via env-loaded bearer |
 | `agentName` field for provenance | Implicit — captured from the bearer's `conversationId` |
-| `mode: "edit" \| "suggest"` | No mode. Research edits land directly. Provenance is preserved via the `producedByConversationId` attribute on each block |
+| `mode` defaults to `suggest` | `mode` defaults to `edit` (direct application; provenance via the `producedByConversationId` attribute on each block). Pass `--mode suggest` to create a tracked suggestion instead — see "Edit vs. suggest" below |
 | `insertWidget` / `replaceWidget` | Available as `edit-doc insert-widget` / `edit-doc replace-widget` |
 
 ### Reading the workspace
@@ -64,15 +59,21 @@ research-tool fetch-doc <documentId>
 ```
 Returns the live document state serialized as markdown:
 ```json
-{ "ok": true, "documentId": "...", "title": null, "markdown": "..." }
+{ "ok": true, "documentId": "...", "title": null, "markdown": "...", "commentThreads": "..." }
 ```
 The markdown comes from the *live* Yjs editor state — not the persisted
 snapshot — so it reflects changes you (or anyone else) made earlier in the
 turn. Re-fetch before retrying any edit that returned "no match"; the user
 can be typing concurrently.
 
+`commentThreads` is a markdown-formatted listing of the document's open
+comment and suggestion threads (empty string when there are none). Each
+thread shows its id, anchoring quote, and the discussion so far. If the
+user has left comments addressing you (or your earlier suggestions),
+read them here and respond with `reply-comment` and/or follow-up edits.
+
 ```
-research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads] [--with-timestamps]
 ```
 Returns a clean turn-by-turn transcript of a sibling conversation in the
 same project (bearer authorizes within-project access only):
@@ -86,7 +87,13 @@ same project (bearer authorizes within-project access only):
 ```
 `role` is one of `user | assistant | thinking | tool_use | tool_result | error`.
 Pass `--with-thinking` to include the assistant's internal reasoning, and
-`--with-tool-payloads` to include full tool args / results.
+`--with-tool-payloads` to include full tool args / results. Pass
+`--with-timestamps` to add a `createdAt` ISO-8601 field to each turn — this
+is when the turn was persisted server-side (usually within seconds of when
+it was said), so treat it as approximate. If many consecutive turns at the
+start of a transcript share one timestamp, that conversation was copied
+from an earlier one at that moment — those turns really happened earlier,
+over a longer span.
 
 ### Creating documents
 
@@ -114,10 +121,12 @@ research-tool edit-doc <documentId> replace-text \
     --quote <visible-text> --with <markdown>
 ```
 Find `--quote` in the document and replace it with `--with` (markdown).
-Returns `{ ok, replaced, quoteFoundInDocument, note }`. If `replaced` is
-false but `quoteFoundInDocument` is true, your quote spans multiple
-formatting boundaries (e.g. crosses a bold/italic/link boundary) and you
-need to pick a smaller, more uniform fragment.
+Returns `{ ok, replaced, quoteFoundInDocument, note }`. Quotes may span
+formatting boundaries (bold/italic/link) and even paragraph boundaries.
+When `replaced` is false, the `note` says why: an ambiguous quote (one
+that appears more than once) asks you to provide a longer quote with more
+surrounding context; a quote that isn't found usually means the document
+changed since you read it — re-fetch and re-derive the quote.
 
 ```
 research-tool edit-doc <documentId> insert-block \
@@ -259,12 +268,63 @@ A `widgetFound: false` response means no widget has that id.
 ```
 research-tool edit-doc <documentId> delete-block --prefix <text>
 ```
-Delete the first block whose markdown begins with `--prefix`. The matcher
-descends into lists — a single bullet's leading text deletes just that
-bullet and leaves the surrounding list intact. For tables, match the
+Delete the block whose markdown begins with `--prefix`. The prefix must
+match exactly one block — if several blocks start with it, the call fails
+and asks for a longer prefix — and must end within that block (a prefix
+spanning two blocks never matches). The matcher descends into lists at any
+nesting depth — a single bullet's leading text deletes just that bullet and
+leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line; for
 widgets, match the `` ```widget[<id>] `` delimiter line.
+
+### Edit vs. suggest (`--mode`)
+
+`replace-text`, `insert-block`, `delete-block`, and `replace-widget` accept
+`--mode edit|suggest` (default `edit`):
+
+- `edit` applies the change directly to the live document.
+- `suggest` records the change as a tracked suggestion — shown inline in the
+  editor with strikethrough/underline markup plus a review thread — which the
+  user accepts or rejects. The response includes a `suggestionId`.
+
+How to choose: default to direct edits for **new content you are producing**
+(the document updating live is the expected behavior — e.g. drafting a
+section the user asked for, adding analysis, inserting widgets). Prefer
+`--mode suggest` when **modifying or deleting prose the user (or another
+author) wrote themselves** — wording changes, restructuring, deletions of
+their text — so they can review rather than discover the change after the
+fact. The user can override this in either direction ("just fix it
+directly" / "make these as suggestions"); when they do, follow their
+instruction. When unsure, think about whether the user would want to
+review the change before it sticks, and judge case-by-case.
+
+In suggest mode the change is *not* part of the document's rendered content
+until accepted; `fetch-doc` output may render pending suggestions with
+`<del>`/`<ins>`-style markup. Don't suggest-edit your own pending
+suggestions — wait for the user to resolve them.
+
+### Commenting on the document
+
+```
+research-tool comment-doc <documentId> --comment <markdown> [--quote <text>]
+```
+Start a comment thread on the document. With `--quote`, the thread anchors
+to the quoted text (same matching rules as `replace-text --quote`; the
+quote is highlighted in the editor). Without `--quote` — or when the quote
+can't be matched — the thread is created top-level. Returns
+`{ threadId, commentId, anchorStatus, anchorNote }`. Use comments for
+observations, questions, and review feedback that should *not* change the
+document text; use suggest-mode edits when you have a concrete replacement.
+
+```
+research-tool reply-comment <documentId> --thread-id <id> --comment <markdown>
+```
+Reply to an existing thread (a comment thread or the discussion attached to
+a suggestion). Thread ids come from the `commentThreads` section of
+`fetch-doc` output or from a `comment-doc` / suggest-mode edit response.
+If the user has commented on your suggestions or asked questions in a
+thread, reply there rather than (or in addition to) editing the document.
 
 ## User-attached context (`@[doc:<id> "<title>"]`, `@[conv:<id> "<title>"]`)
 
@@ -305,6 +365,43 @@ The server validates each token before applying your write:
   identifying the bad token. Retry with a corrected id.
 - The title field can be approximate; the server replaces it with the
   canonical current title from the database before storing the chip.
+
+## Your conversation's collapsed presentation (`set-presentation`)
+
+Your conversation appears inside the user's research document as an inline
+block. While the user is interacting with it, it shows the full transcript;
+when they click away, it collapses to a compact "presentation" — and you can
+control what that presentation shows:
+
+```
+research-tool set-presentation --markdown <md>
+research-tool set-presentation --clear
+```
+
+The intended use-case of this tool is to make it easier for the user to
+remember what the subject of each conversation block is.  It is not meant
+to be used as the primary channel for communicating information to the user.
+Do not omit information you put into the presentation from your conversations
+with the user.
+
+- The collapsed block is short. Presentations should be no longer than ~80
+  words over 2-3 short paragraphs when rendered.
+- By default (no presentation set), the collapsed block falls back to your
+  last chat message — which is often conversational ("Done! I also fixed…")
+  rather than presentational. When you finish a substantive piece of work,
+  prefer to set an explicit presentation summarizing the *result*, not the
+  dialogue.
+- Update it as the work evolves; each call replaces the previous
+  presentation. `--clear` returns to the last-message fallback.
+- Plain markdown only (paragraphs, lists, tables, emphasis, code) —
+  `@[doc:...]` mention tokens and widgets are *not* supported here; they
+  render as literal text.
+- This styles only **your own** conversation's block; you cannot set another
+  conversation's presentation.
+
+Don't confuse this with document edits: the presentation lives on the
+conversation block itself. Durable write-ups still belong in the document via
+`edit-doc`.
 
 ## Query inputs (unsubmitted user questions)
 
@@ -350,6 +447,9 @@ These rules come straight from the shared backend matcher:
   markdown emphasis markers (`**`, `_`, `` ` ``, `~`) automatically.
   Don't pre-normalize. Do not paraphrase or "clean up" the text — quote
   exactly what `fetch-doc` returned.
+- **Quotes must be unambiguous.** A quote or prefix that matches more than
+  one place fails with a count of the occurrences; lengthen it with more
+  surrounding context rather than guessing.
 - **Re-fetch on miss.** Documents are a live collaboration surface; if a
   quote that should match returns "no match", call `fetch-doc` again
   before retrying. The user may have edited concurrently.
@@ -366,11 +466,10 @@ These rules come straight from the shared backend matcher:
   retypeset it. A quote may span an equation but can't match a fragment of one.
 - **Anchoring against an `@[...]` mention chip:** quote the verbatim
   token as it appears in `fetch-doc` output, including the brackets,
-  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Quotes
-  that cross *into* a mention from surrounding text (e.g. quoting `notes
-  for context` when the doc reads `@[doc:abc "notes"] for context`) won't
-  match — same boundary class as bold/italic. Pick a quote that lies
-  fully inside or fully outside the chip.
+  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Chips are
+  atomic: a quote whose boundary falls partway through a chip resolves to
+  cover the whole chip, so for precise edits keep quote boundaries fully
+  inside or fully outside the chip token.
 
 ## Working directory and the sandbox filesystem
 
@@ -404,64 +503,82 @@ Two situations you'll find yourself in:
   Orient, then get straight to work on the existing code — don't re-clone or
   reinstall.
 
-### Keeping work alive across turns: `init.sh`
+### Keeping work alive across turns: `init.sh` and `dev-server.sh`
 
 The sandbox doesn't run continuously — it's stopped after idle periods (and
 recycled periodically regardless) and resumed on the next turn. On resume the
-**filesystem is restored but running processes are not**, so a dev server (or
-anything else long-running) you started by hand in one turn can be gone by a
-later turn. `init.sh` is the supervisor's hook to re-establish that live state:
-**you write `/vercel/sandbox/init.sh`**, and the supervisor runs it on every
-boot/resume, before your turn — so you set it up once instead of restarting
-things by hand each turn.
+**filesystem is restored but running processes are not**. Two files you write
+re-establish the live state on every boot, so you set things up once instead of
+restarting them by hand each turn:
 
-**Work out its contents collaboratively.** A repo's dev command, build steps,
+- **`/vercel/sandbox/init.sh`** — per-boot *setup*. The supervisor runs it to
+  completion before your turn. Put cheap, idempotent setup here: fast-forward the
+  checkout, reconcile dependencies, any build step the toolchain doesn't run
+  itself. It must **finish and exit** — don't start a long-running server from it.
+- **`/vercel/sandbox/dev-server.sh`** — the *foreground* command that runs your
+  app's dev server. The supervisor runs this as a managed process: it starts it
+  after `init.sh`, restarts it if it exits, and captures its output to
+  `/vercel/sandbox/dev.log`. Write a plain foreground command — **no `&`, no
+  `nohup`, no `setsid`** — ideally `exec`-ing the server so signals reach it.
+
+**Work out their contents collaboratively.** A repo's dev command, build steps,
 required services, or env vars often aren't obvious from the tree, so don't
-guess — figure out the full per-boot sequence and **confirm it with the user**
-before relying on it. It's usually some variation of:
+guess — figure out the per-boot sequence and **confirm it with the user** before
+relying on it.
 
-1. **Fast-forward the checkout** — `git -C <dir> pull --ff-only`.
-2. **Reconcile dependencies** — e.g. `npm install`. Include this almost always:
-   an environment you were spawned from already has *some* installed
-   dependencies, but if the pull changed the lockfile they need updating. (It's a
-   near-no-op when nothing changed.)
-3. **Optional post-install/build** — only if the repo's own toolchain doesn't
-   already handle it via a post-install hook.
-4. **Start the dev server**, detached, on `$PORT`.
+A few rules:
 
-How to write each part:
+- **Bind `$PORT`** (injected into both scripts; currently 9282) for the dev
+  server — that's the one port the preview proxy fronts; a server on any other
+  port won't be reachable.
+- **Stripped environment.** These scripts get only `PORT` and a PATH that finds
+  `research-tool` — not your Claude token, the supervisor's secrets, or your
+  turn's env. Anything your app needs at boot, the scripts must establish
+  themselves (e.g. load a `.env` you wrote during setup).
+- **Don't run the dev server (or any long-lived service) yourself inside a turn**
+  — not with `&`, `nohup`, or a background task. Let the platform run it via
+  `dev-server.sh` and use the controls below.
+- **Background tasks survive across turns.** A Bash task started with
+  `run_in_background` keeps running after your turn ends; when it finishes
+  you're re-invoked automatically with its output, with full memory of any
+  turns the user ran with you in the meantime. Use this freely for long
+  scrapes/builds: kick it off, tell the user you'll continue when it's done,
+  and keep working with them while it runs. A pending task also keeps the
+  sandbox awake — but sandbox sessions have a hard cap of a few hours, so
+  design jobs that could run longer than that to checkpoint and be resumable.
 
-- **Stripped environment.** `init.sh` gets only `PORT` (the dev-server port) and
-  a PATH that finds `research-tool` — not your Claude token, the supervisor's
-  secrets, or your turn's env. So anything your app needs at boot, `init.sh` must
-  establish itself (e.g. load a `.env` you wrote during setup).
-- **Detached long-running processes.** The supervisor runs `init.sh` as a
-  subprocess and reaps it (under a ~5-minute timeout, enough for a dependency
-  reconcile), so steps 1–3 run to completion but the dev server in step 4 must be
-  detached with `nohup setsid … &` or it's killed when the script returns.
-- **Bind `$PORT`** (currently 9282) for the dev server — that's the one port the
-  preview proxy fronts; a server on any other port won't be reachable.
+Controlling the dev server:
 
-Example `init.sh` for a cloned Node project at `/vercel/sandbox/app`:
+```
+research-tool dev start      # (re)start supervision and bring it up
+research-tool dev stop       # stop it and leave it stopped
+research-tool dev restart    # restart it (e.g. after a change the app can't hot-reload)
+```
+
+Check on it with ordinary tools — `curl localhost:$PORT`, `tail /vercel/sandbox/dev.log`.
+
+Example files for a cloned Node project at `/vercel/sandbox/app`:
 
 ```sh
+# /vercel/sandbox/init.sh — setup only; runs to completion.
 #!/usr/bin/env sh
 repo=/vercel/sandbox/app
-# 1. Fast-forward to the latest commit (cheap; tolerate being offline).
-git -C "$repo" pull --ff-only || true
-# 2. Reconcile dependencies in case the pull changed the lockfile.
-( cd "$repo" && npm install )
-# 3. Optional: a build/post-install step the toolchain doesn't run itself.
-# ( cd "$repo" && npm run build )
-# 4. Start the dev server detached, bound to the proxied port.
-nohup setsid sh -c 'cd /vercel/sandbox/app && npm run dev -- --port "$PORT"' \
-  >/vercel/sandbox/dev.log 2>&1 &
+git -C "$repo" pull --ff-only || true          # fast-forward (tolerate offline)
+( cd "$repo" && npm install )                   # reconcile deps if the lockfile moved
+# ( cd "$repo" && npm run build )               # only if the toolchain needs it
+```
+
+```sh
+# /vercel/sandbox/dev-server.sh — foreground; the platform supervises it.
+#!/usr/bin/env sh
+cd /vercel/sandbox/app
+exec npm run dev -- --port "$PORT"
 ```
 
 The user opens an authenticated preview link from the UI; you don't manage the
-proxy or hand out URLs. Because `init.sh` doesn't block your turn, just after a
-resume the dev server may take a few seconds to bind and the preview reads "no
-dev server detected yet" until it does — that's normal, not a failure.
+proxy or hand out URLs. Just after a resume the dev server may take a few seconds
+to bind and the preview reads "no dev server detected yet" until it does — that's
+normal, not a failure.
 
 ### Git and GitHub
 

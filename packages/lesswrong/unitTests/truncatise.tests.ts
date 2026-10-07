@@ -27,7 +27,7 @@ describe('truncatise', () => {
         TruncateLength: 3,
         Suffix: "..."
       }),
-      "<p>one <b><a href=\"www.example.com\">two three</a></b>...</p>"
+      '<p data-truncated="true">one <b data-truncated="true"><a data-truncated="true" href="www.example.com">two three</a></b>...</p>'
     );
   });
 });

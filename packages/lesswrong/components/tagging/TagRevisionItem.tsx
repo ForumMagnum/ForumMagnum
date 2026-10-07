@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
-import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { tagHistoryStyles } from './history/TagHistoryPage';
@@ -12,7 +11,6 @@ import TagRevisionItemShortMetadata from "./TagRevisionItemShortMetadata";
 import TagDiscussionButton from "./TagDiscussionButton";
 import ContentStyles from "../common/ContentStyles";
 import ForumIcon from "../common/ForumIcon";
-import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   container: {

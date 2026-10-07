@@ -7,14 +7,14 @@ import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/sugges
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 const WIDGET_SUMMARY_MAX_LENGTH = 300;
 
-function truncateForSummary(value: string): string {
+export function truncateForSummary(value: string): string {
   if (value.length <= WIDGET_SUMMARY_MAX_LENGTH) {
     return value;
   }
@@ -28,6 +28,8 @@ export interface ReplaceWidgetResult {
   suggestionId?: string
   previousContent?: string
   nextContent?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 function findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
@@ -196,8 +198,9 @@ export async function replaceWidgetInMainDoc({
   });
 
   if (mode === "suggest" && result.replaced && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -208,6 +211,10 @@ export async function replaceWidgetInMainDoc({
         replaceWith: truncateForSummary(result.nextContent ?? ""),
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -253,6 +260,8 @@ export async function POST(req: NextRequest) {
       replaced: result.replaced,
       widgetFound: result.widgetFound,
       note: result.note,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed: result.threadCreationFailed ?? false,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

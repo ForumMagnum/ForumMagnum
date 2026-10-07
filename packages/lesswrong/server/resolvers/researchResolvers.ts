@@ -5,21 +5,34 @@ import { DEVAUTH_SCOPE, signSupervisorToken } from "@/server/research/sandbox/su
 import { mintSandboxCallbackToken } from "../../../../app/api/research/agent/researchAgentAuth";
 import {
   devProxyUrlForSandbox,
+  ensureSandboxHomeTraversable,
   getOrCreateSandbox,
   getRunningSandbox,
   sandboxNameForConversation,
+  SandboxWarmingError,
+  SESSION_TIMEOUT_MS,
+  stageClaudeSessionFile,
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
+import { SESSION_FILE_MISSING_REASON } from "@/server/research/sandbox/supervisor/sessionBootstrap";
+import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
+import { readSandboxTextFile } from "@/server/research/sandbox/readSandboxTextFile";
+import { getSandboxResourceStats } from "@/server/research/sandbox/sandboxResourceStats";
+import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
+import {
+  buildBootstrapJsonl,
+  claudeSessionIdForConversation,
+} from "@/server/research/sessionReconstruction";
 import {
   buildSystemReminderWrap,
   deriveLastInjectedActiveDocumentId,
 } from "@/server/research/systemReminder";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
 import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
 import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironment";
 import { randomId } from "@/lib/random";
@@ -67,6 +80,18 @@ function signSupervisorBearer(target: SupervisorTarget): string {
 }
 
 /**
+ * Thrown when the supervisor rejects a dispatch because the session has
+ * history but its file is not on the sandbox's disk. The dispatch path
+ * reacts by staging a reconstruction and retrying.
+ */
+class SessionFileMissingError extends Error {
+  constructor() {
+    super("supervisor /dispatch rejected: session file missing");
+    this.name = "SessionFileMissingError";
+  }
+}
+
+/**
  * POSTs to the supervisor's /dispatch endpoint with a fresh signed bearer.
  *
  * The supervisor accepts the turn and starts Claude Code asynchronously,
@@ -81,8 +106,8 @@ async function dispatchTurnViaSupervisor(args: {
   projectId: string;
   userId: string;
   prompt: string;
-  claudeSessionId?: string;
-  bootstrapJsonl?: string[];
+  claudeSessionId: string;
+  sessionHasHistory: boolean;
 }): Promise<void> {
   const { provisioned } = args;
   const bearer = signSupervisorBearer(provisioned);
@@ -106,7 +131,7 @@ async function dispatchTurnViaSupervisor(args: {
       conversationId: args.conversationId,
       prompt: args.prompt,
       claudeSessionId: args.claudeSessionId,
-      bootstrapJsonl: args.bootstrapJsonl,
+      sessionHasHistory: args.sessionHasHistory,
       agentBackendToken,
     }),
   });
@@ -118,6 +143,9 @@ async function dispatchTurnViaSupervisor(args: {
   console.error(
     `[research] supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""} ${text}`,
   );
+  if (response.status === 409 && text.includes(SESSION_FILE_MISSING_REASON)) {
+    throw new SessionFileMissingError();
+  }
   throw new Error(
     `supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""}`,
   );
@@ -135,6 +163,26 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
   }
 }
 
+async function answerQuestionViaSupervisor(
+  target: SupervisorTarget,
+  toolUseId: string,
+  answers: Record<string, string>,
+): Promise<{ ok: boolean; expired: boolean }> {
+  const bearer = signSupervisorBearer(target);
+  const response = await fetch(
+    `${target.supervisorUrl}/answer/${encodeURIComponent(target.conversationId)}`,
+    {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${bearer}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ toolUseId, answers }),
+    },
+  );
+  if (response.ok) return { ok: true, expired: false };
+  if (response.status === 409) return { ok: false, expired: true };
+  const text = await response.text().catch(() => "");
+  throw new Error(`supervisor /answer failed: ${response.status} ${text}`);
+}
+
 /**
  * Build the user-turn text to persist + dispatch. On the first turn, or
  * whenever the user's currently-focused document differs from the one named
@@ -144,13 +192,23 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
 async function prepareTurnPrompt(args: {
   rawPrompt: string;
   projectId: string;
+  conversationId: string;
   activeDocumentId: string;
   entrypointKind: string;
   entrypointDocumentId: string;
   priorEvents: DbResearchConversationEvent[];
   context: ResolverContext;
 }): Promise<string> {
-  const { rawPrompt, projectId, activeDocumentId, entrypointKind, entrypointDocumentId, priorEvents, context } = args;
+  const {
+    rawPrompt,
+    projectId,
+    conversationId,
+    activeDocumentId,
+    entrypointKind,
+    entrypointDocumentId,
+    priorEvents,
+    context,
+  } = args;
 
   const lastInjected = deriveLastInjectedActiveDocumentId(priorEvents);
   if (lastInjected === activeDocumentId) return rawPrompt;
@@ -167,6 +225,7 @@ async function prepareTurnPrompt(args: {
   return buildSystemReminderWrap(
     {
       activeDocument: { id: activeDoc._id, title: activeDoc.title ?? "(untitled)" },
+      conversationId,
       originDocument: originDoc
         ? { id: originDoc._id, title: originDoc.title ?? "(untitled)" }
         : undefined,
@@ -174,7 +233,6 @@ async function prepareTurnPrompt(args: {
     rawPrompt,
   );
 }
-
 
 export const researchResolversTypeDefs = gql`
   enum ResearchEntrypointKind {
@@ -217,17 +275,111 @@ export const researchResolversTypeDefs = gql`
     data: ResearchEnvironment
   }
 
+  type EnsureResearchScratchDocumentOutput {
+    documentId: String!
+  }
+
+  type ReorderResearchDocumentsOutput {
+    success: Boolean!
+  }
+
+  type RestartResearchSandboxOutput {
+    running: Boolean!
+  }
+
+  type MarkResearchConversationReadOutput {
+    ok: Boolean!
+  }
+
+  type AnswerResearchQuestionOutput {
+    ok: Boolean!
+    # True when no matching pending question was found (sandbox restarted, or
+    # already answered) — the client should stop showing the prompt as actionable.
+    expired: Boolean!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+    # Resolve a pending AskUserQuestion. answersJson is a JSON object mapping each
+    # question's text to the chosen answer string (multi-select comma-joined).
+    answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
     setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+    ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+    reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+    # Stamp the conversation read (clears the sidebar's unread indicator).
+    # Takes no timestamp: the server clock is authoritative, so a skewed
+    # client clock can't produce a stamp that trails lastActivityAt.
+    markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
+    # Resume a stopped sandbox without dispatching a turn or minting a preview
+    # URL. Rejects with SANDBOX_WARMING while the resume is in flight.
+    restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
+  }
+
+  # Lightweight per-conversation status for the sidebar's activity/unread
+  # indicators — polled, so it carries only what the indicators need.
+  type ResearchConversationSidebarStatus {
+    conversationId: String!
+    turnActive: Boolean!
+    lastActivityAt: Date
+    lastReadAt: Date
+  }
+
+  type ResearchSandboxDirEntry {
+    name: String!
+    # "directory" | "file" | "symlink" | "other"
+    kind: String!
+    size: Float
+  }
+
+  type ResearchSandboxDirListing {
+    # Absolute path that was listed (the workspace-relative root is "").
+    path: String!
+    # Null when the sandbox isn't currently running (it only lives around a
+    # turn); the client shows a "start a turn to browse files" empty state.
+    running: Boolean!
+    entries: [ResearchSandboxDirEntry!]!
+  }
+
+  type ResearchSandboxFileContents {
+    path: String!
+    # False when the sandbox isn't running (viewer shows an empty state).
+    running: Boolean!
+    content: String!
+    # content is only the leading bytes of a larger file.
+    truncated: Boolean!
+    # The file looks binary; content is empty and the viewer says so.
+    binary: Boolean!
+    # Full on-disk byte size.
+    size: Float!
+  }
+
+  type ResearchSandboxStats {
+    # False when the sandbox isn't running (the footer hides its meters).
+    running: Boolean!
+    # 0–100, or null if unreadable. Bytes for the memory/disk pairs.
+    cpuPct: Float
+    memUsed: Float
+    memTotal: Float
+    diskUsed: Float
+    diskTotal: Float
+    # When not running: last activity + the idle session timeout — the moment
+    # the sandbox actually stopped (stop time isn't tracked directly), clamped
+    # to now. Null while running.
+    hibernatingSince: Date
   }
 
   extend type Query {
-    researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
+    researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+    researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+    researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+    researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+    researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+    # Cheap liveness check (no resume side effects, unlike mintDevPreviewUrl).
+    researchSandboxRunning(conversationId: String!): Boolean!
   }
 `;
 
@@ -263,12 +415,26 @@ export const researchResolversMutations = {
     let environment: DbResearchEnvironment | null = null;
     if (baseEnvironmentId) {
       environment = await context.ResearchEnvironments.findOne({ _id: baseEnvironmentId });
-      if (!environment || environment.userId !== currentUser._id || environment.projectId !== projectId) {
+      if (!environment || environment.projectId !== projectId) {
         throw new Error(`Environment ${baseEnvironmentId} not found`);
       }
     }
 
     const _id = conversationId;
+
+    // An environment fork reuses the source conversation's session id when it
+    // can be recovered: the env snapshot's disk carries the source session
+    // file, so `--resume` under that id restores the branch history at full
+    // fidelity. (The id lives in the event payload's `session_id`, not the
+    // source conversation's `claudeSessionId` field — that field may lag.)
+    // Everything else — including a fork whose source id can't be recovered —
+    // gets the conversation's own deterministic session id.
+    const sourceEvent = environment?.sourceEventId
+      ? await context.ResearchConversationEvents.findOne({ _id: environment.sourceEventId })
+      : null;
+    const sourceSessionId = sourceEvent ? sessionIdFromPayload(sourceEvent.payload) : null;
+    const claudeSessionId = sourceSessionId ?? claudeSessionIdForConversation(_id);
+
     const now = new Date();
     try {
       await ResearchConversations.rawInsert({
@@ -280,8 +446,12 @@ export const researchResolversMutations = {
         baseEnvironmentId,
         runtime,
         title: null,
-        claudeSessionId: null,
+        icon: null,
+        claudeSessionId,
+        presentationHtml: null,
+        archived: false,
         lastActivityAt: now,
+        lastReadAt: now,
         createdAt: now,
       });
     } catch (err) {
@@ -291,33 +461,29 @@ export const researchResolversMutations = {
       throw err;
     }
 
-    let firstTurnSessionOnDisk: { claudeSessionId: string } | undefined;
-    if (environment?.sourceEventId) {
-      const sourceEvent = await context.ResearchConversationEvents.findOne({
-        _id: environment.sourceEventId,
+    let bootstrapEvents: DbResearchConversationEvent[] | undefined;
+    if (sourceEvent) {
+      await context.repos.researchConversationEvents.backfillFromBranch({
+        sourceConversationId: sourceEvent.conversationId,
+        targetConversationId: _id,
+        targetUserId: currentUser._id,
+        targetProjectId: projectId,
+        branchSeq: sourceEvent.seq,
       });
-      if (sourceEvent) {
-        await context.repos.researchConversationEvents.backfillFromBranch({
-          sourceConversationId: sourceEvent.conversationId,
-          targetConversationId: _id,
-          targetUserId: currentUser._id,
-          targetProjectId: projectId,
-          branchSeq: sourceEvent.seq,
-        });
-        // The session id lives in the event payload (`session_id`), not the
-        // source conversation's `claudeSessionId` field — that field is captured
-        // async and may be stale if the env was saved right after a result.
-        const sessionId = sessionIdFromPayload(sourceEvent.payload);
-        if (sessionId) {
-          await ResearchConversations.rawUpdateOne({ _id }, { $set: { claudeSessionId: sessionId } });
-          firstTurnSessionOnDisk = { claudeSessionId: sessionId };
-        }
+      if (!sourceSessionId) {
+        // No session file to resume on the snapshot — synthesize one from the
+        // backfilled branch events so the fork still starts with its history.
+        bootstrapEvents = await context.ResearchConversationEvents.find(
+          { conversationId: _id },
+          { sort: { seq: 1 } },
+        ).fetch();
       }
     }
 
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
       projectId,
+      conversationId,
       activeDocumentId,
       entrypointKind: kind,
       entrypointDocumentId: activeDocumentId,
@@ -325,20 +491,26 @@ export const researchResolversMutations = {
       context,
     });
 
-    // The supervisor is the single writer of events: with
-    // `--replay-user-messages`, Claude re-emits the user turn on its output
-    // stream and the supervisor ships it through the durable queue, so the
-    // backend does not persist the user turn itself. A pre-Claude failure
-    // (provisioning/launch) therefore leaves a conversation row with no user
-    // event — acceptable only because the client keeps the prompt and re-sends
-    // (it rethrows on dispatch failure).
+    // The supervisor is the single writer of events: it records the user turn
+    // itself at dispatch time (from the prompt) and ships it through the durable
+    // queue, so the backend does not persist the user turn directly. A pre-launch
+    // failure (provisioning/launch, before the supervisor accepts the dispatch)
+    // therefore leaves a conversation row with no user event — acceptable only
+    // because the client keeps the prompt and re-sends (it rethrows on dispatch
+    // failure).
     await dispatchToSandbox({
       context,
       conversationId: _id,
       projectId,
       userId: currentUser._id,
       prompt: turnPrompt,
-      sessionOnDisk: firstTurnSessionOnDisk,
+      claudeSessionId,
+      // A fork that recovered its source session resumes the session file on
+      // the env snapshot; everything else is a brand-new session (a fork
+      // without a recoverable source id resumes via the synthesized bootstrap
+      // instead, which dispatchToSandbox writes and accounts for).
+      sessionHasHistory: !!sourceSessionId,
+      bootstrapEvents,
     });
 
     backgroundTask((async () => {
@@ -362,9 +534,8 @@ export const researchResolversMutations = {
     if (!prompt) throw new Error("prompt required");
 
     // Fetch history once: used for both the Claude `--resume` bootstrap
-    // (when a session id exists) and the system-reminder cadence check.
-    // Read before appending the new user turn so both consumers see
-    // history-up-to-now.
+    // and the system-reminder cadence check. Read before appending the new
+    // user turn so both consumers see history-up-to-now.
     const priorEvents = await context.ResearchConversationEvents.find(
       { conversationId: conv._id },
       { sort: { seq: 1 } },
@@ -373,6 +544,7 @@ export const researchResolversMutations = {
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
       projectId: conv.projectId,
+      conversationId: conv._id,
       activeDocumentId: args.activeDocumentId,
       entrypointKind: conv.entrypointKind,
       entrypointDocumentId: conv.entrypointDocumentId,
@@ -380,7 +552,14 @@ export const researchResolversMutations = {
       context,
     });
 
-    await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
+    // Legacy conversations (created before deterministic session ids) whose
+    // first-event capture never landed get a derived id now, persisted so
+    // later turns agree on it. Their derived id has no session file anywhere,
+    // so the bootstrap must run even on a warm sandbox.
+    const claudeSessionId = conv.claudeSessionId ?? claudeSessionIdForConversation(conv._id);
+    if (!conv.claudeSessionId) {
+      await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { claudeSessionId } });
+    }
 
     await dispatchToSandbox({
       context,
@@ -388,10 +567,25 @@ export const researchResolversMutations = {
       projectId: conv.projectId,
       userId: conv.userId,
       prompt: turnPrompt,
-      resumeContext: conv.claudeSessionId
-        ? { claudeSessionId: conv.claudeSessionId, priorEvents }
-        : undefined,
+      claudeSessionId,
+      // "THIS session has run before" = some persisted event carries this
+      // exact session id (claude-emitted; supervisor-synthesized events have
+      // none). Matching the dispatched id — not just any session_id — matters
+      // for forks: their backfilled branch events carry the SOURCE
+      // conversation's session id, which must not make a fork whose own
+      // session never started claim history (--resume of a nonexistent
+      // session hard-fails). A conversation whose first turn never reached
+      // claude, or whose legacy id was just derived, correctly reads false —
+      // the shipped bootstrap is what makes those resumable.
+      sessionHasHistory: priorEvents.some(
+        (e) => sessionIdFromPayload(e.payload) === claudeSessionId,
+      ),
+      bootstrapEvents: priorEvents,
+      bootstrapEvenIfWarm: !conv.claudeSessionId,
     });
+
+    // Only after a successful dispatch, so a failed turn leaves no advanced timestamp.
+    await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
 
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
@@ -419,6 +613,45 @@ export const researchResolversMutations = {
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
 
+  async answerResearchConversationQuestion(
+    _root: void,
+    args: { conversationId: string; toolUseId: string; answersJson: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+
+    let answers: Record<string, string>;
+    try {
+      const parsed: unknown = JSON.parse(args.answersJson);
+      if (!isPlainRecord(parsed) || !Object.values(parsed).every((v) => typeof v === "string")) {
+        throw new Error("answersJson must be a JSON object of string values");
+      }
+      answers = parsed as Record<string, string>;
+    } catch (err) {
+      throw new Error(`Invalid answersJson: ${(err as Error).message}`);
+    }
+
+    const [sandbox, row] = await Promise.all([
+      getRunningSandbox(conv._id),
+      context.ResearchSandboxSessions.findOne({ conversationId: conv._id }),
+    ]);
+    if (!sandbox || !row) {
+      return { ok: false, expired: true };
+    }
+
+    const result = await answerQuestionViaSupervisor(
+      {
+        conversationId: conv._id,
+        sandboxName: sandboxNameForConversation(conv._id),
+        supervisorUrl: supervisorUrlForSandbox(sandbox),
+        supervisorSecret: row.supervisorSecret,
+      },
+      args.toolUseId,
+      answers,
+    );
+    return { ok: result.ok, expired: result.expired };
+  },
+
   /**
    * Mint a fresh, per-session dev-server preview URL for a coding conversation.
    * Resumes the sandbox if stopped (the relaunched supervisor restarts the dev
@@ -426,7 +659,7 @@ export const researchResolversMutations = {
    */
   async mintDevPreviewUrl(_root: void, args: { conversationId: string }, context: ResolverContext) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
-    const provisioned = await getOrCreateSandbox(conv._id, context);
+    const provisioned = await provisionSandboxOrWarming(conv._id, context);
     if (!provisioned.devProxySecret) {
       throw new Error("The sandbox was provisioned without a dev proxy secret.");
     }
@@ -440,6 +673,26 @@ export const researchResolversMutations = {
     );
     const url = `${devProxyUrlForSandbox(provisioned.sandbox)}/_devauth/${encodeURIComponent(token)}`;
     return { url };
+  },
+
+  async restartResearchSandbox(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    await provisionSandboxOrWarming(conv._id, context);
+    return { running: true };
+  },
+
+  async markResearchConversationRead(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    // Owner-only: the unread indicator is the owner's read state; another
+    // admin opening the conversation must not clear it for them.
+    if (conv.userId !== context.currentUser?._id) {
+      throw new Error("Only the conversation's owner can mark it read");
+    }
+    await context.ResearchConversations.rawUpdateOne(
+      { _id: conv._id },
+      { $set: { lastReadAt: new Date() } },
+    );
+    return { ok: true };
   },
 
   async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
@@ -482,6 +735,7 @@ export const researchResolversMutations = {
         label: built.label,
         vercelSnapshotId: built.vercelSnapshotId,
         sourceEventId: built.sourceEventId,
+        archived: false,
         createdAt: new Date(),
       });
     } catch (err) {
@@ -495,7 +749,52 @@ export const researchResolversMutations = {
     const filtered = await accessFilterSingle(context.currentUser, "ResearchEnvironments", created, context);
     return { data: filtered };
   },
+
+  async ensureResearchScratchDocument(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchProjects, ResearchDocuments } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const project = await ResearchProjects.findOne({ _id: args.projectId });
+    if (!project) throw new Error("Project not found");
+
+    const settings = isPlainRecord(project.settings) ? project.settings : {};
+    const existingId = typeof settings.scratchDocumentId === "string" ? settings.scratchDocumentId : null;
+    if (existingId) {
+      const existing = await ResearchDocuments.findOne({ _id: existingId, projectId: project._id });
+      if (existing) return { documentId: existing._id };
+    }
+
+    const created = await createResearchDocument(
+      { data: { projectId: project._id, title: SCRATCH_DOCUMENT_TITLE } },
+      context,
+    );
+    await ResearchProjects.rawUpdateOne(
+      { _id: project._id },
+      { $set: { settings: { ...settings, scratchDocumentId: created._id } } },
+    );
+    return { documentId: created._id };
+  },
+
+  async reorderResearchDocuments(
+    _root: void,
+    args: { projectId: string; orderedIds: string[] },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    await context.repos.researchDocuments.reorderDocuments(
+      args.projectId,
+      currentUser._id,
+      args.orderedIds,
+    );
+    return { success: true };
+  },
 };
+
+const SCRATCH_DOCUMENT_TITLE = "Scratch";
 
 function sessionIdFromPayload(payload: unknown): string | null {
   if (!isPlainRecord(payload)) return null;
@@ -503,10 +802,46 @@ function sessionIdFromPayload(payload: unknown): string | null {
 }
 
 /**
+ * Provision (or resume) a conversation's sandbox, translating a transient
+ * "supervisor not ready yet" into a retryable `SANDBOX_WARMING` GraphQL error
+ * the client surfaces softly (and which is kept out of Sentry). Used by every
+ * resolver that brings a sandbox up.
+ */
+async function provisionSandboxOrWarming(
+  conversationId: string,
+  context: ResolverContext,
+): Promise<ProvisionedSandbox> {
+  try {
+    return await getOrCreateSandbox(conversationId, context);
+  } catch (err) {
+    if (err instanceof SandboxWarmingError) {
+      throw new GraphQLError(
+        "The sandbox is still starting up. Please try again in a moment.",
+        { extensions: { code: "SANDBOX_WARMING", noSentryCapture: true } },
+      );
+    }
+    throw err;
+  }
+}
+
+/**
  * Provision (or resume) the conversation's persistent sandbox and dispatch one
- * turn to its supervisor. `resumeContext` is supplied when continuing an
- * existing conversation; it lets a rebuilt sandbox have its Claude session
- * reconstructed.
+ * turn to its supervisor.
+ *
+ * `bootstrapEvents` is the conversation's persisted history, from which the
+ * Claude session file can be reconstructed when it isn't on the sandbox's
+ * disk. The reconstruction is staged through the sandbox filesystem API —
+ * never the dispatch body, which is capped far below a long conversation's
+ * JSONL size — and the supervisor installs it at spawn time under its
+ * per-conversation lock. Staging happens in two cases:
+ *  - proactively, when this call freshly built the sandbox (a rebuild after an
+ *    expired snapshot, or a fork whose source session couldn't be recovered),
+ *    or when `bootstrapEvenIfWarm` says the session id was just derived and so
+ *    can't have a file anywhere;
+ *  - reactively, when the supervisor rejects the dispatch because a session
+ *    with history has no file on disk (the sandbox was rebuilt by a caller
+ *    that stages no bootstrap). Events are fetched here if the caller didn't
+ *    supply them, and the dispatch is retried once.
  */
 async function dispatchToSandbox(args: {
   context: ResolverContext;
@@ -514,62 +849,169 @@ async function dispatchToSandbox(args: {
   projectId: string;
   userId: string;
   prompt: string;
-  resumeContext?: { claudeSessionId: string; priorEvents: DbResearchConversationEvent[] };
-  sessionOnDisk?: { claudeSessionId: string };
+  claudeSessionId: string;
+  /**
+   * Whether a Claude session for this conversation has ever actually run —
+   * forwarded to the supervisor, which uses it to pick `--resume` vs
+   * `--session-id`.
+   */
+  sessionHasHistory: boolean;
+  bootstrapEvents?: DbResearchConversationEvent[];
+  bootstrapEvenIfWarm?: boolean;
 }): Promise<void> {
-  const provisioned = await getOrCreateSandbox(args.conversationId, args.context);
+  const provisioned = await provisionSandboxOrWarming(args.conversationId, args.context);
 
-  if (args.sessionOnDisk && provisioned.isFirstProvision) {
-    await dispatchTurnViaSupervisor({
-      provisioned,
-      conversationId: args.conversationId,
-      projectId: args.projectId,
-      userId: args.userId,
-      prompt: args.prompt,
-      claudeSessionId: args.sessionOnDisk.claudeSessionId,
-      bootstrapJsonl: undefined,
-    });
-    return;
+  const shipBootstrap = provisioned.wasFreshlyCreated || args.bootstrapEvenIfWarm;
+  let stagedBootstrap = false;
+  if (shipBootstrap && args.bootstrapEvents?.length) {
+    const lines = buildBootstrapJsonl(args.bootstrapEvents, args.claudeSessionId);
+    if (lines.length > 0) {
+      await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+      stagedBootstrap = true;
+    }
   }
 
-  // Reconstruct the Claude session only when the sandbox was freshly built (a
-  // rebuild after an expired snapshot). A warm resume still has the session
-  // file on disk, so `claude --resume` reads it directly.
-  let bootstrapJsonl: string[] | undefined;
-  if (provisioned.wasFreshlyCreated && args.resumeContext) {
-    bootstrapJsonl = buildBootstrapJsonl(
-      args.resumeContext.priorEvents,
-      args.resumeContext.claudeSessionId,
-    );
-  }
-
-  await dispatchTurnViaSupervisor({
+  const dispatchArgs = {
     provisioned,
     conversationId: args.conversationId,
     projectId: args.projectId,
     userId: args.userId,
     prompt: args.prompt,
-    claudeSessionId: args.resumeContext?.claudeSessionId,
-    bootstrapJsonl,
-  });
+    claudeSessionId: args.claudeSessionId,
+    sessionHasHistory: args.sessionHasHistory || stagedBootstrap,
+  };
+
+  try {
+    await dispatchTurnViaSupervisor(dispatchArgs);
+  } catch (err) {
+    if (!(err instanceof SessionFileMissingError)) throw err;
+    // A running pre-fix supervisor can misreport EACCES under the legacy /root
+    // home as a missing session. Repair permissions only on this recovery path
+    // (never on every warm dispatch), then stage history if available and retry.
+    await ensureSandboxHomeTraversable(provisioned.sandbox);
+    const events = args.bootstrapEvents?.length
+      ? args.bootstrapEvents
+      : await args.context.ResearchConversationEvents.find(
+          { conversationId: args.conversationId },
+          { sort: { seq: 1 } },
+        ).fetch();
+    const lines = buildBootstrapJsonl(events, args.claudeSessionId);
+    if (lines.length > 0) {
+      await stageClaudeSessionFile(provisioned.sandbox, args.claudeSessionId, lines);
+    }
+    await dispatchTurnViaSupervisor(dispatchArgs);
+  }
 }
 
 export const researchResolversQueries = {
   async researchConversationTranscript(
     _root: void,
-    args: { conversationId: string; since?: number | null; limit?: number | null },
+    args: { conversationId: string; before?: number | null; limit?: number | null },
     context: ResolverContext,
   ) {
     await loadConversationOrThrow(args.conversationId, context);
     const { ResearchConversationEvents } = context;
+    // Page backward from the end (or from `before`, exclusive) so opening a long
+    // conversation loads only its most recent window; older history is paged in
+    // on scroll-up with successively smaller `before` cursors. We fetch
+    // newest-first to apply the limit to the tail, then return ascending for
+    // display.
     const selector = {
       conversationId: args.conversationId,
-      ...(args.since ? { seq: { $gt: args.since } } : {}),
+      ...(args.before != null ? { seq: { $lt: args.before } } : {}),
     };
     const events = await ResearchConversationEvents.find(
       selector,
-      { sort: { seq: 1 }, limit: args.limit ?? 5000 },
+      { sort: { seq: -1 }, limit: args.limit ?? 200 },
     ).fetch();
-    return events;
+    return events.reverse();
+  },
+
+  async researchConversationSidebarStatuses(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchConversations } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const conversations = await ResearchConversations.find(
+      { projectId: args.projectId, userId: currentUser._id },
+      { limit: 500 },
+      { _id: 1, lastActivityAt: 1, lastReadAt: 1 },
+    ).fetch();
+    const activeIds = new Set(
+      await context.repos.researchConversationEvents.conversationsWithIncompleteTurns(
+        conversations.map((c) => c._id),
+      ),
+    );
+    return conversations.map((c) => ({
+      conversationId: c._id,
+      turnActive: activeIds.has(c._id),
+      lastActivityAt: c.lastActivityAt,
+      lastReadAt: c.lastReadAt ?? null,
+    }));
+  },
+
+  async researchSandboxDirectory(
+    _root: void,
+    args: { conversationId: string; path?: string | null },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { path: args.path ?? SANDBOX_DEFAULT_DIR, running: false, entries: [] };
+    }
+    const path = args.path?.trim() || SANDBOX_DEFAULT_DIR;
+    const entries = await listSandboxDirectory(sandbox, path);
+    return { path, running: true, entries };
+  },
+
+  async researchSandboxFile(
+    _root: void,
+    args: { conversationId: string; path: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { path: args.path, running: false, content: "", truncated: false, binary: false, size: 0 };
+    }
+    const file = await readSandboxTextFile(sandbox, args.path);
+    return { path: args.path, running: true, ...file };
+  },
+
+  async researchSandboxStats(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      const hibernatingSince = conv.lastActivityAt
+        ? new Date(Math.min(conv.lastActivityAt.getTime() + SESSION_TIMEOUT_MS, Date.now()))
+        : null;
+      return {
+        running: false,
+        cpuPct: null,
+        memUsed: null,
+        memTotal: null,
+        diskUsed: null,
+        diskTotal: null,
+        hibernatingSince,
+      };
+    }
+    const stats = await getSandboxResourceStats(sandbox);
+    return { running: true, ...stats, hibernatingSince: null };
+  },
+
+  async researchSandboxRunning(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    return (await getRunningSandbox(conv._id)) !== null;
   },
 };

@@ -1,4 +1,4 @@
-import { isAF, isLW } from '../../instanceSettings';
+import type { ApolloClient } from '@apollo/client';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
@@ -13,8 +13,8 @@ declare global {
 }
 
 // will be common to all other view unless specific properties are overwritten
-function defaultView(terms: ConversationsViewTerms) {
-  const alignmentForum = isAF() ? {af: true} : {}
+function defaultView(terms: ConversationsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum
@@ -34,9 +34,9 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 }
 
 // notifications for a specific user (what you see in the notifications menu)
-function userConversations(terms: ConversationsViewTerms) {
+function userConversations(terms: ConversationsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
-  const moderatorSelector = isLW() ? {moderator: {$ne: true}} : {}
+  const moderatorSelector = context.forumType === 'LessWrong' ? {moderator: {$ne: true}} : {}
   return {
     selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter, ...moderatorSelector},
     options: {sort: {latestActivity: -1}}

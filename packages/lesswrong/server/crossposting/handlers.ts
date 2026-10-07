@@ -1,7 +1,8 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { ZodType, z } from "zod";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { assertCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import {
   ApiError,
   InvalidPostError,
@@ -48,7 +49,7 @@ const onNextRequestError = (
   });
 
   const res = NextResponse.json({ error: message, errorCode }, { status });
-  setCorsHeaders(res);
+  setCorsHeaders(res, getForumTypeForRequest(req));
   
   return res;
 };
@@ -92,7 +93,7 @@ const getNextHandler = <
     }
 
     const res = NextResponse.json(parsedResponse.data, { status: 200 });
-    setCorsHeaders(res);
+    setCorsHeaders(res, getForumTypeForRequest(req));
     
     return res;
   };
@@ -139,7 +140,7 @@ export const crosspostDetailsCrosspostHandler = getNextHandler(
       throw new InvalidPostError();
     }
     return {
-      canonicalLink: postGetPageUrl(post as DbPost, true),
+      canonicalLink: postGetAbsolutePageUrl(post as DbPost, context.forumType),
       commentCount: Math.max(post.commentCount ?? 0, 0),
     };
   },
@@ -147,11 +148,11 @@ export const crosspostDetailsCrosspostHandler = getNextHandler(
 
 export const generateTokenCrosspostHandler = getNextHandler(
   generateTokenRoute,
-  async function generateTokenCrosspostHandler({currentUser}, _payload) {
+  async function generateTokenCrosspostHandler({currentUser, forumType}, _payload) {
     if (!currentUser) {
       throw new UnauthorizedError();
     }
-    assertCrosspostingKarmaThreshold(currentUser);
+    assertCrosspostingKarmaThreshold(currentUser, forumType);
     const token = await connectCrossposterToken.create({
       userId: currentUser._id,
     });

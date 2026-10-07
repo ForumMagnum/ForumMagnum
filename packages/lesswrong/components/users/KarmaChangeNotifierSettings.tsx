@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
@@ -9,7 +11,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import { MenuItem } from "../common/Menus";
@@ -71,7 +73,7 @@ type KarmaNotificationTimingStrings = {
 };
 
 
-export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotificationTimingStrings> {
+export function getKarmaNotificationTimingChoices(forumType: ForumTypeString): Record<string, KarmaNotificationTimingStrings> {
   const choices = {
     disabled: {
       label: "Disabled",
@@ -95,7 +97,7 @@ export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotific
     },
   };
 
-  const defaultValue = (karmaChangeNotifierDefaultSettings.get()).updateFrequency;
+  const defaultValue = (karmaChangeNotifierDefaultSettings.get(forumType)).updateFrequency;
   choices[defaultValue].label += " (default)"
 
   return choices;
@@ -110,8 +112,9 @@ const getBatchingTimeLocalTZ = (settings: KarmaChangeSettingsType, timezone: any
 const KarmaChangeNotifierSettings = ({
   field,
 }: {
-  field: TypedFieldApi<KarmaChangeSettingsType>;
+  field: FieldValueBinding<KarmaChangeSettingsType>;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const settings = field.state.value;
@@ -198,7 +201,7 @@ const KarmaChangeNotifierSettings = ({
       creating a distracting temptation to frequently recheck it.
     </div>
     <div className={classes.radioGroup}>
-      {Object.entries(getKarmaNotificationTimingChoices()).map(([key, timingChoice]) =>
+      {Object.entries(getKarmaNotificationTimingChoices(forumType)).map(([key, timingChoice]) =>
         <FormControlLabel
           key={key}
           control={

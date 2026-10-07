@@ -42,10 +42,14 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
+  pangramApiVersion: string | null
+  pangramFractionAi: number | null
+  pangramFractionAiAssisted: number | null
+  pangramFractionHuman: number | null
   pangramMaxScore: number | null
   pangramPrediction: "AI" | "Human" | "Mixed" | null
   pangramScore: number | null
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null
@@ -691,7 +695,7 @@ interface DbModeratorAction extends DbObject {
   createdAt: Date
   endedAt: Date | null
   legacyData: any | null
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled" | "autoPurgedProfileSpam"
   userId: string
 }
 
@@ -1166,12 +1170,16 @@ type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
 
 interface DbResearchConversation extends DbObject {
   __collectionName?: "ResearchConversations"
+  archived: boolean
   baseEnvironmentId: string | null
   claudeSessionId: string | null
   createdAt: Date
   entrypointDocumentId: string
   entrypointKind: string
+  icon: string | null
   lastActivityAt: Date
+  lastReadAt: Date | null
+  presentationHtml: string | null
   projectId: string
   runtime: string | null
   title: string | null
@@ -1182,9 +1190,12 @@ type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
 
 interface DbResearchDocument extends DbObject {
   __collectionName?: "ResearchDocuments"
+  archived: boolean
   contents_latest: string | null
   createdAt: Date
+  icon: string | null
   projectId: string
+  sortOrder: number | null
   title: string | null
   userId: string
 }
@@ -1193,6 +1204,7 @@ type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
 
 interface DbResearchEnvironment extends DbObject {
   __collectionName?: "ResearchEnvironments"
+  archived: boolean
   createdAt: Date
   label: string
   projectId: string
@@ -1303,6 +1315,16 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
+}
+
+type SandboxBaselineSnapshotsCollection = PgCollection<"SandboxBaselineSnapshots">;
+
+interface DbSandboxBaselineSnapshot extends DbObject {
+  __collectionName?: "SandboxBaselineSnapshots"
+  builtAt: Date
+  createdAt: Date
+  runtime: string
+  vercelSnapshotId: string
 }
 
 type SequencesCollection = PgCollection<"Sequences">;
@@ -1655,7 +1677,6 @@ interface DbUser extends DbObject {
   allPostsShowLowKarma: boolean | null
   allPostsSorting: string | null
   allPostsTimeframe: string | null
-  allowDatadogSessionReplay: boolean
   autoSubscribeAsOrganizer: boolean
   auto_subscribe_to_my_comments: boolean
   auto_subscribe_to_my_posts: boolean
@@ -2246,6 +2267,7 @@ interface DbUser extends DbObject {
   }
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
+  ultraFeedSettings: any | null
   unsubscribeFromAll: boolean | null
   username: string | null
   usernameUnset: boolean
@@ -2367,6 +2389,7 @@ interface CollectionsByName {
   ReviewWinners: ReviewWinnersCollection
   RevisionOriginalContents: RevisionOriginalContentsCollection
   Revisions: RevisionsCollection
+  SandboxBaselineSnapshots: SandboxBaselineSnapshotsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
   SideCommentCaches: SideCommentCachesCollection
@@ -2463,6 +2486,7 @@ interface ObjectsByCollectionName {
   ReviewWinners: DbReviewWinner
   RevisionOriginalContents: DbRevisionOriginalContent
   Revisions: DbRevision
+  SandboxBaselineSnapshots: DbSandboxBaselineSnapshot
   Sequences: DbSequence
   Sessions: DbSession
   SideCommentCaches: DbSideCommentCache
@@ -2559,6 +2583,7 @@ interface ObjectsByTypeName {
   ReviewWinner: DbReviewWinner
   RevisionOriginalContent: DbRevisionOriginalContent
   Revision: DbRevision
+  SandboxBaselineSnapshot: DbSandboxBaselineSnapshot
   Sequence: DbSequence
   Session: DbSession
   SideCommentCache: DbSideCommentCache

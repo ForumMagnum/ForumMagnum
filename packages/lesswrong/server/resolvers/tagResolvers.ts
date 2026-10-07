@@ -2,7 +2,6 @@ import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -97,7 +96,7 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): MongoSelector<DbComment> {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): Promise<MongoSelector<DbComment>> {
   return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
@@ -556,7 +555,7 @@ export const tagResolversGraphQLQueries = {
       return [];
     }
     
-    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
+    const rootCommentsSelector = await getRootCommentsInTimeBlockSelector(before, after, context);
 
     // Get
     // - revisions to tags, lenses, and summaries in the given time interval
@@ -723,7 +722,7 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description", context);
@@ -745,7 +744,7 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
-  const resolverContext = createAdminContext();
+  const resolverContext = createAdminContext({ forumType: "LessWrong" });
   const { Tags } = resolverContext;
 
   const tag = await Tags.findOne({slug: tagSlug});

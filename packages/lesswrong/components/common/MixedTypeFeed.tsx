@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useMemo } from 'react';
-import { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { WatchQueryFetchPolicy } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { useTracking } from '@/lib/analyticsEvents';
 import Loading from "../vulcan-core/Loading";
 import type { VariablesOf } from '@graphql-typed-document-node/core';
 import { type ExtractRenderers, type FeedPaginationResultVariables, type FeedQuery } from './feeds/feedQueries';
@@ -67,6 +66,9 @@ export const MixedTypeFeed = <
   
   // Callback for tracking loading state changes (fires when loading starts and completes)
   onLoadingStateChange?: (results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => void;
+
+  header?: React.ReactNode;
+  sortResults?: (a: any, b: any) => number;
 }) => {
   const {
     query,
@@ -83,6 +85,8 @@ export const MixedTypeFeed = <
     loadMoreDistanceProp = defaultLoadMoreDistance,
     fetchPolicy = "cache-and-network",
     onLoadingStateChange,
+    header,
+    sortResults,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -182,6 +186,10 @@ export const MixedTypeFeed = <
   );
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+  const displayedResults = useMemo(() => 
+    sortResults ? [...orderedResults].sort(sortResults) : orderedResults,
+    [orderedResults, sortResults]
+  );
   
   // Call onLoadingStateChange when loading state changes
   useEffect(() => {
@@ -191,7 +199,8 @@ export const MixedTypeFeed = <
   }, [results, loading, onLoadingStateChange]);
 
   return <div className={className}>
-    {orderedResults.map((result, index) =>
+    {header}
+    {displayedResults.map((result, index) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result} index={index}/>
       </div>

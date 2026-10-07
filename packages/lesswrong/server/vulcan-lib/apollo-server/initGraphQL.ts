@@ -22,6 +22,7 @@ import { crossSiteLinkPreviewGraphQLQueries, crossSiteLinkPreviewGraphQLTypeDefs
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
+import { llmModelGraphQLTypeDefs, llmModelGraphQLQueries } from '@/server/resolvers/llmModelResolvers';
 import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/server/resolvers/petrovDay2024Resolvers';
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
@@ -185,6 +186,7 @@ import { createPostGqlMutation, updatePostGqlMutation, graphqlPostTypeDefs } fro
 import { createRSSFeedGqlMutation, updateRSSFeedGqlMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
 import { createReportGqlMutation, updateReportGqlMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
 import { updateResearchConversationGqlMutation, graphqlResearchConversationTypeDefs } from "@/server/collections/researchConversations/mutations";
+import { updateResearchEnvironmentGqlMutation, graphqlResearchEnvironmentTypeDefs } from "@/server/collections/researchEnvironments/mutations";
 import { createResearchDocumentGqlMutation, updateResearchDocumentGqlMutation, graphqlResearchDocumentTypeDefs } from "@/server/collections/researchDocuments/mutations";
 import { createResearchProjectGqlMutation, updateResearchProjectGqlMutation, graphqlResearchProjectTypeDefs } from "@/server/collections/researchProjects/mutations";
 import { updateRevisionGqlMutation, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
@@ -265,6 +267,7 @@ export const getTypeDefs = () => gql`
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
+  ${llmModelGraphQLTypeDefs}
   ${petrovDay2024GraphQLTypeDefs}
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
@@ -430,6 +433,7 @@ export const getTypeDefs = () => gql`
   ${graphqlRSSFeedTypeDefs}
   ${graphqlReportTypeDefs}
   ${graphqlResearchConversationTypeDefs}
+  ${graphqlResearchEnvironmentTypeDefs}
   ${graphqlResearchDocumentTypeDefs}
   ${graphqlResearchProjectTypeDefs}
   ${graphqlRevisionTypeDefs}
@@ -462,6 +466,7 @@ const getResolvers = () => ({
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
     ...lightcone2024FundraiserGraphQLQueries,
+    ...llmModelGraphQLQueries,
     ...petrovDay2024GraphQLQueries,
     ...petrovDayLaunchGraphQLQueries,
     ...reviewVoteGraphQLQueries,
@@ -645,6 +650,7 @@ const getResolvers = () => ({
     createResearchDocument: createResearchDocumentGqlMutation,
     createResearchProject: createResearchProjectGqlMutation,
     updateResearchConversation: updateResearchConversationGqlMutation,
+    updateResearchEnvironment: updateResearchEnvironmentGqlMutation,
     updateResearchDocument: updateResearchDocumentGqlMutation,
     updateResearchProject: updateResearchProjectGqlMutation,
     updateReport: updateReportGqlMutation,

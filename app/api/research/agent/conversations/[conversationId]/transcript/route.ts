@@ -11,6 +11,7 @@ import {
 } from "../../../captureResearchAgentAnalytics";
 import {
   getAgentTranscriptTurns,
+  isTurnInFlight,
   type TranscriptOptions,
 } from "@/components/research/conversationEventFormat";
 
@@ -30,6 +31,7 @@ export async function GET(
   const options: TranscriptOptions = {
     withThinking: parseBoolFlag(url.searchParams.get("withThinking")),
     withToolPayloads: parseBoolFlag(url.searchParams.get("withToolPayloads")),
+    withTimestamps: parseBoolFlag(url.searchParams.get("withTimestamps")),
   };
 
   try {
@@ -52,7 +54,11 @@ export async function GET(
         projectId: payload.projectId,
         operationResult: "danglingCheck",
       });
-      return NextResponse.json({ ok: true, conversationId, incompleteTurn });
+      return NextResponse.json({
+        ok: true,
+        conversationId,
+        incompleteTurn,
+      });
     }
 
     const events = await context.ResearchConversationEvents.find(
@@ -61,21 +67,14 @@ export async function GET(
     ).fetch();
 
     const turns = getAgentTranscriptTurns(events, options);
-
-    let userCount = 0;
-    let resultCount = 0;
-    for (const e of events) {
-      if (e.kind === "user") userCount++;
-      else if (e.kind === "result") resultCount++;
-    }
-    const incompleteTurn = userCount > resultCount;
+    const incompleteTurn = isTurnInFlight(events, Date.now());
 
     captureResearchAgentApiEvent({
       route: ROUTE,
       status: "success",
       conversationId,
       projectId: payload.projectId,
-      operationResult: `turns=${turns.length}`,
+      count: turns.length,
     });
 
     return NextResponse.json({

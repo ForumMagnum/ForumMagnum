@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ReactNode } from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { Card } from "@/components/widgets/Paper";
@@ -235,6 +236,7 @@ const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation,
   className?: string,
   children: ReactNode,
 }) => {
+  const { forumType } = useForumType();
   // If the link is to a ?commentId= or #commentId URL, the preview should show
   // the comment that's been linked to. _But_, if a link is to a hash, then
   // `targetLocation` will be a merged URL, which may inherit a commentId query
@@ -247,7 +249,7 @@ const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation,
   // it was before any parsing, relative-path resolution etc was done), rather
   // than in href.
   const URLClass = getUrlClass()
-  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl());
+  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl(forumType));
   const commentIdQuery = originalUrlSiteRelative.searchParams.get('commentId');
 
   if (commentIdQuery) {

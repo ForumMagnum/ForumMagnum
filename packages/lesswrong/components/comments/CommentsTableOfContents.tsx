@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
@@ -5,14 +6,12 @@ import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import classNames from 'classnames';
-import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isSpecialClick } from '@/lib/utils/eventUtils';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
@@ -139,12 +138,13 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const { query, location } = useLocation();
   const comment = commentTree.item;
   
-  const score = isAF()
+  const score = isAF
     ? comment.afBaseScore
     : comment.baseScore;
   

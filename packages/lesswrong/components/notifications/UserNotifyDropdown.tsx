@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useRef, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
@@ -42,6 +43,7 @@ const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
   popperPlacement?: PopperPlacementType,
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +89,7 @@ const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
       >
         <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
           <DropdownMenu className={classes.dropdown}>
-            {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
+            {userHasSubscribeTabFeed(currentUser, forumType) && <NotifyMeToggleDropdownItem
               document={user}
               title="Include in Subscribed tab"
               useCheckboxIcon={!isFriendlyUI()}

@@ -6,7 +6,7 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isAF } from "../../lib/instanceSettings";
+import type { ForumTypeString } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
@@ -103,12 +103,14 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   async getPopularComments({
+    forumType,
     minScore = 15,
     offset = 0,
     limit = 3,
     recencyFactor = 250000,
     recencyBias = 60 * 60 * 2,
   }: {
+    forumType: ForumTypeString,
     offset?: number,
     limit?: number,
     minScore?: number,
@@ -118,8 +120,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
-    const lookbackPeriod = isAF() ? '1 month' : '1 week';
-    const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
+    const lookbackPeriod = forumType === 'AlignmentForum' ? '1 month' : '1 week';
+    const afCommentsFilter = forumType === 'AlignmentForum' ? 'AND "af" IS TRUE' : '';
 
     return this.any(`
       -- CommentsRepo.getPopularComments
@@ -643,7 +645,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
    */
   async getThreadEngagementStatsForRecentlyActiveThreads(
     userIdOrClientId: string,
-    threadEngagementLookbackDays: number
+    threadEngagementLookbackDays: number,
+    sessionId?: string | null
   ): Promise<ThreadEngagementStats[]> {
     const threadCandidateLimit = 200; // Hardcoded
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
@@ -781,21 +784,28 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             )
         ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
       LEFT JOIN
-        ( -- get recent servings of threads to calculate repetition penalty
+        ( -- get repeated thread exposures to calculate repetition penalty
           SELECT
-            COALESCE(c_served."topLevelCommentId", c_served._id) AS "threadTopLevelId",
-            COUNT(DISTINCT ufe_served."createdAt") AS "recentServingCount",
+            COALESCE(c_repetition."topLevelCommentId", c_repetition._id) AS "threadTopLevelId",
+            COUNT(DISTINCT ufe_repetition."createdAt") AS "recentServingCount",
             ARRAY_AGG(
-              EXTRACT(EPOCH FROM (NOW() - ufe_served."createdAt")) / 3600 
-              ORDER BY ufe_served."createdAt" DESC
+              EXTRACT(EPOCH FROM (NOW() - ufe_repetition."createdAt")) / 3600 
+              ORDER BY ufe_repetition."createdAt" DESC
             ) AS "servingHoursAgo"
-          FROM "UltraFeedEvents" ufe_served
-          JOIN "Comments" c_served ON ufe_served."documentId" = c_served._id
-          WHERE ufe_served."userId" = $(userIdOrClientId)
-            AND ufe_served."eventType" = 'served'
-            AND ufe_served."collectionName" = 'Comments'
-            AND ufe_served."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
-            AND COALESCE(c_served."topLevelCommentId", c_served._id) IN (
+          FROM "UltraFeedEvents" ufe_repetition
+          JOIN "Comments" c_repetition ON ufe_repetition."documentId" = c_repetition._id
+          WHERE ufe_repetition."userId" = $(userIdOrClientId)
+            AND ufe_repetition."collectionName" = 'Comments'
+            AND ufe_repetition."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
+            AND (
+              (
+                ufe_repetition."eventType" = 'served'
+                AND $(sessionId) IS NOT NULL
+                AND ufe_repetition.event->>'sessionId' = $(sessionId)
+              )
+              OR ufe_repetition."eventType" = 'viewed'
+            )
+            AND COALESCE(c_repetition."topLevelCommentId", c_repetition._id) IN (
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
@@ -805,12 +815,13 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                     LIMIT $(threadCandidateLimit)
                 ) recent_threads_filter_for_servings
             )
-          GROUP BY COALESCE(c_served."topLevelCommentId", c_served._id)
+          GROUP BY COALESCE(c_repetition."topLevelCommentId", c_repetition._id)
         ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
       userIdOrClientId,
       lookbackInterval,
       threadCandidateLimit,
+      sessionId: sessionId ?? null,
     });
 
     return engagementStats;

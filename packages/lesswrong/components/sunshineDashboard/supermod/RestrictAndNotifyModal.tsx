@@ -21,7 +21,8 @@ import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
 import dynamic from 'next/dynamic';
 
-const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+// `loading` adds a Suspense boundary; without one, loading the editor blanks the page
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {

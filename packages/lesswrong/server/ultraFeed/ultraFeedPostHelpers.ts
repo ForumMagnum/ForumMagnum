@@ -1,4 +1,4 @@
-import { FeedFullPost, FeedItemSourceType, FeedPostStub } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
@@ -49,7 +49,7 @@ export async function getRecommendedPostsForUltraFeed(
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
       
       return posts
-        .filter((post): post is DbPost => !(post instanceof Error))
+        .filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.rejected)
         .slice(0, limit)
         .map((post): FeedFullPost => ({
           post,
@@ -152,7 +152,7 @@ export async function getLatestAndSubscribedPosts(
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
-  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
 
   return await repos.posts.getLatestAndSubscribedFeedPosts(
     context,

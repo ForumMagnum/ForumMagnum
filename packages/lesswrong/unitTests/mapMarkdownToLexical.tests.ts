@@ -10,10 +10,18 @@ import {
 } from "lexical";
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor, plainTextStartsWith } from "../../../app/api/agent/editorAgentUtil";
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
+import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
+import {
+  findRenderedQuoteInMarkdown,
+  markdownQuoteToPlainText,
+  markdownQuoteToRenderedPlainText,
+  type MarkdownQuoteSelectionResult,
+} from "../../../app/api/agent/mapMarkdownToLexical";
+import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
+import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -21,11 +29,7 @@ async function selectMarkdownQuoteInEditor(
   markdownQuote: string
 ): Promise<void> {
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = locateMarkdownQuoteSelectionInSubtree({
-      rootNodeKey: root.getKey(),
-      markdownQuote,
-    });
+    const result = $locateQuoteWithTextIndex(markdownQuote);
     if (!result.found || !result.anchor || !result.focus) {
       throw new Error(`Quote not found: ${markdownQuote}; reason=${result.reason ?? "unknown"}`);
     }
@@ -99,95 +103,52 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
   expect(toPlainText(canonicalExtractedMarkdown)).toBe(toPlainText(canonicalQuotedMarkdown));
 }
 
-describe("empty root detection", () => {
-  it("throws when buildNodeMarkdownMapForSubtree is called on an empty root", async () => {
-    const editor = createHeadlessEditor("EmptyRootTest");
-
-    // A headless editor starts with a root that has zero children.
-    // This mirrors the scenario where a headless editor syncs against a
-    // Hocuspocus document with no persisted Yjs state. The empty-root
-    // invariant should be caught earlier (in withMainDocEditorSession),
-    // so buildNodeMarkdownMapForSubtree is expected to throw rather than
-    // silently return empty results.
-    expect(() => {
-      editor.getEditorState().read(() => {
-        const root = $getRoot();
-        buildNodeMarkdownMapForSubtree(root.getKey(), "anything");
-      });
-    }).toThrow(/editor state is empty/i);
+function locateInEditor(editor: LexicalEditor, markdownQuote: string): MarkdownQuoteSelectionResult {
+  let result: MarkdownQuoteSelectionResult = { found: false };
+  editor.getEditorState().read(() => {
+    result = $locateQuoteWithTextIndex(markdownQuote);
   });
+  return result;
+}
 
-  it("throws when locateMarkdownQuoteSelectionInSubtree is called on an empty root", async () => {
+describe("empty root handling", () => {
+  it("reports not-found against an empty document", () => {
+    // A headless editor starts with a root that has zero children. The
+    // empty-root invariant is enforced at the session level
+    // (withMainDocEditorSession); the locator itself just finds nothing.
     const editor = createHeadlessEditor("EmptyRootLocateTest");
-
-    expect(() => {
-      editor.getEditorState().read(() => {
-        const root = $getRoot();
-        locateMarkdownQuoteSelectionInSubtree({
-          rootNodeKey: root.getKey(),
-          markdownQuote: "some quote",
-        });
-      });
-    }).toThrow(/editor state is empty/i);
+    const result = locateInEditor(editor, "some quote");
+    expect(result.found).toBe(false);
   });
 });
 
-describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
+describe("whitespace normalization offsets", () => {
   it("returns correct offsets when original text has extra whitespace compared to quote", async () => {
     // Text with double spaces between words.
     const editor = await setupEditorWithMathParagraphs([{ text: "hello  world  foo" }]);
+    const result = locateInEditor(editor, "hello world foo");
 
-    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
-    editor.getEditorState().read(() => {
-      const root = $getRoot();
-      // Quote with single spaces - should match via whitespace normalization fallback
-      result = locateMarkdownQuoteSelectionInSubtree({
-        rootNodeKey: root.getKey(),
-        markdownQuote: "hello world foo",
-      });
-    });
-
-    expect(result).toBeDefined();
-    expect(result!.found).toBe(true);
-    expect(result!.anchor).toBeDefined();
-    expect(result!.focus).toBeDefined();
-
+    expect(result.found).toBe(true);
     // The anchor should start at offset 0 (beginning of "hello")
-    expect(result!.anchor!.offset).toBe(0);
+    expect(result.anchor!.offset).toBe(0);
     // The focus should end at offset 17 (end of "hello  world  foo"),
     // NOT at offset 15 (which would be wrong if using the normalized quote length)
-    expect(result!.focus!.offset).toBe(17);
+    expect(result.focus!.offset).toBe(17);
   });
 
   it("returns correct offsets when extra whitespace is in the middle of the text", async () => {
-    // Text with a prefix, then double spaces in the quoted region.
     const editor = await setupEditorWithMathParagraphs([{ text: "prefix  alpha   beta  suffix" }]);
+    const result = locateInEditor(editor, "alpha beta");
 
-    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
-    editor.getEditorState().read(() => {
-      const root = $getRoot();
-      // Quote with single spaces - should match "alpha   beta" in original (via normalization)
-      result = locateMarkdownQuoteSelectionInSubtree({
-        rootNodeKey: root.getKey(),
-        markdownQuote: "alpha beta",
-      });
-    });
-
-    expect(result).toBeDefined();
-    expect(result!.found).toBe(true);
-    expect(result!.anchor).toBeDefined();
-    expect(result!.focus).toBeDefined();
-
-    // "prefix  alpha   beta  suffix"
-    //  0123456789...
+    expect(result.found).toBe(true);
     // "prefix  " = 8 chars, so "alpha" starts at index 8
-    expect(result!.anchor!.offset).toBe(8);
+    expect(result.anchor!.offset).toBe(8);
     // "alpha   beta" = 12 chars, so end is at 8 + 12 = 20
-    expect(result!.focus!.offset).toBe(20);
+    expect(result.focus!.offset).toBe(20);
   });
 });
 
-describe("mapMarkdownToLexical quote selection", () => {
+describe("quote selection round-trips", () => {
   it("selects and round-trips a plain text quote", async () => {
     const markdownDocument = [
       "Alpha paragraph.",
@@ -264,8 +225,6 @@ describe("mapMarkdownToLexical quote selection", () => {
   });
 
   it("finds a heading when quoted with markdown # prefix", async () => {
-    // Uses h3 because Turndown serializes h1/h2 with setext (underline) style
-    // rather than ATX (# prefix) style, making h1/h2 unmatchable by # prefix.
     const markdownDocument = [
       "Opening paragraph.",
       "",
@@ -275,17 +234,7 @@ describe("mapMarkdownToLexical quote selection", () => {
     ].join("\n");
 
     const editor = await setupEditorWithContent(markdownDocument);
-    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
-    editor.getEditorState().read(() => {
-      const root = $getRoot();
-      result = locateMarkdownQuoteSelectionInSubtree({
-        rootNodeKey: root.getKey(),
-        markdownQuote: "### My Important Section",
-      });
-    });
-
-    expect(result).toBeDefined();
-    expect(result!.found).toBe(true);
+    expect(locateInEditor(editor, "### My Important Section").found).toBe(true);
   });
 
   it("finds a blockquote when quoted with > prefix", async () => {
@@ -298,30 +247,16 @@ describe("mapMarkdownToLexical quote selection", () => {
     ].join("\n");
 
     const editor = await setupEditorWithContent(markdownDocument);
-    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
-    editor.getEditorState().read(() => {
-      const root = $getRoot();
-      result = locateMarkdownQuoteSelectionInSubtree({
-        rootNodeKey: root.getKey(),
-        markdownQuote: "> This is a blockquote.",
-      });
-    });
-
-    expect(result).toBeDefined();
-    expect(result!.found).toBe(true);
+    expect(locateInEditor(editor, "> This is a blockquote.").found).toBe(true);
   });
 });
 
-describe("findBlockToOperateOnByPrefix", () => {
+describe("$locateBlockByPrefix", () => {
   interface MatchInfo { type: string; text: string; isListItem: boolean }
   function findFor(editor: LexicalEditor, prefix: string): MatchInfo | null {
     let result: MatchInfo | null = null;
     editor.getEditorState().read(() => {
-      const root = $getRoot();
-      const rootChildren = root.getChildren();
-      const textFilter = toPlainTextFilter(prefix);
-      const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-      const node = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+      const node = $locateBlockByPrefix(prefix).node;
       if (node) {
         result = {
           type: node.getType(),
@@ -353,10 +288,6 @@ describe("findBlockToOperateOnByPrefix", () => {
   });
 
   it("matches the first list item as a list item, not as the whole list", async () => {
-    // Regression: previously `plainTextStartsWith` matched the LIST against
-    // its first item's text (since the list's textContent starts there) and
-    // deleteBlock would remove the entire list. The new locator targets
-    // the first item specifically.
     const editor = await setupEditorWithContent(
       "*   alpha item\n*   bravo item\n*   charlie item"
     );
@@ -382,6 +313,19 @@ describe("findBlockToOperateOnByPrefix", () => {
     expect(findFor(editor, "no such prefix")).toBeNull();
   });
 
+  it("reports ambiguity when several blocks start with the prefix", async () => {
+    const editor = await setupEditorWithContent(
+      "Repeated start, first.\n\nRepeated start, second."
+    );
+    let reason: string | undefined;
+    editor.getEditorState().read(() => {
+      const result = $locateBlockByPrefix("Repeated start");
+      expect(result.node).toBeNull();
+      reason = result.reason;
+    });
+    expect(reason).toContain("Ambiguous");
+  });
+
   it("does not return the list when only a non-first item matches the prefix", async () => {
     const editor = await setupEditorWithContent(
       "*   alpha\n*   bravo\n*   charlie"
@@ -400,10 +344,6 @@ describe("findBlockToOperateOnByPrefix", () => {
   });
 
   it("matches a block whose markdown prefix starts with LaTeX", async () => {
-    // The block starts with a MathNode and the locator prefix is `$x^2$ starts`.
-    // `buildNodeMarkdownMapForSubtree`'s text filter is computed from text
-    // content that excludes MathNodes, so the block can be filtered out before
-    // it is serialized/matched.
     const editor = await setupEditorWithMathParagraphs(
       [{ equation: "x^2" }, { text: " starts here" }],
       [{ text: "Another paragraph." }],
@@ -412,6 +352,64 @@ describe("findBlockToOperateOnByPrefix", () => {
     const matched = findFor(editor, "$x^2$ starts");
     expect(matched).not.toBeNull();
     expect(matched?.type).toBe("paragraph");
+  });
+
+  it("rejects a prefix that extends past the end of the block", async () => {
+    const editor = await setupEditorWithContent(
+      "Short first block.\n\nSecond block follows."
+    );
+    let result: { node: unknown, reason?: string } = { node: null };
+    editor.getEditorState().read(() => {
+      result = $locateBlockByPrefix("Short first block. Second block");
+    });
+    expect(result.node).toBeNull();
+  });
+
+  it("matches a block whose text begins with leading whitespace", async () => {
+    const editor = await setupEditorWithMathParagraphs(
+      [{ text: " Alpha begins with a space" }],
+      [{ text: "Beta paragraph." }],
+    );
+    const matched = findFor(editor, "Alpha begins");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+  });
+
+  it("matches a top-level display equation block by its prefix", async () => {
+    const editor = await setupEditorWithMathParagraphs([{ text: "Intro paragraph." }]);
+    await runEditorUpdate(editor, () => {
+      // A display equation hoisted to the top level, as
+      // $hoistDisplayMathOutOfParagraphs produces.
+      $getRoot().append($createMathNode("E=mc^2", false));
+    });
+    const matched = findFor(editor, "$$\nE=mc^2\n$$");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("math");
+  });
+
+  it("matches an item of a nested sub-list", async () => {
+    const editor = await setupEditorWithContent(
+      "*   outer item\n    *   nested needle item\n*   second outer"
+    );
+    const matched = findFor(editor, "nested needle");
+    expect(matched?.isListItem).toBe(true);
+    expect(matched?.text).toBe("nested needle item");
+  });
+});
+
+describe("resolveInsertionIndex with nested structures", () => {
+  it("translates a nested list-item match to its top-level list index", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
+    );
+    let result: { index: number | null } = { index: null };
+    editor.getEditorState().read(() => {
+      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+    });
+    // Document top level: [paragraph, list, paragraph] — "after" the matched
+    // nested item must insert after the whole list (index 2), not at a
+    // root position derived from inner-list indices.
+    expect(result.index).toBe(2);
   });
 });
 
@@ -430,45 +428,28 @@ describe("findRenderedQuoteInMarkdown with literal dollar text", () => {
 });
 
 describe("LaTeX correctness regressions", () => {
-  it("matches a prefix that begins with a backslash command", () => {
-    // plainTextStartsWith must project the prefix the same way
-    // markdownQuoteToPlainText projects the node text — it must not strip
-    // `\command` sequences that markdownQuoteToPlainText keeps.
-    expect(plainTextStartsWith("\\alpha decay is real", "\\alpha decay")).toBe(true);
-  });
-
   it("keeps later equations in a rendered quote when an earlier one is dropped", () => {
     // `$x$` lands in a link URL (rendered to no visible text); the surviving
     // `$y$` must restore as $y$, not be mis-paired with the dropped `$x$`.
-    const projected = markdownQuoteToRenderedPlainText("[label]($x$) and $y$");
+    const projected = markdownQuoteToRenderedPlainText("[label]($x$) and $y$", { bracketDisplayMath: true });
     expect(projected).toContain("$y$");
     expect(projected).not.toContain("$x$");
   });
 
   it("locates a quote crossing literal math-delimiter text without overshooting", async () => {
     // The document text literally contains `$$x$$` (typed dollar signs, not a
-    // MathNode), so `combined` holds the raw 5-character `$$x$$` while the
-    // normalized quote holds the canonical 7-character `$$\nx\n$$`. The double
-    // space before "rose" forces the whitespace fallback (no exact substring
-    // match), whose position mapping only modelled whitespace collapsing — not
-    // the length-changing `canonicalizeMathTokens` step in `normalizeText` —
-    // so the focus offset overshot the real end of the quote.
+    // MathNode). Both sides scan and canonicalize symmetrically, so the quote
+    // matches, and the focus must land at the end of the document's
+    // double-spaced form rather than overshooting.
     const editor = await setupEditorWithMathParagraphs([{ text: "the price $$x$$  rose sharply" }]);
+    const result = locateInEditor(editor, "$$x$$ rose");
 
-    let result: MarkdownQuoteSelectionResult | undefined;
-    editor.getEditorState().read(() => {
-      result = locateMarkdownQuoteSelectionInSubtree({
-        rootNodeKey: $getRoot().getKey(),
-        markdownQuote: "$$x$$ rose",
-      });
-    });
-
-    expect(result!.found).toBe(true);
+    expect(result.found).toBe(true);
     // "the price $$x$$  rose sharply" — "$$x$$" starts at index 10, and
     // "$$x$$  rose" (the document's double-spaced form) ends at index 21.
-    expect(result!.anchor!.type).toBe("text");
-    expect(result!.anchor!.offset).toBe(10);
-    expect(result!.focus!.type).toBe("text");
-    expect(result!.focus!.offset).toBe(21);
+    expect(result.anchor!.type).toBe("text");
+    expect(result.anchor!.offset).toBe(10);
+    expect(result.focus!.type).toBe("text");
+    expect(result.focus!.offset).toBe(21);
   });
 });

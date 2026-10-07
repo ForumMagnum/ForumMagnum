@@ -1,3 +1,5 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { siteImageSetting } from '@/lib/instanceSettings';
 import { htmlToText } from "html-to-text";
@@ -110,7 +112,9 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
  *  3.2 socialPreviewImageUrl is just used directly
  */
 const buildPreviewFromDocument = (
-  document: Omit<EditablePost, 'socialPreviewData'> & { socialPreviewData: SocialPreviewInput | null | undefined }, socialText: string | undefined
+  document: Omit<EditablePost, 'socialPreviewData'> & { socialPreviewData: SocialPreviewInput | null | undefined },
+  socialText: string | undefined,
+  forumType: ForumTypeString,
 ): { description: string | null; fallbackImageUrl: string | null } => {
   const originalContents = document.contents?.originalContents;
   const customHighlight = document.customHighlight?.originalContents;
@@ -163,7 +167,7 @@ const buildPreviewFromDocument = (
           ...document,
           contents: { plaintextDescription: originalContentProcessed.description },
           customHighlight: { plaintextDescription: highlightPlaintextDesc },
-        });
+        }, forumType);
 
   return {
     description: previewDesc,
@@ -228,6 +232,7 @@ export const SocialPreviewUpload = ({
   post,
   croppingAspectRatio,
 }: SocialPreviewUploadProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const value = field.state.value;
 
@@ -236,13 +241,14 @@ export const SocialPreviewUpload = ({
   const textValue = value?.text ?? undefined;
 
   const { description, fallbackImageUrl } = useMemo(
-    () => buildPreviewFromDocument(docWithValue, textValue),
+    () => buildPreviewFromDocument(docWithValue, textValue, forumType),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       docWithValue.contents?.originalContents,
       docWithValue.contents?.dataWithDiscardedSuggestions,
       docWithValue.customHighlight?.originalContents,
       textValue,
+      forumType,
     ]
   );
 
@@ -264,7 +270,7 @@ export const SocialPreviewUpload = ({
           clearField={() => updateImageId(undefined)}
           label={fallbackImageUrl ? "Change preview image" : "Upload preview image"}
           croppingAspectRatio={croppingAspectRatio}
-          placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
+          placeholderUrl={fallbackImageUrl || siteImageSetting.get(forumType)}
         />
         <div className={classes.cardTextArea}>
           <div className={classes.cardTitle}>

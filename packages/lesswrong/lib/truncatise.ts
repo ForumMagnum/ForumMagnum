@@ -54,7 +54,7 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     var text            = (text || "").trim();
     var currentState    = 0;
     var currentTagStart = 0;
-    var tagStack: string[] = [];
+    const tagStack: {name: string, start: number}[] = [];
 
     //Counters
     var charCounter         = 0;
@@ -109,7 +109,7 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
               if(tagWithoutAttributes.indexOf("/") >= 0){
                 tagStack.pop();
               } else {
-                tagStack.push(tagWithoutAttributes);
+                tagStack.push({name: tagWithoutAttributes, start: currentTagStart});
               }
             }
           }
@@ -152,9 +152,16 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     }
 
     while(tagStack.length > 0){
-      var tag = tagStack.pop();
-      if(tag!=="!--"){
-        truncatedText += "</"+tag+">";
+      const tag = tagStack.pop();
+      if(tag && tag.name!=="!--"){
+        // Consumers such as footnote previews must be able to distinguish a
+        // complete element from one whose closing tag was supplied here.
+        if (pointer < text.length-1) {
+          const attributesStart = tag.start + tag.name.length;
+          truncatedText = truncatedText.substring(0, attributesStart)
+            + ' data-truncated="true"' + truncatedText.substring(attributesStart);
+        }
+        truncatedText += "</"+tag.name+">";
       }
     }
 

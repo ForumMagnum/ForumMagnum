@@ -48,10 +48,11 @@ Falls back to `VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID` if OIDC is
   doc cites 15; SDK type ([sandbox.d.ts:48-49](../../../../node_modules/@vercel/sandbox/dist/sandbox.d.ts))
   caps at 4. The supervisor only needs one HTTP port — multiplex per-conversation
   routing inside that single port.
-- Default `timeout` is 5 minutes; max is 5 hours on Pro/Enterprise (45 min on Hobby).
-  Use `extendTimeout(ms)` to push out the cap mid-session, but each session itself
-  is still 5h-bounded (and the public URL is per-session). The "extend or roll"
-  policy from the design doc lives at the supervisor / sandboxManager layer.
+- Default `timeout` is 5 minutes; max runtime is 24 hours on Pro/Enterprise
+  (45 min on Hobby) as of June 2026. Use `extendTimeout(ms)` to push out the
+  cap mid-session, but each session is still bounded by that max (and the
+  public URL is per-session). The "extend or roll" policy from the design doc
+  lives at the supervisor / sandboxManager layer.
 - `Sandbox.create` accepts `env: Record<string, string>` for default env vars
   inherited by all `runCommand` invocations — this is where the supervisor's
   `CLAUDE_CODE_OAUTH_TOKEN` and HMAC-shared-secret will go.

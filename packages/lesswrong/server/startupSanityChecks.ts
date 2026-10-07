@@ -1,3 +1,4 @@
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../server/collections/databaseMetadata/collection';
@@ -11,7 +12,7 @@ const loadDatabaseId = async () => {
 
 export async function startupSanityChecks() {
   if (isAnyTest) return;
-  const expectedDatabaseId = expectedDatabaseIdSetting.get();
+  const expectedDatabaseId = expectedDatabaseIdSetting.get(forumTypeSetting.get());
   const preload = getPreloadedDatabaseId();
   const databaseId = preload.preloaded ? preload.databaseId : await loadDatabaseId();
   

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useContext } from 'react';
 import { useGetCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
@@ -31,6 +32,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   solidArrow?: boolean,
   largeArrow?: boolean
 }) => {
+  const { forumType } = useForumType();
   const getCurrentUser = useGetCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
@@ -48,8 +50,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     } else {
       vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote});
       captureEvent("vote", {collectionName});
-      if (recombeeEnabledSetting.get() && collectionName === "Posts" && recombeeRecommendationsContext?.postId === document._id) {
-        void recombeeApi.createRating(document._id, currentUserId, voteType, recombeeRecommendationsContext.recommId);
+      if (recombeeEnabledSetting.get(forumType) && collectionName === "Posts" && recombeeRecommendationsContext?.postId === document._id) {
+        void recombeeApi.createRating(document._id, currentUserId, voteType, forumType, recombeeRecommendationsContext.recommId);
       }
     }
   }
@@ -76,5 +78,4 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
 }
 
 export default OverallVoteButton;
-
 

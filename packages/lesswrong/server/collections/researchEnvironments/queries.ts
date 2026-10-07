@@ -21,9 +21,14 @@ export const graphqlResearchEnvironmentQueryTypeDefs = gql`
     projectId: String
   }
 
+  input ResearchEnvironmentsByProjectArchivedInput {
+    projectId: String
+  }
+
   input ResearchEnvironmentSelector {
     default: EmptyViewInput
     byProject: ResearchEnvironmentsByProjectInput
+    byProjectArchived: ResearchEnvironmentsByProjectArchivedInput
   }
 
   input MultiResearchEnvironmentInput {

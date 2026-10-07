@@ -1,4 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import Transition from 'react-transition-group/Transition';
 import { useCurrentUser } from '../common/withUser';
 import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
@@ -22,13 +25,14 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ACTIVE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { FeedType } from './ultraFeedTypes';
+import ErrorBoundary from '../common/ErrorBoundary';
+import UltraFeedErrorFallback from './UltraFeedErrorFallback';
 
 const FEED_MIN_HEIGHT = 1500;
 
@@ -130,6 +134,32 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     marginTop: 16,
     marginBottom: 32,
   },
+  settingsReveal: {
+    display: 'grid',
+    gridTemplateRows: '0fr',
+    transition: 'grid-template-rows 180ms ease 120ms',
+    '@media (prefers-reduced-motion: reduce)': {
+      '&, & $settingsRevealContent': {
+        transition: 'none',
+      },
+    },
+  },
+  settingsRevealContent: {
+    minHeight: 0,
+    overflow: 'hidden',
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'opacity 120ms ease, visibility 0ms linear 120ms',
+  },
+  settingsRevealExpanded: {
+    gridTemplateRows: '1fr',
+    transitionDelay: '0ms',
+    '& $settingsRevealContent': {
+      opacity: 1,
+      visibility: 'visible',
+      transitionDelay: '180ms, 0ms',
+    },
+  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -212,9 +242,18 @@ const UltraFeedContent = ({
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
   const forYouWrapperRef = useRef<HTMLDivElement | null>(null);
   const followingWrapperRef = useRef<HTMLDivElement | null>(null);
+  const debugWrapperRef = useRef<HTMLDivElement | null>(null);
+  const settingsRevealRef = useRef<HTMLDivElement>(null);
+  const [settingsTab, setSettingsTab] = useState(activeTab);
   const [hasRenderedForYou, setHasRenderedForYou] = useState(activeTab === 'ultraFeed');
   const [hasRenderedFollowing, setHasRenderedFollowing] = useState(activeTab === 'following');
+  const [hasRenderedDebug, setHasRenderedDebug] = useState(activeTab === 'debug');
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useLayoutEffect(() => {
+    // Keep the outgoing settings panel intact when a tab switch closes it.
+    if (settingsVisible) setSettingsTab(activeTab);
+  }, [activeTab, settingsVisible]);
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
@@ -232,7 +271,10 @@ const UltraFeedContent = ({
     if (activeTab === 'ultraFeed' && !hasRenderedForYou) {
       setHasRenderedForYou(true);
     }
-  }, [activeTab, hasRenderedFollowing, hasRenderedForYou]);
+    if (activeTab === 'debug' && !hasRenderedDebug) {
+      setHasRenderedDebug(true);
+    }
+  }, [activeTab, hasRenderedFollowing, hasRenderedForYou, hasRenderedDebug]);
 
   useEffect(() => {
     setIsTransitioning(true);
@@ -250,24 +292,44 @@ const UltraFeedContent = ({
       <div className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
-            {settingsVisible && (
-              <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
-                {activeTab === 'ultraFeed' ? (
-                  <UltraFeedSettings 
-                    settings={settings}
-                    updateSettings={updateSettings}
-                    onClose={() => onCloseSettings?.()} 
-                    truncationMaps={truncationMaps}
-                  />
-                ) : (
-                  <UltraFeedFollowingSettings
-                    settings={settings}
-                    updateSettings={updateSettings}
-                    onClose={() => onCloseSettings?.()}
-                  />
-                )}
-              </div>
-            )}
+            <Transition
+              nodeRef={settingsRevealRef}
+              in={!!settingsVisible}
+              timeout={300}
+              mountOnEnter
+              unmountOnExit
+              onEnter={() => {
+                // Establish the collapsed layout before animating newly mounted settings.
+                settingsRevealRef.current?.getBoundingClientRect();
+              }}
+            >
+              {state => <div
+                ref={settingsRevealRef}
+                className={classNames(classes.settingsReveal, {
+                  [classes.settingsRevealExpanded]: state === 'entering' || state === 'entered',
+                })}
+                inert={!settingsVisible}
+              >
+                <div className={classes.settingsRevealContent}>
+                  <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
+                    {settingsTab === 'following' ? (
+                      <UltraFeedFollowingSettings
+                        settings={settings}
+                        updateSettings={updateSettings}
+                        onClose={() => onCloseSettings?.()}
+                      />
+                    ) : (
+                      <UltraFeedSettings
+                        settings={settings}
+                        updateSettings={updateSettings}
+                        onClose={() => onCloseSettings?.()}
+                        truncationMaps={truncationMaps}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>}
+            </Transition>
 
             {infoVisible && activeTab === 'ultraFeed' && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
@@ -310,6 +372,23 @@ const UltraFeedContent = ({
                   </UltraFeedContextProvider>
                 </div>
               )}
+              {hasRenderedDebug && (
+                <div
+                  ref={debugWrapperRef}
+                  style={activeTab === 'debug' ? undefined : { position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none' }}
+                >
+                  <UltraFeedMainFeed
+                    settings={settings}
+                    sessionId={sessionId}
+                    fetchPolicy="cache-first"
+                    firstPageSize={15}
+                    pageSize={15}
+                    isActive={activeTab === 'debug'}
+                    debugMode
+                    feedType="debug"
+                  />
+                </div>
+              )}
             </div>
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
@@ -336,14 +415,26 @@ const UltraFeed = ({
   settingsVisible?: boolean
   onSettingsToggle?: () => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
   const [internalInfoVisible, setInternalInfoVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
+  const [activeTab, setActiveTab] = useState<FeedType>(() => {
+    const savedTab = cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE];
+    return savedTab === 'following' || savedTab === 'debug' ? savedTab : 'ultraFeed';
+  });
   const { captureEvent } = useTracking();
   const { settings, updateSettings, truncationMaps } = useUltraFeedSettings();
+  const debugTabVisible = settings.resolverSettings.enableDebug && userIsAdminOrMod(currentUser);
+
+  useEffect(() => {
+    if (activeTab === 'debug' && !debugTabVisible) {
+      setActiveTab('ultraFeed');
+      setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, 'ultraFeed', { path: '/' });
+    }
+  }, [activeTab, debugTabVisible, setCookie]);
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
@@ -360,7 +451,7 @@ const UltraFeed = ({
     captureEvent("ultraFeedTabChanged", { tab });
   };
 
-  if (!ultraFeedEnabledSetting.get()) {
+  if (!ultraFeedEnabledSetting.get(forumType)) {
     return (
       <SingleColumnSection>
         <div className={classes.disabledMessage}>
@@ -404,28 +495,30 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled && activeTab === 'ultraFeed' ? (
+          settingsButton={!isControlled && activeTab !== 'following' ? (
             <div className={classes.headerButtons}>
-              <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />
+              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
               <SettingsButton showIcon={true} onClick={toggleSettings} />
             </div>
           ) : undefined}
           feedSettings={settings}
           updateFeedSettings={updateSettings}
         />
-        <DeferRender ssr={false}>
-          <UltraFeedContent 
-            settings={settings}
-            updateSettings={updateSettings}
-            truncationMaps={truncationMaps}
-            alwaysShow={alwaysShow}
-            settingsVisible={actualSettingsVisible}
-            onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
-            infoVisible={internalInfoVisible}
-            useExternalContainer={isControlled}
-            activeTab={activeTab}
-          />
-        </DeferRender>
+        <ErrorBoundary fallback={<UltraFeedErrorFallback message="The feed couldn't load. Try reloading the page." />}>
+          <DeferRender ssr={false}>
+            <UltraFeedContent 
+              settings={settings}
+              updateSettings={updateSettings}
+              truncationMaps={truncationMaps}
+              alwaysShow={alwaysShow}
+              settingsVisible={actualSettingsVisible}
+              onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+              infoVisible={internalInfoVisible}
+              useExternalContainer={isControlled}
+              activeTab={activeTab}
+            />
+          </DeferRender>
+        </ErrorBoundary>
       </SingleColumnSection>
     </>
   );

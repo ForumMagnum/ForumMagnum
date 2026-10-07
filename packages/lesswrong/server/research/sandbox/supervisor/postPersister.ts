@@ -46,7 +46,11 @@ export interface BackendEvent {
   kind: "user" | "assistant" | "tool_use" | "tool_result" | "thinking" | "system" | "error" | "result";
   /** ID from the JSONL line if present, null otherwise. Used for dedupe. */
   claudeMessageUuid: string | null;
-  /** Optional, sent for cross-checking against conversation.claudeSessionId. */
+  /**
+   * The session id from the JSONL line, if present. Informational: the
+   * backend validates the field's shape but no longer consumes it (session
+   * ids are assigned at conversation creation, not captured from events).
+   */
   claudeSessionId?: string;
   /** ISO-8601; backend falls back to its own clock if absent. */
   supervisorEmittedAt?: string;

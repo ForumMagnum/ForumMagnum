@@ -1,3 +1,4 @@
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 /* eslint-disable no-console */
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import chunk from 'lodash/chunk';
@@ -111,7 +112,6 @@ async function assertTableIntegrity(dataDb: SqlClient) {
   //   WHERE array_length("activityArray", 1) <> $1;
   // `, [correctActivityLengthInt]);
 }
-
 
 /**
  * Get the start and end date for the next user activity update. startDate will be the end date of the
@@ -324,7 +324,7 @@ export async function updateUserActivities(props?: {
   const { prevStartDate, updateStartDate, updateEndDate } = {...(await getStartEndDate(dataDb)), ...props};
 
   // Get the most recent activity data from the analytics database
-  const newActivityData = await getUserActivityData(updateStartDate, updateEndDate);
+  const newActivityData = await getUserActivityData(updateStartDate, updateEndDate, forumTypeSetting.get());
 
   log(`Updating user activity for ${newActivityData.length} users between ${updateStartDate} and ${updateEndDate}`);
 

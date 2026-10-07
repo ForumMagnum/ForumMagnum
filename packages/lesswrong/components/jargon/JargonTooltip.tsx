@@ -11,6 +11,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWClickAwayListener from "../common/LWClickAwayListener";
+import { useOnNavigateOrHide } from '../hooks/useOnNavigateOrHide';
 
 const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
   card: {
@@ -139,6 +140,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
 
   const { captureEvent } = useTracking();
   const [open, setOpen] = useState(false);
+  useOnNavigateOrHide(() => setOpen(false));
 
   const { postGlossariesPinned } = useGlossaryPinnedState();
 
@@ -204,5 +206,4 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
 }
 
 export default JargonTooltip;
-
 

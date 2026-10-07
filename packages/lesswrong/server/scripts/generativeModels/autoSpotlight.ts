@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import Spotlights from "../../../server/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
@@ -44,6 +45,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: PostsTopItemI
 
 async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {
   const reviewWinners = await fetchFragment({
+    context: computeContextFromUser({ user: createAdminContext().currentUser, isSSR: false, forumType: "LessWrong" }),
     collectionName: "ReviewWinners",
     fragmentDoc: ReviewWinnerTopPostsPage,
     currentUser: createAdminContext().currentUser,
@@ -53,6 +55,7 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
   const postIds = reviewWinners.map(winner => winner.postId);
 
   const posts = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsWithNavigation,
     currentUser: null,

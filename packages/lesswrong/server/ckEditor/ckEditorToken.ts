@@ -68,12 +68,12 @@ export async function ckEditorTokenHandler(req: NextRequest) {
     isSSR: false,
   });
     
-  if (collectionName === "Posts") {
-    if (!documentId) {
-      const error = new Error("Missing documentId header for Posts token request");
-      return handleErrorAndReturn(req, error);
-    }
-
+  // Posts token requests with a documentId come from the collaborative post
+  // editor. Requests without one come from non-collaborative editors on other
+  // post fields (eg moderation guidelines, via CKCommentEditor), which only
+  // need the token for image uploads, so they get the same token as other
+  // collections.
+  if (collectionName === "Posts" && documentId) {
     const ckEditorId = getCKEditorDocumentId(documentId);
     const post = await Posts.findOne(documentId);
     const access = await getCollaborativeEditorAccess({ formType: "edit", post, user, context: contextWithKey, useAdminPowers: true });
@@ -87,7 +87,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
       iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: {
         id: user ? user._id : randomId(),
-        name: user ? userGetDisplayName(user) : "Anonymous"
+        name: user ? userGetDisplayName(user, contextWithKey.forumType) : "Anonymous"
       },
       auth: {
         collaboration: {
@@ -109,7 +109,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
       iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: user ? {
         id: user._id,
-        name: userGetDisplayName(user)
+        name: userGetDisplayName(user, contextWithKey.forumType)
       } : null,
     };
     

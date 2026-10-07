@@ -57,7 +57,7 @@ export async function GET(
       status: "success",
       conversationId: payload.conversationId,
       projectId,
-      operationResult: `documents=${documents.length}`,
+      count: documents.length,
     });
 
     return NextResponse.json({
@@ -175,6 +175,7 @@ export async function POST(
         hocuspocusToken,
         location: "start",
         markdown: canonicalMarkdown,
+        mode: "edit",
       });
       initialContentInserted = insertResult.inserted;
     }

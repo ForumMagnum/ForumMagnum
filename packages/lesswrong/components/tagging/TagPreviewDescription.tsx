@@ -1,11 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import TagExcerpt from "../common/excerpts/TagExcerpt";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -43,8 +41,8 @@ export const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSect
 const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
-  // Show two paragraphs for links to tag section headers
-  return isLWorAF() ? 8 : 2;
+  // Show eight paragraphs for links to tag section headers
+  return 8;
 }
 
 const TagPreviewDescription = ({tag, hash, activeTab}: {
@@ -52,6 +50,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
   hash?: string,
   activeTab?: number,
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
 
@@ -59,7 +58,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
     return null
   }
 
-  const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
+  const showCustomDescriptionHighlight = isLW && tag.core && !hash;
 
   let highlight: string | undefined;
   // If we're on LW and previewing a core tag (but not a section within it), show the custom description
@@ -77,7 +76,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
     );
   }
 
-  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
+  const tagUrl = tagGetUrl(tag, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
   let html: string | undefined;
 

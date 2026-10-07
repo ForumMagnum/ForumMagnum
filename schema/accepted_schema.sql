@@ -60,8 +60,12 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "aiChoice" TEXT,
   "aiReasoning" TEXT,
   "aiCoT" TEXT,
+  "pangramApiVersion" TEXT,
   "pangramScore" DOUBLE PRECISION,
   "pangramMaxScore" DOUBLE PRECISION,
+  "pangramFractionAi" DOUBLE PRECISION,
+  "pangramFractionAiAssisted" DOUBLE PRECISION,
+  "pangramFractionHuman" DOUBLE PRECISION,
   "pangramPrediction" TEXT,
   "pangramWindowScores" JSONB
 );
@@ -2362,11 +2366,15 @@ CREATE TABLE "ResearchConversations" (
   "projectId" VARCHAR(27) NOT NULL,
   "claudeSessionId" TEXT,
   "title" TEXT,
+  "icon" TEXT,
   "entrypointKind" TEXT NOT NULL,
   "entrypointDocumentId" VARCHAR(27) NOT NULL,
   "baseEnvironmentId" VARCHAR(27),
   "runtime" TEXT,
-  "lastActivityAt" TIMESTAMPTZ NOT NULL
+  "presentationHtml" TEXT,
+  "lastActivityAt" TIMESTAMPTZ NOT NULL,
+  "lastReadAt" TIMESTAMPTZ,
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchConversations_projectId_lastActivityAt"
@@ -2382,6 +2390,9 @@ CREATE TABLE "ResearchDocuments" (
   "userId" VARCHAR(27) NOT NULL,
   "projectId" VARCHAR(27) NOT NULL,
   "title" TEXT,
+  "icon" TEXT,
+  "sortOrder" DOUBLE PRECISION,
+  "archived" BOOL NOT NULL DEFAULT FALSE,
   "contents_latest" TEXT
 );
 
@@ -2399,7 +2410,8 @@ CREATE TABLE "ResearchEnvironments" (
   "projectId" VARCHAR(27) NOT NULL,
   "label" TEXT NOT NULL,
   "vercelSnapshotId" TEXT NOT NULL,
-  "sourceEventId" VARCHAR(27)
+  "sourceEventId" VARCHAR(27),
+  "archived" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ResearchEnvironments_projectId_createdAt"
@@ -2550,6 +2562,18 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_
 
 -- Index "idx_Revisions_documentId_version_fieldName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
+
+-- Table "SandboxBaselineSnapshots"
+CREATE TABLE "SandboxBaselineSnapshots" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "runtime" TEXT NOT NULL,
+  "vercelSnapshotId" TEXT NOT NULL,
+  "builtAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_SandboxBaselineSnapshots_runtime"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_SandboxBaselineSnapshots_runtime" ON "SandboxBaselineSnapshots" USING btree ("runtime");
 
 -- Table "Sequences"
 CREATE TABLE "Sequences" (
@@ -3104,6 +3128,7 @@ CREATE TABLE "Users" (
   "currentFrontpageFilter" TEXT,
   "frontpageSelectedTab" TEXT,
   "frontpageFilterSettings" JSONB,
+  "ultraFeedSettings" JSONB,
   "hideFrontpageFilterSettingsDesktop" BOOL,
   "allPostsTimeframe" TEXT,
   "allPostsFilter" TEXT,
@@ -3271,7 +3296,6 @@ CREATE TABLE "Users" (
   "subforumPreferredLayout" TEXT,
   "criticismTipsDismissed" BOOL NOT NULL DEFAULT FALSE,
   "hideFromPeopleDirectory" BOOL NOT NULL DEFAULT FALSE,
-  "allowDatadogSessionReplay" BOOL NOT NULL DEFAULT FALSE,
   "afPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "afCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "afSequenceCount" DOUBLE PRECISION NOT NULL DEFAULT 0,

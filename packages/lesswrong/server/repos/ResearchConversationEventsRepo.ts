@@ -3,6 +3,10 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import ResearchConversationEvents from "../collections/researchConversationEvents/collection";
 import { randomId } from "@/lib/random";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
+import {
+  TURN_ACTIVITY_EVENT_KINDS,
+  TURN_OPENING_SYSTEM_SUBTYPE,
+} from "@/lib/research/turnActivity";
 
 export interface IncomingResearchConversationEvent {
   claudeMessageUuid: string;
@@ -161,16 +165,62 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     });
   }
 
+  /**
+   * Whether the conversation's most recent turn is missing its terminal
+   * `result`. Counting user events against results would drift: background
+   * task re-invocations produce results with no user event, and synthetic
+   * supervisor results close crashed turns. Instead, look at the latest
+   * turn-relevant event — turn content (the shared kind list from
+   * `@/lib/research/turnActivity`, or the `system:init` that opens every
+   * turn) with no `result` after it means the turn is dangling. Mirrors
+   * `isTurnInFlight` on the client and the supervisor's busy state.
+   */
   public async hasIncompleteTurn(conversationId: string): Promise<boolean> {
-    const row = await this.getRawDb().one<{ userCount: string; resultCount: string }>(`
+    const row = await this.getRawDb().oneOrNone<{ kind: string }>(`
       -- ResearchConversationEventsRepo.hasIncompleteTurn
-      SELECT
-        COUNT(*) FILTER (WHERE "kind" = 'user') AS "userCount",
-        COUNT(*) FILTER (WHERE "kind" = 'result') AS "resultCount"
+      SELECT "kind"
       FROM "ResearchConversationEvents"
       WHERE "conversationId" = $(conversationId)
-    `, { conversationId });
-    return Number(row.userCount) > Number(row.resultCount);
+        AND (
+          "kind" IN ($(turnActivityKinds:csv))
+          OR "kind" = 'result'
+          OR ("kind" = 'system' AND "payload"->>'subtype' = $(turnOpeningSubtype))
+        )
+      ORDER BY "seq" DESC
+      LIMIT 1
+    `, {
+      conversationId,
+      turnActivityKinds: [...TURN_ACTIVITY_EVENT_KINDS],
+      turnOpeningSubtype: TURN_OPENING_SYSTEM_SUBTYPE,
+    });
+    return row !== null && row.kind !== "result";
+  }
+
+  public async conversationsWithIncompleteTurns(conversationIds: string[]): Promise<string[]> {
+    if (conversationIds.length === 0) return [];
+    const rows = await this.getRawDb().any<{ conversationId: string }>(`
+      -- ResearchConversationEventsRepo.conversationsWithIncompleteTurns
+      SELECT ids.id AS "conversationId"
+      FROM unnest($(conversationIds)::text[]) AS ids(id)
+      CROSS JOIN LATERAL (
+        SELECT e."kind"
+        FROM "ResearchConversationEvents" e
+        WHERE e."conversationId" = ids.id
+          AND (
+            e."kind" IN ($(turnActivityKinds:csv))
+            OR e."kind" = 'result'
+            OR (e."kind" = 'system' AND e."payload"->>'subtype' = $(turnOpeningSubtype))
+          )
+        ORDER BY e."seq" DESC
+        LIMIT 1
+      ) last_event
+      WHERE last_event."kind" <> 'result'
+    `, {
+      conversationIds,
+      turnActivityKinds: [...TURN_ACTIVITY_EVENT_KINDS],
+      turnOpeningSubtype: TURN_OPENING_SYSTEM_SUBTYPE,
+    });
+    return rows.map((r) => r.conversationId);
   }
 
   /**

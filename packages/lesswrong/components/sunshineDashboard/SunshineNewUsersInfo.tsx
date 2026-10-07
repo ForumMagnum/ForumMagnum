@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 import MetaInfo from "../common/MetaInfo";
@@ -22,6 +21,10 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+
+const CONTENT_LIMIT = 20
+const DEFAULT_BIO_WORDCOUNT = 250
+const MAX_BIO_WORDCOUNT = 10000
 
 function formatMailgunValidationSummary(validation: SunshineUsersList["mailgunValidation"]): string {
   if (!validation) return "not validated";
@@ -179,8 +182,7 @@ const SunshineNewUsersInfo = ({user, refetch, currentUser}: {
   const mailgunValidationSummary = user.mailgunValidation
     ? formatMailgunValidationSummary(user.mailgunValidation)
     : null;
-  
-  // All elements in this component should also appar in UsersReviewInfoCard
+
   return (
       <div className={classes.root}>
         <Typography variant="body2">

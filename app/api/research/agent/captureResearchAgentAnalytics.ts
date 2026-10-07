@@ -14,6 +14,7 @@ interface ResearchAgentApiEventProps {
   conversationId?: string;
   projectId?: string;
   documentId?: string;
+  sandboxId?: string;
   userId?: string;
   status: ResearchAgentApiStatus;
   /** For `unauthorized`: discriminator from `verifySandboxCallbackToken`. */
@@ -21,8 +22,14 @@ interface ResearchAgentApiEventProps {
   /** For `forbidden`: short tag describing which check failed. */
   reason?: string;
   errorCategory?: string;
-  /** Set on success to describe what actually happened (e.g. "inserted", "replaced"). */
+  /** Categorical outcome of the operation (e.g. "inserted", "deleted", "persisted"). */
   operationResult?: string;
+  /** Whether a turn was running, on the heartbeat route. */
+  turnRunning?: boolean;
+  /** Size of a returned collection (conversations, documents, transcript turns). */
+  count?: number;
+  /** Character length of returned/affected content. */
+  charCount?: number;
 }
 
 function categorizeError(error: unknown): string {

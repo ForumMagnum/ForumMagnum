@@ -35,8 +35,11 @@ import * as ReactDOM from 'react-dom';
 import { useDialog, type OpenDialogContextType } from '@/components/common/withDialog';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
+import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
+import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -51,7 +54,9 @@ import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
+import { Diagram2Icon } from '../../icons/Diagram2Icon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
+import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
@@ -85,7 +90,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
   text: typeaheadItemText(),
-  icon: typeaheadItemIcon(),
+  icon: {
+    ...typeaheadItemIcon(),
+    opacity: 0.6,
+  },
 }));
 
 const iconStyle = { display: 'flex', width: 18, height: 18, marginRight: 8, marginTop: 2, opacity: 0.6 };
@@ -190,6 +198,7 @@ function useBaseOptions(
   currentUser: UsersCurrent | null,
   inResearchContext: boolean,
 ) {
+  const classes = useStyles(styles);
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -229,6 +238,12 @@ function useBaseOptions(
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
       }
     }),
+    new ComponentPickerOption('Footnote', {
+      icon: <CkFootnoteIcon className={classes.icon} />,
+      keywords: ['footnote', 'note', 'reference'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {}),
+    }),
     new ComponentPickerOption('Inline Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
       keywords: ['equation', 'latex', 'math', 'inline'],
@@ -252,11 +267,23 @@ function useBaseOptions(
           ),
         }),
     }),
+    new ComponentPickerOption('Diagram', {
+      icon: <Diagram2Icon style={iconStyle} />,
+      keywords: ['diagram', 'drawing', 'excalidraw', 'sketch', 'flowchart', 'whiteboard', 'arrows'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
+    }),
     new ComponentPickerOption('Collapsible Section', {
       icon: <CaretRightFillIcon style={iconStyle} />,
       keywords: ['collapse', 'collapsible', 'toggle', 'section'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Spoiler Block', {
+      icon: <ForumIcon icon="EyeSlash" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['spoiler', 'hidden', 'hide', 'reveal', 'blur'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_SPOILER_COMMAND, undefined),
     }),
     new ComponentPickerOption('Custom Widget', {
       icon: <CodeIcon style={iconStyle} />,

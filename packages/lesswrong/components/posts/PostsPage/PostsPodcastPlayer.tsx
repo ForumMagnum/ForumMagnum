@@ -6,6 +6,13 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
+interface PostsPodcastPlayerProps {
+  podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>
+  postId: string
+  hideIconList?: boolean
+  onLoadError?: (episodeLink: string) => void
+}
+
 const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
@@ -21,11 +28,7 @@ const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   }
 }));
 
-const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
-  podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>,
-  postId: string,
-  hideIconList?: boolean,
-}) => {
+const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false, onLoadError}: PostsPodcastPlayerProps) => {
   const classes = useStyles(styles);
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -37,13 +40,19 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   useEffect(() => {
     const newScript = document.createElement('script');
     newScript.async=true;
-    newScript.src=podcastEpisode.episodeLink;
+    // Imported embed URLs can contain HTML-escaped query separators, which
+    // assigning to the DOM property does not decode like parsing HTML would.
+    newScript.src=podcastEpisode.episodeLink.replace(/&amp;/g, '&');
+    newScript.onerror = () => {
+      onLoadError?.(podcastEpisode.episodeLink);
+    };
     document.head.appendChild(newScript);
     
     return () => {
+      newScript.onerror = null;
       newScript.parentNode?.removeChild(newScript);
     }
-  }, [podcastEpisode.episodeLink]);
+  }, [onLoadError, podcastEpisode.episodeLink]);
 
   const setMouseOverDiv = (isMouseOver: boolean) => {
     mouseOverDiv.current = isMouseOver;
@@ -74,5 +83,4 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
 };
 
 export default PostsPodcastPlayer
-
 

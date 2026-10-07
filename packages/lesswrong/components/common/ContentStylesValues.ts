@@ -1,85 +1,118 @@
 import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import { researchAccentTint } from '../research/researchStyleUtils';
 
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
  * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
- * then narrows the editor's own typography under `[contenteditable="true"]`:
- * compact sans-serif sizing for paragraphs / headings / lists / blockquotes,
- * a fixed content column, and placeholder positioning that lines up with
- * where the user's first paragraph would actually sit.
+ * then restyles the editor's own typography under `[contenteditable="true"]`:
+ * a serif essay reading column (research docs read as essays-in-progress, not
+ * tool output) for paragraphs / headings / lists / blockquotes, plus
+ * placeholder positioning that lines up with where the user's first paragraph
+ * would actually sit.
  *
- * Keep editor-specific rules scoped to the contenteditable so they don't
- * leak onto floating menus, toolbars, or popovers that share the wrapper.
+ * Keep editor-specific rules scoped to the contenteditable so they don't leak
+ * onto floating menus, toolbars, or popovers that share the wrapper. The
+ * `:not(.research-query-input-content)`, `:not(.research-chat-composer *)`,
+ * `:not(.research-agent-block *)`, and `:not(:where(.LexicalContentEditable-rootComment))`
+ * guards exclude the query input, the nested conversation-block composer,
+ * agent transcript/presentation content, and the comment composers (margin
+ * cards portal inside this wrapper), which carry their own compact styling
+ * rather than the document's reading column.
+ *
+ * The comment-composer guards are wrapped in `:where()` because these
+ * selectors tie with DocumentPane's `editorWrapWithComments` margin override
+ * at equal specificity and must keep losing that tie by source order — a
+ * bare `:not(.x)` raises specificity and silently re-centers the column
+ * while comment threads are open.
  */
+export const RESEARCH_DOC_EDITOR_MAX_WIDTH = 760 + (2 * 32);
+
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  '& [contenteditable="true"]:not(.research-query-input-content)': {
-    minHeight: 'calc(100vh - var(--header-height, 56px))',
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    maxWidth: 960,
-    padding: '20px 18px 40px',
+  '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *):not(:where(.LexicalContentEditable-rootComment))': {
+    minHeight: 'calc(100vh - var(--header-height, 0px))',
+    boxSizing: 'border-box',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
+    color: theme.palette.text.primary,
+    maxWidth: RESEARCH_DOC_EDITOR_MAX_WIDTH,
+    margin: '0 auto',
+    padding: '44px 32px 160px',
   },
-  '& [contenteditable="true"] p': {
-    margin: '0 0 0.75em',
+  // Collapsible sections share the paragraph rule so they can't drift from it.
+  '& [contenteditable="true"] p:not(.research-agent-block *):not(:where(.LexicalContentEditable-rootComment *)), & [contenteditable="true"] .detailsBlock:not(.research-agent-block *)': {
+    margin: '0 0 0.7em',
   },
-  '& [contenteditable="true"] h1': {
+  '& [contenteditable="true"] h1:not(.research-agent-block *)': {
+    fontSize: 32,
+    lineHeight: 1.2,
+    margin: '0.9em 0 0.45em',
+    fontWeight: 400,
+    fontFamily: theme.palette.fonts.headerStack,
+  },
+  '& [contenteditable="true"] h2:not(.research-agent-block *)': {
     fontSize: 24,
     lineHeight: 1.25,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h2': {
+  '& [contenteditable="true"] h3:not(.research-agent-block *)': {
     fontSize: 20,
     lineHeight: 1.3,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h3': {
-    fontSize: 17,
+  '& [contenteditable="true"] h4:not(.research-agent-block *)': {
+    fontSize: 18,
     lineHeight: 1.35,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h4': {
-    fontSize: 14,
-    lineHeight: 1.4,
-    margin: '1em 0 0.5em',
-    fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  '& [contenteditable="true"] li': {
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  '& [contenteditable="true"] li:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
     color: theme.palette.text.primary,
   },
-  '& [contenteditable="true"] blockquote': {
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  '& [contenteditable="true"] blockquote:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
     margin: '0.5em 0',
     padding: '0.25em 0.75em',
     borderLeft: `3px solid ${theme.palette.greyAlpha(0.15)}`,
     color: theme.palette.text.primary,
     fontStyle: 'normal',
   },
+  '& mark.editor-mark': {
+    background: researchAccentTint(0.14),
+    borderBottom: `2px solid ${researchAccentTint(0.45)}`,
+    padding: '1px 0',
+    color: 'inherit',
+  },
+  '& mark.editor-mark.selected': {
+    background: researchAccentTint(0.28),
+    borderBottom: `2px solid ${researchAccentTint(0.7)}`,
+  },
   // Placeholder is a sibling of the contenteditable, absolutely positioned
   // at the top-left of the editor shell, so it doesn't pick up the
-  // contenteditable's padding via inheritance — match offsets explicitly so
-  // the empty-state text lines up with where the first paragraph would.
-  '& .LexicalContentEditable-placeholder': {
-    top: 20,
-    left: 18,
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  '& .LexicalContentEditable-placeholder:not(.research-chat-composer *):not(:where(.LexicalContentEditable-placeholderComment))': {
+    top: 44,
+    left: 0,
+    right: 0,
+    maxWidth: 760,
+    margin: '0 auto',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
   },
 });
 
@@ -99,6 +132,11 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   },
   commentBody: {
     ...commentBodyStyles(theme),
+    '&& .llm-content-block': {
+      // LLM blocks use a slightly larger font in posts, but in comments the
+      // generated text should match the surrounding comment's size.
+      fontSize: 'inherit',
+    },
   },
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)
@@ -211,7 +249,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   // Composed from `researchDocumentBodyStyles`, which itself spreads
   // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
   // tables, etc.) and then overrides editor-specific typography under
-  // `[contenteditable="true"]`. Combined with `contentStylesClassnames`
+  // `[data-lexical-editor]`. Combined with `contentStylesClassnames`
   // skipping `base` for this type, that gives the editor exactly one source
   // of post-body styling — its own — instead of stacking post-rendering
   // defaults underneath and fighting them with overrides.

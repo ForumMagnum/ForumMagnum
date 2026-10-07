@@ -6,7 +6,7 @@
  *
  */
 
-import type {Klass, LexicalNode, LexicalNodeConfig} from 'lexical';
+import type { LexicalNodeConfig} from 'lexical';
 
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {HashtagNode} from '@lexical/hashtag';
@@ -27,7 +27,7 @@ import {AutocompleteNode} from './AutocompleteNode';
 import {DateTimeNode} from './DateTimeNode/DateTimeNode';
 import {EmojiNode} from './EmojiNode';
 import { MathNode } from '@/components/editor/lexicalPlugins/math/MathNode';
-// import {ExcalidrawNode} from './ExcalidrawNode';
+import {ExcalidrawNode} from './ExcalidrawNode';
 import {FigmaNode} from './FigmaNode';
 import {ImageCaptionNode, ImageNode, ImageRenderNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
@@ -99,7 +99,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   ImageCaptionNode,
   MentionNode,
   EmojiNode,
-  // ExcalidrawNode,
+  ExcalidrawNode,
   MathNode,
   AutocompleteNode,
   KeywordNode,

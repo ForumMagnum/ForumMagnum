@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
 
-export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFeed"] as const;
+export const feedTypes = ["following", "ultraFeed", "debug", "userContent", "bookmarksFeed"] as const;
 export type FeedType = typeof feedTypes[number];
 
 export interface PostScoreBreakdownTerms extends Record<string, number> {
@@ -23,12 +23,20 @@ export interface ThreadScoreBreakdownTerms extends Record<string, number> {
 export interface PostScoreBreakdown {
   total: number;
   terms: PostScoreBreakdownTerms;
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
+  };
   typeMultiplier: number;
 }
 
 export interface ThreadScoreBreakdown {
   total: number;
   terms: ThreadScoreBreakdownTerms;
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
+  };
   repetitionPenaltyMultiplier: number;
   typeMultiplier: number;
 }

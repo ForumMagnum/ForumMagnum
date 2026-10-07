@@ -1,20 +1,26 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { isDevelopment } from '@/lib/executionEnvironment';
 import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import chunk from 'lodash/chunk';
 import { getPgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
 import { backgroundTask } from './utils/backgroundTask';
 
-const queuedPerfMetrics: PerfMetric[] = [];
+const queuedPerfMetrics = new Map<ForumTypeString, PerfMetric[]>();
 
-export function queuePerfMetric(perfMetric: PerfMetric) {
-  queuedPerfMetrics.push(perfMetric);
-  backgroundTask(flushPerfMetrics());
+export function queuePerfMetric(perfMetric: PerfMetric, forumType: ForumTypeString) {
+  let queue = queuedPerfMetrics.get(forumType);
+  if (!queue) {
+    queue = [];
+    queuedPerfMetrics.set(forumType, queue);
+  }
+  queue.push(perfMetric);
+  backgroundTask(flushPerfMetrics(queue, forumType));
 }
 
-async function flushPerfMetrics() {
-  const batchSize = performanceMetricLoggingBatchSize.get()
+async function flushPerfMetrics(queue: PerfMetric[], forumType: ForumTypeString) {
+  const batchSize = performanceMetricLoggingBatchSize.get(forumType)
 
-  if (queuedPerfMetrics.length < batchSize) return;
+  if (queue.length < batchSize) return;
 
   const connection = getAnalyticsConnection();
   if (!connection) return;
@@ -28,12 +34,12 @@ async function flushPerfMetrics() {
     perfMetricsColumnSet
   } = await import('@/server/perfMetricsWriter/perfMetricsWriter');
    
-  const metricsToWrite = queuedPerfMetrics.splice(0);
+  const metricsToWrite = queue.splice(0);
   for (const batch of chunk(metricsToWrite, batchSize)) {
     try {
       await insertAndCacheNormalizedDataInBatch(batch, connection);
 
-      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get(forumType);
       const valuesToInsert = constructPerfMetricBatchInsertQuery(batch, environmentDescription);
       const query = getPgPromiseLib().helpers.insert(valuesToInsert, perfMetricsColumnSet);
       

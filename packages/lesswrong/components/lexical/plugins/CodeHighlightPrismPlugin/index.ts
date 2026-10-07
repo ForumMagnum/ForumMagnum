@@ -6,7 +6,7 @@
  *
  */
 
-import React, { type JSX } from 'react';
+import { type JSX } from 'react';
 
 import {CodeNode, registerCodeHighlighting} from '@lexical/code';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';

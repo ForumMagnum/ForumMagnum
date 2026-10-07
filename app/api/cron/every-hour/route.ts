@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
 import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
   tasks.push(clearArbitalCache());
 
   // Permanently delete users
-  tasks.push(permanentlyDeleteUsers());
+  tasks.push(permanentlyDeleteUsers(getForumTypeForRequest(request)));
 
   await Promise.all(tasks);
 

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { textReplacementsSetting } from '@/lib/instanceSettings';
 import { useRef } from "react";
 
@@ -107,7 +108,8 @@ function replaceText(node: Node, replacements: ReplacementTuple[]) {
 }
 
 export function useReplaceTextContent() {
-  const replacements: ReplacementTuple[] = Object.entries(textReplacementsSetting.get());
+  const { forumType } = useForumType();
+  const replacements: ReplacementTuple[] = Object.entries(textReplacementsSetting.get(forumType));
   const observerRef = useRef<MutationObserver | null>(null);
 
   return () => {

@@ -47,11 +47,9 @@ import { TypeCapitalizeIcon } from '../../icons/TypeCapitalizeIcon';
 import { TypeStrikethroughIcon } from '../../icons/TypeStrikethroughIcon';
 import { TypeSubscriptIcon } from '../../icons/TypeSubscriptIcon';
 import { TypeSuperscriptIcon } from '../../icons/TypeSuperscriptIcon';
-import { HighlighterIcon } from '../../icons/HighlighterIcon';
 import { TrashIcon } from '../../icons/TrashIcon';
 import { PlusIcon } from '../../icons/PlusIcon';
 import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
-import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { TableIcon } from '../../icons/TableIcon';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
@@ -60,7 +58,6 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 // import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { CkMathIcon } from '../../icons/CkMathIcon';
-import { StickyIcon } from '../../icons/StickyIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CalendarIcon } from '../../icons/CalendarIcon';
 import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
@@ -122,14 +119,13 @@ import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalP
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
-// import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
+// import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 import {
   INSERT_IMAGE_COMMAND,
   InsertImageDialog,
   InsertImagePayload,
 } from '../ImagesPlugin';
 // import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
-import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 // import {InsertPollDialog} from '../PollPlugin';
 import {SHORTCUTS} from '../ShortcutsPlugin/shortcuts';
 // import FontSize, {parseFontSizeForToolbar} from './fontSize';

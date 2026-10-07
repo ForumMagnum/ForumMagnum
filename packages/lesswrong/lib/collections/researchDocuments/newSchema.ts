@@ -48,6 +48,52 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Custom sidebar icon in place of the default document glyph: `svg:<id>`
+  // referencing the hand-drawn set in researchIconSet.tsx, or a bare Unicode
+  // emoji (legacy values from the retired emoji picker still render).
+  icon: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
+  // Manual sidebar ordering; lower sorts first. Null (never reordered) sorts
+  // after ordered docs, then by createdAt. Written only by the
+  // reorderResearchDocuments mutation (server-side), so not client-updatable.
+  sortOrder: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
+  // Soft-archive flag. Archived documents drop out of the sidebar's main
+  // list (the `byProject` view filters them out) and surface only in the
+  // collapsed "Archived" section, from which they can be restored. Toggled
+  // via the standard update mutation.
+  archived: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
   // Editable Lexical content backed by the Revisions collection (no
   // denormalized column). The last-persisted snapshot is the latest
   // `Revisions` row with `collectionName: 'ResearchDocuments'`,

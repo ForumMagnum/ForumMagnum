@@ -76,16 +76,13 @@ export const routeTrie = {
         "migrations": {
           "hasPage": true
         },
-        "moderation": {
-          "hasPage": true
-        },
         "moderationTemplates": {
           "hasPage": true
         },
-        "random-user": {
+        "pangram": {
           "hasPage": true
         },
-        "recentlyActiveUsers": {
+        "random-user": {
           "hasPage": true
         },
         "supermod": {
@@ -107,10 +104,9 @@ export const routeTrie = {
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
-        "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
+        "pangram": "pangram",
         "random-user": "random-user",
-        "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
@@ -354,6 +350,9 @@ export const routeTrie = {
             "run-twitter-bot": {
               "hasRoute": true
             },
+            "supermod-status-to-slack": {
+              "hasRoute": true
+            },
             "update-analytics-collections": {
               "hasRoute": true
             },
@@ -378,6 +377,7 @@ export const routeTrie = {
             "every-minute": "every-minute",
             "every-ten-minutes": "every-ten-minutes",
             "run-twitter-bot": "run-twitter-bot",
+            "supermod-status-to-slack": "supermod-status-to-slack",
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
@@ -439,12 +439,16 @@ export const routeTrie = {
                         "events": {
                           "hasRoute": true
                         },
+                        "presentation": {
+                          "hasRoute": true
+                        },
                         "transcript": {
                           "hasRoute": true
                         }
                       },
                       "lowerCase": {
                         "events": "events",
+                        "presentation": "presentation",
                         "transcript": "transcript"
                       }
                     }
@@ -452,6 +456,9 @@ export const routeTrie = {
                 },
                 "documents": {
                   "staticChildren": {
+                    "commentOnDocument": {
+                      "hasRoute": true
+                    },
                     "deleteBlock": {
                       "hasRoute": true
                     },
@@ -469,15 +476,20 @@ export const routeTrie = {
                     },
                     "replaceWidget": {
                       "hasRoute": true
+                    },
+                    "replyToComment": {
+                      "hasRoute": true
                     }
                   },
                   "lowerCase": {
+                    "commentondocument": "commentOnDocument",
                     "deleteblock": "deleteBlock",
                     "insertblock": "insertBlock",
                     "insertllmblock": "insertLLMBlock",
                     "insertwidget": "insertWidget",
                     "replacetext": "replaceText",
-                    "replacewidget": "replaceWidget"
+                    "replacewidget": "replaceWidget",
+                    "replytocomment": "replyToComment"
                   },
                   "dynamicChild": {
                     "paramName": "documentId",
@@ -747,6 +759,26 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "cache": {
+      "staticChildren": {
+        "posts": {
+          "dynamicChild": {
+            "paramName": "postId",
+            "child": {
+              "optionalCatchAll": {
+                "paramName": "slug",
+                "child": {
+                  "hasRoute": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "lowerCase": {
+        "posts": "posts"
+      }
+    },
     "ckeditor-token": {
       "hasRoute": true
     },
@@ -986,9 +1018,6 @@ export const routeTrie = {
           "hasRoute": true
         }
       }
-    },
-    "manageSubscriptions": {
-      "hasPage": true
     },
     "meetups": {
       "hasPage": true
@@ -1425,6 +1454,7 @@ export const routeTrie = {
     "bestoflesswrongadmin": "bestoflesswrongadmin",
     "bookmarks": "bookmarks",
     "books": "books",
+    "cache": "cache",
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",
@@ -1460,7 +1490,6 @@ export const routeTrie = {
     "login": "login",
     "logout": "logout",
     "lw": "lw",
-    "managesubscriptions": "manageSubscriptions",
     "meetups": "meetups",
     "message": "message",
     "moderation": "moderation",

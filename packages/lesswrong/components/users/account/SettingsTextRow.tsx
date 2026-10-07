@@ -1,7 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import type { Updater } from '@tanstack/react-form';
 
 const styles = defineStyles('SettingsTextRow', (theme: ThemeType) => ({
   root: {
@@ -54,38 +52,58 @@ const styles = defineStyles('SettingsTextRow', (theme: ThemeType) => ({
       cursor: 'not-allowed',
     },
   },
-  error: {
-    fontSize: 12,
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.error.main,
-    marginTop: 4,
-  },
 }));
 
-interface SettingsTextRowProps<T extends string | number | null | undefined> {
-  field: {
-    name: TypedFieldApi<T>['name'];
-    state: Pick<TypedFieldApi<T>['state'], 'value' | 'meta'>;
-    handleChange: TypedFieldApi<T>['handleChange'];
-    handleBlur: TypedFieldApi<T>['handleBlur'];
-  };
+interface SettingsTextRowBaseProps {
   label: string;
   description?: string;
   placeholder?: string;
   disabled?: boolean;
-  type?: 'text' | 'number' | 'email';
 }
 
-function SettingsTextRow<T extends string | number | null | undefined>({
-  field,
-  label,
-  description,
-  placeholder,
-  disabled = false,
-  type = 'text',
-}: SettingsTextRowProps<T>) {
+type SettingsTextRowProps = SettingsTextRowBaseProps & (
+  | {
+      type?: 'text' | 'email';
+      value: string | null | undefined;
+      /** Called when the input loses focus (or Enter is pressed) with a changed value */
+      onCommit: (value: string) => void;
+    }
+  | {
+      type: 'number';
+      value: number | null | undefined;
+      onCommit: (value: number | null) => void;
+    }
+);
+
+function SettingsTextRow(props: SettingsTextRowProps) {
+  const { label, description, placeholder, disabled = false, value } = props;
   const classes = useStyles(styles);
-  const error = field.state.meta.errors[0];
+  const [draft, setDraft] = useState(String(value ?? ''));
+  const [focused, setFocused] = useState(false);
+
+  // Reflect external changes (e.g. a failed save reverting) while not editing
+  useEffect(() => {
+    if (!focused) {
+      setDraft(String(value ?? ''));
+    }
+  }, [value, focused]);
+
+  const commitDraft = () => {
+    if (props.type === 'number') {
+      const parsed = draft === '' ? null : Number(draft);
+      if (parsed !== null && isNaN(parsed)) {
+        setDraft(String(props.value ?? ''));
+        return;
+      }
+      if (parsed !== (props.value ?? null)) {
+        props.onCommit(parsed);
+      }
+    } else {
+      if (draft !== (props.value ?? '')) {
+        props.onCommit(draft);
+      }
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -93,20 +111,28 @@ function SettingsTextRow<T extends string | number | null | undefined>({
       {description && <div className={classes.description}>{description}</div>}
       <input
         className={classes.input}
-        name={field.name}
-        type={type}
-        value={field.state.value ?? ''}
-        onChange={(e) => {
-          const value = type === 'number'
-            ? (isNaN(Number(e.target.value)) ? null : Number(e.target.value))
-            : e.target.value;
-          field.handleChange(value as Updater<T>);
+        type={props.type ?? 'text'}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          setFocused(false);
+          // For number inputs, invalid partial input (e.g. a lone "-") reads
+          // as '' — restore the saved value rather than committing null
+          if (e.currentTarget.validity.badInput) {
+            setDraft(String(value ?? ''));
+            return;
+          }
+          commitDraft();
         }}
-        onBlur={field.handleBlur}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur();
+          }
+        }}
         placeholder={placeholder}
         disabled={disabled}
       />
-      {error && <div className={classes.error}>{typeof error === 'string' ? error : error.message}</div>}
     </div>
   );
 }

@@ -21,7 +21,6 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
 export const isLW = () => forumTypeSetting.get() === "LessWrong"
 export const isEAForum = () => forumTypeSetting.get() === "EAForum"
 export const isAF = () => forumTypeSetting.get() === "AlignmentForum"
-export const isLWorAF = () => isLW() || isAF()
 
 //Partial Type adds "undefined" erroneously to T, so we need to explicitly tell TS that it can't be undefined.
 type NonUndefined<T> = T extends undefined ? never : T;
@@ -33,8 +32,8 @@ export type ForumOptions<T> = Record<ForumTypeString, T> |
   (Partial<Record<ForumTypeString, T>> & {default: T}) |
   (Partial<Record<ComboForumTypeString, T>> & {default: T});
 
-export function forumSelect<T>(forumOptions: ForumOptions<T>, forumType?: ForumTypeString): NonUndefined<T> {
-  forumType ??= forumTypeSetting.get();
+export function forumSelect<T>(forumOptions: ForumOptions<T>, forum: ForumTypeString | ResolverContext): NonUndefined<T> {
+  const forumType = typeof forum === "string" ? forum : forum.forumType;
   if (forumType in forumOptions) {
     return (forumOptions as AnyBecauseTodo)[forumType] as NonUndefined<T> // The default branch ensures T always exists
   }
@@ -52,7 +51,7 @@ export class DeferredForumSelect<T> {
     return "default" in this.forumOptions ? this.forumOptions.default : undefined;
   }
 
-  get(forumType?: ForumTypeString): NonUndefined<T> {
-    return forumSelect(this.forumOptions, forumType);
+  get(forum: ForumTypeString | ResolverContext): NonUndefined<T> {
+    return forumSelect(this.forumOptions, forum);
   }
 }

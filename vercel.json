@@ -41,5 +41,8 @@
   }, {
     "path": "/api/cron/curation-status-to-slack",
     "schedule": "0 19 * * *"
+  }, {
+    "path": "/api/cron/supermod-status-to-slack",
+    "schedule": "30 16,17 * * *"
   }]
 }

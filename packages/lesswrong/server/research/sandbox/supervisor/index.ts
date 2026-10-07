@@ -16,7 +16,6 @@
  *  - BACKEND_BASE_URL     — origin to POST to (events, heartbeats)
  *  - SUPERVISOR_PORT      — port to listen on (9280)
  *  - AUTH_PROXY_PORT      — auth-proxy public port (9281)
- *  - DEV_PORT             — fixed dev-server port, exported to init.sh as PORT (9282)
  *  - DEV_PROXY_SECRET     — HMAC key for dev-preview tokens
  *  - USER_ID, PROJECT_ID  — for context / heartbeat metadata
  *  - CONVERSATION_ID      — this sandbox's conversation (scopes queue recovery)
@@ -30,17 +29,14 @@ import { homedir } from "node:os";
 import * as path from "node:path";
 import { spawn } from "node:child_process";
 import type { Server } from "node:http";
-import { createConversationHub } from "./conversationHub";
+import { createConversationHub, enqueueSyntheticInterruptedResult } from "./conversationHub";
 import { createPostPersister, PostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
-import { startDevPortProbe } from "./devServer";
+import { createDevServerManager, startDevControlServer, DEV_CONTROL_PORT } from "./devServerManager";
+import { buildScriptBootEnv, researchBinPath } from "./devServer";
 import { startAuthProxy } from "./authProxy";
-
-const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
-
-/** Where the in-sandbox agent runs `claude`. */
-const AGENT_CWD = "/vercel/sandbox";
+import { AGENT_CWD } from "../sandboxLayout";
 
 // init.sh runs non-blocking (it doesn't gate boot or the agent's turn), so this
 // is only a hung-process reaper, not a latency budget. Allow several minutes so a
@@ -49,22 +45,27 @@ const AGENT_CWD = "/vercel/sandbox";
 const INIT_SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
- * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder in the agent's CLAUDE.md
- * so Claude Code's auto-loaded system prompt knows what project the agent is
- * scoped to. Run at boot, *after* the backend's overlay write and *before* any
- * `claude` subprocess. Best-effort: a missing/unwritable file just logs.
+ * Per-conversation context appended to Claude Code's default system prompt
+ * (`--append-system-prompt`) at process spawn. This replaces the old scheme of
+ * substituting `{{...}}` placeholders into the overlaid CLAUDE.md at boot:
+ * the values are per-conversation constants known from env, and keeping them
+ * out of the on-disk file means a re-launch can never observe a stale fill.
+ * The static agent instructions still ship as CLAUDE.md and are auto-loaded.
  */
-function fillClaudeMdTemplate(env: { projectId: string }): void {
-  try {
-    const template = fs.readFileSync(CLAUDE_MD_PATH, "utf8");
-    const filled = template.replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId);
-    if (filled !== template) {
-      fs.writeFileSync(CLAUDE_MD_PATH, filled, "utf8");
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn(`[supervisor] could not fill CLAUDE.md template: ${(err as Error).message}`);
-  }
+function buildAppendSystemPrompt(env: { projectId: string; conversationId: string }): string {
+  return [
+    `You are working in research project \`${env.projectId}\`. All`,
+    `\`research-tool\` calls are scoped to this project automatically (the`,
+    `bearer token pins it server-side, so cross-project requests are`,
+    `rejected). You can't pivot to a different project from this sandbox.`,
+    ``,
+    `Your current conversation id is \`${env.conversationId}\`. If fetched`,
+    `document markdown, a \`fetch-conversation\` result, an \`@[conv:...]\``,
+    `mention, or an \`%%% agent-block conversationId="..." %%%\` placeholder`,
+    `refers to this same id, treat it as this conversation, including text you`,
+    `may have written earlier in the same task. Do not mistake it for an`,
+    `independent prior/sibling conversation.`,
+  ].join("\n");
 }
 
 interface SupervisorEnv {
@@ -73,7 +74,6 @@ interface SupervisorEnv {
   backendBaseUrl: string;
   port: number;
   authProxyPort: number;
-  devPort: number;
   devProxySecret: string;
   userId: string;
   projectId: string;
@@ -95,7 +95,6 @@ function readEnv(): SupervisorEnv {
     backendBaseUrl: required("BACKEND_BASE_URL"),
     port: Number(process.env.SUPERVISOR_PORT ?? "9280"),
     authProxyPort: Number(process.env.AUTH_PROXY_PORT ?? "9281"),
-    devPort: Number(process.env.DEV_PORT ?? "9282"),
     devProxySecret: required("DEV_PROXY_SECRET"),
     userId: required("USER_ID"),
     projectId: required("PROJECT_ID"),
@@ -106,14 +105,22 @@ function readEnv(): SupervisorEnv {
   };
 }
 
-function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void): void {
-  if (!fs.existsSync(env.initScriptPath)) return;
-  const initEnv: NodeJS.ProcessEnv = {
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: String(env.devPort),
-    PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
-    HOME: homedir(),
+function runInitScript(
+  env: SupervisorEnv,
+  surfaceSystem: (text: string) => void,
+  onComplete: () => void,
+): void {
+  let completed = false;
+  const finish = () => {
+    if (completed) return;
+    completed = true;
+    onComplete();
   };
+  if (!fs.existsSync(env.initScriptPath)) {
+    finish();
+    return;
+  }
+  const initEnv: NodeJS.ProcessEnv = buildScriptBootEnv();
   const child = spawn("sh", [env.initScriptPath], {
     cwd: AGENT_CWD,
     env: initEnv,
@@ -134,14 +141,15 @@ function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void
   child.on("error", (err) => {
     clearTimeout(timer);
     surfaceSystem(`init.sh failed to start: ${err.message}`);
+    finish();
   });
   child.on("close", (code, signal) => {
     clearTimeout(timer);
     // Surface a system event only on a genuine failure (non-zero exit or a
     // timeout kill). `init.sh` runs on *every* resume and benign steps (git pull
-    // progress, dep/deprecation warnings, dev-server banners) write to stderr
-    // without failing — surfacing those would spam the transcript on every boot.
-    // Include the stderr tail when we do surface, since that's where the cause is.
+    // progress, dep/deprecation warnings) write to stderr without failing —
+    // surfacing those would spam the transcript on every boot. Include the
+    // stderr tail when we do surface, since that's where the cause is.
     if (code !== 0 || signal) {
       const trimmed = stderr.trim();
       surfaceSystem(
@@ -149,6 +157,7 @@ function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void
           (trimmed ? `\n${trimmed}` : ""),
       );
     }
+    finish();
   });
 }
 
@@ -169,18 +178,12 @@ async function selfHealDanglingTurn(
     // supervisor, the "incomplete" turn is the live just-dispatched one, not an
     // orphan — emitting a synthetic terminal would falsely close it. Skip.
     if (isTurnRunning()) return;
-    const line = JSON.stringify({
-      type: "result",
-      subtype: "interrupted",
-      is_error: true,
-      result: "Turn interrupted by a sandbox restart.",
-    });
-    postPersister.enqueue(env.conversationId, {
-      rawJsonl: line,
-      kind: "result",
-      claudeMessageUuid: null,
-      supervisorEmittedAt: new Date().toISOString(),
-    });
+    enqueueSyntheticInterruptedResult(
+      postPersister,
+      env.conversationId,
+      "Turn interrupted by a sandbox restart.",
+      Date.now(),
+    );
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(`[supervisor] dangling-turn self-heal failed: ${(err as Error).message}`);
@@ -189,7 +192,10 @@ async function selfHealDanglingTurn(
 
 export async function bootSupervisor() {
   const env = readEnv();
-  fillClaudeMdTemplate({ projectId: env.projectId });
+  const appendSystemPrompt = buildAppendSystemPrompt({
+    projectId: env.projectId,
+    conversationId: env.conversationId,
+  });
 
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
@@ -237,34 +243,48 @@ export async function bootSupervisor() {
           conversationId: req.conversationId,
           prompt: req.prompt,
           claudeSessionId: req.claudeSessionId,
-          bootstrapJsonl: req.bootstrapJsonl,
+          sessionHasHistory: req.sessionHasHistory,
         },
         {
           // The cwd the claude subprocess starts in — also the cwd the
           // session-bootstrap JSONL path is derived from, so `--resume` finds
           // the synthesized history on a fresh sandbox.
           cwd: AGENT_CWD,
+          appendSystemPrompt,
+          // Spawn-time env for the long-lived claude process. The agent token
+          // is minted per dispatch but only the one in effect at spawn is
+          // visible to the process; that's safe because its TTL (48h) exceeds
+          // the sandbox session lifetime cap (24h), so a spawn-time token
+          // always outlives the process that received it.
           env: {
             // Put `~/.research/bin` (where the overlay drops the research-tool
             // binary) ahead of the system PATH so the agent can invoke
             // `research-tool ...` directly from Bash.
-            PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
+            PATH: researchBinPath(),
             // research-tool's required env. The token is the *agent-scoped*
             // sandbox-callback bearer the backend mints per dispatch.
             RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
             RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
             RESEARCH_PROJECT_ID: env.projectId,
+            RESEARCH_CONVERSATION_ID: req.conversationId,
+            // Lets `research-tool dev …` reach the local dev-server controller.
+            RESEARCH_DEV_CONTROL_URL: `http://127.0.0.1:${DEV_CONTROL_PORT}`,
           },
         },
       );
     },
     cancelTurn: (id) => hub.cancel(id),
+    answerQuestion: (id, toolUseId, answers) => hub.answerQuestion(id, toolUseId, answers),
     getStateSnapshot: () => {
       const snap = hub.snapshot();
       return {
         conversations: snap.conversations,
         concurrencyCount: snap.concurrencyCount,
-        turnRunning: snap.conversations.some((c) => c.status === "running"),
+        // Includes pending background tasks, matching the heartbeat: the
+        // /status consumer that matters is saveEnvironment's quiesce gate,
+        // and snapshotting stops the sandbox — which would kill a pending
+        // task and its promised re-invocation.
+        turnRunning: hub.hasPendingWork(),
         pendingEvents: postPersister.pendingCount(),
       };
     },
@@ -272,22 +292,27 @@ export async function bootSupervisor() {
 
   const server = startSupervisor(deps, env.port);
 
-  // The always-on auth-proxy fronts the localhost dev server. The supervisor
-  // does not spawn the dev server — `init.sh` does — so the proxy just probes
-  // the fixed dev port per request. Proxied requests bump `lastDevActivityAt`
-  // so dev-server use counts as activity for the idle policy.
+  // The supervisor owns the dev server: it runs the agent's `dev-server.sh`,
+  // restarts it on exit, and exposes start/stop/restart. The always-on
+  // auth-proxy fronts it and probes the fixed dev port per request; proxied
+  // requests bump `lastDevActivityAt` so dev-server use counts as activity for
+  // the idle policy.
   let lastDevActivityAt = 0;
-  const devProbe = startDevPortProbe(env.devPort);
+  const devServer = createDevServerManager(surfaceSystem);
   const authProxy: Server = startAuthProxy({
     port: env.authProxyPort,
-    devPort: env.devPort,
     proxySecret: env.devProxySecret,
     sandboxId: env.sandboxId,
-    devServer: devProbe,
+    devServer,
     onActivity: () => { lastDevActivityAt = Date.now(); },
   });
+  const devControl: Server = startDevControlServer(devServer);
 
-  runInitScript(env, surfaceSystem);
+  // Run per-boot setup to completion, then bring the dev server up. (A fresh
+  // environment has the server in `dev-server.sh`; an older one may still start
+  // it from `init.sh`, in which case `dev-server.sh` is absent and the manager
+  // stays idle.)
+  runInitScript(env, surfaceSystem, () => devServer.start());
 
   selfHealDanglingTurn(env, postPersister, () =>
     hub.snapshot().conversations.some((c) => c.status === "running"),
@@ -297,7 +322,10 @@ export async function bootSupervisor() {
     sandboxId: env.sandboxId,
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
-    getTurnRunning: () => hub.snapshot().conversations.some((c) => c.status === "running"),
+    // Includes pending background tasks, not just running turns: a finished
+    // task re-invokes the agent inside the long-lived claude process, so the
+    // sandbox must not idle-stop (or roll) out from under it.
+    getTurnRunning: () => hub.hasPendingWork(),
     getLastDevActivityAt: () => lastDevActivityAt,
   });
 
@@ -305,6 +333,12 @@ export async function bootSupervisor() {
     heartbeat.stop();
     server.close();
     authProxy.close();
+    devControl.close();
+    devServer.stop();
+    // Stop the long-lived claude process(es) first: a kill mid-turn enqueues a
+    // synthetic terminal `result` (see the hub's onExit), which the drain below
+    // then ships — so a turn cut short by sandbox stop isn't left dangling.
+    await hub.shutdown();
     await postPersister.drain();
     process.exit(0);
   };
