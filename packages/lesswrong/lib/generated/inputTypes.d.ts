@@ -142,6 +142,14 @@ interface Query {
   localgroups: MultiLocalgroupOutput | null;
   message: SingleMessageOutput | null;
   messages: MultiMessageOutput | null;
+  moderationAgentConversation: SingleModerationAgentConversationOutput | null;
+  moderationAgentConversations: MultiModerationAgentConversationOutput | null;
+  moderationLoreDoc: SingleModerationLoreDocOutput | null;
+  moderationLoreDocs: MultiModerationLoreDocOutput | null;
+  moderationProposal: SingleModerationProposalOutput | null;
+  moderationProposals: MultiModerationProposalOutput | null;
+  moderationSummary: SingleModerationSummaryOutput | null;
+  moderationSummaries: MultiModerationSummaryOutput | null;
   moderationTemplate: SingleModerationTemplateOutput | null;
   moderationTemplates: MultiModerationTemplateOutput | null;
   moderatorAction: SingleModeratorActionOutput | null;
@@ -335,6 +343,14 @@ interface Mutation {
   updateLocalgroup: LocalgroupOutput | null;
   createMessage: MessageOutput | null;
   updateMessage: MessageOutput | null;
+  createModerationAgentConversation: ModerationAgentConversationOutput | null;
+  updateModerationAgentConversation: ModerationAgentConversationOutput | null;
+  createModerationLoreDoc: ModerationLoreDocOutput | null;
+  updateModerationLoreDoc: ModerationLoreDocOutput | null;
+  createModerationProposal: ModerationProposalOutput | null;
+  updateModerationProposal: ModerationProposalOutput | null;
+  createModerationSummary: ModerationSummaryOutput | null;
+  updateModerationSummary: ModerationSummaryOutput | null;
   createModerationTemplate: ModerationTemplateOutput | null;
   updateModerationTemplate: ModerationTemplateOutput | null;
   createModeratorAction: ModeratorActionOutput | null;
@@ -3319,6 +3335,199 @@ interface Migration {
   schemaVersion: number;
   createdAt: Date;
   legacyData: any;
+}
+
+interface ModerationAgentConversation {
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
+  legacyData: any;
+  userId: string | null;
+  user: User | null;
+  targetUserId: string | null;
+  targetUser: User | null;
+  title: string | null;
+  model: string | null;
+  messages: any;
+  deleted: boolean | null;
+}
+
+interface SingleModerationAgentConversationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleModerationAgentConversationOutput {
+  result: ModerationAgentConversation | null;
+}
+
+interface ModerationAgentConversationsConversationsForTargetInput {
+  targetUserId?: string | null;
+}
+
+interface ModerationAgentConversationSelector {
+  default: EmptyViewInput | null;
+  conversationsForTarget: ModerationAgentConversationsConversationsForTargetInput | null;
+}
+
+interface MultiModerationAgentConversationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiModerationAgentConversationOutput {
+  results: Array<ModerationAgentConversation>;
+  totalCount: number | null;
+}
+
+interface ModerationLoreDoc {
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
+  legacyData: any;
+  contents: Revision | null;
+  contents_latest: string | null;
+  title: string | null;
+  scope: string | null;
+  targetUserId: string | null;
+  targetUser: User | null;
+  userId: string | null;
+  user: User | null;
+  deleted: boolean | null;
+}
+
+interface SingleModerationLoreDocInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleModerationLoreDocOutput {
+  result: ModerationLoreDoc | null;
+}
+
+interface ModerationLoreDocsLoreForUserInput {
+  targetUserId?: string | null;
+}
+
+interface ModerationLoreDocSelector {
+  default: EmptyViewInput | null;
+  globalLore: EmptyViewInput | null;
+  loreForUser: ModerationLoreDocsLoreForUserInput | null;
+}
+
+interface MultiModerationLoreDocInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiModerationLoreDocOutput {
+  results: Array<ModerationLoreDoc>;
+  totalCount: number | null;
+}
+
+interface ModerationProposal {
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
+  legacyData: any;
+  targetUserId: string | null;
+  targetUser: User | null;
+  createdByUserId: string | null;
+  createdByUser: User | null;
+  conversationId: string | null;
+  title: string | null;
+  rationale: string | null;
+  steps: Array<any> | null;
+  status: string | null;
+  stepResults: Array<any> | null;
+  appliedByUserId: string | null;
+  appliedAt: Date | null;
+  model: string | null;
+}
+
+interface SingleModerationProposalInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleModerationProposalOutput {
+  result: ModerationProposal | null;
+}
+
+interface ModerationProposalsProposalsForUserInput {
+  targetUserId?: string | null;
+  statuses?: Array<string> | null;
+}
+
+interface ModerationProposalSelector {
+  default: EmptyViewInput | null;
+  proposalsForUser: ModerationProposalsProposalsForUserInput | null;
+  pendingProposals: EmptyViewInput | null;
+}
+
+interface MultiModerationProposalInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiModerationProposalOutput {
+  results: Array<ModerationProposal>;
+  totalCount: number | null;
+}
+
+interface ModerationSummary {
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
+  legacyData: any;
+  kind: string | null;
+  targetUserId: string | null;
+  targetUser: User | null;
+  memberUserIds: Array<string> | null;
+  title: string | null;
+  contents: string | null;
+  createdByUserId: string | null;
+  createdByUser: User | null;
+  conversationId: string | null;
+  model: string | null;
+  deleted: boolean | null;
+}
+
+interface SingleModerationSummaryInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleModerationSummaryOutput {
+  result: ModerationSummary | null;
+}
+
+interface ModerationSummariesSummariesForUserInput {
+  targetUserId?: string | null;
+}
+
+interface ModerationSummarySelector {
+  default: EmptyViewInput | null;
+  summariesForUser: ModerationSummariesSummariesForUserInput | null;
+  groupings: EmptyViewInput | null;
+}
+
+interface MultiModerationSummaryInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiModerationSummaryOutput {
+  results: Array<ModerationSummary>;
+  totalCount: number | null;
 }
 
 interface ModerationTemplate {
@@ -7192,6 +7401,7 @@ interface User {
   hideFrontpageBook2019Ad: boolean | null;
   hideFrontpageBook2020Ad: boolean | null;
   sunshineNotes: string | null;
+  llmNotes: string | null;
   sunshineFlagged: boolean | null;
   needsReview: boolean | null;
   sunshineSnoozed: boolean | null;
@@ -7920,6 +8130,128 @@ interface UpdateMessageInput {
 
 interface MessageOutput {
   data: Message | null;
+}
+
+interface CreateModerationAgentConversationDataInput {
+  legacyData?: any;
+  userId: string;
+  targetUserId: string;
+  title?: string | null;
+  model?: string | null;
+}
+
+interface CreateModerationAgentConversationInput {
+  data: CreateModerationAgentConversationDataInput;
+}
+
+interface UpdateModerationAgentConversationDataInput {
+  legacyData?: any;
+  title?: string | null;
+  deleted?: boolean | null;
+}
+
+interface UpdateModerationAgentConversationInput {
+  selector: SelectorInput;
+  data: UpdateModerationAgentConversationDataInput;
+}
+
+interface ModerationAgentConversationOutput {
+  data: ModerationAgentConversation | null;
+}
+
+interface CreateModerationLoreDocDataInput {
+  legacyData?: any;
+  contents?: CreateRevisionDataInput | null;
+  title: string;
+  scope: string;
+  targetUserId?: string | null;
+  userId?: string | null;
+}
+
+interface CreateModerationLoreDocInput {
+  data: CreateModerationLoreDocDataInput;
+}
+
+interface UpdateModerationLoreDocDataInput {
+  legacyData?: any;
+  contents?: CreateRevisionDataInput | null;
+  title?: string | null;
+  deleted?: boolean | null;
+}
+
+interface UpdateModerationLoreDocInput {
+  selector: SelectorInput;
+  data: UpdateModerationLoreDocDataInput;
+}
+
+interface ModerationLoreDocOutput {
+  data: ModerationLoreDoc | null;
+}
+
+interface CreateModerationProposalDataInput {
+  legacyData?: any;
+  targetUserId: string;
+  createdByUserId: string;
+  conversationId?: string | null;
+  title: string;
+  rationale: string;
+  steps: Array<any>;
+  status?: string | null;
+  model?: string | null;
+}
+
+interface CreateModerationProposalInput {
+  data: CreateModerationProposalDataInput;
+}
+
+interface UpdateModerationProposalDataInput {
+  legacyData?: any;
+  title?: string | null;
+  rationale?: string | null;
+  steps?: Array<any> | null;
+  status?: string | null;
+  stepResults?: Array<any> | null;
+  appliedByUserId?: string | null;
+  appliedAt?: Date | null;
+}
+
+interface UpdateModerationProposalInput {
+  selector: SelectorInput;
+  data: UpdateModerationProposalDataInput;
+}
+
+interface ModerationProposalOutput {
+  data: ModerationProposal | null;
+}
+
+interface CreateModerationSummaryDataInput {
+  legacyData?: any;
+  kind: string;
+  targetUserId?: string | null;
+  memberUserIds?: Array<string> | null;
+  title?: string | null;
+  contents: string;
+  createdByUserId: string;
+  conversationId?: string | null;
+  model?: string | null;
+}
+
+interface CreateModerationSummaryInput {
+  data: CreateModerationSummaryDataInput;
+}
+
+interface UpdateModerationSummaryDataInput {
+  legacyData?: any;
+  deleted?: boolean | null;
+}
+
+interface UpdateModerationSummaryInput {
+  selector: SelectorInput;
+  data: UpdateModerationSummaryDataInput;
+}
+
+interface ModerationSummaryOutput {
+  data: ModerationSummary | null;
 }
 
 interface CreateModerationTemplateDataInput {
@@ -9171,6 +9503,7 @@ interface UpdateUserDataInput {
   hideFrontpageBook2019Ad?: boolean | null;
   hideFrontpageBook2020Ad?: boolean | null;
   sunshineNotes?: string | null;
+  llmNotes?: string | null;
   sunshineFlagged?: boolean | null;
   needsReview?: boolean | null;
   sunshineSnoozed?: boolean | null;
@@ -9645,6 +9978,34 @@ interface GraphQLTypeMap {
   MultiMessageInput: MultiMessageInput;
   MultiMessageOutput: MultiMessageOutput;
   Migration: Migration;
+  ModerationAgentConversation: ModerationAgentConversation;
+  SingleModerationAgentConversationInput: SingleModerationAgentConversationInput;
+  SingleModerationAgentConversationOutput: SingleModerationAgentConversationOutput;
+  ModerationAgentConversationsConversationsForTargetInput: ModerationAgentConversationsConversationsForTargetInput;
+  ModerationAgentConversationSelector: ModerationAgentConversationSelector;
+  MultiModerationAgentConversationInput: MultiModerationAgentConversationInput;
+  MultiModerationAgentConversationOutput: MultiModerationAgentConversationOutput;
+  ModerationLoreDoc: ModerationLoreDoc;
+  SingleModerationLoreDocInput: SingleModerationLoreDocInput;
+  SingleModerationLoreDocOutput: SingleModerationLoreDocOutput;
+  ModerationLoreDocsLoreForUserInput: ModerationLoreDocsLoreForUserInput;
+  ModerationLoreDocSelector: ModerationLoreDocSelector;
+  MultiModerationLoreDocInput: MultiModerationLoreDocInput;
+  MultiModerationLoreDocOutput: MultiModerationLoreDocOutput;
+  ModerationProposal: ModerationProposal;
+  SingleModerationProposalInput: SingleModerationProposalInput;
+  SingleModerationProposalOutput: SingleModerationProposalOutput;
+  ModerationProposalsProposalsForUserInput: ModerationProposalsProposalsForUserInput;
+  ModerationProposalSelector: ModerationProposalSelector;
+  MultiModerationProposalInput: MultiModerationProposalInput;
+  MultiModerationProposalOutput: MultiModerationProposalOutput;
+  ModerationSummary: ModerationSummary;
+  SingleModerationSummaryInput: SingleModerationSummaryInput;
+  SingleModerationSummaryOutput: SingleModerationSummaryOutput;
+  ModerationSummariesSummariesForUserInput: ModerationSummariesSummariesForUserInput;
+  ModerationSummarySelector: ModerationSummarySelector;
+  MultiModerationSummaryInput: MultiModerationSummaryInput;
+  MultiModerationSummaryOutput: MultiModerationSummaryOutput;
   ModerationTemplate: ModerationTemplate;
   SingleModerationTemplateInput: SingleModerationTemplateInput;
   SingleModerationTemplateOutput: SingleModerationTemplateOutput;
@@ -10063,6 +10424,26 @@ interface GraphQLTypeMap {
   UpdateMessageDataInput: UpdateMessageDataInput;
   UpdateMessageInput: UpdateMessageInput;
   MessageOutput: MessageOutput;
+  CreateModerationAgentConversationDataInput: CreateModerationAgentConversationDataInput;
+  CreateModerationAgentConversationInput: CreateModerationAgentConversationInput;
+  UpdateModerationAgentConversationDataInput: UpdateModerationAgentConversationDataInput;
+  UpdateModerationAgentConversationInput: UpdateModerationAgentConversationInput;
+  ModerationAgentConversationOutput: ModerationAgentConversationOutput;
+  CreateModerationLoreDocDataInput: CreateModerationLoreDocDataInput;
+  CreateModerationLoreDocInput: CreateModerationLoreDocInput;
+  UpdateModerationLoreDocDataInput: UpdateModerationLoreDocDataInput;
+  UpdateModerationLoreDocInput: UpdateModerationLoreDocInput;
+  ModerationLoreDocOutput: ModerationLoreDocOutput;
+  CreateModerationProposalDataInput: CreateModerationProposalDataInput;
+  CreateModerationProposalInput: CreateModerationProposalInput;
+  UpdateModerationProposalDataInput: UpdateModerationProposalDataInput;
+  UpdateModerationProposalInput: UpdateModerationProposalInput;
+  ModerationProposalOutput: ModerationProposalOutput;
+  CreateModerationSummaryDataInput: CreateModerationSummaryDataInput;
+  CreateModerationSummaryInput: CreateModerationSummaryInput;
+  UpdateModerationSummaryDataInput: UpdateModerationSummaryDataInput;
+  UpdateModerationSummaryInput: UpdateModerationSummaryInput;
+  ModerationSummaryOutput: ModerationSummaryOutput;
   CreateModerationTemplateDataInput: CreateModerationTemplateDataInput;
   CreateModerationTemplateInput: CreateModerationTemplateInput;
   UpdateModerationTemplateDataInput: UpdateModerationTemplateDataInput;
@@ -10187,6 +10568,10 @@ interface CreateInputsByCollectionName {
   LWEvents: CreateLWEventInput;
   Localgroups: CreateLocalgroupInput;
   Messages: CreateMessageInput;
+  ModerationAgentConversations: CreateModerationAgentConversationInput;
+  ModerationLoreDocs: CreateModerationLoreDocInput;
+  ModerationProposals: CreateModerationProposalInput;
+  ModerationSummaries: CreateModerationSummaryInput;
   ModerationTemplates: CreateModerationTemplateInput;
   ModeratorActions: CreateModeratorActionInput;
   MultiDocuments: CreateMultiDocumentInput;
@@ -10283,6 +10668,10 @@ interface UpdateInputsByCollectionName {
   LlmConversations: UpdateLlmConversationInput;
   Localgroups: UpdateLocalgroupInput;
   Messages: UpdateMessageInput;
+  ModerationAgentConversations: UpdateModerationAgentConversationInput;
+  ModerationLoreDocs: UpdateModerationLoreDocInput;
+  ModerationProposals: UpdateModerationProposalInput;
+  ModerationSummaries: UpdateModerationSummaryInput;
   ModerationTemplates: UpdateModerationTemplateInput;
   ModeratorActions: UpdateModeratorActionInput;
   MultiDocuments: UpdateMultiDocumentInput;

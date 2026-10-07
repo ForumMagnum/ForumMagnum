@@ -673,6 +673,71 @@ interface DbMigration extends DbObject {
   succeeded: boolean
 }
 
+type ModerationAgentConversationsCollection = PgCollection<"ModerationAgentConversations">;
+
+interface DbModerationAgentConversation extends DbObject {
+  __collectionName?: "ModerationAgentConversations"
+  createdAt: Date
+  deleted: boolean
+  legacyData: any | null
+  messages: any | null
+  model: string | null
+  targetUserId: string
+  title: string | null
+  userId: string
+}
+
+type ModerationLoreDocsCollection = PgCollection<"ModerationLoreDocs">;
+
+interface DbModerationLoreDoc extends DbObject {
+  __collectionName?: "ModerationLoreDocs"
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  legacyData: any | null
+  scope: "global" | "user" | "systemPrompt"
+  targetUserId: string | null
+  title: string
+  userId: string
+}
+
+type ModerationProposalsCollection = PgCollection<"ModerationProposals">;
+
+interface DbModerationProposal extends DbObject {
+  __collectionName?: "ModerationProposals"
+  appliedAt: Date | null
+  appliedByUserId: string | null
+  conversationId: string | null
+  createdAt: Date
+  createdByUserId: string
+  legacyData: any | null
+  model: string | null
+  rationale: string
+  status: "draft" | "pending" | "applied" | "partiallyApplied" | "dismissed"
+  stepResults: Array<JSON!> | null
+  steps: Array<JSON!>
+  targetUserId: string
+  title: string
+}
+
+type ModerationSummariesCollection = PgCollection<"ModerationSummaries">;
+
+interface DbModerationSummary extends DbObject {
+  __collectionName?: "ModerationSummaries"
+  contents: string
+  conversationId: string | null
+  createdAt: Date
+  createdByUserId: string
+  deleted: boolean
+  kind: "userSummary" | "userGrouping"
+  legacyData: any | null
+  memberUserIds: Array<string> | null
+  model: string | null
+  targetUserId: string | null
+  title: string | null
+}
+
 type ModerationTemplatesCollection = PgCollection<"ModerationTemplates">;
 
 interface DbModerationTemplate extends DbObject {
@@ -1770,6 +1835,7 @@ interface DbUser extends DbObject {
   legacyData: any | null
   legacyId: string | null
   linkedinProfileURL: string | null
+  llmNotes: string
   location: string | null
   lwWikiImport: boolean | null
   mapLocation: any | null
@@ -2353,6 +2419,10 @@ interface CollectionsByName {
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
+  ModerationAgentConversations: ModerationAgentConversationsCollection
+  ModerationLoreDocs: ModerationLoreDocsCollection
+  ModerationProposals: ModerationProposalsCollection
+  ModerationSummaries: ModerationSummariesCollection
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
@@ -2449,6 +2519,10 @@ interface ObjectsByCollectionName {
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
+  ModerationAgentConversations: DbModerationAgentConversation
+  ModerationLoreDocs: DbModerationLoreDoc
+  ModerationProposals: DbModerationProposal
+  ModerationSummaries: DbModerationSummary
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
@@ -2545,6 +2619,10 @@ interface ObjectsByTypeName {
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration
+  ModerationAgentConversation: DbModerationAgentConversation
+  ModerationLoreDoc: DbModerationLoreDoc
+  ModerationProposal: DbModerationProposal
+  ModerationSummary: DbModerationSummary
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument

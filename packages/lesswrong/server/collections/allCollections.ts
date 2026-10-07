@@ -48,6 +48,10 @@ import { ManifoldProbabilitiesCaches } from './manifoldProbabilitiesCaches/colle
 import { MailgunValidations } from './mailgunValidations/collection';
 import { Messages } from './messages/collection';
 import { Migrations } from './migrations/collection';
+import { ModerationAgentConversations } from './moderationAgentConversations/collection';
+import { ModerationLoreDocs } from './moderationLoreDocs/collection';
+import { ModerationProposals } from './moderationProposals/collection';
+import { ModerationSummaries } from './moderationSummaries/collection';
 import { ModerationTemplates } from './moderationTemplates/collection';
 import { ModeratorActions } from './moderatorActions/collection';
 import { MultiDocuments } from './multiDocuments/collection';
@@ -122,7 +126,7 @@ const allCollections = {
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  Migrations, ModerationAgentConversations, ModerationLoreDocs, ModerationProposals, ModerationSummaries, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

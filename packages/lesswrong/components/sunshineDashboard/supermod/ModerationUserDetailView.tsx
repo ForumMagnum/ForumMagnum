@@ -1,5 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import { supermodAgentStorageEnabledSetting } from '@/lib/instanceSettings';
 import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import AgentProposalsSection from './AgentProposalsSection';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction, InboxState } from './inboxReducer';
@@ -70,6 +73,7 @@ const ModerationUserDetailView = ({
   state: InboxState;
   currentUser: UsersCurrent;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const setSidebarTab = useCallback(
@@ -107,6 +111,16 @@ const ModerationUserDetailView = ({
           </div>
         </div>
         <div className={classes.contentListColumn}>
+          {supermodAgentStorageEnabledSetting.get(forumType) && (
+            <AgentProposalsSection
+              user={user}
+              currentUser={currentUser}
+              posts={posts}
+              comments={comments}
+              addToUndoQueue={addToUndoQueue}
+              dispatch={dispatch}
+            />
+          )}
           <ModerationContentList
             items={allContent}
             title="Content"

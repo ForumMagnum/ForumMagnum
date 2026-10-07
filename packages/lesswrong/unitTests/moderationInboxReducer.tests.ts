@@ -100,6 +100,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -133,6 +137,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -162,6 +170,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -193,6 +205,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -236,6 +252,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -275,6 +295,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -307,6 +331,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -337,6 +365,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -371,6 +403,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -403,6 +439,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -434,6 +474,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -468,6 +512,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -502,6 +550,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -529,6 +581,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -559,6 +615,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -586,6 +646,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
     }
@@ -628,6 +692,61 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('agent chat', () => {
+    function stateWithAgentChat(agentChatOpen: boolean): InboxState {
+      return {
+        users: [createMockUser('user1', 'newContent')],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'newContent',
+        focusedUserId: null,
+        openedUserId: 'user1',
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        unloadedCounts: {},
+        agentChatOpen,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
+      };
+    }
+
+    test('TOGGLE_AGENT_CHAT opens the panel and requests focus', () => {
+      const state = inboxStateReducer(stateWithAgentChat(false), { type: 'TOGGLE_AGENT_CHAT' });
+      expect(state.agentChatOpen).toBe(true);
+      expect(state.agentChatFocusRequest).toBe(1);
+    });
+
+    test('TOGGLE_AGENT_CHAT closes the panel without requesting focus', () => {
+      const state = inboxStateReducer(stateWithAgentChat(true), { type: 'TOGGLE_AGENT_CHAT' });
+      expect(state.agentChatOpen).toBe(false);
+      expect(state.agentChatFocusRequest).toBe(0);
+    });
+
+    test('FOCUS_AGENT_CHAT opens the panel if closed and bumps the focus counter', () => {
+      const opened = inboxStateReducer(stateWithAgentChat(false), { type: 'FOCUS_AGENT_CHAT' });
+      expect(opened.agentChatOpen).toBe(true);
+      expect(opened.agentChatFocusRequest).toBe(1);
+
+      const refocused = inboxStateReducer(opened, { type: 'FOCUS_AGENT_CHAT' });
+      expect(refocused.agentChatOpen).toBe(true);
+      expect(refocused.agentChatFocusRequest).toBe(2);
+    });
+
+    test('agent chat stays open across user navigation', () => {
+      const state = inboxStateReducer(
+        { ...stateWithAgentChat(true), users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')] },
+        { type: 'NEXT_USER' },
+      );
+      expect(state.agentChatOpen).toBe(true);
     });
   });
 });

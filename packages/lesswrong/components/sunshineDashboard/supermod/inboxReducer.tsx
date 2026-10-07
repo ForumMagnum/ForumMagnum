@@ -56,6 +56,19 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
+  // Whether the moderation agent chat panel is open (persists across user switches)
+  agentChatOpen: boolean;
+  // Monotonic counter; the agent chat panel focuses its input when this changes
+  agentChatFocusRequest: number;
+  // A display-only notice for the agent chat panel to show in its transcript
+  // on open (e.g. "Discuss" on a proposal card); never sent to the model.
+  // The panel clears it after displaying.
+  agentChatSeed: string | null;
+  // A message for the panel to actually send to the agent on open (e.g.
+  // "Generate" in the proposals section, or a dictated voice message); the
+  // panel clears it after sending. newConversation starts a fresh
+  // conversation before sending.
+  agentChatAutoSend: { message: string; newConversation?: boolean } | null;
   // Queued items beyond the loaded page, per tab. Tab counts include these.
   unloadedCounts: UnloadedCounts;
 };
@@ -82,7 +95,13 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'TOGGLE_AGENT_CHAT'; }
+  | { type: 'FOCUS_AGENT_CHAT'; }
+  | { type: 'DISCUSS_IN_AGENT_CHAT'; message: string; }
+  | { type: 'CLEAR_AGENT_CHAT_SEED'; }
+  | { type: 'GENERATE_IN_AGENT_CHAT'; message: string; newConversation?: boolean; }
+  | { type: 'CLEAR_AGENT_CHAT_AUTOSEND'; };
 
 
 
@@ -675,6 +694,54 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         runningLlmCheckId: action.documentId,
+      };
+    }
+
+    case 'TOGGLE_AGENT_CHAT': {
+      return {
+        ...state,
+        agentChatOpen: !state.agentChatOpen,
+        agentChatFocusRequest: state.agentChatOpen ? state.agentChatFocusRequest : state.agentChatFocusRequest + 1,
+      };
+    }
+
+    case 'FOCUS_AGENT_CHAT': {
+      return {
+        ...state,
+        agentChatOpen: true,
+        agentChatFocusRequest: state.agentChatFocusRequest + 1,
+      };
+    }
+
+    case 'DISCUSS_IN_AGENT_CHAT': {
+      return {
+        ...state,
+        agentChatOpen: true,
+        agentChatFocusRequest: state.agentChatFocusRequest + 1,
+        agentChatSeed: action.message,
+      };
+    }
+
+    case 'CLEAR_AGENT_CHAT_SEED': {
+      return {
+        ...state,
+        agentChatSeed: null,
+      };
+    }
+
+    case 'GENERATE_IN_AGENT_CHAT': {
+      return {
+        ...state,
+        agentChatOpen: true,
+        agentChatFocusRequest: state.agentChatFocusRequest + 1,
+        agentChatAutoSend: { message: action.message, newConversation: action.newConversation },
+      };
+    }
+
+    case 'CLEAR_AGENT_CHAT_AUTOSEND': {
+      return {
+        ...state,
+        agentChatAutoSend: null,
       };
     }
 

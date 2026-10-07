@@ -356,6 +356,7 @@ export const SunshineUsersList = gql(`
     htmlMapMarkerText
     needsReview
     sunshineNotes
+    llmNotes
     sunshineFlagged
     postingDisabled
     allCommentingDisabled

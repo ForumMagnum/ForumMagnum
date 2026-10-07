@@ -26,6 +26,8 @@ export const localLwProdDb = merge({
     environment: "localhost"
   },
   testServer: true,
+  // Keep local moderation reads usable before the agent storage migrations ship.
+  supermodAgentStorageEnabled: false,
   debug: false,
   expectedDatabaseId: "production",
   fmCrosspost: { siteName: "the EA Forum", baseUrl: "https://forum.effectivealtruism.org/" },

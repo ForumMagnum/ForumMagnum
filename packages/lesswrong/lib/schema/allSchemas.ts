@@ -46,6 +46,10 @@ import { default as ManifoldProbabilitiesCaches } from '../collections/manifoldP
 import { default as MailgunValidations } from '../collections/mailgunValidations/newSchema';
 import { default as Messages } from '../collections/messages/newSchema';
 import { default as Migrations } from '../collections/migrations/newSchema';
+import { default as ModerationAgentConversations } from '../collections/moderationAgentConversations/newSchema';
+import { default as ModerationLoreDocs } from '../collections/moderationLoreDocs/newSchema';
+import { default as ModerationProposals } from '../collections/moderationProposals/newSchema';
+import { default as ModerationSummaries } from '../collections/moderationSummaries/newSchema';
 import { default as ModerationTemplates } from '../collections/moderationTemplates/newSchema';
 import { default as ModeratorActions } from '../collections/moderatorActions/newSchema';
 import { default as MultiDocuments } from '../collections/multiDocuments/newSchema';
@@ -113,7 +117,7 @@ export const allSchemas = {
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  Migrations, ModerationAgentConversations, ModerationLoreDocs, ModerationProposals, ModerationSummaries, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

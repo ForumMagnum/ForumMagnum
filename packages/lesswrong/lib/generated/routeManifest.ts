@@ -76,6 +76,9 @@ export const routeTrie = {
         "migrations": {
           "hasPage": true
         },
+        "moderationLore": {
+          "hasPage": true
+        },
         "moderationTemplates": {
           "hasPage": true
         },
@@ -104,6 +107,7 @@ export const routeTrie = {
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
+        "moderationlore": "moderationLore",
         "moderationtemplates": "moderationTemplates",
         "pangram": "pangram",
         "random-user": "random-user",
@@ -585,6 +589,9 @@ export const routeTrie = {
         "streamGraphql": {
           "hasRoute": true
         },
+        "supermodAgentChat": {
+          "hasRoute": true
+        },
         "v2": {
           "staticChildren": {
             "crosspost": {
@@ -666,6 +673,7 @@ export const routeTrie = {
         "search": "search",
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
+        "supermodagentchat": "supermodAgentChat",
         "v2": "v2"
       },
       "catchAll": {

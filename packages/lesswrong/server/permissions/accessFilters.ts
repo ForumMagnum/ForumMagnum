@@ -66,6 +66,10 @@ const curationNoticeCheckAccess: CheckAccessFunction<'CurationNotices'> = async 
   return userIsAdminOrMod(currentUser);
 };
 
+const moderatorOnlyCheckAccess: CheckAccessFunction<CollectionNameString> = async (currentUser): Promise<boolean> => {
+  return userIsAdminOrMod(currentUser);
+};
+
 const dialogueCheckCheckAccess: CheckAccessFunction<'DialogueChecks'> = async (currentUser, document, context): Promise<boolean> => {
   const { DialogueChecks } = context;
 
@@ -472,6 +476,10 @@ const accessFilters = {
   MailgunValidations: adminOnly,
   Messages: messageCheckAccess,
   Migrations: allowAccess,
+  ModerationAgentConversations: moderatorOnlyCheckAccess,
+  ModerationLoreDocs: moderatorOnlyCheckAccess,
+  ModerationProposals: moderatorOnlyCheckAccess,
+  ModerationSummaries: moderatorOnlyCheckAccess,
   ModerationTemplates: allowAccess,
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,

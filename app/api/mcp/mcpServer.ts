@@ -23,6 +23,8 @@ import {
   replaceWidgetToolSchema,
   validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
+import { moderationReadTools } from "@/server/moderation/agentTools/readTools";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 
 const PostMetadataQuery = gql(`
   query McpPostMetadata($_id: String!) {
@@ -45,6 +47,9 @@ const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
   insert_block: [REQUIRED_SCOPE],
+  // Moderation read tools (registered from moderationReadTools; additionally
+  // gated on the account being a moderator/admin at call time)
+  ...Object.fromEntries(moderationReadTools.map((t) => [t.name, [REQUIRED_SCOPE]])),
 };
 
 function getBearerToken(authInfo: AuthInfo | undefined): string {
@@ -317,6 +322,37 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
+
+  // Moderation read tools, shared with the in-app supermod agent. Only the
+  // read-only tools are exposed over MCP: external agents can inspect
+  // moderation data (if their account is a moderator) but cannot file
+  // proposals or take actions.
+  for (const moderationTool of moderationReadTools) {
+    server.registerTool(
+      moderationTool.name,
+      {
+        description: moderationTool.description,
+        inputSchema: moderationTool.inputSchema.shape,
+        annotations: {
+          openWorldHint: false,
+          readOnlyHint: true,
+        },
+      },
+      async (args, extra) => {
+        assertToolScopes(moderationTool.name, extra.authInfo);
+        const context = await contextFromAuth(extra.authInfo, forumType);
+        if (!context.currentUser || !userIsAdminOrMod(context.currentUser)) {
+          return toolError("Moderator access required");
+        }
+        try {
+          const text = await moderationTool.execute(args, context, {});
+          return { content: [{ type: "text" as const, text }] };
+        } catch (error) {
+          return toolError(error instanceof Error ? error.message : "Tool execution failed");
+        }
+      },
+    );
+  }
 
   return server;
 }

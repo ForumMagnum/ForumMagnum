@@ -39,6 +39,10 @@ type MailgunValidationsViewName = never
 type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "conversationPreview"|"messagesConversation";
 type MigrationsViewName = never
+type ModerationAgentConversationsViewName = "conversationsForTarget";
+type ModerationLoreDocsViewName = "globalLore"|"loreForUser";
+type ModerationProposalsViewName = "pendingProposals"|"proposalsForUser";
+type ModerationSummariesViewName = "groupings"|"summariesForUser";
 type ModerationTemplatesViewName = "moderationTemplatesList"|"moderationTemplatesPage";
 type ModeratorActionsViewName = "restrictionModerationActions"|"userModeratorActions";
 type MultiDocumentsViewName = "lensBySlug"|"pingbackLensPages"|"summariesByParentId";
@@ -134,6 +138,10 @@ interface ViewTermsByCollectionName {
   ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
+  ModerationAgentConversations: ModerationAgentConversationsViewTerms
+  ModerationLoreDocs: ModerationLoreDocsViewTerms
+  ModerationProposals: ModerationProposalsViewTerms
+  ModerationSummaries: ModerationSummariesViewTerms
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
   MultiDocuments: MultiDocumentsViewTerms
@@ -189,4 +197,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationAgentConversations"|"ModerationLoreDocs"|"ModerationProposals"|"ModerationSummaries"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

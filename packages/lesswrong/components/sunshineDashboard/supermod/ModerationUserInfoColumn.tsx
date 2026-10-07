@@ -1,11 +1,14 @@
 'use client';
 
+import { useForumType } from '@/components/hooks/useForumType';
+import { supermodAgentStorageEnabledSetting } from '@/lib/instanceSettings';
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationUserIdentityColumn from './ModerationUserIdentityColumn';
 import ModerationUserStatsColumn from './ModerationUserStatsColumn';
 import ModerationUserBioColumn from './ModerationUserBioColumn';
 import ModeratorNotes from './ModeratorNotes';
+import AgentUserSummary from './AgentUserSummary';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import type { InboxAction } from './inboxReducer';
@@ -45,6 +48,7 @@ const ModerationUserInfoColumn = ({
   currentUser: UsersCurrent;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
   const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
@@ -52,7 +56,18 @@ const ModerationUserInfoColumn = ({
   return (
     <div className={classes.header}>
       <ModerationUserIdentityColumn user={user} likelyReviewTrigger={likelyReviewTrigger} />
+      {supermodAgentStorageEnabledSetting.get(forumType) && (
+        <ModeratorNotes
+          user={user}
+          currentUser={currentUser}
+          dispatch={dispatch}
+          fieldName="llmNotes"
+          title="LLM Notes"
+          placeholder="Add an LLM-authored note"
+        />
+      )}
       <ModeratorNotes user={user} currentUser={currentUser} dispatch={dispatch} />
+      {supermodAgentStorageEnabledSetting.get(forumType) && <AgentUserSummary user={user} />}
 
       <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
       <UserAutoRateLimitsDisplay user={user} showKarmaMeta={true} />

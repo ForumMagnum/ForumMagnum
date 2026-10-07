@@ -1,5 +1,7 @@
 'use client';
 
+import { useForumType } from '@/components/hooks/useForumType';
+import { supermodAgentStorageEnabledSetting } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -27,6 +29,8 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import SupermodAgentChatPanel from './SupermodAgentChatPanel';
+import SupermodAgentLauncherButton from './SupermodAgentLauncherButton';
 import { hideScrollBars } from '@/themes/styleUtils';
 
 // All of the moderation inbox's initial data is fetched in a single query so
@@ -144,13 +148,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const { query, location } = useLocation();
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, unloadedCounts },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, agentChatOpen: false, agentChatFocusRequest: 0, agentChatSeed: null, agentChatAutoSend: null, unloadedCounts },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -168,6 +173,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          agentChatOpen: false,
+          agentChatFocusRequest: 0,
+          agentChatSeed: null,
+          agentChatAutoSend: null,
           unloadedCounts,
         };
       }
@@ -187,6 +196,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          agentChatOpen: false,
+          agentChatFocusRequest: 0,
+          agentChatSeed: null,
+          agentChatAutoSend: null,
           unloadedCounts,
         };
       }
@@ -218,6 +231,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          agentChatOpen: false,
+          agentChatFocusRequest: 0,
+          agentChatSeed: null,
+          agentChatAutoSend: null,
           unloadedCounts,
         };
       }
@@ -237,6 +254,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          agentChatOpen: false,
+          agentChatFocusRequest: 0,
+          agentChatSeed: null,
+          agentChatAutoSend: null,
           unloadedCounts,
         };
       }
@@ -256,6 +277,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          agentChatOpen: false,
+          agentChatFocusRequest: 0,
+          agentChatSeed: null,
+          agentChatAutoSend: null,
           unloadedCounts,
         };
       }
@@ -277,6 +302,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts,
       };
     }
@@ -518,6 +547,24 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
           </div>
         )}
       </div>
+      {supermodAgentStorageEnabledSetting.get(forumType) && openedUser && !state.agentChatOpen && (
+        <SupermodAgentLauncherButton onClick={() => dispatch({ type: 'FOCUS_AGENT_CHAT' })} />
+      )}
+      {supermodAgentStorageEnabledSetting.get(forumType) && openedUser && state.agentChatOpen && (
+        <SupermodAgentChatPanel
+          user={openedUser}
+          currentUser={currentUser}
+          posts={userPosts}
+          comments={userComments}
+          addToUndoQueue={addToUndoQueue}
+          focusRequest={state.agentChatFocusRequest}
+          seedMessage={state.agentChatSeed}
+          onSeedConsumed={() => dispatch({ type: 'CLEAR_AGENT_CHAT_SEED' })}
+          autoSendMessage={state.agentChatAutoSend}
+          onAutoSendConsumed={() => dispatch({ type: 'CLEAR_AGENT_CHAT_AUTOSEND' })}
+          onClose={() => dispatch({ type: 'TOGGLE_AGENT_CHAT' })}
+        />
+      )}
     </div>
     </CoreTagsKeyboardProvider>
   );

@@ -57,6 +57,11 @@ interface FragmentTypes {
   LlmMessagesFragment: LlmMessagesFragment
   MarkdownPostsList: MarkdownPostsList
   MembersOfGroupFragment: MembersOfGroupFragment
+  ModerationAgentConversationInfo: ModerationAgentConversationInfo
+  ModerationAgentConversationWithMessages: ModerationAgentConversationWithMessages
+  ModerationLoreDocDisplay: ModerationLoreDocDisplay
+  ModerationProposalDisplay: ModerationProposalDisplay
+  ModerationSummaryDisplay: ModerationSummaryDisplay
   ModerationTemplateFragment: ModerationTemplateFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   ModeratorClientIDInfo: ModeratorClientIDInfo
@@ -244,6 +249,10 @@ interface FragmentTypesByCollection {
   LlmMessages: "LlmMessagesFragment"
   Localgroups: "localGroupsBase"|"localGroupsEdit"|"localGroupsHomeFragment"|"localGroupsIsOnline"
   Messages: "WithVoteMessage"|"messageListFragment"
+  ModerationAgentConversations: "ModerationAgentConversationInfo"|"ModerationAgentConversationWithMessages"
+  ModerationLoreDocs: "ModerationLoreDocDisplay"
+  ModerationProposals: "ModerationProposalDisplay"
+  ModerationSummaries: "ModerationSummaryDisplay"
   ModerationTemplates: "ModerationTemplateFragment"
   ModeratorActions: "ModeratorActionDisplay"
   MultiDocuments: "MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentMinimumInfo"|"MultiDocumentParentDocument"|"MultiDocumentRevision"|"MultiDocumentWithContributors"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
@@ -322,6 +331,11 @@ interface CollectionNamesByFragmentName {
   LlmMessagesFragment: "LlmMessages"
   MarkdownPostsList: "Posts"
   MembersOfGroupFragment: "Subscriptions"
+  ModerationAgentConversationInfo: "ModerationAgentConversations"
+  ModerationAgentConversationWithMessages: "ModerationAgentConversations"
+  ModerationLoreDocDisplay: "ModerationLoreDocs"
+  ModerationProposalDisplay: "ModerationProposals"
+  ModerationSummaryDisplay: "ModerationSummaries"
   ModerationTemplateFragment: "ModerationTemplates"
   ModeratorActionDisplay: "ModeratorActions"
   ModeratorClientIDInfo: "ClientIds"
@@ -483,9 +497,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationAgentConversations"|"ModerationLoreDocs"|"ModerationProposals"|"ModerationSummaries"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationAgentConversations"|"ModerationLoreDocs"|"ModerationProposals"|"ModerationSummaries"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
 type CollectionNameWithSlug = "Collections"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

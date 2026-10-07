@@ -400,6 +400,8 @@ export const defaultAFModeratorPMsTagSlug = new PublicInstanceSetting<string>('d
 export const commentModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('commentModerationWarningCommentId', '', "optional");
 export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('postModerationWarningCommentId', '', "optional");
 
+export const supermodAgentStorageEnabledSetting = new PublicInstanceSetting<boolean>("supermodAgentStorageEnabled", true, "optional");
+
 export const showAnalyticsDebug: "never" | "dev" | "always" = "dev";
 
 export const type3DateCutoffSetting = new PublicInstanceSetting<string>('type3.cutoffDate', '2023-05-01', "optional");

@@ -3668,6 +3668,219 @@ type Migration {
   legacyData: JSON
 }
 
+type ModerationAgentConversation {
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
+  legacyData: JSON
+  userId: String
+  user: User
+  targetUserId: String
+  targetUser: User
+  title: String
+  model: String
+  messages: JSON
+  deleted: Boolean
+}
+
+input SingleModerationAgentConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleModerationAgentConversationOutput {
+  result: ModerationAgentConversation
+}
+
+input ModerationAgentConversationsConversationsForTargetInput {
+  targetUserId: String
+}
+
+input ModerationAgentConversationSelector {
+  default: EmptyViewInput
+  conversationsForTarget: ModerationAgentConversationsConversationsForTargetInput
+}
+
+input MultiModerationAgentConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiModerationAgentConversationOutput {
+  results: [ModerationAgentConversation!]!
+  totalCount: Int
+}
+
+extend type Query {
+  moderationAgentConversation(input: SingleModerationAgentConversationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModerationAgentConversationOutput
+  moderationAgentConversations(input: MultiModerationAgentConversationInput @deprecated(reason: "Use the selector field instead"), selector: ModerationAgentConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModerationAgentConversationOutput
+}
+
+type ModerationLoreDoc {
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  title: String
+  scope: String
+  targetUserId: String
+  targetUser: User
+  userId: String
+  user: User
+  deleted: Boolean
+}
+
+input SingleModerationLoreDocInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleModerationLoreDocOutput {
+  result: ModerationLoreDoc
+}
+
+input ModerationLoreDocsLoreForUserInput {
+  targetUserId: String
+}
+
+input ModerationLoreDocSelector {
+  default: EmptyViewInput
+  globalLore: EmptyViewInput
+  loreForUser: ModerationLoreDocsLoreForUserInput
+}
+
+input MultiModerationLoreDocInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiModerationLoreDocOutput {
+  results: [ModerationLoreDoc!]!
+  totalCount: Int
+}
+
+extend type Query {
+  moderationLoreDoc(input: SingleModerationLoreDocInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModerationLoreDocOutput
+  moderationLoreDocs(input: MultiModerationLoreDocInput @deprecated(reason: "Use the selector field instead"), selector: ModerationLoreDocSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModerationLoreDocOutput
+}
+
+type ModerationProposal {
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
+  legacyData: JSON
+  targetUserId: String
+  targetUser: User
+  createdByUserId: String
+  createdByUser: User
+  conversationId: String
+  title: String
+  rationale: String
+  steps: [JSON!]
+  status: String
+  stepResults: [JSON!]
+  appliedByUserId: String
+  appliedAt: Date
+  model: String
+}
+
+input SingleModerationProposalInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleModerationProposalOutput {
+  result: ModerationProposal
+}
+
+input ModerationProposalsProposalsForUserInput {
+  targetUserId: String
+  statuses: [String!]
+}
+
+input ModerationProposalSelector {
+  default: EmptyViewInput
+  proposalsForUser: ModerationProposalsProposalsForUserInput
+  pendingProposals: EmptyViewInput
+}
+
+input MultiModerationProposalInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiModerationProposalOutput {
+  results: [ModerationProposal!]!
+  totalCount: Int
+}
+
+extend type Query {
+  moderationProposal(input: SingleModerationProposalInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModerationProposalOutput
+  moderationProposals(input: MultiModerationProposalInput @deprecated(reason: "Use the selector field instead"), selector: ModerationProposalSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModerationProposalOutput
+}
+
+type ModerationSummary {
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
+  legacyData: JSON
+  kind: String
+  targetUserId: String
+  targetUser: User
+  memberUserIds: [String!]
+  title: String
+  contents: String
+  createdByUserId: String
+  createdByUser: User
+  conversationId: String
+  model: String
+  deleted: Boolean
+}
+
+input SingleModerationSummaryInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleModerationSummaryOutput {
+  result: ModerationSummary
+}
+
+input ModerationSummariesSummariesForUserInput {
+  targetUserId: String
+}
+
+input ModerationSummarySelector {
+  default: EmptyViewInput
+  summariesForUser: ModerationSummariesSummariesForUserInput
+  groupings: EmptyViewInput
+}
+
+input MultiModerationSummaryInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiModerationSummaryOutput {
+  results: [ModerationSummary!]!
+  totalCount: Int
+}
+
+extend type Query {
+  moderationSummary(input: SingleModerationSummaryInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleModerationSummaryOutput
+  moderationSummaries(input: MultiModerationSummaryInput @deprecated(reason: "Use the selector field instead"), selector: ModerationSummarySelector, limit: Int, offset: Int, enableTotal: Boolean): MultiModerationSummaryOutput
+}
+
 type ModerationTemplate {
   _id: String!
   schemaVersion: Float!
@@ -7777,6 +7990,7 @@ type User {
   hideFrontpageBook2019Ad: Boolean
   hideFrontpageBook2020Ad: Boolean
   sunshineNotes: String
+  llmNotes: String
   sunshineFlagged: Boolean
   needsReview: Boolean
   sunshineSnoozed: Boolean
@@ -8657,6 +8871,148 @@ type MessageOutput {
 extend type Mutation {
   createMessage(data: CreateMessageDataInput!): MessageOutput
   updateMessage(selector: SelectorInput!, data: UpdateMessageDataInput!): MessageOutput
+}
+
+input CreateModerationAgentConversationDataInput {
+  legacyData: JSON
+  userId: String!
+  targetUserId: String!
+  title: String
+  model: String
+}
+
+input CreateModerationAgentConversationInput {
+  data: CreateModerationAgentConversationDataInput!
+}
+
+input UpdateModerationAgentConversationDataInput {
+  legacyData: JSON
+  title: String
+  deleted: Boolean
+}
+
+input UpdateModerationAgentConversationInput {
+  selector: SelectorInput!
+  data: UpdateModerationAgentConversationDataInput!
+}
+
+type ModerationAgentConversationOutput {
+  data: ModerationAgentConversation
+}
+
+extend type Mutation {
+  createModerationAgentConversation(data: CreateModerationAgentConversationDataInput!): ModerationAgentConversationOutput
+  updateModerationAgentConversation(selector: SelectorInput!, data: UpdateModerationAgentConversationDataInput!): ModerationAgentConversationOutput
+}
+
+input CreateModerationLoreDocDataInput {
+  legacyData: JSON
+  contents: CreateRevisionDataInput
+  title: String!
+  scope: String!
+  targetUserId: String
+  userId: String
+}
+
+input CreateModerationLoreDocInput {
+  data: CreateModerationLoreDocDataInput!
+}
+
+input UpdateModerationLoreDocDataInput {
+  legacyData: JSON
+  contents: CreateRevisionDataInput
+  title: String
+  deleted: Boolean
+}
+
+input UpdateModerationLoreDocInput {
+  selector: SelectorInput!
+  data: UpdateModerationLoreDocDataInput!
+}
+
+type ModerationLoreDocOutput {
+  data: ModerationLoreDoc
+}
+
+extend type Mutation {
+  createModerationLoreDoc(data: CreateModerationLoreDocDataInput!): ModerationLoreDocOutput
+  updateModerationLoreDoc(selector: SelectorInput!, data: UpdateModerationLoreDocDataInput!): ModerationLoreDocOutput
+}
+
+input CreateModerationProposalDataInput {
+  legacyData: JSON
+  targetUserId: String!
+  createdByUserId: String!
+  conversationId: String
+  title: String!
+  rationale: String!
+  steps: [JSON!]!
+  status: String
+  model: String
+}
+
+input CreateModerationProposalInput {
+  data: CreateModerationProposalDataInput!
+}
+
+input UpdateModerationProposalDataInput {
+  legacyData: JSON
+  title: String
+  rationale: String
+  steps: [JSON!]
+  status: String
+  stepResults: [JSON!]
+  appliedByUserId: String
+  appliedAt: Date
+}
+
+input UpdateModerationProposalInput {
+  selector: SelectorInput!
+  data: UpdateModerationProposalDataInput!
+}
+
+type ModerationProposalOutput {
+  data: ModerationProposal
+}
+
+extend type Mutation {
+  createModerationProposal(data: CreateModerationProposalDataInput!): ModerationProposalOutput
+  updateModerationProposal(selector: SelectorInput!, data: UpdateModerationProposalDataInput!): ModerationProposalOutput
+}
+
+input CreateModerationSummaryDataInput {
+  legacyData: JSON
+  kind: String!
+  targetUserId: String
+  memberUserIds: [String!]
+  title: String
+  contents: String!
+  createdByUserId: String!
+  conversationId: String
+  model: String
+}
+
+input CreateModerationSummaryInput {
+  data: CreateModerationSummaryDataInput!
+}
+
+input UpdateModerationSummaryDataInput {
+  legacyData: JSON
+  deleted: Boolean
+}
+
+input UpdateModerationSummaryInput {
+  selector: SelectorInput!
+  data: UpdateModerationSummaryDataInput!
+}
+
+type ModerationSummaryOutput {
+  data: ModerationSummary
+}
+
+extend type Mutation {
+  createModerationSummary(data: CreateModerationSummaryDataInput!): ModerationSummaryOutput
+  updateModerationSummary(selector: SelectorInput!, data: UpdateModerationSummaryDataInput!): ModerationSummaryOutput
 }
 
 input CreateModerationTemplateDataInput {
@@ -10038,6 +10394,7 @@ input UpdateUserDataInput {
   hideFrontpageBook2019Ad: Boolean
   hideFrontpageBook2020Ad: Boolean
   sunshineNotes: String
+  llmNotes: String
   sunshineFlagged: Boolean
   needsReview: Boolean
   sunshineSnoozed: Boolean

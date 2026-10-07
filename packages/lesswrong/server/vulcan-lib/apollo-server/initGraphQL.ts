@@ -112,6 +112,10 @@ import { graphqlLocalgroupQueryTypeDefs, localgroupGqlQueryHandlers, localgroupG
 import { graphqlManifoldProbabilitiesCacheQueryTypeDefs, manifoldProbabilitiesCacheGqlFieldResolvers } from "@/server/collections/manifoldProbabilitiesCaches/queries";
 import { graphqlMessageQueryTypeDefs, messageGqlQueryHandlers, messageGqlFieldResolvers } from "@/server/collections/messages/queries";
 import { graphqlMigrationQueryTypeDefs, migrationGqlFieldResolvers } from "@/server/collections/migrations/queries";
+import { graphqlModerationAgentConversationQueryTypeDefs, moderationAgentConversationGqlQueryHandlers, moderationAgentConversationGqlFieldResolvers } from "@/server/collections/moderationAgentConversations/queries";
+import { graphqlModerationLoreDocQueryTypeDefs, moderationLoreDocGqlQueryHandlers, moderationLoreDocGqlFieldResolvers } from "@/server/collections/moderationLoreDocs/queries";
+import { graphqlModerationProposalQueryTypeDefs, moderationProposalGqlQueryHandlers, moderationProposalGqlFieldResolvers } from "@/server/collections/moderationProposals/queries";
+import { graphqlModerationSummaryQueryTypeDefs, moderationSummaryGqlQueryHandlers, moderationSummaryGqlFieldResolvers } from "@/server/collections/moderationSummaries/queries";
 import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandlers, moderationTemplateGqlFieldResolvers } from "@/server/collections/moderationTemplates/queries";
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
@@ -175,6 +179,10 @@ import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@
 import { updateLlmConversationGqlMutation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
 import { createLocalgroupGqlMutation, updateLocalgroupGqlMutation, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
 import { createMessageGqlMutation, updateMessageGqlMutation, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
+import { createModerationAgentConversationGqlMutation, updateModerationAgentConversationGqlMutation, graphqlModerationAgentConversationTypeDefs } from "@/server/collections/moderationAgentConversations/mutations";
+import { createModerationLoreDocGqlMutation, updateModerationLoreDocGqlMutation, graphqlModerationLoreDocTypeDefs } from "@/server/collections/moderationLoreDocs/mutations";
+import { createModerationProposalGqlMutation, updateModerationProposalGqlMutation, graphqlModerationProposalTypeDefs } from "@/server/collections/moderationProposals/mutations";
+import { createModerationSummaryGqlMutation, updateModerationSummaryGqlMutation, graphqlModerationSummaryTypeDefs } from "@/server/collections/moderationSummaries/mutations";
 import { createModerationTemplateGqlMutation, updateModerationTemplateGqlMutation, graphqlModerationTemplateTypeDefs } from "@/server/collections/moderationTemplates/mutations";
 import { createModeratorActionGqlMutation, updateModeratorActionGqlMutation, graphqlModeratorActionTypeDefs } from "@/server/collections/moderatorActions/mutations";
 import { createMultiDocumentGqlMutation, updateMultiDocumentGqlMutation, graphqlMultiDocumentTypeDefs } from "@/server/collections/multiDocuments/mutations";
@@ -359,6 +367,10 @@ export const getTypeDefs = () => gql`
   ${graphqlManifoldProbabilitiesCacheQueryTypeDefs}
   ${graphqlMessageQueryTypeDefs}
   ${graphqlMigrationQueryTypeDefs}
+  ${graphqlModerationAgentConversationQueryTypeDefs}
+  ${graphqlModerationLoreDocQueryTypeDefs}
+  ${graphqlModerationProposalQueryTypeDefs}
+  ${graphqlModerationSummaryQueryTypeDefs}
   ${graphqlModerationTemplateQueryTypeDefs}
   ${graphqlModeratorActionQueryTypeDefs}
   ${graphqlMultiDocumentQueryTypeDefs}
@@ -421,6 +433,10 @@ export const getTypeDefs = () => gql`
   ${graphqlLlmConversationTypeDefs}
   ${graphqlLocalgroupTypeDefs}
   ${graphqlMessageTypeDefs}
+  ${graphqlModerationAgentConversationTypeDefs}
+  ${graphqlModerationLoreDocTypeDefs}
+  ${graphqlModerationProposalTypeDefs}
+  ${graphqlModerationSummaryTypeDefs}
   ${graphqlModerationTemplateTypeDefs}
   ${graphqlModeratorActionTypeDefs}
   ${graphqlMultiDocumentTypeDefs}
@@ -523,6 +539,10 @@ const getResolvers = () => ({
     ...llmConversationGqlQueryHandlers,
     ...localgroupGqlQueryHandlers,
     ...messageGqlQueryHandlers,
+    ...moderationAgentConversationGqlQueryHandlers,
+    ...moderationLoreDocGqlQueryHandlers,
+    ...moderationProposalGqlQueryHandlers,
+    ...moderationSummaryGqlQueryHandlers,
     ...moderationTemplateGqlQueryHandlers,
     ...moderatorActionGqlQueryHandlers,
     ...multiDocumentGqlQueryHandlers,
@@ -631,6 +651,14 @@ const getResolvers = () => ({
     updateLocalgroup: updateLocalgroupGqlMutation,
     createMessage: createMessageGqlMutation,
     updateMessage: updateMessageGqlMutation,
+    createModerationAgentConversation: createModerationAgentConversationGqlMutation,
+    updateModerationAgentConversation: updateModerationAgentConversationGqlMutation,
+    createModerationLoreDoc: createModerationLoreDocGqlMutation,
+    updateModerationLoreDoc: updateModerationLoreDocGqlMutation,
+    createModerationProposal: createModerationProposalGqlMutation,
+    updateModerationProposal: updateModerationProposalGqlMutation,
+    createModerationSummary: createModerationSummaryGqlMutation,
+    updateModerationSummary: updateModerationSummaryGqlMutation,
     createModerationTemplate: createModerationTemplateGqlMutation,
     updateModerationTemplate: updateModerationTemplateGqlMutation,
     createModeratorAction: createModeratorActionGqlMutation,
@@ -716,6 +744,10 @@ const getResolvers = () => ({
   ...manifoldProbabilitiesCacheGqlFieldResolvers,
   ...messageGqlFieldResolvers,
   ...migrationGqlFieldResolvers,
+  ...moderationAgentConversationGqlFieldResolvers,
+  ...moderationLoreDocGqlFieldResolvers,
+  ...moderationProposalGqlFieldResolvers,
+  ...moderationSummaryGqlFieldResolvers,
   ...moderationTemplateGqlFieldResolvers,
   ...moderatorActionGqlFieldResolvers,
   ...multiDocumentGqlFieldResolvers,
