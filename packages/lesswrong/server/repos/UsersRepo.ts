@@ -10,7 +10,6 @@ import { getModeratorActionGroup } from "@/lib/collections/users/reviewGroups";
 export interface PendingContentStats {
   pendingPostCount: number;
   pendingCommentCount: number;
-  oldestPendingContentAt: Date | null;
   pendingPostWordCount: number;
   pendingCommentWordCount: number;
   /** Live posts and comments that have already been approved */
@@ -499,7 +498,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
         "userId",
         (COUNT(*) FILTER (WHERE "isPending" AND "isPost"))::int AS "pendingPostCount",
         (COUNT(*) FILTER (WHERE "isPending" AND NOT "isPost"))::int AS "pendingCommentCount",
-        MIN("postedAt") FILTER (WHERE "isPending") AS "oldestPendingContentAt",
         COALESCE(SUM("wordCount") FILTER (WHERE "isPending" AND "isPost"), 0)::int AS "pendingPostWordCount",
         COALESCE(SUM("wordCount") FILTER (WHERE "isPending" AND NOT "isPost"), 0)::int AS "pendingCommentWordCount",
         (COUNT(*) FILTER (WHERE "isLive" AND NOT "isPending"))::int AS "approvedContentCount",
@@ -510,7 +508,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
           TRUE AS "isPost",
           (p."rejected" IS NOT TRUE AND p."draft" IS NOT TRUE) AS "isLive",
           (p."rejected" IS NOT TRUE AND p."draft" IS NOT TRUE AND p."authorIsUnreviewed" IS TRUE) AS "isPending",
-          p."postedAt",
           r."wordCount"
         FROM "Posts" p
         LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
@@ -523,7 +520,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
           FALSE AS "isPost",
           (c."rejected" IS NOT TRUE AND c."deleted" IS NOT TRUE AND c."draft" IS NOT TRUE) AS "isLive",
           (c."rejected" IS NOT TRUE AND c."deleted" IS NOT TRUE AND c."draft" IS NOT TRUE AND c."authorIsUnreviewed" IS TRUE) AS "isPending",
-          c."postedAt",
           r."wordCount"
         FROM "Comments" c
         LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
@@ -535,7 +531,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return userIds.map((userId) => statsByUser.get(userId) ?? {
       pendingPostCount: 0,
       pendingCommentCount: 0,
-      oldestPendingContentAt: null,
       pendingPostWordCount: 0,
       pendingCommentWordCount: 0,
       approvedContentCount: 0,

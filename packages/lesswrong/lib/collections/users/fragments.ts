@@ -373,7 +373,6 @@ export const SunshineUsersList = gql(`
     hasPendingComments
     pendingPostCount
     pendingCommentCount
-    oldestPendingContentAt
     pendingPostWordCount
     pendingCommentWordCount
     usersContactedBeforeReview

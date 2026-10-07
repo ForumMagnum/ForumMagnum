@@ -6,8 +6,6 @@ import CurationPostItem from './CurationPostItem';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { TabId } from './groupings';
 import classNames from 'classnames';
-import ModerationUserSortControls from './ModerationUserSortControls';
-import type { UserSort } from './userSort';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
@@ -82,8 +80,6 @@ const ModerationInboxList = ({
   onFocusPost,
   activeTab,
   unloadedCount,
-  userSort,
-  onUserSortChange,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
@@ -95,8 +91,6 @@ const ModerationInboxList = ({
   onFocusPost: (postId: string) => void;
   activeTab: TabId;
   unloadedCount: number;
-  userSort: UserSort;
-  onUserSortChange: (sort: UserSort) => void;
 }) => {
   const classes = useStyles(styles);
 
@@ -140,10 +134,8 @@ const ModerationInboxList = ({
             ))}
           </div>
         )
-      ) : <>
-        {/* Simple has a fixed order */}
-        {activeTab !== 'simple' && <ModerationUserSortControls sort={userSort} onChange={onUserSortChange} />}
-        {userCount === 0 ? (
+      ) : (
+        userCount === 0 ? (
           unloadedCount > 0 ? (
             <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="user" />
           ) : (
@@ -168,8 +160,8 @@ const ModerationInboxList = ({
               </div>
             })}
           </div>
-        )}
-      </>}
+        )
+      )}
     </div>
   );
 };

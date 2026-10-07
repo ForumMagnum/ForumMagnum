@@ -4416,15 +4416,6 @@ const schema = {
       },
     },
   },
-  oldestPendingContentAt: {
-    graphql: {
-      outputType: "Date",
-      canRead: ["sunshineRegiment", "admins"],
-      resolver: async (user, args, context) => {
-        return (await getPendingContentStats(context, user._id)).oldestPendingContentAt;
-      },
-    },
-  },
   pendingPostWordCount: {
     graphql: {
       outputType: "Int",
