@@ -6,6 +6,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
+import SnoozeChoiceModal from './SnoozeChoiceModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import RejectContentDialog from '../RejectContentDialog';
@@ -132,6 +133,22 @@ export function useModerationUserActions({
     },
     [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
   );
+
+  const handleSnoozeChoice = useCallback(() => {
+    if (!selectedUser) return;
+    openDialog({
+      name: 'SnoozeChoiceModal',
+      contents: ({ onClose }) => (
+        <SnoozeChoiceModal
+          onConfirm={(amount) => {
+            onClose();
+            handleSnooze(amount);
+          }}
+          onClose={onClose}
+        />
+      ),
+    });
+  }, [selectedUser, openDialog, handleSnooze]);
 
   const handleSnoozeCustom = useCallback(() => {
     if (!selectedUser) return;
@@ -263,6 +280,7 @@ export function useModerationUserActions({
     handleReview,
     handleApproveCurrentOnly,
     handleSnooze,
+    handleSnoozeChoice,
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
