@@ -10304,7 +10304,6 @@ type SuggestedTopActiveUsersResult = {
 type SupermodQueueChange = {
   __typename?: 'SupermodQueueChange';
   documentId: Scalars['String']['output'];
-  fieldNames: Array<Scalars['String']['output']>;
   lastChangedAt: Scalars['Date']['output'];
   moderatorName: Scalars['String']['output'];
 };
@@ -21286,7 +21285,7 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
 
-type SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange = { __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, fieldNames: Array<string>, lastChangedAt: string };
+type SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange = { __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, lastChangedAt: string };
 
 type SupermodQueueChangesQueryQuery_Query = { __typename?: 'Query', supermodQueueChanges: Array<SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange> };
 

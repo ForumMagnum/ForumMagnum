@@ -49,7 +49,6 @@ export const moderationGqlTypeDefs = gql`
   type SupermodQueueChange {
     documentId: String!
     moderatorName: String!
-    fieldNames: [String!]!
     lastChangedAt: Date!
   }
 
@@ -427,7 +426,7 @@ export const moderationGqlQueries = {
       userIds,
     };
   },
-  /** What moderators other than the current user have changed on the given users/posts since `since` */
+  /** Which moderators other than the current user have changed the given users/posts since `since`, and when they last did */
   async supermodQueueChanges(_root: void, { documentIds, since }: { documentIds: string[], since: Date }, context: ResolverContext) {
     const { currentUser, FieldChanges } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
@@ -438,7 +437,7 @@ export const moderationGqlQueries = {
     const changes = await FieldChanges.find({
       documentId: { $in: documentIds.slice(0, MAX_QUEUE_CHANGE_DOCUMENT_IDS) },
       createdAt: { $gt: since },
-    }, {}, { documentId: 1, userId: 1, fieldName: 1, createdAt: 1 }).fetch();
+    }, {}, { documentId: 1, userId: 1, createdAt: 1 }).fetch();
 
     // Authors editing their own posts and profiles also produce FieldChanges, so only count moderators
     const actorIds = uniq(changes.flatMap(change => change.userId && change.userId !== currentUser._id ? [change.userId] : []));
@@ -457,7 +456,6 @@ export const moderationGqlQueries = {
       return {
         documentId: latest.documentId,
         moderatorName: userGetDisplayName(latest.moderator, context.forumType),
-        fieldNames: uniq(group.map(change => change.fieldName)),
         lastChangedAt: latest.createdAt,
       };
     });

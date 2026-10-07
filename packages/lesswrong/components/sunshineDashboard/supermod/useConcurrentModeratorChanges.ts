@@ -11,7 +11,6 @@ const SupermodQueueChangesQuery = gql(`
     supermodQueueChanges(documentIds: $documentIds, since: $since) {
       documentId
       moderatorName
-      fieldNames
       lastChangedAt
     }
   }

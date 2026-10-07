@@ -1241,7 +1241,6 @@ interface PangramTextEvaluationResult {
 interface SupermodQueueChange {
   documentId: string;
   moderatorName: string;
-  fieldNames: Array<string>;
   lastChangedAt: Date;
 }
 

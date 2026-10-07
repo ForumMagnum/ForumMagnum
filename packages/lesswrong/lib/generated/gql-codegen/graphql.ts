@@ -12239,7 +12239,6 @@ export type SuggestedTopActiveUsersResult = {
 export type SupermodQueueChange = {
   __typename?: 'SupermodQueueChange';
   documentId: Scalars['String']['output'];
-  fieldNames: Array<Scalars['String']['output']>;
   lastChangedAt: Scalars['Date']['output'];
   moderatorName: Scalars['String']['output'];
 };
@@ -19658,7 +19657,7 @@ export type SupermodQueueChangesQueryQueryVariables = Exact<{
 }>;
 
 
-export type SupermodQueueChangesQueryQuery = { __typename?: 'Query', supermodQueueChanges: Array<{ __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, fieldNames: Array<string>, lastChangedAt: string }> };
+export type SupermodQueueChangesQueryQuery = { __typename?: 'Query', supermodQueueChanges: Array<{ __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, lastChangedAt: string }> };
 
 export type updateUserModerationKeyboardMutationVariables = Exact<{
   selector: SelectorInput;
@@ -23424,7 +23423,7 @@ export const updateUserModeratorNotesDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"u
 export const multiModerationTemplateRestrictAndNotifyModalQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"multiModerationTemplateRestrictAndNotifyModalQuery"),_1434,_1435),_226,_270,_438]) as unknown as DocumentNode<multiModerationTemplateRestrictAndNotifyModalQueryQuery, multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables>;
 export const rejectContentAndRemoveFromQueueRestrictAndNotifyDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"rejectContentAndRemoveFromQueueRestrictAndNotify"),[_1076,_997,_1747,_1800,_o12(_988,_1802,_991)],_o5(_7,[_o10(_8,_1803,[_1110,_1092,_1091,_1804,_o8(_536,_1801,_1802)])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueRestrictAndNotifyMutation, rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables>;
 export const updateModeratorActionSupermodDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateModeratorActionSupermod"),_1759,_1761),_61,_622]) as unknown as DocumentNode<updateModeratorActionSupermodMutation, updateModeratorActionSupermodMutationVariables>;
-export const SupermodQueueChangesQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"SupermodQueueChangesQuery"),[_o12(_988,_1806,_1103),_o12(_988,_1808,_1809)],_o5(_7,[_o7(_8,_o3(_3,"supermodQueueChanges"),[_o8(_536,_1805,_1806),_o8(_536,_1807,_1808)],_o5(_7,[_282,_o4(_8,_o3(_3,"moderatorName")),_o4(_8,_o3(_3,"fieldNames")),_o4(_8,_o3(_3,"lastChangedAt"))]))]))]) as unknown as DocumentNode<SupermodQueueChangesQueryQuery, SupermodQueueChangesQueryQueryVariables>;
+export const SupermodQueueChangesQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"SupermodQueueChangesQuery"),[_o12(_988,_1806,_1103),_o12(_988,_1808,_1809)],_o5(_7,[_o7(_8,_o3(_3,"supermodQueueChanges"),[_o8(_536,_1805,_1806),_o8(_536,_1807,_1808)],_o5(_7,[_282,_o4(_8,_o3(_3,"moderatorName")),_o4(_8,_o3(_3,"lastChangedAt"))]))]))]) as unknown as DocumentNode<SupermodQueueChangesQueryQuery, SupermodQueueChangesQueryQueryVariables>;
 export const updateUserModerationKeyboardDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"updateUserModerationKeyboard"),_1195,_1746),_61,_622,_661,_681]) as unknown as DocumentNode<updateUserModerationKeyboardMutation, updateUserModerationKeyboardMutationVariables>;
 export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"rejectContentAndRemoveFromQueueModerationKeyboard"),[_1076,_997,_1747,_1800],_o5(_7,[_o10(_8,_1803,[_1110,_1092,_1091,_1804])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
 export const approveCurrentContentOnlyModerationKeyboardDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"approveCurrentContentOnlyModerationKeyboard"),_1641,_o5(_7,[_o10(_8,_o3(_3,"approveUserCurrentContentOnly"),_1810)]))]) as unknown as DocumentNode<approveCurrentContentOnlyModerationKeyboardMutation, approveCurrentContentOnlyModerationKeyboardMutationVariables>;
