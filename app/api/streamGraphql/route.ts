@@ -12,7 +12,7 @@ import { getClientIP } from "@/server/utils/getClientIP";
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
 import { createGraphqlDeduplicatedObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphqlDeduplicatedObjectStore";
-import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from "@/server/utils/graphqlErrorUtil";
+import { NOISY_GRAPHQL_ERROR_MESSAGES, captureGraphQLErrorInSentry, type InvalidGraphQLOperation } from "@/server/utils/graphqlErrorUtil";
 
 type GraphqlHttpRequestBody = {
   operationName?: string | null;
@@ -47,10 +47,8 @@ function isCrossSiteRequest(request: NextRequest) {
   }
 }
 
-function formatGraphQLError(err: any): any {
-  if (shouldCaptureGraphQLErrorInSentry(err)) {
-    captureException(err);
-  }
+function formatGraphQLError(err: any, invalidOperation: InvalidGraphQLOperation | undefined): any {
+  captureGraphQLErrorInSentry(err, invalidOperation);
   if (err instanceof GraphQLError) {
     const formatted = err.toJSON();
     const { message, ...properties } = formatted;
@@ -101,9 +99,12 @@ async function executeGraphqlOperation({ op, context }: {
   });
 
   if (result.errors?.length) {
+    // If there's no data, the operation failed before execution started (eg a
+    // syntax error, a query for fields that don't exist, or invalid variables)
+    const invalidOperation = result.data === undefined ? op : undefined;
     return {
       ...result,
-      errors: result.errors.map(formatGraphQLError),
+      errors: result.errors.map((err) => formatGraphQLError(err, invalidOperation)),
     };
   }
 
