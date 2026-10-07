@@ -21,18 +21,17 @@ export async function investigateLostDraft(postId = POST_ID) {
 
   const revisions = await db.any(`
     -- investigateLostDraft.revisions
-    SELECT r._id, r."fieldName", r."editedAt", r."createdAt", r."autosaveTimeoutStart",
-           r."updateType", r.version, r.draft, r."commitMessage", r."userId",
-           roc."originalContents"->>'type' AS contents_type,
-           length(roc."originalContents"->>'data') AS data_len,
-           (roc."originalContents"->>'yjsState') IS NOT NULL AS has_yjs,
-           length(roc."originalContents"->>'yjsState') AS yjs_len,
-           length(r.html) AS html_len,
-           r."wordCount", r."changeMetrics"
-    FROM "Revisions" r
-    LEFT JOIN "RevisionOriginalContents" roc ON roc._id = r."originalContentsId"
-    WHERE r."documentId" = $(postId)
-    ORDER BY r."editedAt" DESC
+    SELECT _id, "fieldName", "editedAt", "createdAt", "autosaveTimeoutStart",
+           "updateType", version, draft, "commitMessage", "userId",
+           "originalContents"->>'type' AS contents_type,
+           length("originalContents"->>'data') AS data_len,
+           ("originalContents"->>'yjsState') IS NOT NULL AS has_yjs,
+           length("originalContents"->>'yjsState') AS yjs_len,
+           length(html) AS html_len,
+           "wordCount", "changeMetrics"
+    FROM "Revisions"
+    WHERE "documentId" = $(postId)
+    ORDER BY "editedAt" DESC
   `, { postId });
   console.log(`=== REVISIONS (${revisions.length}) ===\n`, JSON.stringify(revisions, null, 2));
 

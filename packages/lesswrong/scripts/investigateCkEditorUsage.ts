@@ -13,13 +13,12 @@ export async function investigateCkEditorUsage(postId = POST_ID, userId = USER_I
 
   const byType = await db.any(`
     -- investigateCkEditorUsage.byType
-    SELECT date_trunc('month', r."editedAt") AS month,
-           roc."originalContents"->>'type' AS type,
+    SELECT date_trunc('month', "editedAt") AS month,
+           "originalContents"->>'type' AS type,
            count(*) AS n
-    FROM "Revisions" r
-    LEFT JOIN "RevisionOriginalContents" roc ON roc._id = r."originalContentsId"
-    WHERE r."collectionName" = 'Posts' AND r."fieldName" = 'contents'
-      AND r."editedAt" > now() - interval '8 months'
+    FROM "Revisions"
+    WHERE "collectionName" = 'Posts' AND "fieldName" = 'contents'
+      AND "editedAt" > now() - interval '8 months'
     GROUP BY 1, 2 ORDER BY 1 DESC, 3 DESC
   `);
   console.log("=== POST CONTENT REVISIONS BY MONTH AND EDITOR TYPE ===\n", JSON.stringify(byType, null, 2));

@@ -16,8 +16,7 @@ export interface StoredContents {
   yjsState?: string | null;
 }
 
-// A revision row joined with its `RevisionOriginalContents` row.
-export interface StoredRevision extends DbRevision {
+export interface StoredRevision extends Omit<DbRevision, "originalContents"> {
   originalContents: StoredContents | null;
 }
 

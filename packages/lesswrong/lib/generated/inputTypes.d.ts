@@ -6112,8 +6112,8 @@ interface Revision {
   userId: string | null;
   user: User | null;
   draft: boolean | null;
-  originalContentsId: string | null;
   originalContents: ContentType;
+  originalContentsId: string | null;
   html: string | null;
   markdown: string | null;
   agentMarkdown: string | null;

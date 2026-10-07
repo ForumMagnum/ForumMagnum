@@ -6614,8 +6614,8 @@ type Revision {
   userId: String
   user: User
   draft: Boolean
-  originalContentsId: String
   originalContents: ContentType!
+  originalContentsId: String
   html: String
   markdown: String
   agentMarkdown: String

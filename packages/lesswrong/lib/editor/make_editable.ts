@@ -160,7 +160,7 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       "baseScore"|"extendedScore"|"voteCount"|"afBaseScore"|"afExtendedScore"
       |"afVoteCount"|"autosaveTimeoutStart"|"skipAttributions"|"changeMetrics"
       |"score"|"createdAt"|"legacyData"|"schemaVersion"|"draft"|"updateType"
-      |"originalContentsId"
+      |"originalContents"|"originalContentsId"
     > as DbRevision;
   }
 }

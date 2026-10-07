@@ -20,17 +20,16 @@ export async function collectOvercomingBiasLinks(outputPath: string) {
       if (!batch.length) break;
       const revisions = await db.any<StoredRevision>(`
         -- collectOvercomingBiasLinks.revisions
-        SELECT r.*, roc."originalContents" FROM $(collectionName:name) d
+        SELECT r.* FROM $(collectionName:name) d
         LEFT JOIN LATERAL (
           SELECT _id FROM "Revisions"
           WHERE "documentId" = d._id AND "fieldName" = 'contents'
           ORDER BY "editedAt" DESC, _id DESC LIMIT 1
         ) newest ON true
         JOIN "Revisions" r ON r._id = d.contents_latest OR r._id = newest._id
-        LEFT JOIN "RevisionOriginalContents" roc ON roc._id = r."originalContentsId"
         WHERE d._id IN ($(ids:csv))
           AND (r.html ILIKE '%overcomingbias.com%'
-            OR roc."originalContents"::text ILIKE '%overcomingbias.com%')
+            OR r."originalContents"::text ILIKE '%overcomingbias.com%')
       `, { collectionName, ids: batch.map(document => document._id) });
       const affectedIds = new Set<string>();
       for (const revision of revisions) {

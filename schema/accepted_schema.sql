@@ -2533,6 +2533,7 @@ CREATE TABLE "Revisions" (
   "commitMessage" TEXT,
   "userId" VARCHAR(27),
   "draft" BOOL,
+  "originalContents" JSONB,
   "originalContentsId" VARCHAR(27),
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,

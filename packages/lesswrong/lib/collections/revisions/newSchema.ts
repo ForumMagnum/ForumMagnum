@@ -192,21 +192,15 @@ const schema = {
       },
     },
   },
-  originalContentsId: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: true,
-      foreignKey: "RevisionOriginalContents",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   originalContents: {
+    // Legacy inline copy of the contents in `RevisionOriginalContents`. It's
+    // still written alongside the RevisionOriginalContents row so that code
+    // which only reads this column (ie, a rollback) sees current contents; it
+    // will be dropped once everything has been backfilled. Don't read it
+    // directly; use `getStoredOriginalContentsForRevision`.
+    database: {
+      type: "JSONB",
+    },
     graphql: {
       outputType: "ContentType!",
       canRead: ["guests"],
@@ -231,6 +225,20 @@ const schema = {
         // only needed server-side for restore operations, not by clients.
         const { yjsState, ...rest } = contents;
         return rest;
+      },
+    },
+  },
+  originalContentsId: {
+    database: {
+      type: "VARCHAR(27)",
+      nullable: true,
+      foreignKey: "RevisionOriginalContents",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
       },
     },
   },

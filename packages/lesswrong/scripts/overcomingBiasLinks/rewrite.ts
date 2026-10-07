@@ -95,18 +95,14 @@ async function repairDocument(
   `, { collectionName, documentId });
   if (!row.contents_latest) throw new Error("Document has no contents_latest revision");
   const active = await tx.one<StoredRevision>(`
-    SELECT r.*, roc."originalContents" FROM "Revisions" r
-    LEFT JOIN "RevisionOriginalContents" roc ON roc._id = r."originalContentsId"
-    WHERE r._id = $(revisionId)
-      AND r."documentId" = $(documentId) AND r."fieldName" = 'contents'
-      AND (r."collectionName" = $(collectionName) OR r."collectionName" IS NULL)
-    ${dryRun ? "" : "FOR UPDATE OF r"}
+    SELECT * FROM "Revisions" WHERE _id = $(revisionId)
+      AND "documentId" = $(documentId) AND "fieldName" = 'contents'
+      AND ("collectionName" = $(collectionName) OR "collectionName" IS NULL)
+    ${dryRun ? "" : "FOR UPDATE"}
   `, { revisionId: row.contents_latest, documentId, collectionName });
   const latest = await tx.one<StoredRevision>(`
-    SELECT r.*, roc."originalContents" FROM "Revisions" r
-    LEFT JOIN "RevisionOriginalContents" roc ON roc._id = r."originalContentsId"
-    WHERE r."documentId" = $(documentId) AND r."fieldName" = 'contents'
-    ORDER BY r."editedAt" DESC, r._id DESC LIMIT 1 ${dryRun ? "" : "FOR UPDATE OF r"}
+    SELECT * FROM "Revisions" WHERE "documentId" = $(documentId) AND "fieldName" = 'contents'
+    ORDER BY "editedAt" DESC, _id DESC LIMIT 1 ${dryRun ? "" : "FOR UPDATE"}
   `, { documentId });
   if (row.contents && row.contents.html !== active.html) {
     throw new Error("Comment contents differ from its revision; inspect before repairing");
@@ -117,6 +113,8 @@ async function repairDocument(
       // This is a maintenance migration: deliberately bypass user-edit callbacks
       // (notifications, moderation, image uploads). Clone the immutable revision
       // and atomically update its pointer/cache, as in convertImagesToCloudinary.
+      // The new revision gets its own RevisionOriginalContents row; the legacy
+      // inline column is filled in from `originalContents` by jsonb_populate_record.
       if (edit.revision.originalContentsId) {
         await tx.none(`
           INSERT INTO "RevisionOriginalContents" (_id, "createdAt", "originalContents")
@@ -141,6 +139,7 @@ async function repairDocument(
           collectionName, documentId, revisionId: edit.revision._id, pingbacks: JSON.stringify(pingbacks),
           contents: JSON.stringify({
             html: edit.revision.html,
+            originalContents: edit.revision.originalContents,
             version: edit.revision.version,
             editedAt: edit.revision.editedAt,
             updateType: edit.revision.updateType,

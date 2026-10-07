@@ -192,13 +192,18 @@ export async function updateOriginalContentsForRevision(
       { _id: revision.originalContentsId },
       { $set: { originalContents } },
     );
+    // Keep the legacy inline column in sync (see the Revisions schema)
+    await context.Revisions.rawUpdateOne(
+      { _id: revision._id },
+      { $set: { originalContents } },
+    );
     return revision.originalContentsId;
   }
 
   const originalContentsId = await createOriginalContentsRow(originalContents, context);
   await context.Revisions.rawUpdateOne(
     { _id: revision._id },
-    { $set: { originalContentsId } },
+    { $set: { originalContentsId, originalContents } },
   );
   return originalContentsId;
 }

@@ -139,7 +139,7 @@ async function createInitialRevision<N extends CollectionNameString>(
     return {
       ...doc,
       ...(!normalized && {
-        [fieldName]: revisionToDenormalizedField(firstRevision, originalContents),
+        [fieldName]: revisionToDenormalizedField(firstRevision, originalContents, googleDocMetadata),
       }),
       [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
@@ -150,7 +150,11 @@ async function createInitialRevision<N extends CollectionNameString>(
   return doc
 }
 
-function revisionToDenormalizedField(revision: DbRevision, originalContents: RevisionOriginalContentsData) {
+function revisionToDenormalizedField(
+  revision: DbRevision,
+  originalContents: RevisionOriginalContentsData,
+  googleDocMetadata: EditableFieldInsertion["googleDocMetadata"],
+) {
   return {
     html: revision.html,
     userId: revision.userId,
@@ -158,6 +162,8 @@ function revisionToDenormalizedField(revision: DbRevision, originalContents: Rev
     editedAt: revision.editedAt,
     wordCount: revision.wordCount,
     updateType: revision.updateType,
+    commitMessage: revision.commitMessage,
+    googleDocMetadata,
     originalContents,
   }
 }
@@ -229,7 +235,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     return {
       ...docData,
       ...(!normalized && {
-        [fieldName]: revisionToDenormalizedField(newRevisionDoc, originalContents),
+        [fieldName]: revisionToDenormalizedField(newRevisionDoc, originalContents, editableField.googleDocMetadata),
       }),
       [`${fieldName}_latest`]: newRevisionId,
       ...(pingbacks ? {

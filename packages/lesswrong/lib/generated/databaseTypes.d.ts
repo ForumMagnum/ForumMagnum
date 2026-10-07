@@ -1307,6 +1307,11 @@ interface DbRevision extends DbObject {
   googleDocMetadata: any | null
   html: string | null
   legacyData: any | null
+  originalContents: {
+    type: string,
+    data: string,
+    yjsState: string | null,
+  } | null
   originalContentsId: string | null
   score: number
   skipAttributions: boolean
