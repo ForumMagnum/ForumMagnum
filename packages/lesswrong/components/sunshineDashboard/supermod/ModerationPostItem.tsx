@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import LLMScoreBadge from './LLMScoreBadge';
+import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationPostItem', (theme: ThemeType) => ({
   root: {
@@ -127,6 +128,7 @@ const ModerationPostItem = ({
           </div>
         )}
       </div>
+      <ConcurrentModeratorChangeIndicator documentId={post._id} variant="badge" />
       <LLMScoreBadge
         documentId={post._id}
         automatedContentEvaluations={post.automatedContentEvaluations}
