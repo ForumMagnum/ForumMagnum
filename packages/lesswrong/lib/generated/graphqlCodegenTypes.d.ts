@@ -2926,6 +2926,12 @@ type ModerationTemplateType =
   | 'Messages'
   | 'Rejections';
 
+type ModerationTemplateUsageCount = {
+  __typename?: 'ModerationTemplateUsageCount';
+  count: Scalars['Int']['output'];
+  templateId: Scalars['String']['output'];
+};
+
 type ModerationTemplatesModerationTemplatesListInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3963,6 +3969,7 @@ type Mutation = {
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
+  recordModerationTemplatesUsed: Scalars['Boolean']['output'];
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   rejectTypoSuggestion: TypoSuggestion;
   reorderResearchDocuments?: Maybe<ReorderResearchDocumentsOutput>;
@@ -4551,6 +4558,13 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 
 type MutationpublishHomePageDesignArgs = {
   input: PublishHomePageDesignInput;
+};
+
+
+type MutationrecordModerationTemplatesUsedArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  templateIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -7375,6 +7389,7 @@ type Query = {
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
   moderatorActions?: Maybe<MultiModeratorActionOutput>;
@@ -20368,6 +20383,16 @@ type updateModerationTemplateGroupedTemplateListMutationVariables = Exact<{
 
 type updateModerationTemplateGroupedTemplateListMutation = updateModerationTemplateGroupedTemplateListMutation_Mutation;
 
+type moderationTemplateUsageCountsGroupedTemplateListQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
+
+type moderationTemplateUsageCountsGroupedTemplateListQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsGroupedTemplateListQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
+
+
+type moderationTemplateUsageCountsGroupedTemplateListQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type moderationTemplateUsageCountsGroupedTemplateListQueryQuery = moderationTemplateUsageCountsGroupedTemplateListQueryQuery_Query;
+
 type RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment
@@ -21219,6 +21244,18 @@ type updateUserModeratorNotesMutationVariables = Exact<{
 
 
 type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
+
+type recordModerationTemplatesUsedRejectContentPanelMutation_Mutation = { __typename?: 'Mutation', recordModerationTemplatesUsed: boolean };
+
+
+type recordModerationTemplatesUsedRejectContentPanelMutationVariables = Exact<{
+  templateIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type recordModerationTemplatesUsedRejectContentPanelMutation = recordModerationTemplatesUsedRejectContentPanelMutation_Mutation;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }

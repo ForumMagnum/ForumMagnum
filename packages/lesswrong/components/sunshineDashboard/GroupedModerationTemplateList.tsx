@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DndContext,
@@ -41,6 +41,15 @@ const UpdateModerationTemplateGroupMutation = gql(`
       data {
         ...ModerationTemplateFragment
       }
+    }
+  }
+`);
+
+const ModerationTemplateUsageCountsQuery = gql(`
+  query moderationTemplateUsageCountsGroupedTemplateListQuery {
+    moderationTemplateUsageCounts {
+      templateId
+      count
     }
   }
 `);
@@ -102,6 +111,15 @@ function groupTemplatesByLabel(templates: ModerationTemplateFragment[]): [string
   }
 
   return Object.entries(grouped);
+}
+
+function getTemplateUsage(template: ModerationTemplateFragment, usageCounts: Map<string, number>) {
+  return usageCounts.get(template._id) ?? 0;
+}
+
+// Stable, so unused templates keep their configured `order`
+function sortTemplatesByUsage(templates: ModerationTemplateFragment[], usageCounts: Map<string, number>) {
+  return [...templates].sort((a, b) => getTemplateUsage(b, usageCounts) - getTemplateUsage(a, usageCounts));
 }
 
 // Same matching as the rejection dialog's template search: case-insensitive substring of the name
@@ -272,6 +290,22 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
       color: theme.palette.grey[900],
     },
   },
+  // Flat lists have no group headers to hang the "+" on, so it gets its own row
+  addTemplateRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.7,
+    },
+  },
+  addTemplateRowLabel: {
+    fontSize: 13,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+  },
   newTemplateForm: {
     marginTop: 4,
     marginBottom: 8,
@@ -288,7 +322,10 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
   },
 }));
 
-const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose, onQueryChange, onKeyDown}: {
+// Keys 1–9 then 0 pick the first ten templates, in that order
+const SHORTCUT_DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+
+const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose, onQueryChange, onKeyDown, onFocusChange}: {
   searchOpen: boolean,
   searchQuery: string,
   // Bumped whenever the search hotkey is pressed, so it refocuses an already-open search
@@ -297,6 +334,7 @@ const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose
   onClose: () => void,
   onQueryChange: (query: string) => void,
   onKeyDown: (event: React.KeyboardEvent) => void,
+  onFocusChange: (focused: boolean) => void,
 }) => {
   const classes = useStyles(styles);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -328,22 +366,28 @@ const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose
         value={searchQuery}
         onChange={(e) => onQueryChange(e.target.value)}
         onKeyDown={onKeyDown}
+        onFocus={() => onFocusChange(true)}
+        onBlur={() => onFocusChange(false)}
       />
       <ForumIcon icon="Close" className={classes.searchIcon} onClick={onClose} />
     </div>
   );
 };
 
-const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, onHideTemplate}: {
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, shortcutNumber, onHideTemplate, dragDisabled = false}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted: boolean,
   selected: boolean,
+  shortcutNumber?: string,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
+  // Without groups there's nowhere to drag a template to
+  dragDisabled?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, isDragging} = useDraggable({
     id: template._id,
+    disabled: dragDisabled,
   });
   const rowRef = useRef<HTMLDivElement | null>(null);
 
@@ -370,14 +414,15 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
         onTemplateClick={onTemplateClick}
         highlighted={highlighted}
         selected={selected}
-        dragHandleProps={{ref: setActivatorNodeRef, attributes, listeners}}
+        shortcutNumber={shortcutNumber}
+        dragHandleProps={dragDisabled ? undefined : {ref: setActivatorNodeRef, attributes, listeners}}
         onHide={onHideTemplate}
       />
     </div>
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId, shortcutNumbers}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -389,6 +434,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
   selectedTemplateId: string | null,
+  shortcutNumbers: Map<string, string>,
 }) => {
   const classes = useStyles(styles);
   const {setNodeRef, isOver} = useDroppable({id: group});
@@ -453,9 +499,45 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           onTemplateClick={onTemplateClick}
           highlighted={!!highlightedTemplateNames?.has(template.name)}
           selected={template._id === selectedTemplateId}
+          shortcutNumber={shortcutNumbers.get(template._id)}
           onHideTemplate={onHideTemplate}
         />
       ))}
+    </div>
+  );
+};
+
+const FlatTemplateList = ({templates, onTemplateClick, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId, shortcutNumbers}: {
+  templates: ModerationTemplateFragment[],
+  onTemplateClick: (template: ModerationTemplateFragment) => void,
+  onHideTemplate: (template: ModerationTemplateFragment) => void,
+  onAddTemplate: () => void,
+  newTemplateForm: React.ReactNode,
+  highlightedTemplateNames?: Set<string>,
+  selectedTemplateId: string | null,
+  shortcutNumbers: Map<string, string>,
+}) => {
+  const classes = useStyles(styles);
+
+  return (
+    <div className={classes.templateGroup}>
+      {templates.map(template => (
+        <DraggableTemplateItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          selected={template._id === selectedTemplateId}
+          shortcutNumber={shortcutNumbers.get(template._id)}
+          onHideTemplate={onHideTemplate}
+          dragDisabled
+        />
+      ))}
+      {newTemplateForm}
+      <div className={classes.addTemplateRow} onClick={onAddTemplate}>
+        <ForumIcon icon="Plus" className={classes.addTemplateIcon} />
+        <span className={classes.addTemplateRowLabel}>New template</span>
+      </div>
     </div>
   );
 };
@@ -501,8 +583,11 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * `focusSearchToken` is bumped by the composer above the list when the moderator
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
+ *
+ * With `flatByUsage`, groups are dropped entirely: the templates are one list,
+ * most-used first, counted from moderators' recent uses.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape, flatByUsage = false, templateFilter, numberShortcuts = false }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
@@ -513,6 +598,12 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   active?: boolean,
   // Called when Escape is pressed in the search; closes the sidebar section containing the list
   onEscape?: () => void,
+  // Show one ungrouped list ordered by recent usage instead of groups ordered by `order`
+  flatByUsage?: boolean,
+  // Templates that don't apply here are left out of the list (but still relabelled with their group)
+  templateFilter?: (template: ModerationTemplateFragment) => boolean,
+  // While the search box has focus, 1–9 and 0 pick the first ten templates on screen
+  numberShortcuts?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -521,6 +612,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocusToken, setSearchFocusToken] = useState(0);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [hiddenSectionExpanded, setHiddenSectionExpanded] = useState(false);
@@ -554,11 +646,17 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 
   const queryVariables = getModerationTemplatesQueryVariables(collectionName);
   const { data } = useQuery(ModerationTemplatesListQuery, { variables: queryVariables });
+  // Fetched once per mount, so the list doesn't reshuffle under the moderator as they work
+  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { skip: !flatByUsage, ssr: false });
   const [updateTemplateGroup] = useMutation(UpdateModerationTemplateGroupMutation);
 
   const dndSensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
 
   const templates = data?.moderationTemplates?.results ?? [];
+  const usageCounts = useMemo(
+    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
+    [usageData]
+  );
 
   const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
@@ -626,15 +724,17 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   };
 
   const lowercaseQuery = searchQuery.trim().toLowerCase();
+  const applicableTemplates = templateFilter ? templates.filter(templateFilter) : templates;
   const matchingTemplates = lowercaseQuery
-    ? templates.filter(template => templateMatchesQuery(template, lowercaseQuery))
-    : templates;
-  // Groups are only created when non-empty, so all-hidden ones vanish
-  const visibleGroups = groupTemplatesByLabel(matchingTemplates.filter(template => !hiddenTemplateIds.has(template._id)));
+    ? applicableTemplates.filter(template => templateMatchesQuery(template, lowercaseQuery))
+    : applicableTemplates;
+  const visibleTemplates = matchingTemplates.filter(template => !hiddenTemplateIds.has(template._id));
   const hiddenTemplates = matchingTemplates.filter(template => hiddenTemplateIds.has(template._id));
+  // Groups are only created when non-empty, so all-hidden ones vanish
+  const visibleGroups = flatByUsage ? [] : groupTemplatesByLabel(visibleTemplates);
   // Outside of a search, always show "Other" (even when empty) so its "+" button
   // is the standing affordance for creating an ungrouped template
-  if (!lowercaseQuery && !visibleGroups.some(([group]) => group === UNGROUPED_TEMPLATES_LABEL)) {
+  if (!flatByUsage && !lowercaseQuery && !visibleGroups.some(([group]) => group === UNGROUPED_TEMPLATES_LABEL)) {
     visibleGroups.push([UNGROUPED_TEMPLATES_LABEL, []]);
   }
 
@@ -642,14 +742,32 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 
   // What the arrow keys walk: everything on screen, in display order. Templates in
   // collapsed groups and hidden templates aren't visible, so they aren't navigable.
-  const navigableTemplates = visibleGroups
-    .filter(([group]) => isGroupExpanded(group))
-    .flatMap(([, templatesInGroup]) => templatesInGroup);
+  const navigableTemplates = flatByUsage
+    ? sortTemplatesByUsage(visibleTemplates, usageCounts)
+    : visibleGroups
+      .filter(([group]) => isGroupExpanded(group))
+      .flatMap(([, templatesInGroup]) => templatesInGroup);
 
   // Collapsing a group can leave the index past the end of the list
   const selectedTemplate = navigableTemplates[selectedIndex];
 
+  const numberShortcutsActive = numberShortcuts && searchOpen && searchFocused;
+  const shortcutNumbers = new Map(numberShortcutsActive
+    ? navigableTemplates.slice(0, SHORTCUT_DIGITS.length).map((template, index) => [template._id, SHORTCUT_DIGITS[index]])
+    : []);
+
   const handleSearchKeyDown = (event: React.KeyboardEvent) => {
+    const shortcutIndex = SHORTCUT_DIGITS.indexOf(event.key);
+    if (numberShortcutsActive && shortcutIndex >= 0 && !event.metaKey && !event.ctrlKey && !event.altKey) {
+      // Digits pick templates rather than going into the search query
+      event.preventDefault();
+      const template = navigableTemplates[shortcutIndex];
+      if (template) {
+        setSelectedIndex(shortcutIndex);
+        onTemplateClick(template);
+      }
+      return;
+    }
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
@@ -690,6 +808,20 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
     }
   };
 
+  // Only one form is open at a time, in whichever group (or the flat list) asked for it
+  const newTemplateForm = newTemplateGroup !== null && (
+    <div className={classes.newTemplateForm}>
+      <ModerationTemplatesForm
+        initialCollectionName={collectionName}
+        initialGroupLabel={newTemplateGroup === UNGROUPED_TEMPLATES_LABEL ? undefined : newTemplateGroup}
+        hideMetadataFields
+        onSuccess={() => setNewTemplateGroup(null)}
+        onCancel={() => setNewTemplateGroup(null)}
+        refetchQueries={[{ query: ModerationTemplatesListQuery, variables: queryVariables }]}
+      />
+    </div>
+  );
+
   // DndContext gets an explicit id because the ids dnd-kit puts in aria-describedby
   // otherwise come from a module-level counter, which drifts between the server and
   // the client and trips a hydration mismatch
@@ -709,6 +841,19 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onClose={handleCloseSearch}
           onQueryChange={handleSearchQueryChange}
           onKeyDown={handleSearchKeyDown}
+          onFocusChange={setSearchFocused}
+        />
+      )}
+      {flatByUsage && (
+        <FlatTemplateList
+          templates={navigableTemplates}
+          onTemplateClick={onTemplateClick}
+          onHideTemplate={handleHideTemplate}
+          onAddTemplate={() => setNewTemplateGroup(UNGROUPED_TEMPLATES_LABEL)}
+          newTemplateForm={newTemplateForm}
+          highlightedTemplateNames={highlightedTemplateNames}
+          selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
+          shortcutNumbers={shortcutNumbers}
         />
       )}
       {visibleGroups.map(([group, templatesInGroup]) => (
@@ -722,20 +867,10 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onRenameGroup={handleRenameGroup}
           onHideTemplate={handleHideTemplate}
           onAddTemplate={handleAddTemplate}
-          newTemplateForm={newTemplateGroup === group && (
-            <div className={classes.newTemplateForm}>
-              <ModerationTemplatesForm
-                initialCollectionName={collectionName}
-                initialGroupLabel={group === UNGROUPED_TEMPLATES_LABEL ? undefined : group}
-                hideMetadataFields
-                onSuccess={() => setNewTemplateGroup(null)}
-                onCancel={() => setNewTemplateGroup(null)}
-                refetchQueries={[{ query: ModerationTemplatesListQuery, variables: queryVariables }]}
-              />
-            </div>
-          )}
+          newTemplateForm={newTemplateGroup === group && newTemplateForm}
           highlightedTemplateNames={highlightedTemplateNames}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
+          shortcutNumbers={shortcutNumbers}
         />
       ))}
       {hiddenTemplates.length > 0 && (
@@ -747,7 +882,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onUnhideTemplate={handleUnhideTemplate}
         />
       )}
-      {lowercaseQuery && visibleGroups.length === 0 && hiddenTemplates.length === 0 && (
+      {lowercaseQuery && visibleTemplates.length === 0 && hiddenTemplates.length === 0 && (
         <div className={classes.noSearchResults}>No templates match “{searchQuery.trim()}”</div>
       )}
     </div>

@@ -234,7 +234,19 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const canReject = canRejectContent(focusedContent);
   const showRejectTab = !!focusedContent;
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
+  // With no tab picked, the reject panel shows but doesn't take keyboard focus
+  const rejectPanelVisible = rejectTabActive || (sidebarTab === null && canReject && !!focusedContent);
   const dmTabActive = sidebarTab === 'dm';
+  const rejectPanelRef = useRef<HTMLDivElement>(null);
+
+  // The reject panel stays visible after it stops being the picked tab, so
+  // release its focus; otherwise the search box would swallow the shortcuts
+  useEffect(() => {
+    const focused = document.activeElement;
+    if (!rejectTabActive && focused instanceof HTMLElement && rejectPanelRef.current?.contains(focused)) {
+      focused.blur();
+    }
+  }, [rejectTabActive]);
 
   // Start the conversation on tab click, not on a second click on the prompt.
   // Clicking the already-active tab closes the composer.
@@ -407,7 +419,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
         title={canReject ? undefined : "This content can't be rejected"}
       >
-        <span className={classNames(classes.tabLabel, classes.rejectTabLabel, { [classes.activeTab]: rejectTabActive })}>
+        <span className={classNames(classes.tabLabel, classes.rejectTabLabel, { [classes.activeTab]: rejectPanelVisible })}>
           <span className={classes.rejectTabTitle}>Reject “{getContentTitle(focusedContent)}”</span>
           <KeystrokeDisplay keystroke="R" withMargin />
         </span>
@@ -418,7 +430,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       {dmTabContents}
     </div>
     {canReject && focusedContent && (
-      <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
+      <div ref={rejectPanelRef} className={classNames({ [classes.hiddenTabContent]: !rejectPanelVisible })}>
         <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={handleCloseSidebarTab} />
       </div>
     )}

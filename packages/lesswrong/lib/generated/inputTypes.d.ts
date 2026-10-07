@@ -73,6 +73,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -279,6 +280,7 @@ interface Mutation {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
+  recordModerationTemplatesUsed: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -1235,6 +1237,11 @@ interface PangramTextEvaluationResult {
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
+}
+
+interface ModerationTemplateUsageCount {
+  templateId: string;
+  count: number;
 }
 
 interface ToggleBookmarkInput {
@@ -9373,6 +9380,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
+  ModerationTemplateUsageCount: ModerationTemplateUsageCount;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;

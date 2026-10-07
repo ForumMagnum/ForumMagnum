@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useMutation } from '@apollo/client/react';
+import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
@@ -10,7 +12,13 @@ import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
-import { isPost, type ContentItem } from './helpers';
+import { isPost, isRejectionTemplateRelevant, type ContentItem } from './helpers';
+
+const RecordRejectionTemplatesUsedMutation = gql(`
+  mutation recordModerationTemplatesUsedRejectContentPanel($templateIds: [String!]!, $documentId: String!, $collectionName: ContentCollectionName!) {
+    recordModerationTemplatesUsed(templateIds: $templateIds, documentId: $documentId, collectionName: $collectionName)
+  }
+`);
 
 // `loading` adds a Suspense boundary; without one, loading the editor blanks the page
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
@@ -167,6 +175,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
+  const [recordTemplatesUsed] = useMutation(RecordRejectionTemplatesUsedMutation);
 
   // Source of truth while the preview is showing; the reasons html is derived
   const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
@@ -212,12 +221,19 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     const existing = addedTemplates.find(t => t.templateId === template._id);
 
     if (!existing) {
-      setAddedTemplates(prev => [...prev, { templateId: template._id, lead: extractBoldLead(html), html }]);
+      const added = { templateId: template._id, lead: extractBoldLead(html), html };
+      setAddedTemplates(prev => [...prev, added]);
       if (editorOpen) {
         fullMessageRef.current = appendHtml(fullMessageRef.current, html);
         setEditorHtml(fullMessageRef.current);
         setLexicalEditorVersion(prev => prev + 1);
         focusLexicalEditorAtEnd(editorContainerRef.current);
+      } else {
+        // Picking a reason goes straight to editing the message; the open effect focuses it
+        fullMessageRef.current = standardRejectionIntroHtml + joinTemplateHtml([...addedTemplates, added]);
+        setEditorHtml(fullMessageRef.current);
+        setLexicalEditorVersion(prev => prev + 1);
+        setEditorOpen(true);
       }
       return;
     }
@@ -246,17 +262,25 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
     if (!reason) return;
 
+    const collectionName = isPost(focusedContent) ? 'Posts' : 'Comments';
     if (isPost(focusedContent)) {
       void rejectContent({ collectionName: 'Posts', document: focusedContent, reason });
     } else {
       void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
+    }
+    // Feeds the usage-based ordering of the rejection template list
+    if (addedTemplates.length > 0) {
+      void recordTemplatesUsed({
+        variables: { templateIds: addedTemplates.map(t => t.templateId), documentId: focusedContent._id, collectionName },
+        onError: () => {},
+      });
     }
     fullMessageRef.current = '';
     setAddedTemplates([]);
     setEditorOpen(false);
     setEditorHtml('');
     setLexicalEditorVersion(prev => prev + 1);
-  }, [editorOpen, addedTemplates, focusedContent, rejectContent]);
+  }, [editorOpen, addedTemplates, focusedContent, rejectContent, recordTemplatesUsed]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
@@ -308,6 +332,11 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
     toggleTemplateRef.current = fn;
   }, []);
 
+  const templateFilter = useCallback(
+    (template: ModerationTemplateFragment) => isRejectionTemplateRelevant(template.name, focusedContent),
+    [focusedContent],
+  );
+
   // The template search is the initial keyboard target whenever the tab is picked
   useEffect(() => {
     if (active) {
@@ -333,6 +362,9 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
       active={active}
       onFocusComposer={() => setComposerFocusToken(token => token + 1)}
       onEscape={onEscape}
+      flatByUsage
+      templateFilter={templateFilter}
+      numberShortcuts
     />
   </>;
 };
