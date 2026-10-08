@@ -370,6 +370,7 @@ export const SunshineUsersList = gql(`
       ...ModeratorActionDisplay
     }
     reviewGroup
+    hasPendingComments
     usersContactedBeforeReview
 
     voteReceivedCount

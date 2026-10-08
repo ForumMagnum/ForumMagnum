@@ -12,7 +12,8 @@ import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
 import { isPost, type ContentItem } from './helpers';
 
-const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+// `loading` adds a Suspense boundary; without one, loading the editor blanks the page
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
   root: {

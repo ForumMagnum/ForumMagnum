@@ -1,5 +1,5 @@
 "use client";
-import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, RefObject} from 'react';
+import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, useLayoutEffect, RefObject} from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
@@ -117,9 +117,21 @@ const LWPopper = ({
     ],
   });
 
-  if (updateRef && update) {
-    updateRef.current = update
+  const latestUpdateRef = useRef<(() => Promise<Partial<State>>) | null>(null);
+  if (update) {
+    latestUpdateRef.current = update
+    if (updateRef) updateRef.current = update
   }
+
+  // Reposition when async content changes the popper's size.
+  useLayoutEffect(() => {
+    if (!popperElement) return;
+    const observer = new ResizeObserver(() => {
+      void latestUpdateRef.current?.();
+    });
+    observer.observe(popperElement);
+    return () => observer.disconnect();
+  }, [popperElement]);
 
   if (!open)
     return null;

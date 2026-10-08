@@ -112,12 +112,18 @@ const getBatchingTimeLocalTZ = (settings: KarmaChangeSettingsType, timezone: any
 const KarmaChangeNotifierSettings = ({
   field,
 }: {
-  field: FieldValueBinding<KarmaChangeSettingsType>;
+  // Null when the viewer can't read this field, eg a non-admin moderator
+  // viewing another user's account settings
+  field: FieldValueBinding<KarmaChangeSettingsType | null, KarmaChangeSettingsType>;
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const settings = field.state.value;
+
+  if (!settings || typeof settings.timeOfDayGMT !== 'number' || !settings.dayOfWeekGMT) {
+    return null;
+  }
 
   const modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const newSettings = { ...settings, ...changes };
@@ -151,11 +157,7 @@ const KarmaChangeNotifierSettings = ({
       dayOfWeekGMT: newTimeGMT.dayOfWeek,
     });
   };
-  
-  if (!settings.timeOfDayGMT || !settings.dayOfWeekGMT) {
-    return null
-  }
-  
+
   const {timeOfDay, dayOfWeek} = getBatchingTimeLocalTZ(settings, timezone);
   
   const batchTimingChoices = <span>
