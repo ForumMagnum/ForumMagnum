@@ -15,9 +15,6 @@
     "path": "/api/cron/every-ten-minutes",
     "schedule": "*/10 * * * *"
   }, {
-    "path": "/api/cron/retry-missing-pangram-evaluations",
-    "schedule": "*/10 * * * *"
-  }, {
     "path": "/api/cron/update-analytics-collections",
     "schedule": "*/20 * * * *"
   }, {
