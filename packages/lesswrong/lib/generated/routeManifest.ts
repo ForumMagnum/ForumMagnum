@@ -676,6 +676,9 @@ export const routeTrie = {
       },
       "hasRoute": true
     },
+    "appeal": {
+      "hasPage": true
+    },
     "arbital": {
       "hasPage": true
     },
@@ -1446,6 +1449,7 @@ export const routeTrie = {
     "allgroups": "allgroups",
     "analyticsevent": "analyticsEvent",
     "api": "api",
+    "appeal": "appeal",
     "arbital": "arbital",
     "auth": "auth",
     "autocompletesettings": "autocompleteSettings",

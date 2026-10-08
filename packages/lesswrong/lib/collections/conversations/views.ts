@@ -51,6 +51,13 @@ function userConversationsAll(terms: ConversationsViewTerms) {
   };
 }
 
+function teamInboxAwaitingReply(terms: ConversationsViewTerms) {
+  return {
+    selector: {moderator: true, awaitingModeratorReply: true},
+    options: {sort: {latestActivity: -1}}
+  };
+}
+
 function userGroupUntitledConversations(terms: ConversationsViewTerms) {
   const moderatorSelector = terms.moderator ? {moderator: true} : {}
 
@@ -74,5 +81,6 @@ export const ConversationsViews = new CollectionViewSet('Conversations', {
   moderatorConversations,
   userConversations,
   userConversationsAll,
+  teamInboxAwaitingReply,
   userGroupUntitledConversations
 }, defaultView);

@@ -293,6 +293,7 @@ CREATE TABLE "Comments" (
   "rejected" BOOL NOT NULL DEFAULT FALSE,
   "rejectedReason" TEXT,
   "rejectedByUserId" VARCHAR(27),
+  "rejectionConversationId" VARCHAR(27),
   "af" BOOL NOT NULL DEFAULT FALSE,
   "suggestForAlignmentUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "reviewForAlignmentUserId" TEXT,
@@ -574,6 +575,7 @@ CREATE TABLE "Conversations" (
   "af" BOOL,
   "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "moderator" BOOL,
+  "awaitingModeratorReply" BOOL NOT NULL DEFAULT FALSE,
   "archivedByIds" VARCHAR(27) [] NOT NULL DEFAULT '{}'
 );
 
@@ -1587,6 +1589,7 @@ CREATE TABLE "Posts" (
   "rejected" BOOL NOT NULL DEFAULT FALSE,
   "rejectedReason" TEXT,
   "rejectedByUserId" VARCHAR(27),
+  "rejectionConversationId" VARCHAR(27),
   "subforumTagId" VARCHAR(27),
   "af" BOOL NOT NULL DEFAULT FALSE,
   "afDate" TIMESTAMPTZ,
@@ -2311,6 +2314,32 @@ CREATE TABLE "RecommendationsCaches" (
 
 -- Index "idx_RecommendationsCaches_userId_postId_source_scenario"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches" USING btree ("userId", "postId", "source", "scenario");
+
+-- Table "RejectionAppeals"
+CREATE TABLE "RejectionAppeals" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27),
+  "commentId" VARCHAR(27),
+  "conversationId" VARCHAR(27) NOT NULL,
+  "explanation" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'open',
+  "resolvedByUserId" VARCHAR(27),
+  "resolvedAt" TIMESTAMPTZ
+);
+
+-- Index "idx_RejectionAppeals_postId"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_postId" ON "RejectionAppeals" USING btree ("postId");
+
+-- Index "idx_RejectionAppeals_commentId"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_commentId" ON "RejectionAppeals" USING btree ("commentId");
+
+-- Index "idx_RejectionAppeals_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_userId_createdAt" ON "RejectionAppeals" USING btree ("userId", "createdAt");
+
+-- Index "idx_RejectionAppeals_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_status_createdAt" ON "RejectionAppeals" USING btree ("status", "createdAt");
 
 -- Table "Reports"
 CREATE TABLE "Reports" (

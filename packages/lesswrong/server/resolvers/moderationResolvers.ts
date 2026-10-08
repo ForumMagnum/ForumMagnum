@@ -12,8 +12,7 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
-import { createConversation } from '../collections/conversations/mutations';
-import { createMessage } from '../collections/messages/mutations';
+import { startTeamInboxConversation } from '../utils/teamInbox';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
@@ -196,31 +195,14 @@ export const moderationGqlMutations = {
         }
       }, context);
 
-      const conversationData: CreateConversationDataInput = {
-        participantIds: [userId, currentUser._id],
+      await startTeamInboxConversation({
+        recipientId: userId,
+        author: currentUser,
         title: `Content rejected and permissions restricted`,
-        moderator: true,
-      };
-
-      const conversation = await createConversation({
-        data: conversationData,
-      }, context);
-
-      const messageData = {
-        userId: currentUser._id,
-        contents: {
-          originalContents: {
-            type: "html",
-            data: messageContent
-          }
-        },
-        conversationId: conversation._id,
+        html: messageContent,
         noEmail: false,
-      };
-
-      await createMessage({
-        data: messageData,
-      }, context);
+        context,
+      });
     } else {
       const notes = user.sunshineNotes || '';
       const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;

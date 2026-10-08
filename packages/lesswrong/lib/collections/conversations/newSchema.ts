@@ -136,6 +136,22 @@ const schema = {
       },
     },
   },
+  awaitingModeratorReply: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["admins", "sunshineRegiment"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   archivedByIds: {
     database: {
       type: "VARCHAR(27)[]",

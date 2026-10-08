@@ -1,4 +1,5 @@
 import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import type { TeamInboxThread } from '@/components/sunshineDashboard/supermod/teamInboxThreads';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -77,6 +78,46 @@ function createUndoItem(
   };
 }
 
+function createMockThread(conversationId: string): TeamInboxThread {
+  return {
+    conversation: {
+      __typename: 'Conversation',
+      _id: conversationId,
+      createdAt: null,
+      latestActivity: null,
+      title: null,
+      participantIds: [],
+      archivedByIds: [],
+      messageCount: 1,
+      moderator: true,
+      participants: [],
+      latestMessage: null,
+      awaitingModeratorReply: true,
+    },
+    appeal: null,
+  };
+}
+
+function createThreadsState(teamInboxThreads: TeamInboxThread[]): InboxState {
+  return {
+    users: [],
+    posts: [],
+    classifiedPosts: [],
+    curationPosts: [],
+    teamInboxThreads,
+    activeTab: 'curation',
+    focusedUserId: null,
+    openedUserId: null,
+    focusedPostId: null,
+    focusedThreadId: null,
+    focusedContentIndex: 0,
+    sidebarTab: null,
+    undoQueue: [],
+    history: [],
+    runningLlmCheckId: null,
+  };
+}
+
 describe('Moderation Inbox Reducer', () => {
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
@@ -91,10 +132,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -123,10 +166,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -151,10 +196,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -181,10 +228,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -223,10 +272,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -261,10 +312,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -292,10 +345,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -321,10 +376,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -354,10 +411,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -385,10 +444,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -415,10 +476,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -448,10 +511,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 3,
         sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
@@ -481,10 +546,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'highContext',
         focusedUserId: null,
         openedUserId: 'user3',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 1,
         sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
@@ -507,10 +574,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -536,10 +605,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
@@ -562,10 +633,12 @@ describe('Moderation Inbox Reducer', () => {
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab,
         undoQueue: [],
@@ -612,6 +685,26 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('team inbox threads', () => {
+    test('NEXT_TAB enters the appeals tab and focuses the first thread', () => {
+      const state = inboxStateReducer(createThreadsState([createMockThread('c1'), createMockThread('c2')]), { type: 'NEXT_TAB' });
+      expect(state.activeTab).toBe('appeals');
+      expect(state.focusedThreadId).toBe('c1');
+    });
+
+    test('REMOVE_THREAD focuses the thread that took its place', () => {
+      let state = createThreadsState([createMockThread('c1'), createMockThread('c2'), createMockThread('c3')]);
+      state = inboxStateReducer(state, { type: 'CHANGE_TAB', tab: 'appeals' });
+      state = inboxStateReducer(state, { type: 'FOCUS_THREAD', conversationId: 'c2' });
+      state = inboxStateReducer(state, { type: 'REMOVE_THREAD', conversationId: 'c2' });
+      expect(state.teamInboxThreads.map(thread => thread.conversation._id)).toEqual(['c1', 'c3']);
+      expect(state.focusedThreadId).toBe('c3');
+
+      state = inboxStateReducer(state, { type: 'REMOVE_THREAD', conversationId: 'c3' });
+      expect(state.focusedThreadId).toBe('c1');
     });
   });
 });

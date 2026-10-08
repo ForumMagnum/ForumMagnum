@@ -93,7 +93,7 @@ const ModerationTabs = ({
   const classes = useStyles(styles);
   const now = useCurrentTime();
 
-  const separatorAfter = new Set(['curation', 'all']);
+  const separatorAfter = new Set(['curation', 'appeals', 'all']);
   const daysSinceLastCuration = lastCuratedDate ? (now.getTime() - new Date(lastCuratedDate).getTime()) / (1000 * 60 * 60 * 24) : null;
 
   return (

@@ -26,7 +26,7 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   return { fresh, stale, nonTriggerActions };
 }
 
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'appeals';
 
 // Computed server-side via the `reviewGroup` resolver on the User schema.
 export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {

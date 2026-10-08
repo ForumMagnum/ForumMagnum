@@ -252,6 +252,10 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
   }
 };
 
+const rejectionAppealCheckAccess: CheckAccessFunction<'RejectionAppeals'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdminOrMod(currentUser) || userOwns(currentUser, document);
+};
+
 const reportCheckAccess: CheckAccessFunction<'Reports'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return (
@@ -491,6 +495,7 @@ const accessFilters = {
   PostViews: allowAccess,
   ReadStatuses: allowAccess,
   RecommendationsCaches: allowAccess,
+  RejectionAppeals: rejectionAppealCheckAccess,
   Reports: reportCheckAccess,
   ResearchConversationEvents: researchConversationEventCheckAccess,
   ResearchConversations: researchConversationCheckAccess,

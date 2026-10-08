@@ -11,7 +11,7 @@ type CollectionsViewName = never
 type CommentEmbeddingsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
 type CommentsViewName = "afPostCommentsTop"|"afRecentDiscussionThread"|"afSubmissions"|"alignmentSuggestedComments"|"allCommentsDeleted"|"allRecentComments"|"answersAndReplies"|"commentReplies"|"debateResponses"|"defaultModeratorResponses"|"draftComments"|"legacyIdComment"|"moderatorComments"|"nominations2018"|"nominations2019"|"postCommentsBest"|"postCommentsDeleted"|"postCommentsMagic"|"postCommentsNew"|"postCommentsOld"|"postCommentsRecentReplies"|"postCommentsTop"|"postLWComments"|"postsItemComments"|"profileComments"|"profileRecentComments"|"questionAnswers"|"recentComments"|"recentDebateResponses"|"recentDiscussionThread"|"rejected"|"repliesToAnswer"|"repliesToCommentThread"|"repliesToCommentThreadIncludingRoot"|"reviews"|"reviews2018"|"reviews2019"|"rss"|"shortform"|"shortformFrontpage"|"shortformLatestChildren"|"sunshineNewCommentsList"|"sunshineNewUsersComments"|"tagDiscussionComments"|"topShortform";
-type ConversationsViewName = "moderatorConversations"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
+type ConversationsViewName = "moderatorConversations"|"teamInboxAwaitingReply"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
 type CronHistoriesViewName = never
 type CurationEmailsViewName = never
 type CurationNoticesViewName = "curationNoticesPage"|"curationNoticesPostView";
@@ -59,6 +59,7 @@ type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
+type RejectionAppealsViewName = "openAppeals"|"userAppeals";
 type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"closedReports"|"sunshineSidebarReports"|"unclaimedReports";
 type ResearchConversationEventsViewName = never
 type ResearchConversationsViewName = "byProject"|"byProjectArchived";
@@ -154,6 +155,7 @@ interface ViewTermsByCollectionName {
   RSSFeeds: RSSFeedsViewTerms
   ReadStatuses: ViewTermsBase
   RecommendationsCaches: ViewTermsBase
+  RejectionAppeals: RejectionAppealsViewTerms
   Reports: ReportsViewTerms
   ResearchConversationEvents: ViewTermsBase
   ResearchConversations: ResearchConversationsViewTerms
@@ -189,4 +191,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

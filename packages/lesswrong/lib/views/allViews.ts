@@ -35,6 +35,7 @@ import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
+import { RejectionAppealsViews } from '../collections/rejectionAppeals/views';
 import { ReportsViews } from '../collections/reports/views';
 import { ResearchConversationEventsViews } from '../collections/researchConversationEvents/views';
 import { ResearchConversationsViews } from '../collections/researchConversations/views';
@@ -124,6 +125,7 @@ export const allViews = {
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),
   RecommendationsCaches: new CollectionViewSet('RecommendationsCaches', {}),
+  RejectionAppeals: RejectionAppealsViews,
   Reports: ReportsViews,
   ResearchConversationEvents: ResearchConversationEventsViews,
   ResearchConversations: ResearchConversationsViews,

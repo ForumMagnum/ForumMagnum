@@ -17,7 +17,7 @@ import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
-import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
+import { enterTab, getVisibleTabsInOrder, InboxState, inboxStateReducer, isUserTab } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -27,9 +27,11 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import TeamInboxThreadView from './TeamInboxThreadView';
+import { getTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 
 // All of the moderation inbox's initial data is fetched in a single query so
-// that its root fields (users/posts/classifiedPosts/curation/lastCurated)
+// that its root fields (users/posts/classifiedPosts/curation/lastCurated/team inbox)
 // resolve concurrently server-side, rather than as a serial waterfall of
 // separate useQuery suspends. (directUser is kept separate below because it
 // depends on whether the opened user is already in the users list.)
@@ -57,6 +59,16 @@ const ModerationInboxDataQuery = gql(`
     }
     LastCuratedDate {
       lastCuratedDate
+    }
+    teamInboxConversations: conversations(selector: { teamInboxAwaitingReply: {} }, limit: 200) {
+      results {
+        ...TeamInboxConversation
+      }
+    }
+    openAppeals: rejectionAppeals(selector: { openAppeals: {} }, limit: 200) {
+      results {
+        ...RejectionAppealsModerationInfo
+      }
     }
   }
 `);
@@ -119,11 +131,12 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, teamInboxThreads, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
+  teamInboxThreads: TeamInboxThread[];
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -135,128 +148,42 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null },
+    null,
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
-      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
-        return {
-          users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (initialOpenedUserId) {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'all',
-          focusedUserId: initialOpenedUserId,
-          openedUserId: initialOpenedUserId,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
-
-      // Default to curation when there are no curation notices (so you can add some)
-      // Otherwise, find the first non-empty non-curation tab
-      const firstNonEmptyTab = curationNoticeCount === 0
-        ? undefined
-        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
-
-      if (firstTab === 'curation') {
-        return { 
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: curationPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-      
-      if (firstTab === 'posts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'posts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: posts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (firstTab === 'classifiedPosts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'classifiedPosts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: classifiedPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
+      const initialState: InboxState = {
         users: initialUsers,
         posts,
         classifiedPosts,
         curationPosts,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: initialOpenedUserId,
+        teamInboxThreads,
+        activeTab: 'all',
+        focusedUserId: null,
+        openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
       };
+
+      if (initialOpenedUserId) {
+        return { ...initialState, focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
+      }
+
+      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
+      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, teamInboxThreads.length);
+
+      // Default to curation when there are no curation notices (so you can add some)
+      // Otherwise, find the first non-empty non-curation tab
+      const firstNonEmptyTab = curationNoticeCount === 0
+        ? undefined
+        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
+
+      return enterTab(initialState, firstNonEmptyTab?.group ?? 'curation');
     }
   );
 
@@ -298,8 +225,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -325,6 +252,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     return state.curationPosts.find(p => p._id === state.focusedPostId) ?? null;
   }, [state.focusedPostId, state.activeTab, state.curationPosts]);
 
+  const focusedThread = useMemo(() => {
+    return state.teamInboxThreads.find(thread => thread.conversation._id === state.focusedThreadId) ?? null;
+  }, [state.focusedThreadId, state.teamInboxThreads]);
+
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
   const handleFocusPost = useCallback((postId: string) => dispatch({ type: 'FOCUS_POST', postId }), []);
@@ -338,6 +269,12 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const handleNextPost = useCallback(() => dispatch({ type: 'NEXT_POST' }), []);
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
+
+  const handleFocusThread = useCallback((conversationId: string) => dispatch({ type: 'FOCUS_THREAD', conversationId }), []);
+
+  const handleNextThread = useCallback(() => dispatch({ type: 'NEXT_THREAD' }), []);
+
+  const handlePrevThread = useCallback(() => dispatch({ type: 'PREV_THREAD' }), []);
 
   const handleTabChange = useCallback((newTab: TabId) => {
     dispatch({ type: 'CHANGE_TAB', tab: newTab });
@@ -381,14 +318,21 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
-  const isPostLikeTab = isPostsTab || isCurationTab;
+  const isAppealsTab = state.activeTab === 'appeals';
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
-      {isCurationTab ? (
+      {isAppealsTab ? (
+        <CurationKeyboardHandler
+          onNextPost={handleNextThread}
+          onPrevPost={handlePrevThread}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+        />
+      ) : isCurationTab ? (
         <CurationKeyboardHandler
           onNextPost={handleNextPost}
           onPrevPost={handlePrevPost}
@@ -454,7 +398,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
             />
           ) : (
             <>
-              {!isPostLikeTab && (
+              {isUserTab(state.activeTab) && (
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
@@ -467,11 +411,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
                   userGroups={filteredGroups}
                   posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
                   curationPosts={state.curationPosts}
+                  teamInboxThreads={state.teamInboxThreads}
                   focusedUserId={state.focusedUserId}
                   focusedPostId={state.focusedPostId}
+                  focusedThreadId={state.focusedThreadId}
                   onFocusUser={handleOpenUser}
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
+                  onFocusThread={handleFocusThread}
                   activeTab={state.activeTab}
                 />
               </div>
@@ -482,6 +429,15 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           <div className={classes.postDetailPanel}>
             <ModerationPostSidebar
               post={focusedPost}
+              currentUser={currentUser}
+              dispatch={dispatch}
+            />
+          </div>
+        )}
+        {isAppealsTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
+            <TeamInboxThreadView
+              thread={focusedThread}
               currentUser={currentUser}
               dispatch={dispatch}
             />
@@ -536,6 +492,10 @@ const ModerationInbox = () => {
   const classifiedPosts = useMemo(() => data?.classifiedPosts?.results ?? [], [data]);
   const curationPosts = useMemo(() => data?.CurationCandidatePosts?.results ?? [], [data]);
   const lastCuratedDate = data?.LastCuratedDate?.lastCuratedDate ?? null;
+  const teamInboxThreads = useMemo(() => getTeamInboxThreads(
+    data?.teamInboxConversations?.results ?? [],
+    data?.openAppeals?.results ?? [],
+  ), [data]);
 
   const directUser = useMemo(() => {
     if (!shouldFetchDirectUser) return null;
@@ -565,6 +525,7 @@ const ModerationInbox = () => {
     posts={posts}
     classifiedPosts={classifiedPosts}
     curationPosts={curationPosts}
+    teamInboxThreads={teamInboxThreads}
     lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
