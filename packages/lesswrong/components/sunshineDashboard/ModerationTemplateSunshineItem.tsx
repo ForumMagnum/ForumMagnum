@@ -49,7 +49,6 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   dragHandleIcon: {
     fontSize: 16,
   },
-  // Sits in the row's left padding, where the drag handle goes in grouped lists
   shortcutNumber: {
     position: "absolute",
     left: 6,
@@ -147,7 +146,6 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
   selected?: boolean,
-  // The digit key that picks this template, shown while number shortcuts are on
   shortcutNumber?: string,
   dragHandleProps?: DragHandleProps,
   onHide?: (template: ModerationTemplateFragment) => void,

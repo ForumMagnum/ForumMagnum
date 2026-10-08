@@ -93,11 +93,6 @@ export function canRejectContent(item: ContentItem | null | undefined) {
   return !!item && !item.rejected;
 }
 
-/**
- * Rejection templates are scoped by name: "(autoreject)" ones are only for the
- * automated rejection, and a "(posts)" or "(comments)" suffix limits a
- * template to that kind of content.
- */
 export function isRejectionTemplateRelevant(templateName: string, item: ContentItem): boolean {
   const name = templateName.trim().toLowerCase();
   if (name.includes('autoreject')) return false;

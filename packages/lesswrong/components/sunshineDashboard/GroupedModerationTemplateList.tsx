@@ -117,7 +117,6 @@ function getTemplateUsage(template: ModerationTemplateFragment, usageCounts: Map
   return usageCounts.get(template._id) ?? 0;
 }
 
-// Stable, so unused templates keep their configured `order`
 function sortTemplatesByUsage(templates: ModerationTemplateFragment[], usageCounts: Map<string, number>) {
   return [...templates].sort((a, b) => getTemplateUsage(b, usageCounts) - getTemplateUsage(a, usageCounts));
 }
@@ -290,7 +289,6 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
       color: theme.palette.grey[900],
     },
   },
-  // Flat lists have no group headers to hang the "+" on, so it gets its own row
   addTemplateRow: {
     display: 'flex',
     alignItems: 'center',
@@ -322,7 +320,6 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
   },
 }));
 
-// Keys 1–9 then 0 pick the first ten templates, in that order
 const SHORTCUT_DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 
 const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose, onQueryChange, onKeyDown, onFocusChange}: {
@@ -381,7 +378,6 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   selected: boolean,
   shortcutNumber?: string,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
-  // Without groups there's nowhere to drag a template to
   dragDisabled?: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -583,9 +579,6 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * `focusSearchToken` is bumped by the composer above the list when the moderator
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
- *
- * With `flatByUsage`, groups are dropped entirely: the templates are one list,
- * most-used first, counted from moderators' recent uses.
  */
 const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape, flatByUsage = false, templateFilter, numberShortcuts = false }: {
   collectionName: TemplateType,
@@ -598,11 +591,8 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   active?: boolean,
   // Called when Escape is pressed in the search; closes the sidebar section containing the list
   onEscape?: () => void,
-  // Show one ungrouped list ordered by recent usage instead of groups ordered by `order`
   flatByUsage?: boolean,
-  // Templates that don't apply here are left out of the list (but still relabelled with their group)
   templateFilter?: (template: ModerationTemplateFragment) => boolean,
-  // While the search box has focus, 1–9 and 0 pick the first ten templates on screen
   numberShortcuts?: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -759,7 +749,6 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const handleSearchKeyDown = (event: React.KeyboardEvent) => {
     const shortcutIndex = SHORTCUT_DIGITS.indexOf(event.key);
     if (numberShortcutsActive && shortcutIndex >= 0 && !event.metaKey && !event.ctrlKey && !event.altKey) {
-      // Digits pick templates rather than going into the search query
       event.preventDefault();
       const template = navigableTemplates[shortcutIndex];
       if (template) {
@@ -808,7 +797,6 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
     }
   };
 
-  // Only one form is open at a time, in whichever group (or the flat list) asked for it
   const newTemplateForm = newTemplateGroup !== null && (
     <div className={classes.newTemplateForm}>
       <ModerationTemplatesForm

@@ -229,7 +229,6 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         setLexicalEditorVersion(prev => prev + 1);
         focusLexicalEditorAtEnd(editorContainerRef.current);
       } else {
-        // Picking a reason goes straight to editing the message; the open effect focuses it
         fullMessageRef.current = standardRejectionIntroHtml + joinTemplateHtml([...addedTemplates, added]);
         setEditorHtml(fullMessageRef.current);
         setLexicalEditorVersion(prev => prev + 1);
@@ -268,7 +267,6 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     } else {
       void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
     }
-    // Feeds the usage-based ordering of the rejection template list
     if (addedTemplates.length > 0) {
       void recordTemplatesUsed({
         variables: { templateIds: addedTemplates.map(t => t.templateId), documentId: focusedContent._id, collectionName },

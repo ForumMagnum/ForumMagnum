@@ -234,13 +234,11 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   const canReject = canRejectContent(focusedContent);
   const showRejectTab = !!focusedContent;
   const rejectTabActive = sidebarTab === 'reject' && canReject && !!focusedContent;
-  // With no tab picked, the reject panel shows but doesn't take keyboard focus
   const rejectPanelVisible = rejectTabActive || (sidebarTab === null && canReject && !!focusedContent);
   const dmTabActive = sidebarTab === 'dm';
   const rejectPanelRef = useRef<HTMLDivElement>(null);
 
-  // The reject panel stays visible after it stops being the picked tab, so
-  // release its focus; otherwise the search box would swallow the shortcuts
+  // The reject panel stays visible after losing its tab, so release its focus or its search box swallows the shortcuts
   useEffect(() => {
     const focused = document.activeElement;
     if (!rejectTabActive && focused instanceof HTMLElement && rejectPanelRef.current?.contains(focused)) {

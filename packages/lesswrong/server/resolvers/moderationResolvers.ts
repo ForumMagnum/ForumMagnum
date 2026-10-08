@@ -23,15 +23,8 @@ import { createLWEvent } from '../collections/lwevents/mutations';
 import { isDevelopment } from '../../lib/executionEnvironment';
 import fs from 'fs';
 
-// How far back moderation template usage counts look
 const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
 
-/**
- * Dev servers only: counts from a JSON file of { templateId: count }, as written
- * by the backfillModerationTemplateUsage script's dry run, named by the
- * MODERATION_TEMPLATE_USAGE_OVERRIDE_PATH env var. Lets a dev server running
- * against prod sort by historical usage before the backfill has been written.
- */
 function loadModerationTemplateUsageOverride(): Record<string, number> {
   const overridePath = process.env.MODERATION_TEMPLATE_USAGE_OVERRIDE_PATH;
   if (!isDevelopment || !overridePath) return {};
