@@ -2846,31 +2846,6 @@ const schema = {
       },
     },
   },
-  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
-  // certainly not-spam, based on moderator review and karma. (The signup
-  // ReCaptcha rating is deliberately not used; it didn't predict spam.)
-  // Scale:
-  //   0    Banned and purged user
-  //   0.7: Unreviewed user
-  //   0.8: Reviewed user with negative karma
-  //   0.9: Reviewed user
-  //   1.0: Reviewed user with 20+ karma
-  spamRiskScore: {
-    graphql: {
-      outputType: "Float!",
-      canRead: ["guests"],
-      resolver: (user, args, context) => {
-        const isReviewed = !!user.reviewedByUserId;
-        const { karma } = user;
-        if (user.deleteContent && user.banned) return 0.0;
-        else if (userIsAdmin(user)) return 1.0;
-        else if (isReviewed && karma >= 20) return 1.0;
-        else if (isReviewed && karma >= 0) return 0.9;
-        else if (isReviewed) return 0.8;
-        else return 0.7;
-      },
-    },
-  },
   afKarma: {
     database: {
       type: "DOUBLE PRECISION",

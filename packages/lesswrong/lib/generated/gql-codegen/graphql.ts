@@ -76,7 +76,7 @@ const _57=_o4(_8,_o3(_3,"commentCount"))
 const _58=_o4(_8,_o3(_3,"afPostCount"))
 const _59=_o4(_8,_o3(_3,"afCommentCount"))
 const _60=_o4(_8,_o3(_3,"reviewedByUserId"))
-const _61=_o2(_2,_45,_46,_o5(_7,[_10,_12,_47,_49,_31,_50,_51,_52,_54,_o4(_8,_o3(_3,"isAdmin")),_55,_56,_57,_o4(_8,_o3(_3,"sequenceCount")),_58,_59,_o4(_8,_o3(_3,"spamRiskScore")),_o4(_8,_o3(_3,"tagRevisionCount")),_60]))
+const _61=_o2(_2,_45,_46,_o5(_7,[_10,_12,_47,_49,_31,_50,_51,_52,_54,_o4(_8,_o3(_3,"isAdmin")),_55,_56,_57,_o4(_8,_o3(_3,"sequenceCount")),_58,_59,_o4(_8,_o3(_3,"tagRevisionCount")),_60]))
 const _62=_o3(_3,"SequenceSummaryFragment")
 const _63=_o4(_5,_o3(_3,"Sequence"))
 const _64=_o4(_8,_o3(_3,"postsCount"))
@@ -921,7 +921,7 @@ const _902=_o4(_8,_o3(_3,"petrovOptOut"))
 const _903=_o4(_8,_o3(_3,"sortDraftsBy"))
 const _904=_o4(_8,_o3(_3,"paymentEmail"))
 const _905=_o4(_8,_o3(_3,"paymentInfo"))
-const _906=_o2(_2,_893,_46,_o5(_7,[_66,_o4(_8,_o3(_3,"coauthoredPostCount")),_886,_o4(_8,_o3(_3,"previousDisplayName")),_442,_132,_634,_894,_102,_895,_896,_897,_898,_899,_o4(_8,_o3(_3,"afSequenceCount")),_o4(_8,_o3(_3,"afSequenceDraftCount")),_o4(_8,_o3(_3,"sequenceDraftCount")),_118,_900,_129,_92,_93,_668,_891,_669,_670,_414,_667,_901,_902,_903,_390,_663,_133,_142,_904,_905,_671,_134,_672,_673,_o4(_8,_o3(_3,"pinnedPostIds")),_o4(_8,_o3(_3,"hideProfileTopPosts")),_677]))
+const _906=_o2(_2,_893,_46,_o5(_7,[_66,_o4(_8,_o3(_3,"coauthoredPostCount")),_886,_o4(_8,_o3(_3,"previousDisplayName")),_442,_132,_634,_894,_102,_895,_896,_897,_898,_899,_o4(_8,_o3(_3,"afSequenceCount")),_o4(_8,_o3(_3,"afSequenceDraftCount")),_o4(_8,_o3(_3,"sequenceDraftCount")),_118,_900,_129,_92,_93,_668,_891,_669,_670,_414,_667,_901,_902,_903,_390,_663,_133,_675,_142,_904,_905,_671,_134,_672,_673,_o4(_8,_o3(_3,"pinnedPostIds")),_o4(_8,_o3(_3,"hideProfileTopPosts")),_677]))
 const _907=_o3(_3,"UsersCurrent")
 const _908=_o4(_8,_o3(_3,"beta"))
 const _909=_o4(_8,_o3(_3,"hideIntercom"))
@@ -13899,7 +13899,6 @@ export type User = {
   smallUpvoteReceivedCount: Maybe<Scalars['Float']['output']>;
   snoozedUntilContentCount: Maybe<Scalars['Float']['output']>;
   sortDraftsBy: Maybe<Scalars['String']['output']>;
-  spamRiskScore: Scalars['Float']['output'];
   subforumPreferredLayout: Maybe<SubforumPreferredLayout>;
   sunshineFlagged: Maybe<Scalars['Boolean']['output']>;
   sunshineNotes: Maybe<Scalars['String']['output']>;
@@ -22278,10 +22277,10 @@ export type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, 
     & UsersMinimumInfo
   ) | null };
 
-export type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, spamRiskScore: number, tagRevisionCount: number, reviewedByUserId: string | null };
+export type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, tagRevisionCount: number, reviewedByUserId: string | null };
 
 export type UsersProfile = (
-  { __typename?: 'User', coauthoredPostCount: number, fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: (
+  { __typename?: 'User', coauthoredPostCount: number, fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, deleteContent: boolean | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: (
     { __typename?: 'Revision' }
     & RevisionDisplay
   ) | null, moderationGuidelines: (

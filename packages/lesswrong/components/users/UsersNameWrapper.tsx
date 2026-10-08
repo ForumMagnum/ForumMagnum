@@ -40,7 +40,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
   if (!document && loading) {
     return <Loading />
   } else if (document) {
-    return <UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
+    return <UsersNameDisplay user={document} nofollow={nofollow || !document.reviewedByUserId} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
   } else if (fallbackName) {
     return <span>{fallbackName}</span>
   } else {
