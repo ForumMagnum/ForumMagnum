@@ -4,7 +4,6 @@ import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import LWDialog from "@/components/common/LWDialog";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 
-// Each button also has a letter key; any digit 1–9 snoozes by that amount too
 const SNOOZE_CHOICES = [
   { amount: 1, key: 'a' },
   { amount: 3, key: 's' },
@@ -86,7 +85,6 @@ const styles = defineStyles('SnoozeChoiceModal', (theme: ThemeType) => ({
   },
 }));
 
-/** Snooze amounts as buttons; typing the number or the button's letter picks it straight away. */
 const SnoozeChoiceModal = ({ onConfirm, onClose }: {
   onConfirm: (amount: number) => void;
   onClose: () => void;

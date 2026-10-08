@@ -19,7 +19,6 @@ const styles = defineStyles('ModerationCommentPostContext', (theme: ThemeType) =
   },
   title: {
     display: 'block',
-    // Matches the post title CommentsItem shows with `showPostTitle`
     ...theme.typography.commentStyle,
     color: theme.palette.link.dim2,
   },
@@ -65,10 +64,6 @@ const styles = defineStyles('ModerationCommentPostContext', (theme: ThemeType) =
   },
 }));
 
-/**
- * The post a comment replies to, so the comment can be judged in context.
- * `showOpeningText` is off for replies, where the parent comment is the context.
- */
 const ModerationCommentPostContext = ({ postId, showOpeningText }: {
   postId: string;
   showOpeningText: boolean;
@@ -103,7 +98,6 @@ const ModerationCommentPostContext = ({ postId, showOpeningText }: {
             dangerouslySetInnerHTML={{ __html: highlight }}
             description={`post ${post._id}`}
           />
-          {/* htmlHighlight stops partway through longer posts */}
           <Link to={postGetPageUrl(post)} className={classes.continueReading}>
             Continue reading
           </Link>
