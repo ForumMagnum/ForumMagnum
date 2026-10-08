@@ -14,6 +14,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import { randomId } from "@/lib/random";
 import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { htmlToChangeMetrics } from "@/server/editor/utils";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -159,6 +160,26 @@ export async function updateOriginalContentsForRevision(
     { $set: { originalContentsId, originalContents } },
   );
   return originalContentsId;
+}
+
+/**
+ * Permanently delete revisions, along with their RevisionOriginalContents rows.
+ */
+export async function hardDeleteRevisions(revisionIds: string[], context: ResolverContext): Promise<void> {
+  const { Revisions, RevisionOriginalContents } = context;
+  if (!revisionIds.length) return;
+
+  const revisions = await Revisions.find(
+    { _id: { $in: revisionIds } },
+    {},
+    { originalContentsId: 1 },
+  ).fetch();
+  const originalContentsIds = filterNonnull(revisions.map((revision) => revision.originalContentsId));
+
+  await Revisions.rawRemove({ _id: { $in: revisionIds } });
+  if (originalContentsIds.length) {
+    await RevisionOriginalContents.rawRemove({ _id: { $in: originalContentsIds } });
+  }
 }
 
 export async function updateRevision({ selector, data }: UpdateRevisionInput, context: ResolverContext) {

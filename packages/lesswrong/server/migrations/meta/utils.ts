@@ -327,7 +327,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       }
 
       try {
-        const existingLatestRev = await getLatestRev(document._id, "contents", adminContext);
+        const existingLatestRev = await getLatestRev(document._id, fieldName, adminContext);
         if (
           existingLatestRev
           && existingLatestRev?.html === editableField?.html
@@ -342,7 +342,9 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           delete editableField?.dataWithDiscardedSuggestions;
     
           const userId = (document as AnyBecauseHard).userId || currentUser._id;
-          const user = await adminContext.loaders.Users.load(userId);
+          // If the author has been deleted, attribute the revision to the admin
+          // team account instead
+          const user = (await adminContext.loaders.Users.load(userId)) ?? currentUser;
           const userContext = computeContextFromUser({ user, isSSR: false });
 
           revCreated++;
@@ -382,31 +384,56 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   }
 
   // Check for data integrity issues and update any revisions that have diverged
-  // from the current denormalized value
+  // from the current denormalized value. The RevisionOriginalContents rows are
+  // updated first, because updating the revisions makes their html match the
+  // denormalized value, which removes them from the out-of-sync set.
   // eslint-disable-next-line no-console
   console.log("Updating out-of-sync revisions...");
-  await db.none(`
-    UPDATE "Revisions" AS r
-    SET
-      "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
-      -- Don't update userId as there are data integrity issues (see Github PR #9213)
-      -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
-      "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
-      "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
-      "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
-      "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
-      "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', roc."originalContents", r."originalContents"),
-      "draft" = COALESCE(p."draft", FALSE),
-      "collectionName" = $1
-    FROM "${collectionName}" AS p
-    LEFT JOIN "RevisionOriginalContents" roc ON roc."_id" = r."originalContentsId"
-    WHERE
-      r."collectionName" = $1
-      AND r."fieldName" = '${fieldName}'
-      AND p."${fieldName}_latest" = r."_id"
-      AND p."${fieldName}"->>'html' <> r."html"
-  `, [collectionName]);
+  await db.tx(async (tx) => {
+    await tx.none(`
+      UPDATE "RevisionOriginalContents" AS roc
+      SET "originalContents" = p."${fieldName}"->'originalContents'
+      FROM "Revisions" AS r
+      JOIN "${collectionName}" AS p ON p."${fieldName}_latest" = r."_id"
+      WHERE
+        roc."_id" = r."originalContentsId"
+        AND r."collectionName" = $1
+        AND r."fieldName" = '${fieldName}'
+        AND p."${fieldName}"->>'html' <> r."html"
+        AND JSONB_TYPEOF(p."${fieldName}"->'originalContents') = 'object'
+    `, [collectionName]);
+    // The legacy inline originalContents column is kept in sync with the
+    // RevisionOriginalContents row, if there is one (see the Revisions schema)
+    await tx.none(`
+      UPDATE "Revisions" AS r
+      SET
+        "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
+        -- Don't update userId as there are data integrity issues (see Github PR #9213)
+        -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
+        "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
+        "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
+        "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
+        "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
+        "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
+        "originalContents" = COALESCE(
+          (
+            SELECT roc."originalContents"
+            FROM "RevisionOriginalContents" roc
+            WHERE roc."_id" = r."originalContentsId"
+          ),
+          p."${fieldName}"->'originalContents',
+          r."originalContents"
+        ),
+        "draft" = COALESCE(p."draft", FALSE),
+        "collectionName" = $1
+      FROM "${collectionName}" AS p
+      WHERE
+        r."collectionName" = $1
+        AND r."fieldName" = '${fieldName}'
+        AND p."${fieldName}_latest" = r."_id"
+        AND p."${fieldName}"->>'html' <> r."html"
+    `, [collectionName]);
+  });
 
   if (dropField) {
     // eslint-disable-next-line no-console

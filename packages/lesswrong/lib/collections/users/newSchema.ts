@@ -3659,11 +3659,16 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (user, _, context) => {
-        const bioRevisionId = user.biography_latest;
-        if (!bioRevisionId) return "";
-        const bioRevisionOriginalContents = await getRevisionOriginalContentsByRevisionId(bioRevisionId, context);
-        if (!bioRevisionOriginalContents) return "";
-        return dataToMarkdown(bioRevisionOriginalContents.data, bioRevisionOriginalContents.type);
+        const bioRevisionOriginalContents = user.biography_latest
+          ? await getRevisionOriginalContentsByRevisionId(user.biography_latest, context)
+          : null;
+        if (bioRevisionOriginalContents) {
+          return dataToMarkdown(bioRevisionOriginalContents.data, bioRevisionOriginalContents.type);
+        }
+        // Some legacy users have a denormalized biography but no biography
+        // revision (see the 2022-05-20 ckEditorBioField migration)
+        const bioHtml = user.biography?.html;
+        return bioHtml ? dataToMarkdown(bioHtml, "html") : "";
       },
     },
   },

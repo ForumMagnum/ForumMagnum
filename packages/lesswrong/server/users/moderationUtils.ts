@@ -9,6 +9,7 @@ import { updateComment } from "../collections/comments/mutations";
 import { updateReport } from "../collections/reports/mutations";
 import { updateSequence } from "../collections/sequences/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
+import { hardDeleteRevisions } from "../collections/revisions/mutations";
 
 
 async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, context: ResolverContext) {
@@ -32,7 +33,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
   const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tag revisions: ", tagRevisions)
-  await Revisions.rawRemove({ _id: { $in: tagRevisions.map((revision) => revision._id) } })
+  await hardDeleteRevisions(tagRevisions.map((revision) => revision._id), context)
   // Revert revision documents
   for (let revision of tagRevisions) {
     if (!revision.collectionName) {
