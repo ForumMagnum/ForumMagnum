@@ -2,6 +2,10 @@ import SelectQuery from "./SelectQuery";
 import type { CodeResolverMap, CodeResolverWithNested, PrefixGenerator } from "./ProjectionContext";
 import type { ParsedSqlFragment } from "./SqlFragment";
 
+function shallowCopyObject<V>(value: V): V {
+  return value && typeof value === "object" ? { ...value } : value;
+}
+
 /**
  * `SelectFragmentQuery` is the main external interface for running select
  * queries that make use of custom SQL resolvers (which allow arbitrary joins).
@@ -113,6 +117,11 @@ class SelectFragmentQuery<
     obj: T | null,
     context: ResolverContext,
     resolvers = this.codeResolvers,
+    /**
+     * The object to pass to the resolvers, if it isn't `obj` itself. The
+     * results are always written to `obj`.
+     */
+    resolverRoot: DbObject | null = obj,
   ): Promise<T | null> {
     if (!obj) {
       return null;
@@ -126,23 +135,34 @@ class SelectFragmentQuery<
       if (typeof resolver === "function") {
         const generator = async () => {
           const result = await resolver(
-            obj as AnyBecauseTodo,
+            resolverRoot as AnyBecauseTodo,
             this.resolverArgs ?? {},
             context,
           );
-          obj[resolverName as keyof T] = result;
           // If the requested sub-fields of this field include their own code
           // resolvers (e.g. a `Revision`'s `originalContents`), run them against
-          // the object(s) we just resolved.
+          // the object(s) we just resolved, writing their results to a copy.
+          // The resolver may have returned a shared object (e.g. a `DbRevision`
+          // from a DataLoader cache), which other code shouldn't see with the
+          // nested results (which may be permission-filtered) written over its
+          // fields. The nested resolvers also read from the unmodified object,
+          // so that eg `markdown` isn't computed from the filtered
+          // `originalContents` that its sibling resolver wrote.
           const nested = (resolver as CodeResolverWithNested).nestedCodeResolvers;
           if (nested && result && typeof result === "object") {
-            if (Array.isArray(result)) {
-              await Promise.all(result.map(
-                (item) => this.executeCodeResolvers(item as DbObject, context, nested),
+            const resolvedCopy = Array.isArray(result)
+              ? result.map(shallowCopyObject)
+              : shallowCopyObject(result);
+            obj[resolverName as keyof T] = resolvedCopy;
+            if (Array.isArray(resolvedCopy)) {
+              await Promise.all(resolvedCopy.map(
+                (item, i) => this.executeCodeResolvers(item as DbObject, context, nested, result[i]),
               ));
             } else {
-              await this.executeCodeResolvers(result as DbObject, context, nested);
+              await this.executeCodeResolvers(resolvedCopy as DbObject, context, nested, result);
             }
+          } else {
+            obj[resolverName as keyof T] = result;
           }
         }
         promises.push(generator());

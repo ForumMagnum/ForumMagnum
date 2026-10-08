@@ -41,7 +41,16 @@ export const revisionResolversGraphQLMutations = {
     ]);
 
     if (!tag)               throw new Error('Invalid tagId');
-    if (!revertToRevision)  throw new Error('Invalid revisionId');
+    // The revision must be one of this tag's description revisions; otherwise
+    // this would copy another document's (possibly private) contents into the tag
+    if (
+      !revertToRevision
+      || revertToRevision.collectionName !== 'Tags'
+      || revertToRevision.documentId !== tag._id
+      || revertToRevision.fieldName !== 'description'
+    ) {
+      throw new Error('Invalid revisionId');
+    }
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
     const [revertToOriginalContents, latestOriginalContents] = await Promise.all([

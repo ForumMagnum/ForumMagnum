@@ -195,8 +195,10 @@ const schema = {
   originalContents: {
     // Legacy inline copy of the contents in `RevisionOriginalContents`. It's
     // still written alongside the RevisionOriginalContents row so that code
-    // which only reads this column (ie, a rollback) sees current contents; it
-    // will be dropped once everything has been backfilled. Don't read it
+    // which only reads this column (ie, a rollback) sees current contents.
+    // Reads prefer it while it exists, because that older code writes only this
+    // column and can leave the row stale. It will be dropped once everything
+    // has been backfilled. Don't read it
     // directly; use `getStoredOriginalContentsForRevision`.
     database: {
       type: "JSONB",

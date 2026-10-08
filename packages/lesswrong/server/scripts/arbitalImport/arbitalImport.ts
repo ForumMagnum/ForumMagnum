@@ -39,7 +39,8 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { createTag, updateTag } from '@/server/collections/tags/mutations';
 import { createComment } from '@/server/collections/comments/mutations';
 import { createUser } from '@/server/collections/users/mutations';
-import { buildAndCreateRevision } from '@/server/collections/revisions/mutations';
+import { buildAndCreateRevision, createOriginalContentsRow } from '@/server/collections/revisions/mutations';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import { createMultiDocument, updateMultiDocument } from '@/server/collections/multiDocuments/mutations';
 import { createArbitalTagContentRel } from '@/server/collections/arbitalTagContentRels/mutations';
 
@@ -917,8 +918,14 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         // Clone revisions on the LW wiki page as revisions on the lens
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
+          // Give the clone its own copy of the original contents. If it shared
+          // the LW wiki page revision's RevisionOriginalContents row, updating
+          // or deleting either revision would also affect the other one.
+          const originalContents = await getStoredOriginalContentsForRevision(lwWikiPageRevision, resolverContext);
+          const originalContentsId = await createOriginalContentsRow(originalContents, resolverContext);
           await Revisions.rawInsert({
             ...fieldsToCopy,
+            originalContentsId,
             fieldName: "contents",
             documentId: lwWikiLens._id,
             collectionName: "MultiDocuments",

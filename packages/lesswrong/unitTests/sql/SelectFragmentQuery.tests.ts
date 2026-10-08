@@ -3,7 +3,8 @@ import { createSqlFragmentFromAst } from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
 import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
 import { Kind, type DocumentNode, type FragmentDefinitionNode } from "graphql";
-import { enableCustomSqlResolvers } from "@/server/sql/ProjectionContext";
+import { enableCustomSqlResolvers, type CodeResolverWithNested } from "@/server/sql/ProjectionContext";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 const getFragmentDefs = (...docs: DocumentNode[]): FragmentDefinitionNode[] => {
   return docs.flatMap(doc => doc.definitions).filter(def => def.kind === Kind.FRAGMENT_DEFINITION);
@@ -68,4 +69,40 @@ describe("SelectFragmentQuery", () => {
       expectedArgs: ["test-user-id", "some-test-id", "test-document-id"],
     },
   ]);
+});
+
+describe("SelectFragmentQuery.executeCodeResolvers", () => {
+  it("writes nested code resolver results to a copy, and passes the nested resolvers the original object", async () => {
+    const query = new SelectFragmentQuery(
+      createSqlFragmentFromAst('TestCollection4DefaultFragment', getFragmentDefs(TestCollection4DefaultFragment, TestCollection3DefaultFragment)),
+      null,
+    );
+    // Stands in for a document from a DataLoader cache, which other code shares
+    const cachedRevision = { _id: "test-revision-id", schemaVersion: 1, contents: "unfiltered" };
+    const rootsSeenBySibling: unknown[] = [];
+    const revisionResolver: CodeResolverWithNested = () => cachedRevision;
+    revisionResolver.nestedCodeResolvers = {
+      contents: () => "filtered",
+      sibling: async (root) => {
+        // Yield, so that the `contents` resolver has written its result first
+        await Promise.resolve();
+        rootsSeenBySibling.push(root);
+        return "sibling result";
+      },
+    };
+    const document: DbObject & { revision?: unknown } = { _id: "test-document-id", schemaVersion: 1 };
+
+    await query.executeCodeResolvers(document, createAnonymousContext(), { revision: revisionResolver });
+
+    expect(cachedRevision).toEqual({ _id: "test-revision-id", schemaVersion: 1, contents: "unfiltered" });
+    expect(document.revision).not.toBe(cachedRevision);
+    expect(document.revision).toEqual({
+      _id: "test-revision-id",
+      schemaVersion: 1,
+      contents: "filtered",
+      sibling: "sibling result",
+    });
+    expect(rootsSeenBySibling).toHaveLength(1);
+    expect(rootsSeenBySibling[0]).toBe(cachedRevision);
+  });
 });

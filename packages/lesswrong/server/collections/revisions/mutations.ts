@@ -57,25 +57,35 @@ export async function buildAndCreateRevision(data: BuildAndCreateRevisionOptions
 // and sort of mimics a graphql create mutator (which it at one point used to be). Users create
 // revisions by editing objects with revision-controlled editable fields.
 export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext): Promise<DbRevision> {
-  const user = data.user ?? context.currentUser;
+  // Separate out the options which aren't revision fields, so that they aren't
+  // carried along with the revision data (which gets logged in full if the
+  // insert fails, and `user` is a whole DbUser)
+  const {
+    user: userOption,
+    isAdmin: isAdminOption,
+    previousHtmlForChangeMetrics,
+    dataWithDiscardedSuggestions,
+    ...revisionFields
+  } = data;
+  const user = userOption ?? context.currentUser;
   if (!user) throw new Error("Must have a specified user or be logged in to create a revision");
-  const isAdmin = data.isAdmin ?? user.isAdmin;
+  const isAdmin = isAdminOption ?? user.isAdmin;
 
   const normalizedOriginalContents = {
-    ...data.originalContents,
-    yjsState: data.originalContents.yjsState ?? null,
+    ...revisionFields.originalContents,
+    yjsState: revisionFields.originalContents.yjsState ?? null,
   };
-  const readerVisibleData = data.dataWithDiscardedSuggestions ?? normalizedOriginalContents.data
+  const readerVisibleData = dataWithDiscardedSuggestions ?? normalizedOriginalContents.data
   const html = await dataToHTML(readerVisibleData, normalizedOriginalContents.type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, normalizedOriginalContents.type, context)
 
   let revisionData = {
-    ...data,
+    ...revisionFields,
     html, wordCount,
-    changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", html),
+    changeMetrics: htmlToChangeMetrics(previousHtmlForChangeMetrics ?? "", html),
     originalContents: normalizedOriginalContents,
-    createdAt: data.createdAt ?? new Date(),
-    editedAt: data.editedAt ?? new Date(),
+    createdAt: revisionFields.createdAt ?? new Date(),
+    editedAt: revisionFields.editedAt ?? new Date(),
     userId: user._id
   };
 
@@ -142,13 +152,15 @@ export async function updateOriginalContentsForRevision(
   context: ResolverContext,
 ): Promise<string | null> {
   if (revision.originalContentsId) {
-    await context.RevisionOriginalContents.rawUpdateOne(
-      { _id: revision.originalContentsId },
-      { $set: { originalContents } },
-    );
-    // Keep the legacy inline column in sync (see the Revisions schema)
+    // Keep the legacy inline column in sync (see the Revisions schema). Reads
+    // prefer it while it exists (see `getStoredOriginalContentsForRevision`),
+    // so write it first, in case the second write fails.
     await context.Revisions.rawUpdateOne(
       { _id: revision._id },
+      { $set: { originalContents } },
+    );
+    await context.RevisionOriginalContents.rawUpdateOne(
+      { _id: revision.originalContentsId },
       { $set: { originalContents } },
     );
     return revision.originalContentsId;
