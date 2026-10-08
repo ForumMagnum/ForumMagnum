@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -62,6 +62,7 @@ export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocum
 
 export async function createMultiDocument({ data }: CreateMultiDocumentInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
     context,
@@ -78,14 +79,16 @@ export async function createMultiDocument({ data }: CreateMultiDocumentInput, co
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'MultiDocuments', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'MultiDocuments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

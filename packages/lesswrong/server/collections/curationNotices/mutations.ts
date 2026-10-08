@@ -2,7 +2,7 @@ import schema from "@/lib/collections/curationNotices/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -64,6 +64,7 @@ async function postCurationPublishToSlack(document: DbCurationNotice, context: R
 
 export async function createCurationNotice({ data }: CreateCurationNoticeInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   const callbackProps = await getLegacyCreateCallbackProps('CurationNotices', {
     context,
@@ -78,14 +79,16 @@ export async function createCurationNotice({ data }: CreateCurationNoticeInput, 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'CurationNotices', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'CurationNotices', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

@@ -6,7 +6,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userOwns, userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
@@ -40,6 +40,7 @@ async function invalidateSequencePostPages(sequenceId: string, context: Resolver
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   const callbackProps = await getLegacyCreateCallbackProps('Sequences', {
     context,
@@ -54,14 +55,16 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Sequences', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'Sequences', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

@@ -4,6 +4,7 @@ import { dataToMarkdown } from '../editor/conversionUtils';
 import { openAIOrganizationId } from '../databaseSettings';
 import drop from 'lodash/drop';
 import take from 'lodash/take';
+import { getRevisionOriginalContentsByRevisionId } from "@/lib/collections/revisions/helpers";
 
 let openAIApi: OpenAI|null = null;
 export async function getOpenAI(): Promise<OpenAI|null> {
@@ -36,16 +37,18 @@ export async function wikiSlugToTemplate(slug: string, context: ResolverContext)
   const { Tags } = context;
   const wikiConfig = await Tags.findOne({slug});
   if (!wikiConfig) throw new Error(`No LM config page ${slug}`);
-  return wikiPageToTemplate(wikiConfig);
+  return await wikiPageToTemplate(wikiConfig, context);
 }
 
-export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
+export async function wikiPageToTemplate(wikiPage: DbTag, context: ResolverContext): Promise<LanguageModelTemplate> {
   let header: Record<string,string> = {};
   let body = "";
 
-  if (!wikiPage.description?.originalContents?.type) throw new Error("Missing description type")
+  if (!wikiPage.description_latest) throw new Error("Missing description");
+  const descriptionOriginalContents = await getRevisionOriginalContentsByRevisionId(wikiPage.description_latest, context);
+  if (!descriptionOriginalContents?.type) throw new Error("Missing description type")
   
-  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description.originalContents.type);
+  const descriptionMarkdown = dataToMarkdown(descriptionOriginalContents.data, descriptionOriginalContents.type);
   const lines = descriptionMarkdown
     .trim()
     .split('\n')

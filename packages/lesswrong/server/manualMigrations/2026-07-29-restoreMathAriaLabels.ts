@@ -8,6 +8,7 @@ import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { cheerioParse } from '../utils/htmlUtil';
 import type { CheerioAPI, Element as CheerioElement } from 'cheerio';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 // The MathJax v2 -> v3 upgrade (b02c15d383, deployed 2026-02-11) introduced
 // two problems in server-rendered LaTeX, both baked into the stored html of
@@ -65,7 +66,10 @@ function countByDisplayMode($: CheerioAPI, containers: CheerioElement[]) {
 
 async function fixMathInRevision(revisionId: string, context: ResolverContext, dryRun: boolean): Promise<RelabelOutcome> {
   const revision = await Revisions.findOne({ _id: revisionId });
-  if (!revision?.html || !revision.originalContents) {
+  const originalContents = revision
+    ? await getStoredOriginalContentsForRevision(revision, context)
+    : null;
+  if (!revision?.html || !originalContents) {
     console.log(`Skipping revision ${revisionId}: missing html or originalContents`);
     return 'skipped';
   }
@@ -76,7 +80,7 @@ async function fixMathInRevision(revisionId: string, context: ResolverContext, d
     return 'alreadyFixed';
   }
 
-  const { data, type } = revision.originalContents;
+  const { data, type } = originalContents;
   // Mirror buildRevision's sanitize flag: html-type originalContents is
   // admin-only and stored unsanitized.
   const regeneratedHtml = await dataToHTML(data, type, context, { sanitize: type !== 'html' });

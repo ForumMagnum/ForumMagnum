@@ -6,35 +6,101 @@ import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributions
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, insertAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
+import { dataToHTML, dataToWordCount, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { randomId } from "@/lib/random";
+import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
+import { htmlToChangeMetrics } from "@/server/editor/utils";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { normalizeOriginalContents } from "@/lib/collections/revisions/helpers";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
 }
 
-// This has mutators because of a few mutable metadata fields (eg
-// skipAttributions), but most parts of revisions are create-only immutable.
-export async function createRevision({ data }: { data: Partial<DbInsertion<DbRevision>> }, context: ResolverContext) {
-  const { currentUser } = context;
+// Options when creating a revision from server-side code. This extends CreateRevisionDataInput
+// (which is the revision-associated graphql fields associated with a mutation) with identifiers
+// for which collection/_id/field the revision goes with (which are not in the graphql fields
+// list because they are typically implied from context).
+export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalContents" | "updateType"> & {
+  originalContents: RevisionOriginalContentsData
+  updateType?: DbRevision["updateType"]
+  collectionName: CollectionNameString
+  documentId: string
+  fieldName: string
+  version?: string
+  draft?: boolean
+  skipAttributions?: boolean
+  legacyData?: any,
+  user?: DbUser,
+  isAdmin?: boolean,
+  createdAt?: Date,
+  editedAt?: Date,
+  previousHtmlForChangeMetrics?: string,
+  dataWithDiscardedSuggestions?: string,
+}
+type BuildAndCreateRevisionOptions = CreateRevisionOptions & {
+  user: DbUser,
+}
+
+/**
+ * Like `createRevision`, but requires an explicit user rather than falling back
+ * to the context's current user.
+ */
+export async function buildAndCreateRevision(data: BuildAndCreateRevisionOptions, context: ResolverContext): Promise<DbRevision> {
+  return await createRevision({ data }, context);
+}
+
+// createRevision is not exposed through the graphql API, but is called from other server-side code
+// and sort of mimics a graphql create mutator (which it at one point used to be). Users create
+// revisions by editing objects with revision-controlled editable fields.
+export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext): Promise<DbRevision> {
+  // Separate out the options which aren't revision fields, so that they aren't
+  // carried along with the revision data (which gets logged in full if the
+  // insert fails, and `user` is a whole DbUser)
+  const {
+    user: userOption,
+    isAdmin: isAdminOption,
+    previousHtmlForChangeMetrics,
+    dataWithDiscardedSuggestions,
+    ...revisionFields
+  } = data;
+  const user = userOption ?? context.currentUser;
+  if (!user) throw new Error("Must have a specified user or be logged in to create a revision");
+  const isAdmin = isAdminOption ?? user.isAdmin;
+
+  const normalizedOriginalContents = normalizeOriginalContents(revisionFields.originalContents);
+  const readerVisibleData = dataWithDiscardedSuggestions ?? normalizedOriginalContents.data
+  const html = await dataToHTML(readerVisibleData, normalizedOriginalContents.type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
+  const wordCount = await dataToWordCount(readerVisibleData, normalizedOriginalContents.type, context)
+
+  let revisionData = {
+    ...revisionFields,
+    html, wordCount,
+    changeMetrics: htmlToChangeMetrics(previousHtmlForChangeMetrics ?? "", html),
+    originalContents: normalizedOriginalContents,
+    createdAt: revisionFields.createdAt ?? new Date(),
+    editedAt: revisionFields.editedAt ?? new Date(),
+    userId: user._id
+  };
 
   const callbackProps = await getLegacyCreateCallbackProps('Revisions', {
     context,
-    data,
+    data: revisionData,
     schema,
   });
 
-  assignUserIdToData(data, currentUser, schema);
+  revisionData = callbackProps.document;
 
-  data = callbackProps.document;
+  revisionData = await runFieldOnCreateCallbacks(schema, revisionData, callbackProps);
 
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  const originalContentsId = await createOriginalContentsRow(revisionData.originalContents, context);
+  const dataWithOriginalContentsId = { ...revisionData, originalContentsId };
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
-  let documentWithId = afterCreateProperties.document;
+  let documentWithId = await insertAndReturnDocument(dataWithOriginalContentsId, 'Revisions', context);
 
   if (documentWithId.html?.includes("data-lexical-iframe-widget")) {
     const extractedHtml = await extractAndReplaceIframeWidgets(documentWithId.html, documentWithId._id);
@@ -57,13 +123,73 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   await updateDenormalizedHtmlAttributionsDueToRev({
     revision: documentWithId,
-    skipDenormalizedAttributions: documentWithId.skipAttributions,
+    skipDenormalizedAttributions: revisionData.skipAttributions ?? false,
     context
   });
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   return documentWithId;
+}
+
+export async function createOriginalContentsRow(originalContents: RevisionOriginalContentsData | null, context: ResolverContext): Promise<string|null> {
+  const { RevisionOriginalContents } = context;
+  if (!originalContents) return null;
+  const originalContentsId = randomId();
+  await RevisionOriginalContents.rawInsert({
+    _id: originalContentsId,
+    createdAt: new Date(),
+    originalContents: originalContents,
+  });
+  return originalContentsId;
+}
+
+export async function updateOriginalContentsForRevision(
+  revision: Pick<DbRevision, "_id" | "originalContentsId">,
+  originalContents: RevisionOriginalContentsData,
+  context: ResolverContext,
+): Promise<string | null> {
+  if (revision.originalContentsId) {
+    // Keep the legacy inline column in sync (see the Revisions schema). Reads
+    // prefer it while it exists (see `getStoredOriginalContentsForRevision`),
+    // so write it first, in case the second write fails.
+    await context.Revisions.rawUpdateOne(
+      { _id: revision._id },
+      { $set: { originalContents } },
+    );
+    await context.RevisionOriginalContents.rawUpdateOne(
+      { _id: revision.originalContentsId },
+      { $set: { originalContents } },
+    );
+    return revision.originalContentsId;
+  }
+
+  const originalContentsId = await createOriginalContentsRow(originalContents, context);
+  await context.Revisions.rawUpdateOne(
+    { _id: revision._id },
+    { $set: { originalContentsId, originalContents } },
+  );
+  return originalContentsId;
+}
+
+/**
+ * Permanently delete revisions, along with their RevisionOriginalContents rows.
+ */
+export async function hardDeleteRevisions(revisionIds: string[], context: ResolverContext): Promise<void> {
+  const { Revisions, RevisionOriginalContents } = context;
+  if (!revisionIds.length) return;
+
+  const revisions = await Revisions.find(
+    { _id: { $in: revisionIds } },
+    {},
+    { originalContentsId: 1 },
+  ).fetch();
+  const originalContentsIds = filterNonnull(revisions.map((revision) => revision.originalContentsId));
+
+  await Revisions.rawRemove({ _id: { $in: revisionIds } });
+  if (originalContentsIds.length) {
+    await RevisionOriginalContents.rawRemove({ _id: { $in: originalContentsIds } });
+  }
 }
 
 export async function updateRevision({ selector, data }: UpdateRevisionInput, context: ResolverContext) {

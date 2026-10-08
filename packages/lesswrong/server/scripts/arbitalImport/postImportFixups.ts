@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 
 import Tags from "@/server/collections/tags/collection"
-import Revisions from "@/server/collections/revisions/collection"
+import { hardDeleteRevisions } from "@/server/collections/revisions/mutations";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { connectAndLoadArbitalDatabase } from "./arbitalImport";
 import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { runSqlQuery } from "@/server/sql/sqlClient";
@@ -87,9 +88,7 @@ export const removeUnapprovedEdits = async (mysqlConnectionString: string) => {
   }
   
   console.log(revisionIdsToDelete);
-  await Revisions.rawRemove({
-    _id: {$in: revisionIdsToDelete}
-  });
+  await hardDeleteRevisions(revisionIdsToDelete, createAdminContext());
   
 }
 

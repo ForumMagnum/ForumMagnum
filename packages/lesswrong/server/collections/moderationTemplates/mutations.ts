@@ -2,7 +2,7 @@ import schema from "@/lib/collections/moderationTemplates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -24,7 +24,7 @@ function editCheck(user: DbUser | null, document: DbModerationTemplate | null, c
 
 
 export async function createModerationTemplate({ data }: CreateModerationTemplateInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   const callbackProps = await getLegacyCreateCallbackProps('ModerationTemplates', {
     context,
@@ -37,14 +37,16 @@ export async function createModerationTemplate({ data }: CreateModerationTemplat
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ModerationTemplates', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'ModerationTemplates', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

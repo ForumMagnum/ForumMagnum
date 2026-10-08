@@ -12,12 +12,12 @@ import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection, isValidCollectionName } from "@/server/collections/allCollections";
-import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { buildRevision } from "@/server/editor/conversionUtils";
-import { createRevision } from "@/server/collections/revisions/mutations";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { buildAndCreateRevision } from "@/server/collections/revisions/mutations";
 import PgCollectionClass from "@/server/sql/PgCollection";
 import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -281,7 +281,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
 }) => {
   const db = maybeDb ?? getSqlClientOrThrow();
   const collection = getCollection(collectionName);
-  const context = createAdminContext();
+  const adminContext = createAdminContext();
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -308,7 +308,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   const documentBatches = chunk(documents, 20);
   let existingRevUsed = 0;
   let revCreated = 0;
-  const currentUser = await getAdminTeamAccount(context);
+  const currentUser = await getAdminTeamAccount(adminContext);
   if (!currentUser) {
     throw new Error("Can't find admin user account");
   }
@@ -327,7 +327,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       }
 
       try {
-        const existingLatestRev = await getLatestRev(document._id, "contents", context);
+        const existingLatestRev = await getLatestRev(document._id, fieldName, adminContext);
         if (
           existingLatestRev
           && existingLatestRev?.html === editableField?.html
@@ -342,32 +342,32 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           delete editableField?.dataWithDiscardedSuggestions;
     
           const userId = (document as AnyBecauseHard).userId || currentUser._id;
-    
-          const revisionData = editableField.originalContents
-            ? await buildRevision({
-              originalContents: editableField.originalContents,
-              dataWithDiscardedSuggestions,
-              currentUser,
-              context,
-            })
-            : {
-              html: "",
-              wordCount: 0,
-              originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
-              editedAt: new Date(),
-              userId,
-            };
-    
+          // If the author has been deleted, attribute the revision to the admin
+          // team account instead
+          const user = (await adminContext.loaders.Users.load(userId)) ?? currentUser;
+          const userContext = computeContextFromUser({ user, isSSR: false });
+
           revCreated++;
-          const revision = await createRevision({
-            data: {
-              version: editableField.version || getInitialVersion(document),
-              changeMetrics: {added: 0, removed: 0},
-              collectionName,
-              ...revisionData,
-              userId,
-            }
-          }, createAnonymousContext());
+          const revision = editableField.originalContents
+            ? await buildAndCreateRevision({
+                originalContents: editableField.originalContents,
+                dataWithDiscardedSuggestions,
+                user,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext)
+            : await buildAndCreateRevision({
+                originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
+                user,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext);
     
           await collection.rawUpdateOne(
             {_id: document._id},
@@ -384,30 +384,54 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   }
 
   // Check for data integrity issues and update any revisions that have diverged
-  // from the current denormalized value
+  // from the current denormalized value. The RevisionOriginalContents rows are
+  // updated first, because updating the revisions makes their html match the
+  // denormalized value, which removes them from the out-of-sync set.
   // eslint-disable-next-line no-console
   console.log("Updating out-of-sync revisions...");
-  await db.none(`
-    UPDATE "Revisions" AS r
-    SET
-      "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
-      -- Don't update userId as there are data integrity issues (see Github PR #9213)
-      -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
-      "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
-      "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
-      "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
-      "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
-      "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents"),
-      "draft" = COALESCE(p."draft", FALSE),
-      "collectionName" = $1
-    FROM "${collectionName}" AS p
-    WHERE
-      r."collectionName" = $1
-      AND r."fieldName" = '${fieldName}'
-      AND p."${fieldName}_latest" = r."_id"
-      AND p."${fieldName}"->>'html' <> r."html"
-  `, [collectionName]);
+  await db.tx(async (tx) => {
+    await tx.none(`
+      UPDATE "RevisionOriginalContents" AS roc
+      SET "originalContents" = p."${fieldName}"->'originalContents'
+      FROM "Revisions" AS r
+      JOIN "${collectionName}" AS p ON p."${fieldName}_latest" = r."_id"
+      WHERE
+        roc."_id" = r."originalContentsId"
+        AND r."collectionName" = $1
+        AND r."fieldName" = '${fieldName}'
+        AND p."${fieldName}"->>'html' <> r."html"
+        AND JSONB_TYPEOF(p."${fieldName}"->'originalContents') = 'object'
+    `, [collectionName]);
+    // The legacy inline originalContents column gets the same contents as the
+    // RevisionOriginalContents row above (see the Revisions schema). If the
+    // denormalized value has no contents, the inline column is left as it is,
+    // since reads prefer it over the row (see `getStoredOriginalContentsForRevision`).
+    await tx.none(`
+      UPDATE "Revisions" AS r
+      SET
+        "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
+        -- Don't update userId as there are data integrity issues (see Github PR #9213)
+        -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
+        "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
+        "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
+        "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
+        "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
+        "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
+        "originalContents" = CASE
+          WHEN JSONB_TYPEOF(p."${fieldName}"->'originalContents') = 'object'
+            THEN p."${fieldName}"->'originalContents'
+          ELSE r."originalContents"
+        END,
+        "draft" = COALESCE(p."draft", FALSE),
+        "collectionName" = $1
+      FROM "${collectionName}" AS p
+      WHERE
+        r."collectionName" = $1
+        AND r."fieldName" = '${fieldName}'
+        AND p."${fieldName}_latest" = r."_id"
+        AND p."${fieldName}"->>'html' <> r."html"
+    `, [collectionName]);
+  });
 
   if (dropField) {
     // eslint-disable-next-line no-console
@@ -439,9 +463,12 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       'wordCount', r."wordCount",
       'updateType', r."updateType",
       'commitMessage', r."commitMessage",
-      'originalContents', r."originalContents"
+      -- Prefer the legacy inline column while it exists, as
+      -- getStoredOriginalContentsForRevision does
+      'originalContents', COALESCE(r."originalContents", roc."originalContents")
     )
     FROM "Revisions" AS r
+    LEFT JOIN "RevisionOriginalContents" roc ON roc."_id" = r."originalContentsId"
     WHERE
       r."collectionName" = '${collectionName}'
       AND r."fieldName" = '${fieldName}'

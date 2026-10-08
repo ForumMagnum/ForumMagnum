@@ -77,6 +77,7 @@ import { Reports } from './reports/collection';
 import { ReviewVotes } from './reviewVotes/collection';
 import { ReviewWinnerArts } from './reviewWinnerArts/collection';
 import { ReviewWinners } from './reviewWinners/collection';
+import { RevisionOriginalContents } from './revisionOriginalContents/collection';
 import { Revisions } from './revisions/collection';
 import { RSSFeeds } from './rssfeeds/collection';
 import { SandboxBaselineSnapshots } from './sandboxBaselineSnapshots/collection';
@@ -118,16 +119,100 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
-  CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
-  DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
-  LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
-  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
-  RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
-  UserTagRels, Users, Votes, YjsDocuments
+  ArbitalCaches,
+  ArbitalTagContentRels,
+  AutomatedContentEvaluations,
+  Bans,
+  Bookmarks,
+  Books,
+  Chapters,
+  CkEditorUserSessions,
+  ClientIds,
+  Collections,
+  CommentEmbeddings,
+  CommentModeratorActions,
+  Comments,
+  Conversations,
+  CronHistories,
+  CurationEmails,
+  CurationNotices,
+  DatabaseMetadata,
+  DebouncerEvents,
+  DialogueChecks,
+  DialogueMatchPreferences,
+  ElicitQuestionPredictions,
+  ElicitQuestions,
+  EmailTokens,
+  FieldChanges,
+  GoogleServiceAccountSessions,
+  HomePageDesigns,
+  IframeWidgetSrcdocs,
+  Images,
+  JargonTerms,
+  LWEvents,
+  LegacyData,
+  LinkPreviewCaches,
+  LlmConversations,
+  LlmMessages,
+  Localgroups,
+  LoginTokens,
+  MailgunValidations,
+  ManifoldProbabilitiesCaches,
+  Messages,
+  Migrations,
+  ModerationTemplates,
+  ModeratorActions,
+  MultiDocuments,
+  Notifications,
+  OAuthAccessTokens,
+  OAuthAuthorizationCodes,
+  OAuthClients,
+  PetrovDayActions,
+  PetrovDayLaunchs,
+  PodcastEpisodes,
+  Podcasts,
+  PostEmbeddings,
+  PostRecommendations,
+  PostRelations,
+  PostViewTimes,
+  PostViews,
+  Posts,
+  RSSFeeds,
+  ReadStatuses,
+  RecommendationsCaches,
+  Reports,
+  ResearchConversationEvents,
+  ResearchConversations,
+  ResearchDocuments,
+  ResearchEnvironments,
+  ResearchProjects,
+  ResearchSandboxSessions,
+  ReviewVotes,
+  ReviewWinnerArts,
+  ReviewWinners,
+  RevisionOriginalContents,
+  Revisions,
+  SandboxBaselineSnapshots,
+  Sequences,
+  Sessions,
+  SideCommentCaches,
+  SplashArtCoordinates,
+  Spotlights,
+  Subscriptions,
+  TagFlags,
+  TagRels,
+  Tags,
+  Tweets,
+  TypingIndicators,
+  TypoSuggestions,
+  UltraFeedEvents,
+  UserActivities,
+  UserMostValuablePosts,
+  UserRateLimits,
+  UserTagRels,
+  Users,
+  Votes,
+  YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(
@@ -157,9 +242,13 @@ export function getAllCollectionsByName() {
   return collectionsWithTestCollections;
 }
 
-export function getCollectionByTypeName(typeName: string): CollectionBase<AnyBecauseHard> {
+export function getCollectionByTypeNameOrNull(typeName: string): CollectionBase<AnyBecauseHard> | null {
   const collectionsWithTestCollectionsByTypeName = { ...collectionsByTypeName, ...getTestCollectionsByTypeName() };
-  const collection = collectionsWithTestCollectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard>;
+  return (collectionsWithTestCollectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard> | undefined) ?? null;
+}
+
+export function getCollectionByTypeName(typeName: string): CollectionBase<AnyBecauseHard> {
+  const collection = getCollectionByTypeNameOrNull(typeName);
   if (!collection) {
     throw new Error(`Invalid typeName: ${typeName}`);
   }

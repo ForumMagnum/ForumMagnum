@@ -171,9 +171,13 @@ export function assignUserIdToData<T>(data: T, currentUser: DbUser | null, schem
   }
 }
 
-export async function insertAndReturnDocument<N extends CollectionNameString, T extends InsertionRecord<ObjectsByCollectionName[N]>>(data: T, collectionName: N, context: ResolverContext) {
+export async function insertAndReturnDocument<N extends CollectionNameString>(
+  data: Partial<DbInsertion<ObjectsByCollectionName[N]>> | InsertionRecord<ObjectsByCollectionName[N]>,
+  collectionName: N,
+  context: ResolverContext
+) {
   const collection = context[collectionName] as unknown as PgCollection<N>;
-  const insertedId = await collection.rawInsert(data);
+  const insertedId = await collection.rawInsert(data as unknown as InsertionRecord<ObjectsByCollectionName[N]>);
   const insertedDocument = (await collection.findOne(insertedId))!;
   return insertedDocument;
 }

@@ -35,6 +35,11 @@ export async function getLatestRev(documentId: string, fieldName: string, contex
   return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
 }
 
+export async function getLatestNonDraftRev(documentId: string, fieldName: string, context: ResolverContext): Promise<DbRevision|null> {
+  const { Revisions } = context;
+  return await Revisions.findOne({documentId: documentId, fieldName, draft: false}, {sort: {editedAt: -1}})
+}
+
 /// Given a revision, return the last revision of the same document/field prior
 /// to it (null if the revision is the first).
 export async function getPrecedingRev(rev: DbRevision, context: ResolverContext): Promise<DbRevision|null> {

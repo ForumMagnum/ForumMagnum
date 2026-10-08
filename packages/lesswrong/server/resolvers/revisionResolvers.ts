@@ -1,13 +1,13 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import isEqual from 'lodash/isEqual';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import gql from 'graphql-tag';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
+import { getStoredOriginalContentsForRevision, originalContentsAreEqual } from '@/lib/collections/revisions/helpers';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   enum ConvertibleCollectionName {
@@ -39,20 +39,32 @@ export const revisionResolversGraphQLMutations = {
       getLatestRev(tagId, 'description', context)
     ]);
 
-    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
-
     if (!tag)               throw new Error('Invalid tagId');
-    if (!revertToRevision)  throw new Error('Invalid revisionId');
-    if (!revertToRevision.originalContents)
-      throw new Error('Revision missing originalContents');
+    // The revision must be one of this tag's description revisions; otherwise
+    // this would copy another document's (possibly private) contents into the tag
+    if (
+      !revertToRevision
+      || revertToRevision.collectionName !== 'Tags'
+      || revertToRevision.documentId !== tag._id
+      || revertToRevision.fieldName !== 'description'
+    ) {
+      throw new Error('Invalid revisionId');
+    }
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
+    const [revertToOriginalContents, latestOriginalContents] = await Promise.all([
+      getStoredOriginalContentsForRevision(revertToRevision, context),
+      getStoredOriginalContentsForRevision(latestRevision, context),
+    ]);
+    const anyDiff = !originalContentsAreEqual(latestOriginalContents, revertToOriginalContents);
+    if (!revertToOriginalContents)
+      throw new Error('Revision missing originalContents');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);
 
     await updateTag({
       data: {
         description: {
-          originalContents: revertToRevision.originalContents,
+          originalContents: revertToOriginalContents,
         },
       }, selector: { _id: tag._id }
     }, context);
@@ -110,25 +122,18 @@ export const revisionResolversGraphQLMutations = {
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
     const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
 
-    const builtRevision = await buildRevision({
+    await buildAndCreateRevision({
       originalContents,
-      currentUser,
-      context,
-    });
-
-    const newRevision: Partial<DbRevision> = {
-      ...builtRevision,
+      user: currentUser,
       documentId,
       fieldName,
       collectionName,
       version: nextVersion,
       draft: isDraft,
       updateType: 'minor',
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', builtRevision.html),
+      previousHtmlForChangeMetrics: previousRev?.html || '',
       commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
-    };
-
-    await createRevision({ data: newRevision }, context);
+    }, context);
 
     // When converting to lexical on a post, push the new Yjs state to
     // Hocuspocus so any existing collaborative session is replaced with

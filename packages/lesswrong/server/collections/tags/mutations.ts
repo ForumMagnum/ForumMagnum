@@ -3,7 +3,7 @@ import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { cascadeSoftDeleteToTagRels, reexportProfileTagUsersToElastic, updateParentTagSubTagIds, validateTagCreate, validateTagUpdate } from "@/server/callbacks/tagCallbackFunctions";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -17,6 +17,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   const callbackProps = await getLegacyCreateCallbackProps('Tags', {
     context,
@@ -33,14 +34,16 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Tags', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'Tags', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

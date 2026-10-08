@@ -39,6 +39,7 @@ import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
+import { getRevisionOriginalContentsByRevisionId } from "../revisions/helpers";
 import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -3657,10 +3658,17 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (user, args, { Users }) => {
-        const bio = user.biography?.originalContents;
-        if (!bio) return "";
-        return dataToMarkdown(bio.data, bio.type);
+      resolver: async (user, _, context) => {
+        const bioRevisionOriginalContents = user.biography_latest
+          ? await getRevisionOriginalContentsByRevisionId(user.biography_latest, context)
+          : null;
+        if (bioRevisionOriginalContents) {
+          return dataToMarkdown(bioRevisionOriginalContents.data, bioRevisionOriginalContents.type);
+        }
+        // Some legacy users have a denormalized biography but no biography
+        // revision (see the 2022-05-20 ckEditorBioField migration)
+        const bioHtml = user.biography?.html;
+        return bioHtml ? dataToMarkdown(bioHtml, "html") : "";
       },
     },
   },

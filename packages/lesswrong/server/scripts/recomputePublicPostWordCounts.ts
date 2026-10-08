@@ -5,6 +5,7 @@ import { getViewablePostsSelector } from "../repos/helpers";
 import { runSqlQuery } from "../sql/sqlClient";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 
 interface PublicPostLatestRevisionRow {
   postId: string;
@@ -61,7 +62,7 @@ async function recomputeSingleRevisionWordCount({
   const revision = await Revisions.findOne(
     { _id: revisionId },
     {},
-    { _id: 1, wordCount: 1, originalContents: 1 },
+    { _id: 1, wordCount: 1, originalContents: 1, originalContentsId: 1 },
   );
 
   if (!revision) {
@@ -74,7 +75,8 @@ async function recomputeSingleRevisionWordCount({
     };
   }
 
-  if (!revision.originalContents) {
+  const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+  if (!originalContents) {
     return {
       updatedRevisions: 0,
       unchangedRevisions: 0,
@@ -86,8 +88,8 @@ async function recomputeSingleRevisionWordCount({
 
   try {
     const computedWordCount = await dataToWordCount(
-      revision.originalContents.data,
-      revision.originalContents.type,
+      originalContents.data,
+      originalContents.type,
       context,
     );
     const existingWordCount = revision.wordCount ?? 0;

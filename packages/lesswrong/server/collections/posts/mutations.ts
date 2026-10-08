@@ -11,7 +11,7 @@ import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/c
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, clearCourseEndTime, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
 import { maybeAutoFrontpagePost } from "@/server/frontpageClassifier/predictions";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -102,6 +102,7 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
 export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = getIdForNewDocument(data);
 
   // rejectedReason is rendered raw on the public /moderation page; sanitize on
   // every write so a compromised mod account can't produce stored XSS.
@@ -127,6 +128,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   data = addReferrerToPost(data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });
@@ -138,7 +140,8 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   data = await fixEventStartAndEndTimes(data);
   data = addLinkSharingKey(data);  
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'Posts', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
   // former createAfter callbacks
@@ -148,7 +151,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
   // documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

@@ -1,5 +1,5 @@
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAdminContext } from '../vulcan-lib/createContexts';
+import { createAdminContext, createAnonymousContext } from '../vulcan-lib/createContexts';
 import merge from 'lodash/merge';
 import Revisions from '../../server/collections/revisions/collection';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -11,6 +11,7 @@ import { registerMigration } from './migrationUtils';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
 import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 const widgetizeDialogueMessages = (html: string, _postId: string) => {
   const $ = cheerioParse(html);
@@ -46,7 +47,11 @@ async function wrapMessageContents(dialogue: PostsOriginalContents) {
   }
 
   // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
-  html ??= (await latestRevisionPromise)?.originalContents?.data ?? dialogue.contents?.originalContents?.data;
+  const latestRevision = await latestRevisionPromise;
+  const latestRevisionOriginalContents = latestRevision
+    ? await getStoredOriginalContentsForRevision(latestRevision, createAnonymousContext())
+    : null;
+  html ??= latestRevisionOriginalContents?.data ?? dialogue.contents?.originalContents?.data;
 
   const results = widgetizeDialogueMessages(html!, postId);
   return {

@@ -21,7 +21,7 @@ function makeRevision(overrides: Partial<StoredRevision> = {}): StoredRevision {
   return {
     _id: "published", schemaVersion: 1, createdAt: new Date("2020-01-01"), editedAt: new Date("2020-01-01"),
     collectionName: "Posts", documentId: "post", fieldName: "contents", draft: false,
-    html, originalContents: { type: "html", data: html }, version: "1.0.0", updateType: "initial",
+    html, originalContents: { type: "html", data: html }, originalContentsId: null, version: "1.0.0", updateType: "initial",
     userId: "author", wordCount: 5, commitMessage: null, changeMetrics: null, skipAttributions: false,
     autosaveTimeoutStart: null, googleDocMetadata: null, legacyData: null,
     afBaseScore: 0, afExtendedScore: null, afVoteCount: 0, baseScore: 0, extendedScore: null, score: 0, voteCount: 0,

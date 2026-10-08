@@ -5,6 +5,7 @@ import { dataToCkEditor } from "../editor/conversionUtils";
 import { parseSemver } from "@/lib/editor/utils";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { updateTag } from "../collections/tags/mutations";
+import { getRevisionOriginalContentsByRevisionId } from "@/lib/collections/revisions/helpers";
 
 // Exported to allow running manually with "yarn repl"
 export const convertTagsToCkEditor = async (conversionUserSlug?: string) => {
@@ -27,16 +28,19 @@ export const convertTagsToCkEditor = async (conversionUserSlug?: string) => {
 }
 
 async function convertTagToCkEditor(tag: DbTag, conversionUser: DbUser) {
-  if (tag.description?.originalContents?.type === 'draftJS') {
+  const userContext = await computeContextFromUser({ user: conversionUser, isSSR: false });
+  const originalContents = tag.description_latest
+    ? await getRevisionOriginalContentsByRevisionId(tag.description_latest, userContext)
+    : null;
+  if (tag.description && originalContents?.type === 'draftJS') {
     const [oldMajor,oldMinor,oldPatch] = parseSemver(tag.description.version);
     const newVersion = `${oldMajor}.${oldMinor}.${oldPatch+1}`;
-    const userContext = await computeContextFromUser({ user: conversionUser, isSSR: false });
     await updateTag({
       data: {
         description: {
           originalContents: {
             type: "ckEditorMarkup",
-            data: await dataToCkEditor(tag.description.originalContents.data, tag.description.originalContents.type),
+            data: await dataToCkEditor(originalContents.data, originalContents.type),
           },
           commitMessage: "Convert editor type to CkEditor",
         },

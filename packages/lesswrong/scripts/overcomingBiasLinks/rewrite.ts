@@ -44,6 +44,7 @@ export function planRevisionEdits(
       _id: randomId(),
       html: contents.html,
       originalContents: contents.originalContents,
+      originalContentsId: contents.originalContents ? randomId() : null,
       version: getNextVersionAfterSemver(previous.version, "patch", base.draft === true),
       updateType: "patch",
       editedAt: new Date(Math.max(now.getTime(), latest.editedAt.getTime() + 1) + edits.length),
@@ -103,8 +104,7 @@ async function repairDocument(
     SELECT * FROM "Revisions" WHERE "documentId" = $(documentId) AND "fieldName" = 'contents'
     ORDER BY "editedAt" DESC, _id DESC LIMIT 1 ${dryRun ? "" : "FOR UPDATE"}
   `, { documentId });
-  if (row.contents && (row.contents.html !== active.html
-    || JSON.stringify(row.contents.originalContents) !== JSON.stringify(active.originalContents))) {
+  if (row.contents && row.contents.html !== active.html) {
     throw new Error("Comment contents differ from its revision; inspect before repairing");
   }
   const edits = planRevisionEdits(active, latest, replacements, new Date(), excludeFragmentSources);
@@ -113,6 +113,18 @@ async function repairDocument(
       // This is a maintenance migration: deliberately bypass user-edit callbacks
       // (notifications, moderation, image uploads). Clone the immutable revision
       // and atomically update its pointer/cache, as in convertImagesToCloudinary.
+      // The new revision gets its own RevisionOriginalContents row; the legacy
+      // inline column is filled in from `originalContents` by jsonb_populate_record.
+      if (edit.revision.originalContentsId) {
+        await tx.none(`
+          INSERT INTO "RevisionOriginalContents" (_id, "createdAt", "originalContents")
+          VALUES ($(originalContentsId), $(createdAt), $(originalContents)::jsonb)
+        `, {
+          originalContentsId: edit.revision.originalContentsId,
+          createdAt: edit.revision.createdAt,
+          originalContents: JSON.stringify(edit.revision.originalContents),
+        });
+      }
       await tx.none(`
         INSERT INTO "Revisions"
         SELECT * FROM jsonb_populate_record(NULL::"Revisions", $(revision)::jsonb)

@@ -30,6 +30,15 @@ export type CodeResolver<N extends CollectionNameString = CollectionNameString> 
 
 export interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap> {}
 
+/**
+ * A code resolver for a field which returns an object, where some of the
+ * requested sub-fields are themselves resolved by code resolvers (rather than
+ * being plain database columns). The `nestedCodeResolvers` are run against the
+ * object returned by this resolver. See `addCodeResolverWithNested`.
+ */
+export type CodeResolverWithNested<N extends CollectionNameString = CollectionNameString> =
+  CodeResolver<N> & { nestedCodeResolvers?: CodeResolverMap };
+
 export type PrefixGenerator = () => string;
 
 /**
@@ -280,6 +289,20 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
 
   addCodeResolver(name: string, resolver: CodeResolver) {
     this.codeResolvers[name] = resolver;
+  }
+
+  /**
+   * Like `addCodeResolver`, but for a field whose requested sub-fields include
+   * their own code resolvers. The `nestedCodeResolvers` will be run against the
+   * object returned by `resolver` (see `executeCodeResolvers`). This is needed
+   * because a code resolver returns a whole object with its database columns
+   * populated, but resolver-only sub-fields (which have no column) are absent
+   * and must be resolved separately.
+   */
+  addCodeResolverWithNested(name: string, resolver: CodeResolver, nested: CodeResolverMap) {
+    const wrapped: CodeResolverWithNested = (root, args, context) => resolver(root, args, context);
+    wrapped.nestedCodeResolvers = nested;
+    this.codeResolvers[name] = wrapped;
   }
 
   getResolverArg(name: string): string {

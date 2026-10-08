@@ -5,6 +5,8 @@ import { getCollection } from "../collections/allCollections";
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/last';
+import { createAdminContext } from '../vulcan-lib/createContexts';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 // Check that the denormalized contents field of objects with make_editable match
 // the newest revision in the revisions table. This is important because we're
@@ -12,6 +14,8 @@ import last from 'lodash/last';
 // some subset of content (eg particular types of important posts), they may
 // contain real unique content rather than just being denormalized copies.
 export const validateMakeEditableDenormalization = async () => {
+  const context = createAdminContext();
+
   function recordError(err: string) {
     // eslint-disable-next-line no-console
     console.error("    "+err);
@@ -49,7 +53,9 @@ export const validateMakeEditableDenormalization = async () => {
             const latestRev: DbRevision|undefined = last(sortBy(revsByDocument[doc._id], r=>r.version));
             
             const denormalizedContents = doc[editableField].originalContents;
-            const revContents = latestRev?.originalContents;
+            const revContents = latestRev
+              ? await getStoredOriginalContentsForRevision(latestRev, context)
+              : null;
             if (JSON.stringify(denormalizedContents) !== JSON.stringify(revContents)) {
               recordError(`Document ${doc._id} denormalized contents don't match latest rev contents`);
             }

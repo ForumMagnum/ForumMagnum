@@ -13,10 +13,12 @@ import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
-import { buildRevision } from "@/server/editor/conversionUtils";
 import { Users } from "@/server/collections/users/collection";
 import { getCollection } from "@/server/collections/allCollections";
 import { getEditableFieldInCollection } from '@/server/editor/editableSchemaFieldHelpers';
+import { dataToHTML } from "@/server/editor/conversionUtils";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
+import { updateOriginalContentsForRevision } from "@/server/collections/revisions/mutations";
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
@@ -62,32 +64,24 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
         conversionContext,
       });
       
-      const oldHtml = rev.originalContents?.data;
+      const oldHtml = (await getStoredOriginalContentsForRevision(rev, resolverContext))?.data;
 
       if (oldHtml !== newHtml) {
         console.log(`Document ${documentId} changed in rev ${rev._id}`);
         
         const user = await Users.findOne({_id: rev.userId});
         if (!user) throw new Error(`Could not find user for rev ${rev._id}`);
-        const modifiedRevision = await buildRevision({
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: newHtml,
-            yjsState: null,
-          },
-          currentUser: user,
-          context: resolverContext,
-        });
+        const html = await dataToHTML(newHtml, "ckEditorMarkup", resolverContext);
         await Revisions.rawUpdateOne(
           {_id: rev._id},
           {$set: {
-            html: modifiedRevision.html,
-            originalContents: {
-              type: "ckEditorMarkup",
-              data: newHtml,
-            },
+            html: html,
           }},
         );
+        await updateOriginalContentsForRevision(rev, {
+          type: "ckEditorMarkup",
+          data: newHtml,
+        }, resolverContext);
         
         switch (collectionName) {
           case "Tags":
@@ -138,7 +132,7 @@ async function updateDenormalizedEditable<N extends CollectionNameString>(docume
         [fieldName]: {
           ...pick(latestRev, [
             "html", "version", "userId", "editedAt", "wordCount",
-            "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+            "commitMessage", "googleDocMetadata", "updateType"
           ])
         }
       }},

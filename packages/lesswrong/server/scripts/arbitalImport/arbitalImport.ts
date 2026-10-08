@@ -14,10 +14,8 @@ import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/server/collections/revisions/collection';
-import { buildRevision } from '@/server/editor/conversionUtils';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
-import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/server/collections/comments/collection.ts';
 import uniq from 'lodash/uniq';
@@ -41,7 +39,8 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { createTag, updateTag } from '@/server/collections/tags/mutations';
 import { createComment } from '@/server/collections/comments/mutations';
 import { createUser } from '@/server/collections/users/mutations';
-import { createRevision } from '@/server/collections/revisions/mutations';
+import { buildAndCreateRevision, createOriginalContentsRow } from '@/server/collections/revisions/mutations';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import { createMultiDocument, updateMultiDocument } from '@/server/collections/multiDocuments/mutations';
 import { createArbitalTagContentRel } from '@/server/collections/arbitalTagContentRels/mutations';
 
@@ -919,8 +918,14 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         // Clone revisions on the LW wiki page as revisions on the lens
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
+          // Give the clone its own copy of the original contents. If it shared
+          // the LW wiki page revision's RevisionOriginalContents row, updating
+          // or deleting either revision would also affect the other one.
+          const originalContents = await getStoredOriginalContentsForRevision(lwWikiPageRevision, resolverContext);
+          const originalContentsId = await createOriginalContentsRow(originalContents, resolverContext);
           await Revisions.rawInsert({
             ...fieldsToCopy,
+            originalContentsId,
             fieldName: "contents",
             documentId: lwWikiLens._id,
             collectionName: "MultiDocuments",
@@ -1294,29 +1299,24 @@ async function importRevisions<N extends CollectionNameString>({
     const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
     const userContext = await computeContextFromUser({ user: revisionCreator, isSSR: false });
 
-    const lwRevision = (await createRevision({
-      data: {
-        ...await buildRevision({
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: ckEditorMarkup,
-            yjsState: null,
-          },
-          currentUser: revisionCreator,
-          context: resolverContext,
-        }),
-        fieldName,
-        collectionName: collection.collectionName,
-        documentId: documentId,
-        commitMessage: arbRevision.editSummary,
-        version: `1.${i+1}.0`,
-        changeMetrics: htmlToChangeMetrics(i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup, ckEditorMarkup),
-        legacyData: {
-          "arbitalPageId": pageId,
-          "arbitalEditNumber": arbRevision.edit,
-          "arbitalMarkdown": arbRevision.text,
-        },
-      }
+    const lwRevision = (await buildAndCreateRevision({
+      originalContents: {
+        type: "ckEditorMarkup",
+        data: ckEditorMarkup,
+        yjsState: null,
+      },
+      user: revisionCreator,
+      fieldName,
+      collectionName: collection.collectionName,
+      documentId: documentId,
+      commitMessage: arbRevision.editSummary,
+      version: `1.${i+1}.0`,
+      previousHtmlForChangeMetrics: i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup,
+      legacyData: {
+        "arbitalPageId": pageId,
+        "arbitalEditNumber": arbRevision.edit,
+        "arbitalMarkdown": arbRevision.text,
+      },
     }, userContext));
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
   }
@@ -2307,9 +2307,6 @@ export async function updateDenormalizedTagDescriptions() {
       console.log(`Html mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
     }
 
-    if (useRevision.originalContents?.data !== tag.description?.originalContents?.data) {
-      console.log(`Original contents data mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
-    }
   }), 5);
 }
 

@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import difference from 'lodash/difference';
-import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import Posts from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
@@ -10,15 +9,15 @@ import type { ForumTypeString } from '@/lib/instanceSettings';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevisionWithUser } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision, updateOriginalContentsForRevision } from '../collections/revisions/mutations';
 import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 import { captureException } from '@/lib/sentryWrapper';
+import { getStoredOriginalContentsForRevision, originalContentsAreEqual } from '@/lib/collections/revisions/helpers';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -142,14 +141,14 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     yjsState: null,
   }
   
-  if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {
-    const newRevision: Partial<DbRevision> = {
-      ...await buildRevisionWithUser({
-        originalContents: newOriginalContents,
-        user,
-        isAdmin,
-        context,
-      }),
+  const previousOriginalContents = previousRev
+    ? await getStoredOriginalContentsForRevision(previousRev, context)
+    : null;
+  if (!previousRev || !originalContentsAreEqual(newOriginalContents, previousOriginalContents)) {
+    await buildAndCreateRevision({
+      originalContents: newOriginalContents,
+      user,
+      isAdmin,
       documentId,
       fieldName,
       collectionName: "Posts",
@@ -157,10 +156,8 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
       draft: true,
       updateType: "patch",
       commitMessage: cloudEditorAutosaveCommitMessage,
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
-    };
-    
-    await createRevision({ data: newRevision }, context);
+      previousHtmlForChangeMetrics: previousRev?.html || "",
+    }, context);
   }
 }
 
@@ -217,13 +214,15 @@ export async function saveOrUpdateDocumentRevision(postId: string, html: string,
     
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
+    const originalContents = { data: html, type: "ckEditorMarkup", yjsState: null };
+    await updateOriginalContentsForRevision(previousRev, originalContents, context);
     // Update the existing rev
     await Revisions.rawUpdateOne(
       {_id: previousRev._id},
       {$set: {
         editedAt: new Date(),
         autosaveTimeoutStart: previousRev.autosaveTimeoutStart || previousRev.editedAt,
-        originalContents: { data: html, type: "ckEditorMarkup" },
+        originalContents,
         changeMetrics: htmlToChangeMetrics(precedingRev?.html || "", html),
       }}
     )

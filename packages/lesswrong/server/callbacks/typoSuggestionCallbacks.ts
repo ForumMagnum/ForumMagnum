@@ -9,6 +9,7 @@ import { getLatestRev } from "@/server/editor/utils";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
 import type { TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 const TYPO_REACT_NAME = "typo";
@@ -84,7 +85,10 @@ async function isLexicalDocument(
   context: ResolverContext,
 ): Promise<boolean> {
   const rev = await getLatestRev(documentId, "contents", context);
-  return rev?.originalContents?.type === "lexical";
+  const originalContents = rev
+    ? await getStoredOriginalContentsForRevision(rev, context)
+    : null;
+  return originalContents?.type === "lexical";
 }
 
 /**

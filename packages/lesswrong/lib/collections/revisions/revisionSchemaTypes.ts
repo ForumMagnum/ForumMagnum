@@ -1,5 +1,16 @@
 import SimpleSchema from "@/lib/utils/simpleSchema";
 
+export interface RevisionOriginalContentsData {
+  type: string;
+  data: AnyBecauseTodo;
+  yjsState?: string|null|undefined;
+}
+
+/** See `normalizeOriginalContents` */
+export interface NormalizedRevisionOriginalContentsData extends RevisionOriginalContentsData {
+  yjsState: string|null;
+}
+
 /**
  * This covers the type of originalContents for all editor types.
  * (DraftJS uses object type. DraftJs is deprecated but there are still many documents that use it)
