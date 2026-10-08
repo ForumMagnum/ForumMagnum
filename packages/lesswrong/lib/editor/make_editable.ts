@@ -139,7 +139,7 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
     }
 
     const latestRevFieldName = `${fieldName}_latest` as keyof ObjectsByCollectionName[N];
-    const latestRevId = doc[latestRevFieldName] as string;
+    const latestRevId = doc[latestRevFieldName] as string | null | undefined;
 
     const result = {
       ...docField,
@@ -148,7 +148,9 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       // The reason we need to return documentId and collectionName is because
       // this entire result gets recursively resolved by revision field
       // resolvers, and those resolvers depend on these fields existing.
-      _id: latestRevId,
+      // Revision._id is non-nullable, and some legacy documents have a
+      // denormalized field but no `_latest` revision
+      _id: latestRevId ?? `${doc._id}_${fieldName}`,
       documentId: doc._id,
       collectionName,
       editedAt: new Date(docField?.editedAt ?? Date.now()),

@@ -20,7 +20,6 @@ import { createUserRateLimit } from '../server/collections/userRateLimits/mutati
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes';
-import { dataToHTML } from '@/server/editor/conversionUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -183,7 +182,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const postId = data?._id ?? randomId();
   const postContents = data?.contents ?? { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post', yjsState: null } };
   const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
-  const html = await dataToHTML(postContents.originalContents.data, postContents.originalContents.type, userContext);
   const revision = await createDummyRevision({
     collectionName: "Posts",
     documentId: postId,
@@ -193,7 +191,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     commitMessage: "",
     draft: false,
     ...postContents,
-    html,
   }, userContext);
   const defaultData = {
     _id: postId,

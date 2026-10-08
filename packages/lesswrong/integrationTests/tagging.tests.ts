@@ -19,7 +19,6 @@ describe('Tagging', function() {
         documentId: tag._id,
         collectionName: 'Tags',
         fieldName: 'description',
-        html: "<p>Test contribution content</p>",
         previousHtmlForChangeMetrics: "",
       }, context);
       // Creating the revision performs a self-vote, which combined with the vote from the non-author-voter

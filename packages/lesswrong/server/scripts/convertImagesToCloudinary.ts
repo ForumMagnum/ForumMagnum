@@ -18,6 +18,8 @@ import fs from "node:fs";
 import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
+import { createOriginalContentsRow } from '../collections/revisions/mutations';
 
 export type CloudinaryCredentials = {
   cloud_name: string,
@@ -419,9 +421,15 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       logger(`Converted ${uploadCount} images`)
     }
     
+    // Give the new revision its own copy of the original contents. If it shared
+    // latestRev's RevisionOriginalContents row, an in-place update of either
+    // revision (eg a ckEditor autosave) would also change the other one.
+    const originalContents = await getStoredOriginalContentsForRevision(latestRev, context);
+    const originalContentsId = await createOriginalContentsRow(originalContents, context);
     const newRevision = {
       ...latestRev,
       _id: randomId(),
+      originalContentsId,
       html: newHtml,
       editedAt: now,
       updateType: "patch" as const,

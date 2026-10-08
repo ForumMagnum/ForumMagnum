@@ -58,11 +58,17 @@ export async function getStoredOriginalContentsForRevision(
     return revision.originalContents;
   }
   if (revision._id) {
+    // The revision we were given may be a partial projection (or a denormalized
+    // editable field), so check the stored row
     const storedRevision = await context.loaders.Revisions.load(revision._id);
     if (storedRevision?.originalContentsId) {
       const roc = await context.loaders.RevisionOriginalContents.load(storedRevision.originalContentsId);
-      return roc?.originalContents ?? null;
+      if (roc?.originalContents) {
+        return roc.originalContents;
+      }
     }
+    // Revisions that haven't been backfilled into RevisionOriginalContents yet
+    return storedRevision?.originalContents ?? null;
   }
   return null;
 }
@@ -72,5 +78,6 @@ export async function getRevisionOriginalContentsByRevisionId(
   context: ResolverContext,
 ): Promise<RevisionOriginalContentsData | null> {
   const revision = await context.loaders.Revisions.load(revisionId);
+  if (!revision) return null;
   return getStoredOriginalContentsForRevision(revision, context);
 }

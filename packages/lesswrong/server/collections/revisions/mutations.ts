@@ -24,7 +24,6 @@ function editCheck(user: DbUser | null) {
 // for which collection/_id/field the revision goes with (which are not in the graphql fields
 // list because they are typically implied from context).
 export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalContents" | "updateType"> & {
-  html: string,
   originalContents: RevisionOriginalContentsData
   updateType?: DbRevision["updateType"]
   collectionName: CollectionNameString
@@ -41,64 +40,18 @@ export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalConte
   previousHtmlForChangeMetrics?: string,
   dataWithDiscardedSuggestions?: string,
 }
-type BuildAndCreateRevisionOptions = Omit<CreateRevisionDataInput, "originalContents" | "updateType"> & {
-  originalContents: RevisionOriginalContentsData
-  updateType?: DbRevision["updateType"]
-  collectionName: CollectionNameString
-  documentId: string
-  fieldName: string
-  version?: string
-  draft?: boolean
-  skipAttributions?: boolean
-  legacyData?: any,
+type BuildAndCreateRevisionOptions = CreateRevisionOptions & {
   user: DbUser,
-  isAdmin?: boolean,
-  createdAt?: Date,
-  previousHtmlForChangeMetrics?: string,
-  dataWithDiscardedSuggestions?: string,
 }
 
+/**
+ * Like `createRevision`, but requires an explicit user rather than falling back
+ * to the context's current user.
+ */
 export async function buildAndCreateRevision(data: BuildAndCreateRevisionOptions, context: ResolverContext): Promise<DbRevision> {
-  const { originalContents, user, isAdmin, dataWithDiscardedSuggestions } = data;
-  const revisionData = await buildRevision({originalContents, user, isAdmin, dataWithDiscardedSuggestions, context});
-  return createRevision({ data: {
-    ...revisionData, ...data
-  }}, context);
+  return await createRevision({ data }, context);
 }
 
-async function buildRevision({ originalContents, user, isAdmin, dataWithDiscardedSuggestions, context }: {
-  originalContents: RevisionOriginalContentsData | null,
-  user: DbUser,
-  isAdmin?: boolean,
-  dataWithDiscardedSuggestions?: string,
-  context: ResolverContext,
-}): Promise<{
-  html: string,
-  wordCount: number,
-  originalContents: RevisionOriginalContentsData & { yjsState: string | null },
-  editedAt: Date,
-  userId: string,
-}> {
-  if (isAdmin === undefined) {
-    isAdmin = user.isAdmin;
-  }
-  if (!originalContents) throw new Error ("Can't build revision without originalContents")
-
-  const normalizedOriginalContents = {
-    ...originalContents,
-    yjsState: originalContents.yjsState ?? null,
-  };
-  const { data, type } = normalizedOriginalContents;
-  const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
-  const wordCount = await dataToWordCount(readerVisibleData, type, context)
-
-  return {
-    html, wordCount, originalContents: normalizedOriginalContents,
-    editedAt: new Date(),
-    userId: user._id,
-  };
-}
 // createRevision is not exposed through the graphql API, but is called from other server-side code
 // and sort of mimics a graphql create mutator (which it at one point used to be). Users create
 // revisions by editing objects with revision-controlled editable fields.
