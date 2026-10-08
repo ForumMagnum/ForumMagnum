@@ -12,9 +12,7 @@ export interface PendingContentStats {
   pendingCommentCount: number;
   pendingPostWordCount: number;
   pendingCommentWordCount: number;
-  /** Live posts and comments that have already been approved */
   approvedContentCount: number;
-  /** Every post and comment the user has made, including rejected, drafted and deleted ones */
   totalContentCount: number;
 }
 
@@ -486,11 +484,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return userIds.map((userId) => countsByUser.get(userId) ?? 0);
   }
 
-  /**
-   * Live posts and comments still awaiting moderator approval, i.e. marked
-   * `authorIsUnreviewed` and not rejected, deleted or drafted, plus counts of
-   * the user's approved content and of everything they've ever written.
-   */
   async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
     const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
       -- UsersRepo.getPendingContentStats
@@ -512,7 +505,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
         FROM "Posts" p
         LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
         WHERE p."userId" = ANY($1::text[])
-          -- The shortform container post isn't content the user wrote
           AND p."shortform" IS NOT TRUE
         UNION ALL
         SELECT

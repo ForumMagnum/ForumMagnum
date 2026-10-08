@@ -69,7 +69,6 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
-// One batched query serves all the pending-content fields, and the Simple review group
 const getPendingContentStats = (context: ResolverContext, userId: string) => {
   return getWithCustomLoader(context, "pendingContentStats", userId, (userIds: string[]) =>
     context.repos.users.getPendingContentStats(userIds)
