@@ -75,6 +75,7 @@ import { default as Reports } from '../collections/reports/newSchema';
 import { default as ReviewVotes } from '../collections/reviewVotes/newSchema';
 import { default as ReviewWinnerArts } from '../collections/reviewWinnerArts/newSchema';
 import { default as ReviewWinners } from '../collections/reviewWinners/newSchema';
+import { default as RevisionOriginalContents } from '../collections/revisionOriginalContents/newSchema';
 import { default as Revisions } from '../collections/revisions/newSchema';
 import { default as RSSFeeds } from '../collections/rssfeeds/newSchema';
 import { default as SandboxBaselineSnapshots } from '../collections/sandboxBaselineSnapshots/newSchema';
@@ -116,7 +117,7 @@ export const allSchemas = {
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
+  ReviewWinners, RevisionOriginalContents, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,
   UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;

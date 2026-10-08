@@ -14,6 +14,7 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { randomId } from "@/lib/random";
 
 /**
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
@@ -62,7 +63,8 @@ export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocum
 
 export async function createMultiDocument({ data }: CreateMultiDocumentInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
     context,
     data,
@@ -78,6 +80,7 @@ export async function createMultiDocument({ data }: CreateMultiDocumentInput, co
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

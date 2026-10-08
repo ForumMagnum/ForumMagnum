@@ -1,13 +1,14 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import gql from 'graphql-tag';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   enum ConvertibleCollectionName {
@@ -39,11 +40,11 @@ export const revisionResolversGraphQLMutations = {
       getLatestRev(tagId, 'description', context)
     ]);
 
-    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
-
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
-    if (!revertToRevision.originalContents)
+    const revertToOriginalContents = await getStoredOriginalContentsForRevision(revertToRevision, context);
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToOriginalContents);
+    if (!revertToOriginalContents)
       throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
@@ -52,7 +53,7 @@ export const revisionResolversGraphQLMutations = {
     await updateTag({
       data: {
         description: {
-          originalContents: revertToRevision.originalContents,
+          originalContents: revertToOriginalContents,
         },
       }, selector: { _id: tag._id }
     }, context);
@@ -110,25 +111,18 @@ export const revisionResolversGraphQLMutations = {
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
     const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
 
-    const builtRevision = await buildRevision({
+    await buildAndCreateRevision({
       originalContents,
-      currentUser,
-      context,
-    });
-
-    const newRevision: Partial<DbRevision> = {
-      ...builtRevision,
+      user: currentUser,
       documentId,
       fieldName,
       collectionName,
       version: nextVersion,
       draft: isDraft,
       updateType: 'minor',
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', builtRevision.html),
+      previousHtmlForChangeMetrics: previousRev?.html || '',
       commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
-    };
-
-    await createRevision({ data: newRevision }, context);
+    }, context);
 
     // When converting to lexical on a post, push the new Yjs state to
     // Hocuspocus so any existing collaborative session is replaced with

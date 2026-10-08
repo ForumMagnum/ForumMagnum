@@ -15,6 +15,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
   return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
@@ -50,7 +51,8 @@ function editCheck(user: DbUser | null, jargonTerm: DbJargonTerm | null, context
 
 export async function createJargonTerm({ data }: CreateJargonTermInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('JargonTerms', {
     context,
     data,
@@ -64,6 +66,7 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
   data = sanitizeJargonTerm(data);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

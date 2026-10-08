@@ -44,6 +44,10 @@ export function planRevisionEdits(
       _id: randomId(),
       html: contents.html,
       originalContents: contents.originalContents,
+      // Don't share the base revision's RevisionOriginalContents row, which
+      // holds the unrepaired contents and would take precedence over the
+      // inline originalContents above when read.
+      originalContentsId: null,
       version: getNextVersionAfterSemver(previous.version, "patch", base.draft === true),
       updateType: "patch",
       editedAt: new Date(Math.max(now.getTime(), latest.editedAt.getTime() + 1) + edits.length),

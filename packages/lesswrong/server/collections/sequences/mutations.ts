@@ -15,6 +15,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 function newCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
@@ -40,7 +41,8 @@ async function invalidateSequencePostPages(sequenceId: string, context: Resolver
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('Sequences', {
     context,
     data,
@@ -54,6 +56,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

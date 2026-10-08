@@ -3,6 +3,7 @@ import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPa
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
+import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -96,6 +97,7 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = randomId();
 
   await applyParentCommentContext(data, context, currentUser);
 
@@ -124,6 +126,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   data = await setTopLevelCommentId(data, callbackProps);  
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

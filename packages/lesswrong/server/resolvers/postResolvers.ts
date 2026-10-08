@@ -2,10 +2,9 @@ import { Posts } from '../../server/collections/posts/collection';
 import { Comments } from '../../server/collections/comments/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import { buildRevision } from '../editor/conversionUtils';
 import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
@@ -15,7 +14,7 @@ import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { createPost } from '../collections/posts/mutations';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey, type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
@@ -24,6 +23,7 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 import jwt from 'jsonwebtoken';
 
@@ -545,7 +545,10 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
-      const previousEditorType = previousRev?.originalContents?.type;
+      const previousOriginalContents = previousRev
+        ? await getStoredOriginalContentsForRevision(previousRev, context)
+        : null;
+      const previousEditorType = previousOriginalContents?.type;
       const richTextEditorType = (previousEditorType === "lexical" || previousEditorType === "ckEditorMarkup")
         ? previousEditorType
         : fallbackRichTextEditorType;
@@ -561,12 +564,9 @@ export const postGqlMutations = {
       // before the post is undrafted for the first time.
       const revisionType = "minor"
 
-      const newRevision: Partial<DbRevision> = {
-        ...(await buildRevision({
-          originalContents,
-          currentUser,
-          context
-        })),
+      await buildAndCreateRevision({
+        originalContents,
+        user: currentUser,
         documentId: postId,
         draft: true,
         fieldName: "contents",
@@ -574,10 +574,8 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", importedHtml),
-      };
-
-      await createRevision({ data: newRevision }, context);
+        previousHtmlForChangeMetrics: previousRev?.html || "",
+      }, context);;
 
       if (richTextEditorType === "lexical" && yjs) {
         await resetHocuspocusDocument(`post-${postId}`, yjs.yjsBinary);

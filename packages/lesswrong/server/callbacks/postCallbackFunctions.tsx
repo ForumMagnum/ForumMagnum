@@ -379,7 +379,7 @@ const utils = {
       data: conversationData,
     }, lwAccountContext);
   
-    const messageData = {
+    const messageData: CreateMessageDataInput = {
       userId: lwAccount._id,
       contents: {
         originalContents: {

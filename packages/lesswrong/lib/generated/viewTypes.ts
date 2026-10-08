@@ -69,6 +69,7 @@ type ResearchSandboxSessionsViewName = never
 type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesFromUser";
 type ReviewWinnerArtsViewName = "allForYear"|"postArt";
 type ReviewWinnersViewName = "bestOfLessWrongAnnouncement"|"reviewWinnerSingle";
+type RevisionOriginalContentsViewName = never
 type RevisionsViewName = "revisionByVersionNumber"|"revisionsByUser"|"revisionsOnDocument";
 type SandboxBaselineSnapshotsViewName = never
 type SequencesViewName = "communitySequences"|"curatedSequences"|"userProfile"|"userProfileAll"|"userProfilePrivate";
@@ -164,6 +165,7 @@ interface ViewTermsByCollectionName {
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ReviewWinnersViewTerms
+  RevisionOriginalContents: ViewTermsBase
   Revisions: RevisionsViewTerms
   SandboxBaselineSnapshots: ViewTermsBase
   Sequences: SequencesViewTerms

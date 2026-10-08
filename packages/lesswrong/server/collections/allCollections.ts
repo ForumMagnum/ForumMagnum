@@ -77,6 +77,7 @@ import { Reports } from './reports/collection';
 import { ReviewVotes } from './reviewVotes/collection';
 import { ReviewWinnerArts } from './reviewWinnerArts/collection';
 import { ReviewWinners } from './reviewWinners/collection';
+import { RevisionOriginalContents } from './revisionOriginalContents/collection';
 import { Revisions } from './revisions/collection';
 import { RSSFeeds } from './rssfeeds/collection';
 import { SandboxBaselineSnapshots } from './sandboxBaselineSnapshots/collection';
@@ -125,7 +126,7 @@ const allCollections = {
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
+  ReviewWinners, RevisionOriginalContents, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
