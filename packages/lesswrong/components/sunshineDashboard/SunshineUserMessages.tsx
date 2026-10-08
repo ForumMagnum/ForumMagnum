@@ -85,15 +85,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   conversationForm: {
     marginBottom: 16,
     paddingBottom: 8,
-    // One line tall until the moderator types or inserts a template (the
-    // lexical min-height var is already 1em via MessagesNewForm's own styles,
-    // but the editor wrapper adds a 100px min-height that we undo here)
-    '& .EditorFormComponent-commentEditorHeight': {
-      minHeight: 'unset',
-    },
-    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
-      minHeight: 'unset',
-    },
   },
   messagePrompt: {
     padding: 8,
@@ -325,6 +316,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           conversationId={embeddedConversationId}
           templateQueries={templateQueries}
           keystrokeSubmitButton
+          // One line tall until the moderator types or inserts a template
+          fitToContent
           successEvent={async (newMessage) => {
             await refetch();
             captureEvent('messageSent', {
