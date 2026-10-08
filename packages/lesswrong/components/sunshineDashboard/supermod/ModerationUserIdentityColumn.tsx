@@ -9,6 +9,7 @@ import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
+import LowReCaptchaBadge from './LowReCaptchaBadge';
 import { useUserClientIdsInfo } from '@/components/hooks/useUserClientIdsInfo';
 
 const styles = defineStyles('ModerationUserIdentityColumn', (theme: ThemeType) => ({
@@ -110,6 +111,7 @@ const ModerationUserIdentityColumn = ({
         {likelyReviewTrigger && (
           <ReviewTriggerBadge badge={likelyReviewTrigger} />
         )}
+        <LowReCaptchaBadge user={user} />
         <div className={classes.createdAt}>
           <FormatDate date={user.createdAt} />
         </div>

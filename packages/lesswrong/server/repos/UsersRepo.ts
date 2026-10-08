@@ -509,6 +509,40 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return rows.map((row) => row.userId);
   }
 
+  /**
+   * Users in the review queue whose signup reCAPTCHA rating is at or below
+   * `maxReCaptchaRating`, but who have unreviewed, unrejected, non-draft posts
+   * or non-deleted comments waiting for moderation.
+   */
+  async getLowReCaptchaRatingUserIdsWithPendingContent(maxReCaptchaRating: number): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ _id: string }>(`
+      -- UsersRepo.getLowReCaptchaRatingUserIdsWithPendingContent
+      SELECT u."_id"
+      FROM "Users" u
+      WHERE u."needsReview" IS TRUE
+        AND u."reviewedByUserId" IS NULL
+        AND u."banned" IS NULL
+        AND u."signUpReCaptchaRating" <= $(maxReCaptchaRating)
+        AND (
+          EXISTS (
+            SELECT 1 FROM "Posts" p
+            WHERE p."userId" = u."_id"
+              AND p."authorIsUnreviewed" IS TRUE
+              AND p."draft" IS NOT TRUE
+              AND p."rejected" IS NOT TRUE
+          )
+          OR EXISTS (
+            SELECT 1 FROM "Comments" c
+            WHERE c."userId" = u."_id"
+              AND c."authorIsUnreviewed" IS TRUE
+              AND c."deleted" IS NOT TRUE
+              AND c."rejected" IS NOT TRUE
+          )
+        )
+    `, { maxReCaptchaRating });
+    return rows.map((row) => row._id);
+  }
+
   async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
     const rows = await this.getRawDb().any<{ userId: string, count: number }>(`
       -- UsersRepo.getRejectedContentCounts

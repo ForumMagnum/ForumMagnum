@@ -1,9 +1,10 @@
-import { spamRiskScoreThreshold } from './helpers';
+import { lowReCaptchaRatingThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient } from '@apollo/client';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -91,13 +92,22 @@ function usersWithBannedUsers() {
   }
 }
 
-function sunshineNewUsers(terms: UsersViewTerms) {
+async function sunshineNewUsers(terms: UsersViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  // Users with a low signup reCAPTCHA rating are hidden unless they have
+  // content waiting for review, since that content can't go live until a
+  // moderator sees it.
+  const lowRatingUserIdsWithPendingContent = await context.repos.users.getLowReCaptchaRatingUserIdsWithPendingContent(lowReCaptchaRatingThreshold);
   return {
     selector: {
       needsReview: true,
       banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
-      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
+      $or: [
+        {signUpReCaptchaRating: {$gt: lowReCaptchaRatingThreshold}},
+        {signUpReCaptchaRating: {$exists: false}},
+        {signUpReCaptchaRating: null},
+        {_id: {$in: lowRatingUserIdsWithPendingContent}},
+      ]
     },
     options: {
       sort: {
