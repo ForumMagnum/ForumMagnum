@@ -199,7 +199,7 @@ async function pollPangramTask(taskId: string, key: string, deadline: number): P
     }
   }
 
-  const error = new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
+  const error = new Error(`Pangram task ${taskId} did not finish before its deadline`);
   captureException(error);
   throw error;
 }
@@ -207,6 +207,7 @@ async function pollPangramTask(taskId: string, key: string, deadline: number): P
 export async function getPangramEvaluationForText(
   text: string,
   model: PangramModel = DEFAULT_PANGRAM_MODEL,
+  taskTimeoutMs = PANGRAM_TASK_TIMEOUT_MS,
 ): Promise<PangramEvaluationResult> {
   const key = process.env.PANGRAM_API_KEY;
   if (!key) {
@@ -215,7 +216,7 @@ export async function getPangramEvaluationForText(
 
   const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
   if (model === "pangram4") {
-    const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
+    const deadline = Date.now() + taskTimeoutMs;
     const submission = await fetchPangramJson(
       PANGRAM_TASK_URL,
       key,
@@ -242,10 +243,10 @@ export async function getPangramEvaluationForText(
   return parsePangramResponse(result, "v3");
 }
 
-export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
+export async function getPangramEvaluation(revision: DbRevision, taskTimeoutMs?: number): Promise<PangramEvaluationResult> {
   const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
   const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
-  return await getPangramEvaluationForText(markdown);
+  return await getPangramEvaluationForText(markdown, DEFAULT_PANGRAM_MODEL, taskTimeoutMs);
 }
 
 export async function getSaplingEvaluation(revision: DbRevision) {
@@ -346,6 +347,7 @@ async function rejectContentForLLM(
 interface CreateAutomatedContentEvaluationOptions {
   /** Whether to auto-reject content that fails the Pangram AI detection check. */
   autoreject?: boolean;
+  pangramTaskTimeoutMs?: number;
 }
 
 export async function createAutomatedContentEvaluation(
@@ -353,14 +355,14 @@ export async function createAutomatedContentEvaluation(
   context: ResolverContext,
   options: CreateAutomatedContentEvaluationOptions = {}
 ) {
-  const { autoreject } = options;
+  const { autoreject, pangramTaskTimeoutMs } = options;
 
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
   const documentId = revision.documentId;
   if (!documentId) return;
 
-  const pangramEvaluation = await getPangramEvaluation(revision).catch((err) => {
+  const pangramEvaluation = await getPangramEvaluation(revision, pangramTaskTimeoutMs).catch((err) => {
     // eslint-disable-next-line no-console
     console.error("Pangram evaluation failed: ", err);
     captureException(err);

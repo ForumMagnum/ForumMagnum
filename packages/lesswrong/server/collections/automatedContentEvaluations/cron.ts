@@ -7,6 +7,8 @@ import { createAutomatedContentEvaluation } from './helpers';
 const RETRY_FROM_MS = 5 * 60 * 1000;
 const RETRY_UNTIL_MS = 2 * 60 * 60 * 1000;
 const MAX_RETRIES_PER_RUN = 20;
+// Keeps the sweep inside the cron route's 60s limit, so the job's other tasks aren't cut off.
+const PANGRAM_TASK_TIMEOUT_MS = 40_000;
 
 export async function retryMissingPangramEvaluations(forumType: ForumTypeString): Promise<void> {
   // Matches the publish-time check.
@@ -20,7 +22,7 @@ export async function retryMissingPangramEvaluations(forumType: ForumTypeString)
     MAX_RETRIES_PER_RUN,
   );
   const results = await Promise.allSettled(revisions.map((revision) =>
-    createAutomatedContentEvaluation(revision, context, { autoreject: true })
+    createAutomatedContentEvaluation(revision, context, { autoreject: true, pangramTaskTimeoutMs: PANGRAM_TASK_TIMEOUT_MS })
   ));
   for (const result of results) {
     if (result.status === 'rejected') captureException(result.reason);
