@@ -4,13 +4,6 @@ import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 export const moderationSummaryKinds = ["userSummary", "userGrouping"] as const;
 export type ModerationSummaryKind = typeof moderationSummaryKinds[number];
 
-/**
- * ModerationSummaries hold descriptive outputs written by the LLM moderation
- * agent: per-user moderation summaries (kind: "userSummary", with a
- * targetUserId) and groupings of similar users (kind: "userGrouping", with
- * memberUserIds). Rows are append-only; the "current" summary for a user is
- * the most recent non-deleted one.
- */
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -31,7 +24,6 @@ const schema = {
       },
     },
   },
-  // The summarized user; null for groupings
   targetUserId: {
     database: {
       type: "VARCHAR(27)",
@@ -54,7 +46,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "targetUserId" }),
     },
   },
-  // Members of a grouping; null for per-user summaries
   memberUserIds: {
     database: {
       type: "TEXT[]",
@@ -69,7 +60,6 @@ const schema = {
       },
     },
   },
-  // Grouping name; null for per-user summaries
   title: {
     database: {
       type: "TEXT",
@@ -84,7 +74,6 @@ const schema = {
       },
     },
   },
-  // Markdown body of the summary or grouping description
   contents: {
     database: {
       type: "TEXT",
@@ -97,7 +86,6 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-  // The moderator whose agent session produced this row
   createdByUserId: {
     database: {
       type: "VARCHAR(27)",
@@ -133,7 +121,6 @@ const schema = {
       },
     },
   },
-  // The model that wrote this row, e.g. "anthropic/claude-sonnet-4-6"
   model: {
     database: {
       type: "TEXT",

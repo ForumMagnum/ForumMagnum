@@ -47,8 +47,6 @@ const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
   insert_block: [REQUIRED_SCOPE],
-  // Moderation read tools (registered from moderationReadTools; additionally
-  // gated on the account being a moderator/admin at call time)
   ...Object.fromEntries(moderationReadTools.map((t) => [t.name, [REQUIRED_SCOPE]])),
 };
 
@@ -323,10 +321,7 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     },
   );
 
-  // Moderation read tools, shared with the in-app supermod agent. Only the
-  // read-only tools are exposed over MCP: external agents can inspect
-  // moderation data (if their account is a moderator) but cannot file
-  // proposals or take actions.
+  // Only the read tools are exposed over MCP, so external agents can't file proposals or take actions.
   for (const moderationTool of moderationReadTools) {
     server.registerTool(
       moderationTool.name,

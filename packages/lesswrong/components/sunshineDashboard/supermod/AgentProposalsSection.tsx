@@ -28,8 +28,6 @@ const styles = defineStyles('AgentProposalsSection', (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.paper,
     borderBottom: theme.palette.border.normal,
   },
-  // Matches ModerationContentList's title style, since this section sits
-  // directly above the Content column
   heading: {
     ...theme.typography.commentStyle,
     fontSize: 14,
@@ -58,11 +56,6 @@ const styles = defineStyles('AgentProposalsSection', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Pending agent proposals for the opened user, shown at the top of the
- * moderation sidebar so plans filed in chat are visible (and applicable) even
- * after a reload or from another moderator's session.
- */
 const AgentProposalsSection = ({ user, currentUser, posts, comments, addToUndoQueue, dispatch }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;

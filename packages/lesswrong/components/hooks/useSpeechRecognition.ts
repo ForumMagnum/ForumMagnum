@@ -28,12 +28,6 @@ function getSpeechRecognitionConstructor(): (new () => SpeechRecognitionLike) | 
   return windowWithSpeech.SpeechRecognition ?? windowWithSpeech.webkitSpeechRecognition ?? null;
 }
 
-/**
- * Dictation via the browser's Web Speech API (Chrome-quality transcription;
- * unsupported browsers get isSupported: false and should hide the mic button).
- * Final transcript chunks are delivered through onFinalTranscript; interim
- * (in-progress) text is exposed for ghosted display. Never auto-submits.
- */
 export function useSpeechRecognition({ onFinalTranscript, onError }: {
   onFinalTranscript: (text: string) => void;
   onError?: (error: string) => void;

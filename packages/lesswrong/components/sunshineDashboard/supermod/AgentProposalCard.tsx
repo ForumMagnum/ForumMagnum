@@ -67,8 +67,6 @@ const styles = defineStyles('AgentProposalCard', (theme: ThemeType) => ({
       paddingLeft: 18,
     },
   },
-  // The plan itself: visually distinct box so the actions stand out from the
-  // surrounding prose
   planBox: {
     backgroundColor: theme.palette.grey[100],
     border: theme.palette.border.normal,
@@ -215,7 +213,6 @@ function getStepResults(stepResults: unknown): Map<number, ModerationProposalSte
   return resultsByIndex;
 }
 
-/** HTML to show as a sub-bullet under a step's first line (the rejection reason, i.e. the template text) */
 function stepReasonHtml(step: ModerationProposalStep): string | null {
   if (step.action === 'rejectContent' || step.action === 'rejectContentAndRemoveFromQueue') {
     return step.rejectedReason || null;
@@ -227,11 +224,7 @@ function normalizeHtmlText(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-/**
- * Short label for a rejection reason: the name(s) of the template(s) whose
- * text it contains (template identity isn't stored with rejections, so this
- * is a text match), falling back to a snippet of the reason itself.
- */
+// Template identity isn't stored with rejections, so this matches on template text
 function reasonShortLabel(reasonHtml: string, templates: Array<{ name: string; contents: { html: string | null } | null }>): string {
   const normalizedReason = normalizeHtmlText(reasonHtml);
   const matches = templates
@@ -245,33 +238,21 @@ function reasonShortLabel(reasonHtml: string, templates: Array<{ name: string; c
   return snippet.length > 80 ? `${snippet.slice(0, 80)}…` : snippet;
 }
 
-/** HTML of the drafted moderator message a step would send, if any */
 function stepMessageHtml(step: ModerationProposalStep): string | null {
   if (step.action === 'sendModeratorMessage') return step.messageHtml || null;
   if (step.action === 'rejectContentAndRemoveFromQueue') return step.messageHtml ?? null;
   return null;
 }
 
-/**
- * One agent-proposed moderation action plan: title, rationale, and a plain
- * bulleted list of its effects in execution order, with the rejection reason
- * and any drafted message as sub-bullets. Apply runs the whole plan (through
- * the undo queue); there is no partial application.
- */
 const AgentProposalCard = ({ proposal, posts, comments, isStreaming, canApply, onApply, onDismiss, onDiscuss, onVoiceSubmit }: {
   proposal: AgentProposalCardData;
-  /** Loaded content for the target user, used to name targeted posts/comments */
   posts?: SunshinePostsList[];
   comments?: CommentsListWithParentMetadata[];
-  /** True while the tool input is still streaming in (no _id yet) */
   isStreaming?: boolean;
-  /** False when the proposal targets a user other than the opened one */
   canApply: boolean;
   onApply?: (selectedIndexes: Set<number>) => void;
   onDismiss?: () => void;
-  /** Opens the agent chat to discuss this proposal; omit where the card is already inside the chat */
   onDiscuss?: () => void;
-  /** Submits a dictated message about this proposal to a new agent conversation; omit to hide the mic */
   onVoiceSubmit?: (transcript: string) => void;
 }) => {
   const classes = useStyles(styles);
@@ -299,8 +280,6 @@ const AgentProposalCard = ({ proposal, posts, comments, isStreaming, canApply, o
     ssr: false,
   });
   const rejectionTemplates = templatesData?.moderationTemplates?.results ?? [];
-  // Display in the order the steps will actually run; unparseable steps sink
-  // to the bottom. Original indexes are kept for the result badges.
   const orderedSteps = useMemo(() => (
     parsedSteps
       .map((step, index) => ({ step, index }))

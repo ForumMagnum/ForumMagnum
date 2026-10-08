@@ -10,10 +10,7 @@ import { defineModerationAgentTool, requireModeratorAccess, type ModerationAgent
 
 const MAX_BODY_MARKDOWN_LENGTH = 2000;
 
-// Per-item word allowance for content bodies in the preload/get_user_content;
-// the model can read beyond it with read_document_body. Implemented as a
-// character cutoff (words × CHARS_PER_WORD) so markdown formatting survives
-// intact, unlike word-split-and-rejoin.
+// Truncates by characters (words × CHARS_PER_WORD) so markdown formatting survives intact
 const MAX_BODY_WORDS = 2000;
 const CHARS_PER_WORD = 6.5;
 
@@ -21,7 +18,6 @@ function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-/** Cuts at the last whitespace before the char limit, so no mid-word cuts */
 function sliceAtWordBoundary(text: string, maxChars: number): string {
   if (text.length <= maxChars) return text;
   const slice = text.slice(0, maxChars);
@@ -38,10 +34,6 @@ function truncateMarkdown(html: string | null | undefined, maxLength = MAX_BODY_
   return `${markdown.slice(0, maxLength)}\n\n[... truncated, ${markdown.length} chars total]`;
 }
 
-/**
- * Truncation for content bodies at ~maxWords. Always tells the model the true
- * total word count and how to read the rest.
- */
 function truncateMarkdownWords(html: string | null | undefined, maxWords = MAX_BODY_WORDS): string | null {
   if (!html) return null;
   const markdown = htmlToMarkdown(html);
@@ -263,8 +255,6 @@ export const readDocumentBodyTool = defineModerationAgentTool({
     if (!html) {
       return JSON.stringify({ documentId, totalWords: 0, bodyMarkdown: null });
     }
-    // Word offsets are approximated as chars (× CHARS_PER_WORD) so the
-    // markdown formatting survives intact
     const markdown = htmlToMarkdown(html);
     const startChar = Math.min(markdown.length, Math.round((offsetWords ?? 0) * CHARS_PER_WORD));
     const endChar = Math.min(markdown.length, startChar + Math.round((maxWords ?? 4000) * CHARS_PER_WORD));
@@ -519,11 +509,6 @@ export const getLoreTool = defineModerationAgentTool({
   },
 });
 
-/**
- * Builds the combined moderation context for one user: every preloadable
- * element as one markdown document. Used by the chat route's context message
- * and by the get_full_user_context MCP tool, so both surfaces stay in sync.
- */
 export async function buildModerationContextForUser(
   userId: string,
   context: ResolverContext,

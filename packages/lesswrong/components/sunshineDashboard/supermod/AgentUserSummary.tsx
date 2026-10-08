@@ -53,7 +53,6 @@ const styles = defineStyles('AgentUserSummary', (theme: ThemeType) => ({
   },
 }));
 
-/** The most recent agent-written moderation summary for the opened user */
 const AgentUserSummary = ({ user }: { user: SunshineUsersList }) => {
   const classes = useStyles(styles);
   const { data } = useQuery(LatestSummaryForUserQuery, {

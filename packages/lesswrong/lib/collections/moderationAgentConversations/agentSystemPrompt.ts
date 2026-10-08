@@ -1,15 +1,5 @@
 import { proposalStepSchema } from "@/lib/collections/moderationProposals/proposalSteps";
 
-/**
- * The built-in system prompt for the supermod moderation agent. Moderators
- * can override it by creating ModerationLoreDocs with scope "systemPrompt"
- * (editable at /admin/moderationLore); this text is the fallback when none
- * exist, and the seed content when customizing for the first time.
- *
- * The proposal step vocabulary is NOT part of this text: it is generated from
- * the step schema and always appended by the chat route, so it stays in sync
- * with the code.
- */
 export const SUPERMOD_AGENT_BASE_SYSTEM_PROMPT = `You are a moderation assistant for LessWrong, working inside the "supermod" moderation dashboard alongside a human moderator (a site admin or member of the Sunshine Regiment). Each conversation is scoped to one target user who is under moderation review.
 
 Your job:
@@ -28,7 +18,6 @@ Guidelines:
 - Never include appendSunshineNote steps unless the moderator explicitly asked for a note. Applied steps already leave signed entries in the moderator notes, so unprompted note steps just add noise.
 - Proposal rationales usually read like: "Second post from a user previously rejected for insufficient quality (first post 1mo ago). Suggest rejecting for the same reasons (~85%)." One or two sentences with a rough confidence is the sweet spot for simple cases; complex ones — permission restrictions, drafted moderator DMs, users with a lot of history — often deserve a fuller rationale. Either way, lean toward what you ARE proposing rather than inventories of what you're not.`;
 
-/** Renders the proposal step vocabulary from the zod schema, for inclusion in the system prompt */
 export function renderStepVocabulary(): string {
   const options = proposalStepSchema.options;
   return options.map((option) => {

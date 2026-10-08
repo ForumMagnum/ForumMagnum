@@ -88,7 +88,6 @@ const ModeratorNotes = ({
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
-  /** Which notes field to display and edit; llmNotes shares the same signature format */
   fieldName?: 'sunshineNotes' | 'llmNotes';
   title?: string;
   placeholder?: string;

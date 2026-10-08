@@ -65,8 +65,6 @@ export async function updateModerationProposal({ selector, data }: UpdateModerat
 
   const { oldDocument } = updateCallbackProperties;
 
-  // Only draft/pending proposals may have their plan revised; terminal-state
-  // proposals are immutable apart from bookkeeping fields.
   const revisesPlan = data.steps !== undefined || data.rationale !== undefined || data.title !== undefined;
   if (revisesPlan && oldDocument.status !== 'draft' && oldDocument.status !== 'pending') {
     throw new Error(`Cannot revise a proposal with status "${oldDocument.status}"`);

@@ -1,12 +1,6 @@
-/**
- * Models the supermod moderation agent can run on, as Vercel AI Gateway model
- * strings. Shared by the chat route (validation + streamText) and the panel's
- * model switcher. Keep the ids in sync with what the gateway supports.
- */
 export interface SupermodAgentModelOption {
   id: string;
   label: string;
-  /** Whether the gateway accepts the anthropic `thinking` provider option for this model */
   supportsThinking: boolean;
 }
 

@@ -5,9 +5,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('SupermodAgentLauncherButton', (theme: ThemeType) => ({
-  // Matches LanguageModelLauncherButton, but bottom-right proper: supermod
-  // hides the site-wide floating buttons (including Intercom), so the corner
-  // is free.
   root: {
     position: 'fixed',
     bottom: 20,
@@ -33,7 +30,6 @@ const styles = defineStyles('SupermodAgentLauncherButton', (theme: ThemeType) =>
   },
 }));
 
-/** Floating sparkle button that opens the supermod agent chat overlay (same affordance as the site-wide LLM chat launcher) */
 const SupermodAgentLauncherButton = ({ onClick }: { onClick: () => void }) => {
   const classes = useStyles(styles);
   return (

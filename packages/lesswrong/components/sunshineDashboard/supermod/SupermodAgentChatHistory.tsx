@@ -87,12 +87,6 @@ const styles = defineStyles('SupermodAgentChatHistory', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Prior agent conversations about the opened user, shown in the chat panel's
- * empty state. Conversations are shared between moderators (any moderator's
- * chats about this user appear), so each row names its moderator. Clicking a
- * row loads that conversation's transcript into the panel.
- */
 const SupermodAgentChatHistory = ({ targetUserId, currentUserId, onSelect }: {
   targetUserId: string;
   currentUserId: string;
@@ -113,9 +107,7 @@ const SupermodAgentChatHistory = ({ targetUserId, currentUserId, onSelect }: {
 
   const [fetchMessages] = useLazyQuery(ConversationMessagesQuery, { fetchPolicy: 'network-only' });
 
-  // Conversations abandoned before the first exchange have no messages to
-  // load; the title is only generated after the first exchange, so
-  // title-less rows are those empty shells and get filtered out.
+  // Titles are generated after the first exchange, so untitled conversations have no messages
   const conversations = (data?.moderationAgentConversations?.results ?? []).filter(
     (conversation) => conversation.title,
   );

@@ -1,11 +1,6 @@
 import { tool, ToolSet } from "ai";
 import type { ModerationAgentTool, ModerationAgentToolBindings } from "./types";
 
-/**
- * Mounts moderation agent tools onto an AI SDK streamText/generateText call.
- * The context and bindings are captured server-side; the model only supplies
- * the tool arguments.
- */
 export function toAiSdkTools(
   tools: ModerationAgentTool[],
   context: ResolverContext,

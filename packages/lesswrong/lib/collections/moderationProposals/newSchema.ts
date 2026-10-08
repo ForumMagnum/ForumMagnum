@@ -2,20 +2,11 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, 
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { moderationProposalStatuses } from "./proposalSteps";
 
-/**
- * ModerationProposals are action plans proposed by an LLM moderation agent
- * (or, potentially, written by hand): an ordered list of atomic moderation
- * actions targeting one user, queued for a moderator to review and apply in
- * the supermod UI. The server never executes proposals; the supermod client
- * applies each step through the existing moderation mutations and then
- * records the outcome here.
- */
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
   legacyData: DEFAULT_LEGACY_DATA_FIELD,
-  // The user the proposed moderation actions apply to
   targetUserId: {
     database: {
       type: "VARCHAR(27)",
@@ -36,7 +27,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "targetUserId" }),
     },
   },
-  // The moderator whose agent session produced this proposal
   createdByUserId: {
     database: {
       type: "VARCHAR(27)",
@@ -85,7 +75,6 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-  // The agent's markdown explanation of why it proposes these actions
   rationale: {
     database: {
       type: "TEXT",
@@ -99,9 +88,6 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-  // Array of ModerationProposalStep objects; see proposalSteps.ts for the
-  // typed schema. Stored as untyped JSON at the GraphQL layer; both writers
-  // and the applying client validate against the shared zod schema.
   steps: {
     database: {
       type: "JSONB",
@@ -136,8 +122,6 @@ const schema = {
       },
     },
   },
-  // Array of ModerationProposalStepResult objects, written by the client
-  // after applying: [{index, status: "applied"|"skipped"|"failed", error?}]
   stepResults: {
     database: {
       type: "JSONB",
@@ -182,7 +166,6 @@ const schema = {
       },
     },
   },
-  // The model that produced this proposal, e.g. "anthropic/claude-sonnet-4-6"
   model: {
     database: {
       type: "TEXT",

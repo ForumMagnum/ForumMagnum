@@ -56,18 +56,9 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
-  // Whether the moderation agent chat panel is open (persists across user switches)
   agentChatOpen: boolean;
-  // Monotonic counter; the agent chat panel focuses its input when this changes
   agentChatFocusRequest: number;
-  // A display-only notice for the agent chat panel to show in its transcript
-  // on open (e.g. "Discuss" on a proposal card); never sent to the model.
-  // The panel clears it after displaying.
   agentChatSeed: string | null;
-  // A message for the panel to actually send to the agent on open (e.g.
-  // "Generate" in the proposals section, or a dictated voice message); the
-  // panel clears it after sending. newConversation starts a fresh
-  // conversation before sending.
   agentChatAutoSend: { message: string; newConversation?: boolean } | null;
   // Queued items beyond the loaded page, per tab. Tab counts include these.
   unloadedCounts: UnloadedCounts;

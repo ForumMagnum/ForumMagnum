@@ -4,12 +4,6 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { moderationReadTools } from "@/server/moderation/agentTools/readTools";
 import { fileModerationProposalTool, saveUserSummaryTool } from "@/server/moderation/agentTools/writeTools";
 
-/**
- * Smoke test for the supermod agent tool library, run via
- * `yarn repl dev lw packages/lesswrong/scripts/testSupermodAgentTools.ts "testSupermodAgentTools()"`.
- * Reads use a real mod context against the dev db; the proposal write is
- * created and then marked dismissed so it doesn't linger in anyone's queue.
- */
 export async function testSupermodAgentTools() {
   const admin = await Users.findOne({ isAdmin: true }, { sort: { createdAt: 1 } });
   if (!admin) throw new Error("No admin user found in dev db");
@@ -22,10 +16,8 @@ export async function testSupermodAgentTools() {
 
   const bindings = { model: "test", defaultTargetUserId: target._id };
 
-  // Tools that use runQuery with fragment spreads can't run under `yarn repl`:
-  // tsconfig-repl remaps @/lib/generated/* to stubs, so the gql document loses
-  // its fragment definitions. They work in the real Next server (same pattern
-  // as anthropicResolvers' fragment queries); test those via the dev server.
+  // Tools that use runQuery with fragment spreads can't run under `yarn repl`, where tsconfig-repl
+  // stubs out @/lib/generated/*; test those via the dev server.
   const replIncompatibleTools = new Set([
     "get_user_dossier", "get_user_content", "get_moderator_action_history",
     "list_moderation_templates", "list_review_queue",
@@ -48,7 +40,6 @@ export async function testSupermodAgentTools() {
     console.log(`✓ ${tool.name}: ${result.length} chars, keys: ${Object.keys(JSON.parse(result)).join(",")}`);
   }
 
-  // Write tools
   const proposalResult = JSON.parse(await fileModerationProposalTool.execute({
     title: "Smoke test plan",
     rationale: "Testing only",
@@ -61,12 +52,10 @@ export async function testSupermodAgentTools() {
   }, adminContext, bindings));
   console.log(`✓ save_user_summary: ${JSON.stringify(summaryResult)}`);
 
-  // Clean up: dismiss the proposal and delete the summary
   await adminContext.ModerationProposals.rawUpdateOne({ _id: proposalResult.proposalId }, { $set: { status: "dismissed" } });
   await adminContext.ModerationSummaries.rawUpdateOne({ _id: summaryResult.summaryId }, { $set: { deleted: true } });
   console.log("✓ cleanup done");
 
-  // Permission check: a non-mod context must be rejected
   const nonMod = await Users.findOne({ isAdmin: false, groups: null, deleted: false });
   if (nonMod) {
     const nonModContext = await computeContextFromUser({ user: nonMod, isSSR: false });

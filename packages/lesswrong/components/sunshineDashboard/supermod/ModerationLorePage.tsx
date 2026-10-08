@@ -176,7 +176,6 @@ const LoreDocCard = ({ doc, onSave, onDelete, collapsible }: {
   doc: ModerationLoreDocDisplay;
   onSave: (docId: string, html: string, title: string) => Promise<void>;
   onDelete: (docId: string) => Promise<void>;
-  /** Show the contents truncated with a faded cutoff and an Edit link (for long docs like the system prompt) */
   collapsible?: boolean;
 }) => {
   const classes = useStyles(styles);
@@ -259,13 +258,6 @@ const LoreDocCard = ({ doc, onSave, onDelete, collapsible }: {
   );
 };
 
-/**
- * Editing surface for moderation lore: human-written guidance ("how we
- * moderate") that gets injected into the supermod agent's context. Global
- * docs apply to every agent session; user-scoped docs ride along with that
- * user's dossier. The agent itself can only edit these via its lore tool at a
- * moderator's explicit request.
- */
 const ModerationLorePage = () => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);

@@ -1,15 +1,6 @@
 import { z } from "zod";
 
-/**
- * The atomic moderation actions that a moderation agent may include in a
- * proposal. This is the single source of truth shared by the server (tool
- * input validation in `@/server/moderation/agentTools/`) and the client
- * (the apply executor in the supermod UI, which maps each step onto the
- * existing moderation mutations).
- *
- * Steps carry target values rather than toggles, so applying a step twice is
- * idempotent; the client records already-satisfied steps as skipped.
- */
+// Steps carry target values rather than toggles, so applying a step twice is idempotent
 
 const note = z.string().max(500).optional().describe("Short per-step rationale shown to the moderator");
 
@@ -126,10 +117,6 @@ export type ModerationProposalStepAction = ModerationProposalStep["action"];
 export const moderationProposalStatuses = ["draft", "pending", "applied", "partiallyApplied", "dismissed"] as const;
 export type ModerationProposalStatus = typeof moderationProposalStatuses[number];
 
-/**
- * Steps that end the user's presence in the review queue. A valid proposal
- * contains at most one of these, and it must come last when applied.
- */
 export const queueTerminalActions: ModerationProposalStepAction[] = [
   "approveUser",
   "snooze",
@@ -144,11 +131,6 @@ export interface ModerationProposalStepResult {
   error?: string;
 }
 
-/**
- * Parses raw JSONB steps from the database into typed steps. Returns null for
- * entries that fail validation, so callers can report per-step failures
- * instead of rejecting the whole proposal.
- */
 export function parseProposalSteps(rawSteps: unknown): Array<ModerationProposalStep | null> {
   if (!Array.isArray(rawSteps)) {
     return [];
@@ -159,24 +141,12 @@ export function parseProposalSteps(rawSteps: unknown): Array<ModerationProposalS
   });
 }
 
-/**
- * Execution-order sort key, shared by the apply executor and the proposal
- * card's display so what the moderator reads matches what will run: content
- * actions first, then restrictions and side effects, then the (at most one)
- * queue-terminal step last.
- */
 export function stepExecutionOrder(step: ModerationProposalStep): number {
   if (step.action === "rejectContent" || step.action === "unrejectContent") return 0;
   if (queueTerminalActions.includes(step.action)) return 2;
   return 1;
 }
 
-/**
- * Terse human-readable lines for what applying a step will do, in the order
- * the effects happen. Composite actions decompose into their semantic parts
- * (e.g. reject-and-remove is a rejection plus a dequeue). Pass contentTitle
- * to name the targeted post/comment.
- */
 export function describeProposalStepParts(step: ModerationProposalStep, contentTitle?: string): string[] {
   const contentName = contentTitle
     ? `"${contentTitle}"`

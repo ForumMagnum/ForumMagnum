@@ -9,11 +9,7 @@ import { updateModerationLoreDoc } from "@/server/collections/moderationLoreDocs
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { defineModerationAgentTool, requireModeratorAccess } from "./types";
 
-/**
- * Verifies that every step targeting a specific document targets content
- * authored by the proposal's target user, so the model cannot (accidentally
- * or through prompt injection) file steps against someone else's content.
- */
+// Stops the model (by accident or prompt injection) from filing steps against someone else's content
 async function assertStepDocumentsBelongToUser(
   steps: ModerationProposalStep[],
   targetUserId: string,

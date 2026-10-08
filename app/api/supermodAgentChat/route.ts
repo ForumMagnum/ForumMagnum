@@ -15,15 +15,8 @@ import { defaultSupermodAgentModel, isSupportedSupermodAgentModel, supermodAgent
 
 const MAX_MESSAGES_PER_CONVERSATION = 200;
 
-// Anthropic prompt-caching breakpoints: tokens before a breakpoint whose
-// bytes match a recent request cost ~10% of normal input price. The 1h TTL
-// (2x one-time write vs 1.25x for 5m) goes only on the tools+system block,
-// which is byte-stable across all users and sessions, so one cache entry
-// serves every moderator's chats all day. Per-user context and transcript
-// stay at 5m: the agent's own writes and moderator actions mutate them, so
-// cross-hour byte-identity is unlikely and the premium would buy misses.
-// Anthropic requires longer-TTL breakpoints to precede shorter ones; the
-// system message comes first, so this ordering is fixed.
+// The 1h cache TTL goes only on the tools+system block, which is byte-stable across all users and sessions.
+// Anthropic requires longer-TTL breakpoints to precede shorter ones.
 const anthropicCacheBreakpoint1h = { anthropic: { cacheControl: { type: 'ephemeral' as const, ttl: '1h' as const } } };
 const anthropicCacheBreakpoint = { anthropic: { cacheControl: { type: 'ephemeral' as const } } };
 
@@ -42,12 +35,6 @@ function withTrailingCacheBreakpoint(messages: ModelMessage[]): ModelMessage[] {
   ];
 }
 
-/**
- * The system prompt is editable by moderators: ModerationLoreDocs with scope
- * "systemPrompt" (managed at /admin/moderationLore) replace the built-in base
- * prompt when present. The generated step vocabulary is always appended so it
- * can't drift from the code.
- */
 async function buildSystemPrompt(): Promise<string> {
   const systemPromptDocs = await ModerationLoreDocs.find(
     { scope: 'systemPrompt', deleted: false },
@@ -102,9 +89,7 @@ export async function POST(req: NextRequest) {
   if (!conversation || conversation.deleted) {
     return new Response('Conversation not found', { status: 404 });
   }
-  // Agent chats are shared between moderators: any admin/mod may continue any
-  // conversation (the mod-gate above covers this). conversation.userId records
-  // who started it; tool writes attribute to whoever is currently chatting.
+  // Any moderator may continue any conversation; tool writes are attributed to whoever is chatting.
   if (conversation.targetUserId !== targetUserId) {
     return new Response('Conversation is scoped to a different user', { status: 400 });
   }
@@ -115,10 +100,6 @@ export async function POST(req: NextRequest) {
     defaultTargetUserId: targetUserId,
   };
 
-  // Preload the user's full moderation context server-side (the same bundle
-  // the MCP get_full_user_context tool serves). Deliberately NOT the rest of
-  // the review queue. Per-element errors are embedded in the bundle rather
-  // than failing the request.
   const [contextBundle, systemPrompt] = await Promise.all([
     buildModerationContextForUser(targetUserId, context, bindings),
     buildSystemPrompt(),
@@ -132,24 +113,11 @@ ${contextBundle}`;
     model,
     system: { role: 'system', content: systemPrompt, providerOptions: anthropicCacheBreakpoint1h },
     messages: [
-      // The context message carries its own breakpoint so the whole stable
-      // prefix (tools + system prompt + context) caches as one unit. When the
-      // target user's data changes mid-conversation the dossier bytes change
-      // and everything from here on is a cache miss — that's the fresh-data
-      // tradeoff, not a bug. The tool outputs contain no request-varying
-      // timestamps, so between turns of an active session the bytes match.
       { role: 'system' as const, content: contextMessage, providerOptions: anthropicCacheBreakpoint },
       ...await convertToModelMessages(messages),
     ],
-    // A moving breakpoint on each step's final message caches the growing
-    // transcript incrementally — both across user turns and across the (up
-    // to 16) internal tool-loop steps, which is where most input tokens go.
-    // Together with the two breakpoints above this stays within Anthropic's
-    // limit of 4.
+    // With the two breakpoints above, this stays within Anthropic's limit of 4.
     prepareStep: ({ messages: stepMessages }) => ({ messages: withTrailingCacheBreakpoint(stepMessages) }),
-    // Everything the agent should read is preloaded into the context message;
-    // the one read tool is the escape hatch for bodies truncated at the
-    // per-item word limit. The MCP mount still exposes the full read set.
     tools: toAiSdkTools([readDocumentBodyTool, ...moderationWriteTools], context, bindings),
     stopWhen: stepCountIs(16),
     ...(supermodAgentModelSupportsThinking(model) && {

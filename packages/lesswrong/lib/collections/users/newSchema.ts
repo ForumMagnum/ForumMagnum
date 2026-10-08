@@ -2739,8 +2739,6 @@ const schema = {
       },
     },
   },
-  // Moderation notes written by LLMs (e.g. the supermod agent), kept separate
-  // from the human-authored sunshineNotes. Same prepend-with-signature format.
   llmNotes: {
     database: {
       type: "TEXT",

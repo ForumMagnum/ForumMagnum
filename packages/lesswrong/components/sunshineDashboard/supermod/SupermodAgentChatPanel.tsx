@@ -60,9 +60,6 @@ function parseProposalToolOutput(output: unknown): { proposalId?: string; status
 }
 
 const styles = defineStyles('SupermodAgentChatPanel', (theme: ThemeType) => ({
-  // Floating overlay in the bottom-right corner, matching the site-wide
-  // popup LLM chat's placement (supermod hides the site's own floating
-  // buttons, so the corner is ours).
   root: {
     ...theme.typography.commentStyle,
     position: 'fixed',
@@ -164,8 +161,6 @@ const styles = defineStyles('SupermodAgentChatPanel', (theme: ThemeType) => ({
   assistantMessage: {
     alignSelf: 'stretch',
   },
-  // Rendered markdown: undo the plain-text pre-wrap and give block elements
-  // sane compact spacing for a chat pane
   markdownMessage: {
     whiteSpace: 'normal',
     '& p, & ul, & ol, & pre, & blockquote, & table': {
@@ -228,7 +223,6 @@ const styles = defineStyles('SupermodAgentChatPanel', (theme: ThemeType) => ({
     padding: '6px 10px',
     overflowWrap: 'break-word',
   },
-  // Display-only notice in the transcript (not sent to the model)
   noticeMessage: {
     fontSize: 12.5,
     color: theme.palette.grey[600],
@@ -350,12 +344,6 @@ interface UserChatCacheEntry {
   messages: UIMessage[];
 }
 
-/**
- * The supermod moderation-agent chat: a docked panel scoped to the opened
- * user. The moderator asks questions or dictates a plan; the agent reads
- * moderation data via server-side tools and files proposals, which render
- * here as cards (and in the sidebar) with Apply/Dismiss.
- */
 const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQueue, focusRequest, seedMessage, onSeedConsumed, autoSendMessage, onAutoSendConsumed, onClose }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
@@ -363,10 +351,8 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
   comments: CommentsListWithParentMetadata[];
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   focusRequest: number;
-  /** Display-only notice to show in the transcript on open (from a proposal card's Discuss button); not sent to the model */
   seedMessage: string | null;
   onSeedConsumed: () => void;
-  /** Message to actually send to the agent on open (Generate button, voice submissions); newConversation starts fresh first */
   autoSendMessage: { message: string; newConversation?: boolean } | null;
   onAutoSendConsumed: () => void;
   onClose: () => void;
@@ -401,13 +387,8 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
   }), []);
 
   const [chatError, setChatError] = useState<string | null>(null);
-  // Display-only notices shown inline in the transcript (like errors): never
-  // sent to the model, never persisted. "Discuss" on a proposal card adds one.
   const [notices, setNotices] = useState<string[]>([]);
 
-  // Drag-to-resize via the strip along the panel's top edge. null = the
-  // default CSS height; a number is an explicit height in px (the CSS
-  // maxHeight still caps it if the window shrinks).
   const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const resizeStateRef = useRef<{ startY: number; startHeight: number } | null>(null);
@@ -442,8 +423,6 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
-  // Keep the latest messages in the per-user cache so switching users
-  // round-trips cleanly.
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
@@ -464,11 +443,7 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
     previousUserIdRef.current = user._id;
   }, [user._id, setMessages]);
 
-  // Auto-scroll on new content, but only while the user is at the bottom:
-  // scrolling up to read during a stream must not get yanked back down.
-  // "Scrolled up" is detected as a scrollTop decrease — our own smooth
-  // scrollIntoView only ever moves down, so mid-animation scroll events
-  // can't unpin.
+  // Our own smooth scrollIntoView only moves down, so a scrollTop decrease means the user scrolled up
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
   const lastScrollTopRef = useRef(0);
@@ -491,14 +466,12 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus the input when requested via the keyboard command
   useEffect(() => {
     if (focusRequest > 0) {
       textareaRef.current?.focus();
     }
   }, [focusRequest]);
 
-  // When a proposal tool call completes, refresh the sidebar's pending list
   useEffect(() => {
     for (const message of messages) {
       if (message.role !== 'assistant') continue;
@@ -540,7 +513,6 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
       }
       conversationIdRef.current = conversationId;
     }
-    // Sending re-pins the view to the bottom even if the user had scrolled up
     stickToBottomRef.current = true;
     void sendMessage({ text });
     return true;
@@ -554,7 +526,6 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
     if (!sent) setInput(text);
   }, [input, isLoading, sendText]);
 
-  // A "Discuss" click on a proposal card adds a display-only notice
   useEffect(() => {
     if (!seedMessage) return;
     onSeedConsumed();
@@ -562,8 +533,6 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
     textareaRef.current?.focus();
   }, [seedMessage, onSeedConsumed]);
 
-  // "Generate" clicks and voice submissions send a real message to the agent,
-  // optionally into a fresh conversation
   useEffect(() => {
     if (!autoSendMessage || isLoading) return;
     onAutoSendConsumed();
@@ -583,9 +552,7 @@ const SupermodAgentChatPanel = ({ user, currentUser, posts, comments, addToUndoQ
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Escape') {
-      // First Escape leaves the chat (restoring single-key shortcuts) without
-      // closing the detail view; stopPropagation shields the document-level
-      // supermod Escape handler.
+      // stopPropagation shields the document-level supermod Escape handler
       event.stopPropagation();
       textareaRef.current?.blur();
       return;

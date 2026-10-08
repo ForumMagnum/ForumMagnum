@@ -107,13 +107,6 @@ export interface ApplicableProposal {
   steps: unknown;
 }
 
-/**
- * Applies a moderation agent proposal by mapping each typed step onto the
- * same mutations the interactive supermod handlers use. The composite
- * executeAction goes through addToUndoQueue, so nothing runs until the 15s
- * undo window expires; steps then run sequentially, continue-on-failure, and
- * the per-step outcomes are written back to the proposal.
- */
 export function useApplyModerationProposal({ user, currentUser, posts, comments, addToUndoQueue }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
